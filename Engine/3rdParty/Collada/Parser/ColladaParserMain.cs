@@ -12,29 +12,8 @@ namespace TheraEngine.Rendering.Models
     {
         private partial class DecoderShell
         {
-            internal ColladaEntry Root { get; set; }
-
-            //internal List<AssetEntry> _assets = new List<AssetEntry>();
-            //internal List<VisualSceneEntry> _visualScenes = new List<VisualSceneEntry>();
-            internal XMLReader _reader;
-            //internal int _v1, _v2, _v3;
-            //internal Dictionary<string, List<BaseColladaElement>> _sidEntries = new Dictionary<string, List<BaseColladaElement>>();
-            //internal Dictionary<string, BaseColladaElement> _idEntries = new Dictionary<string, BaseColladaElement>();
-
-            //private void AddSidEntry(BaseColladaElement entry)
-            //{
-            //    if (_sidEntries.ContainsKey(entry._sid))
-            //        _sidEntries[entry._sid].Add(entry);
-            //    else
-            //        _sidEntries.Add(entry._sid, new List<BaseColladaElement>() { entry });
-            //}
-            //private void AddIdEntry(BaseColladaElement entry)
-            //{
-            //    if (_idEntries.ContainsKey(entry._id))
-            //        throw new Exception("More than one id specified in file: " + entry._id);
-            //    else
-            //        _idEntries.Add(entry._id, entry);
-            //}
+            public ColladaEntry Root { get; set; }
+            private XMLReader _reader;
 
             public static DecoderShell Import(string path)
             {
@@ -42,10 +21,6 @@ namespace TheraEngine.Rendering.Models
                 using (XMLReader reader = new XMLReader(map.Address, map.Length))
                     return new DecoderShell(reader);
             }
-
-            private void Output(string message)
-                => MessageBox.Show(message);
-            
             private DecoderShell(XMLReader reader)
             {
                 _reader = reader;
@@ -57,12 +32,11 @@ namespace TheraEngine.Rendering.Models
                 }
                 _reader = null;
             }
-            
-            private IColladaElement ParseElement(Type elementType, IColladaElement parent)
+            private IElement ParseElement(Type elementType, IElement parent)
             {
-                IColladaElement entry = Activator.CreateInstance(elementType) as IColladaElement;
+                IElement entry = Activator.CreateInstance(elementType) as IElement;
                 entry.GenericParent = parent;
-                
+
                 MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 while (_reader.ReadAttribute())
                 {
@@ -75,19 +49,44 @@ namespace TheraEngine.Rendering.Models
                             return string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
                         return false;
                     });
-                    if (info is FieldInfo field)
+                    if (info == null)
+                        Engine.PrintLine("Attribute '{0}' not supported by parser. Value = '{1}'", name, value);
+                    else if (info is FieldInfo field)
                         field.SetValue(entry, ParseString(value, field.FieldType));
                     else if (info is PropertyInfo property)
                         property.SetValue(entry, ParseString(value, property.PropertyType));
+                }
+
+                if (entry is IID id)
+                    entry.Root.IDEntries.Add(id.ID, id);
+                else if (entry is ISID sid)
+                {
+                    IElement elem = (IElement)sid;
+                    IElement p = elem.GenericParent;
+                    while (true)
+                    {
+                        if (p is ISIDAncestor ancestor)
+                        {
+                            ancestor.SIDChildren.Add(sid);
+                            break;
+                        }
+                        else if (p.GenericParent != null)
+                            p = p.GenericParent;
+                        else
+                            break;
+                    }
                 }
 
                 Child[] elems = Attribute.GetCustomAttributes(elementType, typeof(Child), false).Select(x => (Child)x).ToArray();
                 while (_reader.BeginElement())
                 {
                     string name = _reader.Name.ToString();
-                    Child matchingChild = elems.FirstOrDefault(x => string.Equals(x.ChildEntryType.GetCustomAttribute<Name>().ElementName, name, StringComparison.InvariantCultureIgnoreCase));
+                    Child matchingChild = elems.FirstOrDefault(x => string.Equals(x.ChildEntryType.GetCustomAttribute<Name>()?.ElementName, name, StringComparison.InvariantCultureIgnoreCase));
                     if (matchingChild == null)
-                        throw new Exception("No child " + name + " specified for " + elementType.GetFriendlyName());
+                    {
+                        Engine.PrintLine("Element '{0}' not supported by parser.", name);
+                        continue;
+                    }
                     ParseElement(matchingChild.ChildEntryType, entry);
                     _reader.EndElement();
                 }
@@ -274,7 +273,7 @@ namespace TheraEngine.Rendering.Models
 
             //                float[] list = new float[src._arrayCount];
             //                src._arrayData = list;
-                            
+
             //                for (int i = 0; i < src._arrayCount; i++)
             //                    if (!_reader.ReadValue(ref list[i]))
             //                        break;
@@ -440,28 +439,38 @@ namespace TheraEngine.Rendering.Models
                 MaxCount = maxCount;
             }
         }
-        private interface IColladaStringElement<T> : IColladaElement
+        /// <summary>
+        /// Specifies that at least one child element of the specifies types needs to exist.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+        private class AtLeastOneOf : Attribute
+        {
+            public Type[] Types { get; private set; }
+            public AtLeastOneOf(params Type[] types) => Types = types;
+        }
+        private interface IStringElement<T> : IElement
         {
             T Value { get; set; }
         }
-        private abstract class ColladaStringElement<T1, T2> : BaseElement<T1>, IColladaStringElement<T2> 
-            where T1 : class, IColladaElement
-            where T2 : ElementStringData
+        private abstract class BaseStringElement<T1, T2> : BaseElement<T1>, IStringElement<T2>
+            where T1 : class, IElement
+            where T2 : BaseElementString
         {
             public T2 Value { get; set; }
         }
-        private interface IColladaElement
+        private interface IElement
         {
             string ElementName { get; }
-            T2[] GetChildren<T2>() where T2 : class, IColladaElement;
+            T2[] GetChildren<T2>() where T2 : class, IElement;
             object Node { get; set; }
-            IColladaElement GenericParent { get; set; }
+            IElement GenericParent { get; set; }
+            ColladaEntry Root { get; }
         }
         /// <summary>
         /// 
         /// </summary>
         /// <typeparam name="T">The type of the parent element.</typeparam>
-        private abstract class BaseElement<T> : IColladaElement where T : class, IColladaElement
+        private abstract class BaseElement<T> : IElement where T : class, IElement
         {
             public int ElementIndex { get; set; } = -1;
             public string ElementName
@@ -477,13 +486,21 @@ namespace TheraEngine.Rendering.Models
 
             public object Node { get; set; }
 
-            public IColladaElement GenericParent
+            public ColladaEntry Root { get; private set; }
+            public IElement GenericParent
             {
                 get => ParentElement;
-                set => ParentElement = value as T;
+                set
+                {
+                    ParentElement = value as T;
+                    if (GenericParent is ColladaEntry c)
+                        Root = c;
+                    else
+                        Root = GenericParent?.Root;
+                }
             }
-            internal T ParentElement { get; private set; }
-            
+            public T ParentElement { get; private set; }
+
             //public bool GetAttr<T2>(string name, out T2 outValue)
             //{
             //    Type t = typeof(T2);
@@ -499,7 +516,7 @@ namespace TheraEngine.Rendering.Models
             //    outValue = default(T2);
             //    return false;
             //}
-            public T2[] GetChildren<T2>() where T2 : class, IColladaElement
+            public T2[] GetChildren<T2>() where T2 : class, IElement
             {
                 Type t = typeof(T2);
                 List<T2> types = new List<T2>();
@@ -512,13 +529,10 @@ namespace TheraEngine.Rendering.Models
                 return types.ToArray();
             }
 
-            public IID GetIDEntry(string id)
-            {
-                return null; //TODO
-            }
-
+            public IID GetIDEntry(string id) => Root.IDEntries[id];
+            
             internal Dictionary<string, object> _attributes = new Dictionary<string, object>();
-            internal Dictionary<Type, List<IColladaElement>> _childElements = new Dictionary<Type, List<IColladaElement>>();
+            internal Dictionary<Type, List<IElement>> _childElements = new Dictionary<Type, List<IElement>>();
         }
 
         #region Root
@@ -527,7 +541,7 @@ namespace TheraEngine.Rendering.Models
         [Child(typeof(LibraryEntry), 0, -1)]
         [Child(typeof(SceneEntry), 0, 1)]
         [Child(typeof(ExtraEntry), 0, -1)]
-        private class ColladaEntry : BaseElement<IColladaElement>, IExtra, IAsset
+        private class ColladaEntry : BaseElement<IElement>, IExtra, IAsset
         {
             [Attr("version")]
             [DefaultValue("1.5.0")]
@@ -537,11 +551,13 @@ namespace TheraEngine.Rendering.Models
             public string Schema { get; set; }
             [Attr("base", false)]
             public string Base { get; set; }
+
+            public Dictionary<string, IID> IDEntries { get; } = new Dictionary<string, IID>();
         }
         #endregion
 
         #region Asset
-        private interface IAsset : IColladaElement { }
+        private interface IAsset : IElement { }
         [Name("asset")]
         [Child(typeof(Contributor), 0, -1)]
         [Child(typeof(Coverage), 0, 1)]
@@ -567,19 +583,19 @@ namespace TheraEngine.Rendering.Models
             public class Contributor : BaseElement<AssetEntry>
             {
                 [Name("author")]
-                public class Author : ColladaStringElement<Contributor, ElementString> { }
+                public class Author : BaseStringElement<Contributor, ElementString> { }
                 [Name("author_email")]
-                public class AuthorEmail : ColladaStringElement<Contributor, ElementString> { }
+                public class AuthorEmail : BaseStringElement<Contributor, ElementString> { }
                 [Name("author_website")]
-                public class AuthorWebsite : ColladaStringElement<Contributor, ElementString> { }
+                public class AuthorWebsite : BaseStringElement<Contributor, ElementString> { }
                 [Name("authoring_tool")]
-                public class AuthoringTool : ColladaStringElement<Contributor, ElementString> { }
+                public class AuthoringTool : BaseStringElement<Contributor, ElementString> { }
                 [Name("comments")]
-                public class Comments : ColladaStringElement<Contributor, ElementString> { }
+                public class Comments : BaseStringElement<Contributor, ElementString> { }
                 [Name("copyright")]
-                public class Copyright : ColladaStringElement<Contributor, ElementString> { }
+                public class Copyright : BaseStringElement<Contributor, ElementString> { }
                 [Name("source_data")]
-                public class SourceData : ColladaStringElement<Contributor, ElementString> { }
+                public class SourceData : BaseStringElement<Contributor, ElementString> { }
             }
             [Name("coverage")]
             [Child(typeof(GeographicLocation), 1)]
@@ -595,14 +611,14 @@ namespace TheraEngine.Rendering.Models
                     /// -180.0f to 180.0f
                     /// </summary>
                     [Name("longitude")]
-                    public class Longitude : ColladaStringElement<GeographicLocation, ElementNumeric<float>> { }
+                    public class Longitude : BaseStringElement<GeographicLocation, ElementNumeric<float>> { }
                     /// <summary>
                     /// -90.0f to 90.0f
                     /// </summary>
                     [Name("latitude")]
-                    public class Latitude : ColladaStringElement<GeographicLocation, ElementNumeric<float>> { }
+                    public class Latitude : BaseStringElement<GeographicLocation, ElementNumeric<float>> { }
                     [Name("altitude")]
-                    public class Altitude : ColladaStringElement<GeographicLocation, ElementNumeric<float>>
+                    public class Altitude : BaseStringElement<GeographicLocation, ElementNumeric<float>>
                     {
                         public enum EMode
                         {
@@ -615,17 +631,17 @@ namespace TheraEngine.Rendering.Models
                 }
             }
             [Name("created")]
-            public class Created : ColladaStringElement<AssetEntry, ElementString> { }
+            public class Created : BaseStringElement<AssetEntry, ElementString> { }
             [Name("keywords")]
-            public class Keywords : ColladaStringElement<AssetEntry, ElementString> { }
+            public class Keywords : BaseStringElement<AssetEntry, ElementString> { }
             [Name("modified")]
-            public class Modified : ColladaStringElement<AssetEntry, ElementString> { }
+            public class Modified : BaseStringElement<AssetEntry, ElementString> { }
             [Name("revision")]
-            public class Revision : ColladaStringElement<AssetEntry, ElementString> { }
+            public class Revision : BaseStringElement<AssetEntry, ElementString> { }
             [Name("subject")]
-            public class Subject : ColladaStringElement<AssetEntry, ElementString> { }
+            public class Subject : BaseStringElement<AssetEntry, ElementString> { }
             [Name("title")]
-            public class Title : ColladaStringElement<AssetEntry, ElementString> { }
+            public class Title : BaseStringElement<AssetEntry, ElementString> { }
             [Name("unit")]
             public class Unit : BaseElement<AssetEntry>
             {
@@ -645,7 +661,7 @@ namespace TheraEngine.Rendering.Models
                 Y_UP,   //  +X,     +Y,     +Z <-- TheraEngine's coordinate system
                 Z_UP,   //  +X      +Z,     -Y
             }
-            public class UpAxis : ColladaStringElement<AssetEntry, ElementNumeric<EUpAxis>> { }
+            public class UpAxis : BaseStringElement<AssetEntry, ElementNumeric<EUpAxis>> { }
         }
         #endregion
 
@@ -655,6 +671,8 @@ namespace TheraEngine.Rendering.Models
             bool IsLocal { get; }
             IID GetElement();
         }
+
+        #region Scene
 
         [Name("scene")]
         [Child(typeof(InstancePhysicsScene), 0, -1)]
@@ -675,6 +693,8 @@ namespace TheraEngine.Rendering.Models
                 public string Url { get; set; } = null;
                 public bool IsLocal => Url != null && Url.StartsWith("#");
                 public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+
+                public List<ISID> SIDChildren { get; } = new List<ISID>();
             }
             [Name("instance_visual_scene")]
             [Child(typeof(ExtraEntry), 0, -1)]
@@ -688,11 +708,13 @@ namespace TheraEngine.Rendering.Models
                 public string Url { get; set; } = null;
                 public bool IsLocal => Url != null && Url.StartsWith("#");
                 public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+
+                public List<ISID> SIDChildren { get; } = new List<ISID>();
             }
             [Name("instance_kinematics_scene")]
             [Child(typeof(AssetEntry), 0, 1)]
-            [Child(typeof(NewParamEntry), 0, -1)]
-            [Child(typeof(SetParamEntry), 0, -1)]
+            //[Child(typeof(NewParamEntry), 0, -1)]
+            //[Child(typeof(SetParamEntry), 0, -1)]
             //[Child(typeof(BindKinematicsModel), 0, -1)]
             //[Child(typeof(BindJointAxis), 0, -1)]
             [Child(typeof(ExtraEntry), 0, -1)]
@@ -708,10 +730,14 @@ namespace TheraEngine.Rendering.Models
                 public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
 
                 //TODO: BindKinematicsModel, BindJointAxis
+
+                public List<ISID> SIDChildren { get; } = new List<ISID>();
             }
         }
 
-        private interface IExtra : IColladaElement { }
+        #endregion
+
+        private interface IExtra : IElement { }
         [Name("extra")]
         private class ExtraEntry : BaseElement<IExtra>
         {
@@ -735,24 +761,49 @@ namespace TheraEngine.Rendering.Models
         //    public IID GetElement() => GetIDEntry(ReferenceID);
         //}
 
-        private interface IParam : IColladaElement { }
+        private interface IDataParam : IElement { }
         [Name("param")]
-        private class ParamEntry : BaseElement<IParam>
+        private class DataParamEntry : BaseElement<IDataParam>, ISID, IName
         {
+            [Attr("sid", false)]
+            public string SID { get; set; } = null;
+            [Attr("name", false)]
+            public string Name { get; set; } = null;
+            /// <summary>
+            /// The type of the value data. This text string must be understood by the application.
+            /// </summary>
+            [Attr("type", true)]
+            public string Type { get; set; } = null;
+            /// <summary>
+            /// The user-defined meaning of the parameter.
+            /// </summary>
+            [Attr("semantic", false)]
+            public string Semantic { get; set; } = null;
 
+            public List<ISID> SIDChildren { get; } = new List<ISID>();
         }
 
-        private interface IID { string ID { get; set; } }
-        private interface ISID { string SID { get; set; } }
+        private interface ISIDAncestor
+        {
+            List<ISID> SIDChildren { get; }
+        }
+        private interface IID : ISIDAncestor
+        {
+            string ID { get; set; }
+        }
+        private interface ISID : ISIDAncestor
+        {
+            string SID { get; set; }
+        }
         private interface IName { string Name { get; set; } }
 
         #region String Elements
-        private abstract class ElementStringData : IParsable
+        private abstract class BaseElementString : IParsable
         {
-            public abstract void ReadFromString(string str);      
+            public abstract void ReadFromString(string str);
             public abstract string WriteToString();
         }
-        private class ElementNumeric<T> : ElementStringData where T : struct
+        private class ElementNumeric<T> : BaseElementString where T : struct
         {
             public T Value { get; set; }
             public override void ReadFromString(string str)
@@ -760,7 +811,7 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => Value.ToString();
         }
-        private class ElementHex : ElementStringData
+        private class ElementHex : BaseElementString
         {
             public string Value { get; set; }
             public override void ReadFromString(string str)
@@ -768,7 +819,7 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => Value;
         }
-        private class ElementString : ElementStringData
+        private class ElementString : BaseElementString
         {
             public string Value { get; set; }
             public override void ReadFromString(string str)
@@ -776,7 +827,7 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => Value;
         }
-        private class ElementURI : ElementStringData
+        private class ElementURI : BaseElementString
         {
             public Uri Value { get; set; }
             public override void ReadFromString(string str)
@@ -784,7 +835,7 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => Value.ToString();
         }
-        private class ElementStringArray : ElementStringData
+        private class ElementStringArray : BaseElementString
         {
             public string[] Values { get; set; }
             public override void ReadFromString(string str)
@@ -792,7 +843,7 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => string.Join(" ", Values);
         }
-        private class ElementIntArray : ElementStringData
+        private class ElementIntArray : BaseElementString
         {
             public int[] Values { get; set; }
             public override void ReadFromString(string str)
@@ -800,7 +851,7 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => string.Join(" ", Values);
         }
-        private class ElementFloatArray : ElementStringData
+        private class ElementFloatArray : BaseElementString
         {
             public float[] Values { get; set; }
             public override void ReadFromString(string str)
@@ -819,6 +870,8 @@ namespace TheraEngine.Rendering.Models
             public string ID { get; set; } = null;
             [Attr("name", false)]
             public string Name { get; set; } = null;
+
+            public List<ISID> SIDChildren { get; } = new List<ISID>();
         }
 
         #region Images
@@ -850,6 +903,8 @@ namespace TheraEngine.Rendering.Models
                 public string SID { get; set; } = null;
                 [Attr("name", false)]
                 public string Name { get; set; } = null;
+
+                public List<ISID> SIDChildren { get; } = new List<ISID>();
 
                 /// <summary>
                 /// Defines the image as a render target. If this element
@@ -894,7 +949,7 @@ namespace TheraEngine.Rendering.Models
                     /// maps, volumes, MIPs, and so on.
                     /// </summary>
                     [Name("ref")]
-                    private class ImageRefEntry : ColladaStringElement<InitFromEntry, ElementURI> { }
+                    private class ImageRefEntry : BaseStringElement<InitFromEntry, ElementURI> { }
                     /// <summary>
                     /// Contains the embedded image data as a sequence of
                     /// hexadecimal-encoded binary octets. The data typically
@@ -902,7 +957,7 @@ namespace TheraEngine.Rendering.Models
                     /// such as data width and height.
                     /// </summary>
                     [Name("hex")]
-                    private class EmbeddedImageEntry : ColladaStringElement<InitFromEntry, ElementHex>
+                    private class EmbeddedImageEntry : BaseStringElement<InitFromEntry, ElementHex>
                     {
                         /// <summary>
                         /// Use the required format attribute(xs:token) to specify which codec decodes the
@@ -986,15 +1041,94 @@ namespace TheraEngine.Rendering.Models
                 public uint? Width { get; set; } = null;
                 [Attr("depth", false)]
                 public uint? Depth { get; set; } = null;
-                
+
+                public List<ISID> SIDChildren { get; } = new List<ISID>();
+
                 private interface ISourceEntry { }
 
                 [Name("init_from")]
-                private class InitFromEntry : ColladaStringElement<ImageEntry14X, ElementURI>, ISourceEntry { }
+                private class InitFromEntry : BaseStringElement<ImageEntry14X, ElementURI>, ISourceEntry { }
                 [Name("data")]
-                private class DataEntry : ColladaStringElement<ImageEntry14X, ElementHex>, ISourceEntry { }
+                private class DataEntry : BaseStringElement<ImageEntry14X, ElementHex>, ISourceEntry { }
             }
             #endregion
+        }
+        #endregion
+
+        #region Materials
+        [Name("library_materials")]
+        [Child(typeof(MaterialEntry), 1, -1)]
+        private class LibraryMaterials : LibraryEntry, IAsset, IExtra
+        {
+            [Name("material")]
+            [Child(typeof(AssetEntry), 0, 1)]
+            [Child(typeof(InstanceEffect), 1)]
+            [Child(typeof(ExtraEntry), 0, -1)]
+            private class MaterialEntry : BaseElement<LibraryMaterials>, IID, IName, IAsset, IExtra
+            {
+                [Attr("id", false)]
+                public string ID { get; set; } = null;
+                [Attr("name", false)]
+                public string Name { get; set; } = null;
+
+                public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                [Name("instance_effect")]
+                //[Child(typeof(TechniqueHint), 0, -1)]
+                //[Child(typeof(SetParamEntry), 0, -1)]
+                [Child(typeof(ExtraEntry), 0, -1)]
+                private class InstanceEffect : BaseElement<MaterialEntry>, IUrl, ISID, IName, IExtra
+                {
+                    [Attr("sid", false)]
+                    public string SID { get; set; } = null;
+                    [Attr("name", false)]
+                    public string Name { get; set; } = null;
+                    [Attr("url", true)]
+                    public string Url { get; set; } = null;
+                    public bool IsLocal => Url != null && Url.StartsWith("#");
+                    public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                    //TODO: TechniqueHint
+                }
+            }
+        }
+        #endregion
+
+        #region Effects
+        [Name("library_effects")]
+        [Child(typeof(EffectEntry), 1, -1)]
+        private class LibraryEffects : LibraryEntry, IAsset, IExtra
+        {
+            [Name("effect")]
+            [Child(typeof(AssetEntry), 0, 1)]
+            //[Child(typeof(AnnotateEntry), 0, -1)]
+            //[Child(typeof(NewParamEntry), 0, -1)]
+            [AtLeastOneOf(typeof(ProfileCommonEntry), typeof(ProfileGLSLEntry))]
+            [Child(typeof(ProfileCommonEntry), 0, -1)]
+            [Child(typeof(ProfileGLSLEntry), 0, -1)]
+            [Child(typeof(ExtraEntry), 0, -1)]
+            private class EffectEntry : BaseElement<LibraryEffects>, IID, IName, IAsset, IExtra
+            {
+                [Attr("id", false)]
+                public string ID { get; set; } = null;
+                [Attr("name", false)]
+                public string Name { get; set; } = null;
+
+                public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                [Name("profile_COMMON")]
+                private class ProfileCommonEntry
+                {
+
+                }
+                [Name("profile_GLSL")]
+                private class ProfileGLSLEntry
+                {
+
+                }
+            }
         }
         #endregion
 

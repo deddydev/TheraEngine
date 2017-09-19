@@ -31,9 +31,8 @@ namespace TheraEngine.Rendering.Models
             }
             private DecoderShell(XmlReader reader)
             {
-                reader.MoveToContent();
                 bool found;
-                while (!(found = reader.NodeType == XmlNodeType.Element && string.Equals("COLLADA", reader.Name, StringComparison.InvariantCulture)) && reader.Read()) { }
+                while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals("COLLADA", reader.Name, StringComparison.InvariantCulture)))) { }
                 if (found)
                     Root = ParseElement(typeof(COLLADA), null, reader) as COLLADA;
             }
@@ -44,37 +43,38 @@ namespace TheraEngine.Rendering.Models
 
                 MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-                reader.MoveToFirstAttribute();
-                while (reader.MoveToNextAttribute())
-                {
-                    string name = reader.Name.ToString();
-                    string value = reader.Value.ToString();
-                    MemberInfo info = members.FirstOrDefault(x =>
-                    {
-                        var a = x.GetCustomAttribute<Attr>();
-                        if (a != null)
-                            return string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
-                        return false;
-                    });
-                    if (info == null)
-                        Engine.PrintLine("Attribute '{0}' not supported by parser. Value = '{1}'", name, value);
-                    else if (info is FieldInfo field)
-                        field.SetValue(entry, ParseString(value, field.FieldType));
-                    else if (info is PropertyInfo property)
-                        property.SetValue(entry, ParseString(value, property.PropertyType));
-                }
+                if (!(reader.NodeType == XmlNodeType.Element))
+                    throw new Exception();
 
-                if (entry is IID id)
-                    entry.Root.IDEntries.Add(id.ID, id);
-                else if (entry is ISID sid)
+                if (reader.HasAttributes)
+                    while (reader.MoveToNextAttribute())
+                    {
+                        string name = reader.Name;
+                        string value = reader.Value;
+                        MemberInfo info = members.FirstOrDefault(x =>
+                        {
+                            var a = x.GetCustomAttribute<Attr>();
+                            return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
+                        });
+                        if (info == null)
+                            Engine.PrintLine("Attribute '{0}' not supported by parser. Value = '{1}'", name, value);
+                        else if (info is FieldInfo field)
+                            field.SetValue(entry, ParseString(value, field.FieldType));
+                        else if (info is PropertyInfo property)
+                            property.SetValue(entry, ParseString(value, property.PropertyType));
+                    }
+
+                if (entry is IID IDEntry)
+                    entry.Root.IDEntries.Add(IDEntry.ID, IDEntry);
+                if (entry is ISID SIDEntry)
                 {
-                    IElement elem = (IElement)sid;
+                    IElement elem = (IElement)SIDEntry;
                     IElement p = elem.GenericParent;
                     while (true)
                     {
                         if (p is ISIDAncestor ancestor)
                         {
-                            ancestor.SIDChildren.Add(sid);
+                            ancestor.SIDChildren.Add(SIDEntry);
                             break;
                         }
                         else if (p.GenericParent != null)
@@ -83,19 +83,28 @@ namespace TheraEngine.Rendering.Models
                             break;
                     }
                 }
-
-                Child[] elems = Attribute.GetCustomAttributes(elementType, typeof(Child), false).Select(x => (Child)x).ToArray();
-                while (reader.BeginElement())
+                if (entry is IStringElement StringEntry)
                 {
-                    string name = reader.Name.ToString();
-                    Child matchingChild = elems.FirstOrDefault(x => string.Equals(x.ChildEntryType.GetCustomAttribute<Name>()?.ElementName, name, StringComparison.InvariantCultureIgnoreCase));
-                    if (matchingChild == null)
+                    StringEntry.GenericStringValue = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
+                    StringEntry.GenericStringValue.ReadFromString(reader.ReadElementContentAsString());
+                }
+                else
+                {
+                    Child[] elems = Attribute.GetCustomAttributes(elementType, typeof(Child), false).Select(x => (Child)x).ToArray();
+                    MultiChild[] multiElems = Attribute.GetCustomAttributes(elementType, typeof(MultiChild), false).Select(x => (MultiChild)x).ToArray();
+                    
+                    while ()
                     {
-                        Engine.PrintLine("Element '{0}' not supported by parser.", name);
-                        continue;
+                        string name = reader.Name.ToString();
+                        Child matchingChild = elems.FirstOrDefault(x => string.Equals(x.ChildEntryType.GetCustomAttribute<Name>()?.ElementName, name, StringComparison.InvariantCultureIgnoreCase));
+                        if (matchingChild == null)
+                        {
+                            Engine.PrintLine("Element '{0}' not supported by parser.", name);
+                            continue;
+                        }
+                        ParseElement(matchingChild.ChildEntryType, entry);
+                        reader.EndElement();
                     }
-                    ParseElement(matchingChild.ChildEntryType, entry);
-                    reader.EndElement();
                 }
 
                 return entry;
@@ -330,42 +339,42 @@ namespace TheraEngine.Rendering.Models
             //}
 
             #region Primitives
-            private Matrix4 ParseMatrix()
-            {
-                Matrix4 m;
-                float* pM = (float*)&m;
-                for (int columnIndex = 0; columnIndex < 4; columnIndex++)
-                    for (int rowOffset = 0; rowOffset < 16; rowOffset += 4)
-                        _reader.ReadValue(&pM[rowOffset + columnIndex]);
-                return m;
-            }
-            private ColorF4 ParseColor()
-            {
-                float f;
-                ColorF4 c;
-                float* p = (float*)&c;
-                for (int i = 0; i < 4; i++)
-                    p[i] = _reader.ReadValue(&f) ? f : 1.0f;
-                return c;
-            }
-            private Vec3 ParseVec3()
-            {
-                float f;
-                Vec3 c;
-                float* p = (float*)&c;
-                for (int i = 0; i < 3; i++)
-                    p[i] = _reader.ReadValue(&f) ? f : 0.0f;
-                return c;
-            }
-            private Vec4 ParseVec4()
-            {
-                float f;
-                Vec4 c;
-                float* p = (float*)&c;
-                for (int i = 0; i < 4; i++)
-                    p[i] = _reader.ReadValue(&f) ? f : 0.0f;
-                return c;
-            }
+            //private Matrix4 ParseMatrix()
+            //{
+            //    Matrix4 m;
+            //    float* pM = (float*)&m;
+            //    for (int columnIndex = 0; columnIndex < 4; columnIndex++)
+            //        for (int rowOffset = 0; rowOffset < 16; rowOffset += 4)
+            //            _reader.ReadValue(&pM[rowOffset + columnIndex]);
+            //    return m;
+            //}
+            //private ColorF4 ParseColor()
+            //{
+            //    float f;
+            //    ColorF4 c;
+            //    float* p = (float*)&c;
+            //    for (int i = 0; i < 4; i++)
+            //        p[i] = _reader.ReadValue(&f) ? f : 1.0f;
+            //    return c;
+            //}
+            //private Vec3 ParseVec3()
+            //{
+            //    float f;
+            //    Vec3 c;
+            //    float* p = (float*)&c;
+            //    for (int i = 0; i < 3; i++)
+            //        p[i] = _reader.ReadValue(&f) ? f : 0.0f;
+            //    return c;
+            //}
+            //private Vec4 ParseVec4()
+            //{
+            //    float f;
+            //    Vec4 c;
+            //    float* p = (float*)&c;
+            //    for (int i = 0; i < 4; i++)
+            //        p[i] = _reader.ReadValue(&f) ? f : 0.0f;
+            //    return c;
+            //}
             #endregion
         }
 
@@ -432,15 +441,22 @@ namespace TheraEngine.Rendering.Models
         #endregion
 
         #region Base Element
-        private interface IStringElement<T> : IElement
+        private interface IStringElement : IElement
         {
-            T Value { get; set; }
+            BaseElementString GenericStringValue { get; set; }
+            Type GenericStringType { get; }
         }
-        private abstract class BaseStringElement<T1, T2> : BaseElement<T1>, IStringElement<T2>
+        private abstract class BaseStringElement<T1, T2> : BaseElement<T1>, IStringElement
             where T1 : class, IElement
             where T2 : BaseElementString
         {
             public T2 Value { get; set; }
+            public BaseElementString GenericStringValue
+            {
+                get => Value;
+                set => Value = value as T2;
+            }
+            public Type GenericStringType => typeof(T2);
         }
         private interface IElement
         {
@@ -767,8 +783,8 @@ namespace TheraEngine.Rendering.Models
             }
             [Name("instance_kinematics_scene")]
             [Child(typeof(Asset), 0, 1)]
-            //[Child(typeof(NewParamEntry), 0, -1)]
-            //[Child(typeof(SetParamEntry), 0, -1)]
+            [Child(typeof(NewParam), 0, -1)]
+            [Child(typeof(SetParam), 0, -1)]
             //[Child(typeof(BindKinematicsModel), 0, -1)]
             //[Child(typeof(BindJointAxis), 0, -1)]
             [Child(typeof(Extra), 0, -1)]

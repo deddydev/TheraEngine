@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.Models
             string[] jointStringArray = null;
             string jointString = null;
             foreach (InputEntry inp in skin._jointInputs)
-                if (inp._semantic == SemanticType.JOINT)
+                if (inp._semantic == ESemantic.JOINT)
                 {
                     SourceEntry src = skin._sources.FirstOrDefault(x => x._id == inp._source);
                     if (src != null)
@@ -86,11 +86,11 @@ namespace TheraEngine.Rendering.Models
             {
                 switch (inp._semantic)
                 {
-                    case SemanticType.JOINT:
+                    case ESemantic.JOINT:
                         pCmd[inp._offset] = 1;
                         break;
 
-                    case SemanticType.WEIGHT:
+                    case ESemantic.WEIGHT:
                         pCmd[inp._offset] = 2;
 
                         //Get weight source
@@ -176,15 +176,15 @@ namespace TheraEngine.Rendering.Models
 
             foreach (PrimitiveEntry prim in geo._primitives)
             {
-                Dictionary<SemanticType, Dictionary<int, SourceEntry>> sources = new Dictionary<SemanticType, Dictionary<int, SourceEntry>>();
+                Dictionary<ESemantic, Dictionary<int, SourceEntry>> sources = new Dictionary<ESemantic, Dictionary<int, SourceEntry>>();
                 src = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
                 if (src != null)
-                    sources.Add(SemanticType.VERTEX, new Dictionary<int, SourceEntry>() { { 0, src } });
+                    sources.Add(ESemantic.VERTEX, new Dictionary<int, SourceEntry>() { { 0, src } });
 
                 //Collect sources
                 foreach (InputEntry inp in prim._inputs)
                 {
-                    if (inp._semantic == SemanticType.VERTEX)
+                    if (inp._semantic == ESemantic.VERTEX)
                         continue;
 
                     src = geo._sources.FirstOrDefault(x => x._id == inp._source);
@@ -200,18 +200,18 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
 
-                if (sources.ContainsKey(SemanticType.VERTEX))
-                    info._morphCount = sources[SemanticType.VERTEX].Count - 1;
-                if (sources.ContainsKey(SemanticType.NORMAL))
-                    info._hasNormals = sources[SemanticType.NORMAL].Count > 0;
-                if (sources.ContainsKey(SemanticType.COLOR))
-                    info._colorCount = sources[SemanticType.COLOR].Count;
-                if (sources.ContainsKey(SemanticType.TEXCOORD))
-                    info._texcoordCount = sources[SemanticType.TEXCOORD].Count;
-                if (sources.ContainsKey(SemanticType.TEXBINORMAL))
-                    info._hasBinormals = sources[SemanticType.TEXBINORMAL].Count > 0;
-                if (sources.ContainsKey(SemanticType.TEXTANGENT))
-                    info._hasTangents = sources[SemanticType.TEXTANGENT].Count > 0;
+                if (sources.ContainsKey(ESemantic.VERTEX))
+                    info._morphCount = sources[ESemantic.VERTEX].Count - 1;
+                if (sources.ContainsKey(ESemantic.NORMAL))
+                    info._hasNormals = sources[ESemantic.NORMAL].Count > 0;
+                if (sources.ContainsKey(ESemantic.COLOR))
+                    info._colorCount = sources[ESemantic.COLOR].Count;
+                if (sources.ContainsKey(ESemantic.TEXCOORD))
+                    info._texcoordCount = sources[ESemantic.TEXCOORD].Count;
+                if (sources.ContainsKey(ESemantic.TEXBINORMAL))
+                    info._hasBinormals = sources[ESemantic.TEXBINORMAL].Count > 0;
+                if (sources.ContainsKey(ESemantic.TEXTANGENT))
+                    info._hasTangents = sources[ESemantic.TEXTANGENT].Count > 0;
 
                 int maxSets = CustomMath.Max(
                     info._morphCount + 1,
@@ -250,38 +250,38 @@ namespace TheraEngine.Rendering.Models
 
                             switch (inp._semantic)
                             {
-                                case SemanticType.VERTEX:
+                                case ESemantic.VERTEX:
                                     Vec3 position = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     position = position * bindMatrix;
                                     vtx._position = position;
                                     if (infList != null)
                                         vtx._influence = infList[index];
                                     break;
-                                case SemanticType.NORMAL:
+                                case ESemantic.NORMAL:
                                     Vec3 normal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     normal = normal * invBind;
                                     normal.Normalize();
                                     vtx._normal = normal;
                                     break;
-                                case SemanticType.TEXBINORMAL:
+                                case ESemantic.TEXBINORMAL:
                                     Vec3 binormal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     binormal = binormal * invBind;
                                     binormal.Normalize();
                                     vtx._binormal = binormal;
                                     break;
-                                case SemanticType.TEXTANGENT:
+                                case ESemantic.TEXTANGENT:
                                     Vec3 tangent = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     tangent = tangent * invBind;
                                     tangent.Normalize();
                                     vtx._tangent = tangent;
                                     break;
-                                case SemanticType.TEXCOORD:
+                                case ESemantic.TEXCOORD:
                                     vtx._texCoord = new Vec2(list[startIndex], list[startIndex + 1]);
                                     vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
                                     //vtx._texCoord.X = vtx._texCoord.X.RemapToRange(0.0f, 1.0f);
                                     //vtx._texCoord.Y = vtx._texCoord.Y.RemapToRange(0.0f, 1.0f);
                                     break;
-                                case SemanticType.COLOR:
+                                case ESemantic.COLOR:
                                     vtx._color = new ColorF4(list[startIndex], list[startIndex + 1], list[startIndex + 2], list[startIndex + 3]);
                                     break;
                             }

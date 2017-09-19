@@ -373,9 +373,16 @@ namespace TheraEngine.Rendering.Models
         //        model.RigidChildren.Add(new StaticRigidSubMesh(_node._name ?? _node._id, data, null, m));
         //    }
         //}
-        private enum SemanticType
+        private enum EInterpolation
         {
-            None,
+            LINEAR,
+            BEZIER,
+            HERMITE,
+            CARDINAL,
+            BSPLINE,
+        }
+        private enum ESemantic
+        {
             POSITION,
             VERTEX,
             NORMAL,
@@ -391,6 +398,8 @@ namespace TheraEngine.Rendering.Models
             IN_TANGENT,
             OUT_TANGENT,
             INTERPOLATION,
+            CONTINUITY,
+            LINEAR_STEPS,
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using static System.Math;
+﻿using System.Linq;
+using static System.Math;
 namespace System
 {
     public unsafe static class CustomMath
@@ -365,7 +366,33 @@ namespace System
             answer2 = 0.0f;
             return false;
         }
+        public static Vec3 Morph(Vec3 baseCoord, Vec3[] targets, float[] weights, bool relative = false)
+        {
+            if (targets.Length != weights.Length)
+                throw new InvalidOperationException("'targets' length does not match 'weights' length.");
 
+            if (relative)
+            {
+                Vec3 morphed = baseCoord;
+                for (int i = 0; i < targets.Length; ++i)
+                    morphed += targets[i] * weights[i];
+                return morphed;
+            }
+            else
+            {
+                Vec3 morphed = Vec3.Zero;
+                float weightSum = 0.0f;
+                float weight;
+                for (int i = 0; i < targets.Length; ++i)
+                {
+                    weight = weights[i];
+                    morphed += targets[i] * weight;
+                    weightSum += weight;
+                }
+                float invWeight = 1.0f - weightSum;
+                return morphed + baseCoord * invWeight;
+            }
+        }
         public static float AngleBetween(Vec3 vector1, Vec3 vector2)
         {
             vector1.NormalizeFast();

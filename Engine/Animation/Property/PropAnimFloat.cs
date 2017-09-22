@@ -43,11 +43,11 @@ namespace TheraEngine.Animation
         /// </summary>
         public override void Bake()
         {
-            float oneOverFPS = 1.0f / _keyframes.FramesPerSecond;
-            int totalFrames = BakedFrameCount;
-            _baked = new float[totalFrames];
-            for (int i = 0; i < totalFrames; ++i)
-                _baked[i] = GetValueKeyframed(i * oneOverFPS);
+            //float oneOverFPS = 1.0f / _keyframes.FramesPerSecond;
+            //int totalFrames = BakedFrameCount;
+            //_baked = new float[totalFrames];
+            //for (int i = 0; i < totalFrames; ++i)
+            //    _baked[i] = GetValueKeyframed(i * oneOverFPS);
         }
         public override void Resize(int newSize)
         {

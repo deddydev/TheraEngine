@@ -834,10 +834,7 @@ namespace System
             return new Vec4(v.X, v.Y, v.Z, v.W);
         }
         private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-        public override string ToString()
-        {
-            return String.Format("({0}{4} {1}{4} {2}{4} {3})", X, Y, Z, W, listSeparator);
-        }
+        public override string ToString() => ToString(true, true);
         public string ToString(bool includeParentheses, bool includeSeparator)
            => String.Format("{5}{0}{4} {1}{4} {2}{4} {3}{6}", X, Y, Z, W,
                includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");

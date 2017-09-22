@@ -19,8 +19,7 @@ namespace TheraEngine.Animation
                 ImportAnimations = true,
                 ImportModels = false
             };
-            ModelScene scene = Collada.Import(path, o);
-            return scene.Animation;
+            return Collada.Import(path, o)?.Animation;
         }
 
         [Serialize("BoneAnimations")]
@@ -30,7 +29,7 @@ namespace TheraEngine.Animation
         {
             foreach (BoneAnimation b in _boneAnimations.Values)
                 b.SetLength(seconds, stretchAnimation);
-            base.SetFrameCount(seconds, stretchAnimation);
+            base.SetLength(seconds, stretchAnimation);
         }
 
         protected internal void Tick(float delta)

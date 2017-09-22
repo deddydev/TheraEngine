@@ -19,10 +19,10 @@ namespace TheraEngine.Animation
             get => _useKeyframes;
             set { _useKeyframes = value; UseKeyframesChanged(); }
         }
-        public override void SetFrameCount(int frameCount, bool stretchAnimation)
+        public override void SetLength(float seconds, bool stretchAnimation)
         {
-            InternalKeyframes.SetFrameCount(frameCount, stretchAnimation);
-            base.SetFrameCount(frameCount, stretchAnimation);
+            InternalKeyframes.SetLength(seconds, stretchAnimation);
+            base.SetLength(seconds, stretchAnimation);
         }
         public void Tick(object obj, PropertyInfo property, float delta)
         {
@@ -55,7 +55,7 @@ namespace TheraEngine.Animation
         public PropertyAnimation(int frameCount, bool looped, bool useKeyframes)
         {
             _bakedFrameCount = frameCount;
-            _keyframes = new KeyframeTrack<T>(this);
+            _keyframes = new KeyframeTrack<T>();
             Looped = looped;
             UseKeyframes = useKeyframes;
         }

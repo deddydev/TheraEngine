@@ -16,8 +16,7 @@ namespace TheraEngine.Rendering.Models
                 ImportAnimations = false,
                 ImportModels = true
             };
-            ModelScene scene = Collada.Import(path, o);
-            return scene.SkeletalModel;
+            return Collada.Import(path, o)?.SkeletalModel;
         }
 
         public SkeletalMesh() : base() { }

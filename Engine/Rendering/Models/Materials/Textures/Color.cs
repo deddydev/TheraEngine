@@ -126,7 +126,7 @@ namespace System
                 Math.Abs(B - other.B) < precision &&
                 Math.Abs(A - other.A) < precision;
         }
-
+        
         public override string ToString()
         {
             return String.Format("[R:{0},G:{1},B:{2},A:{3}]", R, G, B, A);

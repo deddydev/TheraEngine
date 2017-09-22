@@ -65,9 +65,9 @@ namespace TheraEngine.Tests
 
             string animPath = desktop + "test_anim.dae";//googleDrive + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
 
-            ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
-            _animationStateMachine.Skeleton = Skeleton;
-            _animationStateMachine.InitialState = new AnimState(m);
+            //ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
+            //_animationStateMachine.Skeleton = Skeleton;
+            //_animationStateMachine.InitialState = new AnimState(m);
         }
     }
 }

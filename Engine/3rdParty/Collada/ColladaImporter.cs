@@ -18,8 +18,24 @@ namespace TheraEngine.Rendering.Models
 
             Engine.PrintLine("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
 
-            DecoderShell shell = DecoderShell.Import(filePath);
+            XMLDecoderShell<COLLADA> shell = XMLDecoderShell<COLLADA>.Import(filePath);
             ModelScene scene = new ModelScene();
+
+            if (options.ImportModels)
+            {
+                COLLADA.LibraryImages.Image15X[] images = shell.Root?.
+                    GetChildren<COLLADA.LibraryImages>()?.
+                    SelectMany(x => x.GetChildren<COLLADA.LibraryImages.Image15X>()).
+                    ToArray();
+                COLLADA.LibraryMaterials.Material[] materials = shell.Root?.
+                    GetChildren<COLLADA.LibraryMaterials>()?.
+                    SelectMany(x => x.GetChildren<COLLADA.LibraryMaterials.Material>()).
+                    ToArray();
+                COLLADA.LibraryEffects.Effect[] effects = shell.Root?.
+                    GetChildren<COLLADA.LibraryEffects>()?.
+                    SelectMany(x => x.GetChildren<COLLADA.LibraryEffects.Effect>()).
+                    ToArray();
+            }
 
             //Matrix4 baseTransform = options.InitialTransform.Matrix;
             //if (shell._assets.Count > 0)

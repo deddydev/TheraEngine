@@ -25,7 +25,12 @@ namespace TheraEngine.Animation
             get => _keyCount;
             internal set => _keyCount = value;
         }
-        
+
+        internal void SetLength(float seconds, bool stretchAnimation)
+        {
+            throw new NotImplementedException();
+        }
+
         //public float FramesPerSecond
         //{
         //    get => _fps;

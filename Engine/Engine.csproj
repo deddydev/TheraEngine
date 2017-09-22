@@ -301,6 +301,7 @@
     <Compile Include="3rdParty\OBJ\TypeParsers\TypeParserBase.cs" />
     <Compile Include="3rdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
     <Compile Include="3rdParty\OBJ\TypeParsers\VertexParser.cs" />
+    <Compile Include="Core\HelperMethods.cs" />
     <Compile Include="Core\Reflection\Attributes\StateAttribute.cs" />
     <Compile Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
@@ -355,7 +356,7 @@
     <Compile Include="Rendering\HUD\MaterialHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
     <None Include="3rdParty\Collada\Parser\Core\Animation.cs" />
-    <Compile Include="3rdParty\Collada\ColladaAssetDecoder.cs" />
+    <None Include="3rdParty\Collada\ColladaAssetDecoder.cs" />
     <Compile Include="3rdParty\Collada\Schema\SchemaImporter.cs" />
     <Compile Include="3rdParty\Collada\ColladaImporter.cs" />
     <None Include="3rdParty\Collada\Parser\ColladaParserModel.cs" />

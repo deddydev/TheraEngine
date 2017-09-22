@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using TheraEngine;
 
 namespace System
 {
@@ -91,6 +92,37 @@ namespace System
         public static T AsEnum<T>(this string s) where T : struct
         {
             return (T)Enum.Parse(typeof(T), s);
+        }
+        public static T ParseAs<T>(this string value)
+            => (T)value.ParseAs(typeof(T));
+        public static object ParseAs(this string value, Type t)
+        {
+            if (t.GetInterface("IParsable") != null)
+            {
+                IParsable o = (IParsable)Activator.CreateInstance(t);
+                o.ReadFromString(value);
+                return o;
+            }
+            if (string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture))
+                return Enum.Parse(t, value);
+            switch (t.Name)
+            {
+                case "Boolean": return Boolean.Parse(value);
+                case "SByte": return SByte.Parse(value);
+                case "Byte": return Byte.Parse(value);
+                case "Char": return Char.Parse(value);
+                case "Int16": return Int16.Parse(value);
+                case "UInt16": return UInt16.Parse(value);
+                case "Int32": return Int32.Parse(value);
+                case "UInt32": return UInt32.Parse(value);
+                case "Int64": return Int64.Parse(value);
+                case "UInt64": return UInt64.Parse(value);
+                case "Single": return Single.Parse(value);
+                case "Double": return Double.Parse(value);
+                case "Decimal": return Decimal.Parse(value);
+                case "String": return value;
+            }
+            throw new InvalidOperationException(t.ToString() + " is not parsable");
         }
         private static readonly Regex sWhitespace = new Regex(@"\s+");
         public static string ReplaceWhitespace(this string input, string replacement)

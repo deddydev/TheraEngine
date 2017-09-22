@@ -49,6 +49,8 @@ namespace TheraEngine.Rendering.Models
                 entry.PreRead();
 
                 MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                ChildInfo[] childElements = Attribute.GetCustomAttributes(elementType, typeof(Child), true).Select(x => new ChildInfo((Child)x)).ToArray();
+                MultiChildInfo[] multiChildElements = Attribute.GetCustomAttributes(elementType, typeof(MultiChild), true).Select(x => new MultiChildInfo((MultiChild)x)).ToArray();
 
                 if (!(reader.NodeType == XmlNodeType.Element))
                     throw new Exception();
@@ -97,22 +99,79 @@ namespace TheraEngine.Rendering.Models
                 }
                 else
                 {
-                    Child[] elems = Attribute.GetCustomAttributes(elementType, typeof(Child), false).Select(x => (Child)x).ToArray();
-                    MultiChild[] multiElems = Attribute.GetCustomAttributes(elementType, typeof(MultiChild), false).Select(x => (MultiChild)x).ToArray();
-
                     reader.ReadStartElement();
 
                     string name = reader.Name.ToString();
-                    Child matchingChild = elems.FirstOrDefault(x => string.Equals(x.ChildEntryType.GetCustomAttribute<Name>()?.ElementName, name, StringComparison.InvariantCultureIgnoreCase));
-                    if (matchingChild == null)
-                        Engine.PrintLine("Element '{0}' not supported by parser.", name);
+                    bool isUnsupported = Attribute.GetCustomAttributes(elementType, typeof(Unsupported), false).Any(x => string.Equals(((Unsupported)x).ElementName, name, StringComparison.InvariantCultureIgnoreCase));
+                    if (!isUnsupported)
+                    {
+                        ChildInfo child = childElements.FirstOrDefault(x => string.Equals(x.ElementName, name, StringComparison.InvariantCultureIgnoreCase));
+                        if (child == null)
+                        {
+                            Type multiChildType = null;
+                            foreach (MultiChildInfo c in multiChildElements)
+                                for (int i = 0; i < c.Data.Types.Length; ++i)
+                                    if (string.Equals(c.ElementNames[i], name, StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        multiChildType = c.Data.Types[i];
+                                        break;
+                                    }
+
+                            if (multiChildType != null)
+                                ParseElement(multiChildType, entry, reader);
+                            else
+                                Engine.PrintLine("Element '{0}' not supported by parser.", name);
+                        }
+                        else
+                        {
+                            if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
+                                Engine.PrintLine("Element '{0}' has occurred more times than expected.", name);
+
+                            ParseElement(child.Data.ChildEntryType, entry, reader);
+                        }
+                    }
                     else
-                        ParseElement(matchingChild.ChildEntryType, entry, reader);
+                        Engine.PrintLine("Element '{0}' not supported by parser.", name);
 
                     reader.ReadEndElement();
                 }
+
+                ChildInfo[] underCounted = childElements.Where(x => x.Occurrences < x.Data.MinCount).ToArray();
+                if (underCounted.Length > 0)
+                    foreach (ChildInfo c in underCounted)
+                        Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
+
                 entry.PostRead();
                 return entry;
+            }
+            private class ChildInfo
+            {
+                public ChildInfo(Child data)
+                {
+                    Data = data;
+                    Occurrences = 0;
+                    ElementName = Data.ChildEntryType.GetCustomAttribute<Name>()?.ElementName;
+                }
+
+                //TODO: support derivations of child entry type with different element name attribute values
+
+                public string ElementName { get; private set; }
+                public Child Data { get; private set; }
+                public int Occurrences { get; set; }
+            }
+            private class MultiChildInfo
+            {
+                public MultiChildInfo(MultiChild data)
+                {
+                    Data = data;
+                    Occurrences = new int[Data.Types.Length];
+                    for (int i = 0; i < Occurrences.Length; ++i)
+                        Occurrences[i] = 0;
+                    ElementNames = Data.Types.Select(x => x.GetCustomAttribute<Name>()?.ElementName).ToArray();
+                }
+                public MultiChild Data { get; private set; }
+                public int[] Occurrences { get; private set; }
+                public string[] ElementNames { get; private set; }
             }
         }
 

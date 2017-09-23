@@ -99,6 +99,7 @@ namespace TheraEngine.Rendering.Models
                 }
                 else
                 {
+                    reader.MoveToElement();
                     reader.ReadStartElement();
 
                     string name = reader.Name.ToString();
@@ -132,8 +133,6 @@ namespace TheraEngine.Rendering.Models
                     }
                     else
                         Engine.PrintLine("Element '{0}' not supported by parser.", name);
-
-                    reader.ReadEndElement();
                 }
 
                 ChildInfo[] underCounted = childElements.Where(x => x.Occurrences < x.Data.MinCount).ToArray();
@@ -193,7 +192,7 @@ namespace TheraEngine.Rendering.Models
         {
             public string AttributeName { get; private set; }
             public bool Required { get; private set; }
-            public Attr(string attributeName, bool required = true)
+            public Attr(string attributeName, bool required)
             {
                 AttributeName = attributeName;
                 Required = required;
@@ -293,6 +292,7 @@ namespace TheraEngine.Rendering.Models
             object UserData { get; set; }
             IElement GenericParent { get; set; }
             COLLADA Root { get; }
+            Dictionary<Type, List<IElement>> ChildElements { get; }
         }
         /// <summary>
         /// 
@@ -321,10 +321,18 @@ namespace TheraEngine.Rendering.Models
                 set
                 {
                     ParentElement = value as T;
-                    if (GenericParent is COLLADA c)
-                        Root = c;
-                    else
-                        Root = GenericParent?.Root;
+                    if (ParentElement != null)
+                    {
+                        Type type = GetType();
+                        if (ParentElement.ChildElements.ContainsKey(type))
+                            ParentElement.ChildElements[type].Add(this);
+                        else
+                            ParentElement.ChildElements.Add(type, new List<IElement>() { this });
+                        if (GenericParent is COLLADA c)
+                            Root = c;
+                        else
+                            Root = GenericParent?.Root;
+                    }
                 }
             }
             public T ParentElement { get; private set; }
@@ -335,8 +343,8 @@ namespace TheraEngine.Rendering.Models
                 List<T2> types = new List<T2>();
                 while (t != null)
                 {
-                    if (_childElements.ContainsKey(t))
-                        types.AddRange(_childElements[t].Where(x => x is T2).Select(x => (T2)x));
+                    if (ChildElements.ContainsKey(t))
+                        types.AddRange(ChildElements[t].Where(x => x is T2).Select(x => (T2)x));
                     t = t.BaseType;
                 }
                 return types.ToArray();
@@ -347,24 +355,34 @@ namespace TheraEngine.Rendering.Models
             public virtual void PreRead() { }
             public virtual void PostRead() { }
             
-            internal Dictionary<string, object> _attributes = new Dictionary<string, object>();
-            internal Dictionary<Type, List<IElement>> _childElements = new Dictionary<Type, List<IElement>>();
+            public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
         }
         #endregion
 
         #region Common
-
+        
         /// <summary>
-        /// This class contains a url that references the unique id of another element.
+        /// This is a url that references the unique id of another element.
         /// Can be internal or external.
         /// Internal example: url="#whateverId"
         /// External example: url="file:///some_place/doc.dae#complex_building"
         /// </summary>
-        public interface IUrl
+        public class ColladaURI : IParsable
         {
-            string Url { get; set; }
-            bool IsLocal { get; }
-            IID GetElement();
+            public string URI { get; set; }
+            bool IsLocal => URI.StartsWith("#");
+            public void ReadFromString(string str)
+            {
+                URI = str;
+            }
+            public string WriteToString()
+            {
+                return URI;
+            }
+            public IID GetElement(IElement owner)
+            {
+                return IsLocal ? owner.Root.GetIDEntry(URI.Substring(1)) : null;
+            }
         }
         public interface ISIDAncestor
         {
@@ -399,7 +417,7 @@ namespace TheraEngine.Rendering.Models
         [Name("newparam")]
         public class NewParam : BaseElement<INewParam>, ISID
         {
-            [Attr("sid")]
+            [Attr("sid", true)]
             public string SID { get; set; }
 
             public List<ISID> SIDChildren { get; } = new List<ISID>();
@@ -411,7 +429,7 @@ namespace TheraEngine.Rendering.Models
         [Name("setparam")]
         public class SetParam : BaseElement<ISetParam>
         {
-            [Attr("ref")]
+            [Attr("ref", true)]
             public string Reference { get; set; }
             //public IID GetElement() => GetIDEntry(ReferenceID);
         }
@@ -524,7 +542,7 @@ namespace TheraEngine.Rendering.Models
                             relativeToGround,
                             absolute,
                         }
-                        [Attr("mode")]
+                        [Attr("mode", true)]
                         public EMode Mode { get; set; }
                     }
                 }
@@ -544,11 +562,11 @@ namespace TheraEngine.Rendering.Models
             [Name("unit")]
             public class Unit : BaseElement<Asset>
             {
-                [Attr("meter")]
+                [Attr("meter", true)]
                 [DefaultValue("1.0")]
                 public Single Meter { get; set; }
 
-                [Attr("name")]
+                [Attr("name", true)]
                 [DefaultValue("meter")]
                 public String Name { get; set; }
             }
@@ -564,27 +582,107 @@ namespace TheraEngine.Rendering.Models
         }
         #endregion
 
+        public interface IInputUnshared : IElement { }
+        [Name("input")]
+        public class InputUnshared : BaseElement<IInputUnshared>
+        {
+            [Attr("semantic", true)]
+            public string Semantic { get; set; }
+            [Attr("semantic", true)]
+            public string Source { get; set; }
+        }
+
+        public interface ITechniqueCommon : IElement { }
+        [Name("technique_common")]
+        public class TechniqueCommon
+        {
+
+        }
+
+        public interface ISource : IElement { }
+        [Name("source")]
+        [Child(typeof(Asset), 0, 1)]
+        [Child(typeof(IArrayElement), 0, 1)]
+        [Child(typeof(TechniqueCommon), 0, 1)]
+        [Unsupported("technique")]
+        //[Child(typeof(Technique), 0, -1)]
+        public class Source : BaseElement<ISource>, IID, IName, IAsset
+        {
+            [Attr("id", false)]
+            public string ID { get; set; } = null;
+            [Attr("name", false)]
+            public string Name { get; set; } = null;
+
+            public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+            [Name("technique_common")]
+            [Child(typeof(Accessor), 1)]
+            public class TechniqueCommon : BaseElement<Source>
+            {
+                [Name("accessor")]
+                [Child(typeof(DataFlowParam), 0, -1)]
+                public class Accessor : BaseElement<TechniqueCommon>
+                {
+                    [Attr("count", true)]
+                    public uint Count { get; set; } = 0;
+
+                    [Attr("offset", false)]
+                    [DefaultValue("0")]
+                    public uint Offset { get; set; } = 0;
+
+                    [Attr("source", true)]
+                    public ColladaURI Source { get; set; } = null;
+
+                    [Attr("stride", false)]
+                    [DefaultValue("1")]
+                    public uint Stride { get; set; } = 1;
+                }
+            }
+            public interface IArrayElement { }
+            public class ArrayElement<T> :
+                BaseStringElement<Source, T>, IID, IName, IArrayElement
+                where T : BaseElementString
+            {
+                [Attr("id", false)]
+                public string ID { get; set; } = null;
+                [Attr("name", false)]
+                public string Name { get; set; } = null;
+
+                public List<ISID> SIDChildren { get; } = new List<ISID>();
+            }
+            [Name("bool_array")]
+            public class BoolArray : ArrayElement<ElementBoolArray> { }
+            [Name("float_array")]
+            public class FloatArray : ArrayElement<ElementFloatArray> { }
+            [Name("int_array")]
+            public class IntArray : ArrayElement<ElementIntArray> { }
+            [Name("Name_array")]
+            public class NameArray : ArrayElement<ElementStringArray> { }
+            [Name("IDREF_array")]
+            public class IDRefArray : ArrayElement<ElementStringArray> { }
+            [Name("SIDREF_array")]
+            public class SIDRefArray : ArrayElement<ElementStringArray> { }
+            [Name("token_array")]
+            public class TokenArray : ArrayElement<ElementStringArray> { }
+        }
+
         #region Instance
         public interface IInstantiatable { }
-        public class BaseInstanceElement<T> : BaseElement<COLLADA.Node>, ISID, IName, IUrl where T : class, IElement, IInstantiatable, IID
+        public class BaseInstanceElement<T> : BaseElement<COLLADA.Node>, ISID, IName where T : class, IElement, IInstantiatable, IID
         {
             [Attr("sid", false)]
             public string SID { get; set; } = null;
             [Attr("name", false)]
             public string Name { get; set; } = null;
             [Attr("url", true)]
-            public string Url { get; set; } = null;
-            public bool IsLocal => Url != null && Url.StartsWith("#");
-            public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+            public ColladaURI Url { get; set; } = null;
 
             public List<ISID> SIDChildren { get; } = new List<ISID>();
         }
         public class InstanceNode : BaseInstanceElement<COLLADA.Node>
         {
             [Attr("proxy", false)]
-            public string Proxy { get; set; } = null;
-            public bool IsProxyLocal => Proxy != null && Proxy.StartsWith("#");
-            public IID GetProxyElement() => IsProxyLocal ? GetIDEntry(Proxy.Substring(1)) : null;
+            public ColladaURI Proxy { get; set; } = null;
         }
         public class InstanceCamera : BaseInstanceElement<COLLADA.LibraryCameras.Camera>
         {
@@ -655,6 +753,14 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => Value.ToString();
         }
+        public class ElementBoolArray : BaseElementString
+        {
+            public bool[] Values { get; set; }
+            public override void ReadFromString(string str)
+                => Values = str.Split(' ').Select(x => bool.Parse(x)).ToArray();
+            public override string WriteToString()
+                => string.Join(" ", Values);
+        }
         public class ElementStringArray : BaseElementString
         {
             public string[] Values { get; set; }
@@ -688,10 +794,10 @@ namespace TheraEngine.Rendering.Models
         [Child(typeof(Extra), 0, -1)]
         public class COLLADA : BaseElement<IElement>, IExtra, IAsset
         {
-            [Attr("version")]
+            [Attr("version", true)]
             [DefaultValue("1.5.0")]
             public string Version { get; set; }
-            [Attr("schema")]
+            [Attr("xmlns", true)]
             [DefaultValue("https://collada.org/2008/03/COLLADASchema/")]
             public string Schema { get; set; }
             [Attr("base", false)]
@@ -709,31 +815,27 @@ namespace TheraEngine.Rendering.Models
             {
                 [Name("instance_physics_scene")]
                 [Child(typeof(Extra), 0, -1)]
-                public class InstancePhysicsScene : BaseElement<Scene>, IUrl, ISID, IName, IExtra
+                public class InstancePhysicsScene : BaseElement<Scene>, ISID, IName, IExtra
                 {
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
                     [Attr("name", false)]
                     public string Name { get; set; } = null;
                     [Attr("url", true)]
-                    public string Url { get; set; } = null;
-                    public bool IsLocal => Url != null && Url.StartsWith("#");
-                    public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+                    public ColladaURI Url { get; set; } = null;
 
                     public List<ISID> SIDChildren { get; } = new List<ISID>();
                 }
                 [Name("instance_visual_scene")]
                 [Child(typeof(Extra), 0, -1)]
-                public class InstanceVisualScene : BaseElement<Scene>, IUrl, ISID, IName, IExtra
+                public class InstanceVisualScene : BaseElement<Scene>, ISID, IName, IExtra
                 {
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
                     [Attr("name", false)]
                     public string Name { get; set; } = null;
                     [Attr("url", true)]
-                    public string Url { get; set; } = null;
-                    public bool IsLocal => Url != null && Url.StartsWith("#");
-                    public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+                    public ColladaURI Url { get; set; } = null;
 
                     public List<ISID> SIDChildren { get; } = new List<ISID>();
                 }
@@ -744,16 +846,14 @@ namespace TheraEngine.Rendering.Models
                 //[Child(typeof(BindKinematicsModel), 0, -1)]
                 //[Child(typeof(BindJointAxis), 0, -1)]
                 [Child(typeof(Extra), 0, -1)]
-                public class InstanceKinematicsScene : BaseElement<Scene>, IUrl, ISID, IName, IExtra
+                public class InstanceKinematicsScene : BaseElement<Scene>, ISID, IName, IExtra
                 {
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
                     [Attr("name", false)]
                     public string Name { get; set; } = null;
                     [Attr("url", true)]
-                    public string Url { get; set; } = null;
-                    public bool IsLocal => Url != null && Url.StartsWith("#");
-                    public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+                    public ColladaURI Url { get; set; } = null;
 
                     //TODO: BindKinematicsModel, BindJointAxis
 
@@ -979,16 +1079,14 @@ namespace TheraEngine.Rendering.Models
                     //[Child(typeof(TechniqueHint), 0, -1)]
                     //[Child(typeof(SetParam), 0, -1)]
                     [Child(typeof(Extra), 0, -1)]
-                    public class InstanceEffect : BaseElement<Material>, IUrl, ISID, IName, IExtra
+                    public class InstanceEffect : BaseElement<Material>, ISID, IName, IExtra
                     {
                         [Attr("sid", false)]
                         public string SID { get; set; } = null;
                         [Attr("name", false)]
                         public string Name { get; set; } = null;
                         [Attr("url", true)]
-                        public string Url { get; set; } = null;
-                        public bool IsLocal => Url != null && Url.StartsWith("#");
-                        public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+                        public ColladaURI Url { get; set; } = null;
 
                         public List<ISID> SIDChildren { get; } = new List<ISID>();
 
@@ -1056,7 +1154,7 @@ namespace TheraEngine.Rendering.Models
                             [Name("pass")]
                             public class Pass : BaseElement<Technique>
                             {
-
+                                //TODO
                             }
                         }
                     }
@@ -1115,9 +1213,9 @@ namespace TheraEngine.Rendering.Models
                                 [Child(typeof(Extra), 0, -1)]
                                 public class Texture : BaseElement<BaseFXColorTexture>, IExtra
                                 {
-                                    [Attr("texture")]
+                                    [Attr("texture", true)]
                                     public string TextureID { get; set; }
-                                    [Attr("texcoord")]
+                                    [Attr("texcoord", true)]
                                     public string TexcoordID { get; set; }
                                 }
                             }
@@ -1305,6 +1403,141 @@ namespace TheraEngine.Rendering.Models
             }
             #endregion
 
+            #region Cameras
+            [Name("library_cameras")]
+            [Child(typeof(Camera), 1, -1)]
+            public class LibraryCameras : Library
+            {
+                [Name("camera")]
+                public class Camera : BaseElement<LibraryCameras>, IInstantiatable, IID
+                {
+                    [Attr("id", false)]
+                    public string ID { get; set; } = null;
+
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                }
+            }
+            #endregion
+
+            #region Geometry
+            [Name("library_geometry")]
+            [Child(typeof(Geometry), 1, -1)]
+            public class LibraryGeometry : Library
+            {
+                [Name("geometry")]
+                [Child(typeof(Asset), 0, 1)]
+                [Unsupported("convex_mesh")]
+                [Unsupported("spline")]
+                [Unsupported("brep")]
+                [Child(typeof(Mesh), 1)]
+                [Child(typeof(Extra), 0, -1)]
+                public class Geometry : BaseElement<LibraryGeometry>, IInstantiatable, IID, IName, IAsset, IExtra
+                {
+                    [Attr("id", false)]
+                    public string ID { get; set; } = null;
+                    [Attr("name", false)]
+                    public string Name { get; set; } = null;
+
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                    [Name("convex_mesh")]
+                    public class ConvexMesh : BaseElement<Geometry>
+                    {
+
+                    }
+                    [Name("mesh")]
+                    [Child(typeof(Source), 1, -1)]
+                    [Child(typeof(Vertices), 1)]
+                    [Child(typeof(BasePrimitive), 0, -1)]
+                    [Child(typeof(Extra), 0, -1)]
+                    public class Mesh : BaseElement<Geometry>
+                    {
+                        [Name("vertices")]
+                        [Child(typeof(InputUnshared), 1, -1)]
+                        [Child(typeof(Extra), 0, -1)]
+                        public class Vertices : BaseElement<Mesh>, IID, IName
+                        {
+                            [Attr("id", false)]
+                            public string ID { get; set; } = null;
+                            [Attr("name", false)]
+                            public string Name { get; set; } = null;
+
+                            public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+
+                        }
+                        [Child(typeof(Extra), 0, -1)]
+                        public class BasePrimitive : BaseElement<Mesh>, IName, IExtra
+                        {
+                            [Attr("name", false)]
+                            public string Name { get; set; } = null;
+                            [Attr("count", true)]
+                            public int Count { get; set; } = 0;
+                            [Attr("material", false)]
+                            public string Material { get; set; } = null;
+                        }
+                        [Name("lines")]
+                        public class Lines : BasePrimitive { }
+                        [Name("linestrips")]
+                        public class Linestrips : BasePrimitive { }
+                        [Name("polygons")]
+                        public class Polygons : BasePrimitive { }
+                        [Name("polylist")]
+                        public class Polylist : BasePrimitive { }
+                        [Name("triangles")]
+                        public class Triangles : BasePrimitive { }
+                        [Name("trifans")]
+                        public class Trifans : BasePrimitive { }
+                        [Name("tristrips")]
+                        public class Tristrips : BasePrimitive { }
+                    }
+                    [Name("spline")]
+                    public class Spline : BaseElement<Geometry>
+                    {
+
+                    }
+                    [Name("brep")]
+                    public class BRep : BaseElement<Geometry>
+                    {
+
+                    }
+                }
+            }
+            #endregion
+
+            #region Controllers
+            [Name("library_controllers")]
+            [Child(typeof(Controller), 1, -1)]
+            public class LibraryControllers : Library
+            {
+                [Name("controller")]
+                public class Controller : BaseElement<LibraryControllers>, IInstantiatable, IID
+                {
+                    [Attr("id", false)]
+                    public string ID { get; set; } = null;
+
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                }
+            }
+            #endregion
+
+            #region Lights
+            [Name("library_lights")]
+            [Child(typeof(Light), 1, -1)]
+            public class LibraryLights : Library
+            {
+                [Name("light")]
+                public class Light : BaseElement<LibraryLights>, IInstantiatable, IID
+                {
+                    [Attr("id", false)]
+                    public string ID { get; set; } = null;
+
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                }
+            }
+            #endregion
+
+            #region Nodes
             /// <summary>
             /// Indicates that this class owns Node elements.
             /// </summary>
@@ -1368,6 +1601,7 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
             }
+            #endregion
 
             #region Visual Scenes
             [Name("library_visual_scenes")]
@@ -1387,135 +1621,6 @@ namespace TheraEngine.Rendering.Models
                     {
                         //TODO
                     }
-                }
-            }
-
-            [Name("library_cameras")]
-            [Child(typeof(Camera), 1, -1)]
-            public class LibraryCameras : Library
-            {
-                [Name("camera")]
-                public class Camera : BaseElement<LibraryCameras>, IInstantiatable, IID
-                {
-                    [Attr("id", false)]
-                    public string ID { get; set; } = null;
-
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
-                }
-            }
-
-            [Name("library_geometry")]
-            [Child(typeof(Geometry), 1, -1)]
-            public class LibraryGeometry : Library
-            {
-                [Name("geometry")]
-                [Child(typeof(Asset), 0, 1)]
-                [MultiChild(EMultiChildType.OneOfOne, 
-                    typeof(ConvexMesh), typeof(Mesh), typeof(Spline), typeof(BRep))]
-                [Child(typeof(Extra), 0, -1)]
-                public class Geometry : BaseElement<LibraryGeometry>, IInstantiatable, IID, IName, IAsset, IExtra
-                {
-                    [Attr("id", false)]
-                    public string ID { get; set; } = null;
-                    [Attr("name", false)]
-                    public string Name { get; set; } = null;
-                    
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
-
-                    [Name("convex_mesh")]
-                    public class ConvexMesh : BaseElement<Geometry>
-                    {
-                        
-                    }
-                    [Name("mesh")]
-                    [Child(typeof(Source), 1, -1)]
-                    [Child(typeof(Vertices), 1)]
-                    [Child(typeof(BasePrimitive), 0, -1)]
-                    [Child(typeof(Extra), 0, -1)]
-                    public class Mesh : BaseElement<Geometry>
-                    {
-                        [Name("source")]
-                        [Child(typeof(Asset), 0, 1)]
-                        [Child(typeof(ArrayElement), 0, 1)]
-                        [Child(typeof(TechniqueCommon), 0, 1)]
-                        [Child(typeof(Technique), 0, -1)]
-                        public class Source : BaseElement<Mesh>, IID, IName, IAsset
-                        {
-                            [Attr("id", false)]
-                            public string ID { get; set; } = null;
-                            [Attr("name", false)]
-                            public string Name { get; set; } = null;
-
-                            public List<ISID> SIDChildren { get; } = new List<ISID>();
-                        }
-                        [Name("vertices")]
-                        public class Vertices : BaseElement<Mesh>
-                        {
-
-                        }
-                        [Child(typeof(Extra), 0, -1)]
-                        public class BasePrimitive : BaseElement<Mesh>, IName, IExtra
-                        {
-                            [Attr("name", false)]
-                            public string Name { get; set; } = null;
-                            [Attr("count", true)]
-                            public int Count { get; set; } = 0;
-                            [Attr("material", false)]
-                            public string Material { get; set; } = null;
-                        }
-                        [Name("lines")]
-                        public class Lines : BasePrimitive { }
-                        [Name("linestrips")]
-                        public class Linestrips : BasePrimitive { }
-                        [Name("polygons")]
-                        public class Polygons : BasePrimitive { }
-                        [Name("polylist")]
-                        public class Polylist : BasePrimitive { }
-                        [Name("triangles")]
-                        public class Triangles : BasePrimitive { }
-                        [Name("trifans")]
-                        public class Trifans : BasePrimitive { }
-                        [Name("tristrips")]
-                        public class Tristrips : BasePrimitive { }
-                    }
-                    [Name("spline")]
-                    public class Spline : BaseElement<Geometry>
-                    {
-
-                    }
-                    [Name("brep")]
-                    public class BRep : BaseElement<Geometry>
-                    {
-
-                    }
-                }
-            }
-
-            [Name("library_controllers")]
-            [Child(typeof(Controller), 1, -1)]
-            public class LibraryControllers : Library
-            {
-                [Name("controller")]
-                public class Controller : BaseElement<LibraryControllers>, IInstantiatable, IID
-                {
-                    [Attr("id", false)]
-                    public string ID { get; set; } = null;
-
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
-                }
-            }
-
-            [Name("library_lights")]
-            [Child(typeof(Light), 1, -1)]
-            public class LibraryLights : Library
-            {
-                [Name("light")]
-                public class Light : BaseElement<LibraryLights>, IInstantiatable, IID
-                {
-                    [Attr("id", false)]
-                    public string ID { get; set; } = null;
-
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
                 }
             }
             #endregion

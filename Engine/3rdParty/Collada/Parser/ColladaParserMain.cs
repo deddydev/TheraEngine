@@ -100,39 +100,66 @@ namespace TheraEngine.Rendering.Models
                 else
                 {
                     reader.MoveToElement();
+                    string parentElementName = reader.Name;
                     reader.ReadStartElement();
 
-                    string name = reader.Name.ToString();
-                    bool isUnsupported = Attribute.GetCustomAttributes(elementType, typeof(Unsupported), false).Any(x => string.Equals(((Unsupported)x).ElementName, name, StringComparison.InvariantCultureIgnoreCase));
-                    if (!isUnsupported)
+                    if (childElements.Length > 0 || multiChildElements.Length > 0)
                     {
-                        ChildInfo child = childElements.FirstOrDefault(x => string.Equals(x.ElementName, name, StringComparison.InvariantCultureIgnoreCase));
-                        if (child == null)
+                        //Read all child elements
+                        while (true)
                         {
-                            Type multiChildType = null;
-                            foreach (MultiChildInfo c in multiChildElements)
-                                for (int i = 0; i < c.Data.Types.Length; ++i)
-                                    if (string.Equals(c.ElementNames[i], name, StringComparison.InvariantCultureIgnoreCase))
+                            string elementName = reader.Name;
+                            bool isUnsupported = Attribute.GetCustomAttributes(elementType, typeof(Unsupported), false).Any(x => string.Equals(((Unsupported)x).ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
+                            if (!isUnsupported)
+                            {
+                                ChildInfo child = childElements.FirstOrDefault(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
+                                if (child == null)
+                                {
+                                    Type multiChildType = null;
+                                    foreach (MultiChildInfo c in multiChildElements)
+                                        for (int i = 0; i < c.Data.Types.Length; ++i)
+                                            if (string.Equals(c.ElementNames[i], elementName, StringComparison.InvariantCultureIgnoreCase))
+                                            {
+                                                multiChildType = c.Data.Types[i];
+                                                break;
+                                            }
+
+                                    if (multiChildType != null)
+                                        ParseElement(multiChildType, entry, reader);
+                                    else
                                     {
-                                        multiChildType = c.Data.Types[i];
-                                        break;
+                                        Engine.PrintLine("Element '{0}' not supported by parser.", elementName);
+                                        reader.Skip();
                                     }
+                                }
+                                else
+                                {
+                                    if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
+                                        Engine.PrintLine("Element '{0}' has occurred more times than expected.", elementName);
 
-                            if (multiChildType != null)
-                                ParseElement(multiChildType, entry, reader);
+                                    ParseElement(child.Data.ChildEntryType, entry, reader);
+                                }
+                            }
                             else
-                                Engine.PrintLine("Element '{0}' not supported by parser.", name);
-                        }
-                        else
-                        {
-                            if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
-                                Engine.PrintLine("Element '{0}' has occurred more times than expected.", name);
+                            {
+                                Engine.PrintLine("Element '{0}' not supported by parser.", elementName);
+                                reader.Skip();
+                            }
 
-                            ParseElement(child.Data.ChildEntryType, entry, reader);
+                            //End element?
+                            if (reader.NodeType == XmlNodeType.EndElement)
+                            {
+                                //End element of current child element?
+                                if (reader.Name == elementName)
+                                    reader.ReadEndElement(); //Read over it and continue reading children
+                                else
+                                    break; //This is the parent end tag, so stop reading children.
+                            }
                         }
                     }
-                    else
-                        Engine.PrintLine("Element '{0}' not supported by parser.", name);
+
+                    if (reader.Name == parentElementName)
+                        reader.ReadEndElement();
                 }
 
                 ChildInfo[] underCounted = childElements.Where(x => x.Occurrences < x.Data.MinCount).ToArray();
@@ -149,7 +176,11 @@ namespace TheraEngine.Rendering.Models
                 {
                     Data = data;
                     Occurrences = 0;
-                    ElementName = Data.ChildEntryType.GetCustomAttribute<Name>()?.ElementName;
+                    Name nameAttrib = Data.ChildEntryType.GetCustomAttribute<Name>();
+                    if (nameAttrib != null)
+                        ElementName = nameAttrib.ElementName;
+                    else
+                        Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no Name attribute");
                 }
 
                 //TODO: support derivations of child entry type with different element name attribute values
@@ -157,6 +188,11 @@ namespace TheraEngine.Rendering.Models
                 public string ElementName { get; private set; }
                 public Child Data { get; private set; }
                 public int Occurrences { get; set; }
+
+                public override string ToString()
+                {
+                    return ElementName + " " + Occurrences;
+                }
             }
             private class MultiChildInfo
             {
@@ -171,6 +207,11 @@ namespace TheraEngine.Rendering.Models
                 public MultiChild Data { get; private set; }
                 public int[] Occurrences { get; private set; }
                 public string[] ElementNames { get; private set; }
+
+                public override string ToString()
+                {
+                    return string.Join(" ", ElementNames) + " " + string.Join(" ", Occurrences);
+                }
             }
         }
 
@@ -572,12 +613,13 @@ namespace TheraEngine.Rendering.Models
             }
             public enum EUpAxis
             {
-                //Coordinate systems for each up axis:
-                //Right,    Up,    Toward Camera
+                        //Coordinate systems for each up axis:
+                        //Right,    Up,    Toward Camera
                 X_UP,   //  -Y,     +X,     +Z
                 Y_UP,   //  +X,     +Y,     +Z <-- TheraEngine's coordinate system
                 Z_UP,   //  +X      +Z,     -Y
             }
+            [Name("up_axis")]
             public class UpAxis : BaseStringElement<Asset, StringNumeric<EUpAxis>> { }
         }
         #endregion

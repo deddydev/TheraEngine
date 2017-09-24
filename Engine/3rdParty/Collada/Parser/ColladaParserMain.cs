@@ -103,16 +103,18 @@ namespace TheraEngine.Rendering.Models
                     string parentElementName = reader.Name;
                     reader.ReadStartElement();
 
-                    if (childElements.Length > 0 || multiChildElements.Length > 0)
+                    if (childElements.Length > 0 ||
+                        multiChildElements.Length > 0)
                     {
                         //Read all child elements
                         while (true)
                         {
                             string elementName = reader.Name;
-                            bool isUnsupported = Attribute.GetCustomAttributes(elementType, typeof(Unsupported), false).Any(x => string.Equals(((Unsupported)x).ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
+                            bool isUnsupported = Attribute.GetCustomAttributes(elementType, typeof(Unsupported), false).
+                                Any(x => string.Equals(((Unsupported)x).ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
                             if (!isUnsupported)
                             {
-                                ChildInfo child = childElements.FirstOrDefault(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
+                                ChildInfo child = childElements.FirstOrDefault(x => x.ElementNames.Any(r => string.Equals(r, elementName, StringComparison.InvariantCultureIgnoreCase)));
                                 if (child == null)
                                 {
                                     Type multiChildType = null;
@@ -137,6 +139,7 @@ namespace TheraEngine.Rendering.Models
                                     if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
                                         Engine.PrintLine("Element '{0}' has occurred more times than expected.", elementName);
 
+                                    Array.FindIndex(child.ElementNames, x => string.Equals(x, elementName, StringComparison.InvariantCultureIgnoreCase));
                                     ParseElement(child.Data.ChildEntryType, entry, reader);
                                 }
                             }
@@ -156,19 +159,29 @@ namespace TheraEngine.Rendering.Models
                                     break; //This is the parent end tag, so stop reading children.
                             }
                         }
-                    }
 
-                    if (reader.Name == parentElementName)
-                        reader.ReadEndElement();
+                        if (reader.Name == parentElementName)
+                            reader.ReadEndElement();
+                        else
+                            throw new Exception();
+                    }
                 }
 
-                ChildInfo[] underCounted = childElements.Where(x => x.Occurrences < x.Data.MinCount).ToArray();
-                if (underCounted.Length > 0)
-                    foreach (ChildInfo c in underCounted)
-                        Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
+                //ChildInfo[] underCounted = childElements.Where(x => x.Occurrences < x.Data.MinCount).ToArray();
+                //if (underCounted.Length > 0)
+                //    foreach (ChildInfo c in underCounted)
+                //        Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
 
                 entry.PostRead();
                 return entry;
+            }
+            private static Type[] FindPublicTypes(Predicate<Type> match)
+            {
+                return
+                    (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+                     from assemblyType in domainAssembly.GetExportedTypes()
+                     where match(assemblyType) && !assemblyType.IsAbstract
+                     select assemblyType).ToArray();
             }
             private class ChildInfo
             {
@@ -176,22 +189,29 @@ namespace TheraEngine.Rendering.Models
                 {
                     Data = data;
                     Occurrences = 0;
-                    Name nameAttrib = Data.ChildEntryType.GetCustomAttribute<Name>();
-                    if (nameAttrib != null)
-                        ElementName = nameAttrib.ElementName;
-                    else
-                        Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no Name attribute");
+                    Types = FindPublicTypes((Type t) => Data.ChildEntryType.IsAssignableFrom(t));
+                    ElementNames = new string[types.Length];
+                    for (int i = 0; i < types.Length; ++i)
+                    {
+                        Type t = types[i];
+                        Name nameAttrib = t.GetCustomAttribute<Name>();
+                        if (nameAttrib != null)
+                            ElementNames[i] = nameAttrib.ElementName;
+                        else
+                            Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no Name attribute");
+                    }
                 }
 
                 //TODO: support derivations of child entry type with different element name attribute values
-
-                public string ElementName { get; private set; }
+                
+                public Type[] Types { get; private set; }
+                public string[] ElementNames { get; private set; }
                 public Child Data { get; private set; }
                 public int Occurrences { get; set; }
 
                 public override string ToString()
                 {
-                    return ElementName + " " + Occurrences;
+                    return string.Join(" ", ElementNames) + " " + Occurrences;
                 }
             }
             private class MultiChildInfo

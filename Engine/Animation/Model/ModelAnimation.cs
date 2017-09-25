@@ -19,7 +19,7 @@ namespace TheraEngine.Animation
                 ImportAnimations = true,
                 ImportModels = false
             };
-            return Collada.Import(path, o)?.Animation;
+            return Collada.Import(path, o)?.ModelAnimations[0];
         }
 
         [Serialize("BoneAnimations")]

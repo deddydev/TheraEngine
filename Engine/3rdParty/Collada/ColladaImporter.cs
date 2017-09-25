@@ -11,18 +11,32 @@ namespace TheraEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {
-        public static ModelScene Import(string filePath, ModelImportOptions options)
+        public class Data
+        {
+            public List<ModelScene> Models { get; set; }
+            public List<ModelAnimation> ModelAnimations { get; set; }
+            public List<BasePropertyAnimation> PropertyAnimations { get; set; }
+        }
+        public static Data Import(string filePath, ModelImportOptions options)
         {
             if (!File.Exists(filePath))
                 return null;
 
             Engine.PrintLine("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
 
-            XMLDecoderShell<COLLADA> shell = XMLDecoderShell<COLLADA>.Import(filePath);
-            ModelScene scene = new ModelScene();
+            XMLDecoderShell<COLLADA> shell = XMLDecoderShell<COLLADA>.Import(filePath, false);
+            Data data = new Data();
 
             if (options.ImportModels)
             {
+                if (shell.Root != null)
+                {
+                    var scenes = shell.Root.GetChildren<COLLADA.Scene>();
+                    foreach (var scene in scenes)
+                    {
+                        var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
+                    }
+                }
                 COLLADA.LibraryImages.Image15X[] images = shell.Root?.
                     GetChildren<COLLADA.LibraryImages>()?.
                     SelectMany(x => x.GetChildren<COLLADA.LibraryImages.Image15X>()).
@@ -152,7 +166,7 @@ namespace TheraEngine.Rendering.Models
             //        ParseAnimation(shell, e, scene.Animation, scene.Skeleton);
             //}
 
-            return scene;
+            return data;
         }
 
         //private static void ParseAnimation(DecoderShell shell, AnimationEntry e, ModelAnimation c, Skeleton skel)

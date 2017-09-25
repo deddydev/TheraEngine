@@ -25,7 +25,7 @@ namespace TheraEngine.Tests
                 ImportAnimations = false,
                 InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
-            ModelScene scene = Collada.Import(desktop + "TEST.DAE", options);
+            Collada.Data scene = Collada.Import(desktop + "TEST.DAE", options);
             if (scene != null)
             {
                 //PropAnimFloat elbowAnim = new PropAnimFloat(360, true, true);
@@ -55,9 +55,9 @@ namespace TheraEngine.Tests
                 //kneeAnim.Keyframes.Add(l3);
                 //scene.Skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
                 
-                Mesh = scene.SkeletalModel;
+                //Mesh = scene.Models[0].SkeletalModel;
                 //Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + MeshName + "." + GetFileHeader(typeof(SkeletalMesh)).GetProperExtension(FileFormat.XML));
-                Skeleton = scene.Skeleton;
+                //Skeleton = scene.Models[0].Skeleton;
                 //Skeleton = new SingleFileRef<Skeleton>(Engine.ContentFolderAbs + SkelName + "." + GetFileHeader(typeof(Skeleton)).GetProperExtension(FileFormat.XML));
             }
 

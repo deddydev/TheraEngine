@@ -85,6 +85,5 @@ namespace TheraEngine.Rendering.Models
         public SkeletalMesh SkeletalModel;
         public StaticMesh StaticModel;
         public Skeleton Skeleton;
-        public ModelAnimation Animation;
     }
 }

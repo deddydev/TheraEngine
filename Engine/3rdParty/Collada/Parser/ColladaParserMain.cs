@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.Models
         {
             public T Root { get; set; }
 
-            public static XMLDecoderShell<T> Import(string path)
+            public static XMLDecoderShell<T> Import(string path, bool parseExtraElements)
             {
                 XmlReaderSettings s = new XmlReaderSettings()
                 {
@@ -26,30 +26,55 @@ namespace TheraEngine.Rendering.Models
                     IgnoreComments = true,
                     IgnoreWhitespace = true
                 };
-                return Import(path, s);
+                return Import(path, parseExtraElements, s);
             }
-            public static XMLDecoderShell<T> Import(string path, XmlReaderSettings settings)
+            public static XMLDecoderShell<T> Import(string path, bool parseExtraElements, XmlReaderSettings settings)
             {
                 using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
-                    return new XMLDecoderShell<T>(r);
+                    return new XMLDecoderShell<T>(r, parseExtraElements);
             }
-            private XMLDecoderShell(XmlReader reader)
+            private XMLDecoderShell(XmlReader reader, bool parseExtraElements)
             {
+                string previousTree = "";
                 Type t = typeof(T);
-                string name = t.GetCustomAttribute<Name>()?.ElementName;
+                Name name = t.GetCustomAttribute<Name>();
+                if (name == null || string.IsNullOrEmpty(name.ElementName))
+                {
+                    Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
+                    Root = null;
+                    return;
+                }
                 bool found;
-                while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name, reader.Name, StringComparison.InvariantCulture)))) { }
+                while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
                 if (found)
-                    Root = ParseElement(t, null, reader, null) as T;
+                    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
             }
-            private IElement ParseElement(Type elementType, IElement parent, XmlReader reader, string version)
+            private IElement ParseElement(
+                Type elementType,
+                IElement parent,
+                XmlReader reader,
+                string version,
+                bool parseExtraElements,
+                string parentTree,
+                int elementIndex)
             {
                 IElement entry = Activator.CreateInstance(elementType) as IElement;
                 entry.GenericParent = parent;
+                entry.ElementIndex = elementIndex;
                 entry.PreRead();
-                
+
                 if (reader.NodeType != XmlNodeType.Element)
                     throw new Exception("Encountered an unexpected node: " + reader.Name);
+
+                if (!parseExtraElements && entry is Extra)
+                {
+                    reader.Skip();
+                    return entry;
+                }
+
+                string parentElementName = reader.Name;
+                parentTree += parentElementName + "/";
+                entry.Tree = parentTree;
 
                 #region Read attributes
                 MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -72,6 +97,9 @@ namespace TheraEngine.Rendering.Models
                             property.SetValue(entry, value.ParseAs(property.PropertyType));
                     }
                 #endregion
+
+                if (entry is IVersion v)
+                    version = v.Version;
 
                 #region Handle ID system
                 if (entry is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
@@ -113,8 +141,8 @@ namespace TheraEngine.Rendering.Models
                         reader.Read();
                     else
                     {
-                        string parentElementName = reader.Name;
                         reader.ReadStartElement();
+                        int childIndex = 0;
 
                         //Read all child elements
                         while (reader.NodeType != XmlNodeType.EndElement)
@@ -126,6 +154,9 @@ namespace TheraEngine.Rendering.Models
                             }
 
                             string elementName = reader.Name;
+                            if (string.IsNullOrEmpty(elementName))
+                                throw new Exception();
+
                             bool isUnsupported = Attribute.GetCustomAttributes(elementType, typeof(Unsupported), false).
                                 Any(x => string.Equals(((Unsupported)x).ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
 
@@ -133,43 +164,50 @@ namespace TheraEngine.Rendering.Models
                             {
                                 if (string.IsNullOrEmpty(elementName))
                                     throw new Exception();
-                                Engine.PrintLine("Element '{0}' not supported by parser.", elementName);
+                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree);
                                 reader.Skip();
                             }
                             else
                             {
-                                ChildInfo child = childElements.FirstOrDefault(x => x.ElementNames.Any(r => string.Equals(r.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase) && version == null ? true : r.VersionMatches(version)));
-                                if (child != null)
+                                int typeIndex = -1;
+                                foreach (ChildInfo child in childElements)
                                 {
-                                    if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
-                                        Engine.PrintLine("Element '{0}' has occurred more times than expected.", elementName);
+                                    typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
+                                    if (typeIndex >= 0)
+                                    {
+                                        if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
+                                            Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
-                                    int typeIndex = Array.FindIndex(child.ElementNames, x => string.Equals(x.ElementName, elementName, x.CaseSensitive ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase) && version == null ? true : x.VersionMatches(version));
-                                    ParseElement(child.Types[typeIndex], entry, reader, version);
+                                        ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                        break;
+                                    }
                                 }
-                                else
+                                if (typeIndex < 0)
                                 {
                                     MultiChildInfo info = multiChildElements.FirstOrDefault(c => 
                                     {
                                         for (int i = 0; i < c.Data.Types.Length; ++i)
-                                            if (string.Equals(c.ElementNames[i], elementName, StringComparison.InvariantCultureIgnoreCase))
+                                        {
+                                            Name name = c.ElementNames[i];
+                                            if (name.Matches(elementName, version))
                                             {
                                                 ++c.Occurrences[i];
-                                                ParseElement(c.Data.Types[i], entry, reader, version);
+                                                ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
                                                 return true;
                                             }
+                                        }
                                         return false;
                                     });
 
                                     if (info == null)
                                     {
-                                        if (string.IsNullOrEmpty(elementName))
-                                            throw new Exception();
-                                        Engine.PrintLine("Element '{0}' not supported by parser.", elementName);
+                                        Engine.PrintLine("Element '{0}' not supported by parser.", parentTree);
                                         reader.Skip();
                                     }
                                 }
                             }
+
+                            ++childIndex;
                         }
                         
                         if (reader.Name == parentElementName)
@@ -178,10 +216,13 @@ namespace TheraEngine.Rendering.Models
                             throw new Exception("Encountered an unexpected node: " + reader.Name);
                     }
 
-                    ChildInfo[] underCounted = childElements.Where(x => x.Occurrences < x.Data.MinCount).ToArray();
+                    Name[] underCounted = childElements.
+                        Where(x => x.Occurrences < x.Data.MinCount).
+                        SelectMany(x => x.ElementNames).
+                        Where(x => x.VersionMatches(version)).ToArray();
                     if (underCounted.Length > 0)
-                        foreach (ChildInfo c in underCounted)
-                            Engine.PrintLine("Element '{0}' has occurred less times than expected.", string.Join(" ", c.ElementNames.Select(x => x.ElementName)));
+                        foreach (Name c in underCounted)
+                            Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
                 }
                 
                 #endregion
@@ -211,7 +252,7 @@ namespace TheraEngine.Rendering.Models
                         Name nameAttrib = t.GetCustomAttribute<Name>();
                         ElementNames[i] = nameAttrib;
                         if (nameAttrib == null)
-                            Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no Name attribute");
+                            Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no 'Name' attribute");
                     }
                 }
                 
@@ -233,15 +274,15 @@ namespace TheraEngine.Rendering.Models
                     Occurrences = new int[Data.Types.Length];
                     for (int i = 0; i < Occurrences.Length; ++i)
                         Occurrences[i] = 0;
-                    ElementNames = Data.Types.Select(x => x.GetCustomAttribute<Name>()?.ElementName).ToArray();
+                    ElementNames = Data.Types.Select(x => x.GetCustomAttribute<Name>()).ToArray();
                 }
                 public MultiChild Data { get; private set; }
                 public int[] Occurrences { get; private set; }
-                public string[] ElementNames { get; private set; }
+                public Name[] ElementNames { get; private set; }
 
                 public override string ToString()
                 {
-                    return string.Join(" ", ElementNames) + " " + string.Join(" ", Occurrences);
+                    return string.Join(" ", ElementNames.Select(x => x.ElementName)) + " " + string.Join(" ", Occurrences);
                 }
             }
         }
@@ -260,6 +301,8 @@ namespace TheraEngine.Rendering.Models
             }
             public bool VersionMatches(string version)
             {
+                if (version == null)
+                    return true;
                 string elemVer = Version;
                 for (int i = 0; i < elemVer.Length; ++i)
                 {
@@ -269,6 +312,13 @@ namespace TheraEngine.Rendering.Models
                         return false;
                 }
                 return true;
+            }
+
+            public bool Matches(string elementName, string version)
+            {
+                bool nameMatch = string.Equals(ElementName, elementName, CaseSensitive ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                bool versionMatch = VersionMatches(version);
+                return nameMatch && versionMatch;
             }
         }
         [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
@@ -377,6 +427,8 @@ namespace TheraEngine.Rendering.Models
             IElement GenericParent { get; set; }
             COLLADA Root { get; }
             Dictionary<Type, List<IElement>> ChildElements { get; }
+            int ElementIndex { get; set; }
+            string Tree { get; set; }
         }
         /// <summary>
         /// 
@@ -385,6 +437,7 @@ namespace TheraEngine.Rendering.Models
         public abstract class BaseElement<T> : IElement where T : class, IElement
         {
             public int ElementIndex { get; set; } = -1;
+            public string Tree { get; set; }
             public string ElementName
             {
                 get
@@ -481,12 +534,20 @@ namespace TheraEngine.Rendering.Models
             string SID { get; set; }
         }
         public interface IName { string Name { get; set; } }
+        public interface IVersion { string Version { get; set; } }
 
         public interface IExtra : IElement { }
         [Name("extra")]
-        public class Extra : BaseElement<IExtra>
+        [Child(typeof(Asset), 0, 1)]
+        [Child(typeof(Technique), 1, -1)]
+        public class Extra : BaseElement<IExtra>, IID, IName
         {
+            [Attr("id", false)]
+            public string ID { get; set; } = null;
+            [Attr("name", false)]
+            public string Name { get; set; } = null;
 
+            public List<ISID> SIDChildren { get; } = new List<ISID>();
         }
         public interface IAnnotate : IElement { }
         [Name("annotate")]
@@ -683,6 +744,12 @@ namespace TheraEngine.Rendering.Models
         {
 
         }
+        public interface ITechnique : IElement { }
+        [Name("technique")]
+        public class Technique
+        {
+
+        }
 
         public interface ISource : IElement { }
         [Name("source")]
@@ -753,7 +820,10 @@ namespace TheraEngine.Rendering.Models
 
         #region Instance
         public interface IInstantiatable { }
-        public class BaseInstanceElement<T> : BaseElement<COLLADA.Node>, ISID, IName where T : class, IElement, IInstantiatable, IID
+        [Child(typeof(Extra), 0, -1)]
+        public class BaseInstanceElement<T1, T2> : BaseElement<COLLADA.Node>, ISID, IName, IExtra
+            where T1 : class, IElement
+            where T2 : class, IElement, IInstantiatable, IID
         {
             [Attr("sid", false)]
             public string SID { get; set; } = null;
@@ -764,10 +834,10 @@ namespace TheraEngine.Rendering.Models
 
             public List<ISID> SIDChildren { get; } = new List<ISID>();
             
-            public T GetInstance => Url.GetElement(this) as T;
+            public T2 GetInstance => Url.GetElement(this) as T2;
         }
         [Name("instance_node")]
-        public class InstanceNode : BaseInstanceElement<COLLADA.Node>
+        public class InstanceNode : BaseInstanceElement<COLLADA.Node, COLLADA.Node>
         {
             [Attr("proxy", false)]
             public ColladaURI Proxy { get; set; } = null;
@@ -775,13 +845,13 @@ namespace TheraEngine.Rendering.Models
             public COLLADA.Node GetProxyInstance => Proxy.GetElement(this) as COLLADA.Node;
         }
         [Name("instance_camera")]
-        public class InstanceCamera : BaseInstanceElement<COLLADA.LibraryCameras.Camera> { }
+        public class InstanceCamera : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryCameras.Camera> { }
         [Name("instance_geometry")]
-        public class InstanceGeometry : BaseInstanceElement<COLLADA.LibraryGeometry.Geometry> { }
+        public class InstanceGeometry : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryGeometry.Geometry> { }
         [Name("instance_controller")]
-        public class InstanceController : BaseInstanceElement<COLLADA.LibraryControllers.Controller> { }
+        public class InstanceController : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryControllers.Controller> { }
         [Name("instance_light")]
-        public class InstanceLight : BaseInstanceElement<COLLADA.LibraryLights.Light> { }
+        public class InstanceLight : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryLights.Light> { }
         #endregion
 
         #endregion
@@ -874,7 +944,7 @@ namespace TheraEngine.Rendering.Models
         [Child(typeof(Library), 0, -1)]
         [Child(typeof(Scene), 0, 1)]
         [Child(typeof(Extra), 0, -1)]
-        public class COLLADA : BaseElement<IElement>, IExtra, IAsset
+        public class COLLADA : BaseElement<IElement>, IExtra, IAsset, IVersion
         {
             [Attr("version", true)]
             [DefaultValue("1.5.0")]
@@ -889,58 +959,49 @@ namespace TheraEngine.Rendering.Models
 
             #region Scene
             [Name("scene")]
-            [Child(typeof(InstancePhysicsScene), 0, -1)]
+            //[Child(typeof(InstancePhysicsScene), 0, -1)]
+            [Unsupported("instance_physics_scene")]
             [Child(typeof(InstanceVisualScene), 0, 1)]
-            [Child(typeof(InstanceKinematicsScene), 0, 1)]
+            [Unsupported("instance_kinematics_scene")]
+            //[Child(typeof(InstanceKinematicsScene), 0, 1)]
             [Child(typeof(Extra), 0, -1)]
             public class Scene : BaseElement<COLLADA>, IExtra
             {
-                [Name("instance_physics_scene")]
-                [Child(typeof(Extra), 0, -1)]
-                public class InstancePhysicsScene : BaseElement<Scene>, ISID, IName, IExtra
-                {
-                    [Attr("sid", false)]
-                    public string SID { get; set; } = null;
-                    [Attr("name", false)]
-                    public string Name { get; set; } = null;
-                    [Attr("url", true)]
-                    public ColladaURI Url { get; set; } = null;
+                //[Name("instance_physics_scene")]
+                //[Child(typeof(Extra), 0, -1)]
+                //public class InstancePhysicsScene : BaseElement<Scene>, ISID, IName, IExtra
+                //{
+                //    [Attr("sid", false)]
+                //    public string SID { get; set; } = null;
+                //    [Attr("name", false)]
+                //    public string Name { get; set; } = null;
+                //    [Attr("url", true)]
+                //    public ColladaURI Url { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
-                }
+                //    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                //}
                 [Name("instance_visual_scene")]
-                [Child(typeof(Extra), 0, -1)]
-                public class InstanceVisualScene : BaseElement<Scene>, ISID, IName, IExtra
-                {
-                    [Attr("sid", false)]
-                    public string SID { get; set; } = null;
-                    [Attr("name", false)]
-                    public string Name { get; set; } = null;
-                    [Attr("url", true)]
-                    public ColladaURI Url { get; set; } = null;
+                public class InstanceVisualScene : BaseInstanceElement<Scene, LibraryVisualScenes.VisualScene> { }
+                //[Name("instance_kinematics_scene")]
+                //[Child(typeof(Asset), 0, 1)]
+                //[Child(typeof(NewParam), 0, -1)]
+                //[Child(typeof(SetParam), 0, -1)]
+                ////[Child(typeof(BindKinematicsModel), 0, -1)]
+                ////[Child(typeof(BindJointAxis), 0, -1)]
+                //[Child(typeof(Extra), 0, -1)]
+                //public class InstanceKinematicsScene : BaseInstanceElement<Scene, LibraryKinematicsScenes.KinematicsScene>, ISID, IName, IExtra
+                //{
+                //    [Attr("sid", false)]
+                //    public string SID { get; set; } = null;
+                //    [Attr("name", false)]
+                //    public string Name { get; set; } = null;
+                //    [Attr("url", true)]
+                //    public ColladaURI Url { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
-                }
-                [Name("instance_kinematics_scene")]
-                [Child(typeof(Asset), 0, 1)]
-                [Child(typeof(NewParam), 0, -1)]
-                [Child(typeof(SetParam), 0, -1)]
-                //[Child(typeof(BindKinematicsModel), 0, -1)]
-                //[Child(typeof(BindJointAxis), 0, -1)]
-                [Child(typeof(Extra), 0, -1)]
-                public class InstanceKinematicsScene : BaseElement<Scene>, ISID, IName, IExtra
-                {
-                    [Attr("sid", false)]
-                    public string SID { get; set; } = null;
-                    [Attr("name", false)]
-                    public string Name { get; set; } = null;
-                    [Attr("url", true)]
-                    public ColladaURI Url { get; set; } = null;
+                //    //TODO: BindKinematicsModel, BindJointAxis
 
-                    //TODO: BindKinematicsModel, BindJointAxis
-
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
-                }
+                //    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                //}
             }
 
             #endregion
@@ -1696,8 +1757,16 @@ namespace TheraEngine.Rendering.Models
                 //[Child(typeof(EvaluateScene), 0, -1)]
                 [Unsupported("evaluate_scene")]
                 [Child(typeof(Extra), 0, -1)]
-                public class VisualScene : BaseElement<LibraryVisualScenes>, IAsset, IExtra, INode
+                public class VisualScene : BaseElement<LibraryVisualScenes>,
+                    IAsset, IExtra, INode, IID, IName, IInstantiatable
                 {
+                    [Attr("id", false)]
+                    public string ID { get; set; } = null;
+                    [Attr("name", false)]
+                    public string Name { get; set; } = null;
+
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+
                     [Name("evaluate_scene")]
                     public class EvaluateScene : BaseElement<VisualScene>
                     {

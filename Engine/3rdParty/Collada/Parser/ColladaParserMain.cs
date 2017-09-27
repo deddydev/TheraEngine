@@ -20,11 +20,11 @@ namespace TheraEngine.Rendering.Models
                 XmlReaderSettings s = new XmlReaderSettings()
                 {
                     ConformanceLevel = ConformanceLevel.Auto,
-                    CloseInput = true,
                     DtdProcessing = DtdProcessing.Ignore,
                     CheckCharacters = false,
+                    IgnoreWhitespace = true,
                     IgnoreComments = true,
-                    IgnoreWhitespace = true
+                    CloseInput = true,
                 };
                 return Import(path, parseExtraElements, s);
             }
@@ -73,6 +73,8 @@ namespace TheraEngine.Rendering.Models
                 }
 
                 string parentElementName = reader.Name;
+                if (string.IsNullOrEmpty(parentElementName))
+                    throw new Exception();
                 parentTree += parentElementName + "/";
                 entry.Tree = parentTree;
 
@@ -102,6 +104,7 @@ namespace TheraEngine.Rendering.Models
                     version = v.Version;
 
                 #region Handle ID system
+
                 if (entry is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
                     entry.Root.IDEntries.Add(IDEntry.ID, IDEntry);
 
@@ -164,7 +167,7 @@ namespace TheraEngine.Rendering.Models
                             {
                                 if (string.IsNullOrEmpty(elementName))
                                     throw new Exception();
-                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree);
+                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
                                 reader.Skip();
                             }
                             else
@@ -201,7 +204,7 @@ namespace TheraEngine.Rendering.Models
 
                                     if (info == null)
                                     {
-                                        Engine.PrintLine("Element '{0}' not supported by parser.", parentTree);
+                                        Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
                                         reader.Skip();
                                     }
                                 }
@@ -467,8 +470,11 @@ namespace TheraEngine.Rendering.Models
                             ParentElement.ChildElements.Add(type, new List<IElement>() { this });
                         if (GenericParent is COLLADA c)
                             Root = c;
-                        else
-                            Root = GenericParent?.Root;
+                        else if (GenericParent.Root != null)
+                            Root = GenericParent.Root;
+                        
+                        if (Root == null)
+                            throw new Exception();
                     }
                 }
             }
@@ -847,7 +853,7 @@ namespace TheraEngine.Rendering.Models
         [Name("instance_camera")]
         public class InstanceCamera : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryCameras.Camera> { }
         [Name("instance_geometry")]
-        public class InstanceGeometry : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryGeometry.Geometry> { }
+        public class InstanceGeometry : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryGeometries.Geometry> { }
         [Name("instance_controller")]
         public class InstanceController : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryControllers.Controller> { }
         [Name("instance_light")]
@@ -909,7 +915,7 @@ namespace TheraEngine.Rendering.Models
         {
             public bool[] Values { get; set; }
             public override void ReadFromString(string str)
-                => Values = str.Split(' ').Select(x => bool.Parse(x)).ToArray();
+                => Values = str.Split(new char[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Select(x => bool.Parse(x)).ToArray();
             public override string WriteToString()
                 => string.Join(" ", Values);
         }
@@ -917,7 +923,7 @@ namespace TheraEngine.Rendering.Models
         {
             public string[] Values { get; set; }
             public override void ReadFromString(string str)
-                => Values = str.Split(' ');
+                => Values = str.Split(new char[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
             public override string WriteToString()
                 => string.Join(" ", Values);
         }
@@ -925,7 +931,7 @@ namespace TheraEngine.Rendering.Models
         {
             public int[] Values { get; set; }
             public override void ReadFromString(string str)
-                => Values = str.Split(' ').Select(x => int.Parse(x)).ToArray();
+                => Values = str.Split(new char[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
             public override string WriteToString()
                 => string.Join(" ", Values);
         }
@@ -933,7 +939,7 @@ namespace TheraEngine.Rendering.Models
         {
             public float[] Values { get; set; }
             public override void ReadFromString(string str)
-                => Values = str.Split(' ').Select(x => float.Parse(x)).ToArray();
+                => Values = str.Split(new char[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Select(x => float.Parse(x)).ToArray();
             public override string WriteToString()
                 => string.Join(" ", Values);
         }
@@ -1248,8 +1254,7 @@ namespace TheraEngine.Rendering.Models
                 [Child(typeof(Asset), 0, 1)]
                 [Child(typeof(Annotate), 0, -1)]
                 [Child(typeof(NewParam), 0, -1)]
-                [MultiChild(EMultiChildType.AtLeastOneOfAny,
-                    typeof(ProfileCommon), typeof(ProfileGLSL))]
+                [Child(typeof(BaseProfile), 1, -1)]
                 [Child(typeof(Extra), 0, -1)]
                 public class Effect : BaseElement<LibraryEffects>, IID, IName, IAsset, IExtra
                 {
@@ -1563,9 +1568,9 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             #region Geometry
-            [Name("library_geometry")]
+            [Name("library_geometries")]
             [Child(typeof(Geometry), 1, -1)]
-            public class LibraryGeometry : Library
+            public class LibraryGeometries : Library
             {
                 [Name("geometry")]
                 [Child(typeof(Asset), 0, 1)]
@@ -1574,7 +1579,7 @@ namespace TheraEngine.Rendering.Models
                 [Unsupported("brep")]
                 [Child(typeof(Mesh), 1)]
                 [Child(typeof(Extra), 0, -1)]
-                public class Geometry : BaseElement<LibraryGeometry>, IInstantiatable, IID, IName, IAsset, IExtra
+                public class Geometry : BaseElement<LibraryGeometries>, IInstantiatable, IID, IName, IAsset, IExtra
                 {
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
@@ -1593,7 +1598,7 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(Vertices), 1)]
                     [Child(typeof(BasePrimitive), 0, -1)]
                     [Child(typeof(Extra), 0, -1)]
-                    public class Mesh : BaseElement<Geometry>
+                    public class Mesh : BaseElement<Geometry>, ISource
                     {
                         [Name("vertices")]
                         [Child(typeof(InputUnshared), 1, -1)]

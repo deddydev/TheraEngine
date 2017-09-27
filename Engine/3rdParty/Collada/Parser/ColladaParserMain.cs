@@ -59,28 +59,39 @@ namespace TheraEngine.Rendering.Models
                 int elementIndex)
             {
                 IElement entry = Activator.CreateInstance(elementType) as IElement;
-                if (entry.DesiredParentType != parent.GetType())
-                {
 
-                }
                 entry.GenericParent = parent;
                 entry.ElementIndex = elementIndex;
                 entry.PreRead();
-
-                if (reader.NodeType != XmlNodeType.Element)
-                    throw new Exception("Encountered an unexpected node: " + reader.Name);
-
-                if (!parseExtraElements && entry is Extra)
-                {
-                    reader.Skip();
-                    return entry;
-                }
 
                 string parentElementName = reader.Name;
                 if (string.IsNullOrEmpty(parentElementName))
                     throw new Exception();
                 parentTree += parentElementName + "/";
                 entry.Tree = parentTree;
+
+                if (reader.NodeType != XmlNodeType.Element)
+                {
+                    Engine.PrintLine("Encountered an unexpected node: {0}", reader.Name);
+                    reader.Skip();
+                    entry.PostRead();
+                    return entry;
+                }
+
+                if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
+                {
+                    Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
+                    reader.Skip();
+                    entry.PostRead();
+                    return entry;
+                }
+
+                if (!parseExtraElements && entry is Extra)
+                {
+                    reader.Skip();
+                    entry.PostRead();
+                    return entry;
+                }
 
                 #region Read attributes
                 MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -427,7 +438,7 @@ namespace TheraEngine.Rendering.Models
         public interface IElement
         {
             string ElementName { get; }
-            Type DesiredParentType { get; set; }
+            Type ParentType { get; }
             T2[] GetChildren<T2>() where T2 : class, IElement;
             void PreRead();
             void PostRead();
@@ -504,6 +515,7 @@ namespace TheraEngine.Rendering.Models
             public virtual void PostRead() { }
             
             public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
+            public Type ParentType => typeof(T);
         }
         #endregion
 
@@ -784,7 +796,7 @@ namespace TheraEngine.Rendering.Models
             {
                 [Name("accessor")]
                 [Child(typeof(DataFlowParam), 0, -1)]
-                public class Accessor : BaseElement<TechniqueCommon>
+                public class Accessor : BaseElement<TechniqueCommon>, IDataFlowParam
                 {
                     [Attr("count", true)]
                     public uint Count { get; set; } = 0;
@@ -1385,8 +1397,8 @@ namespace TheraEngine.Rendering.Models
                             [MultiChild(EMultiChildType.OneOfOne, typeof(Float), typeof(RefParam))]
                             public class BaseFXFloatParam : BaseElement<BaseTechniqueChild>, IRefParam
                             {
-                                [Name("float")]//WRONG
-                                public class Float : BaseStringElement<BaseFXColorTexture, StringNumeric<float>>, ISID
+                                [Name("float")]
+                                public class Float : BaseStringElement<BaseFXFloatParam, StringNumeric<float>>, ISID
                                 {
                                     [Attr("sid", false)]
                                     public string SID { get; set; } = null;
@@ -1405,11 +1417,11 @@ namespace TheraEngine.Rendering.Models
                             /// </summary>
                             [Name("ambient")]
                             public class Ambient : BaseFXColorTexture { }
-                            /// <summary>
-                            /// Declares the amount of light diffusely reflected from the surface of this object. 
-                            /// </summary>
-                            [Name("diffuse")]
-                            public class DiffuseFloat : BaseFXFloatParam { }
+                            ///// <summary>
+                            ///// Declares the amount of light diffusely reflected from the surface of this object. 
+                            ///// </summary>
+                            //[Name("diffuse")]
+                            //public class DiffuseFloat : BaseFXFloatParam { }
                             /// <summary>
                             /// Declares the amount of light diffusely reflected from the surface of this object. 
                             /// </summary>
@@ -1424,7 +1436,7 @@ namespace TheraEngine.Rendering.Models
                             /// Declares the specularity or roughness of the specular reflection lobe.
                             /// </summary>
                             [Name("shininess")]
-                            public class Shininess : BaseFXColorTexture { }
+                            public class Shininess : BaseFXFloatParam { }
                             /// <summary>
                             /// Declares the color of a perfect mirror reflection. 
                             /// </summary>
@@ -1514,7 +1526,7 @@ namespace TheraEngine.Rendering.Models
                             [Name("phong")]
                             [Child(typeof(Emission), 0, 1)]
                             [Child(typeof(Ambient), 0, 1)]
-                            [Child(typeof(DiffuseFloat), 0, 1)]
+                            [Child(typeof(DiffuseColor), 0, 1)]
                             [Child(typeof(Specular), 0, 1)]
                             [Child(typeof(Shininess), 0, 1)]
                             [Child(typeof(Reflective), 0, 1)]
@@ -1622,7 +1634,7 @@ namespace TheraEngine.Rendering.Models
                         [Name("vertices")]
                         [Child(typeof(InputUnshared), 1, -1)]
                         [Child(typeof(Extra), 0, -1)]
-                        public class Vertices : BaseElement<Mesh>, IID, IName
+                        public class Vertices : BaseElement<Mesh>, IID, IName, IInputUnshared
                         {
                             [Attr("id", false)]
                             public string ID { get; set; } = null;
@@ -1724,7 +1736,7 @@ namespace TheraEngine.Rendering.Models
             [Child(typeof(InstanceNode), 0, -1)]
             [Child(typeof(Node), 0, -1)]
             [Child(typeof(Extra), 0, -1)]
-            public class Node : BaseElement<INode>, INode, IID, ISID, IName, IInstantiatable
+            public class Node : BaseElement<INode>, INode, IID, ISID, IName, IInstantiatable, IExtra
             {
                 public enum ENodeType
                 {

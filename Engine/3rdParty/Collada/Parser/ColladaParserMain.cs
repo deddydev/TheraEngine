@@ -59,6 +59,10 @@ namespace TheraEngine.Rendering.Models
                 int elementIndex)
             {
                 IElement entry = Activator.CreateInstance(elementType) as IElement;
+                if (entry.DesiredParentType != parent.GetType())
+                {
+
+                }
                 entry.GenericParent = parent;
                 entry.ElementIndex = elementIndex;
                 entry.PreRead();
@@ -92,7 +96,7 @@ namespace TheraEngine.Rendering.Models
                         });
 
                         if (info == null)
-                            Engine.PrintLine("Attribute '{0}' not supported by parser. Value = '{1}'", name, value);
+                            Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
                         else if (info is FieldInfo field)
                             field.SetValue(entry, value.ParseAs(field.FieldType));
                         else if (info is PropertyInfo property)
@@ -137,8 +141,8 @@ namespace TheraEngine.Rendering.Models
                 }
                 else
                 {
-                    ChildInfo[] childElements = Attribute.GetCustomAttributes(elementType, typeof(Child), true).Select(x => new ChildInfo((Child)x)).ToArray();
-                    MultiChildInfo[] multiChildElements = Attribute.GetCustomAttributes(elementType, typeof(MultiChild), true).Select(x => new MultiChildInfo((MultiChild)x)).ToArray();
+                    ChildInfo[] childElements = elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
+                    MultiChildInfo[] multiChildElements = elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
 
                     if (reader.IsEmptyElement)
                         reader.Read();
@@ -160,8 +164,8 @@ namespace TheraEngine.Rendering.Models
                             if (string.IsNullOrEmpty(elementName))
                                 throw new Exception();
 
-                            bool isUnsupported = Attribute.GetCustomAttributes(elementType, typeof(Unsupported), false).
-                                Any(x => string.Equals(((Unsupported)x).ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
+                            bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
+                                Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
 
                             if (isUnsupported)
                             {
@@ -247,7 +251,7 @@ namespace TheraEngine.Rendering.Models
                 {
                     Data = data;
                     Occurrences = 0;
-                    Types = FindPublicTypes((Type t) => Data.ChildEntryType.IsAssignableFrom(t));
+                    Types = FindPublicTypes((Type t) => Data.ChildEntryType.IsAssignableFrom(t) && t.GetCustomAttribute<Name>() != null);
                     ElementNames = new Name[Types.Length];
                     for (int i = 0; i < Types.Length; ++i)
                     {
@@ -423,6 +427,7 @@ namespace TheraEngine.Rendering.Models
         public interface IElement
         {
             string ElementName { get; }
+            Type DesiredParentType { get; set; }
             T2[] GetChildren<T2>() where T2 : class, IElement;
             void PreRead();
             void PostRead();
@@ -805,6 +810,8 @@ namespace TheraEngine.Rendering.Models
                 public string ID { get; set; } = null;
                 [Attr("name", false)]
                 public string Name { get; set; } = null;
+                [Attr("count", true)]
+                public int Count { get; set; } = 0;
 
                 public List<ISID> SIDChildren { get; } = new List<ISID>();
             }
@@ -1316,7 +1323,7 @@ namespace TheraEngine.Rendering.Models
                         [Name("technique")]
                         [MultiChild(EMultiChildType.OneOfOne,
                             typeof(Constant), typeof(Blinn), typeof(Lambert), typeof(Phong))]
-                        private class Technique : BaseElement<ProfileCommon>, IID, ISID
+                        public class Technique : BaseElement<ProfileCommon>, IID, ISID
                         {
                             [Attr("id", false)]
                             public string ID { get; set; } = null;
@@ -1352,11 +1359,18 @@ namespace TheraEngine.Rendering.Models
                             }
 
                             public class BaseTechniqueChild : BaseElement<Technique> { }
+
                             [MultiChild(EMultiChildType.OneOfOne, typeof(Color), typeof(RefParam), typeof(Texture))]
-                            public class BaseFXColorTexture : BaseElement<BaseTechniqueChild>
+                            public class BaseFXColorTexture : BaseElement<BaseTechniqueChild>, IRefParam
                             {
                                 [Name("color")]
-                                public class Color : BaseStringElement<BaseFXColorTexture, StringParsable<Vec4>> { }
+                                public class Color : BaseStringElement<BaseFXColorTexture, StringParsable<Vec4>>, ISID
+                                {
+                                    [Attr("sid", false)]
+                                    public string SID { get; set; } = null;
+
+                                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                                }
                                 [Name("texture")]
                                 [Child(typeof(Extra), 0, -1)]
                                 public class Texture : BaseElement<BaseFXColorTexture>, IExtra
@@ -1369,9 +1383,9 @@ namespace TheraEngine.Rendering.Models
                             }
 
                             [MultiChild(EMultiChildType.OneOfOne, typeof(Float), typeof(RefParam))]
-                            public class BaseFXFloatParam : BaseElement<BaseTechniqueChild>
+                            public class BaseFXFloatParam : BaseElement<BaseTechniqueChild>, IRefParam
                             {
-                                [Name("float")]
+                                [Name("float")]//WRONG
                                 public class Float : BaseStringElement<BaseFXColorTexture, StringNumeric<float>>, ISID
                                 {
                                     [Attr("sid", false)]
@@ -1426,7 +1440,12 @@ namespace TheraEngine.Rendering.Models
                             /// Declares the color of perfectly refracted light. 
                             /// </summary>
                             [Name("transparent")]
-                            public class Transparent : BaseFXColorTexture { }
+                            public class Transparent : BaseFXColorTexture
+                            {
+                                [Attr("opaque", false)]
+                                [DefaultValue("A_ONE")]
+                                public EOpaque Opaque { get; set; } = EOpaque.A_ONE;
+                            }
                             /// <summary>
                             /// Declares the amount of perfectly refracted light added
                             /// to the reflected color as a scalar value between 0.0 and 1.0. 
@@ -1477,7 +1496,7 @@ namespace TheraEngine.Rendering.Models
                             [Child(typeof(Transparent), 0, 1)]
                             [Child(typeof(Transparency), 0, 1)]
                             [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Lambert : BaseElement<Technique> { }
+                            public class Lambert : BaseTechniqueChild { }
                             /// <summary>
                             /// Used inside a <profile_COMMON> effect, declares a fixed-function pipeline that produces a specularly
                             /// shaded surface that reflects ambient, diffuse, and specular reflection, where the specular reflection is
@@ -1503,7 +1522,7 @@ namespace TheraEngine.Rendering.Models
                             [Child(typeof(Transparent), 0, 1)]
                             [Child(typeof(Transparency), 0, 1)]
                             [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Phong : BaseElement<Technique> { }
+                            public class Phong : BaseTechniqueChild { }
                             /// <summary>
                             /// Used inside a <profile_COMMON> effect, <blinn> declares a fixed-function pipeline that produces a
                             /// shaded surface according to the Blinn-Torrance-Sparrow lighting model or a close approximation.
@@ -1537,7 +1556,7 @@ namespace TheraEngine.Rendering.Models
                             [Child(typeof(Transparent), 0, 1)]
                             [Child(typeof(Transparency), 0, 1)]
                             [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Blinn : BaseElement<Technique> { }
+                            public class Blinn : BaseTechniqueChild { }
                         }
                     }
                     #endregion

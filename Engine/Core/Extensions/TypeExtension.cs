@@ -110,5 +110,16 @@ namespace System
                 }
             }
         }
+
+        public static T[] GetCustomAttributesExt<T>(this Type type) where T : Attribute
+        {
+            List<T> list = new List<T>();
+            while (type != null)
+            {
+                list.AddRange(type.GetCustomAttributes<T>());
+                type = type.BaseType;
+            }
+            return list.ToArray();
+        }
     }
 }

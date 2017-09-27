@@ -313,6 +313,7 @@
     <Compile Include="Core\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
     <Compile Include="Core\Tools\DelegateBuilder.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
+    <Compile Include="Core\Tools\XMLSchemeReader.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EditorState.cs" />
     <Compile Include="Engine\EngineMethods.cs" />

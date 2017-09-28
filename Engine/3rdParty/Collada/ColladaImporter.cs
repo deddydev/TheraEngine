@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -24,31 +25,61 @@ namespace TheraEngine.Rendering.Models
 
             Engine.PrintLine("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
 
-            XMLDecoderShell<COLLADA> shell = XMLDecoderShell<COLLADA>.Import(filePath, false);
             Data data = new Data();
 
-            if (options.ImportModels)
+            var root = new XMLSchemeReader<COLLADA>().Import(filePath, false);
+            if (root != null)
             {
-                if (shell.Root != null)
+                Matrix4 baseTransform = options.InitialTransform.Matrix;
+
+                var asset = root.AssetElement;
+                if (asset != null)
                 {
-                    var scenes = shell.Root.GetChildren<COLLADA.Scene>();
-                    foreach (var scene in scenes)
+                    var unit = asset.UnitElement;
+                    var coord = asset.UpAxisElement;
+                    
+                    Engine.PrintLine("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
+                    Engine.PrintLine("Up axis: " + coord.StringContent.Value.ToString());
+
+                    baseTransform = baseTransform * Matrix4.CreateScale(unit.Meter);
+                    switch (coord.StringContent.Value)
                     {
-                        var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
+                        case Asset.EUpAxis.X_UP:
+                            baseTransform = Matrix4.XupToYup * baseTransform;
+                            break;
+                        case Asset.EUpAxis.Y_UP:
+                            break;
+                        case Asset.EUpAxis.Z_UP:
+                            baseTransform = Matrix4.ZupToYup * baseTransform;
+                            break;
                     }
                 }
-                COLLADA.LibraryImages.Image15X[] images = shell.Root?.
-                    GetChildren<COLLADA.LibraryImages>()?.
-                    SelectMany(x => x.GetChildren<COLLADA.LibraryImages.Image15X>()).
-                    ToArray();
-                COLLADA.LibraryMaterials.Material[] materials = shell.Root?.
-                    GetChildren<COLLADA.LibraryMaterials>()?.
-                    SelectMany(x => x.GetChildren<COLLADA.LibraryMaterials.Material>()).
-                    ToArray();
-                COLLADA.LibraryEffects.Effect[] effects = shell.Root?.
-                    GetChildren<COLLADA.LibraryEffects>()?.
-                    SelectMany(x => x.GetChildren<COLLADA.LibraryEffects.Effect>()).
-                    ToArray();
+
+                if (options.ImportModels)
+                {
+                    if (root != null)
+                    {
+                        COLLADA.Scene scene = root.GetChild<COLLADA.Scene>();
+                        if (scene != null)
+                        {
+                            var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
+                            foreach (var visualSceneRef in visualScenes)
+                            {
+                                var visualScene = visualSceneRef.GetUrlInstance();
+                                if (visualScene != null)
+                                {
+                                    ModelScene modelScene = new ModelScene();
+                                    var nodes = visualScene.NodeElements;
+                                    foreach (var node in nodes)
+                                    {
+                                        
+                                    }
+                                    data.Models.Add(modelScene);
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             //Matrix4 baseTransform = options.InitialTransform.Matrix;
@@ -197,7 +228,7 @@ namespace TheraEngine.Rendering.Models
 
         //        //if (skel[targetId] == null)
         //        //    continue;
-                
+
         //        string targetSID = sidRef[1];
         //        List<BaseColladaElement> sidEntries = shell._sidEntries.ContainsKey(targetSID) ? shell._sidEntries[targetSID] : null;
         //        if (sidEntries.Count == 0)
@@ -268,141 +299,150 @@ namespace TheraEngine.Rendering.Models
         //    STEP,
         //}
 
-        //private static Bone EnumNode(
-        //    Bone parent,
-        //    NodeEntry node,
-        //    List<NodeEntry> nodes,
-        //    DecoderShell shell,
-        //    List<ObjectInfo> objects,
-        //    Matrix4 bindMatrix,
-        //    Matrix4 invParent,
-        //    Matrix4 rootMatrix)
-        //{
-        //    Bone rootBone = null;
-        //    bindMatrix = rootMatrix * bindMatrix * node._matrix;
+        private static Bone EnumNode(
+            Bone parent,
+            COLLADA.Node node,
+            List<COLLADA.Node> nodes,
+            List<ObjectInfo> objects,
+            Matrix4 bindMatrix,
+            Matrix4 invParent,
+            Matrix4 rootMatrix)
+        {
+            Bone rootBone = null;
 
-        //    if (node._type == NodeType.JOINT)
-        //    {
-        //        Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(rootMatrix * node._matrix/*invParent * bindMatrix*/));
-        //        node._node = bone;
+            Matrix4 nodeMatrix = node.GetTransformMatrix();
+            bindMatrix = rootMatrix * bindMatrix * nodeMatrix;
 
-        //        if (parent == null)
-        //            rootBone = bone;
-        //        else
-        //            parent.ChildBones.Add(bone);
+            if (node.Type == COLLADA.Node.EType.JOINT)
+            {
+                Bone bone = new Bone(node.Name ?? node.ID, FrameState.DeriveTRS(rootMatrix * nodeMatrix/*invParent * bindMatrix*/));
+                node.UserData = bone;
+                if (parent == null)
+                    rootBone = bone;
+                else
+                    parent.ChildBones.Add(bone);
+                parent = bone;
+            }
 
-        //        parent = bone;
-        //    }
+            Matrix4 inv = bindMatrix.Inverted();
+            foreach (COLLADA.Node e in node.NodeElements)
+                EnumNode(parent, e, nodes, objects, bindMatrix, inv, Matrix4.Identity);
 
-        //    Matrix4 inv = bindMatrix.Inverted();
-        //    foreach (NodeEntry e in node._children)
-        //        EnumNode(parent, e, nodes, shell, objects, bindMatrix, inv, Matrix4.Identity);
+            foreach (IInstanceElement inst in node.InstanceElements)
+            {
+                if (inst is InstanceController controllerRef)
+                {
+                    var controller = controllerRef.GetUrlInstance();
+                    foreach (SkinEntry skin in shell._skins)
+                        if (skin._id == inst._url)
+                        {
+                            foreach (GeometryEntry g in shell._geometry)
+                                if (g._id == skin._skinSource)
+                                {
+                                    objects.Add(new ObjectInfo(true, g, bindMatrix, skin, nodes, inst, parent, node));
+                                    break;
+                                }
+                            break;
+                        }
+                }
+                else if (inst is InstanceGeometry geomRef)
+                {
+                    foreach (GeometryEntry g in shell._geometry)
+                        if (g._id == inst._url)
+                        {
+                            objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node));
+                            break;
+                        }
+                }
+                else if (inst is InstanceCamera camRef)
+                {
 
-        //    foreach (InstanceEntry inst in node._instances)
-        //    {
-        //        if (inst._type == InstanceType.Controller)
-        //        {
-        //            foreach (SkinEntry skin in shell._skins)
-        //                if (skin._id == inst._url)
-        //                {
-        //                    foreach (GeometryEntry g in shell._geometry)
-        //                        if (g._id == skin._skinSource)
-        //                        {
-        //                            objects.Add(new ObjectInfo(true, g, bindMatrix, skin, nodes, inst, parent, node));
-        //                            break;
-        //                        }
-        //                    break;
-        //                }
-        //        }
-        //        else if (inst._type == InstanceType.Geometry)
-        //        {
-        //            foreach (GeometryEntry g in shell._geometry)
-        //                if (g._id == inst._url)
-        //                {
-        //                    objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node));
-        //                    break;
-        //                }
-        //        }
-        //        else
-        //            foreach (NodeEntry e in shell._nodes)
-        //                if (e._id == inst._url)
-        //                    EnumNode(parent, e, nodes, shell, objects, bindMatrix, inv, Matrix4.Identity);
-        //    }
-        //    return rootBone;
-        //}
+                }
+                else if (inst is InstanceLight lightRef)
+                {
 
-        //private class ObjectInfo
-        //{
-        //    public bool _weighted;
-        //    public GeometryEntry _geoEntry;
-        //    public Matrix4 _bindMatrix;
-        //    public SkinEntry _skin;
-        //    public InstanceEntry _inst;
-        //    public List<NodeEntry> _nodes;
-        //    public NodeEntry _node;
-        //    public Bone _parent;
+                }
+                else if (inst is InstanceNode nodeRef)
+                {
+                    var actualNode = nodeRef.GetUrlInstance();
+                    var proxyNode = nodeRef.GetProxyInstance();
+                }
+            }
+            return rootBone;
+        }
 
-        //    public ObjectInfo(
-        //        bool weighted,
-        //        GeometryEntry geoEntry,
-        //        Matrix4 bindMatrix,
-        //        SkinEntry skin,
-        //        List<NodeEntry> nodes,
-        //        InstanceEntry inst,
-        //        Bone parent,
-        //        NodeEntry node)
-        //    {
-        //        _weighted = weighted;
-        //        _geoEntry = geoEntry;
-        //        _bindMatrix = bindMatrix;
-        //        _skin = skin;
-        //        _nodes = nodes;
-        //        _node = node;
-        //        _inst = inst;
-        //        _parent = parent;
-        //    }
+        private class ObjectInfo
+        {
+            public bool _weighted;
+            public COLLADA.LibraryGeometries.Geometry _geoEntry;
+            public Matrix4 _bindMatrix;
+            public SkinEntry _skin;
+            public IInstanceElement _inst;
+            public List<COLLADA.Node> _nodes;
+            public COLLADA.Node _node;
+            public Bone _parent;
 
-        //    public void Initialize(SkeletalMesh model, DecoderShell shell)
-        //    {
-        //        PrimitiveData data;
-        //        if (_weighted)
-        //            data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _nodes);
-        //        else
-        //            data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+            public ObjectInfo(
+                bool weighted,
+                COLLADA.LibraryGeometries.Geometry geoEntry,
+                Matrix4 bindMatrix,
+                SkinEntry skin,
+                List<COLLADA.Node> nodes,
+                IInstanceElement inst,
+                Bone parent,
+                COLLADA.Node node)
+            {
+                _weighted = weighted;
+                _geoEntry = geoEntry;
+                _bindMatrix = bindMatrix;
+                _skin = skin;
+                _nodes = nodes;
+                _node = node;
+                _inst = inst;
+                _parent = parent;
+            }
 
-        //        Material m = null;
-        //        if (_inst._material != null)
-        //        {
-        //            MaterialEntry e = shell._materials.First(x => x._id == _inst._material._target);
-        //            if (e != null)
-        //                m = e._node as Material;
-        //        }
-        //        else
-        //            m = Material.GetLitColorMaterial();
+            public void Initialize(SkeletalMesh model)
+            {
+                PrimitiveData data;
+                if (_weighted)
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _nodes);
+                else
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
-        //        model.RigidChildren.Add(new SkeletalRigidSubMesh(_node._name ?? _node._id, data, m, true));
-        //    }
-        //    public void Initialize(StaticMesh model, DecoderShell shell)
-        //    {
-        //        PrimitiveData data;
-        //        if (_weighted)
-        //            data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _nodes);
-        //        else
-        //            data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+                Material m = null;
+                if (_inst._material != null)
+                {
+                    MaterialEntry e = shell._materials.First(x => x._id == _inst._material._target);
+                    if (e != null)
+                        m = e._node as Material;
+                }
+                else
+                    m = Material.GetLitColorMaterial();
 
-        //        Material m = null;
-        //        if (_inst._material != null)
-        //        {
-        //            MaterialEntry e = shell._materials.First(x => x._id == _inst._material._target);
-        //            if (e != null)
-        //                m = e._node as Material;
-        //        }
-        //        else
-        //            m = Material.GetLitColorMaterial();
-                
-        //        model.RigidChildren.Add(new StaticRigidSubMesh(_node._name ?? _node._id, data, null, m));
-        //    }
-        //}
+                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node._name ?? _node._id, data, m, true));
+            }
+            public void Initialize(StaticMesh model, DecoderShell shell)
+            {
+                PrimitiveData data;
+                if (_weighted)
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _nodes);
+                else
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+
+                Material m = null;
+                if (_inst._material != null)
+                {
+                    MaterialEntry e = shell._materials.First(x => x._id == _inst._material._target);
+                    if (e != null)
+                        m = e._node as Material;
+                }
+                else
+                    m = Material.GetLitColorMaterial();
+
+                model.RigidChildren.Add(new StaticRigidSubMesh(_node._name ?? _node._id, data, null, m));
+            }
+        }
         private enum EInterpolation
         {
             LINEAR,

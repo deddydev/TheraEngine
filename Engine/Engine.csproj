@@ -313,7 +313,7 @@
     <Compile Include="Core\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
     <Compile Include="Core\Tools\DelegateBuilder.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
-    <Compile Include="Core\Tools\XMLSchemeReader.cs" />
+    <Compile Include="Core\Files\XMLSchemeReader.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EditorState.cs" />
     <Compile Include="Engine\EngineMethods.cs" />
@@ -357,7 +357,7 @@
     <Compile Include="Rendering\HUD\MaterialHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
     <None Include="3rdParty\Collada\Parser\Core\Animation.cs" />
-    <None Include="3rdParty\Collada\ColladaAssetDecoder.cs" />
+    <Compile Include="3rdParty\Collada\ColladaAssetDecoder.cs" />
     <Compile Include="3rdParty\Collada\Schema\SchemaImporter.cs" />
     <Compile Include="3rdParty\Collada\ColladaImporter.cs" />
     <None Include="3rdParty\Collada\Parser\ColladaParserModel.cs" />

@@ -24,9 +24,61 @@ namespace System
 
         public static readonly Matrix4 Identity = new Matrix4(Vec4.UnitX, Vec4.UnitY, Vec4.UnitZ, Vec4.UnitW);
         public static readonly Matrix4 Zero = new Matrix4(Vec4.Zero, Vec4.Zero, Vec4.Zero, Vec4.Zero);
+
         public static readonly Matrix4 ZupToYup = new Matrix4(Vec4.UnitX, -Vec4.UnitZ, Vec4.UnitY, Vec4.UnitW);
         public static readonly Matrix4 YupToZup = new Matrix4(Vec4.UnitX, Vec4.UnitZ, -Vec4.UnitY, Vec4.UnitW);
+        public static readonly Matrix4 XupToYup = new Matrix4(Vec4.UnitY, -Vec4.UnitX, Vec4.UnitZ, Vec4.UnitW);
+        public static readonly Matrix4 YupToXup = new Matrix4(-Vec4.UnitY, Vec4.UnitX, Vec4.UnitZ, Vec4.UnitW);
 
+        public enum ECoordinate
+        {
+            PosX = 0,
+            NegX = 1,
+            PosY = 2,
+            NegY = 3,
+            PosZ = 4,
+            NegZ = 5,
+        }
+
+        public static Matrix4 ConvertCoordinateSystem(Matrix4 originalMatrix,
+            ECoordinate originalUp, ECoordinate originalRight, ECoordinate originalInward,
+            ECoordinate newUp, ECoordinate newRight, ECoordinate newInward)
+        {
+            if (originalUp == originalRight ||
+                originalRight == originalInward ||
+                originalInward == originalUp ||
+                newUp == newRight ||
+                newRight == newInward ||
+                newInward == newUp)
+                return originalMatrix;
+
+            bool upNegate = ((int)originalUp & 1) != ((int)newUp & 1);
+            bool rightNegate = ((int)originalRight & 1) != ((int)newRight & 1);
+            bool inwardNegate = ((int)originalInward & 1) != ((int)newInward & 1);
+            Vec3[] vecs = new Vec3[3]
+            {
+                Vec3.UnitX,
+                Vec3.UnitY,
+                Vec3.UnitZ,
+            };
+            if (originalUp != newUp)
+            {
+                int index = (int)originalUp >> 1;
+                
+            }
+            if (originalRight != newRight)
+            {
+                int index = (int)originalRight >> 1;
+
+            }
+            if (originalInward != newInward)
+            {
+                int index = (int)originalInward >> 1;
+
+            }
+            return new Matrix4(new Vec4(vecs[0], 0.0f), new Vec4(vecs[1], 0.0f), new Vec4(vecs[2], 0.0f), Vec4.UnitW) * originalMatrix;
+        }
+        
         public Matrix4(Vec4 row0, Vec4 row1, Vec4 row2, Vec4 row3)
         {
             Row0 = row0;

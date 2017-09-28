@@ -82,8 +82,8 @@ namespace TheraEngine.Rendering.Models
     }
     public class ModelScene
     {
-        public SkeletalMesh SkeletalModel;
-        public StaticMesh StaticModel;
-        public Skeleton Skeleton;
+        public SkeletalMesh SkeletalModel { get; set; }
+        public StaticMesh StaticModel { get; set; }
+        public Skeleton Skeleton { get; set; }
     }
 }

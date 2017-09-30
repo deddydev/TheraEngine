@@ -2,166 +2,124 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryControllers.Controller;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
 
 namespace TheraEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {
         static PrimitiveData DecodePrimitivesWeighted(
+            VisualScene scene,
             Matrix4 bindMatrix,
-            COLLADA.LibraryGeometries.Geometry geo,
-            COLLADA.LibraryControllers.Controller.Skin skin,
-            List<COLLADA.Node> nodes)
+            Geometry geo,
+            ControllerChild rig)
         {
-            //Engine.DebugPrint("Weighted: " + geo._id);
+            if (rig is Skin skin)
+            {
+                Bone[] boneList;
+                Bone bone = null;
+                int boneCount;
 
-            Bone[] boneList;
-            Bone bone = null;
-            int boneCount;
+                var bindShapeMatrix = skin.BindShapeMatrixElement;
+                var joints = skin.JointsElement;
+                var weights = skin.VertexWeightsElement;
+                var sources = skin.SourceElements;
 
-            var bindShapeMatrix = skin.GetChild<COLLADA.LibraryControllers.Controller.Skin.BindShapeMatrix>();
-            var joints = skin.GetChild<COLLADA.LibraryControllers.Controller.Skin.Joints>();
-            var weights = skin.GetChild<COLLADA.LibraryControllers.Controller.Skin.VertexWeights>();
-
-            float weight = 0;
-            float[] pWeights = null;
-            Influence[] infList = new Influence[weights.Count];
-            Matrix4* pMatrix = null;
-            
-            //Find joint source
-            string[] jointStringArray = null;
-            string jointString = null;
-            foreach (InputUnshared inp in joints.GetChildren<InputUnshared>())
-                if (inp.CommonSemanticType == SemanticType.JOINT &&
-                    inp.Source.GetElement(inp.Root) is Source src)
-                {
-                    jointStringArray = src as string[];
-                    jointString = src._arrayDataString;
-                }
+                Influence[] infList = new Influence[weights.Count];
                 
-                //else if (inp._semantic == SemanticType.INV_BIND_MATRIX)
-                //{
-                //    SourceEntry src = skin._sources.FirstOrDefault(x => x._id == inp._source);
-                //    if (src != null)
-                //        pMatrix = (Matrix4*)((DataSource)src._arrayData).Address;
-                //}
-            
-            //Populate bone list
-            boneCount = jointStringArray.Length;
-            boneList = new Bone[boneCount];
-            for (int i = 0; i < boneCount; i++)
-            {
-                string name = jointStringArray[i];
+                //Find joint source
+                string[] jointStringArray = null;
+                foreach (InputUnshared inp in joints.GetChildren<InputUnshared>())
+                    if (inp.CommonSemanticType == ESemantic.JOINT &&
+                        inp.Source.GetElement(inp.Root) is Source src)
+                        jointStringArray = src.GetChild<Source.NameArray>().StringContent.Values;
 
-                COLLADA.Node entry = null;
-                foreach (var node in nodes)
-                    if ((entry = DecoderShell.FindNodeInternal(name, node)) != null)
-                        break;
+                if (jointStringArray == null)
+                    return null;
 
-                if (entry != null && entry._node != null)
-                    boneList[i] = entry._node as Bone;
-                else
+                //Populate bone list
+                boneCount = jointStringArray.Length;
+                boneList = new Bone[boneCount];
+                for (int i = 0; i < boneCount; i++)
                 {
-                    //Search in reverse!
-                    foreach (NodeEntry node in nodes)
+                    string sid = jointStringArray[i];
+                    var node = scene.FindNode(sid);
+                    
+                    if (node != null && node.UserData is Bone b)
+                        boneList[i] = b;
+                    else
+                        Engine.PrintLine("Bone '{0}' not found", sid);
+                }
+
+                //Build command list
+                float[] pWeights = null;
+                byte[] pCmd = new byte[weights.Count];
+                foreach (InputShared inp in weights.InputElements)
+                {
+                    switch (inp.CommonSemanticType)
                     {
-                        if ((entry = RecursiveTestNode(jointString, node)) != null)
-                        {
-                            if (entry._node != null)
-                                boneList[i] = entry._node as Bone;
+                        case ESemantic.JOINT:
+                            pCmd[inp.Offset] = 1;
                             break;
-                        }
-                    }
 
-                    //Couldn't find the bone
-                    if (boneList[i] == null)
-                    {
-                        Engine.PrintLine("Could not find bone \"" + name + "\"");
-                        boneList[i] = new Bone(name, FrameState.GetIdentity());
+                        case ESemantic.WEIGHT:
+                            pCmd[inp.Offset] = 2;
+
+                            Source src = inp.Source.GetElement(inp.Root) as Source;
+                            pWeights = src.GetArrayElement<Source.FloatArray>().StringContent.Values;
+
+                            break;
+
+                        default:
+                            pCmd[inp.Offset] = 0;
+                            break;
                     }
                 }
-            }
 
-            //Build command list
-            byte[] pCmd = new byte[skin._weightInputs.Count];
-            foreach (InputEntry inp in skin._weightInputs)
-            {
-                switch (inp._semantic)
+                //Build vertex list and remap table
+                float weight = 0;
+                for (int i = 0; i < weights.Count; i++)
                 {
-                    case ESemantic.JOINT:
-                        pCmd[inp._offset] = 1;
-                        break;
-
-                    case ESemantic.WEIGHT:
-                        pCmd[inp._offset] = 2;
-
-                        //Get weight source
-                        foreach (SourceEntry src in skin._sources)
-                            if (src._id == inp._source)
-                            {
-                                pWeights = src._arrayData as float[];
-                                break;
-                            }
-
-                        break;
-
-                    default:
-                        pCmd[inp._offset] = 0;
-                        break;
-                }
-            }
-            
-            //Build vertex list and remap table
-            for (int i = 0; i < skin._weightCount; i++)
-            {
-                //Create influence
-                int iCount = skin._weights[i].Length / pCmd.Length;
-                Influence inf = new Influence();
-                int[] iPtr = skin._weights[i];
-                for (int x = 0, j = 0; x < iCount; x++)
-                {
-                    for (int cmd = 0; cmd < pCmd.Length; cmd++, j++)
+                    //Create influence
+                    int iCount = skin._weights[i].Length / pCmd.Length;
+                    Influence inf = new Influence();
+                    int[] iPtr = skin._weights[i];
+                    for (int x = 0, j = 0; x < iCount; x++)
                     {
-                        int index = iPtr[j];
-                        switch (pCmd[cmd])
+                        for (int cmd = 0; cmd < pCmd.Length; cmd++, j++)
                         {
-                            case 1: //JOINT
-                                bone = boneList[index];
-                                break;
-                            case 2: //WEIGHT
-                                weight = pWeights[index];
-                                break;
+                            int index = iPtr[j];
+                            switch (pCmd[cmd])
+                            {
+                                case 1: //JOINT
+                                    bone = boneList[index];
+                                    break;
+                                case 2: //WEIGHT
+                                    weight = pWeights[index];
+                                    break;
+                            }
                         }
+                        inf.AddWeight(new BoneWeight(bone.Name, weight));
                     }
-                    inf.AddWeight(new BoneWeight(bone.Name, weight));
+                    infList[i] = inf;
                 }
-                infList[i] = inf;
+                return DecodePrimitives(geo, bindMatrix * skin._bindMatrix, infList);
             }
-            return DecodePrimitives(geo, bindMatrix * skin._bindMatrix, infList);
+            else
+            {
+                return null;
+            }
         }
-        static NodeEntry RecursiveTestNode(string jointStrings, NodeEntry node)
+        
+        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, Geometry geo)
         {
-            if (jointStrings.IndexOf(node._name) >= 0 || 
-                jointStrings.IndexOf(node._sid) >= 0 || 
-                jointStrings.IndexOf(node._id) >= 0)
-                return node;
-
-            NodeEntry e;
-            foreach (NodeEntry n in node._children)
-                if ((e = RecursiveTestNode(jointStrings, n)) != null)
-                    return e;
-
-            return null;
-        }
-
-        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo)
-        {
-            //Engine.DebugPrint("Unweighted: " + geo._id);
             return DecodePrimitives(geo, bindMatrix, null);
         }
-        static PrimitiveData DecodePrimitives(GeometryEntry geo, Matrix4 bindMatrix, Influence[] infList)
+        static PrimitiveData DecodePrimitives(Geometry geo, Matrix4 bindMatrix, Influence[] infList)
         {
-            SourceEntry src;
+            Source src;
             List<VertexPrimitive> linePrimitives = null;
             List<VertexPolygon> facePrimitives = null;
             int boneCount = 0;
@@ -176,12 +134,23 @@ namespace TheraEngine.Rendering.Models
             VertexShaderDesc info = VertexShaderDesc.JustPositions();
             info._boneCount = boneCount;
 
-            foreach (PrimitiveEntry prim in geo._primitives)
+            var m = geo.MeshElement;
+            if (m == null)
+                return null;
+
+            var verticesElem = m.VerticesElement;
+            var sourceElems = m.SourceElements;
+            var primElems = m.PrimitiveElements;
+            
+            foreach (var prim in primElems)
             {
-                Dictionary<ESemantic, Dictionary<int, SourceEntry>> sources = new Dictionary<ESemantic, Dictionary<int, SourceEntry>>();
+                Dictionary<ESemantic, Dictionary<int, Source>> sources = new Dictionary<ESemantic, Dictionary<int, Source>>();
+
+                var inputs = verticesElem.InputElements;
+
                 src = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
                 if (src != null)
-                    sources.Add(ESemantic.VERTEX, new Dictionary<int, SourceEntry>() { { 0, src } });
+                    sources.Add(ESemantic.VERTEX, new Dictionary<int, Source>() { { 0, src } });
 
                 //Collect sources
                 foreach (InputEntry inp in prim._inputs)
@@ -193,7 +162,7 @@ namespace TheraEngine.Rendering.Models
                     if (src != null)
                     {
                         if (!sources.ContainsKey(inp._semantic))
-                            sources.Add(inp._semantic, new Dictionary<int, SourceEntry>());
+                            sources.Add(inp._semantic, new Dictionary<int, Source>());
 
                         if (!sources[inp._semantic].ContainsKey(inp._set))
                             sources[inp._semantic].Add(inp._set, src);

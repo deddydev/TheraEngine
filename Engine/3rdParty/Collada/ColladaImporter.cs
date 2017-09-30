@@ -1,12 +1,12 @@
-﻿using TheraEngine.Animation;
-using TheraEngine.Rendering.Models.Materials;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
 using System.Threading;
+using TheraEngine.Animation;
 using TheraEngine.Core.Files;
+using TheraEngine.Rendering.Models.Materials;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -73,8 +73,31 @@ namespace TheraEngine.Rendering.Models
                                     List<Bone> rootBones = new List<Bone>();
                                     List<ObjectInfo> objects = new List<ObjectInfo>();
                                     foreach (var node in nodes)
-                                    {
                                         EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform);
+                                    //Create meshes after all bones have been created
+                                    if (rootBones.Count == 0)
+                                    {
+                                        modelScene.StaticModel = new StaticMesh()
+                                        {
+                                            Name = Path.GetFileNameWithoutExtension(filePath)
+                                        };
+                                        modelScene.SkeletalModel = null;
+                                        modelScene.Skeleton = null;
+                                        foreach (ObjectInfo obj in objects)
+                                            if (!obj.UsesController)
+                                                obj.Initialize(modelScene.StaticModel, visualScene);
+                                    }
+                                    else
+                                    {
+                                        modelScene.SkeletalModel = new SkeletalMesh()
+                                        {
+                                            Name = Path.GetFileNameWithoutExtension(filePath)
+                                        };
+                                        modelScene.StaticModel = null;
+                                        modelScene.Skeleton = new Skeleton(rootBones.ToArray());
+                                        foreach (ObjectInfo obj in objects)
+                                            if (obj.UsesController)
+                                                obj.Initialize(modelScene.SkeletalModel, visualScene);
                                     }
                                     data.Models.Add(modelScene);
                                 }
@@ -304,7 +327,7 @@ namespace TheraEngine.Rendering.Models
         private static Bone EnumNode(
             Bone parent,
             COLLADA.Node node,
-            List<COLLADA.Node> nodes,
+            COLLADA.Node[] nodes,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
             Matrix4 invParent,
@@ -341,11 +364,10 @@ namespace TheraEngine.Rendering.Models
                     {
                         if (child is COLLADA.LibraryControllers.Controller.Skin skin)
                         {
-                            var geometry = skin.Source.GetElement(skin.Root) as COLLADA.LibraryGeometries.Geometry;
-                            if (geometry == null)
-                                Engine.PrintLine(skin.Source.URI + " does not point to a valid geometry entry.");
+                            if (skin.Source.GetElement(skin.Root) is COLLADA.LibraryGeometries.Geometry geometry)
+                                objects.Add(new ObjectInfo(geometry, skin, bindMatrix, inst, parent, node));
                             else
-                                objects.Add(new ObjectInfo(true, geometry, bindMatrix, skin, nodes, inst, parent, node));
+                                Engine.PrintLine(skin.Source.URI + " does not point to a valid geometry entry.");
                         }
                         else if (child is COLLADA.LibraryControllers.Controller.Morph morph)
                         {
@@ -358,10 +380,11 @@ namespace TheraEngine.Rendering.Models
                 else if (inst is InstanceGeometry geomRef)
                 {
                     var geometry = geomRef.GetUrlInstance();
-                    if (geometry == null)
-                        Engine.PrintLine(geomRef.Url.URI + " does not point to a valid geometry entry.");
+                    if (geometry != null)
+                        objects.Add(new ObjectInfo(geometry, null, bindMatrix, inst, parent, node));
                     else
-                        objects.Add(new ObjectInfo(false, geometry, bindMatrix, null, nodes, inst, parent, node));
+                        Engine.PrintLine(geomRef.Url.URI + " does not point to a valid geometry entry.");
+                   
                 }
                 //Camera?
                 else if (inst is InstanceCamera camRef)
@@ -385,40 +408,36 @@ namespace TheraEngine.Rendering.Models
 
         private class ObjectInfo
         {
-            public bool _weighted;
             public COLLADA.LibraryGeometries.Geometry _geoEntry;
+            public COLLADA.LibraryControllers.Controller.ControllerChild _rig;
             public Matrix4 _bindMatrix;
-            public COLLADA.LibraryControllers.Controller.Skin _skin;
             public IInstanceElement _inst;
-            public List<COLLADA.Node> _nodes;
             public COLLADA.Node _node;
             public Bone _parent;
 
             public ObjectInfo(
-                bool weighted,
                 COLLADA.LibraryGeometries.Geometry geoEntry,
+                COLLADA.LibraryControllers.Controller.ControllerChild rig,
                 Matrix4 bindMatrix,
-                COLLADA.LibraryControllers.Controller.Skin skin,
-                List<COLLADA.Node> nodes,
                 IInstanceElement inst,
                 Bone parent,
                 COLLADA.Node node)
             {
-                _weighted = weighted;
                 _geoEntry = geoEntry;
                 _bindMatrix = bindMatrix;
-                _skin = skin;
-                _nodes = nodes;
+                _rig = rig;
                 _node = node;
                 _inst = inst;
                 _parent = parent;
             }
 
-            public void Initialize(SkeletalMesh model)
+            public bool UsesController => _rig != null;
+
+            public void Initialize(SkeletalMesh model, VisualScene scene)
             {
                 PrimitiveData data;
-                if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _nodes);
+                if (_rig != null)
+                    data = DecodePrimitivesWeighted(scene, _bindMatrix, _geoEntry, _rig);
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
@@ -432,13 +451,13 @@ namespace TheraEngine.Rendering.Models
                 else
                     m = Material.GetLitColorMaterial();
 
-                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node._name ?? _node._id, data, m, true));
+                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, m, true));
             }
-            public void Initialize(StaticMesh model, DecoderShell shell)
+            public void Initialize(StaticMesh model, VisualScene scene)
             {
                 PrimitiveData data;
-                if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _nodes);
+                if (_rig != null)
+                    data = DecodePrimitivesWeighted(scene, _bindMatrix, _geoEntry, _rig);
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
@@ -452,7 +471,7 @@ namespace TheraEngine.Rendering.Models
                 else
                     m = Material.GetLitColorMaterial();
 
-                model.RigidChildren.Add(new StaticRigidSubMesh(_node._name ?? _node._id, data, null, m));
+                model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, null, m));
             }
         }
         private enum EInterpolation

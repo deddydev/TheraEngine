@@ -130,8 +130,7 @@ namespace TheraEngine.Core.Files
 
             if (entry is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
             {
-                IElement elem = (IElement)SIDEntry;
-                IElement p = elem.GenericParent;
+                IElement p = SIDEntry.GenericParent;
                 while (true)
                 {
                     if (p is ISIDAncestor ancestor)

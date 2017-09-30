@@ -265,9 +265,9 @@ namespace TheraEngine.Rendering.Models
             [Attr("source", true)]
             public ColladaURI Source { get; set; }
 
-            public SemanticType CommonSemanticType
+            public ESemantic CommonSemanticType
             {
-                get => Semantic.AsEnum<SemanticType>();
+                get => Semantic.AsEnum<ESemantic>();
                 set => Semantic = value.ToString();
             }
         }
@@ -282,16 +282,16 @@ namespace TheraEngine.Rendering.Models
             [Attr("semantic", true)]
             public string Semantic { get; set; }
             [Attr("semantic", true)]
-            public string Source { get; set; }
+            public ColladaURI Source { get; set; }
 
-            public SemanticType CommonSemanticType
+            public ESemantic CommonSemanticType
             {
-                get => Semantic.AsEnum<SemanticType>();
+                get => Semantic.AsEnum<ESemantic>();
                 set => Semantic = value.ToString();
             }
         }
 
-        public enum SemanticType
+        public enum ESemantic
         {
             /// <summary>
             /// Semantic type is not defined in this list.
@@ -421,6 +421,8 @@ namespace TheraEngine.Rendering.Models
         public class Source : BaseElement<ISource>, IID, IName, IAsset
         {
             public Asset AssetElement => GetChild<Asset>();
+            public TechniqueCommon TechniqueCommonElement => GetChild<TechniqueCommon>();
+            public T GetArrayElement<T>() where T : IArrayElement => GetChild<T>();
 
             [Attr("id", false)]
             public string ID { get; set; } = null;
@@ -452,7 +454,7 @@ namespace TheraEngine.Rendering.Models
                     public uint Stride { get; set; } = 1;
                 }
             }
-            public interface IArrayElement { }
+            public interface IArrayElement : IElement { }
             public class ArrayElement<T> :
                 BaseStringElement<Source, T>, IID, IName, IArrayElement
                 where T : BaseElementString
@@ -1284,6 +1286,7 @@ namespace TheraEngine.Rendering.Models
                 public class Geometry : BaseElement<LibraryGeometries>, IInstantiatable, IID, IName, IAsset, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
+                    public Mesh MeshElement => GetChild<Mesh>();
                     public Extra[] ExtraElements => GetChildren<Extra>();
 
                     [Attr("id", false)]
@@ -1305,19 +1308,25 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(Extra), 0, -1)]
                     public class Mesh : BaseElement<Geometry>, ISource
                     {
+                        public Source[] SourceElements => GetChildren<Source>();
+                        public Vertices VerticesElement => GetChild<Vertices>();
+                        public BasePrimitive[] PrimitiveElements => GetChildren<BasePrimitive>();
+                        public Extra[] ExtraElements => GetChildren<Extra>();
+
                         [Name("vertices")]
                         [Child(typeof(InputUnshared), 1, -1)]
                         [Child(typeof(Extra), 0, -1)]
                         public class Vertices : BaseElement<Mesh>, IID, IName, IInputUnshared
                         {
+                            public InputUnshared[] InputElements => GetChildren<InputUnshared>();
+                            public Extra[] ExtraElements => GetChildren<Extra>();
+                            
                             [Attr("id", false)]
                             public string ID { get; set; } = null;
                             [Attr("name", false)]
                             public string Name { get; set; } = null;
 
                             public List<ISID> SIDChildren { get; } = new List<ISID>();
-
-
                         }
                         [Child(typeof(Extra), 0, -1)]
                         public class BasePrimitive : BaseElement<Mesh>, IName, IExtra
@@ -1391,6 +1400,12 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(Extra), 0, -1)]
                     public class Skin : ControllerChild, ISource
                     {
+                        public BindShapeMatrix BindShapeMatrixElement => GetChild<BindShapeMatrix>();
+                        public Source[] SourceElements => GetChildren<Source>();
+                        public Joints JointsElement => GetChild<Joints>();
+                        public VertexWeights VertexWeightsElement => GetChild<VertexWeights>();
+                        public Extra[] ExtraElements => GetChildren<Extra>();
+
                         [Attr("source", true)]
                         public ColladaURI Source { get; set; }
 
@@ -1402,7 +1417,11 @@ namespace TheraEngine.Rendering.Models
                         [Name("joints")]
                         [Child(typeof(InputUnshared), 2, -1)]
                         [Child(typeof(Extra), 0, -1)]
-                        public class Joints : BaseElement<Skin>, IInputUnshared { }
+                        public class Joints : BaseElement<Skin>, IInputUnshared
+                        {
+                            public InputUnshared[] InputElements => GetChildren<InputUnshared>();
+                            public Extra[] ExtraElements => GetChildren<Extra>();
+                        }
                         [Name("vertex_weights")]
                         [Child(typeof(InputShared), 2, -1)]
                         [Child(typeof(BoneCounts), 0, 1)]
@@ -1410,6 +1429,11 @@ namespace TheraEngine.Rendering.Models
                         [Child(typeof(Extra), 0, -1)]
                         public class VertexWeights : BaseElement<Skin>, IInputShared
                         {
+                            public InputShared[] InputElements => GetChildren<InputShared>();
+                            public BoneCounts BoneCountsElement => GetChild<BoneCounts>();
+                            public PrimitiveIndices PrimitiveIndicesElement => GetChild<PrimitiveIndices>();
+                            public Extra[] ExtraElements => GetChildren<Extra>();
+
                             [Attr("count", true)]
                             public uint Count { get; set; } = 0;
                             
@@ -1419,7 +1443,7 @@ namespace TheraEngine.Rendering.Models
                             public class PrimitiveIndices : BaseStringElement<VertexWeights, ElementFloatArray> { }
                         }
                     }
-                    public enum MorphMethod
+                    public enum EMorphMethod
                     {
                         NORMALIZED,
                         RELATIVE,
@@ -1430,17 +1454,21 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(Extra), 0, -1)]
                     public class Morph : ControllerChild, ISource
                     {
+                        public Source[] SourceElements => GetChildren<Source>();
+                        public Targets TargetsElement => GetChild<Targets>();
+
                         [Attr("source", true)]
                         public ColladaURI BaseMeshUrl { get; set; }
                         [Attr("method", false)]
                         [DefaultValue("NORMALIZED")]
-                        public MorphMethod Method { get; set; } = MorphMethod.NORMALIZED;
+                        public EMorphMethod Method { get; set; } = EMorphMethod.NORMALIZED;
 
                         [Name("targets")]
                         [Child(typeof(InputUnshared), 2, -1)]
                         [Child(typeof(Extra), 0, -1)]
                         public class Targets : BaseElement<Morph>, IInputUnshared, IExtra
                         {
+                            public InputUnshared[] InputElements => GetChildren<InputUnshared>();
                             public Extra[] ExtraElements => GetChildren<Extra>();
                         }
                     }
@@ -1508,7 +1536,21 @@ namespace TheraEngine.Rendering.Models
                 public string Layer { get; set; } = null;
                 
                 public List<ISID> SIDChildren { get; } = new List<ISID>();
-                
+
+                public Node FindNode(string sid) => FindNode(NodeElements, sid);
+                private static Node FindNode(Node[] nodes, string sid)
+                {
+                    foreach (var n1 in nodes)
+                    {
+                        if (n1.SID == sid)
+                            return n1;
+                        var n2 = n1.FindNode(sid);
+                        if (n2 != null)
+                            return n2;
+                    }
+                    return null;
+                }
+
                 public interface ITransformation : IElement
                 {
 
@@ -1566,6 +1608,20 @@ namespace TheraEngine.Rendering.Models
                     public string Name { get; set; } = null;
 
                     public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                    public Node FindNode(string sid) => FindNode(NodeElements, sid);
+                    private static Node FindNode(Node[] nodes, string sid)
+                    {
+                        foreach (var n1 in nodes)
+                        {
+                            if (n1.SID == sid)
+                                return n1;
+                            var n2 = n1.FindNode(sid);
+                            if (n2 != null)
+                                return n2;
+                        }
+                        return null;
+                    }
 
                     [Name("evaluate_scene")]
                     public class EvaluateScene : BaseElement<VisualScene>

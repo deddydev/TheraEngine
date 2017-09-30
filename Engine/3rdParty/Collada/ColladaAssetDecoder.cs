@@ -9,9 +9,9 @@ namespace TheraEngine.Rendering.Models
     {
         static PrimitiveData DecodePrimitivesWeighted(
             Matrix4 bindMatrix,
-            GeometryEntry geo,
-            SkinEntry skin,
-            List<NodeEntry> nodes)
+            COLLADA.LibraryGeometries.Geometry geo,
+            COLLADA.LibraryControllers.Controller.Skin skin,
+            List<COLLADA.Node> nodes)
         {
             //Engine.DebugPrint("Weighted: " + geo._id);
 
@@ -19,24 +19,26 @@ namespace TheraEngine.Rendering.Models
             Bone bone = null;
             int boneCount;
 
+            var bindShapeMatrix = skin.GetChild<COLLADA.LibraryControllers.Controller.Skin.BindShapeMatrix>();
+            var joints = skin.GetChild<COLLADA.LibraryControllers.Controller.Skin.Joints>();
+            var weights = skin.GetChild<COLLADA.LibraryControllers.Controller.Skin.VertexWeights>();
+
             float weight = 0;
             float[] pWeights = null;
-            Influence[] infList = new Influence[skin._weightCount];
+            Influence[] infList = new Influence[weights.Count];
             Matrix4* pMatrix = null;
             
             //Find joint source
             string[] jointStringArray = null;
             string jointString = null;
-            foreach (InputEntry inp in skin._jointInputs)
-                if (inp._semantic == ESemantic.JOINT)
+            foreach (InputUnshared inp in joints.GetChildren<InputUnshared>())
+                if (inp.CommonSemanticType == SemanticType.JOINT &&
+                    inp.Source.GetElement(inp.Root) is Source src)
                 {
-                    SourceEntry src = skin._sources.FirstOrDefault(x => x._id == inp._source);
-                    if (src != null)
-                    {
-                        jointStringArray = src._arrayData as string[];
-                        jointString = src._arrayDataString;
-                    }
+                    jointStringArray = src as string[];
+                    jointString = src._arrayDataString;
                 }
+                
                 //else if (inp._semantic == SemanticType.INV_BIND_MATRIX)
                 //{
                 //    SourceEntry src = skin._sources.FirstOrDefault(x => x._id == inp._source);
@@ -51,8 +53,8 @@ namespace TheraEngine.Rendering.Models
             {
                 string name = jointStringArray[i];
 
-                NodeEntry entry = null;
-                foreach (NodeEntry node in nodes)
+                COLLADA.Node entry = null;
+                foreach (var node in nodes)
                     if ((entry = DecoderShell.FindNodeInternal(name, node)) != null)
                         break;
 

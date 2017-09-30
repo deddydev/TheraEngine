@@ -70,9 +70,11 @@ namespace TheraEngine.Rendering.Models
                                 {
                                     ModelScene modelScene = new ModelScene();
                                     var nodes = visualScene.NodeElements;
+                                    List<Bone> rootBones = new List<Bone>();
+                                    List<ObjectInfo> objects = new List<ObjectInfo>();
                                     foreach (var node in nodes)
                                     {
-                                        
+                                        EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform);
                                     }
                                     data.Models.Add(modelScene);
                                 }
@@ -330,38 +332,48 @@ namespace TheraEngine.Rendering.Models
 
             foreach (IInstanceElement inst in node.InstanceElements)
             {
+                //Rigged/morphed mesh?
                 if (inst is InstanceController controllerRef)
                 {
                     var controller = controllerRef.GetUrlInstance();
-                    foreach (SkinEntry skin in shell._skins)
-                        if (skin._id == inst._url)
+                    var child = controller.SkinOrMorphElement;
+                    if (child != null)
+                    {
+                        if (child is COLLADA.LibraryControllers.Controller.Skin skin)
                         {
-                            foreach (GeometryEntry g in shell._geometry)
-                                if (g._id == skin._skinSource)
-                                {
-                                    objects.Add(new ObjectInfo(true, g, bindMatrix, skin, nodes, inst, parent, node));
-                                    break;
-                                }
-                            break;
+                            var geometry = skin.Source.GetElement(skin.Root) as COLLADA.LibraryGeometries.Geometry;
+                            if (geometry == null)
+                                Engine.PrintLine(skin.Source.URI + " does not point to a valid geometry entry.");
+                            else
+                                objects.Add(new ObjectInfo(true, geometry, bindMatrix, skin, nodes, inst, parent, node));
                         }
+                        else if (child is COLLADA.LibraryControllers.Controller.Morph morph)
+                        {
+                            //var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as COLLADA.LibraryGeometries.Geometry;
+                            Engine.PrintLine("Importing morphs is not yet supported.");
+                        }
+                    }
                 }
+                //Static mesh?
                 else if (inst is InstanceGeometry geomRef)
                 {
-                    foreach (GeometryEntry g in shell._geometry)
-                        if (g._id == inst._url)
-                        {
-                            objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node));
-                            break;
-                        }
+                    var geometry = geomRef.GetUrlInstance();
+                    if (geometry == null)
+                        Engine.PrintLine(geomRef.Url.URI + " does not point to a valid geometry entry.");
+                    else
+                        objects.Add(new ObjectInfo(false, geometry, bindMatrix, null, nodes, inst, parent, node));
                 }
+                //Camera?
                 else if (inst is InstanceCamera camRef)
                 {
 
                 }
+                //Light?
                 else if (inst is InstanceLight lightRef)
                 {
 
                 }
+                //Another node tree?
                 else if (inst is InstanceNode nodeRef)
                 {
                     var actualNode = nodeRef.GetUrlInstance();
@@ -376,7 +388,7 @@ namespace TheraEngine.Rendering.Models
             public bool _weighted;
             public COLLADA.LibraryGeometries.Geometry _geoEntry;
             public Matrix4 _bindMatrix;
-            public SkinEntry _skin;
+            public COLLADA.LibraryControllers.Controller.Skin _skin;
             public IInstanceElement _inst;
             public List<COLLADA.Node> _nodes;
             public COLLADA.Node _node;
@@ -386,7 +398,7 @@ namespace TheraEngine.Rendering.Models
                 bool weighted,
                 COLLADA.LibraryGeometries.Geometry geoEntry,
                 Matrix4 bindMatrix,
-                SkinEntry skin,
+                COLLADA.LibraryControllers.Controller.Skin skin,
                 List<COLLADA.Node> nodes,
                 IInstanceElement inst,
                 Bone parent,
@@ -451,25 +463,25 @@ namespace TheraEngine.Rendering.Models
             CARDINAL,
             BSPLINE,
         }
-        private enum ESemantic
-        {
-            POSITION,
-            VERTEX,
-            NORMAL,
-            TEXCOORD,
-            COLOR,
-            WEIGHT,
-            JOINT,
-            INV_BIND_MATRIX,
-            TEXTANGENT,
-            TEXBINORMAL,
-            INPUT,
-            OUTPUT,
-            IN_TANGENT,
-            OUT_TANGENT,
-            INTERPOLATION,
-            CONTINUITY,
-            LINEAR_STEPS,
-        }
+        //private enum ESemantic
+        //{
+        //    POSITION,
+        //    VERTEX,
+        //    NORMAL,
+        //    TEXCOORD,
+        //    COLOR,
+        //    WEIGHT,
+        //    JOINT,
+        //    INV_BIND_MATRIX,
+        //    TEXTANGENT,
+        //    TEXBINORMAL,
+        //    INPUT,
+        //    OUTPUT,
+        //    IN_TANGENT,
+        //    OUT_TANGENT,
+        //    INTERPOLATION,
+        //    CONTINUITY,
+        //    LINEAR_STEPS,
+        //}
     }
 }

@@ -24,20 +24,12 @@ namespace TheraEngine.Rendering.Models
         {
             public string URI { get; set; }
             bool IsLocal => URI.StartsWith("#");
-            public void ReadFromString(string str)
-            {
-                URI = str;
-            }
-            public string WriteToString()
-            {
-                return URI;
-            }
-            public IID GetElement(IElement owner)
-            {
-                return IsLocal ? owner.Root.GetIDEntry(URI.Substring(1)) : null;
-            }
+            public void ReadFromString(string str) => URI = str;
+            public string WriteToString() => URI;
+            public IID GetElement(COLLADA root)
+                => IsLocal ? root?.GetIDEntry(URI.Substring(1)) : null;
         }
-        public interface ISIDAncestor
+        public interface ISIDAncestor : IElement
         {
             List<ISID> SIDChildren { get; }
         }
@@ -270,8 +262,140 @@ namespace TheraEngine.Rendering.Models
         {
             [Attr("semantic", true)]
             public string Semantic { get; set; }
+            [Attr("source", true)]
+            public ColladaURI Source { get; set; }
+
+            public SemanticType CommonSemanticType
+            {
+                get => Semantic.AsEnum<SemanticType>();
+                set => Semantic = value.ToString();
+            }
+        }
+        public interface IInputShared : IElement { }
+        [Name("input")]
+        public class InputShared : BaseElement<IInputShared>
+        {
+            [Attr("offset", true)]
+            public uint Offset { get; set; }
+            [Attr("set", false)]
+            public uint Set { get; set; }
+            [Attr("semantic", true)]
+            public string Semantic { get; set; }
             [Attr("semantic", true)]
             public string Source { get; set; }
+
+            public SemanticType CommonSemanticType
+            {
+                get => Semantic.AsEnum<SemanticType>();
+                set => Semantic = value.ToString();
+            }
+        }
+
+        public enum SemanticType
+        {
+            /// <summary>
+            /// Semantic type is not defined in this list.
+            /// </summary>
+            UNDEFINED,
+            /// <summary>
+            /// Geometric binormal (bitangent) vector
+            /// </summary>
+            BINORMAL,
+            /// <summary>
+            /// Color coordinate vector. Color inputs are RGB (float3)
+            /// </summary>
+            COLOR,
+            /// <summary>
+            /// Continuity constraint at the control vertex (CV).
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            CONTINUITY,
+            /// <summary>
+            /// Raster or MIP-level input.
+            /// </summary>
+            IMAGE,
+            /// <summary>
+            /// Sampler input.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            INPUT,
+            /// <summary>
+            /// Tangent vector for preceding control point.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            IN_TANGENT,
+            /// <summary>
+            /// Sampler interpolation type.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            INTERPOLATION,
+            /// <summary>
+            /// Inverse of local-to-world matrix.
+            /// </summary>
+            INV_BIND_MATRIX,
+            /// <summary>
+            /// Skin influence identifier
+            /// </summary>
+            JOINT,
+            /// <summary>
+            /// Number of piece-wise linear approximation steps to use for the spline segment that follows this CV.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            LINEAR_STEPS,
+            /// <summary>
+            /// Morph targets for mesh morphing
+            /// </summary>
+            MORPH_TARGET,
+            /// <summary>
+            /// Weights for mesh morphing
+            /// </summary>
+            MORPH_WEIGHT,
+            /// <summary>
+            /// Normal vector
+            /// </summary>
+            NORMAL,
+            /// <summary>
+            /// Sampler output.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            OUTPUT,
+            /// <summary>
+            /// Tangent vector for succeeding control point.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            OUT_TANGENT,
+            /// <summary>
+            /// Geometric coordinate vector. See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            POSITION,
+            /// <summary>
+            /// Geometric tangent vector
+            /// </summary>
+            TANGENT,
+            /// <summary>
+            /// Texture binormal (bitangent) vector
+            /// </summary>
+            TEXBINORMAL,
+            /// <summary>
+            /// Texture coordinate vector
+            /// </summary>
+            TEXCOORD,
+            /// <summary>
+            /// Texture tangent vector
+            /// </summary>
+            TEXTANGENT,
+            /// <summary>
+            /// Generic parameter vector
+            /// </summary>
+            UV,
+            /// <summary>
+            /// Mesh vertex
+            /// </summary>
+            VERTEX,
+            /// <summary>
+            /// Skin influence weighting value
+            /// </summary>
+            WEIGHT,
         }
 
         public interface ITechniqueCommon : IElement { }
@@ -377,7 +501,7 @@ namespace TheraEngine.Rendering.Models
 
             public List<ISID> SIDChildren { get; } = new List<ISID>();
             
-            public T2 GetUrlInstance() => Url.GetElement(this) as T2;
+            public T2 GetUrlInstance() => Url.GetElement(Root) as T2;
         }
         [Name("instance_node")]
         public class InstanceNode : BaseInstanceElement<COLLADA.Node, COLLADA.Node>
@@ -385,7 +509,7 @@ namespace TheraEngine.Rendering.Models
             [Attr("proxy", false)]
             public ColladaURI Proxy { get; set; } = null;
 
-            public COLLADA.Node GetProxyInstance() => Proxy.GetElement(this) as COLLADA.Node;
+            public COLLADA.Node GetProxyInstance() => Proxy.GetElement(Root) as COLLADA.Node;
         }
         [Name("instance_camera")]
         public class InstanceCamera : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryCameras.Camera> { }
@@ -811,8 +935,11 @@ namespace TheraEngine.Rendering.Models
                 public class Effect : BaseElement<LibraryEffects>, IID, IName, IAsset, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
+                    public Annotate[] AnnotateElements => GetChildren<Annotate>();
+                    public NewParam[] NewParamElements => GetChildren<NewParam>();
+                    public BaseProfile[] ProfileElements => GetChildren<BaseProfile>();
                     public Extra[] ExtraElements => GetChildren<Extra>();
-
+                    
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
                     [Attr("name", false)]
@@ -1239,12 +1366,84 @@ namespace TheraEngine.Rendering.Models
             public class LibraryControllers : Library
             {
                 [Name("controller")]
-                public class Controller : BaseElement<LibraryControllers>, IInstantiatable, IID
+                [Child(typeof(Asset), 0, 1)]
+                [Child(typeof(ControllerChild), 1)]
+                [Child(typeof(Extra), 0, -1)]
+                public class Controller : BaseElement<LibraryControllers>, IInstantiatable, IID, IName, IAsset, IExtra
                 {
+                    public Asset AssetElement => GetChild<Asset>();
+                    public ControllerChild SkinOrMorphElement => GetChild<ControllerChild>();
+                    public Extra[] ExtraElements => GetChildren<Extra>();
+
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
+                    [Attr("name", false)]
+                    public string Name { get; set; } = null;
 
                     public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                    public abstract class ControllerChild : BaseElement<Controller> { }
+                    [Name("skin")]
+                    [Child(typeof(BindShapeMatrix), 0, 1)]
+                    [Child(typeof(Source), 3, -1)]
+                    [Child(typeof(Joints), 1)]
+                    [Child(typeof(VertexWeights), 1)]
+                    [Child(typeof(Extra), 0, -1)]
+                    public class Skin : ControllerChild, ISource
+                    {
+                        [Attr("source", true)]
+                        public ColladaURI Source { get; set; }
+
+                        [Name("bind_shape_matrix")]
+                        public class BindShapeMatrix : BaseStringElement<Skin, StringParsable<Matrix4>>
+                        {
+                            public override void PostRead() => StringContent.Value.Transpose();
+                        }
+                        [Name("joints")]
+                        [Child(typeof(InputUnshared), 2, -1)]
+                        [Child(typeof(Extra), 0, -1)]
+                        public class Joints : BaseElement<Skin>, IInputUnshared { }
+                        [Name("vertex_weights")]
+                        [Child(typeof(InputShared), 2, -1)]
+                        [Child(typeof(BoneCounts), 0, 1)]
+                        [Child(typeof(PrimitiveIndices), 0, 1)]
+                        [Child(typeof(Extra), 0, -1)]
+                        public class VertexWeights : BaseElement<Skin>, IInputShared
+                        {
+                            [Attr("count", true)]
+                            public uint Count { get; set; } = 0;
+                            
+                            [Name("vcount")]
+                            public class BoneCounts : BaseStringElement<VertexWeights, ElementFloatArray> { }
+                            [Name("v")]
+                            public class PrimitiveIndices : BaseStringElement<VertexWeights, ElementFloatArray> { }
+                        }
+                    }
+                    public enum MorphMethod
+                    {
+                        NORMALIZED,
+                        RELATIVE,
+                    }
+                    [Name("morph")]
+                    [Child(typeof(Source), 2, -1)]
+                    [Child(typeof(Targets), 1)]
+                    [Child(typeof(Extra), 0, -1)]
+                    public class Morph : ControllerChild, ISource
+                    {
+                        [Attr("source", true)]
+                        public ColladaURI BaseMeshUrl { get; set; }
+                        [Attr("method", false)]
+                        [DefaultValue("NORMALIZED")]
+                        public MorphMethod Method { get; set; } = MorphMethod.NORMALIZED;
+
+                        [Name("targets")]
+                        [Child(typeof(InputUnshared), 2, -1)]
+                        [Child(typeof(Extra), 0, -1)]
+                        public class Targets : BaseElement<Morph>, IInputUnshared, IExtra
+                        {
+                            public Extra[] ExtraElements => GetChildren<Extra>();
+                        }
+                    }
                 }
             }
             #endregion

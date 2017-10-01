@@ -22,29 +22,32 @@ namespace TheraEngine.Rendering.Models
                 Bone bone = null;
                 int boneCount;
 
-                var bindShapeMatrix = skin.BindShapeMatrixElement;
+                var bindShapeMatrix = skin.BindShapeMatrixElement?.StringContent?.Value ?? Matrix4.Identity;
                 var joints = skin.JointsElement;
                 var weights = skin.VertexWeightsElement;
-                var sources = skin.SourceElements;
+                var boneCounts = weights.BoneCountsElement;
+                var prims = weights.PrimitiveIndicesElement;
 
                 Influence[] infList = new Influence[weights.Count];
                 
                 //Find joint source
-                string[] jointStringArray = null;
+                string[] jointSIDs = null;
                 foreach (InputUnshared inp in joints.GetChildren<InputUnshared>())
-                    if (inp.CommonSemanticType == ESemantic.JOINT &&
-                        inp.Source.GetElement(inp.Root) is Source src)
-                        jointStringArray = src.GetChild<Source.NameArray>().StringContent.Values;
+                    if (inp.CommonSemanticType == ESemantic.JOINT && inp.Source.GetElement(inp.Root) is Source src)
+                    {
+                        jointSIDs = src.GetChild<Source.NameArray>().StringContent.Values;
+                        break;
+                    }
 
-                if (jointStringArray == null)
+                if (jointSIDs == null)
                     return null;
 
                 //Populate bone list
-                boneCount = jointStringArray.Length;
+                boneCount = jointSIDs.Length;
                 boneList = new Bone[boneCount];
                 for (int i = 0; i < boneCount; i++)
                 {
-                    string sid = jointStringArray[i];
+                    string sid = jointSIDs[i];
                     var node = scene.FindNode(sid);
                     
                     if (node != null && node.UserData is Bone b)
@@ -80,17 +83,17 @@ namespace TheraEngine.Rendering.Models
 
                 //Build vertex list and remap table
                 float weight = 0;
+                int[] boneIndices = boneCounts.StringContent.Values;
+                int[] primIndices = prims.StringContent.Values;
                 for (int i = 0; i < weights.Count; i++)
                 {
                     //Create influence
-                    int iCount = skin._weights[i].Length / pCmd.Length;
                     Influence inf = new Influence();
-                    int[] iPtr = skin._weights[i];
-                    for (int x = 0, j = 0; x < iCount; x++)
+                    for (int boneIndex = 0, primIndex = 0; boneIndex < boneIndices[i]; boneIndex++)
                     {
-                        for (int cmd = 0; cmd < pCmd.Length; cmd++, j++)
+                        for (int cmd = 0; cmd < pCmd.Length; cmd++, primIndex++)
                         {
-                            int index = iPtr[j];
+                            int index = primIndices[primIndex];
                             switch (pCmd[cmd])
                             {
                                 case 1: //JOINT
@@ -105,7 +108,7 @@ namespace TheraEngine.Rendering.Models
                     }
                     infList[i] = inf;
                 }
-                return DecodePrimitives(geo, bindMatrix * skin._bindMatrix, infList);
+                return DecodePrimitives(geo, bindMatrix * bindShapeMatrix, infList);
             }
             else
             {

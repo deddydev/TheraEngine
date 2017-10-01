@@ -1438,9 +1438,9 @@ namespace TheraEngine.Rendering.Models
                             public uint Count { get; set; } = 0;
                             
                             [Name("vcount")]
-                            public class BoneCounts : BaseStringElement<VertexWeights, ElementFloatArray> { }
+                            public class BoneCounts : BaseStringElement<VertexWeights, ElementIntArray> { }
                             [Name("v")]
-                            public class PrimitiveIndices : BaseStringElement<VertexWeights, ElementFloatArray> { }
+                            public class PrimitiveIndices : BaseStringElement<VertexWeights, ElementIntArray> { }
                         }
                     }
                     public enum EMorphMethod

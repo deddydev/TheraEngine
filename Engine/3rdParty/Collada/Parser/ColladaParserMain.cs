@@ -513,14 +513,35 @@ namespace TheraEngine.Rendering.Models
 
             public COLLADA.Node GetProxyInstance() => Proxy.GetElement(Root) as COLLADA.Node;
         }
+
         [Name("instance_camera")]
         public class InstanceCamera : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryCameras.Camera> { }
-        [Name("instance_geometry")]
-        public class InstanceGeometry : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryGeometries.Geometry> { }
-        [Name("instance_controller")]
-        public class InstanceController : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryControllers.Controller> { }
         [Name("instance_light")]
         public class InstanceLight : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryLights.Light> { }
+        
+        [Name("instance_geometry")]
+        [Child(typeof(BindMaterial), 0, 1)]
+        public class InstanceGeometry : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryGeometries.Geometry>, IInstanceMesh
+        {
+            public BindMaterial BindMaterialElement => GetChild<BindMaterial>();
+        }
+        [Name("instance_controller")]
+        [Child(typeof(BindMaterial), 0, 1)]
+        [Child(typeof(Skeleton), 0, -1)]
+        public class InstanceController : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryControllers.Controller>, IInstanceMesh
+        {
+            public BindMaterial BindMaterialElement => GetChild<BindMaterial>();
+            public Skeleton[] SkeletonElements => GetChildren<Skeleton>();
+
+            [Name("skeleton")]
+            public class Skeleton : BaseStringElement<InstanceController, ElementURI> { }
+        }
+        public interface IInstanceMesh : IElement { }
+        [Name("bind_material")]
+        public class BindMaterial : BaseElement<IInstanceMesh>
+        {
+
+        }
         #endregion
 
         #endregion
@@ -550,7 +571,7 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => Value.WriteToString();
         }
-        public class StringHex : BaseElementString
+        public class ElementHex : BaseElementString
         {
             public string Value { get; set; }
             public override void ReadFromString(string str)
@@ -566,11 +587,14 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => Value;
         }
-        public class StringURI : BaseElementString
+        public class ElementURI : BaseElementString
         {
-            public Uri Value { get; set; }
+            public ColladaURI Value { get; set; }
             public override void ReadFromString(string str)
-                => Value = new Uri(str);
+            {
+                Value = new ColladaURI();
+                Value.ReadFromString(str);
+            }
             public override string WriteToString()
                 => Value.ToString();
         }
@@ -773,7 +797,7 @@ namespace TheraEngine.Rendering.Models
                         /// maps, volumes, MIPs, and so on.
                         /// </summary>
                         [Name("ref")]
-                        public class Ref : BaseStringElement<InitFrom, StringURI> { }
+                        public class Ref : BaseStringElement<InitFrom, ElementURI> { }
                         /// <summary>
                         /// Contains the embedded image data as a sequence of
                         /// hexadecimal-encoded binary octets. The data typically
@@ -781,7 +805,7 @@ namespace TheraEngine.Rendering.Models
                         /// such as data width and height.
                         /// </summary>
                         [Name("hex")]
-                        public class Embedded : BaseStringElement<InitFrom, StringHex>
+                        public class Embedded : BaseStringElement<InitFrom, ElementHex>
                         {
                             /// <summary>
                             /// Use the required format attribute(xs:token) to specify which codec decodes the
@@ -871,9 +895,9 @@ namespace TheraEngine.Rendering.Models
                     public interface ISource { }
 
                     [Name("init_from")]
-                    public class InitFrom : BaseStringElement<Image14X, StringURI>, ISource { }
+                    public class InitFrom : BaseStringElement<Image14X, ElementURI>, ISource { }
                     [Name("data")]
-                    public class Data : BaseStringElement<Image14X, StringHex>, ISource { }
+                    public class Data : BaseStringElement<Image14X, ElementHex>, ISource { }
                 }
                 #endregion
             }

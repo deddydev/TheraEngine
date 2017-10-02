@@ -350,6 +350,14 @@ namespace TheraEngine
         public static Viewport GetViewport(int index)
             => RenderPanel.GamePanel?.GetViewport(index);
         
+        public static void LogError(string message, params string[] args)
+        {
+#if DEBUG
+            if (args.Length != 0)
+                message = string.Format(message, args);
+            throw new Exception(message);
+#endif
+        }
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>

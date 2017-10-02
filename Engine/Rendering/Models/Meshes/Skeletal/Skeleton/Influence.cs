@@ -43,6 +43,14 @@ namespace TheraEngine.Rendering.Models
         {
             _weights = Optimize(weights, out _weightCount);
         }
+        public void Optimize()
+        {
+            SetWeights(_weights);
+        }
+        public void Normalize()
+        {
+            Normalize(_weights);
+        }
 
         //private Matrix4 _matrix;
         //private Matrix4? _invMatrix;

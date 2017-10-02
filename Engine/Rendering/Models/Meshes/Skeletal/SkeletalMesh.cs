@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models
     public class SkeletalMesh : FileObject, IModelFile
     {
         [ThirdPartyLoader("DAE")]
-        public FileObject LoadDAE(string path)
+        public static FileObject LoadDAE(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {
@@ -17,6 +17,16 @@ namespace TheraEngine.Rendering.Models
                 ImportModels = true
             };
             return Collada.Import(path, o)?.Models[0].SkeletalModel;
+        }
+        [ThirdPartyLoader("OBJ")]
+        public static FileObject LoadOBJ(string path)
+        {
+            ModelImportOptions o = new ModelImportOptions()
+            {
+                ImportAnimations = false,
+                ImportModels = true
+            };
+            return OBJ.Import(path, o);
         }
 
         public SkeletalMesh() : base() { }

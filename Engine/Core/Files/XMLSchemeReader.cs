@@ -511,18 +511,23 @@ namespace TheraEngine.Core.Files
         public T2[] GetChildren<T2>() where T2 : IElement
         {
             Type t = typeof(T2);
-            List<T2> types = new List<T2>();
+            List<T2> elems = new List<T2>();
             while (t != null)
             {
                 var matching = ChildElements.Keys.Where(x => t.IsAssignableFrom(x));
                 foreach (var match in matching)
-                    types.AddRange(ChildElements[match].Select(x => (T2)x));
+                {
+                    var matchElems = ChildElements[match].Where(x => x is T2).Select(x => (T2)x);
+                    foreach (var m in matchElems)
+                        if (!elems.Contains(m))
+                            elems.Add(m);
+                }
                 t = t.BaseType;
             }
-            return types.ToArray();
+            return elems.ToArray();
         }
 
-        public IID GetIDEntry(string id) => Root.IDEntries[id];
+        public virtual IID GetIDEntry(string id) => Root.IDEntries[id];
 
         public virtual void PreRead() { }
         public virtual void PostRead() { }

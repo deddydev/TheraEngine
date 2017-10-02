@@ -26,6 +26,8 @@ namespace TheraEngine.Rendering.Models
             bool IsLocal => URI.StartsWith("#");
             public void ReadFromString(string str) => URI = str;
             public string WriteToString() => URI;
+            public T GetElement<T>(COLLADA root) where T : IID
+                => (T)GetElement(root);
             public IID GetElement(COLLADA root)
                 => IsLocal ? root?.GetIDEntry(URI.Substring(1)) : null;
         }
@@ -281,7 +283,7 @@ namespace TheraEngine.Rendering.Models
             public uint Set { get; set; }
             [Attr("semantic", true)]
             public string Semantic { get; set; }
-            [Attr("semantic", true)]
+            [Attr("source", true)]
             public ColladaURI Source { get; set; }
 
             public ESemantic CommonSemanticType
@@ -397,18 +399,15 @@ namespace TheraEngine.Rendering.Models
             /// </summary>
             WEIGHT,
         }
-
-        public interface ITechniqueCommon : IElement { }
-        [Name("technique_common")]
-        public class TechniqueCommon
-        {
-
-        }
+        
         public interface ITechnique : IElement { }
         [Name("technique")]
-        public class Technique
+        public class Technique : BaseElement<ITechnique>
         {
-
+            [Attr("profile", true)]
+            public string Profile { get; set; } = null;
+            [Attr("xmlns", false)]
+            public string XMLNS { get; set; } = null;
         }
 
         public interface ISource : IElement { }
@@ -435,6 +434,8 @@ namespace TheraEngine.Rendering.Models
             [Child(typeof(Accessor), 1)]
             public class TechniqueCommon : BaseElement<Source>
             {
+                public Accessor AccessorElement => GetChild<Accessor>();
+
                 [Name("accessor")]
                 [Child(typeof(DataFlowParam), 0, -1)]
                 public class Accessor : BaseElement<TechniqueCommon>, IDataFlowParam
@@ -488,7 +489,7 @@ namespace TheraEngine.Rendering.Models
         public interface IInstantiatable : IElement { }
         public interface IInstanceElement : IElement { }
         [Child(typeof(Extra), 0, -1)]
-        public class BaseInstanceElement<T1, T2> : BaseElement<COLLADA.Node>, ISID, IName, IExtra, IInstanceElement
+        public class BaseInstanceElement<T1, T2> : BaseElement<T1>, ISID, IName, IExtra, IInstanceElement
             where T1 : class, IElement
             where T2 : class, IElement, IInstantiatable, IID
         {
@@ -511,7 +512,7 @@ namespace TheraEngine.Rendering.Models
             [Attr("proxy", false)]
             public ColladaURI Proxy { get; set; } = null;
 
-            public COLLADA.Node GetProxyInstance() => Proxy.GetElement(Root) as COLLADA.Node;
+            public COLLADA.Node GetProxyInstance() => Proxy?.GetElement(Root) as COLLADA.Node;
         }
 
         [Name("instance_camera")]
@@ -534,13 +535,45 @@ namespace TheraEngine.Rendering.Models
             public Skeleton[] SkeletonElements => GetChildren<Skeleton>();
 
             [Name("skeleton")]
-            public class Skeleton : BaseStringElement<InstanceController, ElementURI> { }
+            public class Skeleton : BaseStringElement<InstanceController, ElementColladaURI> { }
         }
-        public interface IInstanceMesh : IElement { }
-        [Name("bind_material")]
-        public class BindMaterial : BaseElement<IInstanceMesh>
+        public interface IInstanceMesh : IElement
         {
+            BindMaterial BindMaterialElement { get; }
+        }
+        [Name("bind_material")]
+        [Child(typeof(DataFlowParam), 0, -1)]
+        [Child(typeof(TechniqueCommon), 1)]
+        [Child(typeof(Technique), 0, -1)]
+        [Child(typeof(Extra), 0, -1)]
+        public class BindMaterial : BaseElement<IInstanceMesh>, ITechnique, IDataFlowParam
+        {
+            public Extra[] ExtraElements => GetChildren<Extra>();
+            public DataFlowParam[] ParamElements => GetChildren<DataFlowParam>();
+            public Technique[] TechniqueElements => GetChildren<Technique>();
+            public TechniqueCommon TechniqueCommonElement => GetChild<TechniqueCommon>();
 
+            [Name("technique_common")]
+            [Child(typeof(InstanceMaterial), 1, -1)]
+            public class TechniqueCommon : BaseElement<BindMaterial>
+            {
+                public InstanceMaterial[] InstanceMaterialElements => GetChildren<InstanceMaterial>();
+
+                [Name("instance_material")]
+                public class InstanceMaterial : BaseElement<TechniqueCommon>
+                {
+                    [Attr("sid", false)]
+                    public string SID { get; set; } = null;
+                    [Attr("name", false)]
+                    public string Name { get; set; } = null;
+                    [Attr("target", true)]
+                    public ColladaURI Target { get; set; } = null;
+                    [Attr("symbol", true)]
+                    public string Symbol { get; set; } = null;
+                    
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                }
+            }
         }
         #endregion
 
@@ -562,14 +595,15 @@ namespace TheraEngine.Rendering.Models
         }
         public class StringParsable<T> : BaseElementString where T : IParsable
         {
-            public T Value { get; set; }
+            private T _value = default(T);
+            public T Value { get => _value; set => _value = value; }
             public override void ReadFromString(string str)
             {
-                Value = Activator.CreateInstance<T>();
-                Value.ReadFromString(str);
+                _value = Activator.CreateInstance<T>();
+                _value.ReadFromString(str);
             }
             public override string WriteToString()
-                => Value.WriteToString();
+                => _value.WriteToString();
         }
         public class ElementHex : BaseElementString
         {
@@ -587,7 +621,7 @@ namespace TheraEngine.Rendering.Models
             public override string WriteToString()
                 => Value;
         }
-        public class ElementURI : BaseElementString
+        public class ElementColladaURI : BaseElementString
         {
             public ColladaURI Value { get; set; }
             public override void ReadFromString(string str)
@@ -654,6 +688,8 @@ namespace TheraEngine.Rendering.Models
             public string Base { get; set; }
 
             public Dictionary<string, IID> IDEntries { get; } = new Dictionary<string, IID>();
+            public override IID GetIDEntry(string id)
+                => IDEntries.ContainsKey(id) ? IDEntries[id] : null;
 
             #region Scene
             [Name("scene")]
@@ -681,7 +717,22 @@ namespace TheraEngine.Rendering.Models
                 //    public List<ISID> SIDChildren { get; } = new List<ISID>();
                 //}
                 [Name("instance_visual_scene")]
-                public class InstanceVisualScene : BaseInstanceElement<Scene, LibraryVisualScenes.VisualScene> { }
+                [Child(typeof(Extra), 0, -1)]
+                public class InstanceVisualScene : BaseElement<Scene>
+                {
+                    public Extra[] ExtraElements => GetChildren<Extra>();
+
+                    [Attr("sid", false)]
+                    public string SID { get; set; } = null;
+                    [Attr("name", false)]
+                    public string Name { get; set; } = null;
+                    [Attr("url", true)]
+                    public ColladaURI Url { get; set; } = null;
+
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                    public LibraryVisualScenes.VisualScene GetUrlInstance() => Url.GetElement<LibraryVisualScenes.VisualScene>(Root);
+                }
                 //[Name("instance_kinematics_scene")]
                 //[Child(typeof(Asset), 0, 1)]
                 //[Child(typeof(NewParam), 0, -1)]
@@ -745,6 +796,11 @@ namespace TheraEngine.Rendering.Models
                 [Child(typeof(Extra), 0, -1)]
                 public class Image15X : BaseElement<LibraryImages>, IID, ISID, IName
                 {
+                    public Asset AssetElement => GetChild<Asset>();
+                    public Renderable RenderableElement => GetChild<Renderable>();
+                    public InitFrom InitFromElement => GetChild<InitFrom>();
+                    public Extra ExtraElements => GetChild<Extra>();
+
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
                     [Attr("sid", false)]
@@ -779,10 +835,12 @@ namespace TheraEngine.Rendering.Models
                     /// structure and data from formats such as DDS.
                     /// </summary>
                     [Name("init_from")]
-                    [Child(typeof(Ref), 0, 1)]
-                    [Child(typeof(Embedded), 0, 1)]
+                    [MultiChild(EMultiChildType.OneOfOne, typeof(Ref), typeof(Embedded))]
                     public class InitFrom : BaseElement<Image15X>
                     {
+                        public Ref RefElement => GetChild<Ref>();
+                        public Embedded EmbeddedElement => GetChild<Embedded>();
+                        
                         /// <summary>
                         ///  Initializes higher MIP levels if data does not exist in a file. Defaults to true. 
                         /// </summary>
@@ -797,7 +855,7 @@ namespace TheraEngine.Rendering.Models
                         /// maps, volumes, MIPs, and so on.
                         /// </summary>
                         [Name("ref")]
-                        public class Ref : BaseStringElement<InitFrom, ElementURI> { }
+                        public class Ref : BaseStringElement<InitFrom, ElementString> { }
                         /// <summary>
                         /// Contains the embedded image data as a sequence of
                         /// hexadecimal-encoded binary octets. The data typically
@@ -892,10 +950,10 @@ namespace TheraEngine.Rendering.Models
 
                     public List<ISID> SIDChildren { get; } = new List<ISID>();
 
-                    public interface ISource { }
+                    public interface ISource : IElement { }
 
                     [Name("init_from")]
-                    public class InitFrom : BaseStringElement<Image14X, ElementURI>, ISource { }
+                    public class InitFrom : BaseStringElement<Image14X, ElementString>, ISource { }
                     [Name("data")]
                     public class Data : BaseStringElement<Image14X, ElementHex>, ISource { }
                 }
@@ -915,6 +973,7 @@ namespace TheraEngine.Rendering.Models
                 public class Material : BaseElement<LibraryMaterials>, IID, IName, IAsset, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
+                    public InstanceEffect InstanceEffectElement => GetChild<InstanceEffect>();
                     public Extra[] ExtraElements => GetChildren<Extra>();
 
                     [Attr("id", false)]
@@ -1004,6 +1063,8 @@ namespace TheraEngine.Rendering.Models
                         public class Technique : BaseElement<BaseProfileShader>, IID, ISID, IAsset, IExtra
                         {
                             public Asset AssetElement => GetChild<Asset>();
+                            public Annotate[] AnnotateElements => GetChildren<Annotate>();
+                            public Pass[] PassElements => GetChildren<Pass>();
                             public Extra[] ExtraElements => GetChildren<Extra>();
 
                             [Attr("id", false)]
@@ -1027,11 +1088,15 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(Technique), 1)]
                     public class ProfileCommon : BaseProfile
                     {
+                        public Technique TechniqueElement => GetChild<Technique>();
+                        public NewParam NewParamElement => GetChild<NewParam>();
+
                         [Name("technique")]
-                        [MultiChild(EMultiChildType.OneOfOne,
-                            typeof(Constant), typeof(Blinn), typeof(Lambert), typeof(Phong))]
+                        [Child(typeof(BaseTechniqueChild), 1)]
                         public class Technique : BaseElement<ProfileCommon>, IID, ISID
                         {
+                            public BaseTechniqueChild LightingTypeElement => GetChild<BaseTechniqueChild>();
+
                             [Attr("id", false)]
                             public string ID { get; set; } = null;
                             [Attr("sid", false)]
@@ -1070,6 +1135,10 @@ namespace TheraEngine.Rendering.Models
                             [MultiChild(EMultiChildType.OneOfOne, typeof(Color), typeof(RefParam), typeof(Texture))]
                             public class BaseFXColorTexture : BaseElement<BaseTechniqueChild>, IRefParam
                             {
+                                public Color ColorElement => GetChild<Color>();
+                                public RefParam ParamElement => GetChild<RefParam>();
+                                public Texture TextureElement => GetChild<Texture>();
+                                
                                 [Name("color")]
                                 public class Color : BaseStringElement<BaseFXColorTexture, StringParsable<Vec4>>, ISID
                                 {
@@ -1114,16 +1183,11 @@ namespace TheraEngine.Rendering.Models
                             /// </summary>
                             [Name("ambient")]
                             public class Ambient : BaseFXColorTexture { }
-                            ///// <summary>
-                            ///// Declares the amount of light diffusely reflected from the surface of this object. 
-                            ///// </summary>
-                            //[Name("diffuse")]
-                            //public class DiffuseFloat : BaseFXFloatParam { }
                             /// <summary>
                             /// Declares the amount of light diffusely reflected from the surface of this object. 
                             /// </summary>
                             [Name("diffuse")]
-                            public class DiffuseColor : BaseFXColorTexture { }
+                            public class Diffuse : BaseFXColorTexture { }
                             /// <summary>
                             /// Declares the color of light specularly reflected from the surface of this object. 
                             /// </summary>
@@ -1183,7 +1247,15 @@ namespace TheraEngine.Rendering.Models
                             [Child(typeof(Transparent), 0, 1)]
                             [Child(typeof(Transparency), 0, 1)]
                             [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Constant : BaseTechniqueChild { }
+                            public class Constant : BaseTechniqueChild
+                            {
+                                public Emission EmissionElement => GetChild<Emission>();
+                                public Reflective ReflectiveElement => GetChild<Reflective>();
+                                public Reflectivity ReflectivityElement => GetChild<Reflectivity>();
+                                public Transparent TransparentElement => GetChild<Transparent>();
+                                public Transparency TransparencyElement => GetChild<Transparency>();
+                                public IndexOfRefraction IndexOfRefractionElement => GetChild<IndexOfRefraction>();
+                            }
                             /// <summary>
                             /// Used inside a <profile_COMMON> effect, declares a fixed-function pipeline that produces a diffuse
                             ///shaded surface that is independent of lighting.
@@ -1199,13 +1271,23 @@ namespace TheraEngine.Rendering.Models
                             [Name("lambert")]
                             [Child(typeof(Emission), 0, 1)]
                             [Child(typeof(Ambient), 0, 1)]
-                            [Child(typeof(DiffuseColor), 0, 1)]
+                            [Child(typeof(Diffuse), 0, 1)]
                             [Child(typeof(Reflective), 0, 1)]
                             [Child(typeof(Reflectivity), 0, 1)]
                             [Child(typeof(Transparent), 0, 1)]
                             [Child(typeof(Transparency), 0, 1)]
                             [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Lambert : BaseTechniqueChild { }
+                            public class Lambert : BaseTechniqueChild
+                            {
+                                public Emission EmissionElement => GetChild<Emission>();
+                                public Ambient AmbientElement => GetChild<Ambient>();
+                                public Diffuse DiffuseElement => GetChild<Diffuse>();
+                                public Reflective ReflectiveElement => GetChild<Reflective>();
+                                public Reflectivity ReflectivityElement => GetChild<Reflectivity>();
+                                public Transparent TransparentElement => GetChild<Transparent>();
+                                public Transparency TransparencyElement => GetChild<Transparency>();
+                                public IndexOfRefraction IndexOfRefractionElement => GetChild<IndexOfRefraction>();
+                            }
                             /// <summary>
                             /// Used inside a <profile_COMMON> effect, declares a fixed-function pipeline that produces a specularly
                             /// shaded surface that reflects ambient, diffuse, and specular reflection, where the specular reflection is
@@ -1223,7 +1305,7 @@ namespace TheraEngine.Rendering.Models
                             [Name("phong")]
                             [Child(typeof(Emission), 0, 1)]
                             [Child(typeof(Ambient), 0, 1)]
-                            [Child(typeof(DiffuseColor), 0, 1)]
+                            [Child(typeof(Diffuse), 0, 1)]
                             [Child(typeof(Specular), 0, 1)]
                             [Child(typeof(Shininess), 0, 1)]
                             [Child(typeof(Reflective), 0, 1)]
@@ -1231,7 +1313,19 @@ namespace TheraEngine.Rendering.Models
                             [Child(typeof(Transparent), 0, 1)]
                             [Child(typeof(Transparency), 0, 1)]
                             [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Phong : BaseTechniqueChild { }
+                            public class Phong : BaseTechniqueChild
+                            {
+                                public Emission EmissionElement => GetChild<Emission>();
+                                public Ambient AmbientElement => GetChild<Ambient>();
+                                public Diffuse DiffuseElement => GetChild<Diffuse>();
+                                public Specular SpecularElement => GetChild<Specular>();
+                                public Shininess ShininessElement => GetChild<Shininess>();
+                                public Reflective ReflectiveElement => GetChild<Reflective>();
+                                public Reflectivity ReflectivityElement => GetChild<Reflectivity>();
+                                public Transparent TransparentElement => GetChild<Transparent>();
+                                public Transparency TransparencyElement => GetChild<Transparency>();
+                                public IndexOfRefraction IndexOfRefractionElement => GetChild<IndexOfRefraction>();
+                            }
                             /// <summary>
                             /// Used inside a <profile_COMMON> effect, <blinn> declares a fixed-function pipeline that produces a
                             /// shaded surface according to the Blinn-Torrance-Sparrow lighting model or a close approximation.
@@ -1257,7 +1351,7 @@ namespace TheraEngine.Rendering.Models
                             [Name("blinn")]
                             [Child(typeof(Emission), 0, 1)]
                             [Child(typeof(Ambient), 0, 1)]
-                            [Child(typeof(DiffuseColor), 0, 1)]
+                            [Child(typeof(Diffuse), 0, 1)]
                             [Child(typeof(Specular), 0, 1)]
                             [Child(typeof(Shininess), 0, 1)]
                             [Child(typeof(Reflective), 0, 1)]
@@ -1265,7 +1359,19 @@ namespace TheraEngine.Rendering.Models
                             [Child(typeof(Transparent), 0, 1)]
                             [Child(typeof(Transparency), 0, 1)]
                             [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Blinn : BaseTechniqueChild { }
+                            public class Blinn : BaseTechniqueChild
+                            {
+                                public Emission EmissionElement => GetChild<Emission>();
+                                public Ambient AmbientElement => GetChild<Ambient>();
+                                public Diffuse DiffuseElement => GetChild<Diffuse>();
+                                public Specular SpecularElement => GetChild<Specular>();
+                                public Shininess ShininessElement => GetChild<Shininess>();
+                                public Reflective ReflectiveElement => GetChild<Reflective>();
+                                public Reflectivity ReflectivityElement => GetChild<Reflectivity>();
+                                public Transparent TransparentElement => GetChild<Transparent>();
+                                public Transparency TransparencyElement => GetChild<Transparency>();
+                                public IndexOfRefraction IndexOfRefractionElement => GetChild<IndexOfRefraction>();
+                            }
                         }
                     }
                     #endregion
@@ -1352,9 +1458,13 @@ namespace TheraEngine.Rendering.Models
 
                             public List<ISID> SIDChildren { get; } = new List<ISID>();
                         }
+                        [Child(typeof(InputShared), 0, -1)]
+                        [Child(typeof(Indices), 0, 1)]
                         [Child(typeof(Extra), 0, -1)]
-                        public class BasePrimitive : BaseElement<Mesh>, IName, IExtra
+                        public abstract class BasePrimitive : BaseElement<Mesh>, IName, IExtra, IInputShared
                         {
+                            public InputShared[] InputElements => GetChildren<InputShared>();
+                            public Indices IndicesElement => GetChild<Indices>();
                             public Extra[] ExtraElements => GetChildren<Extra>();
 
                             [Attr("name", false)]
@@ -1363,21 +1473,82 @@ namespace TheraEngine.Rendering.Models
                             public int Count { get; set; } = 0;
                             [Attr("material", false)]
                             public string Material { get; set; } = null;
+                            
+                            public int PointCount { get; set; }
+                            public int FaceCount { get; private set; }
+                            public abstract EColladaPrimitiveType Type { get; }
+
+                            public override void PostRead()
+                            {
+                                PointCount = IndicesElement.StringContent.Values.Length / InputElements.Length;
+                                switch (Type)
+                                {
+                                    case EColladaPrimitiveType.Trifans:
+                                    case EColladaPrimitiveType.Tristrips:
+                                    case EColladaPrimitiveType.Polygons:
+                                    case EColladaPrimitiveType.Polylist:
+                                        FaceCount = PointCount - 2;
+                                        break;
+                                    case EColladaPrimitiveType.Triangles:
+                                        FaceCount = PointCount / 3;
+                                        break;
+                                    case EColladaPrimitiveType.Lines:
+                                        FaceCount = PointCount / 2;
+                                        break;
+                                    case EColladaPrimitiveType.Linestrips:
+                                        FaceCount = PointCount - 1;
+                                        break;
+                                }
+                            }
+
+                            [Name("p")]
+                            public class Indices : BaseStringElement<BasePrimitive, ElementIntArray> { }
+                        }
+                        public enum EColladaPrimitiveType
+                        {
+                            Lines,
+                            Linestrips,
+                            Polygons,
+                            Polylist,
+                            Triangles,
+                            Trifans,
+                            Tristrips,
                         }
                         [Name("lines")]
-                        public class Lines : BasePrimitive { }
+                        public class Lines : BasePrimitive
+                        {
+                            public override EColladaPrimitiveType Type => EColladaPrimitiveType.Lines;
+                        }
                         [Name("linestrips")]
-                        public class Linestrips : BasePrimitive { }
+                        public class Linestrips : BasePrimitive
+                        {
+                            public override EColladaPrimitiveType Type => EColladaPrimitiveType.Linestrips;
+                        }
                         [Name("polygons")]
-                        public class Polygons : BasePrimitive { }
+                        public class Polygons : BasePrimitive
+                        {
+                            public override EColladaPrimitiveType Type => EColladaPrimitiveType.Polygons;
+                        }
                         [Name("polylist")]
-                        public class Polylist : BasePrimitive { }
+                        public class Polylist : BasePrimitive
+                        {
+                            public override EColladaPrimitiveType Type => EColladaPrimitiveType.Polylist;
+                        }
                         [Name("triangles")]
-                        public class Triangles : BasePrimitive { }
+                        public class Triangles : BasePrimitive
+                        {
+                            public override EColladaPrimitiveType Type => EColladaPrimitiveType.Triangles;
+                        }
                         [Name("trifans")]
-                        public class Trifans : BasePrimitive { }
+                        public class Trifans : BasePrimitive
+                        {
+                            public override EColladaPrimitiveType Type => EColladaPrimitiveType.Trifans;
+                        }
                         [Name("tristrips")]
-                        public class Tristrips : BasePrimitive { }
+                        public class Tristrips : BasePrimitive
+                        {
+                            public override EColladaPrimitiveType Type => EColladaPrimitiveType.Tristrips;
+                        }
                     }
                     [Name("spline")]
                     public class Spline : BaseElement<Geometry>
@@ -1577,21 +1748,41 @@ namespace TheraEngine.Rendering.Models
 
                 public interface ITransformation : IElement
                 {
-
+                    Matrix4 GetMatrix();
                 }
-                public class Transformation<T> : BaseStringElement<Node, StringParsable<T>>, ISID, ITransformation where T : IParsable
+                public abstract class Transformation<T> : BaseStringElement<Node, StringParsable<T>>, ISID, ITransformation where T : IParsable
                 {
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
 
                     public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                    public abstract Matrix4 GetMatrix();
                 }
                 [Name("translate")]
-                public class Translate : Transformation<Vec3> { }
+                public class Translate : Transformation<Vec3>
+                {
+                    public override Matrix4 GetMatrix()
+                    {
+                        return Matrix4.CreateTranslation(StringContent.Value);
+                    }
+                }
                 [Name("scale")]
-                public class Scale : Transformation<Vec3> { }
+                public class Scale : Transformation<Vec3>
+                {
+                    public override Matrix4 GetMatrix()
+                    {
+                        return Matrix4.CreateScale(StringContent.Value);
+                    }
+                }
                 [Name("rotate")]
-                public class Rotate : Transformation<Vec4> { }
+                public class Rotate : Transformation<Vec4>
+                {
+                    public override Matrix4 GetMatrix()
+                    {
+                        return Matrix4.CreateFromAxisAngle(StringContent.Value.Xyz, StringContent.Value.W);
+                    }
+                }
                 [Name("matrix")]
                 public class Matrix : Transformation<Matrix4>
                 {
@@ -1599,11 +1790,18 @@ namespace TheraEngine.Rendering.Models
                     {
                         StringContent?.Value.Transpose();
                     }
+                    public override Matrix4 GetMatrix()
+                    {
+                        return StringContent.Value;
+                    }
                 }
 
                 public Matrix4 GetTransformMatrix()
                 {
-                    return Matrix4.Identity;
+                    Matrix4 m = Matrix4.Identity;
+                    foreach (ITransformation t in TransformElements)
+                        m = m * t.GetMatrix();
+                    return m;
                 }
             }
             #endregion

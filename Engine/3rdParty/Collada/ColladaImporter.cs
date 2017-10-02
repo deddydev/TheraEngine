@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using TheraEngine.Animation;
 using TheraEngine.Core.Files;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds.Actors;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryImages;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
 
 namespace TheraEngine.Rendering.Models
@@ -62,6 +67,7 @@ namespace TheraEngine.Rendering.Models
                         COLLADA.Scene scene = root.GetChild<COLLADA.Scene>();
                         if (scene != null)
                         {
+                            data.Models = new List<ModelScene>();
                             var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
                             foreach (var visualSceneRef in visualScenes)
                             {
@@ -70,10 +76,19 @@ namespace TheraEngine.Rendering.Models
                                 {
                                     ModelScene modelScene = new ModelScene();
                                     var nodes = visualScene.NodeElements;
+
+                                    //Collect information for objects and root bones
                                     List<Bone> rootBones = new List<Bone>();
                                     List<ObjectInfo> objects = new List<ObjectInfo>();
+                                    List<Camera> cameras = new List<Camera>();
+                                    List<LightComponent> lights = new List<LightComponent>();
                                     foreach (var node in nodes)
-                                        EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform);
+                                    {
+                                        Bone b = EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform, lights, cameras);
+                                        if (b != null)
+                                            rootBones.Add(b);
+                                    }
+
                                     //Create meshes after all bones have been created
                                     if (rootBones.Count == 0)
                                     {
@@ -106,111 +121,7 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
             }
-
-            //Matrix4 baseTransform = options.InitialTransform.Matrix;
-            //if (shell._assets.Count > 0)
-            //{
-            //    AssetEntry e = shell._assets[0];
-            //    baseTransform = baseTransform * Matrix4.CreateScale(e._meter);
-            //    if (e._upAxis == EUpAxis.Z_UP)
-            //        baseTransform = Matrix4.ZupToYup * baseTransform;
-            //}
-
-            //if (options.ImportModels)
-            //{
-            //    #region Material Extraction
-            //    foreach (MaterialEntry mat in shell._materials)
-            //    {
-            //        List<ImageEntry> imgEntries = new List<ImageEntry>();
-
-            //        //Find effect
-            //        if (mat._effect != null)
-            //            foreach (EffectEntry eff in shell._effects)
-            //                if (eff._id == mat._effect) //Attach textures and effects to material
-            //                    if (eff._shader != null)
-            //                        foreach (LightEffectEntry l in eff._shader._effects)
-            //                            if (l._type == LightEffectType.diffuse && l._texture != null)
-            //                            {
-            //                                string path = l._texture;
-            //                                foreach (EffectNewParam p in eff._newParams)
-            //                                    if (p._sid == l._texture)
-            //                                    {
-            //                                        path = p._sampler2D._url;
-            //                                        if (!string.IsNullOrEmpty(p._sampler2D._source))
-            //                                            foreach (EffectNewParam p2 in eff._newParams)
-            //                                                if (p2._sid == p._sampler2D._source)
-            //                                                    path = p2._path;
-            //                                    }
-
-            //                                foreach (ImageEntry img in shell._images)
-            //                                    if (img._id == path)
-            //                                    {
-            //                                        imgEntries.Add(img);
-            //                                        break;
-            //                                    }
-            //                            }
-
-            //        Material m = imgEntries.Count > 0 ? Material.GetLitTextureMaterial() : Material.GetLitColorMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
-            //        mat._node = m;
-
-            //        TextureReference[] t = new TextureReference[imgEntries.Count];
-            //        for (int i = 0; i < imgEntries.Count; ++i)
-            //        {
-            //            ImageEntry img = imgEntries[i];
-            //            t[i] = new TextureReference(Path.GetFileNameWithoutExtension(img._path), img._path)
-            //            {
-            //                UWrap = options.TexCoordWrap,
-            //                VWrap = options.TexCoordWrap,
-            //            };
-            //        }
-            //        m.TexRefs = t;
-            //    }
-            //    #endregion
-
-            //    List<ObjectInfo> objects = new List<ObjectInfo>();
-            //    List<Bone> rootBones = new List<Bone>();
-
-            //    //Extract bones and objects and create bone tree
-            //    foreach (VisualSceneEntry s in shell._visualScenes)
-            //        foreach (NodeEntry node in s._nodes)
-            //        {
-            //            Bone b = EnumNode(null, node, s._nodes, shell, objects, Matrix4.Identity, Matrix4.Identity, baseTransform);
-            //            if (b != null)
-            //                rootBones.Add(b);
-            //        }
-
-            //    foreach (NodeEntry node in shell._nodes)
-            //    {
-            //        Bone b = EnumNode(null, node, shell._nodes, shell, objects, Matrix4.Identity, Matrix4.Identity, baseTransform);
-            //        if (b != null)
-            //            rootBones.Add(b);
-            //    }
-
-            //    //Create meshes after all bones have been created
-            //    if (rootBones.Count == 0)
-            //    {
-            //        scene.StaticModel = new StaticMesh()
-            //        {
-            //            Name = Path.GetFileNameWithoutExtension(filePath)
-            //        };
-            //        scene.SkeletalModel = null;
-            //        scene.Skeleton = null;
-            //        foreach (ObjectInfo obj in objects)
-            //            obj.Initialize(scene.StaticModel, shell);
-            //    }
-            //    else
-            //    {
-            //        scene.SkeletalModel = new SkeletalMesh()
-            //        {
-            //            Name = Path.GetFileNameWithoutExtension(filePath)
-            //        };
-            //        scene.StaticModel = null;
-            //        scene.Skeleton = new Skeleton(rootBones.ToArray());
-            //        foreach (ObjectInfo obj in objects)
-            //            obj.Initialize(scene.SkeletalModel, shell);
-            //    }
-            //}
-
+            
             //if (options.ImportAnimations)
             //{
             //    scene.Animation = new ModelAnimation()
@@ -331,7 +242,9 @@ namespace TheraEngine.Rendering.Models
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
             Matrix4 invParent,
-            Matrix4 rootMatrix)
+            Matrix4 rootMatrix,
+            List<LightComponent> lights,
+            List<Camera> cameras)
         {
             Bone rootBone = null;
 
@@ -351,7 +264,7 @@ namespace TheraEngine.Rendering.Models
 
             Matrix4 inv = bindMatrix.Inverted();
             foreach (COLLADA.Node e in node.NodeElements)
-                EnumNode(parent, e, nodes, objects, bindMatrix, inv, Matrix4.Identity);
+                EnumNode(parent, e, nodes, objects, bindMatrix, inv, Matrix4.Identity, lights, cameras);
 
             foreach (IInstanceElement inst in node.InstanceElements)
             {
@@ -365,7 +278,7 @@ namespace TheraEngine.Rendering.Models
                         if (child is COLLADA.LibraryControllers.Controller.Skin skin)
                         {
                             if (skin.Source.GetElement(skin.Root) is COLLADA.LibraryGeometries.Geometry geometry)
-                                objects.Add(new ObjectInfo(geometry, skin, bindMatrix, inst, parent, node));
+                                objects.Add(new ObjectInfo(geometry, skin, bindMatrix, controllerRef, parent, node));
                             else
                                 Engine.PrintLine(skin.Source.URI + " does not point to a valid geometry entry.");
                         }
@@ -381,7 +294,7 @@ namespace TheraEngine.Rendering.Models
                 {
                     var geometry = geomRef.GetUrlInstance();
                     if (geometry != null)
-                        objects.Add(new ObjectInfo(geometry, null, bindMatrix, inst, parent, node));
+                        objects.Add(new ObjectInfo(geometry, null, bindMatrix, geomRef, parent, node));
                     else
                         Engine.PrintLine(geomRef.Url.URI + " does not point to a valid geometry entry.");
                    
@@ -389,11 +302,13 @@ namespace TheraEngine.Rendering.Models
                 //Camera?
                 else if (inst is InstanceCamera camRef)
                 {
+                    var camera = camRef.GetUrlInstance();
 
                 }
                 //Light?
                 else if (inst is InstanceLight lightRef)
                 {
+                    var light = lightRef.GetUrlInstance();
 
                 }
                 //Another node tree?
@@ -411,7 +326,7 @@ namespace TheraEngine.Rendering.Models
             public COLLADA.LibraryGeometries.Geometry _geoEntry;
             public COLLADA.LibraryControllers.Controller.ControllerChild _rig;
             public Matrix4 _bindMatrix;
-            public IInstanceElement _inst;
+            public IInstanceMesh _inst;
             public COLLADA.Node _node;
             public Bone _parent;
 
@@ -419,7 +334,7 @@ namespace TheraEngine.Rendering.Models
                 COLLADA.LibraryGeometries.Geometry geoEntry,
                 COLLADA.LibraryControllers.Controller.ControllerChild rig,
                 Matrix4 bindMatrix,
-                IInstanceElement inst,
+                IInstanceMesh inst,
                 Bone parent,
                 COLLADA.Node node)
             {
@@ -442,13 +357,15 @@ namespace TheraEngine.Rendering.Models
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
                 Material m = null;
-                if (_inst._material != null)
-                {
-                    MaterialEntry e = shell._materials.First(x => x._id == _inst._material._target);
-                    if (e != null)
-                        m = e._node as Material;
-                }
-                else
+                if (_inst?.
+                    BindMaterialElement?.
+                    TechniqueCommonElement?.
+                    InstanceMaterialElements?[0].
+                    Target.GetElement(scene.Root)
+                    is COLLADA.LibraryMaterials.Material mat)
+                    m = CreateMaterial(mat);
+
+                if (m == null)
                     m = Material.GetLitColorMaterial();
 
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, m, true));
@@ -462,17 +379,98 @@ namespace TheraEngine.Rendering.Models
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
                 Material m = null;
-                if (_inst._material != null)
-                {
-                    MaterialEntry e = shell._materials.First(x => x._id == _inst._material._target);
-                    if (e != null)
-                        m = e._node as Material;
-                }
-                else
+                if (_inst?.
+                    BindMaterialElement?.
+                    TechniqueCommonElement?.
+                    InstanceMaterialElements?[0].
+                    Target.GetElement(scene.Root)
+                    is COLLADA.LibraryMaterials.Material mat)
+                    m = CreateMaterial(mat);
+
+                if (m == null)
                     m = Material.GetLitColorMaterial();
 
                 model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, null, m));
             }
+        }
+        private static Material CreateMaterial(COLLADA.LibraryMaterials.Material colladaMaterial)
+        {
+            List<TextureReference> texRefs = new List<TextureReference>();
+
+            //Find effect
+            if (colladaMaterial.InstanceEffectElement != null)
+            {
+                var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<COLLADA.LibraryEffects.Effect>(colladaMaterial.Root);
+                //var profiles = eff.ProfileElements;
+                var profileCommon = eff.GetChild<COLLADA.LibraryEffects.Effect.ProfileCommon>();
+                if (profileCommon != null)
+                {
+                    var lightingType = profileCommon.TechniqueElement.LightingTypeElement;
+                    var colorTextures = lightingType.GetChildren<BaseFXColorTexture>();
+                    foreach (BaseFXColorTexture ct in colorTextures)
+                    {
+                        var tex = ct.TextureElement;
+                        if (tex != null)
+                        {
+                            var image = tex.Root.GetIDEntry(tex.TextureID);
+                            TextureReference texRef = null;
+                            if (image is Image14X img14x)
+                            {
+                                var source = img14x.GetChild<Image14X.ISource>();
+                                if (source is Image14X.InitFrom initFrom)
+                                {
+                                    string path = initFrom.StringContent.Value;
+                                    texRef = new TextureReference(Path.GetFileNameWithoutExtension(path), path);
+                                }
+                                else if (source is Image14X.Data d)
+                                {
+                                    Engine.PrintLine("Internal image data not supported");
+                                    texRef = new TextureReference();
+                                }
+                            }
+                            else if (image is Image15X img15x)
+                            {
+                                var source = img15x.GetChild<Image15X.InitFrom>();
+                                if (source.RefElement != null)
+                                {
+                                    string path = source.RefElement.StringContent.Value;
+                                    texRef = new TextureReference(Path.GetFileNameWithoutExtension(path), path);
+                                }
+                                else if (source.EmbeddedElement != null)
+                                {
+                                    Engine.PrintLine("Internal image data not supported");
+                                    texRef = new TextureReference();
+                                }
+                            }
+                            texRefs.Add(texRef);
+                        }
+                    }
+                    if (lightingType is Constant constant)
+                    {
+
+                    }
+                    else if (lightingType is Lambert lambert)
+                    {
+
+                    }
+                    else if (lightingType is Phong phong)
+                    {
+
+                    }
+                    else if (lightingType is Blinn blinn)
+                    {
+
+                    }
+                }
+            }
+
+            Material m = texRefs.Count > 0 ?
+                Material.GetLitTextureMaterial() :
+                Material.GetLitColorMaterial(Color.Magenta);
+            m.TexRefs = texRefs.ToArray();
+            m.Name = colladaMaterial.Name ?? (colladaMaterial.ID ?? "Unnamed Material");
+
+            return m;
         }
         private enum EInterpolation
         {

@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryControllers.Controller;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries.Geometry.Mesh;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
+using static TheraEngine.Rendering.Models.Collada.Source;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -24,11 +26,11 @@ namespace TheraEngine.Rendering.Models
 
                 var bindShapeMatrix = skin.BindShapeMatrixElement?.StringContent?.Value ?? Matrix4.Identity;
                 var joints = skin.JointsElement;
-                var weights = skin.VertexWeightsElement;
-                var boneCounts = weights.BoneCountsElement;
-                var prims = weights.PrimitiveIndicesElement;
+                var influences = skin.VertexWeightsElement;
+                var boneCounts = influences.BoneCountsElement;
+                var prims = influences.PrimitiveIndicesElement;
 
-                Influence[] infList = new Influence[weights.Count];
+                Influence[] infList = new Influence[influences.Count];
                 
                 //Find joint source
                 string[] jointSIDs = null;
@@ -56,10 +58,10 @@ namespace TheraEngine.Rendering.Models
                         Engine.PrintLine("Bone '{0}' not found", sid);
                 }
 
-                //Build command list
+                //Build input command list
                 float[] pWeights = null;
-                byte[] pCmd = new byte[weights.Count];
-                foreach (InputShared inp in weights.InputElements)
+                byte[] pCmd = new byte[influences.InputElements.Length];
+                foreach (InputShared inp in influences.InputElements)
                 {
                     switch (inp.CommonSemanticType)
                     {
@@ -70,7 +72,7 @@ namespace TheraEngine.Rendering.Models
                         case ESemantic.WEIGHT:
                             pCmd[inp.Offset] = 2;
 
-                            Source src = inp.Source.GetElement(inp.Root) as Source;
+                            Source src = inp.Source.GetElement<Source>(inp.Root);
                             pWeights = src.GetArrayElement<Source.FloatArray>().StringContent.Values;
 
                             break;
@@ -80,14 +82,12 @@ namespace TheraEngine.Rendering.Models
                             break;
                     }
                 }
-
-                //Build vertex list and remap table
+                
                 float weight = 0;
                 int[] boneIndices = boneCounts.StringContent.Values;
                 int[] primIndices = prims.StringContent.Values;
-                for (int i = 0; i < weights.Count; i++)
+                for (int i = 0; i < influences.Count; i++)
                 {
-                    //Create influence
                     Influence inf = new Influence();
                     for (int boneIndex = 0, primIndex = 0; boneIndex < boneIndices[i]; boneIndex++)
                     {
@@ -106,6 +106,7 @@ namespace TheraEngine.Rendering.Models
                         }
                         inf.AddWeight(new BoneWeight(bone.Name, weight));
                     }
+                    inf.Normalize();
                     infList[i] = inf;
                 }
                 return DecodePrimitives(geo, bindMatrix * bindShapeMatrix, infList);
@@ -140,59 +141,70 @@ namespace TheraEngine.Rendering.Models
             var m = geo.MeshElement;
             if (m == null)
                 return null;
-
-            var verticesElem = m.VerticesElement;
-            var sourceElems = m.SourceElements;
-            var primElems = m.PrimitiveElements;
             
-            foreach (var prim in primElems)
+            foreach (var prim in m.PrimitiveElements)
             {
                 Dictionary<ESemantic, Dictionary<int, Source>> sources = new Dictionary<ESemantic, Dictionary<int, Source>>();
-
-                var inputs = verticesElem.InputElements;
-
-                src = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
-                if (src != null)
-                    sources.Add(ESemantic.VERTEX, new Dictionary<int, Source>() { { 0, src } });
-
-                //Collect sources
-                foreach (InputEntry inp in prim._inputs)
+                foreach (InputShared inp in prim.InputElements)
                 {
-                    if (inp._semantic == ESemantic.VERTEX)
-                        continue;
-
-                    src = geo._sources.FirstOrDefault(x => x._id == inp._source);
-                    if (src != null)
+                    ESemantic semantic = inp.CommonSemanticType;
+                    if (inp.CommonSemanticType == ESemantic.VERTEX)
                     {
-                        if (!sources.ContainsKey(inp._semantic))
-                            sources.Add(inp._semantic, new Dictionary<int, Source>());
+                        var verts = inp.Source.GetElement<Vertices>(inp.Root);
+                        sources.Add(ESemantic.VERTEX, new Dictionary<int, Source>());
+                        int i = 0;
+                        foreach (var input in verts.InputElements)
+                        {
+                            src = input.Source.GetElement<Source>(verts.Root);
+                            sources[ESemantic.VERTEX].Add(i++, src);
+                        }
+                        continue;
+                    }
+                    else
+                    {
+                        src = inp.Source.GetElement<Source>(inp.Root);
+                        if (src != null)
+                        {
+                            if (!sources.ContainsKey(semantic))
+                                sources.Add(semantic, new Dictionary<int, Source>());
 
-                        if (!sources[inp._semantic].ContainsKey(inp._set))
-                            sources[inp._semantic].Add(inp._set, src);
-                        else
-                            sources[inp._semantic][inp._set] = src;
+                            int set = (int)inp.Set;
+                            if (!sources[semantic].ContainsKey(set))
+                                sources[semantic].Add(set, src);
+                            else
+                                sources[semantic][set] = src;
+                        }
                     }
                 }
 
                 if (sources.ContainsKey(ESemantic.VERTEX))
                     info._morphCount = sources[ESemantic.VERTEX].Count - 1;
-                if (sources.ContainsKey(ESemantic.NORMAL))
-                    info._hasNormals = sources[ESemantic.NORMAL].Count > 0;
-                if (sources.ContainsKey(ESemantic.COLOR))
-                    info._colorCount = sources[ESemantic.COLOR].Count;
-                if (sources.ContainsKey(ESemantic.TEXCOORD))
-                    info._texcoordCount = sources[ESemantic.TEXCOORD].Count;
-                if (sources.ContainsKey(ESemantic.TEXBINORMAL))
-                    info._hasBinormals = sources[ESemantic.TEXBINORMAL].Count > 0;
-                if (sources.ContainsKey(ESemantic.TEXTANGENT))
-                    info._hasTangents = sources[ESemantic.TEXTANGENT].Count > 0;
+                else
+                    Engine.LogError("Mesh has no vertices.");
 
+                info._hasNormals =
+                    sources.ContainsKey(ESemantic.NORMAL) &&
+                    sources[ESemantic.NORMAL].Count > 0;
+                info._hasBinormals =
+                    sources.ContainsKey(ESemantic.TEXBINORMAL) &&
+                    sources[ESemantic.TEXBINORMAL].Count > 0;
+                info._hasTangents =
+                    sources.ContainsKey(ESemantic.TEXTANGENT) &&
+                    sources[ESemantic.TEXTANGENT].Count > 0;
+
+                info._colorCount =
+                    sources.ContainsKey(ESemantic.COLOR) ? 
+                    sources[ESemantic.COLOR].Count : 0;
+                info._texcoordCount =
+                    sources.ContainsKey(ESemantic.TEXCOORD) ?
+                    sources[ESemantic.TEXCOORD].Count : 0;
+                
                 int maxSets = CustomMath.Max(
                     info._morphCount + 1,
                     info._colorCount,
                     info._texcoordCount);
                 
-                int stride, index, startIndex;
+                int stride, pointIndex, startIndex;
                 Vertex vtx;
                 Vertex[][] vertices;
                 float[] list;
@@ -203,113 +215,119 @@ namespace TheraEngine.Rendering.Models
                     invBind.Transpose();
                     invBind = invBind.GetRotationMatrix4();
                 }
-                foreach (PrimitiveFace f in prim._faces)
+
+                TechniqueCommon.Accessor acc;
+                var indices = prim.IndicesElement.StringContent.Values;
+
+                vertices = new Vertex[prim.PointCount][];
+                foreach (var inp in prim.InputElements)
                 {
-                    vertices = new Vertex[f._pointCount][];
-                    foreach (InputEntry inp in prim._inputs)
+                    int set = (int)inp.Set;
+                    int offset = (int)inp.Offset;
+
+                    src = sources[inp.CommonSemanticType][set];
+                    acc = src.TechniqueCommonElement.AccessorElement;
+                    stride = (int)acc.Stride;
+
+                    list = src.GetArrayElement<FloatArray>().StringContent.Values;
+                    for (int i = 0, x = 0; i < prim.PointCount; ++i, x += prim.InputElements.Length)
                     {
-                        src = sources[inp._semantic][inp._set];
-                        stride = src._accessorStride;
-                        list = src._arrayData as float[];
-                        for (int i = 0, x = 0; i < f._pointCount; ++i, x += prim._inputs.Count)
+                        if (vertices[i] == null)
+                            vertices[i] = new Vertex[maxSets];
+
+                        startIndex = (pointIndex = indices[x + inp.Offset]) * stride;
+
+                        vtx = vertices[i][set];
+                        if (vtx == null)
+                            vtx = new Vertex();
+
+                        switch (inp.CommonSemanticType)
                         {
-                            if (vertices[i] == null)
-                                vertices[i] = new Vertex[maxSets];
-                            
-                            startIndex = (index = f._pointIndices[x + inp._offset]) * stride;
-
-                            vtx = vertices[i][inp._set];
-                            if (vtx == null)
-                                vtx = new Vertex();
-
-                            switch (inp._semantic)
-                            {
-                                case ESemantic.VERTEX:
-                                    Vec3 position = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                    position = position * bindMatrix;
-                                    vtx._position = position;
-                                    if (infList != null)
-                                        vtx._influence = infList[index];
-                                    break;
-                                case ESemantic.NORMAL:
-                                    Vec3 normal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                    normal = normal * invBind;
-                                    normal.Normalize();
-                                    vtx._normal = normal;
-                                    break;
-                                case ESemantic.TEXBINORMAL:
-                                    Vec3 binormal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                    binormal = binormal * invBind;
-                                    binormal.Normalize();
-                                    vtx._binormal = binormal;
-                                    break;
-                                case ESemantic.TEXTANGENT:
-                                    Vec3 tangent = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                    tangent = tangent * invBind;
-                                    tangent.Normalize();
-                                    vtx._tangent = tangent;
-                                    break;
-                                case ESemantic.TEXCOORD:
-                                    vtx._texCoord = new Vec2(list[startIndex], list[startIndex + 1]);
-                                    vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
-                                    //vtx._texCoord.X = vtx._texCoord.X.RemapToRange(0.0f, 1.0f);
-                                    //vtx._texCoord.Y = vtx._texCoord.Y.RemapToRange(0.0f, 1.0f);
-                                    break;
-                                case ESemantic.COLOR:
-                                    vtx._color = new ColorF4(list[startIndex], list[startIndex + 1], list[startIndex + 2], list[startIndex + 3]);
-                                    break;
-                            }
-                            vertices[i][inp._set] = vtx;
+                            case ESemantic.VERTEX:
+                                Vec3 position = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
+                                position = position * bindMatrix;
+                                vtx._position = position;
+                                if (infList != null)
+                                    vtx._influence = infList[pointIndex];
+                                break;
+                            case ESemantic.NORMAL:
+                                Vec3 normal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
+                                normal = normal * invBind;
+                                normal.Normalize();
+                                vtx._normal = normal;
+                                break;
+                            case ESemantic.TEXBINORMAL:
+                                Vec3 binormal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
+                                binormal = binormal * invBind;
+                                binormal.Normalize();
+                                vtx._binormal = binormal;
+                                break;
+                            case ESemantic.TEXTANGENT:
+                                Vec3 tangent = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
+                                tangent = tangent * invBind;
+                                tangent.Normalize();
+                                vtx._tangent = tangent;
+                                break;
+                            case ESemantic.TEXCOORD:
+                                vtx._texCoord = new Vec2(list[startIndex], list[startIndex + 1]);
+                                vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
+                                //vtx._texCoord.X = vtx._texCoord.X.RemapToRange(0.0f, 1.0f);
+                                //vtx._texCoord.Y = vtx._texCoord.Y.RemapToRange(0.0f, 1.0f);
+                                break;
+                            case ESemantic.COLOR:
+                                vtx._color = new ColorF4(list[startIndex], list[startIndex + 1], list[startIndex + 2], list[startIndex + 3]);
+                                break;
                         }
+                        vertices[i][set] = vtx;
                     }
-                    int setIndex = 0;
-                    switch (prim._type)
-                    {
-                        case ColladaPrimitiveType.lines:
-                            if (linePrimitives == null)
-                                linePrimitives = new List<VertexPrimitive>();
-                            VertexLine[] lines = new VertexLine[vertices.Length / 2];
+                }
+                int setIndex = 0;
+                switch (prim.Type)
+                {
+                    case EColladaPrimitiveType.Lines:
+                        if (linePrimitives == null)
+                            linePrimitives = new List<VertexPrimitive>();
+                        VertexLine[] lines = new VertexLine[vertices.Length / 2];
 
-                            for (int i = 0, x = 0; i < vertices.Length; i += 2, ++x)
-                                lines[x] = new VertexLine(vertices[i][setIndex], vertices[i + 1][setIndex]);
+                        for (int i = 0, x = 0; i < vertices.Length; i += 2, ++x)
+                            lines[x] = new VertexLine(vertices[i][setIndex], vertices[i + 1][setIndex]);
 
-                            linePrimitives.AddRange(lines);
-                            break;
-                        case ColladaPrimitiveType.linestrips:
-                            if (linePrimitives == null)
-                                linePrimitives = new List<VertexPrimitive>();
+                        linePrimitives.AddRange(lines);
+                        break;
+                    case EColladaPrimitiveType.Linestrips:
+                        if (linePrimitives == null)
+                            linePrimitives = new List<VertexPrimitive>();
 
-                            linePrimitives.Add(new VertexLineStrip(false, vertices.Select(x => x[setIndex]).ToArray()));
+                        linePrimitives.Add(new VertexLineStrip(false, vertices.Select(x => x[setIndex]).ToArray()));
 
-                            break;
-                        case ColladaPrimitiveType.triangles:
-                            if (facePrimitives == null)
-                                facePrimitives = new List<VertexPolygon>();
-                            VertexTriangle[] tris = new VertexTriangle[vertices.Length / 3];
+                        break;
+                    case EColladaPrimitiveType.Triangles:
+                        if (facePrimitives == null)
+                            facePrimitives = new List<VertexPolygon>();
+                        VertexTriangle[] tris = new VertexTriangle[vertices.Length / 3];
 
-                            for (int i = 0, x = 0; i < vertices.Length; i += 3, ++x)
-                                tris[x] = new VertexTriangle(
-                                    vertices[i][setIndex],
-                                    vertices[i + 1][setIndex],
-                                    vertices[i + 2][setIndex]);
+                        for (int i = 0, x = 0; i < vertices.Length; i += 3, ++x)
+                            tris[x] = new VertexTriangle(
+                                vertices[i][setIndex],
+                                vertices[i + 1][setIndex],
+                                vertices[i + 2][setIndex]);
 
-                            facePrimitives.AddRange(tris);
-                            break;
-                        case ColladaPrimitiveType.trifans:
-                            if (facePrimitives == null)
-                                facePrimitives = new List<VertexPolygon>();
+                        facePrimitives.AddRange(tris);
+                        break;
+                    case EColladaPrimitiveType.Trifans:
+                        if (facePrimitives == null)
+                            facePrimitives = new List<VertexPolygon>();
 
-                            facePrimitives.Add(new VertexTriangleFan(vertices.Select(x => x[setIndex]).ToArray()));
+                        facePrimitives.Add(new VertexTriangleFan(vertices.Select(x => x[setIndex]).ToArray()));
 
-                            break;
-                        case ColladaPrimitiveType.tristrips:
-                            if (facePrimitives == null)
-                                facePrimitives = new List<VertexPolygon>();
+                        break;
+                    case EColladaPrimitiveType.Tristrips:
+                        if (facePrimitives == null)
+                            facePrimitives = new List<VertexPolygon>();
 
-                            facePrimitives.Add(new VertexTriangleStrip(vertices.Select(x => x[setIndex]).ToArray()));
+                        facePrimitives.Add(new VertexTriangleStrip(vertices.Select(x => x[setIndex]).ToArray()));
 
-                            break;
-                    }
+                        break;
                 }
             }
             

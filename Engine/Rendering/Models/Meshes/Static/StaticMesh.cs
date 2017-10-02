@@ -5,10 +5,31 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("STMDL", "Static Mesh")]
+    [FileClass("STMDL", "Static Mesh", ImportableExtensions = new string[] { "DAE", "OBJ" })]
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class StaticMesh : FileObject, IModelFile
     {
+        [ThirdPartyLoader("DAE")]
+        public static FileObject LoadDAE(string path)
+        {
+            ModelImportOptions o = new ModelImportOptions()
+            {
+                ImportAnimations = false,
+                ImportModels = true
+            };
+            return Collada.Import(path, o)?.Models[0].StaticModel;
+        }
+        [ThirdPartyLoader("OBJ")]
+        public static FileObject LoadOBJ(string path)
+        {
+            ModelImportOptions o = new ModelImportOptions()
+            {
+                ImportAnimations = false,
+                ImportModels = true
+            };
+            return OBJ.Import(path, o);
+        }
+
         public StaticMesh() : base()
         {
 

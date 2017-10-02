@@ -22,6 +22,7 @@ namespace TheraEngine.Tests
             //string desktop = Engine.StartupPath;
             ModelImportOptions options = new ModelImportOptions()
             {
+                ImportModels = true,
                 ImportAnimations = false,
                 InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
@@ -55,9 +56,9 @@ namespace TheraEngine.Tests
                 //kneeAnim.Keyframes.Add(l3);
                 //scene.Skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
                 
-                //Mesh = scene.Models[0].SkeletalModel;
+                Mesh = scene.Models[0].SkeletalModel;
                 //Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + MeshName + "." + GetFileHeader(typeof(SkeletalMesh)).GetProperExtension(FileFormat.XML));
-                //Skeleton = scene.Models[0].Skeleton;
+                Skeleton = scene.Models[0].Skeleton;
                 //Skeleton = new SingleFileRef<Skeleton>(Engine.ContentFolderAbs + SkelName + "." + GetFileHeader(typeof(Skeleton)).GetProperExtension(FileFormat.XML));
             }
 

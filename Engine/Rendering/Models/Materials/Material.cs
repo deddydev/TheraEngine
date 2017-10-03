@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Textures;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -366,6 +367,132 @@ namespace TheraEngine.Rendering.Models.Materials
                 deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward())
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+            };
+        }
+
+        public static Material GetBlinnMaterial(
+            Vec3? emission,
+            Vec3? ambient,
+            Vec3? diffuse,
+            Vec3? specular,
+            float shininess,
+            float transparency,
+            Vec3 transparent,
+            EOpaque transparencyMode,
+            float reflectivity,
+            Vec3 reflective,
+            float indexOfRefraction)
+        {
+            // color = emission + ambient * al + diffuse * max(N * L, 0) + specular * max(H * N, 0) ^ shininess
+            // where:
+            // • al – A constant amount of ambient light contribution coming from the scene.In the COMMON
+            // profile, this is the sum of all the <light><technique_common><ambient> values in the <visual_scene>.
+            // • N – Normal vector (normalized)
+            // • L – Light vector (normalized)
+            // • I – Eye vector (normalized)
+            // • H – Half-angle vector, calculated as halfway between the unit Eye and Light vectors, using the equation H = normalize(I + L)
+
+            int count = 0;
+            if (emission.HasValue) ++count;
+            if (ambient.HasValue) ++count;
+            if (diffuse.HasValue) ++count;
+            if (specular.HasValue) ++count;
+            ShaderVar[] parameters = new ShaderVar[count + 1];
+            count = 0;
+
+            string source = "#version 450\n";
+
+            if (emission.HasValue)
+            {
+                source += "uniform vec3 Emission;\n";
+                parameters[count++] = new ShaderVec3(emission.Value, "Emission");
+            }
+            else
+                source += "uniform sampler2D Emission;\n";
+
+            if (ambient.HasValue)
+            {
+                source += "uniform vec3 Ambient;\n";
+                parameters[count++] = new ShaderVec3(ambient.Value, "Ambient");
+            }
+            else
+                source += "uniform sampler2D Ambient;\n";
+
+            if (diffuse.HasValue)
+            {
+                source += "uniform vec3 Diffuse;\n";
+                parameters[count++] = new ShaderVec3(diffuse.Value, "Diffuse");
+            }
+            else
+                source += "uniform sampler2D Diffuse;\n";
+
+            if (specular.HasValue)
+            {
+                source += "uniform vec3 Specular;\n";
+                parameters[count++] = new ShaderVec3(specular.Value, "Specular");
+            }
+            else
+                source += "uniform sampler2D Specular;\n";
+
+            source += "uniform float Shininess;\n";
+            parameters[count++] = new ShaderFloat(shininess, "Shininess");
+
+            if (transparencyMode == EOpaque.RGB_ZERO ||
+                transparencyMode == EOpaque.RGB_ONE)
+            source += @"
+float luminance(in vec3 color)
+{
+    return (color.r * 0.212671) + (color.g * 0.715160) + (color.b * 0.072169);
+}";
+
+            switch (transparencyMode)
+            {
+                case EOpaque.A_ONE:
+                    source += "\nresult = mix(fb, mat, transparent.a * transparency);";
+                    break;
+                case EOpaque.RGB_ZERO: source += @"
+result.rgb = fb.rgb * (transparent.rgb * transparency) + mat.rgb * (1.0f - transparent.rgb * transparency);
+result.a = fb.a * (luminance(transparent.rgb) * transparency) + mat.a * (1.0f - luminance(transparent.rgb) * transparency);";
+                    break;
+                case EOpaque.A_ZERO:
+                    source += "\nresult = mix(mat, fb, transparent.a * transparency);";
+                    break;
+                case EOpaque.RGB_ONE: source += @"
+result.rgb = fb.rgb * (1.0f - transparent.rgb * transparency) + mat.rgb * (transparent.rgb * transparency);
+result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (luminance(transparent.rgb) * transparency);";
+                    break;
+            }
+
+           
+//#version 450
+
+//layout (location = 0) out vec4 OutColor;
+
+//uniform vec4 MatColor;
+//uniform float MatSpecularIntensity;
+//uniform float MatShininess;
+
+//uniform vec3 CameraPosition;
+//uniform vec3 CameraForward;
+
+//in vec3 FragPos;
+//in vec3 FragNorm;
+
+//" + LightingSetupBasic() + @"
+
+//void main()
+//{
+//    vec3 normal = normalize(FragNorm);
+
+//    " + LightingCalcForward() + @"
+
+//    OutColor = MatColor * vec4(totalLight, 1.0);
+//}
+
+            Shader s = new Shader(ShaderMode.Fragment, source);
+            return new Material("BlinnMaterial", parameters, s)
+            {
+                Requirements = UniformRequirements.NeedsLightsAndCamera
             };
         }
     }

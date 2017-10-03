@@ -36,7 +36,6 @@ namespace TheraEngine.Rendering.Models
             if (root != null)
             {
                 Matrix4 baseTransform = options.InitialTransform.Matrix;
-
                 var asset = root.AssetElement;
                 if (asset != null)
                 {
@@ -59,181 +58,193 @@ namespace TheraEngine.Rendering.Models
                             break;
                     }
                 }
-
-                if (options.ImportModels)
+                COLLADA.Scene scene = root.GetChild<COLLADA.Scene>();
+                if (scene != null)
                 {
-                    if (root != null)
+                    data.Models = new List<ModelScene>();
+                    var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
+                    foreach (var visualSceneRef in visualScenes)
                     {
-                        COLLADA.Scene scene = root.GetChild<COLLADA.Scene>();
-                        if (scene != null)
+                        var visualScene = visualSceneRef.GetUrlInstance();
+                        if (visualScene != null)
                         {
-                            data.Models = new List<ModelScene>();
-                            var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
-                            foreach (var visualSceneRef in visualScenes)
+                            if (options.ImportModels)
                             {
-                                var visualScene = visualSceneRef.GetUrlInstance();
-                                if (visualScene != null)
+                                ModelScene modelScene = new ModelScene();
+                                var nodes = visualScene.NodeElements;
+
+                                //Collect information for objects and root bones
+                                List<Bone> rootBones = new List<Bone>();
+                                List<ObjectInfo> objects = new List<ObjectInfo>();
+                                List<Camera> cameras = new List<Camera>();
+                                List<LightComponent> lights = new List<LightComponent>();
+                                foreach (var node in nodes)
                                 {
-                                    ModelScene modelScene = new ModelScene();
-                                    var nodes = visualScene.NodeElements;
+                                    Bone b = EnumNode(
+                                        null,
+                                        node,
+                                        nodes,
+                                        objects,
+                                        Matrix4.Identity,
+                                        Matrix4.Identity,
+                                        baseTransform,
+                                        lights,
+                                        cameras);
 
-                                    //Collect information for objects and root bones
-                                    List<Bone> rootBones = new List<Bone>();
-                                    List<ObjectInfo> objects = new List<ObjectInfo>();
-                                    List<Camera> cameras = new List<Camera>();
-                                    List<LightComponent> lights = new List<LightComponent>();
-                                    foreach (var node in nodes)
-                                    {
-                                        Bone b = EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform, lights, cameras);
-                                        if (b != null)
-                                            rootBones.Add(b);
-                                    }
-
-                                    //Create meshes after all bones have been created
-                                    if (rootBones.Count == 0)
-                                    {
-                                        modelScene.StaticModel = new StaticMesh()
-                                        {
-                                            Name = Path.GetFileNameWithoutExtension(filePath)
-                                        };
-                                        modelScene.SkeletalModel = null;
-                                        modelScene.Skeleton = null;
-                                        foreach (ObjectInfo obj in objects)
-                                            if (!obj.UsesController)
-                                                obj.Initialize(modelScene.StaticModel, visualScene);
-                                    }
-                                    else
-                                    {
-                                        modelScene.SkeletalModel = new SkeletalMesh()
-                                        {
-                                            Name = Path.GetFileNameWithoutExtension(filePath)
-                                        };
-                                        modelScene.StaticModel = null;
-                                        modelScene.Skeleton = new Skeleton(rootBones.ToArray());
-                                        foreach (ObjectInfo obj in objects)
-                                            if (obj.UsesController)
-                                                obj.Initialize(modelScene.SkeletalModel, visualScene);
-                                    }
-                                    data.Models.Add(modelScene);
+                                    if (b != null)
+                                        rootBones.Add(b);
                                 }
+
+                                //Create meshes after all bones have been created
+                                if (rootBones.Count == 0)
+                                {
+                                    modelScene.StaticModel = new StaticMesh()
+                                    {
+                                        Name = Path.GetFileNameWithoutExtension(filePath)
+                                    };
+                                    modelScene.SkeletalModel = null;
+                                    modelScene.Skeleton = null;
+                                    foreach (ObjectInfo obj in objects)
+                                        if (!obj.UsesController)
+                                            obj.Initialize(modelScene.StaticModel, visualScene);
+                                }
+                                else
+                                {
+                                    modelScene.SkeletalModel = new SkeletalMesh()
+                                    {
+                                        Name = Path.GetFileNameWithoutExtension(filePath)
+                                    };
+                                    modelScene.StaticModel = null;
+                                    modelScene.Skeleton = new Skeleton(rootBones.ToArray());
+                                    foreach (ObjectInfo obj in objects)
+                                        if (obj.UsesController)
+                                            obj.Initialize(modelScene.SkeletalModel, visualScene);
+                                }
+                                data.Models.Add(modelScene);
+                            }
+                            if (options.ImportAnimations)
+                            {
+                                ModelAnimation anim = new ModelAnimation();
+                                anim.Name = Path.GetFileNameWithoutExtension(filePath);
+                                data.ModelAnimations.Add(anim);
                             }
                         }
                     }
                 }
             }
-            
-            //if (options.ImportAnimations)
-            //{
-            //    scene.Animation = new ModelAnimation()
-            //    {
-            //        Name = Path.GetFileNameWithoutExtension(filePath),
-            //        //RootFolder = new AnimFolder("Skeleton"),
-            //    };
-            //    foreach (AnimationEntry e in shell._animations)
-            //        ParseAnimation(shell, e, scene.Animation, scene.Skeleton);
-            //}
+
+            if (options.ImportAnimations)
+            {
+                scene.Animation = new ModelAnimation()
+                {
+                    Name = Path.GetFileNameWithoutExtension(filePath),
+                    //RootFolder = new AnimFolder("Skeleton"),
+                };
+                foreach (AnimationEntry e in shell._animations)
+                    ParseAnimation(shell, e, scene.Animation, scene.Skeleton);
+            }
 
             return data;
         }
 
-        //private static void ParseAnimation(DecoderShell shell, AnimationEntry e, ModelAnimation c, Skeleton skel)
-        //{
-        //    foreach (AnimationEntry e2 in e._animations)
-        //        ParseAnimation(shell, e2, c, skel);
+        private static void ParseAnimation(DecoderShell shell, AnimationEntry e, ModelAnimation c, Skeleton skel)
+        {
+            foreach (AnimationEntry e2 in e._animations)
+                ParseAnimation(shell, e2, c, skel);
 
-        //    foreach (ChannelEntry channel in e._channels)
-        //    {
-        //        SamplerEntry sampler = e._samplers.FirstOrDefault(x => x._id == channel._source);
+            foreach (ChannelEntry channel in e._channels)
+            {
+                SamplerEntry sampler = e._samplers.FirstOrDefault(x => x._id == channel._source);
 
-        //        string[] sidRef = channel._target.Split('/');
-        //        string targetId = sidRef[0];
-        //        if (targetId == ".")
-        //            continue;
+                string[] sidRef = channel._target.Split('/');
+                string targetId = sidRef[0];
+                if (targetId == ".")
+                    continue;
 
-        //        BaseColladaElement entry = shell._idEntries.ContainsKey(targetId) ? shell._idEntries[targetId] : null;
-        //        if (entry == null)
-        //            continue;
+                BaseColladaElement entry = shell._idEntries.ContainsKey(targetId) ? shell._idEntries[targetId] : null;
+                if (entry == null)
+                    continue;
 
-        //        string targetName = entry._name ?? entry._id;
+                string targetName = entry._name ?? entry._id;
 
-        //        BoneAnimation b;
-        //        if (c._boneAnimations.ContainsKey(targetName))
-        //            b = c._boneAnimations[targetName];
-        //        else
-        //            b = c.CreateBoneAnimation(targetName);
+                BoneAnimation b;
+                if (c._boneAnimations.ContainsKey(targetName))
+                    b = c._boneAnimations[targetName];
+                else
+                    b = c.CreateBoneAnimation(targetName);
 
-        //        //if (skel[targetId] == null)
-        //        //    continue;
+                //if (skel[targetId] == null)
+                //    continue;
 
-        //        string targetSID = sidRef[1];
-        //        List<BaseColladaElement> sidEntries = shell._sidEntries.ContainsKey(targetSID) ? shell._sidEntries[targetSID] : null;
-        //        if (sidEntries.Count == 0)
-        //        {
-        //            throw new Exception("No sid found: " + targetSID);
-        //        }
+                string targetSID = sidRef[1];
+                List<BaseColladaElement> sidEntries = shell._sidEntries.ContainsKey(targetSID) ? shell._sidEntries[targetSID] : null;
+                if (sidEntries.Count == 0)
+                {
+                    throw new Exception("No sid found: " + targetSID);
+                }
 
-        //        float[] timeData = null, outputData = null, inTanData = null, outTanData = null;
-        //        string[] interpData = null;
-        //        foreach (InputEntry input in sampler._inputs)
-        //        {
-        //            SourceEntry source = e._sources.FirstOrDefault(x => x._id == input._source);
+                float[] timeData = null, outputData = null, inTanData = null, outTanData = null;
+                string[] interpData = null;
+                foreach (InputEntry input in sampler._inputs)
+                {
+                    SourceEntry source = e._sources.FirstOrDefault(x => x._id == input._source);
 
-        //            switch (input._semantic)
-        //            {
-        //                case SemanticType.INPUT:
-        //                    timeData = (float[])source._arrayData;
-        //                    break;
-        //                case SemanticType.OUTPUT:
-        //                    outputData = (float[])source._arrayData;
-        //                    break;
-        //                case SemanticType.INTERPOLATION:
-        //                    interpData = (string[])source._arrayData;
-        //                    break;
-        //                case SemanticType.IN_TANGENT:
-        //                    inTanData = (float[])source._arrayData;
-        //                    break;
-        //                case SemanticType.OUT_TANGENT:
-        //                    outTanData = (float[])source._arrayData;
-        //                    break;
-        //            }
-        //        }
-        //        if (targetSID == "matrix")
-        //        {
-        //            int x = 0;
-        //            for (int i = 0; i < timeData.Length; ++i, x += 16)
-        //            {
-        //                float second = timeData[i];
-        //                InterpType type = interpData[i].AsEnum<InterpType>();
-        //                PlanarInterpType pType = (PlanarInterpType)type;
-        //                Matrix4 matrix = new Matrix4(
-        //                        outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
-        //                        outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
-        //                        outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
-        //                        outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
-        //                FrameState transform = FrameState.DeriveTRS(matrix);
-        //                b._translation.Add(new Vec3Keyframe(second, transform.Translation, pType));
-        //                b._scale.Add(new Vec3Keyframe(second, transform.Scale, pType));
-        //                b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, RadialInterpType.Linear));
-        //            }
-        //        }
-        //        else if (targetSID == "visibility")
-        //        {
-        //            for (int i = 0; i < timeData.Length; ++i)
-        //            {
-        //                float second = timeData[i];
-        //                float vis = outputData[i];
-        //                InterpType type = interpData[i].AsEnum<InterpType>();
-        //            }
-        //        }
-        //    }
-        //}
-        //private enum InterpType
-        //{
-        //    LINEAR,
-        //    BEZIER,
-        //    HERMITE,
-        //    STEP,
-        //}
+                    switch (input._semantic)
+                    {
+                        case SemanticType.INPUT:
+                            timeData = (float[])source._arrayData;
+                            break;
+                        case SemanticType.OUTPUT:
+                            outputData = (float[])source._arrayData;
+                            break;
+                        case SemanticType.INTERPOLATION:
+                            interpData = (string[])source._arrayData;
+                            break;
+                        case SemanticType.IN_TANGENT:
+                            inTanData = (float[])source._arrayData;
+                            break;
+                        case SemanticType.OUT_TANGENT:
+                            outTanData = (float[])source._arrayData;
+                            break;
+                    }
+                }
+                if (targetSID == "matrix")
+                {
+                    int x = 0;
+                    for (int i = 0; i < timeData.Length; ++i, x += 16)
+                    {
+                        float second = timeData[i];
+                        InterpType type = interpData[i].AsEnum<InterpType>();
+                        PlanarInterpType pType = (PlanarInterpType)type;
+                        Matrix4 matrix = new Matrix4(
+                                outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
+                                outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
+                                outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
+                                outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
+                        FrameState transform = FrameState.DeriveTRS(matrix);
+                        b._translation.Add(new Vec3Keyframe(second, transform.Translation, pType));
+                        b._scale.Add(new Vec3Keyframe(second, transform.Scale, pType));
+                        b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, RadialInterpType.Linear));
+                    }
+                }
+                else if (targetSID == "visibility")
+                {
+                    for (int i = 0; i < timeData.Length; ++i)
+                    {
+                        float second = timeData[i];
+                        float vis = outputData[i];
+                        InterpType type = interpData[i].AsEnum<InterpType>();
+                    }
+                }
+            }
+        }
+        private enum InterpType
+        {
+            LINEAR,
+            BEZIER,
+            HERMITE,
+            STEP,
+        }
 
         private static Bone EnumNode(
             Bone parent,
@@ -398,6 +409,7 @@ namespace TheraEngine.Rendering.Models
             List<TextureReference> texRefs = new List<TextureReference>();
 
             //Find effect
+            Material m = null;
             if (colladaMaterial.InstanceEffectElement != null)
             {
                 var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<COLLADA.LibraryEffects.Effect>(colladaMaterial.Root);
@@ -459,12 +471,12 @@ namespace TheraEngine.Rendering.Models
                     }
                     else if (lightingType is Blinn blinn)
                     {
-
+                        //m = Material.GetBlinnMaterial();
                     }
                 }
             }
 
-            Material m = texRefs.Count > 0 ?
+            m = texRefs.Count > 0 ?
                 Material.GetLitTextureMaterial() :
                 Material.GetLitColorMaterial(Color.Magenta);
             m.TexRefs = texRefs.ToArray();
@@ -480,25 +492,5 @@ namespace TheraEngine.Rendering.Models
             CARDINAL,
             BSPLINE,
         }
-        //private enum ESemantic
-        //{
-        //    POSITION,
-        //    VERTEX,
-        //    NORMAL,
-        //    TEXCOORD,
-        //    COLOR,
-        //    WEIGHT,
-        //    JOINT,
-        //    INV_BIND_MATRIX,
-        //    TEXTANGENT,
-        //    TEXBINORMAL,
-        //    INPUT,
-        //    OUTPUT,
-        //    IN_TANGENT,
-        //    OUT_TANGENT,
-        //    INTERPOLATION,
-        //    CONTINUITY,
-        //    LINEAR_STEPS,
-        //}
     }
 }

@@ -63,6 +63,7 @@ namespace TheraEngine.Core.Files
             string parentTree,
             int elementIndex)
         {
+            DateTime startTime = DateTime.Now;
             IElement entry = Activator.CreateInstance(elementType) as IElement;
 
             entry.GenericParent = parent;
@@ -122,9 +123,7 @@ namespace TheraEngine.Core.Files
 
             if (entry is IVersion v)
                 version = v.Version;
-
-            #region Handle ID system
-
+            
             if (entry is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
                 entry.Root.IDEntries.Add(IDEntry.ID, IDEntry);
 
@@ -144,7 +143,6 @@ namespace TheraEngine.Core.Files
                         break;
                 }
             }
-            #endregion
 
             #region Read child elements
 
@@ -250,6 +248,14 @@ namespace TheraEngine.Core.Files
             #endregion
 
             entry.PostRead();
+
+            TimeSpan elapsed = DateTime.Now - startTime;
+            if (elapsed.TotalSeconds > 1.0f)
+                if (entry is IID id && !string.IsNullOrEmpty(id.ID))
+                    Engine.PrintLine("Parsing {0}{2} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString(), id.ID);
+                else
+                    Engine.PrintLine("Parsing {0} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString());
+
             return entry;
         }
         private static Type[] FindPublicTypes(Predicate<Type> match)
@@ -534,6 +540,50 @@ namespace TheraEngine.Core.Files
 
         public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
         public Type ParentType => typeof(T);
+    }
+    #endregion
+
+    #region String Elements
+    public abstract class BaseElementString : IParsable
+    {
+        public abstract void ReadFromString(string str);
+        public abstract string WriteToString();
+    }
+    public class StringNumeric<T> : BaseElementString where T : struct
+    {
+        public T Value { get; set; }
+        public override void ReadFromString(string str)
+            => Value = str.ParseAs<T>();
+        public override string WriteToString()
+            => Value.ToString();
+    }
+    public class StringParsable<T> : BaseElementString where T : IParsable
+    {
+        private T _value = default(T);
+        public T Value { get => _value; set => _value = value; }
+        public override void ReadFromString(string str)
+        {
+            _value = Activator.CreateInstance<T>();
+            _value.ReadFromString(str);
+        }
+        public override string WriteToString()
+            => _value.WriteToString();
+    }
+    public class ElementHex : BaseElementString
+    {
+        public string Value { get; set; }
+        public override void ReadFromString(string str)
+            => Value = str;
+        public override string WriteToString()
+            => Value;
+    }
+    public class ElementString : BaseElementString
+    {
+        public string Value { get; set; }
+        public override void ReadFromString(string str)
+            => Value = str;
+        public override string WriteToString()
+            => Value;
     }
     #endregion
 }

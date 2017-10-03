@@ -31,6 +31,22 @@ namespace TheraEngine.Rendering.Models
             public IID GetElement(COLLADA root)
                 => IsLocal ? root?.GetIDEntry(URI.Substring(1)) : null;
         }
+        public class SidRef : IParsable
+        {
+            public string Path { get; set; }
+            public void ReadFromString(string str) => Path = str;
+            public string WriteToString() => Path;
+            public T GetElement<T>(COLLADA root) where T : ISID
+                => (T)GetElement(root);
+            public ISID GetElement(COLLADA root)
+            {
+                string[] parts = Path.Split('/');
+                ISIDAncestor ancestor = root.GetIDEntry(parts[0]);
+                for (int i = 1; i < parts.Length; ++i)
+                    ancestor = ancestor.SIDChildren.FirstOrDefault(x => string.Equals(x.SID, parts[i], StringComparison.InvariantCulture));
+                return ancestor as ISID;
+            }
+        }
         public interface ISIDAncestor : IElement
         {
             List<ISID> SIDChildren { get; }
@@ -580,47 +596,7 @@ namespace TheraEngine.Rendering.Models
         #endregion
 
         #region String Elements
-        public abstract class BaseElementString : IParsable
-        {
-            public abstract void ReadFromString(string str);
-            public abstract string WriteToString();
-        }
-        public class StringNumeric<T> : BaseElementString where T : struct
-        {
-            public T Value { get; set; }
-            public override void ReadFromString(string str)
-                => Value = str.ParseAs<T>();
-            public override string WriteToString()
-                => Value.ToString();
-        }
-        public class StringParsable<T> : BaseElementString where T : IParsable
-        {
-            private T _value = default(T);
-            public T Value { get => _value; set => _value = value; }
-            public override void ReadFromString(string str)
-            {
-                _value = Activator.CreateInstance<T>();
-                _value.ReadFromString(str);
-            }
-            public override string WriteToString()
-                => _value.WriteToString();
-        }
-        public class ElementHex : BaseElementString
-        {
-            public string Value { get; set; }
-            public override void ReadFromString(string str)
-                => Value = str;
-            public override string WriteToString()
-                => Value;
-        }
-        public class ElementString : BaseElementString
-        {
-            public string Value { get; set; }
-            public override void ReadFromString(string str)
-                => Value = str;
-            public override string WriteToString()
-                => Value;
-        }
+        
         public class ElementColladaURI : BaseElementString
         {
             public ColladaURI Value { get; set; }
@@ -1118,7 +1094,7 @@ namespace TheraEngine.Rendering.Models
                                 /// </summary>
                                 RGB_ZERO,
                                 /// <summary>
-                                /// (the default): Takes the transparency information from the color’s
+                                /// Takes the transparency information from the color’s
                                 /// alpha channel, where the value 0.0 is opaque.
                                 /// </summary>
                                 A_ZERO,
@@ -1607,7 +1583,7 @@ namespace TheraEngine.Rendering.Models
                         [Name("bind_shape_matrix")]
                         public class BindShapeMatrix : BaseStringElement<Skin, StringParsable<Matrix4>>
                         {
-                            public override void PostRead() => StringContent.Value.Transpose();
+                            public override void PostRead() => StringContent.Value = StringContent.Value.Transposed();
                         }
                         [Name("joints")]
                         [Child(typeof(InputUnshared), 2, -1)]
@@ -1687,6 +1663,65 @@ namespace TheraEngine.Rendering.Models
             }
             #endregion
 
+            #region Animation
+            public interface IAnimation : IElement { }
+            [Name("library_animations")]
+            [Child(typeof(Animation), 1, -1)]
+            public class LibraryAnimations : Library, IAnimation
+            {
+                [Name("animation")]
+                [Child(typeof(Asset), 0, 1)]
+                [Child(typeof(Animation), 0, -1)]
+                [Child(typeof(Source), 0, -1)]
+                [Child(typeof(Sampler), 0, -1)]
+                [Child(typeof(Channel), 0, -1)]
+                [Child(typeof(Extra), 0, -1)]
+                public class Animation : BaseElement<IAnimation>, IID, IName, IAnimation, IAsset, ISource
+                {
+                    public Asset AssetElement => GetChild<Asset>();
+
+                    [Attr("id", false)]
+                    public string ID { get; set; } = null;
+                    [Attr("name", false)]
+                    public string Name { get; set; } = null;
+                    
+                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+                    public enum InterpolationBehavior
+                    {
+                        UNDEFINED,
+                        CONSTANT,
+                        GRADIENT,
+                        CYCLE,
+                        OSCILLATE,
+                        CYCLE_RELATIVE,
+                    }
+
+                    [Name("sampler")]
+                    [Child(typeof(InputUnshared), 1, -1)]
+                    public class Sampler : BaseElement<Animation>, IID, IInputUnshared
+                    {
+                        [Attr("id", false)]
+                        public string ID { get; set; } = null;
+                        [Attr("pre_behavior", false)]
+                        public InterpolationBehavior PreBehavior { get; set; }
+                        [Attr("post_behavior", false)]
+                        public InterpolationBehavior PostBehavior { get; set; }
+
+                        public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    }
+                    [Name("channel")]
+                    public class Channel : BaseElement<Animation>
+                    {
+                        [Attr("source", true)]
+                        public ColladaURI Source { get; set; }
+                        [Attr("target", true)]
+                        public SidRef Target { get; set; }
+                    }
+                }
+            }
+            #endregion
+
             #region Nodes
             /// <summary>
             /// Indicates that this class owns Node elements.
@@ -1762,38 +1797,28 @@ namespace TheraEngine.Rendering.Models
                 [Name("translate")]
                 public class Translate : Transformation<Vec3>
                 {
-                    public override Matrix4 GetMatrix()
-                    {
-                        return Matrix4.CreateTranslation(StringContent.Value);
-                    }
+                    public override Matrix4 GetMatrix() 
+                        => Matrix4.CreateTranslation(StringContent.Value);
                 }
                 [Name("scale")]
                 public class Scale : Transformation<Vec3>
                 {
                     public override Matrix4 GetMatrix()
-                    {
-                        return Matrix4.CreateScale(StringContent.Value);
-                    }
+                        => Matrix4.CreateScale(StringContent.Value);
                 }
                 [Name("rotate")]
                 public class Rotate : Transformation<Vec4>
                 {
-                    public override Matrix4 GetMatrix()
-                    {
-                        return Matrix4.CreateFromAxisAngle(StringContent.Value.Xyz, StringContent.Value.W);
-                    }
+                    public override Matrix4 GetMatrix() 
+                        => Matrix4.CreateFromAxisAngle(StringContent.Value.Xyz, StringContent.Value.W);
                 }
                 [Name("matrix")]
                 public class Matrix : Transformation<Matrix4>
                 {
                     public override void PostRead()
-                    {
-                        StringContent?.Value.Transpose();
-                    }
+                        => StringContent.Value = StringContent.Value.Transposed();
                     public override Matrix4 GetMatrix()
-                    {
-                        return StringContent.Value;
-                    }
+                        => StringContent.Value;
                 }
 
                 public Matrix4 GetTransformMatrix()

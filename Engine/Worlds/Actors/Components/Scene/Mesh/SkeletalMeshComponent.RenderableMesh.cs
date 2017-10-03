@@ -27,11 +27,11 @@ namespace TheraEngine.Worlds.Actors
 
             private float GetRenderOrderOpaque()
             {
-                return _component.WorldMatrix.GetPoint().DistanceToFast(AbstractRenderer.CurrentCamera.WorldPoint);
+                return _component.WorldMatrix.GetPoint().DistanceToFast(AbstractRenderer.CurrentCamera == null ? Vec3.Zero : AbstractRenderer.CurrentCamera.WorldPoint);
             }
             private float GetRenderOrderTransparent()
             {
-                return _component.WorldMatrix.GetPoint().DistanceToFast(AbstractRenderer.CurrentCamera.WorldPoint);
+                return _component.WorldMatrix.GetPoint().DistanceToFast(AbstractRenderer.CurrentCamera == null ? Vec3.Zero : AbstractRenderer.CurrentCamera.WorldPoint);
             }
 
             private PrimitiveManager _manager;

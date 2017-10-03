@@ -37,7 +37,7 @@ namespace TheraEngine.Rendering.Models
                 foreach (InputUnshared inp in joints.GetChildren<InputUnshared>())
                     if (inp.CommonSemanticType == ESemantic.JOINT && inp.Source.GetElement(inp.Root) is Source src)
                     {
-                        jointSIDs = src.GetChild<Source.NameArray>().StringContent.Values;
+                        jointSIDs = src.GetChild<NameArray>().StringContent.Values;
                         break;
                     }
 
@@ -73,7 +73,7 @@ namespace TheraEngine.Rendering.Models
                             pCmd[inp.Offset] = 2;
 
                             Source src = inp.Source.GetElement<Source>(inp.Root);
-                            pWeights = src.GetArrayElement<Source.FloatArray>().StringContent.Values;
+                            pWeights = src.GetArrayElement<FloatArray>().StringContent.Values;
 
                             break;
 
@@ -86,10 +86,10 @@ namespace TheraEngine.Rendering.Models
                 float weight = 0;
                 int[] boneIndices = boneCounts.StringContent.Values;
                 int[] primIndices = prims.StringContent.Values;
-                for (int i = 0; i < influences.Count; i++)
+                for (int i = 0, primIndex = 0; i < influences.Count; i++)
                 {
                     Influence inf = new Influence();
-                    for (int boneIndex = 0, primIndex = 0; boneIndex < boneIndices[i]; boneIndex++)
+                    for (int boneIndex = 0; boneIndex < boneIndices[i]; boneIndex++)
                     {
                         for (int cmd = 0; cmd < pCmd.Length; cmd++, primIndex++)
                         {

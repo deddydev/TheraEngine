@@ -1669,6 +1669,8 @@ namespace TheraEngine.Rendering.Models
             [Child(typeof(Animation), 1, -1)]
             public class LibraryAnimations : Library, IAnimation
             {
+                public Animation[] AnimationElements => GetChildren<Animation>();
+                
                 [Name("animation")]
                 [Child(typeof(Asset), 0, 1)]
                 [Child(typeof(Animation), 0, -1)]
@@ -1676,9 +1678,14 @@ namespace TheraEngine.Rendering.Models
                 [Child(typeof(Sampler), 0, -1)]
                 [Child(typeof(Channel), 0, -1)]
                 [Child(typeof(Extra), 0, -1)]
-                public class Animation : BaseElement<IAnimation>, IID, IName, IAnimation, IAsset, ISource
+                public class Animation : BaseElement<IAnimation>, IID, IName, IAnimation, IAsset, ISource, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
+                    public Animation[] AnimationElements => GetChildren<Animation>();
+                    public Source[] SourceElements => GetChildren<Source>();
+                    public Sampler[] SamplerElements => GetChildren<Sampler>();
+                    public Channel[] ChannelElements => GetChildren<Channel>();
+                    public Extra[] ExtraElements => GetChildren<Extra>();
 
                     [Attr("id", false)]
                     public string ID { get; set; } = null;

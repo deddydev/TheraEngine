@@ -9,6 +9,7 @@ using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
+using static TheraEngine.Rendering.Models.Collada.COLLADA;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryImages;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
@@ -80,17 +81,7 @@ namespace TheraEngine.Rendering.Models
                                 List<LightComponent> lights = new List<LightComponent>();
                                 foreach (var node in nodes)
                                 {
-                                    Bone b = EnumNode(
-                                        null,
-                                        node,
-                                        nodes,
-                                        objects,
-                                        Matrix4.Identity,
-                                        Matrix4.Identity,
-                                        baseTransform,
-                                        lights,
-                                        cameras);
-
+                                    Bone b = EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform, lights, cameras);
                                     if (b != null)
                                         rootBones.Add(b);
                                 }
@@ -124,26 +115,22 @@ namespace TheraEngine.Rendering.Models
                             }
                             if (options.ImportAnimations)
                             {
-                                ModelAnimation anim = new ModelAnimation();
-                                anim.Name = Path.GetFileNameWithoutExtension(filePath);
+                                ModelAnimation anim = new ModelAnimation()
+                                {
+                                    Name = Path.GetFileNameWithoutExtension(filePath)
+                                };
+                                foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
+                                {
+                                    lib.anim
+                                    ParseAnimation(shell, e, scene.Animation, scene.Skeleton);
+                                }
                                 data.ModelAnimations.Add(anim);
                             }
                         }
                     }
                 }
             }
-
-            if (options.ImportAnimations)
-            {
-                scene.Animation = new ModelAnimation()
-                {
-                    Name = Path.GetFileNameWithoutExtension(filePath),
-                    //RootFolder = new AnimFolder("Skeleton"),
-                };
-                foreach (AnimationEntry e in shell._animations)
-                    ParseAnimation(shell, e, scene.Animation, scene.Skeleton);
-            }
-
+            
             return data;
         }
 

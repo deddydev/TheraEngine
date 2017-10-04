@@ -10,6 +10,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
 using static TheraEngine.Rendering.Models.Collada.COLLADA;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryAnimations.Animation;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryImages;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
@@ -59,7 +60,7 @@ namespace TheraEngine.Rendering.Models
                             break;
                     }
                 }
-                COLLADA.Scene scene = root.GetChild<COLLADA.Scene>();
+                Scene scene = root.GetChild<Scene>();
                 if (scene != null)
                 {
                     data.Models = new List<ModelScene>();
@@ -119,11 +120,10 @@ namespace TheraEngine.Rendering.Models
                                 {
                                     Name = Path.GetFileNameWithoutExtension(filePath)
                                 };
+                                List<BasePropertyAnimation> propAnims = new List<BasePropertyAnimation>();
                                 foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
-                                {
-                                    lib.anim
-                                    ParseAnimation(shell, e, scene.Animation, scene.Skeleton);
-                                }
+                                    foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
+                                        ParseAnimation(animElem, anim, visualScene, propAnims);
                                 data.ModelAnimations.Add(anim);
                             }
                         }
@@ -134,14 +134,63 @@ namespace TheraEngine.Rendering.Models
             return data;
         }
 
-        private static void ParseAnimation(DecoderShell shell, AnimationEntry e, ModelAnimation c, Skeleton skel)
+        private static void ParseAnimation(LibraryAnimations.Animation animElem, ModelAnimation anim, VisualScene visualScene, List<BasePropertyAnimation> propAnims)
         {
-            foreach (AnimationEntry e2 in e._animations)
-                ParseAnimation(shell, e2, c, skel);
+            foreach (var animElemChild in animElem.AnimationElements)
+                ParseAnimation(animElemChild, anim, visualScene, propAnims);
 
-            foreach (ChannelEntry channel in e._channels)
+            foreach (var channel in animElem.ChannelElements)
             {
-                SamplerEntry sampler = e._samplers.FirstOrDefault(x => x._id == channel._source);
+                var sampler = channel.Source.GetElement<Sampler>(animElem.Root);
+                ISID target = channel.Target.GetElement(animElem.Root);
+                if (!(target is IStringElement))
+                    continue;
+                
+                if (target is Node.Matrix mtx)
+                {
+                    if (mtx.ParentElement.Type == Node.EType.JOINT)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+                else if (target is Node.Translate trans)
+                {
+                    if (trans.ParentElement.Type == Node.EType.JOINT)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+                else if (target is Node.Rotate rot)
+                {
+                    if (rot.ParentElement.Type == Node.EType.JOINT)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+                else if (target is Node.Scale scale)
+                {
+                    if (scale.ParentElement.Type == Node.EType.JOINT)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+
 
                 string[] sidRef = channel._target.Split('/');
                 string targetId = sidRef[0];

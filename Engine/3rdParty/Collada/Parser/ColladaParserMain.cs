@@ -1694,7 +1694,7 @@ namespace TheraEngine.Rendering.Models
                     
                     public List<ISID> SIDChildren { get; } = new List<ISID>();
 
-                    public enum InterpolationBehavior
+                    public enum EInterpBehavior
                     {
                         UNDEFINED,
                         CONSTANT,
@@ -1708,12 +1708,14 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(InputUnshared), 1, -1)]
                     public class Sampler : BaseElement<Animation>, IID, IInputUnshared
                     {
+                        public InputUnshared[] InputElements => GetChildren<InputUnshared>();
+                        
                         [Attr("id", false)]
                         public string ID { get; set; } = null;
                         [Attr("pre_behavior", false)]
-                        public InterpolationBehavior PreBehavior { get; set; }
+                        public EInterpBehavior PreBehavior { get; set; }
                         [Attr("post_behavior", false)]
-                        public InterpolationBehavior PostBehavior { get; set; }
+                        public EInterpBehavior PostBehavior { get; set; }
 
                         public List<ISID> SIDChildren { get; } = new List<ISID>();
                     }

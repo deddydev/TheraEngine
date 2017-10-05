@@ -14,6 +14,7 @@ using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryAnimations.Anim
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryImages;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
+using static TheraEngine.Rendering.Models.Collada.Source;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -142,15 +143,92 @@ namespace TheraEngine.Rendering.Models
             foreach (var channel in animElem.ChannelElements)
             {
                 var sampler = channel.Source.GetElement<Sampler>(animElem.Root);
-                ISID target = channel.Target.GetElement(animElem.Root);
+                ISID target = channel.Target.GetElement(animElem.Root, out string selector);
                 if (!(target is IStringElement))
                     continue;
                 
+                if (!string.IsNullOrEmpty(selector))
+                {
+                    int matrixIndex = selector.IndexOf('(');
+                    if (matrixIndex >= 0)
+                    {
+                        int rowIndex = -1, colIndex = -1;
+                        int rowEnd = selector.IndexOf(')');
+                        string row = selector.Substring(matrixIndex + 1, rowEnd - matrixIndex - 1);
+                        rowIndex = int.Parse(row);
+                    }
+                    else
+                    {
+                        var s = selector.ParseAs<Channel.ESelector>();
+                        if (s == Channel.ESelector.ANGLE)
+                        {
+
+                        }
+                        else if (s == Channel.ESelector.TIME)
+                        {
+
+                        }
+                        else
+                        {
+                            int valueIndex = ((int)s) & 0b11;
+
+                        }
+                    }
+                }
+
+                float[] inputData = null, outputData = null, inTanData = null, outTanData = null;
+                string[] interpTypeData = null;
+                foreach (var input in sampler.InputElements)
+                {
+                    Source source = input.Source.GetElement<Source>(sampler.Root);
+                    switch (input.CommonSemanticType)
+                    {
+                        case ESemantic.INPUT:
+                            inputData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            break;
+                        case ESemantic.OUTPUT:
+                            outputData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            break;
+                        case ESemantic.INTERPOLATION:
+                            interpTypeData = source.GetArrayElement<NameArray>().StringContent.Values;
+                            break;
+                        case ESemantic.IN_TANGENT:
+                            inTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            break;
+                        case ESemantic.OUT_TANGENT:
+                            outTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            break;
+                    }
+                }
+
                 if (target is Node.Matrix mtx)
                 {
-                    if (mtx.ParentElement.Type == Node.EType.JOINT)
+                    Node node = mtx.ParentElement;
+                    string targetName = node.Name ?? (node.ID ?? node.SID);
+                    if (node.Type == Node.EType.JOINT)
                     {
+                        BoneAnimation b;
+                        if (anim._boneAnimations.ContainsKey(targetName))
+                            b = anim._boneAnimations[targetName];
+                        else
+                            b = anim.CreateBoneAnimation(targetName);
 
+                        int x = 0;
+                        for (int i = 0; i < inputData.Length; ++i, x += 16)
+                        {
+                            float second = inputData[i];
+                            InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                            PlanarInterpType pType = (PlanarInterpType)type;
+                            Matrix4 matrix = new Matrix4(
+                                    outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
+                                    outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
+                                    outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
+                                    outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
+                            FrameState transform = FrameState.DeriveTRS(matrix);
+                            b._translation.Add(new Vec3Keyframe(second, transform.Translation, pType));
+                            b._scale.Add(new Vec3Keyframe(second, transform.Scale, pType));
+                            b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, RadialInterpType.Linear));
+                        }
                     }
                     else
                     {
@@ -191,87 +269,22 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
 
+                //string targetName = entry._name ?? entry._id;
 
-                string[] sidRef = channel._target.Split('/');
-                string targetId = sidRef[0];
-                if (targetId == ".")
-                    continue;
-
-                BaseColladaElement entry = shell._idEntries.ContainsKey(targetId) ? shell._idEntries[targetId] : null;
-                if (entry == null)
-                    continue;
-
-                string targetName = entry._name ?? entry._id;
-
-                BoneAnimation b;
-                if (c._boneAnimations.ContainsKey(targetName))
-                    b = c._boneAnimations[targetName];
-                else
-                    b = c.CreateBoneAnimation(targetName);
-
-                //if (skel[targetId] == null)
-                //    continue;
-
-                string targetSID = sidRef[1];
-                List<BaseColladaElement> sidEntries = shell._sidEntries.ContainsKey(targetSID) ? shell._sidEntries[targetSID] : null;
-                if (sidEntries.Count == 0)
-                {
-                    throw new Exception("No sid found: " + targetSID);
-                }
-
-                float[] timeData = null, outputData = null, inTanData = null, outTanData = null;
-                string[] interpData = null;
-                foreach (InputEntry input in sampler._inputs)
-                {
-                    SourceEntry source = e._sources.FirstOrDefault(x => x._id == input._source);
-
-                    switch (input._semantic)
-                    {
-                        case SemanticType.INPUT:
-                            timeData = (float[])source._arrayData;
-                            break;
-                        case SemanticType.OUTPUT:
-                            outputData = (float[])source._arrayData;
-                            break;
-                        case SemanticType.INTERPOLATION:
-                            interpData = (string[])source._arrayData;
-                            break;
-                        case SemanticType.IN_TANGENT:
-                            inTanData = (float[])source._arrayData;
-                            break;
-                        case SemanticType.OUT_TANGENT:
-                            outTanData = (float[])source._arrayData;
-                            break;
-                    }
-                }
-                if (targetSID == "matrix")
-                {
-                    int x = 0;
-                    for (int i = 0; i < timeData.Length; ++i, x += 16)
-                    {
-                        float second = timeData[i];
-                        InterpType type = interpData[i].AsEnum<InterpType>();
-                        PlanarInterpType pType = (PlanarInterpType)type;
-                        Matrix4 matrix = new Matrix4(
-                                outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
-                                outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
-                                outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
-                                outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
-                        FrameState transform = FrameState.DeriveTRS(matrix);
-                        b._translation.Add(new Vec3Keyframe(second, transform.Translation, pType));
-                        b._scale.Add(new Vec3Keyframe(second, transform.Scale, pType));
-                        b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, RadialInterpType.Linear));
-                    }
-                }
-                else if (targetSID == "visibility")
-                {
-                    for (int i = 0; i < timeData.Length; ++i)
-                    {
-                        float second = timeData[i];
-                        float vis = outputData[i];
-                        InterpType type = interpData[i].AsEnum<InterpType>();
-                    }
-                }
+               
+                //if (targetSID == "matrix")
+                //{
+                    
+                //}
+                //else if (targetSID == "visibility")
+                //{
+                //    for (int i = 0; i < timeData.Length; ++i)
+                //    {
+                //        float second = timeData[i];
+                //        float vis = outputData[i];
+                //        InterpType type = interpData[i].AsEnum<InterpType>();
+                //    }
+                //}
             }
         }
         private enum InterpType
@@ -284,8 +297,8 @@ namespace TheraEngine.Rendering.Models
 
         private static Bone EnumNode(
             Bone parent,
-            COLLADA.Node node,
-            COLLADA.Node[] nodes,
+            Node node,
+            Node[] nodes,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
             Matrix4 invParent,

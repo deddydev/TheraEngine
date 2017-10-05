@@ -36,14 +36,33 @@ namespace TheraEngine.Rendering.Models
             public string Path { get; set; }
             public void ReadFromString(string str) => Path = str;
             public string WriteToString() => Path;
-            public T GetElement<T>(COLLADA root) where T : ISID
-                => (T)GetElement(root);
-            public ISID GetElement(COLLADA root)
+            public T GetElement<T>(COLLADA root, out string selector) where T : ISID
+                => (T)GetElement(root, out selector);
+            public ISID GetElement(COLLADA root, out string selector)
             {
+                selector = null;
                 string[] parts = Path.Split('/');
                 ISIDAncestor ancestor = root.GetIDEntry(parts[0]);
                 for (int i = 1; i < parts.Length; ++i)
-                    ancestor = ancestor.SIDChildren.FirstOrDefault(x => string.Equals(x.SID, parts[i], StringComparison.InvariantCulture));
+                {
+                    string part = parts[i];
+                    int selectorIndex = part.IndexOf('.');
+                    if (selectorIndex >= 0)
+                    {
+                        selector = part.Substring(selectorIndex + 1);
+                        part = part.Substring(0, selectorIndex);
+                    }
+                    else
+                    {
+                        int dimSelector = part.IndexOf('(');
+                        if (dimSelector >= 0)
+                        {
+                            selector = part.Substring(dimSelector);
+                            part = part.Substring(0, dimSelector);
+                        }
+                    }
+                    ancestor = ancestor.SIDChildren.FirstOrDefault(x => string.Equals(x.SID, part, StringComparison.InvariantCulture));
+                }
                 return ancestor as ISID;
             }
         }
@@ -1722,6 +1741,73 @@ namespace TheraEngine.Rendering.Models
                     [Name("channel")]
                     public class Channel : BaseElement<Animation>
                     {
+                        public enum ESelector
+                        {
+                            /// <summary>
+                            /// Red color component
+                            /// </summary>
+                            R,
+                            /// <summary>
+                            /// Green color component
+                            /// </summary>
+                            G,
+                            /// <summary>
+                            /// Blue color component
+                            /// </summary>
+                            B,
+                            /// <summary>
+                            /// Alpha color component
+                            /// </summary>
+                            A,
+                            /// <summary>
+                            /// First cartesian coordinate
+                            /// </summary>
+                            X,
+                            /// <summary>
+                            /// Second cartesian coordinate
+                            /// </summary>
+                            Y,
+                            /// <summary>
+                            /// Third cartesian coordinate
+                            /// </summary>
+                            Z,
+                            /// <summary>
+                            /// Fourth cartesian coordinate
+                            /// </summary>
+                            W,
+                            /// <summary>
+                            /// First texture coordinate
+                            /// </summary>
+                            S,
+                            /// <summary>
+                            /// Second texture coordinate
+                            /// </summary>
+                            T,
+                            /// <summary>
+                            /// Third texture coordinate
+                            /// </summary>
+                            P,
+                            /// <summary>
+                            /// Fourth texture coordinate
+                            /// </summary>
+                            Q,
+                            /// <summary>
+                            /// First generic parameter
+                            /// </summary>
+                            U,
+                            /// <summary>
+                            /// Second generic parameter
+                            /// </summary>
+                            V,
+                            /// <summary>
+                            /// Axis-angle angle
+                            /// </summary>
+                            ANGLE,
+                            /// <summary>
+                            /// Time in seconds
+                            /// </summary>
+                            TIME,
+                        }
                         [Attr("source", true)]
                         public ColladaURI Source { get; set; }
                         [Attr("target", true)]

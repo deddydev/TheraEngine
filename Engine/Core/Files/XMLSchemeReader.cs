@@ -16,26 +16,25 @@ namespace TheraEngine.Core.Files
 
         public XMLSchemeReader() { }
 
-        public T Import(string path, bool parseExtraElements)
+        public unsafe T Import(string path, bool parseExtraElements)
         {
-            XmlReaderSettings settings = new XmlReaderSettings()
-            {
-                ConformanceLevel = ConformanceLevel.Auto,
-                DtdProcessing = DtdProcessing.Ignore,
-                CheckCharacters = false,
-                IgnoreWhitespace = true,
-                IgnoreComments = true,
-                CloseInput = true,
-            };
-            using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
-                return Import(r, parseExtraElements);
+            //XmlReaderSettings settings = new XmlReaderSettings()
+            //{
+            //    ConformanceLevel = ConformanceLevel.Auto,
+            //    DtdProcessing = DtdProcessing.Ignore,
+            //    CheckCharacters = false,
+            //    IgnoreWhitespace = true,
+            //    IgnoreComments = true,
+            //    CloseInput = true,
+            //};
+            //using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
+            //    return Import(r, parseExtraElements);
+
+            using (FileMap map = FileMap.FromFile(path, FileMapProtect.Read))
+            using (XMLReader reader = new XMLReader(map.Address, map.Length))
+                return Import(reader, parseExtraElements);
         }
-        public T Import(string path, bool parseExtraElements, XmlReaderSettings settings)
-        {
-            using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
-                return Import(r, parseExtraElements);
-        }
-        public T Import(XmlReader reader, bool parseExtraElements)
+        public T Import(XMLReader reader, bool parseExtraElements)
         {
             string previousTree = "";
             Type t = typeof(T);
@@ -47,13 +46,45 @@ namespace TheraEngine.Core.Files
                 return null;
             }
 
-            bool found;
-            while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
-            if (found)
-                Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals(name.ElementName, true))
+                    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
+
+                reader.EndElement();
+            }
+
+            //bool found;
+            //while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
+            //if (found)
+            //    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
 
             return Root;
         }
+        //public T Import(string path, bool parseExtraElements, XmlReaderSettings settings)
+        //{
+        //    using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
+        //        return Import(r, parseExtraElements);
+        //}
+        //public T Import(XmlReader reader, bool parseExtraElements)
+        //{
+        //    string previousTree = "";
+        //    Type t = typeof(T);
+        //    Name name = t.GetCustomAttribute<Name>();
+        //    if (name == null || string.IsNullOrEmpty(name.ElementName))
+        //    {
+        //        Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
+        //        Root = null;
+        //        return null;
+        //    }
+
+        //    bool found;
+        //    while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
+        //    if (found)
+        //        Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
+
+        //    return Root;
+        //}
         private IElement ParseElement(
             Type elementType,
             IElement parent,
@@ -65,7 +96,7 @@ namespace TheraEngine.Core.Files
         {
             DateTime startTime = DateTime.Now;
             IElement entry = Activator.CreateInstance(elementType) as IElement;
-
+            
             entry.GenericParent = parent;
             entry.ElementIndex = elementIndex;
             entry.PreRead();
@@ -466,6 +497,7 @@ namespace TheraEngine.Core.Files
     /// <typeparam name="T">The type of the parent element.</typeparam>
     public abstract class BaseElement<T> : IElement where T : class, IElement
     {
+        internal XMLReader _subTree;
         public int ElementIndex { get; set; } = -1;
         public string Tree { get; set; }
         public string ElementName

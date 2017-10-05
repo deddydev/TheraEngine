@@ -16,24 +16,22 @@ namespace TheraEngine.Core.Files
 
         public XMLSchemeReader() { }
 
-        public unsafe T Import(string path, bool parseExtraElements)
-        {
-            //XmlReaderSettings settings = new XmlReaderSettings()
-            //{
-            //    ConformanceLevel = ConformanceLevel.Auto,
-            //    DtdProcessing = DtdProcessing.Ignore,
-            //    CheckCharacters = false,
-            //    IgnoreWhitespace = true,
-            //    IgnoreComments = true,
-            //    CloseInput = true,
-            //};
-            //using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
-            //    return Import(r, parseExtraElements);
+        //public unsafe T Import(XMLReader reader, bool parseExtraElements)
+        //{
+        //    //XmlReaderSettings settings = new XmlReaderSettings()
+        //    //{
+        //    //    ConformanceLevel = ConformanceLevel.Auto,
+        //    //    DtdProcessing = DtdProcessing.Ignore,
+        //    //    CheckCharacters = false,
+        //    //    IgnoreWhitespace = true,
+        //    //    IgnoreComments = true,
+        //    //    CloseInput = true,
+        //    //};
+        //    //using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
+        //    //    return Import(r, parseExtraElements);
 
-            using (FileMap map = FileMap.FromFile(path, FileMapProtect.Read))
-            using (XMLReader reader = new XMLReader(map.Address, map.Length))
-                return Import(reader, parseExtraElements);
-        }
+        //    return Import(reader, parseExtraElements);
+        //}
         public T Import(XMLReader reader, bool parseExtraElements)
         {
             string previousTree = "";
@@ -42,15 +40,13 @@ namespace TheraEngine.Core.Files
             if (name == null || string.IsNullOrEmpty(name.ElementName))
             {
                 Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
-                Root = null;
-                return null;
+                return Root = null;
             }
 
             while (reader.BeginElement())
             {
                 if (reader.Name.Equals(name.ElementName, true))
                     Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
-
                 reader.EndElement();
             }
 
@@ -60,6 +56,191 @@ namespace TheraEngine.Core.Files
             //    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
 
             return Root;
+        }
+        private IElement ParseElement(
+            Type elementType,
+            IElement parent,
+            XMLReader reader,
+            string version,
+            bool parseExtraElements,
+            string parentTree,
+            int elementIndex)
+        {
+            DateTime startTime = DateTime.Now;
+            IElement entry = Activator.CreateInstance(elementType) as IElement;
+
+            entry.GenericParent = parent;
+            entry.ElementIndex = elementIndex;
+            entry.PreRead();
+
+            string parentElementName = reader.Name;
+            if (string.IsNullOrEmpty(parentElementName))
+                throw new Exception();
+            parentTree += parentElementName + "/";
+            entry.Tree = parentTree;
+
+            //if (!reader.BeginElement())
+            //{
+            //    Engine.PrintLine("Encountered an unexpected node: {0}", reader.Name);
+            //    reader.EndElement();
+            //    entry.PostRead();
+            //    return entry;
+            //}
+
+            if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
+            {
+                Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
+                //reader.EndElement();
+                entry.PostRead();
+                return entry;
+            }
+
+            if (!parseExtraElements && entry is Extra)
+            {
+                //reader.EndElement();
+                entry.PostRead();
+                return entry;
+            }
+
+            #region Read attributes
+            MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            while (reader.ReadAttribute())
+            {
+                string name = reader.Name;
+                string value = reader.Value;
+                MemberInfo info = members.FirstOrDefault(x =>
+                {
+                    var a = x.GetCustomAttribute<Attr>();
+                    return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
+                });
+
+                if (info == null)
+                    Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
+                else if (info is FieldInfo field)
+                    field.SetValue(entry, value.ParseAs(field.FieldType));
+                else if (info is PropertyInfo property)
+                    property.SetValue(entry, value.ParseAs(property.PropertyType));
+            }
+            #endregion
+
+            if (entry is IVersion v)
+                version = v.Version;
+
+            if (entry is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
+                entry.Root.IDEntries.Add(IDEntry.ID, IDEntry);
+
+            if (entry is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
+            {
+                IElement p = SIDEntry.GenericParent;
+                while (true)
+                {
+                    if (p is ISIDAncestor ancestor)
+                    {
+                        ancestor.SIDChildren.Add(SIDEntry);
+                        break;
+                    }
+                    else if (p.GenericParent != null)
+                        p = p.GenericParent;
+                    else
+                        break;
+                }
+            }
+
+            #region Read child elements
+            
+            if (entry is IStringElement StringEntry)
+            {
+                StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
+                StringEntry.GenericStringContent.ReadFromString(reader.ReadElementString());
+            }
+            else
+            {
+                ChildInfo[] childElements = elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
+                MultiChildInfo[] multiChildElements = elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
+
+                int childIndex = 0;
+
+                //Read all child elements
+                while (reader.BeginElement())
+                {
+                    string elementName = reader.Name;
+                    if (string.IsNullOrEmpty(elementName))
+                        throw new Exception();
+
+                    bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
+                        Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
+
+                    if (isUnsupported)
+                    {
+                        if (string.IsNullOrEmpty(elementName))
+                            throw new Exception();
+                        Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+                        reader.EndElement();
+                    }
+                    else
+                    {
+                        int typeIndex = -1;
+                        foreach (ChildInfo child in childElements)
+                        {
+                            typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
+                            if (typeIndex >= 0)
+                            {
+                                if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
+                                    Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
+
+                                ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                break;
+                            }
+                        }
+                        if (typeIndex < 0)
+                        {
+                            MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
+                            {
+                                for (int i = 0; i < c.Data.Types.Length; ++i)
+                                {
+                                    Name name = c.ElementNames[i];
+                                    if (name.Matches(elementName, version))
+                                    {
+                                        ++c.Occurrences[i];
+                                        ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            });
+
+                            if (info == null)
+                            {
+                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+                            }
+                        }
+                        reader.EndElement();
+                    }
+
+                    ++childIndex;
+                }
+                
+                Name[] underCounted = childElements.
+                    Where(x => x.Occurrences < x.Data.MinCount).
+                    SelectMany(x => x.ElementNames).
+                    Where(x => x.VersionMatches(version)).ToArray();
+                if (underCounted.Length > 0)
+                    foreach (Name c in underCounted)
+                        Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
+            }
+
+            #endregion
+
+            entry.PostRead();
+
+            TimeSpan elapsed = DateTime.Now - startTime;
+            if (elapsed.TotalSeconds > 1.0f)
+                if (entry is IID id && !string.IsNullOrEmpty(id.ID))
+                    Engine.PrintLine("Parsing {0}{2} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString(), id.ID);
+                else
+                    Engine.PrintLine("Parsing {0} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString());
+
+            return entry;
         }
         //public T Import(string path, bool parseExtraElements, XmlReaderSettings settings)
         //{
@@ -85,210 +266,210 @@ namespace TheraEngine.Core.Files
 
         //    return Root;
         //}
-        private IElement ParseElement(
-            Type elementType,
-            IElement parent,
-            XmlReader reader,
-            string version,
-            bool parseExtraElements,
-            string parentTree,
-            int elementIndex)
-        {
-            DateTime startTime = DateTime.Now;
-            IElement entry = Activator.CreateInstance(elementType) as IElement;
-            
-            entry.GenericParent = parent;
-            entry.ElementIndex = elementIndex;
-            entry.PreRead();
+        //private IElement ParseElement(
+        //    Type elementType,
+        //    IElement parent,
+        //    XmlReader reader,
+        //    string version,
+        //    bool parseExtraElements,
+        //    string parentTree,
+        //    int elementIndex)
+        //{
+        //    DateTime startTime = DateTime.Now;
+        //    IElement entry = Activator.CreateInstance(elementType) as IElement;
 
-            string parentElementName = reader.Name;
-            if (string.IsNullOrEmpty(parentElementName))
-                throw new Exception();
-            parentTree += parentElementName + "/";
-            entry.Tree = parentTree;
+        //    entry.GenericParent = parent;
+        //    entry.ElementIndex = elementIndex;
+        //    entry.PreRead();
 
-            if (reader.NodeType != XmlNodeType.Element)
-            {
-                Engine.PrintLine("Encountered an unexpected node: {0}", reader.Name);
-                reader.Skip();
-                entry.PostRead();
-                return entry;
-            }
+        //    string parentElementName = reader.Name;
+        //    if (string.IsNullOrEmpty(parentElementName))
+        //        throw new Exception();
+        //    parentTree += parentElementName + "/";
+        //    entry.Tree = parentTree;
 
-            if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
-            {
-                Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
-                reader.Skip();
-                entry.PostRead();
-                return entry;
-            }
+        //    if (reader.NodeType != XmlNodeType.Element)
+        //    {
+        //        Engine.PrintLine("Encountered an unexpected node: {0}", reader.Name);
+        //        reader.Skip();
+        //        entry.PostRead();
+        //        return entry;
+        //    }
 
-            if (!parseExtraElements && entry is Extra)
-            {
-                reader.Skip();
-                entry.PostRead();
-                return entry;
-            }
+        //    if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
+        //    {
+        //        Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
+        //        reader.Skip();
+        //        entry.PostRead();
+        //        return entry;
+        //    }
 
-            #region Read attributes
-            MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (reader.HasAttributes)
-                while (reader.MoveToNextAttribute())
-                {
-                    string name = reader.Name;
-                    string value = reader.Value;
-                    MemberInfo info = members.FirstOrDefault(x =>
-                    {
-                        var a = x.GetCustomAttribute<Attr>();
-                        return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
-                    });
+        //    if (!parseExtraElements && entry is Extra)
+        //    {
+        //        reader.Skip();
+        //        entry.PostRead();
+        //        return entry;
+        //    }
 
-                    if (info == null)
-                        Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
-                    else if (info is FieldInfo field)
-                        field.SetValue(entry, value.ParseAs(field.FieldType));
-                    else if (info is PropertyInfo property)
-                        property.SetValue(entry, value.ParseAs(property.PropertyType));
-                }
-            #endregion
+        //    #region Read attributes
+        //    MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        //    if (reader.HasAttributes)
+        //        while (reader.MoveToNextAttribute())
+        //        {
+        //            string name = reader.Name;
+        //            string value = reader.Value;
+        //            MemberInfo info = members.FirstOrDefault(x =>
+        //            {
+        //                var a = x.GetCustomAttribute<Attr>();
+        //                return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
+        //            });
 
-            if (entry is IVersion v)
-                version = v.Version;
-            
-            if (entry is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
-                entry.Root.IDEntries.Add(IDEntry.ID, IDEntry);
+        //            if (info == null)
+        //                Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
+        //            else if (info is FieldInfo field)
+        //                field.SetValue(entry, value.ParseAs(field.FieldType));
+        //            else if (info is PropertyInfo property)
+        //                property.SetValue(entry, value.ParseAs(property.PropertyType));
+        //        }
+        //    #endregion
 
-            if (entry is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
-            {
-                IElement p = SIDEntry.GenericParent;
-                while (true)
-                {
-                    if (p is ISIDAncestor ancestor)
-                    {
-                        ancestor.SIDChildren.Add(SIDEntry);
-                        break;
-                    }
-                    else if (p.GenericParent != null)
-                        p = p.GenericParent;
-                    else
-                        break;
-                }
-            }
+        //    if (entry is IVersion v)
+        //        version = v.Version;
 
-            #region Read child elements
+        //    if (entry is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
+        //        entry.Root.IDEntries.Add(IDEntry.ID, IDEntry);
 
-            reader.MoveToElement();
-            if (entry is IStringElement StringEntry)
-            {
-                StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
-                StringEntry.GenericStringContent.ReadFromString(reader.ReadElementContentAsString());
-            }
-            else
-            {
-                ChildInfo[] childElements = elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
-                MultiChildInfo[] multiChildElements = elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
+        //    if (entry is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
+        //    {
+        //        IElement p = SIDEntry.GenericParent;
+        //        while (true)
+        //        {
+        //            if (p is ISIDAncestor ancestor)
+        //            {
+        //                ancestor.SIDChildren.Add(SIDEntry);
+        //                break;
+        //            }
+        //            else if (p.GenericParent != null)
+        //                p = p.GenericParent;
+        //            else
+        //                break;
+        //        }
+        //    }
 
-                if (reader.IsEmptyElement)
-                    reader.Read();
-                else
-                {
-                    reader.ReadStartElement();
-                    int childIndex = 0;
+        //    #region Read child elements
 
-                    //Read all child elements
-                    while (reader.NodeType != XmlNodeType.EndElement)
-                    {
-                        if (reader.NodeType != XmlNodeType.Element)
-                        {
-                            reader.Skip();
-                            continue;
-                        }
+        //    reader.MoveToElement();
+        //    if (entry is IStringElement StringEntry)
+        //    {
+        //        StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
+        //        StringEntry.GenericStringContent.ReadFromString(reader.ReadElementContentAsString());
+        //    }
+        //    else
+        //    {
+        //        ChildInfo[] childElements = elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
+        //        MultiChildInfo[] multiChildElements = elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
 
-                        string elementName = reader.Name;
-                        if (string.IsNullOrEmpty(elementName))
-                            throw new Exception();
+        //        if (reader.IsEmptyElement)
+        //            reader.Read();
+        //        else
+        //        {
+        //            reader.ReadStartElement();
+        //            int childIndex = 0;
 
-                        bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
-                            Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
+        //            //Read all child elements
+        //            while (reader.NodeType != XmlNodeType.EndElement)
+        //            {
+        //                if (reader.NodeType != XmlNodeType.Element)
+        //                {
+        //                    reader.Skip();
+        //                    continue;
+        //                }
 
-                        if (isUnsupported)
-                        {
-                            if (string.IsNullOrEmpty(elementName))
-                                throw new Exception();
-                            Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                            reader.Skip();
-                        }
-                        else
-                        {
-                            int typeIndex = -1;
-                            foreach (ChildInfo child in childElements)
-                            {
-                                typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
-                                if (typeIndex >= 0)
-                                {
-                                    if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
-                                        Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
+        //                string elementName = reader.Name;
+        //                if (string.IsNullOrEmpty(elementName))
+        //                    throw new Exception();
 
-                                    ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
-                                    break;
-                                }
-                            }
-                            if (typeIndex < 0)
-                            {
-                                MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
-                                {
-                                    for (int i = 0; i < c.Data.Types.Length; ++i)
-                                    {
-                                        Name name = c.ElementNames[i];
-                                        if (name.Matches(elementName, version))
-                                        {
-                                            ++c.Occurrences[i];
-                                            ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                });
+        //                bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
+        //                    Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
 
-                                if (info == null)
-                                {
-                                    Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                                    reader.Skip();
-                                }
-                            }
-                        }
+        //                if (isUnsupported)
+        //                {
+        //                    if (string.IsNullOrEmpty(elementName))
+        //                        throw new Exception();
+        //                    Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+        //                    reader.Skip();
+        //                }
+        //                else
+        //                {
+        //                    int typeIndex = -1;
+        //                    foreach (ChildInfo child in childElements)
+        //                    {
+        //                        typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
+        //                        if (typeIndex >= 0)
+        //                        {
+        //                            if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
+        //                                Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
-                        ++childIndex;
-                    }
+        //                            ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
+        //                            break;
+        //                        }
+        //                    }
+        //                    if (typeIndex < 0)
+        //                    {
+        //                        MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
+        //                        {
+        //                            for (int i = 0; i < c.Data.Types.Length; ++i)
+        //                            {
+        //                                Name name = c.ElementNames[i];
+        //                                if (name.Matches(elementName, version))
+        //                                {
+        //                                    ++c.Occurrences[i];
+        //                                    ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
+        //                                    return true;
+        //                                }
+        //                            }
+        //                            return false;
+        //                        });
 
-                    if (reader.Name == parentElementName)
-                        reader.ReadEndElement();
-                    else
-                        throw new Exception("Encountered an unexpected node: " + reader.Name);
-                }
+        //                        if (info == null)
+        //                        {
+        //                            Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+        //                            reader.Skip();
+        //                        }
+        //                    }
+        //                }
 
-                Name[] underCounted = childElements.
-                    Where(x => x.Occurrences < x.Data.MinCount).
-                    SelectMany(x => x.ElementNames).
-                    Where(x => x.VersionMatches(version)).ToArray();
-                if (underCounted.Length > 0)
-                    foreach (Name c in underCounted)
-                        Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
-            }
+        //                ++childIndex;
+        //            }
 
-            #endregion
+        //            if (reader.Name == parentElementName)
+        //                reader.ReadEndElement();
+        //            else
+        //                throw new Exception("Encountered an unexpected node: " + reader.Name);
+        //        }
 
-            entry.PostRead();
+        //        Name[] underCounted = childElements.
+        //            Where(x => x.Occurrences < x.Data.MinCount).
+        //            SelectMany(x => x.ElementNames).
+        //            Where(x => x.VersionMatches(version)).ToArray();
+        //        if (underCounted.Length > 0)
+        //            foreach (Name c in underCounted)
+        //                Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
+        //    }
 
-            TimeSpan elapsed = DateTime.Now - startTime;
-            if (elapsed.TotalSeconds > 1.0f)
-                if (entry is IID id && !string.IsNullOrEmpty(id.ID))
-                    Engine.PrintLine("Parsing {0}{2} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString(), id.ID);
-                else
-                    Engine.PrintLine("Parsing {0} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString());
+        //    #endregion
 
-            return entry;
-        }
+        //    entry.PostRead();
+
+        //    TimeSpan elapsed = DateTime.Now - startTime;
+        //    if (elapsed.TotalSeconds > 1.0f)
+        //        if (entry is IID id && !string.IsNullOrEmpty(id.ID))
+        //            Engine.PrintLine("Parsing {0}{2} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString(), id.ID);
+        //        else
+        //            Engine.PrintLine("Parsing {0} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString());
+
+        //    return entry;
+        //}
         private static Type[] FindPublicTypes(Predicate<Type> match)
         {
             return
@@ -497,7 +678,6 @@ namespace TheraEngine.Core.Files
     /// <typeparam name="T">The type of the parent element.</typeparam>
     public abstract class BaseElement<T> : IElement where T : class, IElement
     {
-        internal XMLReader _subTree;
         public int ElementIndex { get; set; } = -1;
         public string Tree { get; set; }
         public string ElementName

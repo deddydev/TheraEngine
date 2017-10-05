@@ -9,39 +9,48 @@ namespace System.IO
 
         internal byte* _base, _ptr, _ceil;
         private int _length, _position;
-        //private byte[] _buffer = new byte[512];
         internal bool _inTag;
-        //private string _nameBuffer = new string(' ', _nameMax);
-        //private string _valueBuffer = new string(' ', _valueMax);
 
-        private DataSource _stringBuffer;// = new UnsafeBuffer(_nameMax + _valueMax);
+        private DataSource _stringBuffer;
         private byte* _namePtr, _valPtr;
 
-        public PString Name => _namePtr; 
+        public PString Name => _namePtr;
         public PString Value => _valPtr;
 
-        public XMLReader(void* pSource, int length)
+        public XMLReader()
+        {
+            _stringBuffer = new DataSource(_nameMax + _valueMax + 2);
+            _namePtr = (byte*)_stringBuffer.Address;
+            _valPtr = _namePtr + _nameMax + 1;
+        }
+        public XMLReader(void* pSource, int length, bool needsOpenDocument) : this()
+        {
+            SetMemoryAddress(pSource, length, needsOpenDocument);
+        }
+
+        public void SetMemoryAddress(DataSource source, bool needsOpenDocument) => SetMemoryAddress(source.Address, source.Length, needsOpenDocument);
+        public void SetMemoryAddress(VoidPtr pSource, int length, bool needsOpenDocument)
         {
             _position = 0;
             _length = length;
             _base = _ptr = (byte*)pSource;
             _ceil = _ptr + length;
 
-            _stringBuffer = new DataSource(_nameMax + _valueMax + 2);
-            _namePtr = (byte*)_stringBuffer.Address;
-            _valPtr = _namePtr + _nameMax + 1;
-
-            //Find start of Xml file
-            if (BeginElement() && Name.Equals("?xml"))
+            //Find start of XML
+            if (needsOpenDocument)
             {
-                while ((_ptr < _ceil) && (*_ptr++ != '>'));
-
-                _inTag = false;
+                if (BeginElement() && Name.Equals("?xml"))
+                {
+                    while ((_ptr < _ceil) && (*_ptr++ != '>')) ;
+                    _inTag = false;
+                }
+                else
+                    throw new IOException("File is not a valid XML document.");
             }
-            else
-                throw new IOException("File is not a valid XML file.");
-
+            else if (!BeginElement())
+                throw new IOException("Data is not a valid XML snippet.");
         }
+
         ~XMLReader() { Dispose(); }
         public void Dispose()
         {
@@ -129,37 +138,24 @@ namespace System.IO
 
             return len > 0;
         }
-
+        
         private void SkipWhitespace()
         {
             while ((_ptr < _ceil) && (*_ptr <= 0x20))
                 _ptr++;
         }
 
-        //Read next non-whitespace byte. Returns 0 on EOF
+        //Read next non-whitespace byte. Returns -1 on EOF
         private int ReadByte()
         {
             byte b;
             if (_position < _length)
             {
-                b = _base[_position++];
+                b = *(_base + _position++);
                 if (b >= 0x20)
                     return b;
             }
             return -1;
-
-            //byte b;
-            //while (_position < _length)
-            //{
-            //    b = _base[_position];
-            //    if ((b == 0x3C) || (b == 0x3E))
-            //        return false;
-
-            //    *p = b;
-            //    _position++;
-            //    return true;
-            //}
-            //return false;
         }
 
         //Stops on tag end when inside tag.
@@ -220,33 +216,6 @@ namespace System.IO
                     else if (b == '>')
                         _inTag = false;
                 }
-
-                //if ((*_ptr == '/') && _inTag)
-                //    return false;
-
-                //b = *_ptr++;
-
-                //if (b == '"')
-                //{
-                //    if (_inTag)
-                //        literal = true;
-                //}
-                //else if (b == '<')
-                //{
-                //    _inTag = true;
-                //    if (ReadString(_namePtr, _nameMax)) //Will fail on delimiter
-                //    {
-                //        if ((_namePtr[0] == '!') && (_namePtr[1] == '-') && (_namePtr[2] == '-'))
-                //            comment = true;
-                //        else
-                //            return true;
-                //    }
-                //}
-                //else if (b == '>')
-                //{
-                //    _inTag = false;
-                //    goto Top;
-                //}
             }
 
             return false;
@@ -286,6 +255,10 @@ namespace System.IO
 
             return false;
         }
+        /// <summary>
+        /// Returns true if there is content to be read within this element.
+        /// Returns false if the element is empty/self-closed.
+        /// </summary>
         private unsafe bool LeaveTag()
         {
             if (!_inTag)
@@ -313,7 +286,7 @@ namespace System.IO
 
             if (ReadString(_valPtr, _valueMax))
             {
-                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
+                if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
                     *pOut = f;
                     return true;
@@ -416,12 +389,22 @@ namespace System.IO
             if (!LeaveTag())
                 return null;
 
-            int len = 0;
-            while ((len < _valueMax) && (_ptr < _ceil) && (*_ptr != '<'))
-                _valPtr[len++] = *_ptr++;
+            byte* start = _ptr;
+            while (*_ptr != '<' && _ptr < _ceil) ++_ptr;
+            int length = (int)_ptr - (int)start;
+            return new string((sbyte*)start, 0, length, Text.Encoding.UTF8);
 
-            _valPtr[len] = 0;
-            return new string((sbyte*)_valPtr);
+            //string output = "";
+            //int len = 0;
+            //while (*_ptr != '<')
+            //{
+            //    while (len < _valueMax && _ptr < _ceil && *_ptr != '<')
+            //        _valPtr[len++] = *_ptr++;
+            //    _valPtr[len] = 0;
+            //    output += new string((sbyte*)_valPtr);
+            //}
+
+            //return output;
         }
     }
 }

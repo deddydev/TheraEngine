@@ -34,104 +34,107 @@ namespace TheraEngine.Rendering.Models
             Engine.PrintLine("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
 
             Data data = new Data();
-
-            var root = new XMLSchemeReader<COLLADA>().Import(filePath, false);
-            if (root != null)
+            using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read))
+            using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
             {
-                Matrix4 baseTransform = options.InitialTransform.Matrix;
-                var asset = root.AssetElement;
-                if (asset != null)
+                var schemeReader = new XMLSchemeReader<COLLADA>();
+                var root = schemeReader.Import(reader, false);
+                if (root != null)
                 {
-                    var unit = asset.UnitElement;
-                    var coord = asset.UpAxisElement;
-                    
-                    Engine.PrintLine("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
-                    Engine.PrintLine("Up axis: " + coord.StringContent.Value.ToString());
+                    Matrix4 baseTransform = options.InitialTransform.Matrix;
+                    var asset = root.AssetElement;
+                    if (asset != null)
+                    {
+                        var unit = asset.UnitElement;
+                        var coord = asset.UpAxisElement;
 
-                    baseTransform = baseTransform * Matrix4.CreateScale(unit.Meter);
-                    switch (coord.StringContent.Value)
-                    {
-                        case Asset.EUpAxis.X_UP:
-                            baseTransform = Matrix4.XupToYup * baseTransform;
-                            break;
-                        case Asset.EUpAxis.Y_UP:
-                            break;
-                        case Asset.EUpAxis.Z_UP:
-                            baseTransform = Matrix4.ZupToYup * baseTransform;
-                            break;
-                    }
-                }
-                Scene scene = root.GetChild<Scene>();
-                if (scene != null)
-                {
-                    data.Models = new List<ModelScene>();
-                    var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
-                    foreach (var visualSceneRef in visualScenes)
-                    {
-                        var visualScene = visualSceneRef.GetUrlInstance();
-                        if (visualScene != null)
+                        Engine.PrintLine("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
+                        Engine.PrintLine("Up axis: " + coord.StringContent.Value.ToString());
+
+                        baseTransform = baseTransform * Matrix4.CreateScale(unit.Meter);
+                        switch (coord.StringContent.Value)
                         {
-                            if (options.ImportModels)
+                            case Asset.EUpAxis.X_UP:
+                                baseTransform = Matrix4.XupToYup * baseTransform;
+                                break;
+                            case Asset.EUpAxis.Y_UP:
+                                break;
+                            case Asset.EUpAxis.Z_UP:
+                                baseTransform = Matrix4.ZupToYup * baseTransform;
+                                break;
+                        }
+                    }
+                    Scene scene = root.GetChild<Scene>();
+                    if (scene != null)
+                    {
+                        data.Models = new List<ModelScene>();
+                        var visualScenes = scene.GetChildren<Scene.InstanceVisualScene>();
+                        foreach (var visualSceneRef in visualScenes)
+                        {
+                            var visualScene = visualSceneRef.GetUrlInstance();
+                            if (visualScene != null)
                             {
-                                ModelScene modelScene = new ModelScene();
-                                var nodes = visualScene.NodeElements;
-
-                                //Collect information for objects and root bones
-                                List<Bone> rootBones = new List<Bone>();
-                                List<ObjectInfo> objects = new List<ObjectInfo>();
-                                List<Camera> cameras = new List<Camera>();
-                                List<LightComponent> lights = new List<LightComponent>();
-                                foreach (var node in nodes)
+                                if (options.ImportModels)
                                 {
-                                    Bone b = EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform, lights, cameras);
-                                    if (b != null)
-                                        rootBones.Add(b);
+                                    ModelScene modelScene = new ModelScene();
+                                    var nodes = visualScene.NodeElements;
+
+                                    //Collect information for objects and root bones
+                                    List<Bone> rootBones = new List<Bone>();
+                                    List<ObjectInfo> objects = new List<ObjectInfo>();
+                                    List<Camera> cameras = new List<Camera>();
+                                    List<LightComponent> lights = new List<LightComponent>();
+                                    foreach (var node in nodes)
+                                    {
+                                        Bone b = EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform, lights, cameras);
+                                        if (b != null)
+                                            rootBones.Add(b);
+                                    }
+
+                                    //Create meshes after all bones have been created
+                                    if (rootBones.Count == 0)
+                                    {
+                                        modelScene.StaticModel = new StaticMesh()
+                                        {
+                                            Name = Path.GetFileNameWithoutExtension(filePath)
+                                        };
+                                        modelScene.SkeletalModel = null;
+                                        modelScene.Skeleton = null;
+                                        foreach (ObjectInfo obj in objects)
+                                            if (!obj.UsesController)
+                                                obj.Initialize(modelScene.StaticModel, visualScene);
+                                    }
+                                    else
+                                    {
+                                        modelScene.SkeletalModel = new SkeletalMesh()
+                                        {
+                                            Name = Path.GetFileNameWithoutExtension(filePath)
+                                        };
+                                        modelScene.StaticModel = null;
+                                        modelScene.Skeleton = new Skeleton(rootBones.ToArray());
+                                        foreach (ObjectInfo obj in objects)
+                                            if (obj.UsesController)
+                                                obj.Initialize(modelScene.SkeletalModel, visualScene);
+                                    }
+                                    data.Models.Add(modelScene);
                                 }
-
-                                //Create meshes after all bones have been created
-                                if (rootBones.Count == 0)
+                                if (options.ImportAnimations)
                                 {
-                                    modelScene.StaticModel = new StaticMesh()
+                                    ModelAnimation anim = new ModelAnimation()
                                     {
                                         Name = Path.GetFileNameWithoutExtension(filePath)
                                     };
-                                    modelScene.SkeletalModel = null;
-                                    modelScene.Skeleton = null;
-                                    foreach (ObjectInfo obj in objects)
-                                        if (!obj.UsesController)
-                                            obj.Initialize(modelScene.StaticModel, visualScene);
+                                    List<BasePropertyAnimation> propAnims = new List<BasePropertyAnimation>();
+                                    foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
+                                        foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
+                                            ParseAnimation(animElem, anim, visualScene, propAnims);
+                                    data.ModelAnimations.Add(anim);
                                 }
-                                else
-                                {
-                                    modelScene.SkeletalModel = new SkeletalMesh()
-                                    {
-                                        Name = Path.GetFileNameWithoutExtension(filePath)
-                                    };
-                                    modelScene.StaticModel = null;
-                                    modelScene.Skeleton = new Skeleton(rootBones.ToArray());
-                                    foreach (ObjectInfo obj in objects)
-                                        if (obj.UsesController)
-                                            obj.Initialize(modelScene.SkeletalModel, visualScene);
-                                }
-                                data.Models.Add(modelScene);
-                            }
-                            if (options.ImportAnimations)
-                            {
-                                ModelAnimation anim = new ModelAnimation()
-                                {
-                                    Name = Path.GetFileNameWithoutExtension(filePath)
-                                };
-                                List<BasePropertyAnimation> propAnims = new List<BasePropertyAnimation>();
-                                foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
-                                    foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
-                                        ParseAnimation(animElem, anim, visualScene, propAnims);
-                                data.ModelAnimations.Add(anim);
                             }
                         }
                     }
                 }
             }
-            
             return data;
         }
 

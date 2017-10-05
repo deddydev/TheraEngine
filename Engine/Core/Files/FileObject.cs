@@ -230,7 +230,7 @@ namespace TheraEngine.Files
             if (GetFileHeader(t).ManualXmlSerialize)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
-                using (XMLReader reader = new XMLReader(map.Address, map.Length))
+                using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                 {
                     obj = SerializationCommon.CreateObject(t) as FileObject;
                     if (obj != null && reader.BeginElement())

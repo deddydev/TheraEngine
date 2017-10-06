@@ -8,7 +8,6 @@ namespace System.IO
         private const int _valueMax = 384;
 
         internal byte* _base, _ptr, _ceil;
-        private int _length, _position;
         internal bool _inTag;
 
         private DataSource _stringBuffer;
@@ -28,11 +27,15 @@ namespace System.IO
             SetMemoryAddress(pSource, length, needsOpenDocument);
         }
 
+        internal void SetStringBuffer(string name, string value)
+        {
+            name.Write(_namePtr);
+            value.Write(_valPtr);
+        }
+
         public void SetMemoryAddress(DataSource source, bool needsOpenDocument) => SetMemoryAddress(source.Address, source.Length, needsOpenDocument);
         public void SetMemoryAddress(VoidPtr pSource, int length, bool needsOpenDocument)
         {
-            _position = 0;
-            _length = length;
             _base = _ptr = (byte*)pSource;
             _ceil = _ptr + length;
 
@@ -141,23 +144,10 @@ namespace System.IO
         
         private void SkipWhitespace()
         {
-            while ((_ptr < _ceil) && (*_ptr <= 0x20))
+            while (_ptr < _ceil && *_ptr <= 0x20)
                 _ptr++;
         }
-
-        //Read next non-whitespace byte. Returns -1 on EOF
-        private int ReadByte()
-        {
-            byte b;
-            if (_position < _length)
-            {
-                b = *(_base + _position++);
-                if (b >= 0x20)
-                    return b;
-            }
-            return -1;
-        }
-
+        
         //Stops on tag end when inside tag.
         //Ignores comments
         //Exits current tag before searching

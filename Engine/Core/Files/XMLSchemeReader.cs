@@ -10,54 +10,72 @@ using static TheraEngine.Rendering.Models.Collada;
 
 namespace TheraEngine.Core.Files
 {
-    public class XMLSchemeReader<T> where T : class, IElement
+    public delegate IElement ParseElement(
+    Type elementType,
+    IElement parent,
+    XMLReader reader,
+    string version,
+    bool parseExtraElements,
+    string parentTree,
+    int elementIndex);
+    public class BaseXMLSchemeReader
     {
-        public T Root { get; set; }
-
-        public XMLSchemeReader() { }
-
-        //public unsafe T Import(XMLReader reader, bool parseExtraElements)
-        //{
-        //    //XmlReaderSettings settings = new XmlReaderSettings()
-        //    //{
-        //    //    ConformanceLevel = ConformanceLevel.Auto,
-        //    //    DtdProcessing = DtdProcessing.Ignore,
-        //    //    CheckCharacters = false,
-        //    //    IgnoreWhitespace = true,
-        //    //    IgnoreComments = true,
-        //    //    CloseInput = true,
-        //    //};
-        //    //using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
-        //    //    return Import(r, parseExtraElements);
-
-        //    return Import(reader, parseExtraElements);
-        //}
-        public T Import(XMLReader reader, bool parseExtraElements)
+        private static Type[] FindPublicTypes(Predicate<Type> match)
         {
-            string previousTree = "";
-            Type t = typeof(T);
-            Name name = t.GetCustomAttribute<Name>();
-            if (name == null || string.IsNullOrEmpty(name.ElementName))
-            {
-                Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
-                return Root = null;
-            }
-
-            while (reader.BeginElement())
-            {
-                if (reader.Name.Equals(name.ElementName, true))
-                    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
-                reader.EndElement();
-            }
-
-            //bool found;
-            //while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
-            //if (found)
-            //    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
-
-            return Root;
+            return
+                (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+                 from assemblyType in domainAssembly.GetExportedTypes()
+                 where match(assemblyType) && !assemblyType.IsAbstract
+                 select assemblyType).ToArray();
         }
-        private IElement ParseElement(
+        private class ChildInfo
+        {
+            public ChildInfo(Child data)
+            {
+                Data = data;
+                Occurrences = 0;
+                Types = FindPublicTypes((Type t) => Data.ChildEntryType.IsAssignableFrom(t) && t.GetCustomAttribute<Name>() != null);
+                ElementNames = new Name[Types.Length];
+                for (int i = 0; i < Types.Length; ++i)
+                {
+                    Type t = Types[i];
+                    Name nameAttrib = t.GetCustomAttribute<Name>();
+                    ElementNames[i] = nameAttrib;
+                    if (nameAttrib == null)
+                        Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no 'Name' attribute");
+                }
+            }
+
+            public Type[] Types { get; private set; }
+            public Name[] ElementNames { get; private set; }
+            public Child Data { get; private set; }
+            public int Occurrences { get; set; }
+
+            public override string ToString()
+            {
+                return string.Join(" ", ElementNames.Select(x => x.ElementName)) + " " + Occurrences;
+            }
+        }
+        private class MultiChildInfo
+        {
+            public MultiChildInfo(MultiChild data)
+            {
+                Data = data;
+                Occurrences = new int[Data.Types.Length];
+                for (int i = 0; i < Occurrences.Length; ++i)
+                    Occurrences[i] = 0;
+                ElementNames = Data.Types.Select(x => x.GetCustomAttribute<Name>()).ToArray();
+            }
+            public MultiChild Data { get; private set; }
+            public int[] Occurrences { get; private set; }
+            public Name[] ElementNames { get; private set; }
+
+            public override string ToString()
+            {
+                return string.Join(" ", ElementNames.Select(x => x.ElementName)) + " " + string.Join(" ", Occurrences);
+            }
+        }
+        public static IElement ParseElement(
             Type elementType,
             IElement parent,
             XMLReader reader,
@@ -147,7 +165,7 @@ namespace TheraEngine.Core.Files
             }
 
             #region Read child elements
-            
+
             if (entry is IStringElement StringEntry)
             {
                 StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
@@ -188,6 +206,7 @@ namespace TheraEngine.Core.Files
                                 if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
                                     Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
+                                //entry.QueueChildElement(child.Types[typeIndex], reader, version, parseExtraElements, parentTree, childIndex, reader.Name, reader.Value);
                                 ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
                                 break;
                             }
@@ -202,6 +221,7 @@ namespace TheraEngine.Core.Files
                                     if (name.Matches(elementName, version))
                                     {
                                         ++c.Occurrences[i];
+                                        //entry.QueueChildElement(c.Data.Types[i], reader, version, parseExtraElements, parentTree, childIndex, reader.Name, reader.Value);
                                         ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
                                         return true;
                                     }
@@ -219,7 +239,7 @@ namespace TheraEngine.Core.Files
 
                     ++childIndex;
                 }
-                
+
                 Name[] underCounted = childElements.
                     Where(x => x.Occurrences < x.Data.MinCount).
                     SelectMany(x => x.ElementNames).
@@ -242,6 +262,56 @@ namespace TheraEngine.Core.Files
 
             return entry;
         }
+    }
+    public class XMLSchemeReader<T> : BaseXMLSchemeReader where T : class, IElement
+    {
+        public XMLSchemeReader()
+        {
+
+        }
+
+        //public unsafe T Import(XMLReader reader, bool parseExtraElements)
+        //{
+        //    //XmlReaderSettings settings = new XmlReaderSettings()
+        //    //{
+        //    //    ConformanceLevel = ConformanceLevel.Auto,
+        //    //    DtdProcessing = DtdProcessing.Ignore,
+        //    //    CheckCharacters = false,
+        //    //    IgnoreWhitespace = true,
+        //    //    IgnoreComments = true,
+        //    //    CloseInput = true,
+        //    //};
+        //    //using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
+        //    //    return Import(r, parseExtraElements);
+
+        //    return Import(reader, parseExtraElements);
+        //}
+        public T Import(XMLReader reader, bool parseExtraElements)
+        {
+            string previousTree = "";
+            Type t = typeof(T);
+            Name name = t.GetCustomAttribute<Name>();
+            if (name == null || string.IsNullOrEmpty(name.ElementName))
+            {
+                Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
+                return null;
+            }
+
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals(name.ElementName, true))
+                    return ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
+                reader.EndElement();
+            }
+
+            //bool found;
+            //while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
+            //if (found)
+            //    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
+
+            return null;
+        }
+        
         //public T Import(string path, bool parseExtraElements, XmlReaderSettings settings)
         //{
         //    using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
@@ -470,61 +540,6 @@ namespace TheraEngine.Core.Files
 
         //    return entry;
         //}
-        private static Type[] FindPublicTypes(Predicate<Type> match)
-        {
-            return
-                (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-                    from assemblyType in domainAssembly.GetExportedTypes()
-                    where match(assemblyType) && !assemblyType.IsAbstract
-                    select assemblyType).ToArray();
-        }
-        private class ChildInfo
-        {
-            public ChildInfo(Child data)
-            {
-                Data = data;
-                Occurrences = 0;
-                Types = FindPublicTypes((Type t) => Data.ChildEntryType.IsAssignableFrom(t) && t.GetCustomAttribute<Name>() != null);
-                ElementNames = new Name[Types.Length];
-                for (int i = 0; i < Types.Length; ++i)
-                {
-                    Type t = Types[i];
-                    Name nameAttrib = t.GetCustomAttribute<Name>();
-                    ElementNames[i] = nameAttrib;
-                    if (nameAttrib == null)
-                        Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no 'Name' attribute");
-                }
-            }
-
-            public Type[] Types { get; private set; }
-            public Name[] ElementNames { get; private set; }
-            public Child Data { get; private set; }
-            public int Occurrences { get; set; }
-
-            public override string ToString()
-            {
-                return string.Join(" ", ElementNames.Select(x => x.ElementName)) + " " + Occurrences;
-            }
-        }
-        private class MultiChildInfo
-        {
-            public MultiChildInfo(MultiChild data)
-            {
-                Data = data;
-                Occurrences = new int[Data.Types.Length];
-                for (int i = 0; i < Occurrences.Length; ++i)
-                    Occurrences[i] = 0;
-                ElementNames = Data.Types.Select(x => x.GetCustomAttribute<Name>()).ToArray();
-            }
-            public MultiChild Data { get; private set; }
-            public int[] Occurrences { get; private set; }
-            public Name[] ElementNames { get; private set; }
-
-            public override string ToString()
-            {
-                return string.Join(" ", ElementNames.Select(x => x.ElementName)) + " " + string.Join(" ", Occurrences);
-            }
-        }
     }
 
     #region Attributes
@@ -665,6 +680,7 @@ namespace TheraEngine.Core.Files
         T2[] GetChildren<T2>() where T2 : IElement;
         void PreRead();
         void PostRead();
+        void QueueChildElement(Type type, XMLReader reader, string version, bool parseExtraElements, string parentTree, int childIndex, string name, string value);
         object UserData { get; set; }
         IElement GenericParent { get; set; }
         COLLADA Root { get; }
@@ -726,19 +742,41 @@ namespace TheraEngine.Core.Files
                 return array[0];
             return default(T2);
         }
-        public T2[] GetChildren<T2>() where T2 : IElement
+        public unsafe T2[] GetChildren<T2>() where T2 : IElement
         {
-            Type t = typeof(T2);
             List<T2> elems = new List<T2>();
+            Type t = typeof(T2);
             while (t != null)
             {
-                var matching = ChildElements.Keys.Where(x => t.IsAssignableFrom(x));
-                foreach (var match in matching)
+                if (t == typeof(object) || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(BaseElement<>)))
+                    break;
+
+                var matchingParsed = ChildElements.Keys.Where(x => t.IsAssignableFrom(x)).ToArray();
+                var matchingUnparsed = _initData.Keys.Where(x => t.IsAssignableFrom(x)).ToArray();
+                foreach (var match in matchingParsed)
                 {
                     var matchElems = ChildElements[match].Where(x => x is T2).Select(x => (T2)x);
                     foreach (var m in matchElems)
                         if (!elems.Contains(m))
                             elems.Add(m);
+                }
+                foreach (var match in matchingUnparsed)
+                {
+                    if (!ChildElements.ContainsKey(match))
+                        ChildElements.Add(match, new List<IElement>());
+                    var matchElems = _initData[match];
+                    if (_initData.ContainsKey(match))
+                        _initData.Remove(match);
+                    foreach (InitData d in matchElems)
+                    {
+                        d.reader._ptr = d._ptr;
+                        d.reader._inTag = d._inTag;
+                        d.reader.SetStringBuffer(d._name, d._value);
+                        T2 m = (T2)BaseXMLSchemeReader.ParseElement(match, this, d.reader, d.version, d.parseExtraElements, d.parentTree, d.childIndex);
+                        ChildElements[match].Add(m);
+                        if (!elems.Contains(m))
+                            elems.Add(m);
+                    }
                 }
                 t = t.BaseType;
             }
@@ -749,6 +787,41 @@ namespace TheraEngine.Core.Files
 
         public virtual void PreRead() { }
         public virtual void PostRead() { }
+
+        private unsafe struct InitData
+        {
+            public string _name, _value;
+            public byte* _ptr;
+            public bool _inTag;
+            public string version;
+            public bool parseExtraElements;
+            public string parentTree;
+            public int childIndex;
+            public XMLReader reader;
+
+            public InitData(XMLReader reader, string version, bool parseExtraElements, string parentTree, int childIndex, string name, string value)
+            {
+                _name = name;
+                _value = value;
+                this.reader = reader;
+                _ptr = reader._ptr;
+                _inTag = reader._inTag;
+                this.version = version;
+                this.parseExtraElements = parseExtraElements;
+                this.parentTree = parentTree;
+                this.childIndex = childIndex;
+            }
+        }
+        
+        private Dictionary<Type, List<InitData>> _initData = new Dictionary<Type, List<InitData>>();
+        public unsafe void QueueChildElement(Type type, XMLReader reader, string version, bool parseExtraElements, string parentTree, int childIndex, string name, string value)
+        {
+            InitData d = new InitData(reader, version, parseExtraElements, parentTree, childIndex, name, value);
+            if (_initData.ContainsKey(type))
+                _initData[type].Add(d);
+            else
+                _initData.Add(type, new List<InitData>() { d });
+        }
 
         public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
         public Type ParentType => typeof(T);

@@ -369,7 +369,7 @@ namespace TheraEngine.Rendering.Models
             }
             else
             {
-                _cpuSkinInfo.UpdatePNBT(_modifiedVertexIndices);
+                _cpuSkinInfo?.UpdatePNBT(_modifiedVertexIndices);
                 _modifiedVertexIndices.Clear();
             }
             _processingSkinning = false;

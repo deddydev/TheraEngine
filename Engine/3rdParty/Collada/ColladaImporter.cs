@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TheraEngine.Animation;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;
@@ -34,11 +35,11 @@ namespace TheraEngine.Rendering.Models
             Engine.PrintLine("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
 
             Data data = new Data();
-            using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read))
-            using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
+            //using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read))
+            //using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
             {
                 var schemeReader = new XMLSchemeReader<COLLADA>();
-                var root = schemeReader.Import(reader, false);
+                var root = schemeReader.Import(filePath, false);
                 if (root != null)
                 {
                     Matrix4 baseTransform = options.InitialTransform.Matrix;

@@ -74,13 +74,23 @@ namespace TheraEngine.Worlds.Actors
         public SingleFileRef<SkeletalMesh> Mesh
         {
             get => _mesh;
-            set => _mesh = value;
+            set
+            {
+                _mesh = value;
+                if (_meshComp != null)
+                    _meshComp.Model = _mesh;
+            }
         }
         [Category("Reference Files")]
         public SingleFileRef<Skeleton> Skeleton
         {
             get => _skeleton;
-            set => _skeleton = value;
+            set
+            {
+                _skeleton = value;
+                if (_meshComp != null)
+                    _meshComp.Skeleton = _skeleton;
+            }
         }
         
         public bool FirstPerson

@@ -176,6 +176,7 @@ namespace TheraEngine.Animation
             if (First == null)
             {
                 First = key;
+                ++KeyCount;
                 OnChanged();
             }
             else if (key.Second < First.Second)
@@ -195,6 +196,7 @@ namespace TheraEngine.Animation
             if (First == Last)
             {
                 First = null;
+                --KeyCount;
                 OnChanged();
             }
             else
@@ -208,6 +210,7 @@ namespace TheraEngine.Animation
             if (First.Next == First)
             {
                 First = null;
+                --KeyCount;
                 OnChanged();
             }
             else

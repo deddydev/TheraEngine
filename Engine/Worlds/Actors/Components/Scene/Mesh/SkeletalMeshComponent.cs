@@ -32,9 +32,17 @@ namespace TheraEngine.Worlds.Actors
                 {
                     _meshes = new RenderableMesh[_model.RigidChildren.Count + _model.SoftChildren.Count];
                     for (int i = 0; i < _model.RigidChildren.Count; ++i)
-                        _meshes[i] = new RenderableMesh(_model.RigidChildren[i], _skeleton, this);
+                    {
+                        RenderableMesh m = new RenderableMesh(_model.RigidChildren[i], _skeleton, this);
+                        m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
+                        _meshes[i] = m;
+                    }
                     for (int i = 0; i < _model.SoftChildren.Count; ++i)
-                        _meshes[_model.RigidChildren.Count + i] = new RenderableMesh(_model.SoftChildren[i], _skeleton, this);
+                    {
+                        RenderableMesh m = new RenderableMesh(_model.SoftChildren[i], _skeleton, this);
+                        m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
+                        _meshes[_model.RigidChildren.Count + i] = m;
+                    }
                 }
             }
         }
@@ -50,7 +58,11 @@ namespace TheraEngine.Worlds.Actors
                     _skeleton.OwningComponent = null;
                 _skeleton = value;
                 if (_skeleton != null)
+                {
                     _skeleton.OwningComponent = this;
+                    if (IsSpawned && Engine.Settings.RenderSkeletons && _skeleton != null)
+                        Engine.Scene.Add(_skeleton);
+                }
                 if (_meshes != null)
                     foreach (RenderableMesh m in _meshes)
                         m.Skeleton = _skeleton;

@@ -20,9 +20,11 @@ namespace TheraEngine.Animation
             get => _defaultValue;
             set => _defaultValue = value;
         }
-        
-        public PropAnimMatrix4(int frameCount, bool looped, bool useKeyframes) 
-            : base(frameCount, looped, useKeyframes) { }
+
+        public PropAnimMatrix4(float lengthInSeconds, bool looped, bool useKeyframes)
+            : base(lengthInSeconds, looped, useKeyframes) { }
+        public PropAnimMatrix4(int frameCount, float FPS, bool looped, bool useKeyframes) 
+            : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
         {
@@ -31,10 +33,14 @@ namespace TheraEngine.Animation
             else
                 _getValue = GetValueBaked;
         }
+        public Matrix4 GetValueBaked(float second)
+            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
+        public Matrix4 GetValueBaked(int frameIndex)
+            => _baked[frameIndex];
         protected override object GetValue(float frame)
             => _getValue(frame);
-        public Matrix4 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
+        public Matrix4 GetValueBaked(float second)
+            => _baked[(int)(second / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
         public Matrix4 GetValueKeyframed(float frameIndex)
             => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
@@ -42,8 +48,10 @@ namespace TheraEngine.Animation
         /// Bakes the interpolated data for fastest access by the game.
         /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
         /// </summary>
-        public override void Bake()
+        public override void Bake(float framesPerSecond)
         {
+            _bakedFPS = framesPerSecond;
+            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
             _baked = new Matrix4[BakedFrameCount];
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);

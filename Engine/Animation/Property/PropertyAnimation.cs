@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Reflection;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Models;
@@ -19,10 +20,10 @@ namespace TheraEngine.Animation
             get => _useKeyframes;
             set { _useKeyframes = value; UseKeyframesChanged(); }
         }
-        public override void SetLength(float seconds, bool stretchAnimation)
+        public override void SetLength(float lengthInSeconds, bool stretchAnimation)
         {
-            InternalKeyframes.SetLength(seconds, stretchAnimation);
-            base.SetLength(seconds, stretchAnimation);
+            InternalKeyframes.SetLength(lengthInSeconds, stretchAnimation);
+            base.SetLength(lengthInSeconds, stretchAnimation);
         }
         public void Tick(object obj, PropertyInfo property, float delta)
         {
@@ -44,17 +45,27 @@ namespace TheraEngine.Animation
         
         [Category("Property Animation")]
         protected abstract BaseKeyframeTrack InternalKeyframes { get; }
-        public abstract void Resize(int newSize);
-        public abstract void Stretch(int newSize);
-        public abstract void Bake();
+        public abstract void Bake(float framesPerSecond);
     }
     public abstract class PropertyAnimation<T> : BasePropertyAnimation where T : Keyframe
     {
+        public delegate T2 GetValue<T2>(float second);
         protected KeyframeTrack<T> _keyframes;
 
-        public PropertyAnimation(int frameCount, bool looped, bool useKeyframes)
+        public PropertyAnimation(float lengthInSeconds, bool looped, bool useKeyframes)
+        {
+            _bakedFrameCount = (int)Math.Ceiling(lengthInSeconds * 60.0f);
+            _bakedFPS = 60.0f;
+            _lengthInSeconds = lengthInSeconds;
+            _keyframes = new KeyframeTrack<T>();
+            Looped = looped;
+            UseKeyframes = useKeyframes;
+        }
+        public PropertyAnimation(int frameCount, float FPS, bool looped, bool useKeyframes)
         {
             _bakedFrameCount = frameCount;
+            _bakedFPS = FPS;
+            _lengthInSeconds = frameCount / FPS;
             _keyframes = new KeyframeTrack<T>();
             Looped = looped;
             UseKeyframes = useKeyframes;
@@ -67,6 +78,7 @@ namespace TheraEngine.Animation
         [Serialize]
         public KeyframeTrack<T> Keyframes => _keyframes;
 
-        public abstract void Append(PropertyAnimation<T> other);
+        public void Append(PropertyAnimation<T> other)
+            => Keyframes.Append(other.Keyframes);
     }
 }

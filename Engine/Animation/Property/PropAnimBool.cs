@@ -5,14 +5,13 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public delegate bool BoolGetValue(float frameIndex);
     public class PropAnimBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
         private bool _defaultValue = false;
-        private BoolGetValue _getValue;
+        private GetValue<bool> _getValue;
 
         [Serialize(Condition = "!UseKeyframes")]
-        private bool[] _baked;
+        private bool[] _baked = null;
 
         [Serialize(Condition = "UseKeyframes")]
         public bool DefaultValue
@@ -21,19 +20,19 @@ namespace TheraEngine.Animation
             set => _defaultValue = value;
         }
 
-        public PropAnimBool(int frameCount, bool looped, bool useKeyframes) 
-            : base(frameCount, looped, useKeyframes) { }
+        public PropAnimBool(float lengthInSeconds, bool looped, bool useKeyframes)
+            : base(lengthInSeconds, looped, useKeyframes) { }
+        public PropAnimBool(int frameCount, float FPS, bool looped, bool useKeyframes) 
+            : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override object GetValue(float frame) { return _getValue(frame); }
         protected override void UseKeyframesChanged()
-        {
-            if (_useKeyframes)
-                _getValue = GetValueKeyframed;
-            else
-                _getValue = GetValueBaked;
-        }
-        public bool GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
+            => _getValue = _useKeyframes ? (GetValue<bool>)GetValueKeyframed : GetValueBaked;
+        protected override object GetValue(float second)
+            => _getValue(second);
+        public bool GetValueBaked(float second)
+            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
+        public bool GetValueBaked(int frameIndex)
+            => _baked[frameIndex];
         public bool GetValueKeyframed(float frameIndex)
         {
             BoolKeyframe key = _keyframes.GetKeyBefore(frameIndex);
@@ -41,39 +40,29 @@ namespace TheraEngine.Animation
                 return key.Value;
             return _defaultValue;
         }
-        public override void Bake()
+        public override void Bake(float framesPerSecond)
         {
+            _bakedFPS = framesPerSecond;
+            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
             _baked = new bool[BakedFrameCount];
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-        public override void Resize(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Stretch(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Append(PropertyAnimation<BoolKeyframe> other)
-        {
-            throw new NotImplementedException();
-        }
-        public IEnumerator<BoolKeyframe> GetEnumerator()
-            => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() 
-            => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
+        public IEnumerator<BoolKeyframe> GetEnumerator() => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
     }
     public class BoolKeyframe : Keyframe
     {
-        protected bool _value;
-
-        [Serialize(IsXmlAttribute = true)]
-        public bool Value
+        public BoolKeyframe(int frameIndex, float FPS, bool value)
+            : this(frameIndex / FPS, value) { }
+        public BoolKeyframe(float second, bool value) : base()
         {
-            get => _value;
-            set => _value = value;
+            Second = second;
+            Value = value;
         }
+        
+        [Serialize(IsXmlAttribute = true)]
+        public bool Value { get; set; }
 
         public new BoolKeyframe Next
         {

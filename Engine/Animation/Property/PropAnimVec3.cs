@@ -20,9 +20,11 @@ namespace TheraEngine.Animation
             get => _defaultValue;
             set => _defaultValue = value;
         }
-        
-        public PropAnimVec3(int frameCount, bool looped, bool useKeyframes) 
-            : base(frameCount, looped, useKeyframes) { }
+
+        public PropAnimVec3(float lengthInSeconds, bool looped, bool useKeyframes)
+            : base(lengthInSeconds, looped, useKeyframes) { }
+        public PropAnimVec3(int frameCount, float FPS, bool looped, bool useKeyframes) 
+            : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
         {
@@ -46,8 +48,10 @@ namespace TheraEngine.Animation
         /// Bakes the interpolated data for fastest access by the game.
         /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
         /// </summary>
-        public override void Bake()
+        public override void Bake(float framesPerSecond)
         {
+            _bakedFPS = framesPerSecond;
+            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
             _baked = new Vec3[BakedFrameCount];
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);

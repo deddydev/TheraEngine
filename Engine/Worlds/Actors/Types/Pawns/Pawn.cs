@@ -107,7 +107,8 @@ namespace TheraEngine.Worlds.Actors
             base.OnDespawned();
         }
 
-        public Pawn(bool deferInitialization = false) : base(deferInitialization) { }
+        public Pawn() : this(false) { }
+        public Pawn(bool deferInitialization) : base(deferInitialization) { }
         public Pawn(bool deferInitialization, PlayerIndex possessor) : base(deferInitialization) { QueuePossession(possessor); }
         public Pawn(T root, params LogicComponent[] logicComponents)
         : base(root, logicComponents) { }

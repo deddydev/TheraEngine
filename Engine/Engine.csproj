@@ -325,6 +325,7 @@
     <Compile Include="Animation\Property\PropAnimVec2.cs" />
     <Compile Include="Animation\Property\PropAnimVec3.cs" />
     <Compile Include="Animation\Property\PropAnimVec4.cs" />
+    <Compile Include="Tests\TestDefaults.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\Animation\AnimStateMachineComponent.cs" />
     <Compile Include="Animation\BaseAnimation.cs" />
     <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
@@ -933,7 +934,6 @@
     <Compile Include="Core\RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
-    <None Include="Core\Files\FileManager.cs" />
     <Compile Include="Core\Tools\ExpressionParser.cs" />
     <Compile Include="Core\Tools\Remapper.cs" />
     <Compile Include="Core\Tools\Triangle Converter\CacheSimulator.cs" />

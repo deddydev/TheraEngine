@@ -24,6 +24,8 @@ namespace TheraEngine.Animation
         protected bool _isPlaying = false;
         protected bool _useKeyframes = true;
 
+        public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
+            => SetLength(numFrames / framesPerSecond, stretchAnimation);
         public virtual void SetLength(float seconds, bool stretchAnimation)
         {
             _lengthInSeconds = seconds;

@@ -21,8 +21,10 @@ namespace TheraEngine.Animation
             set => _defaultValue = value;
         }
 
-        public PropAnimQuat(int frameCount, bool looped, bool useKeyframes) 
-            : base(frameCount, looped, useKeyframes) { }
+        public PropAnimQuat(float lengthInSeconds, bool looped, bool useKeyframes)
+            : base(lengthInSeconds, looped, useKeyframes) { }
+        public PropAnimQuat(int frameCount, float FPS, bool looped, bool useKeyframes) 
+            : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
         {
@@ -42,8 +44,10 @@ namespace TheraEngine.Animation
         /// Bakes the interpolated data for fastest access by the game.
         /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
         /// </summary>
-        public override void Bake()
+        public override void Bake(float framesPerSecond)
         {
+            _bakedFPS = framesPerSecond;
+            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
             _baked = new Quat[BakedFrameCount];
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);

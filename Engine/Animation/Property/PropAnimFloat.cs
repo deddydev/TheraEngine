@@ -5,14 +5,13 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public delegate float FloatGetValue(float frameIndex);
     public class PropAnimFloat : PropertyAnimation<FloatKeyframe>, IEnumerable<FloatKeyframe>
     {
         private float _defaultValue = 0.0f;
-        private FloatGetValue _getValue;
+        private GetValue<float> _getValue;
 
         [Serialize(Condition = "!UseKeyframes")]
-        private float[] _baked;
+        private float[] _baked = null;
 
         [Serialize(Condition = "UseKeyframes")]
         public float DefaultValue
@@ -20,57 +19,48 @@ namespace TheraEngine.Animation
             get => _defaultValue;
             set => _defaultValue = value;
         }
-
-        public PropAnimFloat(int frameCount, bool looped, bool useKeyframes) 
-            : base(frameCount, looped, useKeyframes) { }
+        
+        public PropAnimFloat(float lengthInSeconds, bool looped, bool useKeyframes)
+            : base(lengthInSeconds, looped, useKeyframes) { }
+        public PropAnimFloat(int frameCount, float FPS, bool looped, bool useKeyframes) 
+            : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
-        {
-            if (_useKeyframes)
-                _getValue = GetValueKeyframed;
-            else
-                _getValue = GetValueBaked;
-        }
-        protected override object GetValue(float frame)
-            => _getValue(frame);
-        public float GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
-        public float GetValueKeyframed(float frameIndex)
-            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
+            => _getValue = _useKeyframes ? (GetValue<float>)GetValueKeyframed : GetValueBaked;
+        protected override object GetValue(float second)
+            => _getValue(second);
+        public float GetValueBaked(float second)
+            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
+        public float GetValueBaked(int frameIndex)
+            => _baked[frameIndex];
+        public float GetValueKeyframed(float second)
+            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
 
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.
         /// </summary>
-        public override void Bake()
+        public override void Bake(float framesPerSecond)
         {
-            //float oneOverFPS = 1.0f / _keyframes.FramesPerSecond;
-            //int totalFrames = BakedFrameCount;
-            //_baked = new float[totalFrames];
-            //for (int i = 0; i < totalFrames; ++i)
-            //    _baked[i] = GetValueKeyframed(i * oneOverFPS);
-        }
-        public override void Resize(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Stretch(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Append(PropertyAnimation<FloatKeyframe> other)
-        {
-            throw new NotImplementedException();
+            _bakedFPS = framesPerSecond;
+            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
+            _baked = new float[BakedFrameCount];
+            for (int i = 0; i < BakedFrameCount; ++i)
+                _baked[i] = GetValueKeyframed(i);
         }
         public IEnumerator<FloatKeyframe> GetEnumerator() => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
     }
     public class FloatKeyframe : Keyframe
     {
-        public FloatKeyframe(float frameIndex, float inoutValue, float inoutTangent, PlanarInterpType type)
-            : this(frameIndex, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public FloatKeyframe(float frameIndex, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type) : base()
+        public FloatKeyframe(int frameIndex, float FPS, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type)
+            : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
+        public FloatKeyframe(int frameIndex, float FPS, float inoutValue, float inoutTangent, PlanarInterpType type)
+            : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public FloatKeyframe(float second, float inoutValue, float inoutTangent, PlanarInterpType type)
+            : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public FloatKeyframe(float second, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type) : base()
         {
-            Second = frameIndex;
+            Second = second;
             _inValue = inValue;
             _outValue = outValue;
             _inTangent = inTangent;
@@ -144,24 +134,28 @@ namespace TheraEngine.Animation
                 }
             }
         }
-        public float Interpolate(float frameIndex)
+        public float Interpolate(float desiredSecond)
         {
-            if (frameIndex < Second && _prev.Second > Second)
+            if (desiredSecond < Second)
             {
                 if (_prev == this)
                     return _inValue;
 
-                return Prev.Interpolate(frameIndex);
+                return Prev.Interpolate(desiredSecond);
             }
 
-            if (_next == this)
-                return _outValue;
+            if (desiredSecond > _next.Second)
+            {
+                if (_next == this)
+                    return _outValue;
 
-            if (frameIndex > _next.Second && _next.Second > Second)
-                return Next.Interpolate(frameIndex);
+                return Next.Interpolate(desiredSecond);
+            }
 
-            float t = (frameIndex - Second) / (_next.Second - Second);
-            return _interpolate(this, Next, t);
+            float span = _next.Second - Second;
+            float diff = desiredSecond - Second;
+            float time = diff / span;
+            return _interpolate(this, Next, time);
         }
 
         public static float Step(FloatKeyframe key1, FloatKeyframe key2, float time)

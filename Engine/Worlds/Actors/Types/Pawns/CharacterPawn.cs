@@ -44,18 +44,15 @@ namespace TheraEngine.Worlds.Actors
         public CharacterPawn(PlayerIndex possessor)
             : base(false, possessor) { }
         public CharacterPawn(PlayerIndex possessor, SkeletalMesh mesh, Skeleton skeleton)
-            : base(true, possessor)
+            : base(false, possessor)
         {
-            _skeleton = skeleton;
-            _mesh = mesh;
-            Initialize();
+            _meshComp.Skeleton = skeleton;
+            _meshComp.Model = mesh;
         }
 
         private GameTimer _respawnTimer = new GameTimer();
         protected SkeletalMeshComponent _meshComp;
         protected MovementClass _movement;
-        private SingleFileRef<SkeletalMesh> _mesh;
-        private SingleFileRef<Skeleton> _skeleton;
         protected AnimStateMachineComponent _animationStateMachine;
         protected BoomComponent _tpCameraBoom;
         protected CameraComponent _fpCameraComponent, _tpCameraComponent;
@@ -69,29 +66,6 @@ namespace TheraEngine.Worlds.Actors
         float _gamePadYLookInputMultiplier = 1.0f;
         protected Vec2 _keyboardMovementInput = Vec2.Zero;
         protected Vec2 _gamepadMovementInput = Vec2.Zero;
-
-        [Category("Reference Files")]
-        public SingleFileRef<SkeletalMesh> Mesh
-        {
-            get => _mesh;
-            set
-            {
-                _mesh = value;
-                if (_meshComp != null)
-                    _meshComp.Model = _mesh;
-            }
-        }
-        [Category("Reference Files")]
-        public SingleFileRef<Skeleton> Skeleton
-        {
-            get => _skeleton;
-            set
-            {
-                _skeleton = value;
-                if (_meshComp != null)
-                    _meshComp.Skeleton = _skeleton;
-            }
-        }
         
         public bool FirstPerson
         {
@@ -268,7 +242,7 @@ namespace TheraEngine.Worlds.Actors
             rootCapsule.PhysicsDriver.AngularFactor = Vec3.Zero;
             rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 
-            _meshComp = new SkeletalMeshComponent(_mesh, _skeleton);
+            _meshComp = new SkeletalMeshComponent();
             _meshComp.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
             rootCapsule.ChildComponents.Add(_meshComp);
 

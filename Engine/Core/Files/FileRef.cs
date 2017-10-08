@@ -248,7 +248,9 @@ namespace TheraEngine.Files
                 return FileFormat.XML;
             return FileFormat.Binary;
         }
-        public void GetInstanceAsync() => Task.Run(() => GetInstance());
+        public Task GetInstanceAsync(Action<Task<T>> finishedMethod)
+            => GetInstanceAsync().ContinueWith(task => finishedMethod(task));
+        public async Task<T> GetInstanceAsync() => await Task.Factory.StartNew(() => GetInstance());
         public virtual T GetInstance()
         {
             T file = null;

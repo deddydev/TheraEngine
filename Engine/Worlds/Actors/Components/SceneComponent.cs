@@ -394,7 +394,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (mesh == null || mesh.Skeleton == null)
                 throw new InvalidOperationException("No available mesh or skeleton to attach to.");
-            Bone bone = mesh.Skeleton[socketName];
+            Bone bone = mesh.Skeleton.File[socketName];
             if (bone != null)
                 bone.ChildComponents.Add(this);
             else

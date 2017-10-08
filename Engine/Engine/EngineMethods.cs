@@ -126,7 +126,7 @@ namespace TheraEngine
             SetCurrentWorld(Game.OpeningWorld, true, deferOpeningWorldPlay);
 
             //Preload transition world now
-            Game.TransitionWorld.GetInstanceAsync();
+            Game.TransitionWorld.GetInstance();
             
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;

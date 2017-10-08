@@ -114,10 +114,10 @@ namespace TheraEngine.Tests
                 (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
             //dirLightComp.Translation.Y = 30.0f;
 
-            PropAnimFloat lightAnim = new PropAnimFloat(1000, true, true);
-            FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);
-            FloatKeyframe x2 = new FloatKeyframe(500.0f, 20.0f, 0.0f, PlanarInterpType.CubicHermite);
-            FloatKeyframe last2 = new FloatKeyframe(1000.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);
+            PropAnimFloat lightAnim = new PropAnimFloat(1000, 60.0f, true, true);
+            FloatKeyframe first2 = new FloatKeyframe(0, 60.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);
+            FloatKeyframe x2 = new FloatKeyframe(500, 60.0f, 20.0f, 0.0f, PlanarInterpType.CubicHermite);
+            FloatKeyframe last2 = new FloatKeyframe(1000, 60.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);
             lightAnim.Keyframes.Add(first2);
             lightAnim.Keyframes.Add(x2);
             lightAnim.Keyframes.Add(last2);
@@ -126,14 +126,7 @@ namespace TheraEngine.Tests
             floorActor1.RootComponent.AddAnimation(lightAnimContainer, true, ETickGroup.PostPhysics, ETickOrder.BoneAnimation, InputPauseType.TickOnlyWhenUnpaused);
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
-
-            string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
-                "X:\\Desktop\\" :
-                "C:\\Users\\David\\Desktop\\";
-            string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
-                "X:\\Cloud Storage\\Google Drive\\TheraDev\\" :
-                "C:\\Users\\David\\Google Drive\\TheraDev\\";
-
+            
             ModelImportOptions objOptions = new ModelImportOptions()
             {
                 UseForwardShaders = Engine.Settings.ShadingStyle == ShadingStyle.Forward,

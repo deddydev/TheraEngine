@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Rendering.Models;
 using System.ComponentModel;
 using TheraEngine.Rendering;
+using TheraEngine.Files;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -13,14 +14,14 @@ namespace TheraEngine.Worlds.Actors
         }
         public SkeletalMeshComponent() { }
 
-        private SkeletalMesh _model;
-        private Skeleton _skeleton;
+        private SingleFileRef<SkeletalMesh> _model;
+        private SingleFileRef<Skeleton> _skeleton;
 
         //For internal runtime use
         private RenderableMesh[] _meshes;
 
         [Serialize]
-        public SkeletalMesh Model
+        public SingleFileRef<SkeletalMesh> Model
         {
             get => _model;
             set
@@ -28,26 +29,41 @@ namespace TheraEngine.Worlds.Actors
                 if (_model == value)
                     return;
                 _model = value;
+                var skel = _skeleton;
+                _skeleton = null;
                 if (_model != null)
                 {
-                    _meshes = new RenderableMesh[_model.RigidChildren.Count + _model.SoftChildren.Count];
-                    for (int i = 0; i < _model.RigidChildren.Count; ++i)
+                    if (_model.IsLoaded || IsSpawned)
                     {
-                        RenderableMesh m = new RenderableMesh(_model.RigidChildren[i], _skeleton, this);
-                        m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
-                        _meshes[i] = m;
-                    }
-                    for (int i = 0; i < _model.SoftChildren.Count; ++i)
-                    {
-                        RenderableMesh m = new RenderableMesh(_model.SoftChildren[i], _skeleton, this);
-                        m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
-                        _meshes[_model.RigidChildren.Count + i] = m;
+                        SkeletalMesh model = _model.GetInstance();
+                        _meshes = new RenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
+                        for (int i = 0; i < model.RigidChildren.Count; ++i)
+                        {
+                            RenderableMesh m = new RenderableMesh(model.RigidChildren[i], skel, this);
+                            m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
+                            _meshes[i] = m;
+                        }
+                        for (int i = 0; i < model.SoftChildren.Count; ++i)
+                        {
+                            RenderableMesh m = new RenderableMesh(model.SoftChildren[i], skel, this);
+                            m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
+                            _meshes[model.RigidChildren.Count + i] = m;
+                        }
                     }
                 }
+                else
+                {
+                    if (_meshes != null)
+                    {
+                        //foreach (RenderableMesh mesh in _meshes)
+                            
+                    }
+                }
+                _skeleton = skel;
             }
         }
         [Serialize]
-        public Skeleton Skeleton
+        public SingleFileRef<Skeleton> Skeleton
         {
             get => _skeleton;
             set
@@ -55,13 +71,13 @@ namespace TheraEngine.Worlds.Actors
                 if (value == _skeleton)
                     return;
                 if (_skeleton != null)
-                    _skeleton.OwningComponent = null;
+                    _skeleton.File.OwningComponent = null;
                 _skeleton = value;
                 if (_skeleton != null)
                 {
-                    _skeleton.OwningComponent = this;
+                    _skeleton.File.OwningComponent = this;
                     if (IsSpawned && Engine.Settings.RenderSkeletons && _skeleton != null)
-                        Engine.Scene.Add(_skeleton);
+                        Engine.Scene.Add(_skeleton.File);
                 }
                 if (_meshes != null)
                     foreach (RenderableMesh m in _meshes)
@@ -73,7 +89,7 @@ namespace TheraEngine.Worlds.Actors
         
         public void SetAllSimulatingPhysics(bool doSimulation)
         {
-            foreach (Bone b in _skeleton)
+            foreach (Bone b in _skeleton.File)
                 if (b.PhysicsDriver != null)
                     b.PhysicsDriver.SimulatingPhysics = doSimulation;
         }
@@ -84,7 +100,7 @@ namespace TheraEngine.Worlds.Actors
                     m.Visible = m.Mesh.VisibleByDefault;
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Scene.Add(_skeleton);
+                Engine.Scene.Add(_skeleton.File);
 
             //RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
 
@@ -99,21 +115,21 @@ namespace TheraEngine.Worlds.Actors
             base.OnDespawned();
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Scene.Remove(_skeleton);
+                Engine.Scene.Remove(_skeleton.File);
 
             //UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
         internal override void RecalcGlobalTransform()
         {
             base.RecalcGlobalTransform();
-            _skeleton?.WorldMatrixChanged();
+            _skeleton?.File?.WorldMatrixChanged();
         }
 
         //private void Tick(float delta) => PreRender();
 
         public void PreRender()
         {
-            _skeleton?.UpdateBones(AbstractRenderer.CurrentCamera);
+            _skeleton?.File?.UpdateBones(AbstractRenderer.CurrentCamera);
         }
     }
 }

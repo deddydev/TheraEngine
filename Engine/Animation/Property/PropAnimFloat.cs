@@ -58,6 +58,8 @@ namespace TheraEngine.Animation
             : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
         public FloatKeyframe(float second, float inoutValue, float inoutTangent, PlanarInterpType type)
             : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public FloatKeyframe(float second, float inoutValue, float inTangent, float outTangent, PlanarInterpType type)
+            : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
         public FloatKeyframe(float second, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type) : base()
         {
             Second = second;

@@ -210,39 +210,44 @@ namespace TheraEngine.Rendering.Models
                                     string targetName = node.Name ?? (node.ID ?? node.SID);
                                     if (node.Type == Node.EType.JOINT)
                                     {
-                                        BoneAnimation b;
+                                        BoneAnimation bone;
                                         if (anim._boneAnimations.ContainsKey(targetName))
-                                            b = anim._boneAnimations[targetName];
+                                            bone = anim._boneAnimations[targetName];
                                         else
-                                            b = anim.CreateBoneAnimation(targetName);
-
-                                        if (xAxis)
-                                        {
-
-                                        }
-                                        else if (yAxis)
-                                        {
-
-                                        }
-                                        else
-                                        {
-
-                                        }
-
+                                            bone = anim.CreateBoneAnimation(targetName);
+                                        
                                         int x = 0;
-                                        for (int i = 0; i < inputData.Length; ++i, x += 16)
+                                        for (int i = 0; i < inputData.Length; ++i, x += 2)
                                         {
                                             float second = inputData[i];
                                             InterpType type = interpTypeData[i].AsEnum<InterpType>();
                                             PlanarInterpType pType = (PlanarInterpType)type;
+                                            float inTan = 0.0f, outTan = 0.0f;
                                             switch (pType)
                                             {
                                                 case PlanarInterpType.Step:
                                                 case PlanarInterpType.Linear:
                                                     break;
                                                 case PlanarInterpType.CubicHermite:
-                                                case PlanarInterpType.CubicBezier:
+                                                    inTan = inTanData[i];
+                                                    outTan = outTanData[i];
                                                     break;
+                                                case PlanarInterpType.CubicBezier:
+                                                    inTan = inTanData[x + 1] / inTanData[x];
+                                                    outTan = outTanData[x + 1] / outTanData[x];
+                                                    break;
+                                            }
+                                            if (xAxis)
+                                            {
+                                                
+                                            }
+                                            else if (yAxis)
+                                            {
+
+                                            }
+                                            else
+                                            {
+
                                             }
                                             Matrix4 matrix = new Matrix4(
                                                     outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
@@ -250,9 +255,9 @@ namespace TheraEngine.Rendering.Models
                                                     outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
                                                     outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
                                             FrameState transform = FrameState.DeriveTRS(matrix);
-                                            b._translation.Add(new Vec3Keyframe(second, transform.Translation, Vec3.Zero, pType));
-                                            b._scale.Add(new Vec3Keyframe(second, transform.Scale, Vec3.Zero, pType));
-                                            b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, Quat.Identity, Quat.Identity, RadialInterpType.Linear));
+                                            bone._translation.Add(new Vec3Keyframe(second, transform.Translation, Vec3.Zero, pType));
+                                            bone._scale.Add(new Vec3Keyframe(second, transform.Scale, Vec3.Zero, pType));
+                                            bone._rotation.Add(new QuatKeyframe(second, transform.Quaternion, Quat.Identity, Quat.Identity, RadialInterpType.Linear));
                                         }
                                     }
                                     else

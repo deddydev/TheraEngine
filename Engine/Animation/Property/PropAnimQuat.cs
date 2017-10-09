@@ -5,14 +5,13 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public delegate Quat QuatGetValue(float frameIndex);
     public class PropAnimQuat : PropertyAnimation<QuatKeyframe>, IEnumerable<QuatKeyframe>
     {
         private Quat _defaultValue = Quat.Identity;
-        private QuatGetValue _getValue;
+        private GetValue<Quat> _getValue;
 
         [Serialize(Condition = "!UseKeyframes")]
-        private Quat[] _baked;
+        private Quat[] _baked = null;
 
         [Serialize(Condition = "UseKeyframes")]
         public Quat DefaultValue
@@ -27,23 +26,16 @@ namespace TheraEngine.Animation
             : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
-        {
-            if (_useKeyframes)
-                _getValue = GetValueKeyframed;
-            else
-                _getValue = GetValueBaked;
-        }
-        protected override object GetValue(float frame)
-            => _getValue(frame);
-        public Quat GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
-        public Quat GetValueKeyframed(float frameIndex)
-            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
-
-        /// <summary>
-        /// Bakes the interpolated data for fastest access by the game.
-        /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
-        /// </summary>
+            => _getValue = _useKeyframes ? (GetValue<Quat>)GetValueKeyframed : GetValueBaked;
+        protected override object GetValue(float second)
+            => _getValue(second);
+        public Quat GetValueBaked(float second)
+            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
+        public Quat GetValueBaked(int frameIndex)
+            => _baked[frameIndex];
+        public Quat GetValueKeyframed(float second)
+            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+        
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
@@ -52,65 +44,42 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-        public override void Resize(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Stretch(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Append(PropertyAnimation<QuatKeyframe> other)
-        {
-            throw new NotImplementedException();
-        }
+
         public IEnumerator<QuatKeyframe> GetEnumerator() { return ((IEnumerable<QuatKeyframe>)_keyframes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<QuatKeyframe>)_keyframes).GetEnumerator(); }
     }
     public class QuatKeyframe : Keyframe
     {
-        public QuatKeyframe(float frameIndex, Quat value, RadialInterpType type)
-            : this(frameIndex, value, value, type) { }
-        public QuatKeyframe(float frameIndex, Quat inValue, Quat outValue, RadialInterpType type) : base()
+        public QuatKeyframe(int frameIndex, float FPS, Quat inValue, Quat outValue, Quat inTangent, Quat outTangent, RadialInterpType type)
+            : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
+        public QuatKeyframe(int frameIndex, float FPS, Quat inoutValue, Quat inTangent, Quat outTangent, RadialInterpType type)
+            : this(frameIndex / FPS, inoutValue, inoutValue, inTangent, outTangent, type) { }
+        public QuatKeyframe(float second, Quat inoutValue, Quat inTangent, Quat outTangent, RadialInterpType type)
+            : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
+        public QuatKeyframe(float second, Quat inValue, Quat outValue, Quat inTangent, Quat outTangent, RadialInterpType type) : base()
         {
-            Second = frameIndex;
-            _inValue = inValue;
-            _outValue = outValue;
+            Second = second;
+            InValue = inValue;
+            OutValue = outValue;
+            InTangent = inTangent;
+            OutTangent = outTangent;
             InterpolationType = type;
         }
 
-        delegate Quat DelInterpolate(QuatKeyframe key1, QuatKeyframe key2, float time);
+        private delegate Quat DelInterpolate(QuatKeyframe key1, QuatKeyframe key2, float time);
         private DelInterpolate _interpolate = CubicBezier;
         protected RadialInterpType _interpolationType;
-        protected Quat _inValue;
-        protected Quat _inTangent;
-        protected Quat _outValue;
-        protected Quat _outTangent;
 
         [Serialize(IsXmlAttribute = true)]
-        public Quat InValue
-        {
-            get => _inValue;
-            set => _inValue = value;
-        }
+        public Quat InValue { get; set; }
         [Serialize(IsXmlAttribute = true)]
-        public Quat OutValue
-        {
-            get => _outValue;
-            set => _outValue = value;
-        }
+        public Quat OutValue { get; set; }
+
         [Serialize(IsXmlAttribute = true)]
-        public Quat InTangent
-        {
-            get => _inTangent;
-            set => _inTangent = value;
-        }
+        public Quat InTangent { get; set; }
         [Serialize(IsXmlAttribute = true)]
-        public Quat OutTangent
-        {
-            get => _outTangent;
-            set => _outTangent = value;
-        }
+        public Quat OutTangent { get; set; }
+
         public new QuatKeyframe Next
         {
             get => _next as QuatKeyframe;
@@ -121,6 +90,7 @@ namespace TheraEngine.Animation
             get => _prev as QuatKeyframe;
             set => _prev = value;
         }
+
         [Serialize(IsXmlAttribute = true)]
         public RadialInterpType InterpolationType
         {
@@ -142,24 +112,28 @@ namespace TheraEngine.Animation
                 }
             }
         }
-        public Quat Interpolate(float frameIndex)
+        public Quat Interpolate(float desiredSecond)
         {
-            if (frameIndex < Second && _prev.Second > Second)
+            if (desiredSecond < Second)
             {
                 if (_prev == this)
-                    return _inValue;
+                    return InValue;
 
-                return Prev.Interpolate(frameIndex);
+                return Prev.Interpolate(desiredSecond);
             }
 
-            if (_next == this)
-                return _outValue;
+            if (desiredSecond > _next.Second)
+            {
+                if (_next == this)
+                    return OutValue;
 
-            if (frameIndex > _next.Second && _next.Second > Second)
-                return Next.Interpolate(frameIndex);
+                return Next.Interpolate(desiredSecond);
+            }
 
-            float t = (frameIndex - Second) / (_next.Second - Second);
-            return _interpolate(this, Next, t);
+            float span = _next.Second - Second;
+            float diff = desiredSecond - Second;
+            float time = diff / span;
+            return _interpolate(this, Next, time);
         }
         public static Quat Step(QuatKeyframe key1, QuatKeyframe key2, float time)
             => time < 1.0f ? key1.OutValue : key2.OutValue;

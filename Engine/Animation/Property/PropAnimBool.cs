@@ -40,6 +40,7 @@ namespace TheraEngine.Animation
                 return key.Value;
             return _defaultValue;
         }
+
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
@@ -48,8 +49,11 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-        public IEnumerator<BoolKeyframe> GetEnumerator() => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
+
+        public IEnumerator<BoolKeyframe> GetEnumerator()
+            => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
     }
     public class BoolKeyframe : Keyframe
     {

@@ -5,14 +5,13 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    delegate Vec4 Vec4GetValue(float frameIndex);
     public class PropAnimVec4 : PropertyAnimation<Vec4Keyframe>, IEnumerable<Vec4Keyframe>
     {
         private Vec4 _defaultValue = Vec4.Zero;
-        private Vec4GetValue _getValue;
+        private GetValue<Vec4> _getValue;
 
         [Serialize(Condition = "!UseKeyframes")]
-        private Vec4[] _baked;
+        private Vec4[] _baked = null;
 
         [Serialize(Condition = "UseKeyframes")]
         public Vec4 DefaultValue
@@ -27,23 +26,16 @@ namespace TheraEngine.Animation
             : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
-        {
-            if (_useKeyframes)
-                _getValue = GetValueKeyframed;
-            else
-                _getValue = GetValueBaked;
-        }
-        protected override object GetValue(float frame)
-            => _getValue(frame);
-        public Vec4 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
-        public Vec4 GetValueKeyframed(float frameIndex)
-            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
+            => _getValue = _useKeyframes ? (GetValue<Vec4>)GetValueKeyframed : GetValueBaked;
+        protected override object GetValue(float second)
+            => _getValue(second);
+        public Vec4 GetValueBaked(float second)
+            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
+        public Vec4 GetValueBaked(int frameIndex)
+            => _baked[frameIndex];
+        public Vec4 GetValueKeyframed(float second)
+            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
 
-        /// <summary>
-        /// Bakes the interpolated data for fastest access by the game.
-        /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
-        /// </summary>
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
@@ -52,60 +44,42 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-        public override void Resize(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Stretch(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Append(PropertyAnimation<Vec4Keyframe> other)
-        {
-            throw new NotImplementedException();
-        }
-        public IEnumerator<Vec4Keyframe> GetEnumerator() { return ((IEnumerable<Vec4Keyframe>)_keyframes).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Vec4Keyframe>)_keyframes).GetEnumerator(); }
+
+        public IEnumerator<Vec4Keyframe> GetEnumerator()
+            => ((IEnumerable<Vec4Keyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => ((IEnumerable<Vec4Keyframe>)_keyframes).GetEnumerator();
     }
     public class Vec4Keyframe : Keyframe
     {
-        public Vec4Keyframe(float frameIndex, Vec4 inValue, Vec4 outValue) : base()
+        public Vec4Keyframe(int frameIndex, float FPS, Vec4 inValue, Vec4 outValue, Vec4 inTangent, Vec4 outTangent, PlanarInterpType type)
+            : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
+        public Vec4Keyframe(int frameIndex, float FPS, Vec4 inoutValue, Vec4 inoutTangent, PlanarInterpType type)
+            : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public Vec4Keyframe(float second, Vec4 inoutValue, Vec4 inoutTangent, PlanarInterpType type)
+            : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public Vec4Keyframe(float second, Vec4 inValue, Vec4 outValue, Vec4 inTangent, Vec4 outTangent, PlanarInterpType type) : base()
         {
-            Second = frameIndex;
-            _inValue = inValue;
-            _outValue = outValue;
+            Second = second;
+            InValue = inValue;
+            OutValue = outValue;
+            InTangent = inTangent;
+            OutTangent = outTangent;
+            InterpolationType = type;
         }
 
-        protected Vec4 _inValue;
-        protected Vec4 _inTangent;
-        protected Vec4 _outValue;
-        protected Vec4 _outTangent;
         protected PlanarInterpType _interpolationType;
 
         [Serialize(IsXmlAttribute = true)]
-        public Vec4 InValue
-        {
-            get => _inValue;
-            set => _inValue = value;
-        }
+        public Vec4 InValue { get; set; }
         [Serialize(IsXmlAttribute = true)]
-        public Vec4 OutValue
-        {
-            get => _outValue;
-            set => _outValue = value;
-        }
+        public Vec4 OutValue { get; set; }
+
         [Serialize(IsXmlAttribute = true)]
-        public Vec4 InTangent
-        {
-            get => _inTangent;
-            set => _inTangent = value;
-        }
+        public Vec4 InTangent { get; set; }
         [Serialize(IsXmlAttribute = true)]
-        public Vec4 OutTangent
-        {
-            get => _outTangent;
-            set => _outTangent = value;
-        }
+        public Vec4 OutTangent { get; set; }
+
         public new Vec4Keyframe Next
         {
             get => _next as Vec4Keyframe;
@@ -116,6 +90,7 @@ namespace TheraEngine.Animation
             get => _prev as Vec4Keyframe;
             set => _prev = value;
         }
+
         [Serialize(IsXmlAttribute = true)]
         public PlanarInterpType InterpolationType
         {
@@ -140,26 +115,31 @@ namespace TheraEngine.Animation
                 }
             }
         }
-        delegate Vec4 DelInterpolate(Vec4Keyframe key1, Vec4Keyframe key2, float time);
+
+        private delegate Vec4 DelInterpolate(Vec4Keyframe key1, Vec4Keyframe key2, float time);
         private DelInterpolate _interpolate = CubicHermite;
-        public Vec4 Interpolate(float frameIndex)
+        public Vec4 Interpolate(float desiredSecond)
         {
-            if (frameIndex < Second && _prev.Second > Second)
+            if (desiredSecond < Second)
             {
                 if (_prev == this)
-                    return _inValue;
+                    return InValue;
 
-                return Prev.Interpolate(frameIndex);
+                return Prev.Interpolate(desiredSecond);
             }
 
-            if (_next == this)
-                return _outValue;
+            if (desiredSecond > _next.Second)
+            {
+                if (_next == this)
+                    return OutValue;
 
-            if (frameIndex > _next.Second && _next.Second > Second)
-                return Next.Interpolate(frameIndex);
+                return Next.Interpolate(desiredSecond);
+            }
 
-            float t = (frameIndex - Second) / (_next.Second - Second);
-            return _interpolate(this, Next, t);
+            float span = _next.Second - Second;
+            float diff = desiredSecond - Second;
+            float time = diff / span;
+            return _interpolate(this, Next, time);
         }
         public static Vec4 Step(Vec4Keyframe key1, Vec4Keyframe key2, float time)
             => time < 1.0f ? key1.OutValue : key2.OutValue;
@@ -176,13 +156,13 @@ namespace TheraEngine.Animation
             AverageTangents();
         }
         public void AverageTangents()
-            => _inTangent = _outTangent = (_inTangent + _outTangent) / 2.0f;
+            => InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
         public void AverageValues()
-            => _inValue = _outValue = (_inValue + _outValue) / 2.0f;
+            => InValue = OutValue = (InValue + OutValue) / 2.0f;
         public void MakeOutLinear()
-            => _outTangent = (Next.InValue - OutValue) / (Next.Second - Second);
+            => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);
         public void MakeInLinear()
-            => _inTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
+            => InTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
 
         public override string WriteToString()
         {

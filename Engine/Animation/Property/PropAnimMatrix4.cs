@@ -5,14 +5,13 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    delegate Matrix4 Matrix4GetValue(float frameIndex);
     public class PropAnimMatrix4 : PropertyAnimation<Matrix4Keyframe>, IEnumerable<Matrix4Keyframe>
     {
         private Matrix4 _defaultValue = Matrix4.Identity;
-        private Matrix4GetValue _getValue;
+        private GetValue<Matrix4> _getValue;
 
         [Serialize(Condition = "!UseKeyframes")]
-        private Matrix4[] _baked;
+        private Matrix4[] _baked = null;
 
         [Serialize(Condition = "UseKeyframes")]
         public Matrix4 DefaultValue
@@ -27,27 +26,16 @@ namespace TheraEngine.Animation
             : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
-        {
-            if (_useKeyframes)
-                _getValue = GetValueKeyframed;
-            else
-                _getValue = GetValueBaked;
-        }
+            => _getValue = _useKeyframes ? (GetValue<Matrix4>)GetValueKeyframed : GetValueBaked;
+        protected override object GetValue(float second)
+            => _getValue(second);
         public Matrix4 GetValueBaked(float second)
             => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
         public Matrix4 GetValueBaked(int frameIndex)
             => _baked[frameIndex];
-        protected override object GetValue(float frame)
-            => _getValue(frame);
-        public Matrix4 GetValueBaked(float second)
-            => _baked[(int)(second / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
-        public Matrix4 GetValueKeyframed(float frameIndex)
-            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
-
-        /// <summary>
-        /// Bakes the interpolated data for fastest access by the game.
-        /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
-        /// </summary>
+        public Matrix4 GetValueKeyframed(float second)
+            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+        
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
@@ -56,40 +44,24 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-        public override void Resize(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Stretch(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Append(PropertyAnimation<Matrix4Keyframe> other)
-        {
-            throw new NotImplementedException();
-        }
 
-        public IEnumerator<Matrix4Keyframe> GetEnumerator() { return ((IEnumerable<Matrix4Keyframe>)_keyframes).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Matrix4Keyframe>)_keyframes).GetEnumerator(); }
+        public IEnumerator<Matrix4Keyframe> GetEnumerator()
+            => ((IEnumerable<Matrix4Keyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => ((IEnumerable<Matrix4Keyframe>)_keyframes).GetEnumerator();
     }
     public class Matrix4Keyframe : Keyframe
     {
-        public Matrix4Keyframe(float frameIndex, Matrix4 outValue) : base()
+        public Matrix4Keyframe(float second, Matrix4 value) : base()
         {
-            Second = frameIndex;
-            _value = outValue;
+            Second = second;
+            Value = value;
         }
 
         protected delegate Matrix4 DelInterpolate(Matrix4Keyframe key1, Matrix4Keyframe key2, float time);
         
-        protected Matrix4 _value;
-
         [Serialize(IsXmlAttribute = true)]
-        public Matrix4 Value
-        {
-            get => _value;
-            set => _value = value;
-        }
+        public Matrix4 Value { get; set; }
 
         public new Matrix4Keyframe Next
         {
@@ -101,10 +73,11 @@ namespace TheraEngine.Animation
             get => _prev as Matrix4Keyframe;
             set => _prev = value;
         }
+
         public Matrix4 Interpolate(float frameIndex)
         {
             if (_prev == this || _next == this)
-                return _value;
+                return Value;
 
             if (frameIndex < Second && _prev.Second > Second)
                 return Prev.Interpolate(frameIndex);
@@ -114,7 +87,7 @@ namespace TheraEngine.Animation
 
             //float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
 
-            return _value;
+            return Value;
 
             //return _interpolate(this, Next, t);
         }

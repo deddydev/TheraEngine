@@ -35,10 +35,7 @@ namespace TheraEngine.Animation
             => _baked[frameIndex];
         public float GetValueKeyframed(float second)
             => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
-
-        /// <summary>
-        /// Bakes the interpolated data for fastest access by the game.
-        /// </summary>
+        
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
@@ -47,8 +44,11 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-        public IEnumerator<FloatKeyframe> GetEnumerator() => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
+
+        public IEnumerator<FloatKeyframe> GetEnumerator()
+            => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
     }
     public class FloatKeyframe : Keyframe
     {
@@ -61,45 +61,27 @@ namespace TheraEngine.Animation
         public FloatKeyframe(float second, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type) : base()
         {
             Second = second;
-            _inValue = inValue;
-            _outValue = outValue;
-            _inTangent = inTangent;
-            _outTangent = outTangent;
+            InValue = inValue;
+            OutValue = outValue;
+            InTangent = inTangent;
+            OutTangent = outTangent;
             InterpolationType = type;
         }
 
-        delegate float DelInterpolate(FloatKeyframe key1, FloatKeyframe key2, float time);
+        private delegate float DelInterpolate(FloatKeyframe key1, FloatKeyframe key2, float time);
         private DelInterpolate _interpolate = CubicHermite;
         protected PlanarInterpType _interpolationType;
-        protected float _inValue;
-        protected float _inTangent;
-        protected float _outValue;
-        protected float _outTangent;
 
         [Serialize(IsXmlAttribute = true)]
-        public float InValue
-        {
-            get => _inValue;
-            set => _inValue = value;
-        }
+        public float InValue { get; set; }
         [Serialize(IsXmlAttribute = true)]
-        public float OutValue
-        {
-            get => _outValue;
-            set => _outValue = value;
-        }
+        public float OutValue { get; set; }
+
         [Serialize(IsXmlAttribute = true)]
-        public float InTangent
-        {
-            get => _inTangent;
-            set => _inTangent = value;
-        }
+        public float InTangent { get; set; }
         [Serialize(IsXmlAttribute = true)]
-        public float OutTangent
-        {
-            get => _outTangent;
-            set => _outTangent = value;
-        }
+        public float OutTangent { get; set; }
+
         public new FloatKeyframe Next
         {
             get => _next as FloatKeyframe;
@@ -110,6 +92,7 @@ namespace TheraEngine.Animation
             get => _prev as FloatKeyframe;
             set => _prev = value;
         }
+
         [Serialize(IsXmlAttribute = true)]
         public PlanarInterpType InterpolationType
         {
@@ -139,7 +122,7 @@ namespace TheraEngine.Animation
             if (desiredSecond < Second)
             {
                 if (_prev == this)
-                    return _inValue;
+                    return InValue;
 
                 return Prev.Interpolate(desiredSecond);
             }
@@ -147,7 +130,7 @@ namespace TheraEngine.Animation
             if (desiredSecond > _next.Second)
             {
                 if (_next == this)
-                    return _outValue;
+                    return OutValue;
 
                 return Next.Interpolate(desiredSecond);
             }
@@ -173,13 +156,13 @@ namespace TheraEngine.Animation
             AverageTangents();
         }
         public void AverageTangents()
-            => _inTangent = _outTangent = (_inTangent + _outTangent) / 2.0f;
+            => InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
         public void AverageValues()
-            => _inValue = _outValue = (_inValue + _outValue) / 2.0f;
+            => InValue = OutValue = (InValue + OutValue) / 2.0f;
         public void MakeOutLinear()
-            => _outTangent = (Next.InValue - OutValue) / (Next.Second - Second);
+            => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);
         public void MakeInLinear()
-            => _inTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
+            => InTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
 
         public override string WriteToString()
         {

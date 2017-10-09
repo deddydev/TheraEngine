@@ -191,10 +191,10 @@ namespace TheraEngine.Animation
                 temp.Remove();
             }
         }
-        public T GetKeyBefore(float frameIndex)
+        public T GetKeyBefore(float second)
         {
             foreach (T key in this)
-                if (frameIndex >= key.Second)
+                if (second >= key.Second)
                     return key;
             return null;
         }

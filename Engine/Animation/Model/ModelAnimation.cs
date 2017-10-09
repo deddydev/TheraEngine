@@ -167,25 +167,62 @@ namespace TheraEngine.Animation
         }
 
         internal ModelAnimation Parent { get; set; }
+        public RotationOrder EulerOrder { get; set; }
 
         [Category("Bone Animation"), Serialize("Name")]
         public string _name;
         private bool _useKeyframes = true;
+
         //public KeyframeTrack<Matrix4Keyframe> _matrix;
-        [Category("Bone Animation"), Serialize("TranslationKeys")]
-        public KeyframeTrack<Vec3Keyframe> _translation;
-        [Category("Bone Animation"), Serialize("RotationKeys")]
-        public KeyframeTrack<QuatKeyframe> _rotation;
-        [Category("Bone Animation"), Serialize("ScaleKeys")]
-        public KeyframeTrack<Vec3Keyframe> _scale;
+
+        KeyframeTrack<FloatKeyframe>[] _tracks = new KeyframeTrack<FloatKeyframe>[]
+        {
+            new KeyframeTrack<FloatKeyframe>(), //tx
+            new KeyframeTrack<FloatKeyframe>(), //ty
+            new KeyframeTrack<FloatKeyframe>(), //tz
+            new KeyframeTrack<FloatKeyframe>(), //ry
+            new KeyframeTrack<FloatKeyframe>(), //rp
+            new KeyframeTrack<FloatKeyframe>(), //rr
+            new KeyframeTrack<FloatKeyframe>(), //sx
+            new KeyframeTrack<FloatKeyframe>(), //sy
+            new KeyframeTrack<FloatKeyframe>(), //sz
+        };
+
+        [Category("Bone Animation"), Serialize("TranslationXKeys")]
+        public KeyframeTrack<FloatKeyframe> _translationX;
+        [Category("Bone Animation"), Serialize("TranslationYKeys")]
+        public KeyframeTrack<FloatKeyframe> _translationY;
+        [Category("Bone Animation"), Serialize("TranslationZKeys")]
+        public KeyframeTrack<FloatKeyframe> _translationZ;
+
+        //[Category("Bone Animation"), Serialize("RotationKeys")]
+        //public KeyframeTrack<QuatKeyframe> _rotation;
+
+        [Category("Bone Animation"), Serialize("RotationYawKeys")]
+        public KeyframeTrack<QuatKeyframe> _rotationYaw;
+        [Category("Bone Animation"), Serialize("RotationPitchKeys")]
+        public KeyframeTrack<QuatKeyframe> _rotationPitch;
+        [Category("Bone Animation"), Serialize("RotationRollKeys")]
+        public KeyframeTrack<QuatKeyframe> _rotationRoll;
+        
+        [Category("Bone Animation"), Serialize("ScaleXKeys")]
+        public KeyframeTrack<FloatKeyframe> _scaleX;
+        [Category("Bone Animation"), Serialize("ScaleYKeys")]
+        public KeyframeTrack<FloatKeyframe> _scaleY;
+        [Category("Bone Animation"), Serialize("ScaleZKeys")]
+        public KeyframeTrack<FloatKeyframe> _scaleZ;
 
         public BoneFrame GetFrame()
             => GetFrame(Parent.CurrentTime);
         public BoneFrame GetFrame(float frameIndex)
         {
-            Vec3? t = null;
-            if (_translation.First != null)
-                t = _translation.First.Interpolate(frameIndex);
+            float? tx = null, ty = null, tz = null;
+            if (_translationX.First != null)
+                tx = _translationX.First.Interpolate(frameIndex);
+            if (_translationX.First != null)
+                tx = _translationX.First.Interpolate(frameIndex);
+            if (_translationX.First != null)
+                tx = _translationX.First.Interpolate(frameIndex);
 
             Quat? r = null;
             if (_rotation.First != null)
@@ -201,13 +238,13 @@ namespace TheraEngine.Animation
                 r.GetValueOrDefault(Quat.Identity), r.HasValue ? 1.0f : 0.0f,
                 s.GetValueOrDefault(Vec3.One),      s.HasValue ? 1.0f : 0.0f);
         }
-        public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
-        {
-            FrameState state = FrameState.DeriveTRS(transform);
-            _translation.Add(new Vec3Keyframe(frameIndex, state.Translation, planar));
-            _rotation.Add(new QuatKeyframe(frameIndex, state.Quaternion, radial));
-            _scale.Add(new Vec3Keyframe(frameIndex, state.Scale, planar));
-        }
+        //public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
+        //{
+        //    FrameState state = FrameState.DeriveTRS(transform);
+        //    _translation.Add(new Vec3Keyframe(frameIndex, state.Translation, planar));
+        //    _rotation.Add(new QuatKeyframe(frameIndex, state.Quaternion, radial));
+        //    _scale.Add(new Vec3Keyframe(frameIndex, state.Scale, planar));
+        //}
         public void UpdateSkeleton(Skeleton skeleton)
         {
             Bone bone = skeleton[_name];

@@ -5,14 +5,13 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    delegate string StringGetValue(float frameIndex);
     public class PropAnimString : PropertyAnimation<StringKeyframe>, IEnumerable<StringKeyframe>
     {
         private string _defaultValue = "";
-        private StringGetValue _getValue;
+        private GetValue<string> _getValue;
 
         [Serialize(Condition = "!UseKeyframes")]
-        private string[] _baked;
+        private string[] _baked = null;
 
         [Serialize(Condition = "UseKeyframes")]
         public string DefaultValue
@@ -26,29 +25,22 @@ namespace TheraEngine.Animation
         public PropAnimString(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override object GetValue(float frame)
-            => _getValue(frame);
         protected override void UseKeyframesChanged()
-        {
-            if (_useKeyframes)
-                _getValue = GetValueKeyframed;
-            else
-                _getValue = GetValueBaked;
-        }
+            => _getValue = _useKeyframes ? (GetValue<string>)GetValueKeyframed : GetValueBaked;
+        protected override object GetValue(float second)
+            => _getValue(second);
         public string GetValueBaked(float second)
             => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
         public string GetValueBaked(int frameIndex)
             => _baked[frameIndex];
-        public string GetValueKeyframed(float frameIndex)
+        public string GetValueKeyframed(float second)
         {
-            StringKeyframe key = _keyframes.GetKeyBefore(frameIndex);
+            StringKeyframe key = _keyframes.GetKeyBefore(second);
             if (key != null)
                 return key.Value;
             return _defaultValue;
         }
-        /// <summary>
-        /// Bakes the interpolated data for fastest access by the game.
-        /// </summary>
+        
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
@@ -57,20 +49,11 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-        public override void Resize(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Stretch(int newSize)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Append(PropertyAnimation<StringKeyframe> other)
-        {
-            throw new NotImplementedException();
-        }
-        public IEnumerator<StringKeyframe> GetEnumerator() => ((IEnumerable<StringKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<StringKeyframe>)_keyframes).GetEnumerator();
+
+        public IEnumerator<StringKeyframe> GetEnumerator()
+            => ((IEnumerable<StringKeyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => ((IEnumerable<StringKeyframe>)_keyframes).GetEnumerator();
     }
     public class StringKeyframe : Keyframe
     {

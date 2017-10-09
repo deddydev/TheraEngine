@@ -121,14 +121,15 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 if (options.ImportAnimations)
                                 {
+                                    data.ModelAnimations = new List<ModelAnimation>();
+                                    data.PropertyAnimations = new List<BasePropertyAnimation>();
                                     ModelAnimation anim = new ModelAnimation()
                                     {
                                         Name = Path.GetFileNameWithoutExtension(filePath)
                                     };
-                                    List<BasePropertyAnimation> propAnims = new List<BasePropertyAnimation>();
                                     foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
                                         foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
-                                            ParseAnimation(animElem, anim, visualScene, propAnims);
+                                            ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations);
                                     data.ModelAnimations.Add(anim);
                                 }
                             }
@@ -150,35 +151,6 @@ namespace TheraEngine.Rendering.Models
                 ISID target = channel.Target.GetElement(animElem.Root, out string selector);
                 if (!(target is IStringElement))
                     continue;
-                
-                if (!string.IsNullOrEmpty(selector))
-                {
-                    int matrixIndex = selector.IndexOf('(');
-                    if (matrixIndex >= 0)
-                    {
-                        int rowIndex = -1, colIndex = -1;
-                        int rowEnd = selector.IndexOf(')');
-                        string row = selector.Substring(matrixIndex + 1, rowEnd - matrixIndex - 1);
-                        rowIndex = int.Parse(row);
-                    }
-                    else
-                    {
-                        var s = selector.ParseAs<Channel.ESelector>();
-                        if (s == Channel.ESelector.ANGLE)
-                        {
-
-                        }
-                        else if (s == Channel.ESelector.TIME)
-                        {
-
-                        }
-                        else
-                        {
-                            int valueIndex = ((int)s) & 0b11;
-
-                        }
-                    }
-                }
 
                 float[] inputData = null, outputData = null, inTanData = null, outTanData = null;
                 string[] interpTypeData = null;
@@ -205,71 +177,198 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
 
-                if (target is Node.Matrix mtx)
+                if (!string.IsNullOrEmpty(selector))
                 {
-                    Node node = mtx.ParentElement;
-                    string targetName = node.Name ?? (node.ID ?? node.SID);
-                    if (node.Type == Node.EType.JOINT)
-                    {
-                        BoneAnimation b;
-                        if (anim._boneAnimations.ContainsKey(targetName))
-                            b = anim._boneAnimations[targetName];
-                        else
-                            b = anim.CreateBoneAnimation(targetName);
+                    //Animation is targeting only part of the value
 
-                        int x = 0;
-                        for (int i = 0; i < inputData.Length; ++i, x += 16)
+                    int matrixIndex = selector.IndexOf('(');
+                    if (matrixIndex >= 0)
+                    {
+                        int rowIndex = -1, colIndex = -1;
+                        int rowEnd = selector.IndexOf(')');
+                        string row = selector.Substring(matrixIndex + 1, rowEnd - matrixIndex - 1);
+                        rowIndex = int.Parse(row);
+                    }
+                    else
+                    {
+                        var s = selector.ParseAs<Channel.ESelector>();
+                        if (s == Channel.ESelector.ANGLE)
                         {
-                            float second = inputData[i];
-                            InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                            PlanarInterpType pType = (PlanarInterpType)type;
-                            Matrix4 matrix = new Matrix4(
-                                    outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
-                                    outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
-                                    outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
-                                    outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
-                            FrameState transform = FrameState.DeriveTRS(matrix);
-                            b._translation.Add(new Vec3Keyframe(second, transform.Translation, pType));
-                            b._scale.Add(new Vec3Keyframe(second, transform.Scale, pType));
-                            b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, RadialInterpType.Linear));
+                            if (target is Node.Rotate rotate)
+                            {
+                                Vec4 axisAngle = rotate.StringContent.Value;
+                                bool xAxis = axisAngle.X == 1.0f && axisAngle.Y == 0.0f && axisAngle.Z == 0.0f;
+                                bool yAxis = axisAngle.X == 0.0f && axisAngle.Y == 1.0f && axisAngle.Z == 0.0f;
+                                bool zAxis = axisAngle.X == 0.0f && axisAngle.Y == 0.0f && axisAngle.Z == 1.0f;
+                                if (!xAxis && !yAxis && !zAxis)
+                                {
+                                    Engine.PrintLine("Animation rotation axes that are not the unit axes are not supported.");
+                                }
+                                else
+                                {
+                                    Node node = rotate.ParentElement;
+                                    string targetName = node.Name ?? (node.ID ?? node.SID);
+                                    if (node.Type == Node.EType.JOINT)
+                                    {
+                                        BoneAnimation b;
+                                        if (anim._boneAnimations.ContainsKey(targetName))
+                                            b = anim._boneAnimations[targetName];
+                                        else
+                                            b = anim.CreateBoneAnimation(targetName);
+
+                                        if (xAxis)
+                                        {
+
+                                        }
+                                        else if (yAxis)
+                                        {
+
+                                        }
+                                        else
+                                        {
+
+                                        }
+
+                                        int x = 0;
+                                        for (int i = 0; i < inputData.Length; ++i, x += 16)
+                                        {
+                                            float second = inputData[i];
+                                            InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                            PlanarInterpType pType = (PlanarInterpType)type;
+                                            switch (pType)
+                                            {
+                                                case PlanarInterpType.Step:
+                                                case PlanarInterpType.Linear:
+                                                    break;
+                                                case PlanarInterpType.CubicHermite:
+                                                case PlanarInterpType.CubicBezier:
+                                                    break;
+                                            }
+                                            Matrix4 matrix = new Matrix4(
+                                                    outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
+                                                    outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
+                                                    outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
+                                                    outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
+                                            FrameState transform = FrameState.DeriveTRS(matrix);
+                                            b._translation.Add(new Vec3Keyframe(second, transform.Translation, Vec3.Zero, pType));
+                                            b._scale.Add(new Vec3Keyframe(second, transform.Scale, Vec3.Zero, pType));
+                                            b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, Quat.Identity, Quat.Identity, RadialInterpType.Linear));
+                                        }
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                }
+                            }
+                            else
+                                Engine.PrintLine("ANGLE channel selector expects Node.Rotate element, but got " + target.GetType().GetFriendlyName());
+                        }
+                        else if (s == Channel.ESelector.TIME)
+                        {
+
+                        }
+                        else
+                        {
+                            int valueIndex = ((int)s) & 0b11;
+                            if (target is Node.Translate translate)
+                            {
+                                Node node = translate.ParentElement;
+                                string targetName = node.Name ?? (node.ID ?? node.SID);
+                            }
+                            else if (target is Node.Scale scale)
+                            {
+                                Node node = scale.ParentElement;
+                                string targetName = node.Name ?? (node.ID ?? node.SID);
+                            }
+                            else if (target is BaseFXColorTexture.Color color)
+                            {
+
+                            }
+                            else
+                            {
+                                Engine.PrintLine("Reading selective animation for " + target.GetType().GetFriendlyName());
+                            }
                         }
                     }
-                    else
-                    {
-
-                    }
                 }
-                else if (target is Node.Translate trans)
+                else
                 {
-                    if (trans.ParentElement.Type == Node.EType.JOINT)
+                    if (target is Node.Matrix mtx)
                     {
+                        Node node = mtx.ParentElement;
+                        string targetName = node.Name ?? (node.ID ?? node.SID);
+                        if (node.Type == Node.EType.JOINT)
+                        {
+                            BoneAnimation b;
+                            if (anim._boneAnimations.ContainsKey(targetName))
+                                b = anim._boneAnimations[targetName];
+                            else
+                                b = anim.CreateBoneAnimation(targetName);
 
+                            int x = 0;
+                            for (int i = 0; i < inputData.Length; ++i, x += 16)
+                            {
+                                float second = inputData[i];
+                                InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                PlanarInterpType pType = (PlanarInterpType)type;
+                                switch (pType)
+                                {
+                                    case PlanarInterpType.Step:
+                                    case PlanarInterpType.Linear:
+                                        break;
+                                    case PlanarInterpType.CubicHermite:
+                                    case PlanarInterpType.CubicBezier:
+                                        break;
+                                }
+                                Matrix4 matrix = new Matrix4(
+                                        outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
+                                        outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
+                                        outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
+                                        outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
+                                FrameState transform = FrameState.DeriveTRS(matrix);
+                                b._translation.Add(new Vec3Keyframe(second, transform.Translation, Vec3.Zero, pType));
+                                b._scale.Add(new Vec3Keyframe(second, transform.Scale, Vec3.Zero, pType));
+                                b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, Quat.Identity, Quat.Identity, RadialInterpType.Linear));
+                            }
+                        }
+                        else
+                        {
+
+                        }
                     }
-                    else
+                    else if (target is Node.Translate trans)
                     {
+                        if (trans.ParentElement.Type == Node.EType.JOINT)
+                        {
 
+                        }
+                        else
+                        {
+
+                        }
                     }
-                }
-                else if (target is Node.Rotate rot)
-                {
-                    if (rot.ParentElement.Type == Node.EType.JOINT)
+                    else if (target is Node.Rotate rot)
                     {
+                        if (rot.ParentElement.Type == Node.EType.JOINT)
+                        {
 
+                        }
+                        else
+                        {
+
+                        }
                     }
-                    else
+                    else if (target is Node.Scale scale)
                     {
+                        if (scale.ParentElement.Type == Node.EType.JOINT)
+                        {
 
-                    }
-                }
-                else if (target is Node.Scale scale)
-                {
-                    if (scale.ParentElement.Type == Node.EType.JOINT)
-                    {
+                        }
+                        else
+                        {
 
-                    }
-                    else
-                    {
-
+                        }
                     }
                 }
 

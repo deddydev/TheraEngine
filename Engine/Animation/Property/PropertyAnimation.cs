@@ -45,6 +45,11 @@ namespace TheraEngine.Animation
         
         [Category("Property Animation")]
         protected abstract BaseKeyframeTrack InternalKeyframes { get; }
+
+        /// <summary>
+        /// Bakes the interpolated data for fastest access by the game.
+        /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
+        /// </summary>
         public abstract void Bake(float framesPerSecond);
     }
     public abstract class PropertyAnimation<T> : BasePropertyAnimation where T : Keyframe

@@ -121,6 +121,9 @@ namespace TheraEngine.Animation
         }
         public float Interpolate(float desiredSecond)
         {
+            if (_next == this)
+                return desiredSecond < Second ? InValue : OutValue;
+
             if (desiredSecond < Second)
             {
                 if (_prev == this)

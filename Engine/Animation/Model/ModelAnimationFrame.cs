@@ -124,24 +124,24 @@ namespace TheraEngine.Animation
     }
     public class FrameValueWeight
     {
+        public FrameValueWeight() { }
+        public FrameValueWeight(float value, float weight)
+        {
+            Value = value;
+            Weight = weight;
+        }
+
         public float Value { get; set; }
         public float Weight { get; set; }
     }
     public class BoneFrame
     {
         public string _name;
-        public FrameValueWeight[] _values = new FrameValueWeight[9]
-        {
-            new FrameValueWeight(), //tx
-            new FrameValueWeight(), //ty
-            new FrameValueWeight(), //tz
-            new FrameValueWeight(), //ry
-            new FrameValueWeight(), //rp
-            new FrameValueWeight(), //rr
-            new FrameValueWeight(), //sx
-            new FrameValueWeight(), //sy
-            new FrameValueWeight(), //sz
-        };
+        public RotationOrder _eulerOrder = RotationOrder.YPR;
+        public FrameValueWeight[] _values;
+        //t, r, s;
+        //t, s => x, y, z;
+        //r => p, y, r
 
         public Vec3 GetTranslation(Vec3 bindTranslation) => new Vec3(
             CustomMath.Lerp(bindTranslation.X, _values[0].Value, _values[0].Weight),
@@ -156,25 +156,59 @@ namespace TheraEngine.Animation
             CustomMath.Lerp(bindScale.X, _values[6].Value, _values[6].Weight),
             CustomMath.Lerp(bindScale.Y, _values[7].Value, _values[7].Weight),
             CustomMath.Lerp(bindScale.Z, _values[8].Value, _values[8].Weight));
+        
+        public Vec3 GetUnweightedTranslation()
+            => new Vec3(_values[0].Value, _values[1].Value, _values[2].Value);
+        public Vec3 GetUnweightedRotationPYR()
+            => new Vec3(_values[3].Value, _values[4].Value, _values[5].Value);
+        public Vec3 GetUnweightedScale() 
+            => new Vec3(_values[6].Value, _values[7].Value, _values[8].Value);
 
         public BoneFrame(string name, float?[] values)
         {
             _name = name;
+            _values = new FrameValueWeight[9];
             for (int i = 0; i < 9; ++i)
             {
                 float? value = values[i];
-                var weight = _values[i];
                 if (value == null)
-                {
-                    weight.Value = i >= 6 ? 1.0f : 0.0f;
-                    weight.Weight = 0.0f;
-                }
+                    _values[i] = new FrameValueWeight(i >= 6 ? 1.0f : 0.0f, 0.0f);
                 else
-                {
-                    weight.Value = value.Value;
-                    weight.Weight = 1.0f;
-                }
+                    _values[i] = new FrameValueWeight(value.Value, 1.0f);
             }
+        }
+        //public BoneFrame(string name, Vec3 translation, Rotator rotation, Vec3 scale, params float[] weights)
+        //{
+        //    _name = name;
+
+        //    _values = new FrameValueWeight[9];
+
+        //    _values[0].Value = translation.X;
+        //    _values[0].Weight = weights[0];
+        //    _values[1].Value = translation.Y;
+        //    _values[1].Weight = weights[1];
+        //    _values[2].Value = translation.Z;
+        //    _values[2].Weight = weights[2];
+
+        //    _values[3].Value = rotation.Pitch;
+        //    _values[3].Weight = weights[3];
+        //    _values[4].Value = rotation.Yaw;
+        //    _values[4].Weight = weights[4];
+        //    _values[5].Value = rotation.Roll;
+        //    _values[5].Weight = weights[5];
+
+        //    _values[6].Value = scale.X;
+        //    _values[6].Weight = weights[6];
+        //    _values[7].Value = scale.Y;
+        //    _values[7].Weight = weights[7];
+        //    _values[8].Value = scale.Z;
+        //    _values[8].Weight = weights[8];
+        //}
+
+        public BoneFrame(string name, FrameValueWeight[] values)
+        {
+            _name = name;
+            _values = values;
         }
 
         public void UpdateSkeleton(Skeleton skeleton)
@@ -208,13 +242,14 @@ namespace TheraEngine.Animation
 
             if (otherBoneFrame == null)
             {
-                t = _translation;
-                r = _rotation;
-                s = _scale;
                 otherWeight = 1.0f - otherWeight;
-                _translationWeight *= otherWeight;
-                _rotationWeight *= otherWeight;
-                _scaleWeight *= otherWeight;
+                for (int i = 0; i < _values.Length; ++i)
+                    _values[i].Weight *= otherWeight;
+
+                t = GetTranslation(bindState.Translation);
+                r = GetRotation(bindState.Rotation).ToQuaternion();
+                s = GetScale(bindState.Scale);
+               
             }
             else
             {
@@ -222,9 +257,9 @@ namespace TheraEngine.Animation
                 Vec3 t2 = otherBoneFrame.GetTranslation(bindState.Translation);
                 t = Vec3.Lerp(t1, t2, otherWeight);
 
-                Quat r1 = GetRotation(bindState.Quaternion);
-                Quat r2 = otherBoneFrame.GetRotation(bindState.Quaternion);
-                r = Quat.Slerp(r1, r2, otherWeight);
+                Rotator r1 = GetRotation(bindState.Rotation);
+                Rotator r2 = otherBoneFrame.GetRotation(bindState.Rotation);
+                r = Quat.Slerp(r1.ToQuaternion(), r2.ToQuaternion(), otherWeight);
 
                 Vec3 s1 = GetScale(bindState.Scale);
                 Vec3 s2 = otherBoneFrame.GetScale(bindState.Scale);
@@ -235,49 +270,30 @@ namespace TheraEngine.Animation
         }
         public BoneFrame BlendedWith(BoneFrame otherBoneFrame, float otherWeight)
         {
-            Vec3 t1 = _translation;
-            Vec3 t2 = otherBoneFrame._translation;
-            Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
-
-            Quat r1 = _rotation;
-            Quat r2 = otherBoneFrame._rotation;
-            Quat r = Quat.Slerp(r1, r2, otherWeight);
-
-            Vec3 s1 = _scale;
-            Vec3 s2 = otherBoneFrame._scale;
-            Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
-
-            return new BoneFrame(
-                _name,
-                t, _translationWeight * otherBoneFrame._translationWeight,
-                r, _rotationWeight * otherBoneFrame._rotationWeight,
-                s, _scaleWeight * otherBoneFrame._scaleWeight);
+            FrameValueWeight[] values = new FrameValueWeight[9];
+            for (int i = 0; i < 9; ++i)
+            {
+                var value = _values[i];
+                var otherValue = otherBoneFrame._values[i];
+                values[i] = new FrameValueWeight(
+                    CustomMath.Lerp(value.Value, otherValue.Value, otherWeight),
+                    CustomMath.Lerp(value.Weight, otherValue.Weight, otherWeight));
+            }
+            return new BoneFrame(_name, values);
         }
+
         public BoneFrame BlendedWith(BoneAnimation other, float frameIndex, float otherWeight)
-        {
-            return BlendedWith(other.GetFrame(frameIndex), otherWeight);
-        }
+            => BlendedWith(other.GetFrame(frameIndex), otherWeight);
 
         public void BlendWith(BoneFrame otherBoneFrame, float otherWeight)
         {
-            Vec3 t1 = _translation;
-            Vec3 t2 = otherBoneFrame._translation;
-            Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
-
-            Quat r1 = _rotation;
-            Quat r2 = otherBoneFrame._rotation;
-            Quat r = Quat.Slerp(r1, r2, otherWeight);
-
-            Vec3 s1 = _scale;
-            Vec3 s2 = otherBoneFrame._scale;
-            Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
-
-            _translation = t;
-            _translationWeight = _translationWeight * otherBoneFrame._translationWeight;
-            _rotation = r;
-            _rotationWeight = _rotationWeight * otherBoneFrame._rotationWeight;
-            _scale = s;
-            _scaleWeight = _scaleWeight * otherBoneFrame._scaleWeight;
+            for (int i = 0; i < 9; ++i)
+            {
+                var value = _values[i];
+                var otherValue = otherBoneFrame._values[i];
+                value.Value = CustomMath.Lerp(value.Value, otherValue.Value, otherWeight);
+                value.Weight = CustomMath.Lerp(value.Weight, otherValue.Weight, otherWeight);
+            }
         }
         public void BlendWith(BoneAnimation other, float frameIndex, float otherWeight)
         {

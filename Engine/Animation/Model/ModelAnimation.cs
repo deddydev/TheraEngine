@@ -34,8 +34,12 @@ namespace TheraEngine.Animation
 
         protected internal void Tick(float delta)
             => Progress(delta);
-        public BoneAnimation CreateBoneAnimation(string boneName)
+
+        public BoneAnimation FindOrCreateBoneAnimation(string boneName, out bool wasFound)
         {
+            if (wasFound = _boneAnimations.ContainsKey(boneName))
+                return _boneAnimations[boneName];
+            
             BoneAnimation bone = new BoneAnimation(this, boneName);
             AddBoneAnimation(bone);
             return bone;
@@ -137,9 +141,9 @@ namespace TheraEngine.Animation
             Parent = parent;
         }
 
-        public BoneFrame BlendedWith(float frameIndex, BoneFrame other, float otherWeight)
+        public BoneFrame BlendedWith(float second, BoneFrame other, float otherWeight)
         {
-            return GetFrame(frameIndex).BlendedWith(other, otherWeight);
+            return GetFrame(second).BlendedWith(other, otherWeight);
         }
 
         /// <summary>
@@ -175,8 +179,8 @@ namespace TheraEngine.Animation
             new KeyframeTrack<FloatKeyframe>(), //tx
             new KeyframeTrack<FloatKeyframe>(), //ty
             new KeyframeTrack<FloatKeyframe>(), //tz
-            new KeyframeTrack<FloatKeyframe>(), //ry
             new KeyframeTrack<FloatKeyframe>(), //rp
+            new KeyframeTrack<FloatKeyframe>(), //ry
             new KeyframeTrack<FloatKeyframe>(), //rr
             new KeyframeTrack<FloatKeyframe>(), //sx
             new KeyframeTrack<FloatKeyframe>(), //sy
@@ -189,11 +193,11 @@ namespace TheraEngine.Animation
         public KeyframeTrack<FloatKeyframe> TranslationY => _tracks[1];
         [Category("Bone Animation")]
         public KeyframeTrack<FloatKeyframe> TranslationZ => _tracks[2];
-        
+
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationYaw => _tracks[3];
+        public KeyframeTrack<FloatKeyframe> RotationPitch => _tracks[3];
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationPitch => _tracks[4];
+        public KeyframeTrack<FloatKeyframe> RotationYaw => _tracks[4];
         [Category("Bone Animation")]
         public KeyframeTrack<FloatKeyframe> RotationRoll => _tracks[5];
 
@@ -229,18 +233,47 @@ namespace TheraEngine.Animation
         }
         public void UpdateState(FrameState frameState, FrameState bindState)
             => UpdateState(frameState, bindState, Parent.CurrentTime);
-        public void UpdateState(FrameState frameState, FrameState bindState, float second)
+        public unsafe void UpdateState(FrameState frameState, FrameState bindState, float second)
         {
-            Vec3 t = _translation.First == null ?
-                bindState.Translation.Raw :
-                _translation.First.Interpolate(second);
-            Quat r = _rotation.First == null ?
-                bindState.Quaternion :
-                _rotation.First.Interpolate(second);
-            Vec3 s = _scale.First == null ?
-                bindState.Scale.Raw :
-                _scale.First.Interpolate(second);
-            frameState.SetAll(t, r, s);
+            GetTransform(bindState, second, out Vec3 translation, out Rotator rotation, out Vec3 scale);
+            frameState.SetAll(translation, rotation, scale);
+        }
+
+        /// <summary>
+        /// Retrieves the parts of the transform for this bone at the requested frame second.
+        /// </summary>
+        public unsafe void GetTransform(FrameState bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        {
+            Vec3 t, r, s;
+            Vec3
+                bt = bindState.Translation.Raw,
+                br = bindState.Rotation.RawPitchYawRoll,
+                bs = bindState.Scale.Raw;
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* ps = (float*)&s;
+            float* pbt = (float*)&bt;
+            float* pbr = (float*)&br;
+            float* pbs = (float*)&bs;
+            for (int i = 0; i < 3; ++i)
+            {
+                var track = _tracks[i];
+                *pt++ = track.First == null ? pbt[i] : track.First.Interpolate(second);
+            }
+            for (int i = 3; i < 6; ++i)
+            {
+                var track = _tracks[i];
+                *pr++ = track.First == null ? pbr[i] : track.First.Interpolate(second);
+            }
+            for (int i = 6; i < 9; ++i)
+            {
+                var track = _tracks[i];
+                *ps++ = track.First == null ? pbs[i] : track.First.Interpolate(second);
+            }
+
+            translation = t;
+            rotation = new Rotator(r, EulerOrder);
+            scale = s;
         }
         public void UpdateStateBlended(FrameState frameState, FrameState bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
             => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentTime, otherBoneAnim.Parent.CurrentTime, otherWeight, blendType);
@@ -253,30 +286,12 @@ namespace TheraEngine.Animation
             float otherWeight,
             AnimBlendType blendType)
         {
-            Vec3 t1 = _translation.First == null ?
-                bindState.Translation.Raw :
-                _translation.First.Interpolate(thisSecond);
-            Vec3 t2 = otherBoneAnim._translation.First == null ?
-                bindState.Translation.Raw :
-                otherBoneAnim._translation.First.Interpolate(otherSecond);
-            Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
+            GetTransform(bindState, thisSecond, out Vec3 t1, out Rotator r1, out Vec3 s1);
+            otherBoneAnim.GetTransform(bindState, otherSecond, out Vec3 t2, out Rotator r2, out Vec3 s2);
             
-            Quat r1 = _rotation.First == null ?
-                bindState.Quaternion :
-                _rotation.First.Interpolate(thisSecond);
-            Quat r2 = otherBoneAnim._rotation.First == null ?
-                bindState.Quaternion :
-                 otherBoneAnim._rotation.First.Interpolate(otherSecond);
-            Quat r = Quat.Slerp(r1, r2, otherWeight);
-
-            Vec3 s1 = _scale.First == null ?
-                bindState.Scale.Raw :
-                _scale.First.Interpolate(thisSecond);
-            Vec3 s2 = otherBoneAnim._scale.First == null ?
-                bindState.Scale.Raw :
-                otherBoneAnim._scale.First.Interpolate(otherSecond);
+            Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
+            Quat r = Quat.Slerp(r1.ToQuaternion(), r2.ToQuaternion(), otherWeight);
             Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
-
             frameState.SetAll(t, r, s);
         }
         public void UpdateSkeletonBlended(

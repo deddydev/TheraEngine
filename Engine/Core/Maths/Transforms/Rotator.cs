@@ -49,8 +49,20 @@ namespace System
         private Rotator _syncPitch, _syncYaw, _syncRoll, _syncAll;
         //private readonly object _lock = new object();
 
+        [Browsable(false)]
+        public Vec3 RawPitchYawRoll
+        {
+            get => _pyr;
+            set
+            {
+                BeginUpdate();
+                _pyr = value;
+                EndUpdate();
+            }
+        }
+
         [Serialize("PitchYawRoll", IsXmlAttribute = true)]
-        public Vec3 _pyr;
+        private Vec3 _pyr;
         [Serialize("Order", IsXmlAttribute = true)]
         private RotationOrder _rotationOrder = RotationOrder.YPR;
         [Serialize("LockYaw", IsXmlAttribute = true)]

@@ -33,7 +33,7 @@ namespace System
         [Browsable(false)]
         public Vec3 Raw
         {
-            get { return _data; }
+            get => _data;
             set
             {
                 BeginUpdate();

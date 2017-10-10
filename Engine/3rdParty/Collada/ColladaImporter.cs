@@ -210,21 +210,18 @@ namespace TheraEngine.Rendering.Models
                                     string targetName = node.Name ?? (node.ID ?? node.SID);
                                     if (node.Type == Node.EType.JOINT)
                                     {
-                                        BoneAnimation bone;
-                                        if (anim._boneAnimations.ContainsKey(targetName))
-                                            bone = anim._boneAnimations[targetName];
-                                        else
-                                        {
-                                            bone = anim.CreateBoneAnimation(targetName);
+                                        BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+                                        if (!wasFound)
                                             bone.EulerOrder = RotationOrder.RYP;
-                                        }
                                         
                                         int x = 0;
                                         for (int i = 0; i < inputData.Length; ++i, x += 2)
                                         {
                                             float second = inputData[i];
+                                            float value = outputData[i];
                                             InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                            PlanarInterpType pType = (PlanarInterpType)type;
+                                            PlanarInterpType pType = (PlanarInterpType)(int)type;
+
                                             float inTan = 0.0f, outTan = 0.0f;
                                             switch (pType)
                                             {
@@ -240,23 +237,24 @@ namespace TheraEngine.Rendering.Models
                                                     outTan = outTanData[x + 1] / outTanData[x];
                                                     break;
                                             }
+
                                             if (xAxis)
                                             {
-                                                bone.RotationPitch.Add(new FloatKeyframe(second, outputData[i], inTan, outTan, pType));
+                                                bone.RotationPitch.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                             }
                                             else if (yAxis)
                                             {
-                                                bone.RotationYaw.Add(new FloatKeyframe(second, outputData[i], inTan, outTan, pType));
+                                                bone.RotationYaw.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                             }
                                             else
                                             {
-                                                bone.RotationRoll.Add(new FloatKeyframe(second, outputData[i], inTan, outTan, pType));
+                                                bone.RotationRoll.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                             }
                                         }
                                     }
                                     else
                                     {
-
+                                        Engine.PrintLine("Generic node selective-rotation animation not supported.");
                                     }
                                 }
                             }
@@ -265,7 +263,7 @@ namespace TheraEngine.Rendering.Models
                         }
                         else if (s == Channel.ESelector.TIME)
                         {
-
+                            Engine.PrintLine("TIME animation selector not supported.");
                         }
                         else
                         {
@@ -274,15 +272,107 @@ namespace TheraEngine.Rendering.Models
                             {
                                 Node node = translate.ParentElement;
                                 string targetName = node.Name ?? (node.ID ?? node.SID);
+                                if (node.Type == Node.EType.JOINT)
+                                {
+                                    BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+
+                                    int x = 0;
+                                    for (int i = 0; i < inputData.Length; ++i, x += 2)
+                                    {
+                                        float second = inputData[i];
+                                        float value = outputData[i];
+                                        InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                        PlanarInterpType pType = (PlanarInterpType)(int)type;
+
+                                        float inTan = 0.0f, outTan = 0.0f;
+                                        switch (pType)
+                                        {
+                                            //case PlanarInterpType.Step:
+                                            //case PlanarInterpType.Linear:
+                                            //    break;
+                                            case PlanarInterpType.CubicHermite:
+                                                inTan = inTanData[i];
+                                                outTan = outTanData[i];
+                                                break;
+                                            case PlanarInterpType.CubicBezier:
+                                                inTan = inTanData[x + 1] / inTanData[x];
+                                                outTan = outTanData[x + 1] / outTanData[x];
+                                                break;
+                                        }
+
+                                        switch (valueIndex)
+                                        {
+                                            case 0:
+                                                bone.TranslationX.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                break;
+                                            case 1:
+                                                bone.TranslationY.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                break;
+                                            case 2:
+                                                bone.TranslationZ.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Engine.PrintLine("Generic node selective-translation animation not supported.");
+                                }
                             }
                             else if (target is Node.Scale scale)
                             {
                                 Node node = scale.ParentElement;
                                 string targetName = node.Name ?? (node.ID ?? node.SID);
+                                if (node.Type == Node.EType.JOINT)
+                                {
+                                    BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+
+                                    int x = 0;
+                                    for (int i = 0; i < inputData.Length; ++i, x += 2)
+                                    {
+                                        float second = inputData[i];
+                                        float value = outputData[i];
+                                        InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                        PlanarInterpType pType = (PlanarInterpType)(int)type;
+
+                                        float inTan = 0.0f, outTan = 0.0f;
+                                        switch (pType)
+                                        {
+                                            //case PlanarInterpType.Step:
+                                            //case PlanarInterpType.Linear:
+                                            //    break;
+                                            case PlanarInterpType.CubicHermite:
+                                                inTan = inTanData[i];
+                                                outTan = outTanData[i];
+                                                break;
+                                            case PlanarInterpType.CubicBezier:
+                                                inTan = inTanData[x + 1] / inTanData[x];
+                                                outTan = outTanData[x + 1] / outTanData[x];
+                                                break;
+                                        }
+
+                                        switch (valueIndex)
+                                        {
+                                            case 0:
+                                                bone.ScaleX.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                break;
+                                            case 1:
+                                                bone.ScaleY.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                break;
+                                            case 2:
+                                                bone.ScaleZ.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Engine.PrintLine("Generic node selective-scale animation not supported.");
+                                }
                             }
                             else if (target is BaseFXColorTexture.Color color)
                             {
-
+                                Engine.PrintLine("Reading animation for " + color.GetType().GetFriendlyName() + " is not supported.");
                             }
                             else
                             {
@@ -299,94 +389,91 @@ namespace TheraEngine.Rendering.Models
                         string targetName = node.Name ?? (node.ID ?? node.SID);
                         if (node.Type == Node.EType.JOINT)
                         {
-                            BoneAnimation b;
-                            if (anim._boneAnimations.ContainsKey(targetName))
-                                b = anim._boneAnimations[targetName];
-                            else
-                                b = anim.CreateBoneAnimation(targetName);
-
                             int x = 0;
                             for (int i = 0; i < inputData.Length; ++i, x += 16)
                             {
                                 float second = inputData[i];
                                 InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                PlanarInterpType pType = (PlanarInterpType)type;
+                                PlanarInterpType pType = (PlanarInterpType)(int)type;
+
+                                float inTan = 0.0f, outTan = 0.0f;
                                 switch (pType)
                                 {
-                                    case PlanarInterpType.Step:
-                                    case PlanarInterpType.Linear:
-                                        break;
+                                    //case PlanarInterpType.Step:
+                                    //case PlanarInterpType.Linear:
+                                    //    break;
                                     case PlanarInterpType.CubicHermite:
+                                        inTan = inTanData[i];
+                                        outTan = outTanData[i];
+                                        break;
                                     case PlanarInterpType.CubicBezier:
+                                        inTan = inTanData[x + 1] / inTanData[x];
+                                        outTan = outTanData[x + 1] / outTanData[x];
                                         break;
                                 }
+
                                 Matrix4 matrix = new Matrix4(
                                         outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
                                         outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
                                         outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
                                         outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
+
                                 FrameState transform = FrameState.DeriveTRS(matrix);
-                                b._translation.Add(new Vec3Keyframe(second, transform.Translation, Vec3.Zero, pType));
-                                b._scale.Add(new Vec3Keyframe(second, transform.Scale, Vec3.Zero, pType));
-                                b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, Quat.Identity, Quat.Identity, RadialInterpType.Linear));
+
+                                BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+
+                                bone.TranslationX.Add(new FloatKeyframe(second, transform.Translation.X, inTan, outTan, pType));
+                                bone.TranslationY.Add(new FloatKeyframe(second, transform.Translation.Y, inTan, outTan, pType));
+                                bone.TranslationZ.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
+
+                                bone.RotationYaw.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
+                                bone.RotationPitch.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
+                                bone.RotationRoll.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
+
+                                bone.ScaleX.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
+                                bone.ScaleY.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));
+                                bone.ScaleZ.Add(new FloatKeyframe(second, transform.Scale.Z, inTan, outTan, pType));
                             }
                         }
                         else
                         {
-
+                            Engine.PrintLine("Generic node matrix animation not supported.");
                         }
                     }
                     else if (target is Node.Translate trans)
                     {
                         if (trans.ParentElement.Type == Node.EType.JOINT)
                         {
-
+                            Engine.PrintLine("Bone full-translation animation not supported.");
                         }
                         else
                         {
-
+                            Engine.PrintLine("Generic node translation animation not supported.");
                         }
                     }
                     else if (target is Node.Rotate rot)
                     {
                         if (rot.ParentElement.Type == Node.EType.JOINT)
                         {
-
+                            Engine.PrintLine("Bone full-rotation animation not supported.");
                         }
                         else
                         {
-
+                            Engine.PrintLine("Generic node rotation animation not supported.");
                         }
                     }
                     else if (target is Node.Scale scale)
                     {
                         if (scale.ParentElement.Type == Node.EType.JOINT)
                         {
-
+                            Engine.PrintLine("Bone full-scale animation not supported.");
                         }
                         else
                         {
-
+                            Engine.PrintLine("Generic node scale animation not supported.");
                         }
                     }
                 }
-
-                //string targetName = entry._name ?? entry._id;
-
-               
-                //if (targetSID == "matrix")
-                //{
-                    
-                //}
-                //else if (targetSID == "visibility")
-                //{
-                //    for (int i = 0; i < timeData.Length; ++i)
-                //    {
-                //        float second = timeData[i];
-                //        float vis = outputData[i];
-                //        InterpType type = interpData[i].AsEnum<InterpType>();
-                //    }
-                //}
             }
         }
         private enum InterpType

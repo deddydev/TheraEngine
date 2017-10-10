@@ -104,6 +104,8 @@ namespace TheraEngine.Rendering.Models
                                         foreach (ObjectInfo obj in objects)
                                             if (!obj.UsesController)
                                                 obj.Initialize(modelScene.StaticModel, visualScene);
+                                            else
+                                                Engine.PrintLine("Model contains no bones, but has one or more controllers.");
                                     }
                                     else
                                     {
@@ -114,8 +116,7 @@ namespace TheraEngine.Rendering.Models
                                         modelScene.StaticModel = null;
                                         modelScene.Skeleton = new Skeleton(rootBones.ToArray());
                                         foreach (ObjectInfo obj in objects)
-                                            if (obj.UsesController)
-                                                obj.Initialize(modelScene.SkeletalModel, visualScene);
+                                            obj.Initialize(modelScene.SkeletalModel, visualScene);
                                     }
                                     data.Models.Add(modelScene);
                                 }
@@ -125,11 +126,15 @@ namespace TheraEngine.Rendering.Models
                                     data.PropertyAnimations = new List<BasePropertyAnimation>();
                                     ModelAnimation anim = new ModelAnimation()
                                     {
-                                        Name = Path.GetFileNameWithoutExtension(filePath)
+                                        Name = Path.GetFileNameWithoutExtension(filePath),
+                                        Looped = true,
                                     };
+                                    float animationLength = 0.0f;
                                     foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
                                         foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
-                                            ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations);
+                                            ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations, ref animationLength);
+                                    anim.SetLength(animationLength, false);
+                                    Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
                                     data.ModelAnimations.Add(anim);
                                 }
                             }
@@ -140,10 +145,10 @@ namespace TheraEngine.Rendering.Models
             return data;
         }
 
-        private static void ParseAnimation(LibraryAnimations.Animation animElem, ModelAnimation anim, VisualScene visualScene, List<BasePropertyAnimation> propAnims)
+        private static void ParseAnimation(LibraryAnimations.Animation animElem, ModelAnimation anim, VisualScene visualScene, List<BasePropertyAnimation> propAnims, ref float animationLength)
         {
             foreach (var animElemChild in animElem.AnimationElements)
-                ParseAnimation(animElemChild, anim, visualScene, propAnims);
+                ParseAnimation(animElemChild, anim, visualScene, propAnims, ref animationLength);
 
             foreach (var channel in animElem.ChannelElements)
             {
@@ -212,7 +217,7 @@ namespace TheraEngine.Rendering.Models
                                     {
                                         BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
                                         if (!wasFound)
-                                            bone.EulerOrder = RotationOrder.RYP;
+                                            bone.EulerOrder = RotationOrder.YPR;
                                         
                                         int x = 0;
                                         for (int i = 0; i < inputData.Length; ++i, x += 2)
@@ -225,9 +230,6 @@ namespace TheraEngine.Rendering.Models
                                             float inTan = 0.0f, outTan = 0.0f;
                                             switch (pType)
                                             {
-                                                case PlanarInterpType.Step:
-                                                case PlanarInterpType.Linear:
-                                                    break;
                                                 case PlanarInterpType.CubicHermite:
                                                     inTan = inTanData[i];
                                                     outTan = outTanData[i];
@@ -238,18 +240,13 @@ namespace TheraEngine.Rendering.Models
                                                     break;
                                             }
 
+                                            animationLength = Math.Max(animationLength, second);
                                             if (xAxis)
-                                            {
                                                 bone.RotationPitch.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                            }
                                             else if (yAxis)
-                                            {
                                                 bone.RotationYaw.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                            }
                                             else
-                                            {
                                                 bone.RotationRoll.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                            }
                                         }
                                     }
                                     else
@@ -287,9 +284,6 @@ namespace TheraEngine.Rendering.Models
                                         float inTan = 0.0f, outTan = 0.0f;
                                         switch (pType)
                                         {
-                                            //case PlanarInterpType.Step:
-                                            //case PlanarInterpType.Linear:
-                                            //    break;
                                             case PlanarInterpType.CubicHermite:
                                                 inTan = inTanData[i];
                                                 outTan = outTanData[i];
@@ -300,6 +294,7 @@ namespace TheraEngine.Rendering.Models
                                                 break;
                                         }
 
+                                        animationLength = Math.Max(animationLength, second);
                                         switch (valueIndex)
                                         {
                                             case 0:
@@ -338,9 +333,6 @@ namespace TheraEngine.Rendering.Models
                                         float inTan = 0.0f, outTan = 0.0f;
                                         switch (pType)
                                         {
-                                            //case PlanarInterpType.Step:
-                                            //case PlanarInterpType.Linear:
-                                            //    break;
                                             case PlanarInterpType.CubicHermite:
                                                 inTan = inTanData[i];
                                                 outTan = outTanData[i];
@@ -351,6 +343,7 @@ namespace TheraEngine.Rendering.Models
                                                 break;
                                         }
 
+                                        animationLength = Math.Max(animationLength, second);
                                         switch (valueIndex)
                                         {
                                             case 0:
@@ -399,9 +392,6 @@ namespace TheraEngine.Rendering.Models
                                 float inTan = 0.0f, outTan = 0.0f;
                                 switch (pType)
                                 {
-                                    //case PlanarInterpType.Step:
-                                    //case PlanarInterpType.Linear:
-                                    //    break;
                                     case PlanarInterpType.CubicHermite:
                                         inTan = inTanData[i];
                                         outTan = outTanData[i];
@@ -433,6 +423,8 @@ namespace TheraEngine.Rendering.Models
                                 bone.ScaleX.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
                                 bone.ScaleY.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));
                                 bone.ScaleZ.Add(new FloatKeyframe(second, transform.Scale.Z, inTan, outTan, pType));
+
+                                animationLength = Math.Max(animationLength, second);
                             }
                         }
                         else
@@ -500,7 +492,7 @@ namespace TheraEngine.Rendering.Models
             Matrix4 nodeMatrix = node.GetTransformMatrix();
             bindMatrix = rootMatrix * bindMatrix * nodeMatrix;
 
-            if (node.Type == COLLADA.Node.EType.JOINT)
+            if (node.Type == Node.EType.JOINT)
             {
                 Bone bone = new Bone(node.Name ?? node.ID, FrameState.DeriveTRS(rootMatrix * nodeMatrix/*invParent * bindMatrix*/));
                 node.UserData = bone;
@@ -512,7 +504,7 @@ namespace TheraEngine.Rendering.Models
             }
 
             Matrix4 inv = bindMatrix.Inverted();
-            foreach (COLLADA.Node e in node.NodeElements)
+            foreach (Node e in node.NodeElements)
                 EnumNode(parent, e, nodes, objects, bindMatrix, inv, Matrix4.Identity, lights, cameras);
 
             foreach (IInstanceElement inst in node.InstanceElements)
@@ -524,14 +516,14 @@ namespace TheraEngine.Rendering.Models
                     var child = controller.SkinOrMorphElement;
                     if (child != null)
                     {
-                        if (child is COLLADA.LibraryControllers.Controller.Skin skin)
+                        if (child is LibraryControllers.Controller.Skin skin)
                         {
-                            if (skin.Source.GetElement(skin.Root) is COLLADA.LibraryGeometries.Geometry geometry)
+                            if (skin.Source.GetElement(skin.Root) is LibraryGeometries.Geometry geometry)
                                 objects.Add(new ObjectInfo(geometry, skin, bindMatrix, controllerRef, parent, node));
                             else
                                 Engine.PrintLine(skin.Source.URI + " does not point to a valid geometry entry.");
                         }
-                        else if (child is COLLADA.LibraryControllers.Controller.Morph morph)
+                        else if (child is LibraryControllers.Controller.Morph morph)
                         {
                             //var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as COLLADA.LibraryGeometries.Geometry;
                             Engine.PrintLine("Importing morphs is not yet supported.");
@@ -572,20 +564,20 @@ namespace TheraEngine.Rendering.Models
 
         private class ObjectInfo
         {
-            public COLLADA.LibraryGeometries.Geometry _geoEntry;
-            public COLLADA.LibraryControllers.Controller.ControllerChild _rig;
+            public LibraryGeometries.Geometry _geoEntry;
+            public LibraryControllers.Controller.ControllerChild _rig;
             public Matrix4 _bindMatrix;
             public IInstanceMesh _inst;
-            public COLLADA.Node _node;
+            public Node _node;
             public Bone _parent;
 
             public ObjectInfo(
-                COLLADA.LibraryGeometries.Geometry geoEntry,
-                COLLADA.LibraryControllers.Controller.ControllerChild rig,
+                LibraryGeometries.Geometry geoEntry,
+                LibraryControllers.Controller.ControllerChild rig,
                 Matrix4 bindMatrix,
                 IInstanceMesh inst,
                 Bone parent,
-                COLLADA.Node node)
+                Node node)
             {
                 _geoEntry = geoEntry;
                 _bindMatrix = bindMatrix;
@@ -606,13 +598,13 @@ namespace TheraEngine.Rendering.Models
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
                 Material m = null;
-                if (_inst?.
-                    BindMaterialElement?.
-                    TechniqueCommonElement?.
-                    InstanceMaterialElements?[0].
-                    Target.GetElement(scene.Root)
-                    is COLLADA.LibraryMaterials.Material mat)
-                    m = CreateMaterial(mat);
+                //if (_inst?.
+                //    BindMaterialElement?.
+                //    TechniqueCommonElement?.
+                //    InstanceMaterialElements?[0].
+                //    Target.GetElement(scene.Root)
+                //    is LibraryMaterials.Material mat)
+                //    m = CreateMaterial(mat);
 
                 if (m == null)
                     m = Material.GetLitColorMaterial();
@@ -628,13 +620,13 @@ namespace TheraEngine.Rendering.Models
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
                 Material m = null;
-                if (_inst?.
-                    BindMaterialElement?.
-                    TechniqueCommonElement?.
-                    InstanceMaterialElements?[0].
-                    Target.GetElement(scene.Root)
-                    is COLLADA.LibraryMaterials.Material mat)
-                    m = CreateMaterial(mat);
+                //if (_inst?.
+                //    BindMaterialElement?.
+                //    TechniqueCommonElement?.
+                //    InstanceMaterialElements?[0].
+                //    Target.GetElement(scene.Root)
+                //    is LibraryMaterials.Material mat)
+                //    m = CreateMaterial(mat);
 
                 if (m == null)
                     m = Material.GetLitColorMaterial();
@@ -642,7 +634,7 @@ namespace TheraEngine.Rendering.Models
                 model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, null, m));
             }
         }
-        private static Material CreateMaterial(COLLADA.LibraryMaterials.Material colladaMaterial)
+        private static Material CreateMaterial(LibraryMaterials.Material colladaMaterial)
         {
             List<TextureReference> texRefs = new List<TextureReference>();
 
@@ -650,9 +642,9 @@ namespace TheraEngine.Rendering.Models
             Material m = null;
             if (colladaMaterial.InstanceEffectElement != null)
             {
-                var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<COLLADA.LibraryEffects.Effect>(colladaMaterial.Root);
+                var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<LibraryEffects.Effect>(colladaMaterial.Root);
                 //var profiles = eff.ProfileElements;
-                var profileCommon = eff.GetChild<COLLADA.LibraryEffects.Effect.ProfileCommon>();
+                var profileCommon = eff.GetChild<LibraryEffects.Effect.ProfileCommon>();
                 if (profileCommon != null)
                 {
                     var lightingType = profileCommon.TechniqueElement.LightingTypeElement;

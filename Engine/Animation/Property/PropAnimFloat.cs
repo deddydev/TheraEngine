@@ -121,23 +121,20 @@ namespace TheraEngine.Animation
         }
         public float Interpolate(float desiredSecond)
         {
-            if (_next == this)
-                return desiredSecond < Second ? InValue : OutValue;
-
+            //First, check if the desired second is between this key and the next key.
             if (desiredSecond < Second)
             {
-                if (_prev == this)
-                    return InValue;
-
-                return Prev.Interpolate(desiredSecond);
+                //If the previous key's second is greater than this second, this key must be the first key. 
+                //Return the InValue as the desired second comes before this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return _prev.Second < Second ? Prev.Interpolate(desiredSecond) : InValue;
             }
-
-            if (desiredSecond > _next.Second)
+            else if (desiredSecond > _next.Second)
             {
-                if (_next == this)
-                    return OutValue;
-
-                return Next.Interpolate(desiredSecond);
+                //If the next key's second is less than this second, this key must be the last key. 
+                //Return the OutValue as the desired second comes after this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return _next.Second > Second ? Next.Interpolate(desiredSecond) : OutValue;
             }
 
             float span = _next.Second - Second;

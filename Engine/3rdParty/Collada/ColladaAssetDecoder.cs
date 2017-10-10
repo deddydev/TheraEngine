@@ -245,7 +245,7 @@ namespace TheraEngine.Rendering.Models
                         {
                             case ESemantic.VERTEX:
                                 Vec3 position = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                position = position * bindMatrix;
+                                position = Vec3.TransformPosition(position, bindMatrix);
                                 vtx._position = position;
                                 if (infList != null)
                                     vtx._influence = infList[pointIndex];

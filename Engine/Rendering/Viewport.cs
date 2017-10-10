@@ -311,8 +311,8 @@ namespace TheraEngine.Rendering
             _region.Height =  _topPercentage * parentHeight - _region.Y;
             
             if (setInternalResolution)
-                SetInternalResolution(1920, 1080);
-                //SetInternalResolution(parentWidth, parentHeight); 
+                //SetInternalResolution(1920, 1080);
+                SetInternalResolution(parentWidth, parentHeight); 
 
             if (_worldCamera is PerspectiveCamera p)
                 p.Aspect = Width / Height;

@@ -9,8 +9,6 @@ namespace TheraEngine.Tests
 {
     public class TestCharacter : CharacterPawn
     {
-        public const string MeshName = "TESTMESH";
-        public const string SkelName = "TESTSKEL";
         private void SceneImported(Task<Collada.Data> task)
         {
             var scene = task.Result;
@@ -45,17 +43,21 @@ namespace TheraEngine.Tests
                 //kneeAnim.Keyframes.Add(s3);
                 //kneeAnim.Keyframes.Add(l3);
                 //skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
-                
+
                 _meshComp.Skeleton = skeleton;
                 _meshComp.Model = mesh;
+
+                string animPath = TestDefaults.DesktopPath + "test_anim.dae";
+                //googleDrive + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
+                ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
+                //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
+                {
+                    _animationStateMachine.Skeleton = _meshComp.Skeleton;
+                    _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/m);
+                }
             }
 
-            string animPath = TestDefaults.DesktopPath + "test_anim.dae";
-            //googleDrive + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
-
-            ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
-            _animationStateMachine.Skeleton = _meshComp.Skeleton;
-            _animationStateMachine.InitialState = new AnimState(m);
+     
         }
         protected override void PreConstruct()
         {
@@ -68,7 +70,7 @@ namespace TheraEngine.Tests
             };
 
             Task.Factory.StartNew(() => 
-            Collada.Import(TestDefaults.DesktopPath + "TEST.DAE", options), 
+            Collada.Import(TestDefaults.DesktopPath + "test.dae", options), 
             TaskCreationOptions.LongRunning).
             ContinueWith(task => SceneImported(task));
             

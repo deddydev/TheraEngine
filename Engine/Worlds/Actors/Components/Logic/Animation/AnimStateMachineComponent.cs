@@ -35,13 +35,23 @@ namespace TheraEngine.Animation
             get => _initialStateIndex >= 0 ? _states[_initialStateIndex] : null;
             set
             {
+                bool wasNull = _initialStateIndex < 0;
                 int index = _states.IndexOf(value);
                 if (index >= 0)
                     _initialStateIndex = index;
-                else
+                else if (value != null)
                 {
                     _initialStateIndex = _states.Count;
                     _states.Add(value);
+                }
+                else
+                    _initialStateIndex = -1;
+
+                if (IsSpawned && wasNull && _initialStateIndex >= 0)
+                {
+                    _currentState = InitialState;
+                    _blendManager = new BlendManager(InitialState.Animation);
+                    RegisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Tick);
                 }
             }
         }

@@ -100,7 +100,7 @@ namespace TheraEngine
 #if DEBUG
             RenderOctree = false;
             RenderQuadtree = true;
-            RenderSkeletons = false;
+            RenderSkeletons = true;
             RenderCameraFrustums = false;
             RenderSplines = true;
             RenderCullingVolumes = false;

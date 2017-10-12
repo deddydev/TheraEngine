@@ -9,7 +9,7 @@ namespace TheraEngine.Worlds.Actors
 {
     public class StaticMeshSocket : ISocket
     {
-        public StaticMeshSocket(FrameState transform, IActor owner)
+        public StaticMeshSocket(LocalRotTransform transform, IActor owner)
         {
             _owner = owner;
             _transform = transform;
@@ -23,7 +23,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         private IActor _owner;
-        private FrameState _transform = FrameState.GetIdentity();
+        private LocalRotTransform _transform = LocalRotTransform.GetIdentity();
         private MonitoredList<SceneComponent> _childComponents;
 
         public Matrix4 WorldMatrix => _transform.Matrix;

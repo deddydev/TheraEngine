@@ -252,11 +252,11 @@ namespace TheraEngine.Rendering.Models
 
                                             animationLength = Math.Max(animationLength, second);
                                             if (xAxis)
-                                                bone.RotationPitch.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                bone.RotationX.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                             else if (yAxis)
-                                                bone.RotationRoll.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                bone.RotationY.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                             else
-                                                bone.RotationYaw.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                bone.RotationZ.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                         }
                                     }
                                     else
@@ -441,7 +441,7 @@ namespace TheraEngine.Rendering.Models
                                         outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
                                         outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
 
-                                FrameState transform = FrameState.DeriveTRS(matrix);
+                                LocalRotTransform transform = LocalRotTransform.DeriveTRS(matrix);
 
                                 BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
 
@@ -449,9 +449,9 @@ namespace TheraEngine.Rendering.Models
                                 bone.TranslationY.Add(new FloatKeyframe(second, transform.Translation.Y, inTan, outTan, pType));
                                 bone.TranslationZ.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
 
-                                bone.RotationYaw.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
-                                bone.RotationPitch.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
-                                bone.RotationRoll.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
+                                bone.RotationY.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
+                                bone.RotationX.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
+                                bone.RotationZ.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
 
                                 bone.ScaleX.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
                                 bone.ScaleY.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));
@@ -527,7 +527,7 @@ namespace TheraEngine.Rendering.Models
 
             if (node.Type == Node.EType.JOINT)
             {
-                Bone bone = new Bone(node.Name ?? node.ID, FrameState.DeriveTRS(rootMatrix * nodeMatrix/*invParent * bindMatrix*/));
+                Bone bone = new Bone(node.Name ?? node.ID, LocalRotTransform.DeriveTRS(rootMatrix * nodeMatrix/*invParent * bindMatrix*/));
                 node.UserData = bone;
                 if (parent == null)
                     rootBone = bone;

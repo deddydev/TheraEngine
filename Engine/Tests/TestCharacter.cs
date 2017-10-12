@@ -66,7 +66,7 @@ namespace TheraEngine.Tests
             {
                 ImportModels = true,
                 ImportAnimations = false,
-                InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
+                InitialTransform = new LocalRotTransform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
 
             Task.Factory.StartNew(() => 

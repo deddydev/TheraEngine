@@ -4,7 +4,7 @@ namespace TheraEngine.Particles
 {
     public class ParticleState
     {
-        FrameState _transform;
+        LocalRotTransform _transform;
 
         public Matrix4 WorldMatrix
         {
@@ -16,7 +16,7 @@ namespace TheraEngine.Particles
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
-        public FrameState LocalTransform
+        public LocalRotTransform LocalTransform
         {
             get { return _transform; }
             set { _transform = value; }

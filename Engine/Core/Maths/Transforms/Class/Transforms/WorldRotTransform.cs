@@ -3,35 +3,30 @@ using System.ComponentModel;
 
 namespace System
 {
-    public enum TransformOrder
-    {
-        TRS,
-        TSR,
-        RST,
-        RTS,
-        STR,
-        SRT,
-    }
-    [FileClass("TSFM", "Transform")]
+    /// <summary>
+    /// Defines a transformation system for translation, rotation and scale in any order.
+    /// Rotations are in world space using separate quaternions for the X, Y and Z axes.
+    /// Rotation order does not matter in this case.
+    /// </summary>
+    [FileClass("WTFM", "World Rotation Transform")]
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class FrameState : FileObject
+    public class WorldRotTransform : FileObject
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(float oldRotation);
         public delegate void ScaleChange(Vec3 oldScale);
         public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
 
-        public static FrameState GetIdentity(
-            TransformOrder transformationOrder = TransformOrder.TRS,
-            RotationOrder rotationOrder = RotationOrder.YPR)
+        public static WorldRotTransform GetIdentity(
+            TransformOrder transformationOrder = TransformOrder.TRS)
         {
-            FrameState identity = GetIdentity();
+            WorldRotTransform identity = GetIdentity();
             identity._transformOrder = transformationOrder;
-            identity.RotationOrder = rotationOrder;
             return identity;
         }
-        public static FrameState GetIdentity() => new FrameState(Vec3.Zero, Rotator.GetZero(), Vec3.One);
-        public FrameState()
+        public static WorldRotTransform GetIdentity()
+            => new WorldRotTransform(Vec3.Zero, QuatRotator.Zero, Vec3.One);
+        public WorldRotTransform()
         {
             _translation = Vec3.Zero;
             _translation.Changed += CreateTransform;
@@ -48,7 +43,7 @@ namespace System
             _inverseTransform = Matrix4.Identity;
         }
         
-        public FrameState(
+        public LocalRotTransform(
             Vec3 translate, 
             Rotator rotate,
             Vec3 scale,
@@ -67,7 +62,7 @@ namespace System
             _transformOrder = transformOrder;
             CreateTransform();
         }
-        public FrameState(
+        public LocalRotTransform(
             Vec3 translate,
             Quat rotate,
             Vec3 scale,
@@ -405,9 +400,9 @@ namespace System
             translation.Round(5);
             scale.Round(5);
         }
-        public static unsafe FrameState DeriveTRS(Matrix4 m)
+        public static unsafe LocalRotTransform DeriveTRS(Matrix4 m)
         {
-            FrameState state = new FrameState()
+            LocalRotTransform state = new LocalRotTransform()
             {
                 _translation = m.Row3.Xyz,
                 _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),

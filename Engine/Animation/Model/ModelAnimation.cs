@@ -141,11 +141,6 @@ namespace TheraEngine.Animation
             Parent = parent;
         }
 
-        public BoneFrame BlendedWith(float second, BoneFrame other, float otherWeight)
-        {
-            return GetFrame(second).BlendedWith(other, otherWeight);
-        }
-
         /// <summary>
         /// Determines which method to use, baked or keyframed.
         /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
@@ -167,7 +162,6 @@ namespace TheraEngine.Animation
         }
 
         internal ModelAnimation Parent { get; set; }
-        public RotationOrder EulerOrder { get; set; } = RotationOrder.YRP;
 
         [Category("Bone Animation"), Serialize("Name")]
         public string _name;
@@ -195,11 +189,11 @@ namespace TheraEngine.Animation
         public KeyframeTrack<FloatKeyframe> TranslationZ => _tracks[2];
 
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationPitch => _tracks[3];
+        public KeyframeTrack<FloatKeyframe> RotationX => _tracks[3];
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationYaw => _tracks[4];
+        public KeyframeTrack<FloatKeyframe> RotationY => _tracks[4];
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationRoll => _tracks[5];
+        public KeyframeTrack<FloatKeyframe> RotationZ => _tracks[5];
 
         [Category("Bone Animation")]
         public KeyframeTrack<FloatKeyframe> ScaleX => _tracks[6];
@@ -231,9 +225,9 @@ namespace TheraEngine.Animation
             if (bone != null)
                 UpdateState(bone.FrameState, bone.BindState);
         }
-        public void UpdateState(FrameState frameState, FrameState bindState)
+        public void UpdateState(LocalRotTransform frameState, LocalRotTransform bindState)
             => UpdateState(frameState, bindState, Parent.CurrentTime);
-        public unsafe void UpdateState(FrameState frameState, FrameState bindState, float second)
+        public unsafe void UpdateState(LocalRotTransform frameState, LocalRotTransform bindState, float second)
         {
             GetTransform(bindState, second, out Vec3 translation, out Rotator rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
@@ -242,7 +236,7 @@ namespace TheraEngine.Animation
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the requested frame second.
         /// </summary>
-        public unsafe void GetTransform(FrameState bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(LocalRotTransform bindState, float second, out Vec3 translation, out QuatRotator rotation, out Vec3 scale)
         {
             Vec3 t, r, s;
             Vec3
@@ -272,14 +266,14 @@ namespace TheraEngine.Animation
             }
 
             translation = t;
-            rotation = new Rotator(r, EulerOrder);
+            rotation = new QuatRotator(r);
             scale = s;
         }
-        public void UpdateStateBlended(FrameState frameState, FrameState bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
+        public void UpdateStateBlended(LocalRotTransform frameState, LocalRotTransform bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
             => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentTime, otherBoneAnim.Parent.CurrentTime, otherWeight, blendType);
         public void UpdateStateBlended(
-            FrameState frameState,
-            FrameState bindState, 
+            LocalRotTransform frameState,
+            LocalRotTransform bindState, 
             BoneAnimation otherBoneAnim,
             float thisSecond,
             float otherSecond,
@@ -304,5 +298,8 @@ namespace TheraEngine.Animation
             if (bone != null)
                 UpdateStateBlended(bone.FrameState, bone.BindState, otherBoneAnim, otherWeight, blendType);
         }
+        public BoneFrame BlendedWith(float second, BoneFrame other, float otherWeight)
+            => GetFrame(second).BlendedWith(other, otherWeight);
+
     }
 }

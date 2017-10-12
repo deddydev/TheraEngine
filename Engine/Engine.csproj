@@ -302,9 +302,9 @@
     <Compile Include="3rdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
     <Compile Include="3rdParty\OBJ\TypeParsers\VertexParser.cs" />
     <Compile Include="Core\HelperMethods.cs" />
-    <Compile Include="Core\Maths\Transforms\Class\Rotation\EventQuatRotator.cs" />
-    <Compile Include="Core\Maths\Transforms\Class\Transforms\WorldRotTransform.cs" />
-    <Compile Include="Core\Maths\Transforms\Struct\Rotation\QuatRotator.cs" />
+    <None Include="Core\Maths\Transforms\Class\Rotation\EventQuatRotator.cs" />
+    <None Include="Core\Maths\Transforms\Class\Transforms\WorldRotTransform.cs" />
+    <None Include="Core\Maths\Transforms\Struct\Rotation\QuatRotator.cs" />
     <Compile Include="Core\Reflection\Attributes\StateAttribute.cs" />
     <Compile Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
@@ -365,7 +365,7 @@
     <Compile Include="3rdParty\Collada\Schema\SchemaImporter.cs" />
     <Compile Include="3rdParty\Collada\ColladaImporter.cs" />
     <None Include="3rdParty\Collada\Parser\ColladaParserModel.cs" />
-    <Compile Include="3rdParty\Collada\Parser\ColladaParserMain.cs" />
+    <Compile Include="3rdParty\Collada\Parser\ColladaDefinitions.cs" />
     <Compile Include="3rdParty\Collada\Schema\Collada_B_Rep\Curves\Grendgine_Collada_Circle.cs" />
     <Compile Include="3rdParty\Collada\Schema\Collada_B_Rep\Curves\Grendgine_Collada_Curve.cs" />
     <Compile Include="3rdParty\Collada\Schema\Collada_B_Rep\Curves\Grendgine_Collada_Curves.cs" />

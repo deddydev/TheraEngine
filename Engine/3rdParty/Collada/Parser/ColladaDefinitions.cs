@@ -327,113 +327,6 @@ namespace TheraEngine.Rendering.Models
                 set => Semantic = value.ToString();
             }
         }
-
-        public enum ESemantic
-        {
-            /// <summary>
-            /// Semantic type is not defined in this list.
-            /// </summary>
-            UNDEFINED,
-            /// <summary>
-            /// Geometric binormal (bitangent) vector
-            /// </summary>
-            BINORMAL,
-            /// <summary>
-            /// Color coordinate vector. Color inputs are RGB (float3)
-            /// </summary>
-            COLOR,
-            /// <summary>
-            /// Continuity constraint at the control vertex (CV).
-            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
-            /// </summary>
-            CONTINUITY,
-            /// <summary>
-            /// Raster or MIP-level input.
-            /// </summary>
-            IMAGE,
-            /// <summary>
-            /// Sampler input.
-            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
-            /// </summary>
-            INPUT,
-            /// <summary>
-            /// Tangent vector for preceding control point.
-            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
-            /// </summary>
-            IN_TANGENT,
-            /// <summary>
-            /// Sampler interpolation type.
-            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
-            /// </summary>
-            INTERPOLATION,
-            /// <summary>
-            /// Inverse of local-to-world matrix.
-            /// </summary>
-            INV_BIND_MATRIX,
-            /// <summary>
-            /// Skin influence identifier
-            /// </summary>
-            JOINT,
-            /// <summary>
-            /// Number of piece-wise linear approximation steps to use for the spline segment that follows this CV.
-            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
-            /// </summary>
-            LINEAR_STEPS,
-            /// <summary>
-            /// Morph targets for mesh morphing
-            /// </summary>
-            MORPH_TARGET,
-            /// <summary>
-            /// Weights for mesh morphing
-            /// </summary>
-            MORPH_WEIGHT,
-            /// <summary>
-            /// Normal vector
-            /// </summary>
-            NORMAL,
-            /// <summary>
-            /// Sampler output.
-            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
-            /// </summary>
-            OUTPUT,
-            /// <summary>
-            /// Tangent vector for succeeding control point.
-            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
-            /// </summary>
-            OUT_TANGENT,
-            /// <summary>
-            /// Geometric coordinate vector. See also “Curve Interpolation” in Chapter 4: Programming Guide.
-            /// </summary>
-            POSITION,
-            /// <summary>
-            /// Geometric tangent vector
-            /// </summary>
-            TANGENT,
-            /// <summary>
-            /// Texture binormal (bitangent) vector
-            /// </summary>
-            TEXBINORMAL,
-            /// <summary>
-            /// Texture coordinate vector
-            /// </summary>
-            TEXCOORD,
-            /// <summary>
-            /// Texture tangent vector
-            /// </summary>
-            TEXTANGENT,
-            /// <summary>
-            /// Generic parameter vector
-            /// </summary>
-            UV,
-            /// <summary>
-            /// Mesh vertex
-            /// </summary>
-            VERTEX,
-            /// <summary>
-            /// Skin influence weighting value
-            /// </summary>
-            WEIGHT,
-        }
         
         public interface ITechnique : IElement { }
         [Name("technique")]
@@ -1975,6 +1868,132 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             #endregion
+
+            public override bool ManualRead(XMLReader reader)
+            {
+                while (reader.ReadAttribute())
+                {
+
+                }
+                while (reader.BeginElement())
+                {
+
+                    reader.EndElement();
+                }
+                return true;
+            }
+            public override bool ManualRead(XmlReader reader)
+            {
+
+                return true;
+            }
+        }
+
+        public enum ESemantic
+        {
+            /// <summary>
+            /// Semantic type is not defined in this list.
+            /// </summary>
+            UNDEFINED,
+            /// <summary>
+            /// Geometric binormal (bitangent) vector
+            /// </summary>
+            BINORMAL,
+            /// <summary>
+            /// Color coordinate vector. Color inputs are RGB (float3)
+            /// </summary>
+            COLOR,
+            /// <summary>
+            /// Continuity constraint at the control vertex (CV).
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            CONTINUITY,
+            /// <summary>
+            /// Raster or MIP-level input.
+            /// </summary>
+            IMAGE,
+            /// <summary>
+            /// Sampler input.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            INPUT,
+            /// <summary>
+            /// Tangent vector for preceding control point.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            IN_TANGENT,
+            /// <summary>
+            /// Sampler interpolation type.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            INTERPOLATION,
+            /// <summary>
+            /// Inverse of local-to-world matrix.
+            /// </summary>
+            INV_BIND_MATRIX,
+            /// <summary>
+            /// Skin influence identifier
+            /// </summary>
+            JOINT,
+            /// <summary>
+            /// Number of piece-wise linear approximation steps to use for the spline segment that follows this CV.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            LINEAR_STEPS,
+            /// <summary>
+            /// Morph targets for mesh morphing
+            /// </summary>
+            MORPH_TARGET,
+            /// <summary>
+            /// Weights for mesh morphing
+            /// </summary>
+            MORPH_WEIGHT,
+            /// <summary>
+            /// Normal vector
+            /// </summary>
+            NORMAL,
+            /// <summary>
+            /// Sampler output.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            OUTPUT,
+            /// <summary>
+            /// Tangent vector for succeeding control point.
+            /// See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            OUT_TANGENT,
+            /// <summary>
+            /// Geometric coordinate vector. See also “Curve Interpolation” in Chapter 4: Programming Guide.
+            /// </summary>
+            POSITION,
+            /// <summary>
+            /// Geometric tangent vector
+            /// </summary>
+            TANGENT,
+            /// <summary>
+            /// Texture binormal (bitangent) vector
+            /// </summary>
+            TEXBINORMAL,
+            /// <summary>
+            /// Texture coordinate vector
+            /// </summary>
+            TEXCOORD,
+            /// <summary>
+            /// Texture tangent vector
+            /// </summary>
+            TEXTANGENT,
+            /// <summary>
+            /// Generic parameter vector
+            /// </summary>
+            UV,
+            /// <summary>
+            /// Mesh vertex
+            /// </summary>
+            VERTEX,
+            /// <summary>
+            /// Skin influence weighting value
+            /// </summary>
+            WEIGHT,
         }
     }
 }

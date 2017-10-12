@@ -162,6 +162,7 @@ namespace TheraEngine.Animation
         }
 
         internal ModelAnimation Parent { get; set; }
+        public RotationOrder EulerOrder = RotationOrder.RYP;
 
         [Category("Bone Animation"), Serialize("Name")]
         public string _name;
@@ -236,7 +237,7 @@ namespace TheraEngine.Animation
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the requested frame second.
         /// </summary>
-        public unsafe void GetTransform(LocalRotTransform bindState, float second, out Vec3 translation, out QuatRotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(LocalRotTransform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
         {
             Vec3 t, r, s;
             Vec3
@@ -266,7 +267,7 @@ namespace TheraEngine.Animation
             }
 
             translation = t;
-            rotation = new QuatRotator(r);
+            rotation = new Rotator(r, EulerOrder);
             scale = s;
         }
         public void UpdateStateBlended(LocalRotTransform frameState, LocalRotTransform bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)

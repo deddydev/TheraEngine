@@ -11,8 +11,6 @@ namespace System
     [StructLayout(LayoutKind.Sequential)]
     public unsafe class EventQuatRotator : IEquatable<EventQuatRotator>
     {
-        public EventQuatRotator() : this(RotationOrder.YPR) { }
-
         public EventQuatRotator() : this(0.0f, 0.0f, 0.0f) { }
         public EventQuatRotator(float x, float y, float z)
         {
@@ -22,9 +20,13 @@ namespace System
         }
         public EventQuatRotator(Vec3 xyz)
         {
-            _xyz = xyz;
+            XYZ = xyz;
         }
-        
+        public EventQuatRotator(QuatRotator rotator)
+        {
+            XYZ = rotator.XYZ;
+        }
+
         public event FloatChange XChanged;
         public event FloatChange YChanged;
         public event FloatChange ZChanged;
@@ -38,45 +40,45 @@ namespace System
         [Browsable(false)]
         public Vec3 RawXYZ
         {
-            get => _xyz;
+            get => XYZ;
             set
             {
                 BeginUpdate();
-                _xyz = value;
+                XYZ = value;
                 EndUpdate();
             }
         }
 
         [Serialize("XYZ", IsXmlAttribute = true)]
-        private Vec3 _xyz;
+        private Vec3 XYZ;
         [Serialize("LockX", IsXmlAttribute = true)]
         private bool _lockX = false;
         [Serialize("LockY", IsXmlAttribute = true)]
         private bool _lockY = false;
         [Serialize("LockZ", IsXmlAttribute = true)]
         private bool _lockZ = false;
-        
+
         private void BeginUpdate()
         {
-            _prevXYZ = _xyz;
+            _prevXYZ = XYZ;
         }
         private void EndUpdate()
         {
             bool anyChanged = false;
-            if (!_prevXYZ.X.EqualTo(_xyz.X))
+            if (!_prevXYZ.X.EqualTo(XYZ.X))
             {
                 anyChanged = true;
-                XChanged?.Invoke(_xyz.X, _prevXYZ.X);
+                XChanged?.Invoke(XYZ.X, _prevXYZ.X);
             }
-            if (!_prevXYZ.Y.EqualTo(_xyz.Y))
+            if (!_prevXYZ.Y.EqualTo(XYZ.Y))
             {
                 anyChanged = true;
-                YChanged?.Invoke(_xyz.Y, _prevXYZ.Y);
+                YChanged?.Invoke(XYZ.Y, _prevXYZ.Y);
             }
-            if (!_prevXYZ.Z.EqualTo(_xyz.Z))
+            if (!_prevXYZ.Z.EqualTo(XYZ.Z))
             {
                 anyChanged = true;
-                ZChanged?.Invoke(_xyz.Z, _prevXYZ.Z);
+                ZChanged?.Invoke(XYZ.Z, _prevXYZ.Z);
             }
             if (anyChanged)
             {
@@ -102,7 +104,7 @@ namespace System
                 _syncAll.AllChanged -= Other_Changed;
                 _syncAll = null;
             }
-            other.YawChanged += Other_YawChanged;
+            other.YChanged += Other_YChanged;
             _syncY = other;
             Y = other.Y;
         }
@@ -113,7 +115,7 @@ namespace System
                 _syncAll.AllChanged -= Other_Changed;
                 _syncAll = null;
             }
-            other.RollChanged += Other_RollChanged;
+            other.ZChanged += Other_ZChanged;
             _syncZ = other;
             Z = other.Z;
         }
@@ -179,43 +181,64 @@ namespace System
             Z = newValue;
         }
 
-        public Quat ToQuaternion()
-            => Quat.FromRotator(this);
-
-        public Matrix4 GetMatrix() 
-            => Matrix4.CreateFromRotator(this);
-
-        public Matrix4 GetInverseMatrix()
-            => Matrix4.CreateFromRotator(Inverted());
-
+        public enum RotOrder
+        {
+            XYZ,
+            XZY,
+            YXZ,
+            YZX,
+            ZXY,
+            ZYX,
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="intrinsic">True if the rotation coordinates follows the rotated body. If false, stays static.</param>
+        /// <returns></returns>
+        public Quat GetResult(RotOrder order)
+        {
+            Quat X = Quat.FromAxisAngle(Vec3.UnitX, XYZ.X);
+            Quat Y = Quat.FromAxisAngle(Vec3.UnitY, XYZ.Y);
+            Quat Z = Quat.FromAxisAngle(Vec3.UnitZ, XYZ.Z);
+            switch (order)
+            {
+                case RotOrder.XYZ: return X * Y * Z;
+                case RotOrder.XZY: return X * Z * Y;
+                case RotOrder.YXZ: return Y * X * Z;
+                case RotOrder.YZX: return Y * Z * X;
+                case RotOrder.ZXY: return Z * X * Y;
+                case RotOrder.ZYX: return Z * Y * X;
+            }
+            return Z * Y * Z;
+        }
+        public Matrix4 GetMatrix()
+            => Matrix4.CreateFromQuaternion(GetResult());
+        
         public Vec3 GetDirection()
             => TransformVector(Vec3.Forward);
 
-        public Vec3 TransformVector(Vec3 vector)
-            => Vec3.TransformVector(vector, GetMatrix());
+        public Vec3 TransformVector(Vec3 vector) => GetResult() * vector;
 
-        public Matrix4 GetYawMatrix()
+        public Matrix4 GetYMatrix()
             => Matrix4.CreateRotationY(Y);
-        public Matrix4 GetPitchMatrix()
+        public Matrix4 GetXMatrix()
             => Matrix4.CreateRotationX(X);
-        public Matrix4 GetRollMatrix()
+        public Matrix4 GetZMatrix()
             => Matrix4.CreateRotationZ(Z);
 
-        public Quat GetYawQuat() 
+        public Quat GetYQuat() 
             => Quat.FromAxisAngle(Vec3.Up, Y);
-        public Quat GetPitchQuat()
+        public Quat GetXQuat()
             => Quat.FromAxisAngle(Vec3.Right, X);
-        public Quat GetRollQuat()
-            => Quat.FromAxisAngle(Vec3.Forward, Z);
+        public Quat GetZQuat()
+            => Quat.FromAxisAngle(-Vec3.Forward, Z);
+        
+        public EventQuatRotator HardCopy()
+            => new EventQuatRotator(X, Y, Z);
 
-        public void SetDirection(Vec3 value)
-            => SetRotations(value.LookatAngles());
-
-        public Rotator HardCopy()
-            => new Rotator(X, Y, Z, _rotationOrder);
-
-        public Rotator WithNegatedRotations()
-            => new Rotator(-X, -Y, -Z, _rotationOrder);
+        public EventQuatRotator WithNegatedRotations()
+            => new EventQuatRotator(-X, -Y, -Z);
 
         public void NegateRotations()
         {
@@ -249,155 +272,93 @@ namespace System
             Z = Z.RemapToRange(-180.0f, 180.0f);
             EndUpdate();
         }
-        public int GetYawWindCount() { return (int)(Y / 360.0f); }
-        public int GetPitchWindCount() { return (int)(X / 360.0f); }
-        public int GetRollWindCount() { return (int)(Z / 360.0f); }
-        public void ReverseOrder()
-        {
-            BeginUpdate();
-            _rotationOrder = OppositeOf(_rotationOrder);
-            EndUpdate();
-        }
+
+        public int GetYWindCount() 
+            => (int)Floor(Y / 360.0f);
+        public int GetXWindCount() 
+            => (int)Floor(X / 360.0f);
+        public int GetZWindCount() 
+            => (int)Floor(Z / 360.0f);
+
         public void Invert()
         {
             BeginUpdate();
             NegateRotations();
-            ReverseOrder();
             EndUpdate();
         }
-        public Rotator Inverted()
-        {
-            return new Rotator(-X, -Y, -Z, OppositeOf(_rotationOrder));
-        }
-        public static RotationOrder OppositeOf(RotationOrder order)
-        {
-            switch (order)
-            {
-                case RotationOrder.PRY: return RotationOrder.YRP;
-                case RotationOrder.PYR: return RotationOrder.RYP;
-                case RotationOrder.RPY: return RotationOrder.YPR;
-                case RotationOrder.RYP: return RotationOrder.PYR;
-                case RotationOrder.YRP: return RotationOrder.PRY;
-                case RotationOrder.YPR: return RotationOrder.RPY;
-                default: throw new Exception();
-            }
-        }
 
-        public static Rotator ComponentMin(Rotator a, Rotator b)
-        {
-            a.Yaw = a.Yaw < b.Yaw ? a.Yaw : b.Yaw;
-            a.Pitch = a.Pitch < b.Pitch ? a.Pitch : b.Pitch;
-            a.Roll = a.Roll < b.Roll ? a.Roll : b.Roll;
-            return a;
-        }
-        public static Rotator ComponentMax(Rotator a, Rotator b)
-        {
-            a.Yaw = a.Yaw > b.Yaw ? a.Yaw : b.Yaw;
-            a.Pitch = a.Pitch > b.Pitch ? a.Pitch : b.Pitch;
-            a.Roll = a.Roll > b.Roll ? a.Roll : b.Roll;
-            return a;
-        }
-        public static Rotator Clamp(Rotator value, Rotator min, Rotator max)
-        {
-            Rotator v = new Rotator()
-            {
-                Yaw = value.Yaw < min.Yaw ? min.Yaw : value.Yaw > max.Yaw ? max.Yaw : value.Yaw,
-                Pitch = value.Pitch < min.Pitch ? min.Pitch : value.Pitch > max.Pitch ? max.Pitch : value.Pitch,
-                Roll = value.Roll < min.Roll ? min.Roll : value.Roll > max.Roll ? max.Roll : value.Roll
-            };
-            return v;
-        }
+        public static EventQuatRotator ComponentMin(EventQuatRotator a, EventQuatRotator b)
+            => new EventQuatRotator(
+                a.X < b.X ? a.X : b.X,
+                a.Y < b.Y ? a.Y : b.Y,
+                a.Z < b.Z ? a.Z : b.Z);
+        public static EventQuatRotator ComponentMax(EventQuatRotator a, EventQuatRotator b)
+            => new EventQuatRotator(
+                a.X > b.X ? a.X : b.X,
+                a.Y > b.Y ? a.Y : b.Y,
+                a.Z > b.Z ? a.Z : b.Z);
+        public static EventQuatRotator Clamp(EventQuatRotator value, EventQuatRotator min, EventQuatRotator max)
+            => new EventQuatRotator(
+                value.X.Clamp(min.X, max.X),
+                value.Y.Clamp(min.Y, max.Y),
+                value.Z.Clamp(min.Z, max.Z));
+        public static EventQuatRotator Lerp(EventQuatRotator r1, EventQuatRotator r2, float time)
+            => new EventQuatRotator(
+                CustomMath.Lerp(r1.X, r2.X, time),
+                CustomMath.Lerp(r1.Y, r2.Y, time),
+                CustomMath.Lerp(r1.Z, r2.Z, time));
 
-        public static Rotator Lerp(Rotator r1, Rotator r2, float time)
-        {
-            if (r1.Order != r2.Order)
-                return null;
-            return new Rotator(
-                CustomMath.Lerp(r1.Pitch, r2.Pitch, time),
-                CustomMath.Lerp(r1.Yaw, r2.Yaw, time),
-                CustomMath.Lerp(r1.Roll, r2.Roll, time), 
-                r1.Order);
-        }
-
-        public void Clamp(Rotator min, Rotator max)
+        public void Clamp(EventQuatRotator min, EventQuatRotator max)
         {
             BeginUpdate();
-            Y = Y < min.Yaw ? min.Yaw : Y > max.Yaw ? max.Yaw : Y;
-            X = X < min.Pitch ? min.Pitch : X > max.Pitch ? max.Pitch : X;
-            Z = Z < min.Roll ? min.Roll : Z > max.Roll ? max.Roll : Z;
-            EndUpdate();
-        }
-        public Rotator Clamped(Rotator min, Rotator max)
-        {
-            Rotator v = new Rotator()
-            {
-                Yaw = Y < min.Yaw ? min.Yaw : Y > max.Yaw ? max.Yaw : Y,
-                Pitch = X < min.Pitch ? min.Pitch : X > max.Pitch ? max.Pitch : X,
-                Roll = Z < min.Roll ? min.Roll : Z > max.Roll ? max.Roll : Z
-            };
-            return v;
-        }
-
-        public void SetRotations(float pitch, float yaw, float roll)
-        {
-            BeginUpdate();
-            X = pitch;
-            Y = yaw;
-            Z = roll;
-            EndUpdate();
-        }
-        public void SetRotations(Rotator other)
-        {
-            BeginUpdate();
-            X = other.Pitch;
-            Y = other.Yaw;
-            Z = other.Roll;
-            _rotationOrder = other._rotationOrder;
-            EndUpdate();
-        }
-        public void SetRotations(float pitch, float yaw, float roll, RotationOrder order)
-        {
-            BeginUpdate();
-            X = pitch;
-            Y = yaw;
-            Z = roll;
-            _rotationOrder = order;
+            X = X.Clamp(min.X, max.X);
+            Y = Y.Clamp(min.Y, max.Y);
+            Z = Z.Clamp(min.Z, max.Z);
             EndUpdate();
         }
 
-        public void SetRotationsNoUpdate(float pitch, float yaw, float roll)
+        public EventQuatRotator Clamped(EventQuatRotator min, EventQuatRotator max)
+            => new EventQuatRotator(X.Clamp(min.X, max.X), Y.Clamp(min.Y, max.Y), Z.Clamp(min.Z, max.Z));
+        
+        public void SetRotations(EventQuatRotator other)
         {
-            if (!_lockPitch)
-                _xyz.X = pitch;
-            if (!_lockYaw)
-                _xyz.Y = yaw;
-            if (!_lockRoll)
-                _xyz.Z = roll;
+            BeginUpdate();
+            X = other.X;
+            Y = other.Y;
+            Z = other.Z;
+            EndUpdate();
         }
-        public void SetRotationsNoUpdate(Rotator other)
+        public void SetRotations(float x, float y, float z)
         {
-            if (!_lockPitch)
-                _xyz.X = other.Pitch;
-            if (!_lockYaw)
-                _xyz.Y = other.Yaw;
-            if (!_lockRoll)
-                _xyz.Z = other.Roll;
-            _rotationOrder = other._rotationOrder;
+            BeginUpdate();
+            X = x;
+            Y = y;
+            Z = z;
+            EndUpdate();
         }
-        public void SetRotationsNoUpdate(float pitch, float yaw, float roll, RotationOrder order)
+
+        public void SetRotationsNoUpdate(EventQuatRotator other)
         {
-            if (!_lockPitch)
-                _xyz.X = pitch;
-            if (!_lockYaw)
-                _xyz.Y = yaw;
-            if (!_lockRoll)
-                _xyz.Z = roll;
-            _rotationOrder = order;
+            if (!_lockX) XYZ.X = other.X;
+            if (!_lockY) XYZ.Y = other.Y;
+            if (!_lockZ) XYZ.Z = other.Z;
+        }
+        public void SetRotationsNoUpdate(QuatRotator other)
+        {
+            if (!_lockX) XYZ.X = other.X;
+            if (!_lockY) XYZ.Y = other.Y;
+            if (!_lockZ) XYZ.Z = other.Z;
+        }
+        public void SetRotationsNoUpdate(float X, float Y, float Z)
+        {
+            if (!_lockX) XYZ.X = X;
+            if (!_lockY) XYZ.Y = Y;
+            if (!_lockZ) XYZ.Z = Z;
         }
 
         [Browsable(false)]
         [XmlIgnore]
-        public Vec2 YawPitch
+        public Vec2 YX
         {
             get => new Vec2(Y, X);
             set
@@ -412,13 +373,13 @@ namespace System
         [XmlIgnore]
         public float Y
         {
-            get => _xyz.Y;
+            get => XYZ.Y;
             set
             {
-                if (_lockYaw)
+                if (_lockY)
                     return;
                 BeginUpdate();
-                _xyz.Y = value;
+                XYZ.Y = value;
                 EndUpdate();
             }
         }
@@ -426,13 +387,13 @@ namespace System
         [XmlIgnore]
         public float X
         {
-            get => _xyz.X;
+            get => XYZ.X;
             set
             {
-                if (_lockPitch)
+                if (_lockX)
                     return;
                 BeginUpdate();
-                _xyz.X = value;
+                XYZ.X = value;
                 EndUpdate();
             }
         }
@@ -440,19 +401,19 @@ namespace System
         [XmlIgnore]
         public float Z
         {
-            get => _xyz.Z;
+            get => XYZ.Z;
             set
             {
-                if (_lockRoll)
+                if (_lockZ)
                     return;
                 BeginUpdate();
-                _xyz.Z = value;
+                XYZ.Z = value;
                 EndUpdate();
             }
         }
         [Browsable(false)]
         [XmlIgnore]
-        public Vec2 YawRoll
+        public Vec2 YZ
         {
             get => new Vec2(Y, Z);
             set
@@ -465,7 +426,7 @@ namespace System
         }
         [Browsable(false)]
         [XmlIgnore]
-        public Vec2 PitchYaw
+        public Vec2 XY
         {
             get => new Vec2(X, Y);
             set
@@ -478,7 +439,7 @@ namespace System
         }
         [Browsable(false)]
         [XmlIgnore]
-        public Vec2 PitchRoll
+        public Vec2 XZ
         {
             get => new Vec2(X, Z);
             set
@@ -491,7 +452,7 @@ namespace System
         }
         [Browsable(false)]
         [XmlIgnore]
-        public Vec2 RollYaw
+        public Vec2 ZY
         {
             get => new Vec2(Z, Y);
             set
@@ -504,7 +465,7 @@ namespace System
         }
         [Browsable(false)]
         [XmlIgnore]
-        public Vec2 RollPitch
+        public Vec2 ZX
         {
             get => new Vec2(Z, X);
             set
@@ -517,7 +478,7 @@ namespace System
         }
         [Browsable(false)]
         [XmlIgnore]
-        public Vec3 YawPitchRoll
+        public Vec3 YXZ
         {
             get => new Vec3(Y, X, Z);
             set
@@ -532,15 +493,15 @@ namespace System
 
         public void ChangeZupToYup()
         {
-            float temp = _xyz.X;
-            _xyz.X = _xyz.Y;
-            _xyz.Y = _xyz.Z;
-            _xyz.Z = temp;
+            float temp = XYZ.X;
+            XYZ.X = XYZ.Y;
+            XYZ.Y = XYZ.Z;
+            XYZ.Z = temp;
         }
 
         [Browsable(false)]
         [XmlIgnore]
-        public Vec3 YawRollPitch
+        public Vec3 YZX
         {
             get => new Vec3(Y, Z, X);
             set
@@ -552,23 +513,23 @@ namespace System
                 EndUpdate();
             }
         }
+        //[Browsable(false)]
+        //[XmlIgnore]
+        //public Vec3 XYZ
+        //{
+        //    get => new Vec3(X, Y, Z);
+        //    set
+        //    {
+        //        BeginUpdate();
+        //        X = value.X;
+        //        Y = value.Y;
+        //        Z = value.Z;
+        //        EndUpdate();
+        //    }
+        //}
         [Browsable(false)]
         [XmlIgnore]
-        public Vec3 PitchYawRoll
-        {
-            get => new Vec3(X, Y, Z);
-            set
-            {
-                BeginUpdate();
-                X = value.X;
-                Y = value.Y;
-                Z = value.Z;
-                EndUpdate();
-            }
-        }
-        [Browsable(false)]
-        [XmlIgnore]
-        public Vec3 PitchRollYaw
+        public Vec3 XZY
         {
             get => new Vec3(X, Z, Y);
             set
@@ -582,7 +543,7 @@ namespace System
         }
         [Browsable(false)]
         [XmlIgnore]
-        public Vec3 RollYawPitch
+        public Vec3 ZYX
         {
             get => new Vec3(Z, Y, X);
             set
@@ -596,7 +557,7 @@ namespace System
         }
         [Browsable(false)]
         [XmlIgnore]
-        public Vec3 RollPitchYaw
+        public Vec3 ZXY
         {
             get => new Vec3(Z, X, Y);
             set
@@ -612,83 +573,62 @@ namespace System
         public void Round(int decimalPlaces)
         {
             BeginUpdate();
-            Z = (float)Math.Round(Z, decimalPlaces);
             X = (float)Math.Round(X, decimalPlaces);
             Y = (float)Math.Round(Y, decimalPlaces);
+            Z = (float)Math.Round(Z, decimalPlaces);
             EndUpdate();
         }
 
-        public static bool operator ==(Rotator left, Rotator right)
+        public static bool operator ==(EventQuatRotator left, EventQuatRotator right)
         {
             if (ReferenceEquals(left, null))
                 return ReferenceEquals(right, null);
             return left.Equals(right);
         }
-        public static bool operator !=(Rotator left, Rotator right)
+        public static bool operator !=(EventQuatRotator left, EventQuatRotator right)
         {
             if (ReferenceEquals(left, null))
                 return !ReferenceEquals(right, null);
             return !left.Equals(right);
         }
         
-        public static explicit operator Vec3(Rotator v)
-            => new Vec3(v.Yaw, v.Pitch, v.Roll);
-        public static explicit operator Rotator(Vec3 v)
-            => new Rotator(v.X, v.Y, v.Z, RotationOrder.PYR);
+        public static explicit operator Vec3(EventQuatRotator v)  => v.XYZ;
+        public static explicit operator EventQuatRotator(Vec3 v) => new EventQuatRotator(v);
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
 
-        public static Rotator GetZero(RotationOrder order = RotationOrder.YPR)
-        {
-           return new Rotator(0.0f, 0.0f, 0.0f, order);
-        }
-        public static Rotator Parse(string value)
-        {
-            string[] parts = value.Split(' ');
-            return new Rotator(
-            float.Parse(parts[0].Substring(1, parts[0].Length - 2)),
-            float.Parse(parts[1].Substring(0, parts[1].Length - 1)),
-            float.Parse(parts[2].Substring(0, parts[2].Length - 1)),
-            (RotationOrder)Enum.Parse(typeof(RotationOrder), parts[3].Substring(0, parts[3].Length - 1)));
-        }
-        public override string ToString()
-        {
-            return String.Format("({0}{3} {1}{3} {2}{3} {4})", X, Y, Z, listSeparator, _rotationOrder);
-        }
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Y.GetHashCode();
-                hashCode = (hashCode * 397) ^ X.GetHashCode();
-                hashCode = (hashCode * 397) ^ Z.GetHashCode();
-                return hashCode;
-            }
-        }
+        public static EventQuatRotator GetZero()
+           => new EventQuatRotator(0.0f, 0.0f, 0.0f);
+        
+        public static EventQuatRotator Parse(string value)
+            => new EventQuatRotator(new Vec3(value));
+        
+        public override string ToString() => XYZ.ToString();
+        public override int GetHashCode() => XYZ.GetHashCode();
         public override bool Equals(object obj)
         {
-            if (!(obj is Rotator))
+            if (!(obj is EventQuatRotator))
                 return false;
 
-            return Equals((Rotator)obj);
+            return Equals((EventQuatRotator)obj);
         }
-        public bool Equals(Rotator other)
+        public bool Equals(EventQuatRotator other)
         {
             if (ReferenceEquals(other, null))
                 return false;
             return
-                Y == other.Yaw &&
-                X == other.Pitch &&
-                Z == other.Roll;
+                Y == other.Y &&
+                X == other.X &&
+                Z == other.Z;
         }
-        public bool Equals(Rotator other, float precision)
+        public bool Equals(EventQuatRotator other, float precision)
         {
             if (ReferenceEquals(other, null))
                 return false;
             return
-                Abs(Y - other.Yaw) < precision &&
-                Abs(X - other.Pitch) < precision &&
-                Abs(Z - other.Roll) < precision;
+                Abs(Y - other.Y) < precision &&
+                Abs(X - other.X) < precision &&
+                Abs(Z - other.Z) < precision;
         }
         public bool IsZero()
         {

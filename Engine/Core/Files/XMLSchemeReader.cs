@@ -83,13 +83,21 @@ namespace TheraEngine.Core.Files
             bool parseExtraElements,
             string parentTree,
             int elementIndex)
+        => ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, parseExtraElements, parentTree, elementIndex);
+            public static IElement ParseElement(
+            IElement entry,
+            IElement parent,
+            XMLReader reader,
+            string version,
+            bool parseExtraElements,
+            string parentTree,
+            int elementIndex)
         {
             DateTime startTime = DateTime.Now;
-            IElement entry = Activator.CreateInstance(elementType) as IElement;
 
+            Type elementType = entry.GetType();
             entry.GenericParent = parent;
             entry.ElementIndex = elementIndex;
-            entry.PreRead();
 
             string parentElementName = reader.Name;
             if (string.IsNullOrEmpty(parentElementName))
@@ -105,6 +113,8 @@ namespace TheraEngine.Core.Files
             //    return entry;
             //}
 
+            if (entry.ManualRead(reader))
+            entry.PreRead();
             if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
             {
                 Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
@@ -673,6 +683,8 @@ namespace TheraEngine.Core.Files
         void PreRead();
         void PostRead();
         void QueueChildElement(Type type, XMLReader reader, string version, bool parseExtraElements, string parentTree, int childIndex, string name, string value);
+        bool ManualRead(XMLReader reader);
+        bool ManualRead(XmlReader reader);
         object UserData { get; set; }
         IElement GenericParent { get; set; }
         COLLADA Root { get; }
@@ -817,6 +829,17 @@ namespace TheraEngine.Core.Files
 
         public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
         public Type ParentType => typeof(T);
+
+        /// <summary>
+        /// Return true if reading has been handled.
+        /// If false, will do automatic reading.
+        /// </summary>
+        public virtual bool ManualRead(XMLReader reader) => false;
+        /// <summary>
+        /// Return true if reading has been handled.
+        /// If false, will do automatic reading.
+        /// </summary>
+        public virtual bool ManualRead(XmlReader reader) => false;
     }
     #endregion
 

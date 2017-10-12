@@ -219,9 +219,9 @@ namespace System
         /// <param name="roll">The roll (bank), rotation around Z axis</param>
         public static Quat FromEulerAngles(float pitch, float yaw, float roll, RotationOrder order = RotationOrder.YPR)
         {
-            Quat p = FromAxisAngle(Vec3.Right, pitch);
-            Quat y = FromAxisAngle(Vec3.Up, yaw);
-            Quat r = FromAxisAngle(-Vec3.Forward, roll);
+            Quat p = FromAxisAngle(Vec3.UnitX, pitch);
+            Quat y = FromAxisAngle(Vec3.UnitY, yaw);
+            Quat r = FromAxisAngle(Vec3.UnitZ, roll);
             switch (order)
             {
                 case RotationOrder.RYP: return r * y * p;

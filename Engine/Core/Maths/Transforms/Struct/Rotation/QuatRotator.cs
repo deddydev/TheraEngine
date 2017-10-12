@@ -18,6 +18,10 @@ namespace System
         
         public Vec3 XYZ;
 
+        public float X { get => XYZ.X; set => XYZ.X = value; }
+        public float Y { get => XYZ.Y; set => XYZ.Y = value; }
+        public float Z { get => XYZ.Z; set => XYZ.Z = value; }
+
         public Quat GetResult() =>
             Quat.FromAxisAngle(Vec3.UnitX, XYZ.X) *
             Quat.FromAxisAngle(Vec3.UnitY, XYZ.Y) *

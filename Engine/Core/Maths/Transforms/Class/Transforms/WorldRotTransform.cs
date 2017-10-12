@@ -30,9 +30,8 @@ namespace System
         {
             _translation = Vec3.Zero;
             _translation.Changed += CreateTransform;
-
-            _quaternion = Quat.Identity;
-            _rotation = new Rotator(RotationOrder.YPR);
+            
+            _rotation = new EventQuatRotator();
             _rotation.Changed += CreateTransform;
 
             _scale = Vec3.One;
@@ -43,9 +42,9 @@ namespace System
             _inverseTransform = Matrix4.Identity;
         }
         
-        public LocalRotTransform(
+        public WorldRotTransform(
             Vec3 translate, 
-            Rotator rotate,
+            QuatRotator rotate,
             Vec3 scale,
             TransformOrder transformOrder = TransformOrder.TRS)
         {
@@ -55,14 +54,13 @@ namespace System
             _scale = scale;
             _scale.Changed += CreateTransform;
 
-            _rotation = rotate;
+            _rotation = new EventQuatRotator(rotate);
             _rotation.Changed += CreateTransform;
-            _quaternion = _rotation.ToQuaternion();
 
             _transformOrder = transformOrder;
             CreateTransform();
         }
-        public LocalRotTransform(
+        public WorldRotTransform(
             Vec3 translate,
             Quat rotate,
             Vec3 scale,
@@ -73,34 +71,23 @@ namespace System
 
             _scale = scale;
             _scale.Changed += CreateTransform;
-
-            _quaternion = rotate;
+            
             _rotation = _quaternion.ToYawPitchRoll();
 
             _transformOrder = transformOrder;
             CreateTransform();
         }
         
-        public void SetAll(Vec3 translate, Rotator rotation, Vec3 scale)
+        public void SetAll(Vec3 translate, QuatRotator rotation, Vec3 scale)
         {
             _translation.SetRawNoUpdate(translate);
             _scale.SetRawNoUpdate(scale);
             _rotation.SetRotationsNoUpdate(rotation);
-            _quaternion = _rotation.ToQuaternion();
             CreateTransform();
         }
-        public void SetAll(Vec3 translate, Quat rotation, Vec3 scale)
-        {
-            _translation.SetRawNoUpdate(translate);
-            _scale.SetRawNoUpdate(scale);
-            _quaternion = rotation;
-            _rotation.SetRotationsNoUpdate(_quaternion.ToYawPitchRoll());
-            CreateTransform();
-        }
-
-        private Quat _quaternion = Quat.Identity;
+        
         [Serialize("Rotation")]
-        private Rotator _rotation;
+        private EventQuatRotator _rotation;
         [Serialize("Translation")]
         private EventVec3 _translation;
         [Serialize("Scale")]
@@ -120,7 +107,7 @@ namespace System
         {
 
         }
-
+        
         public Vec3 GetForwardVector() => _quaternion * Vec3.Forward;
         public Vec3 GetUpVector() => _quaternion * Vec3.Up;
         public Vec3 GetRightVector() => _quaternion * Vec3.Right;
@@ -269,129 +256,7 @@ namespace System
 
             MatrixChanged?.Invoke(oldMatrix, oldInvMatrix);
         }
-
-        //public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
-        //public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
-
-        //public void RotateInPlace(Quaternion rotation)
-        //{
-        //    switch (_transformOrder)
-        //    {
-        //        case Matrix4.MultiplyOrder.TRS:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.TSR:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.STR:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.SRT:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.RTS:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.RST:
-
-        //            break;
-        //    }
-        //}
-        //public void RotateAboutParent(Quaternion rotation, Vec3 point)
-        //{
-        //    switch (_transformOrder)
-        //    {
-        //        case Matrix4.MultiplyOrder.TRS:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.TSR:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.STR:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.SRT:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.RTS:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.RST:
-
-        //            break;
-        //    }
-        //}
-        //public void RotateAboutPoint(Quaternion rotation, Vec3 point)
-        //{
-        //    switch (_transformOrder)
-        //    {
-        //        case Matrix4.MultiplyOrder.TRS:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.TSR:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.STR:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.SRT:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.RTS:
-
-        //            break;
-        //        case Matrix4.MultiplyOrder.RST:
-
-        //            break;
-        //    }
-        //}
-        ////Translates relative to rotation.
-        //public void TranslateRelative(Vec3 translation)
-        //{
-        //    switch (_transformOrder)
-        //    {
-        //        case Matrix4.MultiplyOrder.SRT:
-        //        case Matrix4.MultiplyOrder.RST:
-        //            Translation += translation;
-        //            break;
-        //        case Matrix4.MultiplyOrder.RTS:
-        //            Translation += translation / Scale;
-        //            break;
-        //        case Matrix4.MultiplyOrder.STR:
-        //            Translation += _finalRotation.Inverted() * translation;
-        //            break;
-        //        case Matrix4.MultiplyOrder.TRS:
-        //            Translation += (_finalRotation.Inverted() * translation) / Scale;
-        //            break;
-        //        case Matrix4.MultiplyOrder.TSR:
-        //            Translation += _finalRotation.Inverted() * (translation / Scale);
-        //            break;
-        //    }
-        //}
-        ////Translates relative to parent space.
-        //public void TranslateAbsolute(Vec3 translation)
-        //{
-        //    switch (_transformOrder)
-        //    {
-        //        case Matrix4.MultiplyOrder.TRS:
-        //        case Matrix4.MultiplyOrder.TSR:
-        //            Translation += translation;
-        //            break;
-        //        case Matrix4.MultiplyOrder.STR:
-        //            Translation += translation / Scale;
-        //            break;
-        //        case Matrix4.MultiplyOrder.RTS:
-        //            Translation += _finalRotation.Inverted() * translation;
-        //            break;
-        //        case Matrix4.MultiplyOrder.SRT:
-        //            Translation += (_finalRotation.Inverted() * translation) / Scale;
-        //            break;
-        //        case Matrix4.MultiplyOrder.RST:
-        //            Translation += _finalRotation.Inverted() * (translation / Scale);
-        //            break;
-        //    }
-        //}
-
+        
         public static void DeriveTRS(Matrix4 m, out Vec3 translation, out Vec3 scale, out Quat rotation)
         {
             translation = m.Row3.Xyz;
@@ -400,9 +265,9 @@ namespace System
             translation.Round(5);
             scale.Round(5);
         }
-        public static unsafe LocalRotTransform DeriveTRS(Matrix4 m)
+        public static unsafe WorldRotTransform DeriveTRS(Matrix4 m)
         {
-            LocalRotTransform state = new LocalRotTransform()
+            WorldRotTransform state = new WorldRotTransform()
             {
                 _translation = m.Row3.Xyz,
                 _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),
@@ -445,9 +310,9 @@ namespace System
 
             //state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
 
-            if (state._rotation.Pitch == float.NaN ||
-                state._rotation.Yaw == float.NaN ||
-                state._rotation.Roll == float.NaN)
+            if (state._rotation.X == float.NaN ||
+                state._rotation.Y == float.NaN ||
+                state._rotation.Z == float.NaN)
                 throw new Exception("Something went wrong when deriving rotation values.");
 
             state._translation.Raw.Round(5);

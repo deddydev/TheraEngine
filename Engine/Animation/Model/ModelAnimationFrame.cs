@@ -151,7 +151,7 @@ namespace TheraEngine.Animation
             CustomMath.Lerp(bindRotation.Pitch, _values[4].Value, _values[4].Weight),
             CustomMath.Lerp(bindRotation.Yaw, _values[3].Value, _values[3].Weight),
             CustomMath.Lerp(bindRotation.Roll, _values[5].Value, _values[5].Weight),
-            RotationOrder.YPR);
+            _eulerOrder);
         public Vec3 GetScale(Vec3 bindScale) => new Vec3(
             CustomMath.Lerp(bindScale.X, _values[6].Value, _values[6].Weight),
             CustomMath.Lerp(bindScale.Y, _values[7].Value, _values[7].Weight),
@@ -164,9 +164,10 @@ namespace TheraEngine.Animation
         public Vec3 GetUnweightedScale() 
             => new Vec3(_values[6].Value, _values[7].Value, _values[8].Value);
 
-        public BoneFrame(string name, float?[] values)
+        public BoneFrame(string name, float?[] values, RotationOrder eulerOrder)
         {
             _name = name;
+            _eulerOrder = eulerOrder;
             _values = new FrameValueWeight[9];
             for (int i = 0; i < 9; ++i)
             {
@@ -205,9 +206,10 @@ namespace TheraEngine.Animation
         //    _values[8].Weight = weights[8];
         //}
 
-        public BoneFrame(string name, FrameValueWeight[] values)
+        public BoneFrame(string name, FrameValueWeight[] values, RotationOrder eulerOrder)
         {
             _name = name;
+            _eulerOrder = eulerOrder;
             _values = values;
         }
 
@@ -237,7 +239,7 @@ namespace TheraEngine.Animation
             float otherWeight)
         {
             Vec3 t;
-            Quat r;
+            Rotator r;
             Vec3 s;
 
             if (otherBoneFrame == null)
@@ -247,9 +249,8 @@ namespace TheraEngine.Animation
                     _values[i].Weight *= otherWeight;
 
                 t = GetTranslation(bindState.Translation);
-                r = GetRotation(bindState.Rotation).ToQuaternion();
+                r = GetRotation(bindState.Rotation);
                 s = GetScale(bindState.Scale);
-               
             }
             else
             {
@@ -259,7 +260,7 @@ namespace TheraEngine.Animation
 
                 Rotator r1 = GetRotation(bindState.Rotation);
                 Rotator r2 = otherBoneFrame.GetRotation(bindState.Rotation);
-                r = Quat.Slerp(r1.ToQuaternion(), r2.ToQuaternion(), otherWeight);
+                r = Rotator.Lerp(r1, r2, otherWeight);
 
                 Vec3 s1 = GetScale(bindState.Scale);
                 Vec3 s2 = otherBoneFrame.GetScale(bindState.Scale);
@@ -279,7 +280,7 @@ namespace TheraEngine.Animation
                     CustomMath.Lerp(value.Value, otherValue.Value, otherWeight),
                     CustomMath.Lerp(value.Weight, otherValue.Weight, otherWeight));
             }
-            return new BoneFrame(_name, values);
+            return new BoneFrame(_name, values, _eulerOrder);
         }
 
         public BoneFrame BlendedWith(BoneAnimation other, float frameIndex, float otherWeight)

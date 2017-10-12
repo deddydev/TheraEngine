@@ -342,6 +342,18 @@ namespace System
             };
             return v;
         }
+
+        public static Rotator Lerp(Rotator r1, Rotator r2, float time)
+        {
+            if (r1.Order != r2.Order)
+                return null;
+            return new Rotator(
+                CustomMath.Lerp(r1.Pitch, r2.Pitch, time),
+                CustomMath.Lerp(r1.Yaw, r2.Yaw, time),
+                CustomMath.Lerp(r1.Roll, r2.Roll, time), 
+                r1.Order);
+        }
+
         public void Clamp(Rotator min, Rotator max)
         {
             BeginUpdate();

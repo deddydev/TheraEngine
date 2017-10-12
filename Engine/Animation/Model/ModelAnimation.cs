@@ -167,7 +167,7 @@ namespace TheraEngine.Animation
         }
 
         internal ModelAnimation Parent { get; set; }
-        public RotationOrder EulerOrder { get; set; }
+        public RotationOrder EulerOrder { get; set; } = RotationOrder.YRP;
 
         [Category("Bone Animation"), Serialize("Name")]
         public string _name;
@@ -216,7 +216,7 @@ namespace TheraEngine.Animation
             for (int i = 0; i < 9; ++i)
                 values[i] = _tracks[i].First == null ? null : (float?)_tracks[i].First.Interpolate(second);
 
-            return new BoneFrame(_name, values);
+            return new BoneFrame(_name, values, EulerOrder);
         }
         //public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
         //{
@@ -290,7 +290,7 @@ namespace TheraEngine.Animation
             otherBoneAnim.GetTransform(bindState, otherSecond, out Vec3 t2, out Rotator r2, out Vec3 s2);
             
             Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
-            Quat r = Quat.Slerp(r1.ToQuaternion(), r2.ToQuaternion(), otherWeight);
+            Rotator r = Rotator.Lerp(r1, r2, otherWeight);
             Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
             frameState.SetAll(t, r, s);
         }

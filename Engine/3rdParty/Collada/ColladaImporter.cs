@@ -216,8 +216,8 @@ namespace TheraEngine.Rendering.Models
                                     if (node.Type == Node.EType.JOINT)
                                     {
                                         BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
-                                        if (!wasFound)
-                                            bone.EulerOrder = RotationOrder.YPR;
+                                        //if (!wasFound)
+                                        //    bone.EulerOrder = RotationOrder.PYR;
                                         
                                         int x = 0;
                                         for (int i = 0; i < inputData.Length; ++i, x += 2)
@@ -235,8 +235,18 @@ namespace TheraEngine.Rendering.Models
                                                     outTan = outTanData[i];
                                                     break;
                                                 case PlanarInterpType.CubicBezier:
-                                                    inTan = inTanData[x + 1] / inTanData[x];
-                                                    outTan = outTanData[x + 1] / outTanData[x];
+                                                    inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                                    outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                                    if (float.IsNaN(inTan) || float.IsInfinity(inTan))
+                                                    {
+                                                        inTan = 0.0f;
+                                                        //Engine.PrintLine("Invalid in-tangent calculated");
+                                                    }
+                                                    if (float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                                    {
+                                                        outTan = 0.0f;
+                                                        //Engine.PrintLine("Invalid out-tangent calculated");
+                                                    }
                                                     break;
                                             }
 
@@ -244,9 +254,9 @@ namespace TheraEngine.Rendering.Models
                                             if (xAxis)
                                                 bone.RotationPitch.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                             else if (yAxis)
-                                                bone.RotationYaw.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                            else
                                                 bone.RotationRoll.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                            else
+                                                bone.RotationYaw.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                         }
                                     }
                                     else
@@ -289,8 +299,18 @@ namespace TheraEngine.Rendering.Models
                                                 outTan = outTanData[i];
                                                 break;
                                             case PlanarInterpType.CubicBezier:
-                                                inTan = inTanData[x + 1] / inTanData[x];
-                                                outTan = outTanData[x + 1] / outTanData[x];
+                                                inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                                outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                                if (float.IsNaN(inTan) || float.IsInfinity(inTan))
+                                                {
+                                                    inTan = 0.0f;
+                                                    //Engine.PrintLine("Invalid in-tangent calculated");
+                                                }
+                                                if (float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                                {
+                                                    outTan = 0.0f;
+                                                    //Engine.PrintLine("Invalid out-tangent calculated");
+                                                }
                                                 break;
                                         }
 
@@ -338,8 +358,18 @@ namespace TheraEngine.Rendering.Models
                                                 outTan = outTanData[i];
                                                 break;
                                             case PlanarInterpType.CubicBezier:
-                                                inTan = inTanData[x + 1] / inTanData[x];
-                                                outTan = outTanData[x + 1] / outTanData[x];
+                                                inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                                outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                                if (float.IsNaN(inTan) || float.IsInfinity(inTan))
+                                                {
+                                                    inTan = 0.0f;
+                                                    //Engine.PrintLine("Invalid in-tangent calculated");
+                                                }
+                                                if (float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                                {
+                                                    outTan = 0.0f;
+                                                    //Engine.PrintLine("Invalid out-tangent calculated");
+                                                }
                                                 break;
                                         }
 
@@ -397,8 +427,11 @@ namespace TheraEngine.Rendering.Models
                                         outTan = outTanData[i];
                                         break;
                                     case PlanarInterpType.CubicBezier:
-                                        inTan = inTanData[x + 1] / inTanData[x];
-                                        outTan = outTanData[x + 1] / outTanData[x];
+                                        Engine.PrintLine("Matrix has bezier interpolation");
+                                        //inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                        //outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                        //if (float.IsNaN(inTan) || float.IsInfinity(inTan) || float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                        //    Engine.PrintLine("Invalid tangent calculated");
                                         break;
                                 }
 
@@ -470,10 +503,10 @@ namespace TheraEngine.Rendering.Models
         }
         private enum InterpType
         {
-            LINEAR,
-            BEZIER,
-            HERMITE,
             STEP,
+            LINEAR,
+            HERMITE,
+            BEZIER,
         }
 
         private static Bone EnumNode(

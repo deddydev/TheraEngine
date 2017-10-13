@@ -24,7 +24,6 @@ namespace TheraEngine.Rendering.Models
         public class Data
         {
             public List<ModelScene> Models { get; set; }
-            public List<ModelAnimation> ModelAnimations { get; set; }
             public List<BasePropertyAnimation> PropertyAnimations { get; set; }
         }
         public static Data Import(string filePath, ModelImportOptions options)
@@ -39,7 +38,7 @@ namespace TheraEngine.Rendering.Models
             //using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
             {
                 var schemeReader = new XMLSchemeReader<COLLADA>();
-                var root = schemeReader.Import(filePath, false);
+                var root = schemeReader.Import(filePath, options.IgnoreFlags);
                 if (root != null)
                 {
                     Matrix4 baseTransform = options.InitialTransform.Matrix;
@@ -49,20 +48,25 @@ namespace TheraEngine.Rendering.Models
                         var unit = asset.UnitElement;
                         var coord = asset.UpAxisElement;
 
-                        Engine.PrintLine("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
-                        Engine.PrintLine("Up axis: " + coord.StringContent.Value.ToString());
-
-                        baseTransform = baseTransform * Matrix4.CreateScale(unit.Meter);
-                        switch (coord.StringContent.Value)
+                        if (unit != null)
                         {
-                            case Asset.EUpAxis.X_UP:
-                                baseTransform = Matrix4.XupToYup * baseTransform;
-                                break;
-                            case Asset.EUpAxis.Y_UP:
-                                break;
-                            case Asset.EUpAxis.Z_UP:
-                                baseTransform = Matrix4.ZupToYup * baseTransform;
-                                break;
+                            Engine.PrintLine("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
+                            baseTransform = baseTransform * Matrix4.CreateScale(unit.Meter);
+                        }
+                        if (coord != null)
+                        {
+                            Engine.PrintLine("Up axis: " + coord.StringContent.Value.ToString());
+                            switch (coord.StringContent.Value)
+                            {
+                                case Asset.EUpAxis.X_UP:
+                                    baseTransform = Matrix4.XupToYup * baseTransform;
+                                    break;
+                                case Asset.EUpAxis.Y_UP:
+                                    break;
+                                case Asset.EUpAxis.Z_UP:
+                                    baseTransform = Matrix4.ZupToYup * baseTransform;
+                                    break;
+                            }
                         }
                     }
                     Scene scene = root.GetChild<Scene>();
@@ -75,7 +79,8 @@ namespace TheraEngine.Rendering.Models
                             var visualScene = visualSceneRef.GetUrlInstance();
                             if (visualScene != null)
                             {
-                                if (options.ImportModels)
+                                if (!options.IgnoreFlags.HasFlag(IgnoreFlags.Geometry) ||
+                                    !options.IgnoreFlags.HasFlag(IgnoreFlags.Controllers))
                                 {
                                     ModelScene modelScene = new ModelScene();
                                     var nodes = visualScene.NodeElements;
@@ -120,9 +125,9 @@ namespace TheraEngine.Rendering.Models
                                     }
                                     data.Models.Add(modelScene);
                                 }
-                                if (options.ImportAnimations)
+                                if (!options.IgnoreFlags.HasFlag(IgnoreFlags.Animations))
                                 {
-                                    data.ModelAnimations = new List<ModelAnimation>();
+                                    data.Models[0].Animations = new List<ModelAnimation>();
                                     data.PropertyAnimations = new List<BasePropertyAnimation>();
                                     ModelAnimation anim = new ModelAnimation()
                                     {

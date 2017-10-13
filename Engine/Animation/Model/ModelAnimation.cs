@@ -16,10 +16,14 @@ namespace TheraEngine.Animation
         {
             ModelImportOptions o = new ModelImportOptions()
             {
-                ImportAnimations = true,
-                ImportModels = false
+                IgnoreFlags =
+                Core.Files.IgnoreFlags.Extra | 
+                Core.Files.IgnoreFlags.Geometry |
+                Core.Files.IgnoreFlags.Controllers |
+                Core.Files.IgnoreFlags.Cameras | 
+                Core.Files.IgnoreFlags.Lights
             };
-            return Collada.Import(path, o).ModelAnimations[0];
+            return Collada.Import(path, o)?.ModelAnimations[0];
         }
 
         [Serialize("BoneAnimations")]

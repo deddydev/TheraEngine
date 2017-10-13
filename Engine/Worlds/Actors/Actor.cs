@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using TheraEngine.Files;
 using System.ComponentModel;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds
 {
@@ -30,9 +31,22 @@ namespace TheraEngine.Worlds
         public Actor(SceneComponent root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
     }
-    [FileClass("ACTOR", "Actor")]
+    [FileClass("ACTOR", "Actor", ImportableExtensions = new string[] { "DAE" })]
     public class Actor<T> : FileObject, IActor where T : SceneComponent
     {
+        [ThirdPartyLoader("DAE")]
+        public static FileObject LoadDAE(string path)
+        {
+            ModelImportOptions o = new ModelImportOptions()
+            {
+                IgnoreFlags = Core.Files.IgnoreFlags.Extra
+            };
+            Collada.Data data = Collada.Import(path, o);
+            if (data != null)
+            {
+
+            }
+        }
         public Actor() : this(false) { }
         public Actor(bool deferInitialization)
         {

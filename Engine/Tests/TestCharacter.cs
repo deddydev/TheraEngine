@@ -47,7 +47,7 @@ namespace TheraEngine.Tests
                 _meshComp.Skeleton = skeleton;
                 _meshComp.Model = mesh;
 
-                string animPath = TestDefaults.DesktopPath + "test_anim.dae";
+                string animPath = TestDefaults.GoogleDrivePath + "test_anim.dae";
                 //googleDrive + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
                 ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
                 //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
@@ -56,16 +56,17 @@ namespace TheraEngine.Tests
                     _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/m);
                 }
             }
-
-     
         }
         protected override void PreConstruct()
         {
             //string desktop = Engine.StartupPath;
             ModelImportOptions options = new ModelImportOptions()
             {
-                ImportModels = true,
-                ImportAnimations = false,
+                IgnoreFlags = 
+                Core.Files.IgnoreFlags.Extra | 
+                Core.Files.IgnoreFlags.Lights | 
+                Core.Files.IgnoreFlags.Cameras | 
+                Core.Files.IgnoreFlags.Animations,
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
             

@@ -27,12 +27,12 @@ namespace TheraEngine.Tests
             {
                 PhysicsConstructionInfo physicsInfo = new PhysicsConstructionInfo()
                 {
-                    Mass = 10.0f,
+                    Mass = 15.0f,
                     AngularDamping = 0.1f,
-                    LinearDamping = 0.1f,
-                    Restitution = 0.8f,
-                    Friction = 0.5f,
-                    RollingFriction = 0.2f,
+                    LinearDamping = 0.05f,
+                    Restitution = 1.0f,
+                    Friction = 0.2f,
+                    RollingFriction = 0.1f,
                     CollisionEnabled = true,
                     SimulatePhysics = true,
                     CollisionGroup = CustomCollisionGroup.DynamicWorld,

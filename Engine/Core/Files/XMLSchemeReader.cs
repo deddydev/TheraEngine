@@ -10,12 +10,24 @@ using static TheraEngine.Rendering.Models.Collada;
 
 namespace TheraEngine.Core.Files
 {
+    [Flags]
+    public enum IgnoreFlags
+    {
+        None        = 0x00,
+        Asset       = 0x01,
+        Extra       = 0x02,
+        Controllers = 0x04,
+        Geometry    = 0x08,
+        Animations  = 0x10,
+        Cameras     = 0x20,
+        Lights      = 0x40,
+    }
     public delegate IElement DelParseElementXML(
         IElement entry,
         IElement parent,
         XMLReader reader,
         string version,
-        bool parseExtraElements,
+        IgnoreFlags ignore,
         string parentTree,
         int elementIndex);
     public delegate IElement DelParseElementXml(
@@ -23,7 +35,7 @@ namespace TheraEngine.Core.Files
         IElement parent,
         XmlReader reader,
         string version,
-        bool parseExtraElements,
+        IgnoreFlags ignore,
         string parentTree,
         int elementIndex);
     public class BaseXMLSchemeReader
@@ -88,16 +100,16 @@ namespace TheraEngine.Core.Files
             IElement parent,
             XMLReader reader,
             string version,
-            bool parseExtraElements,
+            IgnoreFlags ignore,
             string parentTree,
             int elementIndex)
-        => ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, parseExtraElements, parentTree, elementIndex);
+        => ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, ignore, parentTree, elementIndex);
             public static IElement ParseElement(
             IElement entry,
             IElement parent,
             XMLReader reader,
             string version,
-            bool parseExtraElements,
+            IgnoreFlags ignore,
             string parentTree,
             int elementIndex)
         {
@@ -129,12 +141,42 @@ namespace TheraEngine.Core.Files
                 return entry;
             }
 
-            if (!parseExtraElements && entry is Extra)
+            if ((ignore & IgnoreFlags.Extra) != 0 && entry is Extra)
             {
                 entry.PostRead();
                 return entry;
             }
-            
+            if ((ignore & IgnoreFlags.Asset) != 0 && entry is Asset)
+            {
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Animations) != 0 && entry is COLLADA.LibraryAnimations)
+            {
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Cameras) != 0 && entry is InstanceCamera)
+            {
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Lights) != 0 && entry is InstanceLight)
+            {
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Controllers) != 0 && entry is InstanceController)
+            {
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Geometry) != 0 && entry is InstanceGeometry)
+            {
+                entry.PostRead();
+                return entry;
+            }
+
             #region Read attributes
             MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             while (reader.ReadAttribute())
@@ -204,7 +246,7 @@ namespace TheraEngine.Core.Files
                                     Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
                                 //entry.QueueChildElement(child.Types[typeIndex], reader, version, parseExtraElements, parentTree, childIndex, reader.Name, reader.Value);
-                                ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                ParseElement(child.Types[typeIndex], entry, reader, version, ignore, parentTree, childIndex);
                                 break;
                             }
                         }
@@ -219,7 +261,7 @@ namespace TheraEngine.Core.Files
                                     {
                                         ++c.Occurrences[i];
                                         //entry.QueueChildElement(c.Data.Types[i], reader, version, parseExtraElements, parentTree, childIndex, reader.Name, reader.Value);
-                                        ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                        ParseElement(c.Data.Types[i], entry, reader, version, ignore, parentTree, childIndex);
                                         return true;
                                     }
                                 }
@@ -263,7 +305,7 @@ namespace TheraEngine.Core.Files
     public class XMLSchemeReader<T> : BaseXMLSchemeReader where T : class, IElement
     {
         public XMLSchemeReader() { }
-        public T Import(XMLReader reader, bool parseExtraElements)
+        public T Import(XMLReader reader, IgnoreFlags ignore)
         {
             string previousTree = "";
             Type t = typeof(T);
@@ -277,7 +319,7 @@ namespace TheraEngine.Core.Files
             while (reader.BeginElement())
             {
                 if (reader.Name.Equals(name.ElementName, true))
-                    return ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
+                    return ParseElement(t, null, reader, null, ignore, previousTree, 0) as T;
                 reader.EndElement();
             }
 
@@ -289,7 +331,7 @@ namespace TheraEngine.Core.Files
             return null;
         }
 
-        public T Import(string path, bool parseExtraElements)
+        public T Import(string path, IgnoreFlags ignore)
         {
             XmlReaderSettings settings = new XmlReaderSettings()
             {
@@ -301,16 +343,16 @@ namespace TheraEngine.Core.Files
                 CloseInput = true,
                 Async = false,
             };
-            return Import(path, parseExtraElements, settings);
+            return Import(path, ignore, settings);
         }
-        public T Import(string path, bool parseExtraElements, XmlReaderSettings settings)
+        public T Import(string path, IgnoreFlags ignore, XmlReaderSettings settings)
         {
             using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
             {
-                return Import(r, parseExtraElements);
+                return Import(r, ignore);
             }
         }
-        public T Import(XmlReader reader, bool parseExtraElements)
+        public T Import(XmlReader reader, IgnoreFlags ignore)
         {
             string previousTree = "";
             Type t = typeof(T);
@@ -325,7 +367,7 @@ namespace TheraEngine.Core.Files
             while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) ;
             if (found)
             {
-                IElement e = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0);
+                IElement e = ParseElement(t, null, reader, null, ignore, previousTree, 0);
                 return e as T;
             }
 
@@ -337,16 +379,16 @@ namespace TheraEngine.Core.Files
             IElement parent,
             XmlReader reader,
             string version,
-            bool parseExtraElements,
+            IgnoreFlags ignore,
             string parentTree,
             int elementIndex)
-            => ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, parseExtraElements, parentTree, elementIndex);
+            => ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, ignore, parentTree, elementIndex);
         public static IElement ParseElement(
             IElement entry,
             IElement parent,
             XmlReader reader,
             string version,
-            bool parseExtraElements,
+            IgnoreFlags ignore,
             string parentTree,
             int elementIndex)
         {
@@ -379,13 +421,49 @@ namespace TheraEngine.Core.Files
                 return entry;
             }
 
-            if (!parseExtraElements && entry is Extra)
+            if ((ignore & IgnoreFlags.Extra) != 0 && entry is Extra)
             {
                 reader.Skip();
                 entry.PostRead();
                 return entry;
             }
-            
+            if ((ignore & IgnoreFlags.Asset) != 0 && entry is Asset)
+            {
+                reader.Skip();
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Animations) != 0 && entry is COLLADA.LibraryAnimations)
+            {
+                reader.Skip();
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Cameras) != 0 && entry is InstanceCamera)
+            {
+                reader.Skip();
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Lights) != 0 && entry is InstanceLight)
+            {
+                reader.Skip();
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Controllers) != 0)
+            {
+                reader.Skip();
+                entry.PostRead();
+                return entry;
+            }
+            if ((ignore & IgnoreFlags.Geometry) != 0 && entry is InstanceGeometry)
+            {
+                reader.Skip();
+                entry.PostRead();
+                return entry;
+            }
+
             #region Read attributes
             MemberInfo[] members = entry.WantsManualRead ? null : elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (reader.HasAttributes)
@@ -460,7 +538,7 @@ namespace TheraEngine.Core.Files
                                 reader.Skip();
                             }
                             else
-                                ParseElement(e, entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                ParseElement(e, entry, reader, version, ignore, parentTree, childIndex);
                         }
                         else
                         {
@@ -485,7 +563,7 @@ namespace TheraEngine.Core.Files
                                         if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
                                             Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
-                                        ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                        ParseElement(child.Types[typeIndex], entry, reader, version, ignore, parentTree, childIndex);
                                         break;
                                     }
                                 }
@@ -499,7 +577,7 @@ namespace TheraEngine.Core.Files
                                             if (name.Matches(elementName, version))
                                             {
                                                 ++c.Occurrences[i];
-                                                ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                                ParseElement(c.Data.Types[i], entry, reader, version, ignore, parentTree, childIndex);
                                                 return true;
                                             }
                                         }
@@ -685,7 +763,7 @@ namespace TheraEngine.Core.Files
         T2[] GetChildren<T2>() where T2 : IElement;
         void PreRead();
         void PostRead();
-        void QueueChildElement(Type type, XMLReader reader, string version, bool parseExtraElements, string parentTree, int childIndex, string name, string value);
+        void QueueChildElement(Type type, XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value);
         void OnAttributesRead();
 
         bool WantsManualRead { get; }
@@ -785,7 +863,7 @@ namespace TheraEngine.Core.Files
                         d.reader._ptr = d._ptr;
                         d.reader._inTag = d._inTag;
                         d.reader.SetStringBuffer(d._name, d._value);
-                        T2 m = (T2)BaseXMLSchemeReader.ParseElement(match, this, d.reader, d.version, d.parseExtraElements, d.parentTree, d.childIndex);
+                        T2 m = (T2)BaseXMLSchemeReader.ParseElement(match, this, d.reader, d.version, d.ignore, d.parentTree, d.childIndex);
                         ChildElements[match].Add(m);
                         if (!elems.Contains(m))
                             elems.Add(m);
@@ -807,12 +885,12 @@ namespace TheraEngine.Core.Files
             public byte* _ptr;
             public bool _inTag;
             public string version;
-            public bool parseExtraElements;
+            public IgnoreFlags ignore;
             public string parentTree;
             public int childIndex;
             public XMLReader reader;
 
-            public InitData(XMLReader reader, string version, bool parseExtraElements, string parentTree, int childIndex, string name, string value)
+            public InitData(XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value)
             {
                 _name = name;
                 _value = value;
@@ -820,16 +898,16 @@ namespace TheraEngine.Core.Files
                 _ptr = reader._ptr;
                 _inTag = reader._inTag;
                 this.version = version;
-                this.parseExtraElements = parseExtraElements;
+                this.ignore = ignore;
                 this.parentTree = parentTree;
                 this.childIndex = childIndex;
             }
         }
         
         private Dictionary<Type, List<InitData>> _initData = new Dictionary<Type, List<InitData>>();
-        public unsafe void QueueChildElement(Type type, XMLReader reader, string version, bool parseExtraElements, string parentTree, int childIndex, string name, string value)
+        public unsafe void QueueChildElement(Type type, XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value)
         {
-            InitData d = new InitData(reader, version, parseExtraElements, parentTree, childIndex, name, value);
+            InitData d = new InitData(reader, version, ignore, parentTree, childIndex, name, value);
             if (_initData.ContainsKey(type))
                 _initData[type].Add(d);
             else

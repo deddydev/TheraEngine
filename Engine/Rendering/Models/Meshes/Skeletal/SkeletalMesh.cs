@@ -13,8 +13,10 @@ namespace TheraEngine.Rendering.Models
         {
             ModelImportOptions o = new ModelImportOptions()
             {
-                ImportAnimations = false,
-                ImportModels = true
+                IgnoreFlags =
+                Core.Files.IgnoreFlags.Extra |
+                Core.Files.IgnoreFlags.Cameras |
+                Core.Files.IgnoreFlags.Lights
             };
             return Collada.Import(path, o)?.Models[0].SkeletalModel;
         }
@@ -23,8 +25,7 @@ namespace TheraEngine.Rendering.Models
         {
             ModelImportOptions o = new ModelImportOptions()
             {
-                ImportAnimations = false,
-                ImportModels = true
+
             };
             return OBJ.Import(path, o);
         }

@@ -1074,7 +1074,7 @@
     <Compile Include="Tests\TestWorld.cs" />
     <Compile Include="Worlds\World.cs" />
     <Compile Include="Animation\Property\PropertyAnimation.cs" />
-    <Compile Include="Core\Maths\Transforms\Class\Transforms\LocalRotTransform.cs" />
+    <Compile Include="Core\Maths\Transforms\Class\Transforms\Transform.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Index\IndexTriangle.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\FacePoint.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Bone.cs" />

@@ -10,14 +10,22 @@ using static TheraEngine.Rendering.Models.Collada;
 
 namespace TheraEngine.Core.Files
 {
-    public delegate IElement ParseElement(
-    Type elementType,
-    IElement parent,
-    XMLReader reader,
-    string version,
-    bool parseExtraElements,
-    string parentTree,
-    int elementIndex);
+    public delegate IElement DelParseElementXML(
+        IElement entry,
+        IElement parent,
+        XMLReader reader,
+        string version,
+        bool parseExtraElements,
+        string parentTree,
+        int elementIndex);
+    public delegate IElement DelParseElementXml(
+        IElement entry,
+        IElement parent,
+        XmlReader reader,
+        string version,
+        bool parseExtraElements,
+        string parentTree,
+        int elementIndex);
     public class BaseXMLSchemeReader
     {
         public static Type[] FindPublicTypes(Predicate<Type> match)
@@ -112,24 +120,21 @@ namespace TheraEngine.Core.Files
             //    entry.PostRead();
             //    return entry;
             //}
-
-            if (entry.ManualRead(reader))
+            
             entry.PreRead();
             if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
             {
                 Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
-                //reader.EndElement();
                 entry.PostRead();
                 return entry;
             }
 
             if (!parseExtraElements && entry is Extra)
             {
-                //reader.EndElement();
                 entry.PostRead();
                 return entry;
             }
-
+            
             #region Read attributes
             MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             while (reader.ReadAttribute())
@@ -154,25 +159,7 @@ namespace TheraEngine.Core.Files
             if (entry is IVersion v)
                 version = v.Version;
 
-            if (entry is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
-                entry.Root.IDEntries.Add(IDEntry.ID, IDEntry);
-
-            if (entry is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
-            {
-                IElement p = SIDEntry.GenericParent;
-                while (true)
-                {
-                    if (p is ISIDAncestor ancestor)
-                    {
-                        ancestor.SIDChildren.Add(SIDEntry);
-                        break;
-                    }
-                    else if (p.GenericParent != null)
-                        p = p.GenericParent;
-                    else
-                        break;
-                }
-            }
+            entry.OnAttributesRead();
 
             #region Read child elements
 
@@ -260,7 +247,7 @@ namespace TheraEngine.Core.Files
             }
 
             #endregion
-
+      
             entry.PostRead();
 
             TimeSpan elapsed = DateTime.Now - startTime;
@@ -302,7 +289,7 @@ namespace TheraEngine.Core.Files
             return null;
         }
 
-        public unsafe T Import(string path, bool parseExtraElements)
+        public T Import(string path, bool parseExtraElements)
         {
             XmlReaderSettings settings = new XmlReaderSettings()
             {
@@ -312,13 +299,16 @@ namespace TheraEngine.Core.Files
                 IgnoreWhitespace = true,
                 IgnoreComments = true,
                 CloseInput = true,
+                Async = false,
             };
             return Import(path, parseExtraElements, settings);
         }
         public T Import(string path, bool parseExtraElements, XmlReaderSettings settings)
         {
             using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
+            {
                 return Import(r, parseExtraElements);
+            }
         }
         public T Import(XmlReader reader, bool parseExtraElements)
         {
@@ -332,14 +322,27 @@ namespace TheraEngine.Core.Files
             }
 
             bool found;
-            while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
+            while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) ;
             if (found)
-                return ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
+            {
+                IElement e = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0);
+                return e as T;
+            }
 
             return null;
         }
-        private IElement ParseElement(
+
+        public static IElement ParseElement(
             Type elementType,
+            IElement parent,
+            XmlReader reader,
+            string version,
+            bool parseExtraElements,
+            string parentTree,
+            int elementIndex)
+            => ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, parseExtraElements, parentTree, elementIndex);
+        public static IElement ParseElement(
+            IElement entry,
             IElement parent,
             XmlReader reader,
             string version,
@@ -348,8 +351,8 @@ namespace TheraEngine.Core.Files
             int elementIndex)
         {
             DateTime startTime = DateTime.Now;
-            IElement entry = Activator.CreateInstance(elementType) as IElement;
 
+            Type elementType = entry.GetType();
             entry.GenericParent = parent;
             entry.ElementIndex = elementIndex;
             entry.PreRead();
@@ -362,7 +365,7 @@ namespace TheraEngine.Core.Files
 
             if (reader.NodeType != XmlNodeType.Element)
             {
-                Engine.PrintLine("Encountered an unexpected node: {0}", reader.Name);
+                Engine.PrintLine("Encountered an unexpected node: {0} '{1}'", reader.Name, reader.NodeType.ToString());
                 reader.Skip();
                 entry.PostRead();
                 return entry;
@@ -382,51 +385,38 @@ namespace TheraEngine.Core.Files
                 entry.PostRead();
                 return entry;
             }
-
+            
             #region Read attributes
-            MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            MemberInfo[] members = entry.WantsManualRead ? null : elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (reader.HasAttributes)
                 while (reader.MoveToNextAttribute())
                 {
                     string name = reader.Name;
                     string value = reader.Value;
-                    MemberInfo info = members.FirstOrDefault(x =>
+                    if (entry.WantsManualRead)
+                        entry.SetAttribute(name, value);
+                    else
                     {
-                        var a = x.GetCustomAttribute<Attr>();
-                        return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
-                    });
+                        MemberInfo info = members.FirstOrDefault(x =>
+                        {
+                            var a = x.GetCustomAttribute<Attr>();
+                            return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
+                        });
 
-                    if (info == null)
-                        Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
-                    else if (info is FieldInfo field)
-                        field.SetValue(entry, value.ParseAs(field.FieldType));
-                    else if (info is PropertyInfo property)
-                        property.SetValue(entry, value.ParseAs(property.PropertyType));
+                        if (info == null)
+                            Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
+                        else if (info is FieldInfo field)
+                            field.SetValue(entry, value.ParseAs(field.FieldType));
+                        else if (info is PropertyInfo property)
+                            property.SetValue(entry, value.ParseAs(property.PropertyType));
+                    }
                 }
             #endregion
 
             if (entry is IVersion v)
                 version = v.Version;
 
-            if (entry is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
-                entry.Root.IDEntries.Add(IDEntry.ID, IDEntry);
-
-            if (entry is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
-            {
-                IElement p = SIDEntry.GenericParent;
-                while (true)
-                {
-                    if (p is ISIDAncestor ancestor)
-                    {
-                        ancestor.SIDChildren.Add(SIDEntry);
-                        break;
-                    }
-                    else if (p.GenericParent != null)
-                        p = p.GenericParent;
-                    else
-                        break;
-                }
-            }
+            entry.OnAttributesRead();
 
             #region Read child elements
 
@@ -461,56 +451,69 @@ namespace TheraEngine.Core.Files
                         if (string.IsNullOrEmpty(elementName))
                             throw new Exception();
 
-                        bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
-                            Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
-
-                        if (isUnsupported)
+                        if (entry.WantsManualRead)
                         {
-                            if (string.IsNullOrEmpty(elementName))
-                                throw new Exception();
-                            Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                            reader.Skip();
+                            IElement e = entry.CreateChildElement(elementName, version);
+                            if (e == null)
+                            {
+                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+                                reader.Skip();
+                            }
+                            else
+                                ParseElement(e, entry, reader, version, parseExtraElements, parentTree, childIndex);
                         }
                         else
                         {
-                            int typeIndex = -1;
-                            foreach (ChildInfo child in childElements)
-                            {
-                                typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
-                                if (typeIndex >= 0)
-                                {
-                                    if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
-                                        Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
+                            bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
+                                Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
 
-                                    ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
-                                    break;
-                                }
+                            if (isUnsupported)
+                            {
+                                if (string.IsNullOrEmpty(elementName))
+                                    throw new Exception();
+                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+                                reader.Skip();
                             }
-                            if (typeIndex < 0)
+                            else
                             {
-                                MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
+                                int typeIndex = -1;
+                                foreach (ChildInfo child in childElements)
                                 {
-                                    for (int i = 0; i < c.Data.Types.Length; ++i)
+                                    typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
+                                    if (typeIndex >= 0)
                                     {
-                                        Name name = c.ElementNames[i];
-                                        if (name.Matches(elementName, version))
-                                        {
-                                            ++c.Occurrences[i];
-                                            ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                });
+                                        if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
+                                            Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
-                                if (info == null)
+                                        ParseElement(child.Types[typeIndex], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                        break;
+                                    }
+                                }
+                                if (typeIndex < 0)
                                 {
-                                    Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                                    reader.Skip();
+                                    MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
+                                    {
+                                        for (int i = 0; i < c.Data.Types.Length; ++i)
+                                        {
+                                            Name name = c.ElementNames[i];
+                                            if (name.Matches(elementName, version))
+                                            {
+                                                ++c.Occurrences[i];
+                                                ParseElement(c.Data.Types[i], entry, reader, version, parseExtraElements, parentTree, childIndex);
+                                                return true;
+                                            }
+                                        }
+                                        return false;
+                                    });
+
+                                    if (info == null)
+                                    {
+                                        Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+                                        reader.Skip();
+                                    }
                                 }
                             }
                         }
-
                         ++childIndex;
                     }
 
@@ -530,7 +533,7 @@ namespace TheraEngine.Core.Files
             }
 
             #endregion
-
+         
             entry.PostRead();
 
             TimeSpan elapsed = DateTime.Now - startTime;
@@ -683,8 +686,14 @@ namespace TheraEngine.Core.Files
         void PreRead();
         void PostRead();
         void QueueChildElement(Type type, XMLReader reader, string version, bool parseExtraElements, string parentTree, int childIndex, string name, string value);
-        bool ManualRead(XMLReader reader);
-        bool ManualRead(XmlReader reader);
+        void OnAttributesRead();
+
+        bool WantsManualRead { get; }
+        //void ManualRead(XmlReader reader, string version, bool parseExtraElements, string parentTree, DelParseElementXml parse);
+        //void ManualRead(XMLReader reader, string version, bool parseExtraElements, string parentTree, DelParseElementXML parse);
+        void SetAttribute(string name, string value);
+        IElement CreateChildElement(string name, string version);
+
         object UserData { get; set; }
         IElement GenericParent { get; set; }
         COLLADA Root { get; }
@@ -829,17 +838,119 @@ namespace TheraEngine.Core.Files
 
         public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
         public Type ParentType => typeof(T);
+        
+        public virtual bool WantsManualRead => false;
 
-        /// <summary>
-        /// Return true if reading has been handled.
-        /// If false, will do automatic reading.
-        /// </summary>
-        public virtual bool ManualRead(XMLReader reader) => false;
-        /// <summary>
-        /// Return true if reading has been handled.
-        /// If false, will do automatic reading.
-        /// </summary>
-        public virtual bool ManualRead(XmlReader reader) => false;
+        //public void ManualRead(XMLReader reader, string version, bool parseExtraElements, string parentTree, DelParseElementXML parse)
+        //{
+        //    while (reader.ReadAttribute())
+        //        SetAttribute(reader.Name, reader.Value);
+        //    OnAttributesRead();
+        //    int index = 0;
+        //    while (reader.BeginElement())
+        //    {
+        //        IElement e = null;
+        //        if (reader.Name.Equals("asset", false))
+        //            e = new Asset();
+        //        if (reader.Name.Equals("extra", false))
+        //            e = new Extra();
+        //        else
+        //            e = CreateChildElement(reader.Name, version);
+        //        if (e != null)
+        //        {
+        //            if (e is IStringElement StringEntry)
+        //            {
+        //                StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
+        //                StringEntry.GenericStringContent.ReadFromString(reader.ReadElementString());
+        //            }
+        //            else
+        //                parse(e, this, reader, version, parseExtraElements, parentTree, index);
+        //        }
+        //        else
+        //            throw new Exception();
+        //        ++index;
+        //        reader.EndElement();
+        //    }
+        //}
+        //public void ManualRead(XmlReader reader, string version, bool parseExtraElements, string parentTree, DelParseElementXml parse)
+        //{
+        //    string parentElementName = reader.Name;
+        //    if (reader.HasAttributes)
+        //    {
+        //        while (reader.MoveToNextAttribute())
+        //            SetAttribute(reader.Name, reader.Value);
+        //        OnAttributesRead();
+        //    }
+        //    reader.MoveToElement();
+        //    if (reader.IsEmptyElement)
+        //        reader.Read();
+        //    else
+        //    {
+        //        int index = 0;
+        //        reader.ReadStartElement();
+        //        while (reader.NodeType != XmlNodeType.EndElement)
+        //        {
+        //            if (reader.NodeType != XmlNodeType.Element)
+        //                reader.Skip();
+        //            else
+        //            {
+        //                string elementName = reader.Name;
+        //                if (string.IsNullOrEmpty(elementName))
+        //                    throw new Exception("Element name is empty.");
+
+        //                IElement e = null;
+        //                if (reader.Name.EqualsInvariant("asset"))
+        //                    e = new Asset();
+        //                if (reader.Name.EqualsInvariant("extra"))
+        //                    e = new Extra();
+        //                else
+        //                    e = CreateChildElement(reader.Name, version);
+        //                if (e != null)
+        //                {
+        //                    if (e is IStringElement StringEntry)
+        //                    {
+        //                        StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
+        //                        StringEntry.GenericStringContent.ReadFromString(reader.ReadElementContentAsString());
+        //                    }
+        //                    else
+        //                        parse(e, this, reader, version, parseExtraElements, parentTree, index);
+        //                }
+        //                else
+        //                    throw new Exception();
+        //            }
+        //            ++index;
+        //        }
+        //        if (reader.Name == parentElementName)
+        //            reader.ReadEndElement();
+        //        else
+        //            throw new Exception("Encountered " + reader.Name + " but expected " + parentElementName);
+        //    }
+        //}
+
+        public void OnAttributesRead()
+        {
+            if (this is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
+                Root.IDEntries.Add(IDEntry.ID, IDEntry);
+
+            if (this is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
+            {
+                IElement p = SIDEntry.GenericParent;
+                while (true)
+                {
+                    if (p is ISIDAncestor ancestor)
+                    {
+                        ancestor.SIDChildren.Add(SIDEntry);
+                        break;
+                    }
+                    else if (p.GenericParent != null)
+                        p = p.GenericParent;
+                    else
+                        break;
+                }
+            }
+        }
+        public virtual void SetAttribute(string name, string value) { }
+        public virtual IElement CreateChildElement(string name, string version) => null;
     }
     #endregion
 

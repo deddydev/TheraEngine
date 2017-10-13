@@ -57,6 +57,14 @@ namespace System
         {
             return str.Equals(other, StringComparison.Ordinal);
         }
+        public static bool EqualsInvariantIgnoreCase(this string str, string other)
+        {
+            return str.Equals(other, StringComparison.InvariantCultureIgnoreCase);
+        }
+        public static bool EqualsInvariant(this string str, string other)
+        {
+            return str.Equals(other, StringComparison.InvariantCulture);
+        }
         //public static bool IsNullOrEmpty(this string str)
         //{
         //    return string.IsNullOrEmpty(str);

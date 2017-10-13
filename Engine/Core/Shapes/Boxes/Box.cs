@@ -15,11 +15,11 @@ namespace TheraEngine.Core.Shapes
         public event Action TransformChanged;
 
         public EventVec3 _halfExtents;
-        public LocalRotTransform _transform;
+        public Transform _transform;
 
         [Category("Box")]
         [Serialize]
-        public LocalRotTransform Transform
+        public Transform Transform
         {
             get => _transform;
             set => _transform = value;
@@ -41,26 +41,26 @@ namespace TheraEngine.Core.Shapes
         public Vec3 Center => _transform.Matrix.GetPoint();
 
         public Box(BoundingBox aabb)
-            : this(aabb.HalfExtents, new LocalRotTransform(aabb.Translation, Quat.Identity, Vec3.One)) { }
+            : this(aabb.HalfExtents, new Transform(aabb.Translation, Quat.Identity, Vec3.One)) { }
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ) 
-            : this(halfExtentX, halfExtentY, halfExtentZ, LocalRotTransform.GetIdentity()) { }
-        public Box(float halfExtentX, float halfExtentY, float halfExtentZ, LocalRotTransform transform)
+            : this(halfExtentX, halfExtentY, halfExtentZ, Transform.GetIdentity()) { }
+        public Box(float halfExtentX, float halfExtentY, float halfExtentZ, Transform transform)
             : this()
         {
             _halfExtents = new Vec3(halfExtentX, halfExtentY, halfExtentZ);
             _transform = transform;
         }
         public Box(Vec3 halfExtents) 
-            : this(halfExtents, LocalRotTransform.GetIdentity()) { }
-        public Box(Vec3 halfExtents, LocalRotTransform transform)
+            : this(halfExtents, Transform.GetIdentity()) { }
+        public Box(Vec3 halfExtents, Transform transform)
             : this()
         {
             _halfExtents = halfExtents;
             _transform = transform;
         }
         public Box(float uniformHalfExtents) 
-            : this(uniformHalfExtents, LocalRotTransform.GetIdentity()) { }
-        public Box(float uniformHalfExtents, LocalRotTransform transform) 
+            : this(uniformHalfExtents, Transform.GetIdentity()) { }
+        public Box(float uniformHalfExtents, Transform transform) 
             : this()
         {
             _halfExtents = new Vec3(uniformHalfExtents);
@@ -69,7 +69,7 @@ namespace TheraEngine.Core.Shapes
         public Box()
         {
             _halfExtents = Vec3.Half;
-            _transform = LocalRotTransform.GetIdentity();
+            _transform = Transform.GetIdentity();
         }
 
         /// <summary>

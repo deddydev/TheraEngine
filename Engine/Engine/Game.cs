@@ -5,13 +5,14 @@ using System.ComponentModel.Design;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 using TheraEngine.Rendering.Text;
+using TheraEngine.GameModes;
 
 namespace TheraEngine
 {
     /// <summary>
     /// Contains all information needed to run any game using the engine.
     /// </summary>
-    [FileClass("TGAME", "Game Info")]
+    [FileClass("GINF", "Game Info")]
     public class Game : FileObject
     {
         public Game() { }
@@ -72,6 +73,27 @@ namespace TheraEngine
         {
             get => _variableStringTable;
             set => _variableStringTable = value;
+        }
+
+        public virtual GameState State { get; set; } = new GameState();
+    }
+
+    /// <summary>
+    /// Contains all information pertaining to the game's current state in the engine.
+    /// </summary>
+    [FileClass("GSTA", "Game State")]
+    public class GameState : FileObject
+    {
+        private BaseGameMode _currentGameMode;
+        public BaseGameMode ActiveGameMode
+        {
+            get => _currentGameMode;
+            set
+            {
+                //_currentGameMode?.EndGameplay();
+                _currentGameMode = value;
+                //_currentGameMode?.BeginGameplay();
+            }
         }
     }
 }

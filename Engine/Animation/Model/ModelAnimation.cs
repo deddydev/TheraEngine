@@ -19,7 +19,7 @@ namespace TheraEngine.Animation
                 ImportAnimations = true,
                 ImportModels = false
             };
-            return Collada.Import(path, o)?.ModelAnimations[0];
+            return Collada.Import(path, o).ModelAnimations[0];
         }
 
         [Serialize("BoneAnimations")]
@@ -226,9 +226,9 @@ namespace TheraEngine.Animation
             if (bone != null)
                 UpdateState(bone.FrameState, bone.BindState);
         }
-        public void UpdateState(LocalRotTransform frameState, LocalRotTransform bindState)
+        public void UpdateState(Transform frameState, Transform bindState)
             => UpdateState(frameState, bindState, Parent.CurrentTime);
-        public unsafe void UpdateState(LocalRotTransform frameState, LocalRotTransform bindState, float second)
+        public unsafe void UpdateState(Transform frameState, Transform bindState, float second)
         {
             GetTransform(bindState, second, out Vec3 translation, out Rotator rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
@@ -237,7 +237,7 @@ namespace TheraEngine.Animation
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the requested frame second.
         /// </summary>
-        public unsafe void GetTransform(LocalRotTransform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(Transform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
         {
             Vec3 t, r, s;
             Vec3
@@ -270,11 +270,11 @@ namespace TheraEngine.Animation
             rotation = new Rotator(r, EulerOrder);
             scale = s;
         }
-        public void UpdateStateBlended(LocalRotTransform frameState, LocalRotTransform bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
+        public void UpdateStateBlended(Transform frameState, Transform bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
             => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentTime, otherBoneAnim.Parent.CurrentTime, otherWeight, blendType);
         public void UpdateStateBlended(
-            LocalRotTransform frameState,
-            LocalRotTransform bindState, 
+            Transform frameState,
+            Transform bindState, 
             BoneAnimation otherBoneAnim,
             float thisSecond,
             float otherSecond,

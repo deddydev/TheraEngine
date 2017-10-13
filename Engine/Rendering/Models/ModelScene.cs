@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering.Models
         public bool PushCacheHits { get { return _pushCacheHits; } set { _pushCacheHits = value; } }
 
         [Category("Import")]
-        public LocalRotTransform InitialTransform { get => _initialTransform; set => _initialTransform = value; }
+        public Transform InitialTransform { get => _initialTransform; set => _initialTransform = value; }
         [Category("Import")]
         public bool ImportModels { get => _importModels; set => _importModels = value; }
         [Category("Import")]
@@ -57,7 +57,7 @@ namespace TheraEngine.Rendering.Models
         //[Category("Tristripper")]
         //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
 
-        private LocalRotTransform _initialTransform = LocalRotTransform.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
+        private Transform _initialTransform = Transform.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
 
         private bool _allowVertexCompression = true;
         private bool _allowNormalCompression = true;

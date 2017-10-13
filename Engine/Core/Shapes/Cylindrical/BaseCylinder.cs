@@ -20,13 +20,13 @@ namespace TheraEngine.Core.Shapes
             _state.Scale = scale;
         }
 
-        public LocalRotTransform State
+        public Transform State
         {
             get => _state;
             set => _state = value;
         }
 
-        protected LocalRotTransform _state = LocalRotTransform.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
+        protected Transform _state = Transform.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
         
         protected Vec3 _localUpAxis = Vec3.Up;
         protected float _radius = 0.5f, _halfHeight = 1.0f;

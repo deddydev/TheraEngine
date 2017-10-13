@@ -113,7 +113,7 @@ namespace TheraEngine
         /// Initializes the engine to its beginning state.
         /// Call AFTER SetGame is called and all initial render panels are created and ready.
         /// </summary>
-        public static void Initialize(bool deferOpeningWorldPlay = false)
+        public static void Initialize(bool deferOpeningWorldPlay = false, bool loadOpeningWorldGameMode = true)
         {
             //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
@@ -123,10 +123,10 @@ namespace TheraEngine
             InputLibrary = _game.UserSettings.File.InputLibrary;
 
             //Set initial world (this would generally be a world for opening videos or the main menu)
-            SetCurrentWorld(Game.OpeningWorld, true, deferOpeningWorldPlay);
+            SetCurrentWorld(Game.OpeningWorld, true, deferOpeningWorldPlay, loadOpeningWorldGameMode);
 
             //Preload transition world now
-            Game.TransitionWorld.GetInstance();
+            Task<World> world = Game.TransitionWorld.GetInstanceAsync();
             
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
@@ -148,14 +148,24 @@ namespace TheraEngine
         }
         #endregion
 
+        public static BaseGameMode ActiveGameMode
+        {
+            get => Game?.State.ActiveGameMode;
+            set
+            {
+                if (Game != null)
+                    Game.State.ActiveGameMode = value;
+            }
+        }
+
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
-            World?.GetGameMode()?.HandleLocalPlayerLeft(item);
+            ActiveGameMode?.HandleLocalPlayerLeft(item);
         }
 
         private static void ActivePlayers_Added(LocalPlayerController item)
         {
-            World?.GetGameMode()?.HandleLocalPlayerJoined(item);
+            ActiveGameMode?.HandleLocalPlayerJoined(item);
         }
         
         #region Timing
@@ -401,16 +411,17 @@ namespace TheraEngine
         /// </summary>
         /// <param name="world">The world to play in.</param>
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false, bool loadDefaultGameMode = true)
+        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false, bool loadWorldGameMode = true)
         {
             bool wasRunning = _timer.IsRunning;
             World previous = World;
 
             DestroyLocalPlayerControllers();
-            ActiveGameMode?.EndGameplay();
+            Game.State.ActiveGameMode?.EndGameplay();
             World?.EndPlay();
-            Stop();
 
+            //Stop();
+            
             _currentWorld = world;
             Scene.WorldChanged();
             if (World != null)
@@ -419,11 +430,14 @@ namespace TheraEngine
                 if (!deferBeginPlay)
                     World.BeginPlay();
             }
-            if (loadDefaultGameMode)
-                ActiveGameMode = World?.GetGameMode();
-            ActiveGameMode?.BeginGameplay();
-            if (wasRunning)
-                Run();
+
+            if (loadWorldGameMode)
+                Game.State.ActiveGameMode = World?.GetGameMode();
+
+            Game.State.ActiveGameMode?.BeginGameplay();
+
+            //if (wasRunning)
+            //    Run();
 
             if (unloadPrevious)
                 previous?.Unload();
@@ -435,9 +449,9 @@ namespace TheraEngine
             ActivePlayers.Clear();
         }
 
-        public static BaseGameMode ActiveGameMode { get; set; }
-        public static T ActiveGameModeAs<T>() where T : BaseGameMode
-            => ActiveGameMode as T;
+        //public static BaseGameMode ActiveGameMode { get; set; }
+        //public static T ActiveGameModeAs<T>() where T : BaseGameMode
+        //    => ActiveGameMode as T;
 
         /// <summary>
         /// Enqueues a pawn to be possessed by the given local player as soon as its current controlled pawn is set to null.

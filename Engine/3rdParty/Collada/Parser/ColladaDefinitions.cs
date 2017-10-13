@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -197,6 +198,7 @@ namespace TheraEngine.Rendering.Models
             public UpAxis UpAxisElement => GetChild<UpAxis>();
             public Extra[] ExtraElements => GetChildren<Extra>();
 
+            #region Contributor
             [Name("contributor")]
             [Child(typeof(Author), 0, 1)]
             [Child(typeof(AuthorEmail), 0, 1)]
@@ -222,6 +224,9 @@ namespace TheraEngine.Rendering.Models
                 [Name("source_data")]
                 public class SourceData : BaseStringElement<Contributor, ElementString> { }
             }
+            #endregion
+
+            #region Coverage
             [Name("coverage")]
             [Child(typeof(GeographicLocation), 1)]
             public class Coverage : BaseElement<Asset>
@@ -255,6 +260,9 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
             }
+            #endregion
+
+            #region Child Elements
             [Name("created")]
             public class Created : BaseStringElement<Asset, ElementString> { }
             [Name("keywords")]
@@ -277,6 +285,20 @@ namespace TheraEngine.Rendering.Models
                 [Attr("name", true)]
                 [DefaultValue("meter")]
                 public String Name { get; set; }
+
+                public override bool WantsManualRead => true;
+                public override void SetAttribute(string name, string value)
+                {
+                    switch (name)
+                    {
+                        case "meter":
+                            Meter = Single.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
+                            break;
+                        case "name":
+                            Name = value;
+                            break;
+                    }
+                }
             }
             public enum EUpAxis
             {
@@ -290,6 +312,36 @@ namespace TheraEngine.Rendering.Models
             }
             [Name("up_axis")]
             public class UpAxis : BaseStringElement<Asset, StringNumeric<EUpAxis>> { }
+            #endregion
+
+            public override bool WantsManualRead => true;
+            public override IElement CreateChildElement(string name, string version)
+            {
+                switch (name)
+                {
+                    case "contributor":
+                        return new Contributor();
+                    case "coverage":
+                        return new Coverage();
+                    case "created":
+                        return new Created();
+                    case "keywords":
+                        return new Keywords();
+                    case "modified":
+                        return new Modified();
+                    case "revision":
+                        return new Revision();
+                    case "subject":
+                        return new Subject();
+                    case "title":
+                        return new Title();
+                    case "unit":
+                        return new Unit();
+                    case "up_axis":
+                        return new UpAxis();
+                }
+                return null;
+            }
         }
         #endregion
 
@@ -1816,6 +1868,60 @@ namespace TheraEngine.Rendering.Models
                         m = m * t.GetMatrix();
                     return m;
                 }
+
+                public override bool WantsManualRead => true;
+                public override void SetAttribute(string name, string value)
+                {
+                    switch (name)
+                    {
+                        case "id":
+                            ID = value;
+                            break;
+                        case "sid":
+                            SID = value;
+                            break;
+                        case "name":
+                            Name = value;
+                            break;
+                        case "type":
+                            Type = value == "JOINT" ? EType.JOINT : EType.NODE;
+                            break;
+                        case "layer":
+                            Layer = value;
+                            break;
+                    }
+                }
+                public override IElement CreateChildElement(string name, string version)
+                {
+                    switch (name)
+                    {
+                        case "asset":
+                            return new Asset();
+                        case "extra":
+                            return new Extra();
+                        case "node":
+                            return new Node();
+                        case "translate":
+                            return new Translate();
+                        case "scale":
+                            return new Scale();
+                        case "rotate":
+                            return new Rotate();
+                        case "matrix":
+                            return new Matrix();
+                        case "instance_node":
+                            return new InstanceNode();
+                        case "instance_camera":
+                            return new InstanceCamera();
+                        case "instance_controller":
+                            return new InstanceController();
+                        case "instance_geometry":
+                            return new InstanceGeometry();
+                        case "instance_light":
+                            return new InstanceLight();
+                    }
+                    return null;
+                }
             }
             #endregion
 
@@ -1869,23 +1975,50 @@ namespace TheraEngine.Rendering.Models
 
             #endregion
 
-            public override bool ManualRead(XMLReader reader)
+            public override bool WantsManualRead => true;
+            public override void SetAttribute(string name, string value)
             {
-                while (reader.ReadAttribute())
+                switch (name)
                 {
-
+                    case "version":
+                        Version = value;
+                        break;
+                    case "xmlns":
+                        Schema = value;
+                        break;
+                    case "base":
+                        Base = value;
+                        break;
                 }
-                while (reader.BeginElement())
-                {
-
-                    reader.EndElement();
-                }
-                return true;
             }
-            public override bool ManualRead(XmlReader reader)
+            public override IElement CreateChildElement(string name, string version)
             {
-
-                return true;
+                switch (name)
+                {
+                    case "asset":
+                        return new Asset();
+                    case "extra":
+                        return new Extra();
+                    case "library_images":
+                        return new LibraryImages();
+                    case "library_materials":
+                        return new LibraryMaterials();
+                    case "library_effects":
+                        return new LibraryEffects();
+                    case "library_geometries":
+                        return new LibraryGeometries();
+                    case "library_controllers":
+                        return new LibraryControllers();
+                    case "library_visual_scenes":
+                        return new LibraryVisualScenes();
+                    case "library_animations":
+                        return new LibraryAnimations();
+                    case "library_cameras":
+                        return new LibraryCameras();
+                    case "scene":
+                        return new Scene();
+                }
+                return null;
             }
         }
 

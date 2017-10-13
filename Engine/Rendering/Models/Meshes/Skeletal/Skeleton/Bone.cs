@@ -25,23 +25,23 @@ namespace TheraEngine.Rendering.Models
         {
             _skeleton = owner;
         }
-        public Bone(string name, LocalRotTransform bindstate, PhysicsConstructionInfo info)
+        public Bone(string name, Transform bindstate, PhysicsConstructionInfo info)
         {
             Init(name, bindstate, info);
         }
-        public Bone(string name, LocalRotTransform bindState)
+        public Bone(string name, Transform bindState)
         {
             Init(name, bindState, null);
         }
         public Bone(string name)
         {
-            Init(name, new LocalRotTransform(), null);
+            Init(name, new Transform(), null);
         }
         public Bone()
         {
-            Init("NewBone", new LocalRotTransform(), null);
+            Init("NewBone", new Transform(), null);
         }
-        private void Init(string name, LocalRotTransform bindState, PhysicsConstructionInfo info)
+        private void Init(string name, Transform bindState, PhysicsConstructionInfo info)
         {
             _frameState = _bindState = bindState;
             _frameState.MatrixChanged += _frameState_MatrixChanged;
@@ -117,12 +117,12 @@ namespace TheraEngine.Rendering.Models
         [Serialize("PhysicsDriver")]
         private PhysicsDriver _physicsDriver;
         [Serialize("Transform")]
-        private LocalRotTransform _bindState;
+        private Transform _bindState;
 
         private bool _frameMatrixChanged = false, _childFrameMatrixChanged = false;
         private Skeleton _skeleton;
         private Bone _parent;
-        private LocalRotTransform _frameState;
+        private Transform _frameState;
         private Matrix4
             //Animated transformation matrix relative to the skeleton's root bone, aka model space
             _frameMatrix = Matrix4.Identity, _inverseFrameMatrix = Matrix4.Identity,
@@ -159,8 +159,8 @@ namespace TheraEngine.Rendering.Models
         public MonitoredList<SceneComponent> ChildComponents => _childComponents;
         public MonitoredList<Bone> ChildBones => _childBones;
         public SkeletalMeshComponent OwningComponent => _skeleton?.OwningComponent;
-        public LocalRotTransform FrameState => _frameState;
-        public LocalRotTransform BindState
+        public Transform FrameState => _frameState;
+        public Transform BindState
         {
             get => _bindState;
             set

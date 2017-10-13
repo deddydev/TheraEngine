@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.Models
                 };
                 Matrix4 localMatrix = Matrix4.Identity;
 
-                bone.BindState = LocalRotTransform.DeriveTRS(localMatrix);
+                bone.BindState = Transform.DeriveTRS(localMatrix);
 
                 parent.ChildBones.Add(bone);
                 bone.Parent = parent;

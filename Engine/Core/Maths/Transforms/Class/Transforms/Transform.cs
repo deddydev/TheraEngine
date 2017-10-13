@@ -12,26 +12,26 @@ namespace System
         STR,
         SRT,
     }
-    [FileClass("LTFM", "Local Rotation Transform")]
+    [FileClass("TFM", "Transform")]
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class LocalRotTransform : FileObject
+    public class Transform : FileObject
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(float oldRotation);
         public delegate void ScaleChange(Vec3 oldScale);
         public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
 
-        public static LocalRotTransform GetIdentity(
+        public static Transform GetIdentity(
             TransformOrder transformationOrder = TransformOrder.TRS,
             RotationOrder rotationOrder = RotationOrder.YPR)
         {
-            LocalRotTransform identity = GetIdentity();
+            Transform identity = GetIdentity();
             identity._transformOrder = transformationOrder;
             identity.RotationOrder = rotationOrder;
             return identity;
         }
-        public static LocalRotTransform GetIdentity() => new LocalRotTransform(Vec3.Zero, Rotator.GetZero(), Vec3.One);
-        public LocalRotTransform()
+        public static Transform GetIdentity() => new Transform(Vec3.Zero, Rotator.GetZero(), Vec3.One);
+        public Transform()
         {
             _translation = Vec3.Zero;
             _translation.Changed += CreateTransform;
@@ -48,7 +48,7 @@ namespace System
             _inverseTransform = Matrix4.Identity;
         }
         
-        public LocalRotTransform(
+        public Transform(
             Vec3 translate, 
             Rotator rotate,
             Vec3 scale,
@@ -67,7 +67,7 @@ namespace System
             _transformOrder = transformOrder;
             CreateTransform();
         }
-        public LocalRotTransform(
+        public Transform(
             Vec3 translate,
             Quat rotate,
             Vec3 scale,
@@ -405,9 +405,9 @@ namespace System
             translation.Round(5);
             scale.Round(5);
         }
-        public static unsafe LocalRotTransform DeriveTRS(Matrix4 m)
+        public static unsafe Transform DeriveTRS(Matrix4 m)
         {
-            LocalRotTransform state = new LocalRotTransform()
+            Transform state = new Transform()
             {
                 _translation = m.Row3.Xyz,
                 _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),

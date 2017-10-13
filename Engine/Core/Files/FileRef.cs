@@ -102,6 +102,7 @@ namespace TheraEngine.Files
             if (setPath)
                 ReferencePath = _file.FilePath;
         }
+
         /// <summary>
         /// Loads or retrieves the single instance of this file.
         /// </summary>
@@ -113,7 +114,7 @@ namespace TheraEngine.Files
                 File = LoadNewInstance();
             return _file;
         }
-
+        
         /// <summary>
         /// Loads a new completely new and unique instance of this file.
         /// Must be called explicitly and does not store the returned reference.
@@ -248,9 +249,16 @@ namespace TheraEngine.Files
                 return FileFormat.XML;
             return FileFormat.Binary;
         }
-        public Task GetInstanceAsync(Action<Task<T>> finishedMethod)
-            => GetInstanceAsync().ContinueWith(task => finishedMethod(task));
-        public async Task<T> GetInstanceAsync() => await Task.Factory.StartNew(() => GetInstance());
+
+        public void GetInstanceAsync(Action<T> onLoaded, TaskCreationOptions options = TaskCreationOptions.PreferFairness)
+            => GetInstanceAsync(options).ContinueWith(task => onLoaded(task.Result));
+
+        public void GetInstanceAsync(Action<T> onLoaded) 
+            => GetInstanceAsync().ContinueWith(task => onLoaded(task.Result));
+
+        public async Task<T> GetInstanceAsync() => await Task.Run(() => GetInstance());
+        public async Task<T> GetInstanceAsync(TaskCreationOptions options) => await Task.Factory.StartNew(() => GetInstance(), options);
+
         public virtual T GetInstance()
         {
             T file = null;

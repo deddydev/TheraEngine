@@ -29,15 +29,16 @@ namespace TheraEditor.Windows.Forms
         }
 
         public int FormIndex { get; private set; }
-        public PlayerIndex PlayerIndex { get; private set; }
+        public PlayerIndex PlayerIndex { get; private set; } = PlayerIndex.One;
         public FlyingCameraPawn EditorPawn { get; private set; }
 
         protected override void OnShown(EventArgs e)
         {
             EditorPawn = new FlyingCameraPawn(PlayerIndex) { Hud = new EditorHud(RenderPanel.ClientSize) };
             Engine.World.SpawnActor(EditorPawn);
-            //Viewport v = RenderPanel.AddViewport();
-            //v.Camera = EditorPawn.CurrentCameraComponent.Camera;
+            Viewport v = RenderPanel.GetViewport(0) ?? RenderPanel.AddViewport();
+            if (Engine.ActivePlayers.Count > 0)
+                v.Owner = Engine.ActivePlayers[0];
             base.OnShown(e);
         }
         protected override void OnClosed(EventArgs e)
@@ -54,9 +55,10 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnGotFocus(EventArgs e)
         {
-            if (Engine.ActivePlayers.Count == 0)
+            int index = (int)PlayerIndex;
+            if (index >= Engine.ActivePlayers.Count)
                 return;
-            LocalPlayerController c = Engine.ActivePlayers[0];
+            LocalPlayerController c = Engine.ActivePlayers[index];
             Viewport v = RenderPanel?.GetViewport(0);
             if (v != null)
                 v.Owner = c;

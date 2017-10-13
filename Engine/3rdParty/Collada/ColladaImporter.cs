@@ -19,7 +19,7 @@ using static TheraEngine.Rendering.Models.Collada.Source;
 
 namespace TheraEngine.Rendering.Models
 {
-    public unsafe partial class Collada
+    public partial class Collada
     {
         public class Data
         {
@@ -441,7 +441,7 @@ namespace TheraEngine.Rendering.Models
                                         outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
                                         outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
 
-                                LocalRotTransform transform = LocalRotTransform.DeriveTRS(matrix);
+                                Transform transform = Transform.DeriveTRS(matrix);
 
                                 BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
 
@@ -527,7 +527,7 @@ namespace TheraEngine.Rendering.Models
 
             if (node.Type == Node.EType.JOINT)
             {
-                Bone bone = new Bone(node.Name ?? node.ID, LocalRotTransform.DeriveTRS(rootMatrix * nodeMatrix/*invParent * bindMatrix*/));
+                Bone bone = new Bone(node.Name ?? node.ID, Transform.DeriveTRS(rootMatrix * nodeMatrix/*invParent * bindMatrix*/));
                 node.UserData = bone;
                 if (parent == null)
                     rootBone = bone;

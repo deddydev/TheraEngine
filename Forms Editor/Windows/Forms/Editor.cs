@@ -69,8 +69,7 @@ namespace TheraEditor.Windows.Forms
                     Text = "";
             }
         }
-
-        private EditorGameMode _gameMode = new EditorGameMode();
+        
         public Editor() : base()
         {
             _instance = this;
@@ -105,8 +104,8 @@ namespace TheraEditor.Windows.Forms
 
             DoubleBuffered = false;
             Engine.SetGamePanel(RenderForm1.RenderPanel, false);
-            Engine.Initialize(true);
-            Engine.ActiveGameMode = _gameMode;
+            Engine.Game.State.ActiveGameMode = new EditorGameMode();
+            Engine.Initialize(true, false);
 
             GenerateInitialActorList();
             if (Engine.World != null)

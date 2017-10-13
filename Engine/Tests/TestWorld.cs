@@ -130,7 +130,7 @@ namespace TheraEngine.Tests
             ModelImportOptions objOptions = new ModelImportOptions()
             {
                 UseForwardShaders = Engine.Settings.ShadingStyle == ShadingStyle.Forward,
-                InitialTransform = new LocalRotTransform(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
+                InitialTransform = new Transform(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
             StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main1\\landtable.obj"*/"X:\\Repositories\\TheraEngine\\Build\\test\\test.obj", objOptions);

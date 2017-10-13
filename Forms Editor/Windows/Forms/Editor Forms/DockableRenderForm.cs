@@ -28,13 +28,17 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.AllowDrop = true;
         }
 
+        public static DockableRenderForm ActiveRenderForm { get; set; } = null;
         public int FormIndex { get; private set; }
         public PlayerIndex PlayerIndex { get; private set; } = PlayerIndex.One;
         public FlyingCameraPawn EditorPawn { get; private set; }
 
         protected override void OnShown(EventArgs e)
         {
-            EditorPawn = new FlyingCameraPawn(PlayerIndex) { Hud = new EditorHud(RenderPanel.ClientSize) };
+            EditorPawn = new FlyingCameraPawn(PlayerIndex)
+            {
+                Hud = new EditorHud(RenderPanel.ClientSize)
+            };
             Engine.World.SpawnActor(EditorPawn);
             Viewport v = RenderPanel.GetViewport(0) ?? RenderPanel.AddViewport();
             if (Engine.ActivePlayers.Count > 0)
@@ -55,6 +59,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnGotFocus(EventArgs e)
         {
+            ActiveRenderForm = this;
             int index = (int)PlayerIndex;
             if (index >= Engine.ActivePlayers.Count)
                 return;

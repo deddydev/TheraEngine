@@ -439,29 +439,41 @@ namespace TheraEngine.Core.Files
                 entry.PostRead();
                 return entry;
             }
-            if ((ignore & IgnoreFlags.Cameras) != 0 && entry is InstanceCamera)
+            if ((ignore & IgnoreFlags.Cameras) != 0)
             {
-                reader.Skip();
-                entry.PostRead();
-                return entry;
+                if (entry is InstanceCamera || entry is COLLADA.LibraryCameras)
+                {
+                    reader.Skip();
+                    entry.PostRead();
+                    return entry;
+                }
             }
-            if ((ignore & IgnoreFlags.Lights) != 0 && entry is InstanceLight)
+            if ((ignore & IgnoreFlags.Lights) != 0)
             {
-                reader.Skip();
-                entry.PostRead();
-                return entry;
+                if (entry is InstanceLight || entry is COLLADA.LibraryLights)
+                {
+                    reader.Skip();
+                    entry.PostRead();
+                    return entry;
+                }
             }
             if ((ignore & IgnoreFlags.Controllers) != 0)
             {
-                reader.Skip();
-                entry.PostRead();
-                return entry;
+                if (entry is InstanceController || entry is COLLADA.LibraryControllers)
+                {
+                    reader.Skip();
+                    entry.PostRead();
+                    return entry;
+                }
             }
-            if ((ignore & IgnoreFlags.Geometry) != 0 && entry is InstanceGeometry)
+            if ((ignore & IgnoreFlags.Geometry) != 0)
             {
-                reader.Skip();
-                entry.PostRead();
-                return entry;
+                if (entry is InstanceGeometry || entry is COLLADA.LibraryGeometries)
+                {
+                    reader.Skip();
+                    entry.PostRead();
+                    return entry;
+                }
             }
 
             #region Read attributes
@@ -506,15 +518,15 @@ namespace TheraEngine.Core.Files
             }
             else
             {
-                ChildInfo[] childElements = elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
-                MultiChildInfo[] multiChildElements = elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
-
                 if (reader.IsEmptyElement)
                     reader.Read();
                 else
                 {
                     reader.ReadStartElement();
                     int childIndex = 0;
+
+                    ChildInfo[] childElements = entry.WantsManualRead ? null : elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
+                    MultiChildInfo[] multiChildElements = entry.WantsManualRead ? null : elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
 
                     //Read all child elements
                     while (reader.NodeType != XmlNodeType.EndElement)
@@ -542,6 +554,7 @@ namespace TheraEngine.Core.Files
                         }
                         else
                         {
+
                             bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
                                 Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
 
@@ -595,19 +608,23 @@ namespace TheraEngine.Core.Files
                         ++childIndex;
                     }
 
+                    if (!entry.WantsManualRead)
+                    {
+                        Name[] underCounted = childElements.
+                            Where(x => x.Occurrences < x.Data.MinCount).
+                            SelectMany(x => x.ElementNames).
+                            Where(x => x.VersionMatches(version)).ToArray();
+
+                        if (underCounted.Length > 0)
+                            foreach (Name c in underCounted)
+                                Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
+                    }
+
                     if (reader.Name == parentElementName)
                         reader.ReadEndElement();
                     else
                         throw new Exception("Encountered an unexpected node: " + reader.Name);
                 }
-
-                Name[] underCounted = childElements.
-                    Where(x => x.Occurrences < x.Data.MinCount).
-                    SelectMany(x => x.ElementNames).
-                    Where(x => x.VersionMatches(version)).ToArray();
-                if (underCounted.Length > 0)
-                    foreach (Name c in underCounted)
-                        Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
             }
 
             #endregion

@@ -484,7 +484,7 @@ namespace TheraEngine.Rendering.Models
 
             public List<ISID> SIDChildren { get; } = new List<ISID>();
             
-            public T2 GetUrlInstance() => Url.GetElement(Root) as T2;
+            public T2 GetUrlInstance() => Url?.GetElement(Root) as T2;
         }
         [Name("instance_node")]
         public class InstanceNode : BaseInstanceElement<COLLADA.Node, COLLADA.Node>

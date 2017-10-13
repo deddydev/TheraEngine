@@ -71,6 +71,7 @@ namespace TheraEngine.Worlds
             if (!_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Add(actor);
             actor.Spawned(this);
+            Engine.PrintLine("Spawned " + actor.Name);
         }
         /// <summary>
         /// Adds an actor to the scene.
@@ -90,6 +91,7 @@ namespace TheraEngine.Worlds
             if (_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Remove(actor);
             actor.Despawned();
+            Engine.PrintLine("Despawned " + actor.Name);
         }
         
         internal void StepSimulation(float delta)

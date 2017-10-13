@@ -23,7 +23,7 @@ namespace TheraEngine.Animation
                 Core.Files.IgnoreFlags.Cameras | 
                 Core.Files.IgnoreFlags.Lights
             };
-            return Collada.Import(path, o)?.ModelAnimations[0];
+            return Collada.Import(path, o)?.Models[0].Animation;
         }
 
         [Serialize("BoneAnimations")]
@@ -178,9 +178,9 @@ namespace TheraEngine.Animation
             new KeyframeTrack<FloatKeyframe>(), //tx
             new KeyframeTrack<FloatKeyframe>(), //ty
             new KeyframeTrack<FloatKeyframe>(), //tz
-            new KeyframeTrack<FloatKeyframe>(), //rp
+            new KeyframeTrack<FloatKeyframe>(), //rx
             new KeyframeTrack<FloatKeyframe>(), //ry
-            new KeyframeTrack<FloatKeyframe>(), //rr
+            new KeyframeTrack<FloatKeyframe>(), //rz
             new KeyframeTrack<FloatKeyframe>(), //sx
             new KeyframeTrack<FloatKeyframe>(), //sy
             new KeyframeTrack<FloatKeyframe>(), //sz
@@ -289,7 +289,7 @@ namespace TheraEngine.Animation
             otherBoneAnim.GetTransform(bindState, otherSecond, out Vec3 t2, out Rotator r2, out Vec3 s2);
             
             Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
-            Rotator r = Rotator.Lerp(r1, r2, otherWeight);
+            Quat r = Quat.Slerp(r1.ToQuaternion(), r2.ToQuaternion(), otherWeight);
             Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
             frameState.SetAll(t, r, s);
         }

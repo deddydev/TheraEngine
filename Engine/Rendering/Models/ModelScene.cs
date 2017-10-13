@@ -61,6 +61,6 @@ namespace TheraEngine.Rendering.Models
         public SkeletalMesh SkeletalModel { get; set; }
         public StaticMesh StaticModel { get; set; }
         public Skeleton Skeleton { get; set; }
-        public List<ModelAnimation> Animations { get; set; }
+        public ModelAnimation Animation { get; set; }
     }
 }

@@ -79,55 +79,53 @@ namespace TheraEngine.Rendering.Models
                             var visualScene = visualSceneRef.GetUrlInstance();
                             if (visualScene != null)
                             {
-                                if (!options.IgnoreFlags.HasFlag(IgnoreFlags.Geometry) ||
-                                    !options.IgnoreFlags.HasFlag(IgnoreFlags.Controllers))
+                                ModelScene modelScene = new ModelScene();
+                                
+                                var nodes = visualScene.NodeElements;
+
+                                //Collect information for objects and root bones
+                                List<Bone> rootBones = new List<Bone>();
+                                List<ObjectInfo> objects = new List<ObjectInfo>();
+                                List<Camera> cameras = new List<Camera>();
+                                List<LightComponent> lights = new List<LightComponent>();
+                                foreach (var node in nodes)
                                 {
-                                    ModelScene modelScene = new ModelScene();
-                                    var nodes = visualScene.NodeElements;
-
-                                    //Collect information for objects and root bones
-                                    List<Bone> rootBones = new List<Bone>();
-                                    List<ObjectInfo> objects = new List<ObjectInfo>();
-                                    List<Camera> cameras = new List<Camera>();
-                                    List<LightComponent> lights = new List<LightComponent>();
-                                    foreach (var node in nodes)
-                                    {
-                                        Bone b = EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform, lights, cameras);
-                                        if (b != null)
-                                            rootBones.Add(b);
-                                    }
-
-                                    //Create meshes after all bones have been created
-                                    if (rootBones.Count == 0)
-                                    {
-                                        modelScene.StaticModel = new StaticMesh()
-                                        {
-                                            Name = Path.GetFileNameWithoutExtension(filePath)
-                                        };
-                                        modelScene.SkeletalModel = null;
-                                        modelScene.Skeleton = null;
-                                        foreach (ObjectInfo obj in objects)
-                                            if (!obj.UsesController)
-                                                obj.Initialize(modelScene.StaticModel, visualScene);
-                                            else
-                                                Engine.PrintLine("Model contains no bones, but has one or more controllers.");
-                                    }
-                                    else
-                                    {
-                                        modelScene.SkeletalModel = new SkeletalMesh()
-                                        {
-                                            Name = Path.GetFileNameWithoutExtension(filePath)
-                                        };
-                                        modelScene.StaticModel = null;
-                                        modelScene.Skeleton = new Skeleton(rootBones.ToArray());
-                                        foreach (ObjectInfo obj in objects)
-                                            obj.Initialize(modelScene.SkeletalModel, visualScene);
-                                    }
-                                    data.Models.Add(modelScene);
+                                    Bone b = EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform, lights, cameras, options.IgnoreFlags);
+                                    if (b != null)
+                                        rootBones.Add(b);
                                 }
+
+                                //Create meshes after all bones have been created
+                                if (rootBones.Count == 0)
+                                {
+                                    modelScene.StaticModel = new StaticMesh()
+                                    {
+                                        Name = Path.GetFileNameWithoutExtension(filePath)
+                                    };
+                                    modelScene.SkeletalModel = null;
+                                    modelScene.Skeleton = null;
+                                    foreach (ObjectInfo obj in objects)
+                                        if (!obj.UsesController)
+                                            obj.Initialize(modelScene.StaticModel, visualScene);
+                                        else
+                                            Engine.PrintLine("Model contains no bones, but has one or more controllers.");
+                                }
+                                else
+                                {
+                                    modelScene.SkeletalModel = new SkeletalMesh()
+                                    {
+                                        Name = Path.GetFileNameWithoutExtension(filePath)
+                                    };
+                                    modelScene.StaticModel = null;
+                                    modelScene.Skeleton = new Skeleton(rootBones.ToArray());
+                                    foreach (ObjectInfo obj in objects)
+                                        obj.Initialize(modelScene.SkeletalModel, visualScene);
+                                }
+                                
+                                data.Models.Add(modelScene);
+
                                 if (!options.IgnoreFlags.HasFlag(IgnoreFlags.Animations))
                                 {
-                                    data.Models[0].Animations = new List<ModelAnimation>();
                                     data.PropertyAnimations = new List<BasePropertyAnimation>();
                                     ModelAnimation anim = new ModelAnimation()
                                     {
@@ -140,7 +138,7 @@ namespace TheraEngine.Rendering.Models
                                             ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations, ref animationLength);
                                     anim.SetLength(animationLength, false);
                                     Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
-                                    data.ModelAnimations.Add(anim);
+                                    data.Models[0].Animation = anim;
                                 }
                             }
                         }
@@ -229,6 +227,8 @@ namespace TheraEngine.Rendering.Models
                                         {
                                             float second = inputData[i];
                                             float value = outputData[i];
+                                            if (yAxis)
+                                                value = -value;
                                             InterpType type = interpTypeData[i].AsEnum<InterpType>();
                                             PlanarInterpType pType = (PlanarInterpType)(int)type;
 
@@ -259,9 +259,9 @@ namespace TheraEngine.Rendering.Models
                                             if (xAxis)
                                                 bone.RotationX.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                             else if (yAxis)
-                                                bone.RotationY.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                            else
                                                 bone.RotationZ.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                            else
+                                                bone.RotationY.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
                                         }
                                     }
                                     else
@@ -523,7 +523,8 @@ namespace TheraEngine.Rendering.Models
             Matrix4 invParent,
             Matrix4 rootMatrix,
             List<LightComponent> lights,
-            List<Camera> cameras)
+            List<Camera> cameras,
+            IgnoreFlags ignore)
         {
             Bone rootBone = null;
 
@@ -543,15 +544,17 @@ namespace TheraEngine.Rendering.Models
 
             Matrix4 inv = bindMatrix.Inverted();
             foreach (Node e in node.NodeElements)
-                EnumNode(parent, e, nodes, objects, bindMatrix, inv, Matrix4.Identity, lights, cameras);
+                EnumNode(parent, e, nodes, objects, bindMatrix, inv, Matrix4.Identity, lights, cameras, ignore);
 
             foreach (IInstanceElement inst in node.InstanceElements)
             {
                 //Rigged/morphed mesh?
                 if (inst is InstanceController controllerRef)
                 {
+                    if (ignore.HasFlag(IgnoreFlags.Controllers))
+                        continue;
                     var controller = controllerRef.GetUrlInstance();
-                    var child = controller.SkinOrMorphElement;
+                    var child = controller?.SkinOrMorphElement;
                     if (child != null)
                     {
                         if (child is LibraryControllers.Controller.Skin skin)
@@ -571,6 +574,8 @@ namespace TheraEngine.Rendering.Models
                 //Static mesh?
                 else if (inst is InstanceGeometry geomRef)
                 {
+                    if (ignore.HasFlag(IgnoreFlags.Geometry))
+                        continue;
                     var geometry = geomRef.GetUrlInstance();
                     if (geometry != null)
                         objects.Add(new ObjectInfo(geometry, null, bindMatrix, geomRef, parent, node));
@@ -581,12 +586,16 @@ namespace TheraEngine.Rendering.Models
                 //Camera?
                 else if (inst is InstanceCamera camRef)
                 {
+                    if (ignore.HasFlag(IgnoreFlags.Cameras))
+                        continue;
                     var camera = camRef.GetUrlInstance();
 
                 }
                 //Light?
                 else if (inst is InstanceLight lightRef)
                 {
+                    if (ignore.HasFlag(IgnoreFlags.Lights))
+                        continue;
                     var light = lightRef.GetUrlInstance();
 
                 }

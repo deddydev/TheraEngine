@@ -44,8 +44,8 @@ namespace TheraEngine.Worlds
             Collada.Data data = Collada.Import(path, o);
             if (data != null)
             {
-
             }
+            return null;
         }
         public Actor() : this(false) { }
         public Actor(bool deferInitialization)

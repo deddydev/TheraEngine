@@ -33,7 +33,8 @@ namespace TheraEngine.Tests
                 //legAnim.Keyframes.Add(f2);
                 //legAnim.Keyframes.Add(s2);
                 //legAnim.Keyframes.Add(l2);
-                //skeleton["LLeg"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, legAnim), true);
+                //Bone RLeg = skeleton["RLeg"];
+                //RLeg?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, legAnim), true);
 
                 //PropAnimFloat kneeAnim = new PropAnimFloat(360, 60.0f, true, true);
                 //FloatKeyframe f3 = new FloatKeyframe(0, 60.0f, -180.0f, 0.0f, PlanarInterpType.CubicHermite);
@@ -47,7 +48,7 @@ namespace TheraEngine.Tests
                 _meshComp.Skeleton = skeleton;
                 _meshComp.Model = mesh;
 
-                string animPath = TestDefaults.GoogleDrivePath + "test_anim.dae";
+                string animPath = TestDefaults.DesktopPath + "test_anim.dae";
                 //googleDrive + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
                 ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
                 //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)

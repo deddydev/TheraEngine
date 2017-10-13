@@ -219,16 +219,16 @@ namespace TheraEngine.Rendering.Models
                                     if (node.Type == Node.EType.JOINT)
                                     {
                                         BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
-                                        //if (!wasFound)
-                                        //    bone.EulerOrder = RotationOrder.PYR;
-                                        
+                                        if (!wasFound)
+                                        {
+
+                                        }
+
                                         int x = 0;
                                         for (int i = 0; i < inputData.Length; ++i, x += 2)
                                         {
                                             float second = inputData[i];
                                             float value = outputData[i];
-                                            if (yAxis)
-                                                value = -value;
                                             InterpType type = interpTypeData[i].AsEnum<InterpType>();
                                             PlanarInterpType pType = (PlanarInterpType)(int)type;
 
@@ -255,13 +255,14 @@ namespace TheraEngine.Rendering.Models
                                                     break;
                                             }
 
+                                            FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
                                             animationLength = Math.Max(animationLength, second);
                                             if (xAxis)
-                                                bone.RotationX.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                bone.RotationX.Add(kf);
                                             else if (yAxis)
-                                                bone.RotationZ.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                bone.RotationY.Add(kf);
                                             else
-                                                bone.RotationY.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
+                                                bone.RotationZ.Add(kf);
                                         }
                                     }
                                     else

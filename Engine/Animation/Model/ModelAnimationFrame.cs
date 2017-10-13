@@ -137,7 +137,7 @@ namespace TheraEngine.Animation
     public class BoneFrame
     {
         public string _name;
-        public RotationOrder _eulerOrder = RotationOrder.PYR;
+        public RotationOrder _eulerOrder = RotationOrder.RYP;
         public FrameValueWeight[] _values;
         //t, r, s;
         //t, s => x, y, z;
@@ -148,13 +148,13 @@ namespace TheraEngine.Animation
             CustomMath.Lerp(bindTranslation.Y, _values[1].Value, _values[1].Weight),
             CustomMath.Lerp(bindTranslation.Z, _values[2].Value, _values[2].Weight));
         public Rotator GetRotation(Rotator bindRotation) => new Rotator(
-            CustomMath.Lerp(bindRotation.Pitch, _values[4].Value, _values[4].Weight),
-            CustomMath.Lerp(bindRotation.Yaw, _values[3].Value, _values[3].Weight),
+            CustomMath.Lerp(bindRotation.Pitch, _values[3].Value, _values[4].Weight),
+            CustomMath.Lerp(bindRotation.Yaw, _values[4].Value, _values[3].Weight),
             CustomMath.Lerp(bindRotation.Roll, _values[5].Value, _values[5].Weight),
             _eulerOrder);
         public Quat GetQuat(Rotator bindRotation) => Quat.FromEulerAngles(
-            CustomMath.Lerp(bindRotation.Pitch, _values[4].Value, _values[4].Weight),
-            CustomMath.Lerp(bindRotation.Yaw, _values[3].Value, _values[3].Weight),
+            CustomMath.Lerp(bindRotation.Pitch, _values[3].Value, _values[4].Weight),
+            CustomMath.Lerp(bindRotation.Yaw, _values[4].Value, _values[3].Weight),
             CustomMath.Lerp(bindRotation.Roll, _values[5].Value, _values[5].Weight),
             _eulerOrder);
         public Vec3 GetScale(Vec3 bindScale) => new Vec3(

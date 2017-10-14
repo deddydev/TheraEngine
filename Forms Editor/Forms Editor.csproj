@@ -121,6 +121,18 @@
     <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.Designer.cs">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\PropGridNumeric.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\PropGridNumeric.Designer.cs">
+      <DependentUpon>PropGridNumeric.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\TheraPropertyGrid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\TheraPropertyGrid.Designer.cs">
+      <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\TreeViewEx.cs" />
     <Compile Include="Windows\Forms\Editor Forms\DockablePropertyGrid.cs">
       <SubType>Form</SubType>
@@ -226,6 +238,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridNumeric.resx">
+      <DependentUpon>PropGridNumeric.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />

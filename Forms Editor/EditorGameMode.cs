@@ -48,7 +48,7 @@ namespace TheraEditor
 
         public override void BeginGameplay()
         {
-            Engine.World.SpawnActor(new TestCharacter(), new Vec3(20.0f, 50.0f, -10.0f));
+            Engine.World.SpawnActor(new TestCharacter(), new Vec3(-5.0f, 50.0f, -5.0f));
             base.BeginGameplay();
         }
     }

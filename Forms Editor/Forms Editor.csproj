@@ -121,6 +121,9 @@
     <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.Designer.cs">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\PropGridNumeric.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -241,6 +244,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridNumeric.resx">
       <DependentUpon>PropGridNumeric.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\TheraPropertyGrid.resx">
+      <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />

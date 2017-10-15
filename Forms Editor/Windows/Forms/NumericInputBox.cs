@@ -10,16 +10,18 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
+    public delegate void BoxValueChanged(decimal? previous, decimal? current);
     public class NumericInputBox : TextBox
     {
-        public event EventHandler ValueChanged;
+        public event BoxValueChanged ValueChanged;
 
         public NumericInputBox()
         {
-            UpdateText();
+            
+            CurrentValueChanged();
         }
         
-        public decimal _previousValue = 0.0m;
+        public decimal? _previousValue = null;
         public decimal? _currentValue = null;
         public decimal
             _minValue = decimal.MinValue,
@@ -30,6 +32,8 @@ namespace TheraEditor.Windows.Forms
             _finerIncrement = 0.1m;
         public bool _integral = false;
         public bool _signed = true;
+        public int _enforcedDecimals = -1;
+        public MidpointRounding _midPointRounding = MidpointRounding.AwayFromZero;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public decimal Value
@@ -37,13 +41,13 @@ namespace TheraEditor.Windows.Forms
             get
             {
                 if (_currentValue == null)
-                    ValidateTextInput();
+                    ValidateText();
                 return _currentValue.Value;
             }
             set
             {
                 _currentValue = value.Clamp(_minValue, _maxValue);
-                UpdateText();
+                CurrentValueChanged();
             }
         }
         public decimal MinimumValue
@@ -52,7 +56,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _minValue = value;
-                UpdateText();
+                CurrentValueChanged();
             }
         }
         public decimal MaximumValue
@@ -61,7 +65,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _maxValue = value;
-                UpdateText();
+                CurrentValueChanged();
             }
         }
         public bool Integral
@@ -70,7 +74,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _integral = value;
-                UpdateText();
+                CurrentValueChanged();
             }
         }
         public bool Signed
@@ -79,13 +83,31 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _signed = value;
-                UpdateText();
+                CurrentValueChanged();
+            }
+        }
+        public int AllowedDecimalPlaces
+        {
+            get => _enforcedDecimals;
+            set
+            {
+                _enforcedDecimals = value;
+                CurrentValueChanged();
+            }
+        }
+        public MidpointRounding MidpointRoundingMethod
+        {
+            get => _midPointRounding;
+            set
+            {
+                _midPointRounding = value;
+                CurrentValueChanged();
             }
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
-            ValidateTextInput();
+            ValidateText();
             base.OnLostFocus(e);
         }
 
@@ -123,14 +145,14 @@ namespace TheraEditor.Windows.Forms
                         if (e.Control)
                         {
                             Text = (val - _largeIncrement).Clamp(_minValue, _maxValue).ToString();
-                            ValidateTextInput();
+                            ValidateText();
                             e.Handled = true;
                             e.SuppressKeyPress = true;
                         }
-                        if (e.Shift)
+                        else if (e.Shift)
                         {
                             Text = (val - _largerIncrement).Clamp(_minValue, _maxValue).ToString();
-                            ValidateTextInput();
+                            ValidateText();
                             e.Handled = true;
                             e.SuppressKeyPress = true;
                         }
@@ -143,14 +165,14 @@ namespace TheraEditor.Windows.Forms
                         if (e.Control)
                         {
                             Text = (val + _largeIncrement).Clamp(_minValue, _maxValue).ToString();
-                            ValidateTextInput();
+                            ValidateText();
                             e.Handled = true;
                             e.SuppressKeyPress = true;
                         }
-                        if (e.Shift)
+                        else if (e.Shift)
                         {
                             Text = (val + _largerIncrement).Clamp(_minValue, _maxValue).ToString();
-                            ValidateTextInput();
+                            ValidateText();
                             e.Handled = true;
                             e.SuppressKeyPress = true;
                         }
@@ -164,9 +186,9 @@ namespace TheraEditor.Windows.Forms
                             Text = (val + _fineIncrement).Clamp(_minValue, _maxValue).ToString();
                         else
                             Text = (val + _finerIncrement).Clamp(_minValue, _maxValue).ToString();
-                        ValidateTextInput();
+                        ValidateText();
+                        e.Handled = true;
                     }
-                    e.Handled = true;
                     e.SuppressKeyPress = true;
                     break;
 
@@ -177,9 +199,9 @@ namespace TheraEditor.Windows.Forms
                             Text = (val - _fineIncrement).Clamp(_minValue, _maxValue).ToString();
                         else
                             Text = (val - _finerIncrement).Clamp(_minValue, _maxValue).ToString();
-                        ValidateTextInput();
+                        ValidateText();
+                        e.Handled = true;
                     }
-                    e.Handled = true;
                     e.SuppressKeyPress = true;
                     break;
 
@@ -196,12 +218,12 @@ namespace TheraEditor.Windows.Forms
                     break;
 
                 case Keys.Escape:
-                    UpdateText();
+                    CurrentValueChanged();
                     e.SuppressKeyPress = true;
                     break;
 
                 case Keys.Enter:
-                    ValidateTextInput();
+                    ValidateText();
                     e.Handled = true;
                     e.SuppressKeyPress = true;
                     break;
@@ -211,9 +233,8 @@ namespace TheraEditor.Windows.Forms
                     {
                         if (decimal.TryParse(Text, out val))
                         {
-                            val = float.NaN;
-                            Text = val.ToString();
-                            ValidateTextInput();
+                            Text = "";
+                            ValidateText();
                         }
                     }
                     break;
@@ -232,54 +253,40 @@ namespace TheraEditor.Windows.Forms
             base.OnKeyDown(e);
         }
 
-        private void UpdateText()
+        private void CurrentValueChanged()
+            => Text = _currentValue == null ? "" : _currentValue.ToString();
+        
+        private void ValidateText()
         {
-            if (_currentValue == float.NaN)
-                Text = "";
-            else
-                Text = _currentValue.ToString();
-        }
-
-        private void ValidateTextInput()
-        {
-            decimal val = _currentValue ?? 0.0m;
-
-            if (_currentValue != null && val.ToString() == Text)
+            //No change?
+            if (_currentValue != null && _currentValue.Value.ToString() == Text)
                 return;
 
-            if (Text == "")
-                val = decimal.NaN;
-            else if (!_integral)
-            {
-                float.TryParse(Text, out val);
-                val = val.Clamp(_minValue, _maxValue);
-            }
+            decimal? newValue;
+            if (string.IsNullOrWhiteSpace(Text))
+                newValue = null;
             else
             {
-                int.TryParse(Text, out val2);
-                //val2 = val2.Clamp(Convert.ToInt32(_minValue.Clamp((float)int.MinValue, (float)int.MaxValue)), Convert.ToInt32(_maxValue.Clamp((float)int.MinValue, (float)int.MaxValue)));
+                if (decimal.TryParse(Text, out decimal newValue2))
+                {
+                    decimal min = _signed ? _minValue : _minValue.ClampMin(0m);
+                    newValue2 = newValue2.Clamp(min, _maxValue);
+                    if (_integral)
+                        newValue2 = Math.Round(newValue2);
+                    newValue = newValue2;
+                }
+                else
+                    newValue = null;
             }
 
-            if (!_integral)
+            if (_currentValue != newValue)
             {
-                if (_currentValue != val)
-                {
-                    _previousValue = _currentValue ?? 0.0f;
-                    _currentValue = val;
-                    ValueChanged?.Invoke(this, null);
-                }
-            }
-            else
-            {
-                if (_currentValue != val2)
-                {
-                    _previousValue = _currentValue ?? 0.0f;
-                    _currentValue = val2;
-                    ValueChanged?.Invoke(this, null);
-                }
+                _previousValue = _currentValue;
+                _currentValue = newValue;
+                ValueChanged?.Invoke(this, null);
             }
 
-            UpdateText();
+            CurrentValueChanged();
         }
     }
 }

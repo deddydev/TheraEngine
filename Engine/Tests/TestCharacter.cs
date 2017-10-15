@@ -48,8 +48,8 @@ namespace TheraEngine.Tests
                 _meshComp.Skeleton = skeleton;
                 _meshComp.Model = mesh;
 
-                string animPath = TestDefaults.DesktopPath + "test_anim.dae";
-                //googleDrive + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
+                string animPath = //TestDefaults.DesktopPath + "test_anim.dae";
+                TestDefaults.GoogleDrivePath + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
                 ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
                 //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
                 {

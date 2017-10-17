@@ -109,7 +109,7 @@ namespace TheraEditor.Wrappers
 
         public void EditResource()
         {
-            Editor.Instance.PropertyGridForm.PropertyGrid.SelectedObject = GetNewInstance();
+            Editor.Instance.PropertyGridForm.theraPropertyGrid1.TargetObject = GetNewInstance();
         }
 
         //public BaseFileWrapper(ContextMenuStrip menu) : base(menu)

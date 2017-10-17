@@ -320,18 +320,13 @@ namespace TheraEngine.Rendering.Models
                                                 break;
                                         }
 
+                                        FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
                                         animationLength = Math.Max(animationLength, second);
                                         switch (valueIndex)
                                         {
-                                            case 0:
-                                                bone.TranslationX.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                                break;
-                                            case 1:
-                                                bone.TranslationY.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                                break;
-                                            case 2:
-                                                bone.TranslationZ.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                                break;
+                                            case 0: bone.TranslationX.Add(kf); break;
+                                            case 1: bone.TranslationY.Add(kf); break;
+                                            case 2: bone.TranslationZ.Add(kf); break;
                                         }
                                     }
                                 }
@@ -379,18 +374,13 @@ namespace TheraEngine.Rendering.Models
                                                 break;
                                         }
 
+                                        FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
                                         animationLength = Math.Max(animationLength, second);
                                         switch (valueIndex)
                                         {
-                                            case 0:
-                                                bone.ScaleX.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                                break;
-                                            case 1:
-                                                bone.ScaleY.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                                break;
-                                            case 2:
-                                                bone.ScaleZ.Add(new FloatKeyframe(second, value, inTan, outTan, pType));
-                                                break;
+                                            case 0: bone.ScaleX.Add(kf); break;
+                                            case 1: bone.ScaleY.Add(kf); break;
+                                            case 2: bone.ScaleZ.Add(kf); break;
                                         }
                                     }
                                 }

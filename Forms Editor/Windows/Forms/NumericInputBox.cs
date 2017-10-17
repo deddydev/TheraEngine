@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms
         public NumericInputBox()
         {
             
-            CurrentValueChanged();
+            UpdateTextWithValue();
         }
         
         public decimal? _previousValue = null;
@@ -27,27 +27,27 @@ namespace TheraEditor.Windows.Forms
             _minValue = decimal.MinValue,
             _maxValue = decimal.MaxValue,
             _largeIncrement = 90m,
-            _fineIncrement = 1m,
+            _smallIncrement = 1m,
             _largerIncrement = 180m,
-            _finerIncrement = 0.1m;
-        public bool _integral = false;
-        public bool _signed = true;
-        public int _enforcedDecimals = -1;
-        public MidpointRounding _midPointRounding = MidpointRounding.AwayFromZero;
+            _smallerIncrement = 0.1m;
+        private bool _integral = false, _signed = true, _nullable = false;
+        private int _enforcedDecimals = -1;
+        private MidpointRounding _midPointRounding = MidpointRounding.AwayFromZero;
+        private decimal _defaultValue = 0m;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public decimal Value
+        public decimal? Value
         {
-            get
-            {
-                if (_currentValue == null)
-                    ValidateText();
-                return _currentValue.Value;
-            }
+            get => _currentValue;
             set
             {
-                _currentValue = value.Clamp(_minValue, _maxValue);
-                CurrentValueChanged();
+                _previousValue = _currentValue;
+                if (value == null) 
+                    _currentValue = Nullable ? null : (decimal?)_defaultValue;
+                else
+                    _currentValue = value.Value.Clamp(_minValue, _maxValue);
+                
+                UpdateTextWithValue();
             }
         }
         public decimal MinimumValue
@@ -56,7 +56,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _minValue = value;
-                CurrentValueChanged();
+                UpdateTextWithValue();
             }
         }
         public decimal MaximumValue
@@ -65,7 +65,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _maxValue = value;
-                CurrentValueChanged();
+                UpdateTextWithValue();
             }
         }
         public bool Integral
@@ -74,7 +74,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _integral = value;
-                CurrentValueChanged();
+                UpdateTextWithValue();
             }
         }
         public bool Signed
@@ -83,7 +83,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _signed = value;
-                CurrentValueChanged();
+                UpdateTextWithValue();
             }
         }
         public int AllowedDecimalPlaces
@@ -91,8 +91,8 @@ namespace TheraEditor.Windows.Forms
             get => _enforcedDecimals;
             set
             {
-                _enforcedDecimals = value;
-                CurrentValueChanged();
+                _enforcedDecimals = value.ClampMin(-1);
+                UpdateTextWithValue();
             }
         }
         public MidpointRounding MidpointRoundingMethod
@@ -101,19 +101,48 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _midPointRounding = value;
-                CurrentValueChanged();
+                UpdateTextWithValue();
+            }
+        }
+        public bool Nullable
+        {
+            get => _nullable;
+            set
+            {
+                _nullable = value;
+                UpdateTextWithValue();
+            }
+        }
+        public decimal DefaultValue
+        {
+            get => _defaultValue;
+            set
+            {
+                _defaultValue = value;
+                UpdateTextWithValue();
             }
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
-            ValidateText();
+            //Submit text input
+            GetValueFromText();
             base.OnLostFocus(e);
         }
-
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            if (!Focused)
+                return;
+            GetValueFromText();
+            if (_currentValue != null)
+            {
+                _currentValue = (_currentValue.Value + (e.Delta < 0 ? -_smallIncrement : _smallIncrement)).Clamp(_minValue, _maxValue);
+                UpdateTextWithValue();
+            }
+            base.OnMouseWheel(e);
+        }
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            decimal val;
             switch (e.KeyCode)
             {
                 case Keys.D0:
@@ -140,71 +169,59 @@ namespace TheraEditor.Windows.Forms
                     break;
 
                 case Keys.Left:
-                    if (decimal.TryParse(Text, out val))
                     {
-                        if (e.Control)
+                        if (e.Control || e.Shift)
                         {
-                            Text = (val - _largeIncrement).Clamp(_minValue, _maxValue).ToString();
-                            ValidateText();
+                            decimal increment = e.Control ? _largeIncrement : _largerIncrement;
+                            GetValueFromText();
+                            if (_currentValue == null)
+                                return;
+                            _currentValue = (_currentValue.Value - _largeIncrement).Clamp(_minValue, _maxValue);
+                            UpdateTextWithValue();
                             e.Handled = true;
                             e.SuppressKeyPress = true;
                         }
-                        else if (e.Shift)
-                        {
-                            Text = (val - _largerIncrement).Clamp(_minValue, _maxValue).ToString();
-                            ValidateText();
-                            e.Handled = true;
-                            e.SuppressKeyPress = true;
-                        }
+                        break;
                     }
-                    break;
-
                 case Keys.Right:
-                    if (decimal.TryParse(Text, out val))
                     {
-                        if (e.Control)
+                        if (e.Control || e.Shift)
                         {
-                            Text = (val + _largeIncrement).Clamp(_minValue, _maxValue).ToString();
-                            ValidateText();
+                            decimal increment = e.Control ? _largeIncrement : _largerIncrement;
+                            GetValueFromText();
+                            if (_currentValue == null)
+                                return;
+                            _currentValue = (_currentValue.Value + _largeIncrement).Clamp(_minValue, _maxValue);
+                            UpdateTextWithValue();
                             e.Handled = true;
                             e.SuppressKeyPress = true;
                         }
-                        else if (e.Shift)
-                        {
-                            Text = (val + _largerIncrement).Clamp(_minValue, _maxValue).ToString();
-                            ValidateText();
-                            e.Handled = true;
-                            e.SuppressKeyPress = true;
-                        }
+                        break;
                     }
-                    break;
-
                 case Keys.Up:
-                    if (decimal.TryParse(Text, out val))
                     {
-                        if (e.Shift || _integral)
-                            Text = (val + _fineIncrement).Clamp(_minValue, _maxValue).ToString();
-                        else
-                            Text = (val + _finerIncrement).Clamp(_minValue, _maxValue).ToString();
-                        ValidateText();
+                        GetValueFromText();
+                        if (_currentValue == null)
+                            return;
+                        decimal increment = e.Shift || _integral ? _smallIncrement : _smallerIncrement;
+                        _currentValue = (_currentValue.Value + increment).Clamp(_minValue, _maxValue);
+                        UpdateTextWithValue();
                         e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        break;
                     }
-                    e.SuppressKeyPress = true;
-                    break;
-
                 case Keys.Down:
-                    if (decimal.TryParse(Text, out val))
                     {
-                        if (e.Shift || _integral)
-                            Text = (val - _fineIncrement).Clamp(_minValue, _maxValue).ToString();
-                        else
-                            Text = (val - _finerIncrement).Clamp(_minValue, _maxValue).ToString();
-                        ValidateText();
+                        GetValueFromText();
+                        if (_currentValue == null)
+                            return;
+                        decimal increment = e.Shift || _integral ? _smallIncrement : _smallerIncrement;
+                        _currentValue = (_currentValue.Value - increment).Clamp(_minValue, _maxValue);
+                        UpdateTextWithValue();
                         e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        break;
                     }
-                    e.SuppressKeyPress = true;
-                    break;
-
                 case Keys.Subtract:
                 case Keys.OemMinus:
                     if (!_signed || SelectionStart != 0 || Text.IndexOf('-') != -1)
@@ -218,27 +235,27 @@ namespace TheraEditor.Windows.Forms
                     break;
 
                 case Keys.Escape:
-                    CurrentValueChanged();
+                    //Reset text with current, unchanged value
+                    UpdateTextWithValue();
                     e.SuppressKeyPress = true;
                     break;
 
                 case Keys.Enter:
-                    ValidateText();
+                    GetValueFromText();
                     e.Handled = true;
                     e.SuppressKeyPress = true;
                     break;
 
                 case Keys.X:
-                    if (e.Control)
-                    {
-                        if (decimal.TryParse(Text, out val))
-                        {
-                            Text = "";
-                            ValidateText();
-                        }
-                    }
-                    break;
-
+                    //if (e.Control)
+                    //{
+                    //    if (decimal.TryParse(Text, out decimal val))
+                    //    {
+                    //        Text = "";
+                    //        GetValueFromText();
+                    //    }
+                    //}
+                    //break;
                 case Keys.V:
                 case Keys.C:
                     if (!e.Control)
@@ -253,10 +270,10 @@ namespace TheraEditor.Windows.Forms
             base.OnKeyDown(e);
         }
 
-        private void CurrentValueChanged()
+        private void UpdateTextWithValue()
             => Text = _currentValue == null ? "" : _currentValue.ToString();
         
-        private void ValidateText()
+        private void GetValueFromText()
         {
             //No change?
             if (_currentValue != null && _currentValue.Value.ToString() == Text)
@@ -271,8 +288,10 @@ namespace TheraEditor.Windows.Forms
                 {
                     decimal min = _signed ? _minValue : _minValue.ClampMin(0m);
                     newValue2 = newValue2.Clamp(min, _maxValue);
-                    if (_integral)
+                    if (_integral || _enforcedDecimals == 0)
                         newValue2 = Math.Round(newValue2);
+                    else if (_enforcedDecimals > 0)
+                        newValue2 = Math.Round(newValue2, _enforcedDecimals, _midPointRounding);
                     newValue = newValue2;
                 }
                 else
@@ -283,10 +302,159 @@ namespace TheraEditor.Windows.Forms
             {
                 _previousValue = _currentValue;
                 _currentValue = newValue;
-                ValueChanged?.Invoke(this, null);
+                ValueChanged?.Invoke(_previousValue, _currentValue);
             }
 
-            CurrentValueChanged();
+            UpdateTextWithValue();
+        }
+
+        public void SetValue(sbyte value)
+        {
+            MinimumValue = sbyte.MinValue;
+            MaximumValue = sbyte.MaxValue;
+            Integral = true;
+            Signed = true;
+            Value = value;
+        }
+        public void SetValue(byte value)
+        {
+            MinimumValue = byte.MinValue;
+            MaximumValue = byte.MaxValue;
+            Integral = true;
+            Signed = false;
+            Value = value;
+        }
+        public void SetValue(short value)
+        {
+            MinimumValue = short.MinValue;
+            MaximumValue = short.MaxValue;
+            Integral = true;
+            Signed = true;
+            Value = value;
+        }
+        public void SetValue(ushort value)
+        {
+            MinimumValue = ushort.MinValue;
+            MaximumValue = ushort.MaxValue;
+            Integral = true;
+            Signed = false;
+            Value = value;
+        }
+        public void SetValue(int value)
+        {
+            MinimumValue = int.MinValue;
+            MaximumValue = int.MaxValue;
+            Integral = true;
+            Signed = true;
+            Value = value;
+        }
+        public void SetValue(uint value)
+        {
+            MinimumValue = uint.MinValue;
+            MaximumValue = uint.MaxValue;
+            Integral = true;
+            Signed = false;
+            Value = value;
+        }
+        public void SetValue(long value)
+        {
+            MinimumValue = long.MinValue;
+            MaximumValue = long.MaxValue;
+            Integral = true;
+            Signed = true;
+            Value = value;
+        }
+        public void SetValue(ulong value)
+        {
+            MinimumValue = ulong.MinValue;
+            MaximumValue = ulong.MaxValue;
+            Integral = true;
+            Signed = false;
+            Value = value;
+        }
+        public void SetValue(float value)
+        {
+            MinimumValue = decimal.MinValue;//Convert.ToDecimal(float.MinValue);
+            MaximumValue = decimal.MaxValue;//Convert.ToDecimal(float.MaxValue);
+            Integral = false;
+            Signed = true;
+            Value = Convert.ToDecimal(value);
+        }
+        public void SetValue(double value)
+        {
+            MinimumValue = decimal.MinValue; //Convert.ToDecimal(double.MinValue);
+            MaximumValue = decimal.MaxValue; //Convert.ToDecimal(double.MaxValue);
+            Integral = false;
+            Signed = true;
+            Value = Convert.ToDecimal(value);
+        }
+        public void SetValue(decimal value)
+        {
+            MinimumValue = decimal.MinValue;
+            MaximumValue = decimal.MaxValue;
+            Integral = false;
+            Signed = true;
+            Value = value;
+        }
+        public sbyte GetSByte()
+        {
+            if (Value == null)
+                return 0;
+            return Convert.ToSByte(Value.Value);
+        }
+        public byte GetByte()
+        {
+            if (Value == null)
+                return 0;
+            return Convert.ToByte(Value.Value);
+        }
+        public short GetShort()
+        {
+            if (Value == null)
+                return 0;
+            return Convert.ToInt16(Value.Value);
+        }
+        public ushort GetUShort()
+        {
+            if (Value == null)
+                return 0;
+            return Convert.ToUInt16(Value.Value);
+        }
+        public int GetInt()
+        {
+            if (Value == null)
+                return 0;
+            return Convert.ToInt32(Value.Value);
+        }
+        public uint GetUInt()
+        {
+            if (Value == null)
+                return 0U;
+            return Convert.ToUInt32(Value.Value);
+        }
+        public long GetLong()
+        {
+            if (Value == null)
+                return 0L;
+            return Convert.ToInt64(Value.Value);
+        }
+        public ulong GetULong()
+        {
+            if (Value == null)
+                return 0UL;
+            return Convert.ToUInt64(Value.Value);
+        }
+        public float GetFloat()
+        {
+            if (Value == null)
+                return 0.0F;
+            return Convert.ToSingle(Value.Value);
+        }
+        public double GetDouble()
+        {
+            if (Value == null)
+                return 0.0;
+            return Convert.ToDouble(Value.Value);
         }
     }
 }

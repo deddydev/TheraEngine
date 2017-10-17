@@ -46,6 +46,7 @@ namespace TheraEngine.Worlds
                 OnGameModeChanged(oldMode);
             }
         }
+        [Description("How fast the game moves.")]
         public float TimeDilation
         {
             get => _timeSpeed;

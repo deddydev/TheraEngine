@@ -123,7 +123,7 @@ namespace TheraEditor.Windows.Forms
 
             OnRedrawn = Redraw;
             Engine.RegisterRenderTick(RenderTick);
-            PropertyGridForm.PropertyGrid.SelectedObject = Engine.World?.Settings;
+            PropertyGridForm.theraPropertyGrid1.TargetObject = Engine.World?.Settings;
             //Engine.SetPaused(true, PlayerIndex.One, true);
             Engine.Run();
         }
@@ -285,7 +285,7 @@ namespace TheraEditor.Windows.Forms
         
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            PropertyGridForm.PropertyGrid.SelectedObject = ActorTreeForm.ActorTree.SelectedNode == null ? Engine.World.Settings : ActorTreeForm.ActorTree.SelectedNode.Tag;
+            PropertyGridForm.theraPropertyGrid1.TargetObject = ActorTreeForm.ActorTree.SelectedNode == null ? Engine.World.Settings : ActorTreeForm.ActorTree.SelectedNode.Tag;
         }
 
         private bool CloseProject()
@@ -366,12 +366,12 @@ namespace TheraEditor.Windows.Forms
 
         private void BtnProjectSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.SelectedObject = Project;
+            PropertyGridForm.theraPropertyGrid1.TargetObject = Project;
         }
 
         private void BtnEngineSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.SelectedObject = Project?.EngineSettings;
+            PropertyGridForm.theraPropertyGrid1.TargetObject = Project?.EngineSettings;
         }
 
         private void BtnEditorSettings_Click(object sender, EventArgs e)
@@ -381,12 +381,12 @@ namespace TheraEditor.Windows.Forms
 
         private void BtnUserSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.SelectedObject = Project?.UserSettings;
+            PropertyGridForm.theraPropertyGrid1.TargetObject = Project?.UserSettings;
         }
 
         private void BtnWorldSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.SelectedObject = Engine.World?.Settings;
+            PropertyGridForm.theraPropertyGrid1.TargetObject = Engine.World?.Settings;
         }
 
         private void CboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -450,7 +450,7 @@ namespace TheraEditor.Windows.Forms
 
         private void ActorPropertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
-            if (PropertyGridForm.PropertyGrid.SelectedObject is ObjectBase obj)
+            if (PropertyGridForm.theraPropertyGrid1.TargetObject is ObjectBase obj)
             {
                 obj.OnPropertyChanged(e.OldValue, e.ChangedItem.PropertyDescriptor.Name);
             }

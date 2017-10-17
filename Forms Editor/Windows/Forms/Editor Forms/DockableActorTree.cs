@@ -20,7 +20,7 @@ namespace TheraEditor.Windows.Forms
 
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            Editor.Instance.PropertyGridForm.PropertyGrid.SelectedObject = e.Node.Tag;
+            Editor.Instance.PropertyGridForm.theraPropertyGrid1.TargetObject = e.Node.Tag;
         }
     }
 }

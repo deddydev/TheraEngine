@@ -43,7 +43,7 @@ namespace System
         }
         public float X
         {
-            get { return _data.X; }
+            get => _data.X;
             set
             {
                 BeginUpdate();
@@ -53,7 +53,7 @@ namespace System
         }
         public float Y
         {
-            get { return _data.Y; }
+            get => _data.Y;
             set
             {
                 BeginUpdate();
@@ -63,7 +63,7 @@ namespace System
         }
         public float Z
         {
-            get { return _data.Z; }
+            get => _data.Z;
             set
             {
                 BeginUpdate();

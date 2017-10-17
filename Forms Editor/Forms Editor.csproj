@@ -121,9 +121,70 @@
     <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.Designer.cs">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox.cs">
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxDecimal.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxDouble.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxByte.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxInt64.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxInt32.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxUInt64.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxUInt32.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxUInt16.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxInt16.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxSByte.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxSingle.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxBase.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\BufferedPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\ColorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\ColorControl.Designer.cs">
+      <DependentUpon>ColorControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\ColorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\ColorDialog.Designer.cs">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\ColorPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\ColorPicker.Designer.cs">
+      <DependentUpon>ColorPicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\MinMaxControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\MinMaxControl.Designer.cs">
+      <DependentUpon>MinMaxControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\MinMaxEditor.cs" />
     <Compile Include="Windows\Forms\PropertyGrid\PropGridCategory.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -137,6 +198,7 @@
       <DependentUpon>PropGridItem.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\PropGridItemAttribute.cs" />
+    <Compile Include="Windows\Forms\PropertyGrid\StringConverters.cs" />
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridBool.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -273,6 +335,9 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\MinMaxControl.resx">
+      <DependentUpon>MinMaxControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridCategory.resx">
       <DependentUpon>PropGridCategory.cs</DependentUpon>
     </EmbeddedResource>
@@ -336,6 +401,7 @@
   <ItemGroup>
     <None Include="Resources\ClosedFolder21.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

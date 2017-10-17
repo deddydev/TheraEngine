@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.numericInputBoxX = new TheraEditor.Windows.Forms.NumericInputBox();
-            this.numericInputBoxY = new TheraEditor.Windows.Forms.NumericInputBox();
-            this.numericInputBoxZ = new TheraEditor.Windows.Forms.NumericInputBox();
+            this.numericInputBoxX = new TheraEditor.Windows.Forms.NumericInputBoxSingle();
+            this.numericInputBoxY = new TheraEditor.Windows.Forms.NumericInputBoxSingle();
+            this.numericInputBoxZ = new TheraEditor.Windows.Forms.NumericInputBoxSingle();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -173,9 +173,9 @@
         }
 
         #endregion
-        private NumericInputBox numericInputBoxX;
-        private NumericInputBox numericInputBoxY;
-        private NumericInputBox numericInputBoxZ;
+        private NumericInputBoxSingle numericInputBoxX;
+        private NumericInputBoxSingle numericInputBoxY;
+        private NumericInputBoxSingle numericInputBoxZ;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
     }
 }

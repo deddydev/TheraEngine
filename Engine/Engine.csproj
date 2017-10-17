@@ -556,34 +556,6 @@
     <Compile Include="Core\Platform\Linux.cs" />
     <Compile Include="Core\Platform\OSX.cs" />
     <Compile Include="Core\Platform\Win32.cs" />
-    <Compile Include="Core\PropertyGrid\BufferedPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\ColorControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\ColorControl.Designer.cs">
-      <DependentUpon>ColorControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\ColorDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\ColorDialog.Designer.cs">
-      <DependentUpon>ColorDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\ColorPicker.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\ColorPicker.Designer.cs">
-      <DependentUpon>ColorPicker.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\MinMaxControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\MinMaxControl.Designer.cs">
-      <DependentUpon>MinMaxControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\PropertyGrid\MinMaxEditor.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\CustomSerializeMethodAttribute.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
@@ -591,7 +563,6 @@
     <Compile Include="Core\Reflection\Attributes\Serialization\SerializeAttribute.cs" />
     <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="Core\Files\FileObject.cs" />
-    <Compile Include="Core\PropertyGrid\StringConverters.cs" />
     <Compile Include="Core\Time\EngineTimer.cs" />
     <Compile Include="Core\RenderPanel.cs" />
     <Compile Include="Core\RenderForm.cs">
@@ -758,9 +729,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Core\PropertyGrid\MinMaxControl.resx">
-      <DependentUpon>MinMaxControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Core\RenderForm.resx">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </EmbeddedResource>

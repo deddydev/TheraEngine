@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.numericInputBox1 = new TheraEditor.Windows.Forms.NumericInputBox();
+            this.numericInputBox1 = new TheraEditor.Windows.Forms.NumericInputBoxBase();
             this.SuspendLayout();
             // 
             // numericInputBox1
@@ -79,6 +79,6 @@
         }
 
         #endregion
-        private NumericInputBox numericInputBox1;
+        private NumericInputBoxBase numericInputBox1;
     }
 }

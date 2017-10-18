@@ -12,6 +12,14 @@ namespace TheraEditor.Windows.Forms
 {
     public class NumericInputBoxInt32 : NumericInputBoxBase<Int32>
     {
+        public NumericInputBoxInt32()
+        {
+            SmallerIncrement = 1;
+            SmallIncrement = 5;
+            LargeIncrement = 10;
+            LargerIncrement = 100;
+        }
+
         protected override Int32 Clamp(Int32 value, Int32 min, Int32 max)
             => value.Clamp(min, max);
         protected override Int32 ClampMin(Int32 value, Int32 min)

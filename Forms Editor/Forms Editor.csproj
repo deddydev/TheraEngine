@@ -199,6 +199,12 @@
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\PropGridItemAttribute.cs" />
     <Compile Include="Windows\Forms\PropertyGrid\StringConverters.cs" />
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.Designer.cs">
+      <DependentUpon>PropGridSingleFileRef.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridDouble.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -404,6 +410,9 @@
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridItem.resx">
       <DependentUpon>PropGridItem.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.resx">
+      <DependentUpon>PropGridSingleFileRef.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridDouble.resx">
       <DependentUpon>PropGridDouble.cs</DependentUpon>
     </EmbeddedResource>
@@ -491,9 +500,7 @@
   <ItemGroup>
     <None Include="Resources\ClosedFolder21.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Windows\Forms\PropertyGrid\SubItems\Engine\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

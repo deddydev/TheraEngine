@@ -39,28 +39,25 @@
             this.numericInputBox1.DefaultValue = 0F;
             this.numericInputBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.numericInputBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
-            this.numericInputBox1.LargeIncrement = 0F;
-            this.numericInputBox1.LargerIncrement = 0F;
-            this.numericInputBox1.Location = new System.Drawing.Point(2, 3);
+            this.numericInputBox1.Location = new System.Drawing.Point(3, 8);
+            this.numericInputBox1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.numericInputBox1.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBox1.Name = "numericInputBox1";
             this.numericInputBox1.Nullable = false;
-            this.numericInputBox1.Size = new System.Drawing.Size(211, 27);
-            this.numericInputBox1.SmallerIncrement = 0F;
-            this.numericInputBox1.SmallIncrement = 0F;
+            this.numericInputBox1.Size = new System.Drawing.Size(502, 31);
             this.numericInputBox1.TabIndex = 0;
             this.numericInputBox1.Text = "0";
             this.numericInputBox1.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBox1_ValueChanged);
             // 
             // PropGridSingle
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.numericInputBox1);
+            this.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.Name = "PropGridSingle";
-            this.Size = new System.Drawing.Size(214, 33);
+            this.Size = new System.Drawing.Size(509, 46);
             this.ResumeLayout(false);
             this.PerformLayout();
 

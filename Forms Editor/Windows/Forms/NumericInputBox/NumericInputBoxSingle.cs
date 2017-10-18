@@ -12,6 +12,14 @@ namespace TheraEditor.Windows.Forms
 {
     public class NumericInputBoxSingle : NumericInputBoxBase<Single>
     {
+        public NumericInputBoxSingle()
+        {
+            SmallerIncrement = 0.1f;
+            SmallIncrement = 1.0f;
+            LargeIncrement = 15.0f;
+            LargerIncrement = 90.0f;
+        }
+
         protected override Single Clamp(Single value, Single min, Single max)
             => value.Clamp(min, max);
         protected override Single ClampMin(Single value, Single min)

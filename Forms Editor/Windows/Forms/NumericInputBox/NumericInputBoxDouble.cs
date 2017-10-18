@@ -12,6 +12,14 @@ namespace TheraEditor.Windows.Forms
 {
     public class NumericInputBoxDouble : NumericInputBoxBase<Double>
     {
+        public NumericInputBoxDouble()
+        {
+            SmallerIncrement = 0.1;
+            SmallIncrement = 1.0;
+            LargeIncrement = 15.0;
+            LargerIncrement = 90.0;
+        }
+
         protected override Double Clamp(Double value, Double min, Double max)
             => value.Clamp(min, max);
         protected override Double ClampMin(Double value, Double min)

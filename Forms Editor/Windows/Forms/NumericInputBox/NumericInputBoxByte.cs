@@ -12,6 +12,14 @@ namespace TheraEditor.Windows.Forms
 {
     public class NumericInputBoxByte : NumericInputBoxBase<Byte>
     {
+        public NumericInputBoxByte()
+        {
+            SmallerIncrement = 1;
+            SmallIncrement = 2;
+            LargeIncrement = 5;
+            LargerIncrement = 10;
+        }
+
         protected override Byte Clamp(Byte value, Byte min, Byte max)
             => value.Clamp(min, max);
         protected override Byte ClampMin(Byte value, Byte min)

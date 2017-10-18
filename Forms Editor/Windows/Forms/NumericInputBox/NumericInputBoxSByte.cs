@@ -12,6 +12,14 @@ namespace TheraEditor.Windows.Forms
 {
     public class NumericInputBoxSByte : NumericInputBoxBase<SByte>
     {
+        public NumericInputBoxSByte()
+        {
+            SmallerIncrement = 1;
+            SmallIncrement = 2;
+            LargeIncrement = 5;
+            LargerIncrement = 10;
+        }
+
         protected override SByte Clamp(SByte value, SByte min, SByte max)
             => value.Clamp(min, max);
         protected override SByte ClampMin(SByte value, SByte min)

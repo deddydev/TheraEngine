@@ -144,7 +144,15 @@ namespace TheraEditor.Windows.Forms
                 case Keys.NumPad7:
                 case Keys.NumPad8:
                 case Keys.NumPad9:
+                    if (Signed && Text.IndexOf('-') >= SelectionStart)
+                    {
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                    }
+                    break;
                 case Keys.Back:
+                case Keys.Left:
+                case Keys.Right:
                     break;
                 case Keys.PageDown:
                 case Keys.PageUp:

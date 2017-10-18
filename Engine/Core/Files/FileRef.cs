@@ -9,6 +9,7 @@ namespace TheraEngine.Files
     public interface IFileRef
     {
         string FilePath { get; }
+        Type ReferencedType { get; }
     }
     public interface ISingleFileRef : IFileRef
     {
@@ -200,6 +201,9 @@ namespace TheraEngine.Files
                 }
             }
         }
+
+        public Type ReferencedType => typeof(T);
+
         private T GetFile()
         {
             string absolutePath = ReferencePath;

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class NumericInputBoxDecimal : NumericInputBoxBase<Decimal>
+    public class NumericInputBoxDecimal : NumericInputBoxBase<Decimal>
     {
         protected override Decimal Clamp(Decimal value, Decimal min, Decimal max)
             => value.Clamp(min, max);
@@ -38,6 +38,8 @@ namespace TheraEditor.Windows.Forms
                 return false;
             return value1.Value == value2.Value;
         }
+        protected override bool TryParse(string text, out Decimal value)
+            => Decimal.TryParse(text, out value);
         public override Decimal MinimumValue => Decimal.MinValue;
         public override Decimal MaximumValue => Decimal.MaxValue;
         public override bool Integral => false;

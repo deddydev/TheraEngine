@@ -10,7 +10,8 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class NumericInputBoxBase<T> : TextBox where T : struct, IFormattable, IComparable, IConvertible
+    public abstract class NumericInputBoxBase<T> : TextBox
+        where T : struct, IFormattable, IComparable, IConvertible
     {
         public delegate void BoxValueChanged(T? previous, T? current);
         public event BoxValueChanged ValueChanged;
@@ -22,27 +23,31 @@ namespace TheraEditor.Windows.Forms
         
         public T? _previousValue = null;
         public T? _currentValue = null;
-        public T
-            _minValue,
-            _maxValue,
-            _largeIncrement,
-            _smallIncrement,
-            _largerIncrement,
-            _smallerIncrement;
         private bool _nullable = false;
         private T _defaultValue;
+        
+        public T LargeIncrement { get; set; }
+        public T LargerIncrement { get; set; }
+        public T SmallIncrement { get; set; }
+        public T SmallerIncrement { get; set; }
 
-        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public T? Value
         {
             get => _currentValue;
             set
             {
-                _previousValue = _currentValue;
-                if (value == null)
-                    _currentValue = Nullable ? null : (T?)_defaultValue;
-                else
-                    _currentValue = Round(Clamp(value.Value, _minValue, _maxValue));
+                T? newValue = 
+                    value == null ?
+                    (Nullable ? null : (T?)DefaultValue) :
+                    Round(Clamp(value.Value, MinimumValue, MaximumValue));
+
+                if (!NumbersAreEqual(_currentValue, newValue))
+                {
+                    _previousValue = _currentValue;
+                    _currentValue = newValue;
+                    ValueChanged?.Invoke(_previousValue, _currentValue);
+                }
 
                 UpdateTextWithValue();
             }
@@ -54,7 +59,8 @@ namespace TheraEditor.Windows.Forms
         protected abstract T ClampMax(T value, T max);
         protected abstract T Increment(T value, T increment, bool negative);
         protected abstract bool NumbersAreEqual(T? value1, T? value2);
-        
+        protected abstract bool TryParse(string text, out T value);
+
         public abstract T MinimumValue { get; }
         public abstract T MaximumValue { get; }
         public abstract bool Integral { get; }
@@ -86,7 +92,8 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _nullable = value;
-                UpdateTextWithValue();
+                if (!_nullable && _currentValue == null)
+                    Value = DefaultValue;
             }
         }
         public T DefaultValue
@@ -108,7 +115,7 @@ namespace TheraEditor.Windows.Forms
             GetValueFromText();
             if (_currentValue != null)
             {
-                _currentValue = Clamp(Increment(_currentValue.Value,_smallIncrement, e.Delta < 0), _minValue, _maxValue);
+                _currentValue = Clamp(Increment(_currentValue.Value, SmallIncrement, e.Delta < 0), MinimumValue, MaximumValue);
                 UpdateTextWithValue();
             }
             base.OnMouseWheel(e);
@@ -147,8 +154,8 @@ namespace TheraEditor.Windows.Forms
                         GetValueFromText();
                         if (_currentValue == null)
                             return;
-                        T increment = e.KeyCode == Keys.Down || e.KeyCode == Keys.Up ? (e.Shift ? _smallerIncrement : _smallIncrement) : (e.Shift ? _largerIncrement : _largeIncrement);
-                        _currentValue = Clamp(Increment(_currentValue.Value, increment, e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Down), _minValue, _maxValue);
+                        T increment = e.KeyCode == Keys.Down || e.KeyCode == Keys.Up ? (e.Shift ? SmallerIncrement : SmallIncrement) : (e.Shift ? LargerIncrement : LargeIncrement);
+                        _currentValue = Clamp(Increment(_currentValue.Value, increment, e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Down), MinimumValue, MaximumValue);
                         UpdateTextWithValue();
                         e.Handled = true;
                         e.SuppressKeyPress = true;
@@ -202,24 +209,12 @@ namespace TheraEditor.Windows.Forms
         protected void UpdateTextWithValue()
             => Text = _currentValue == null ? "" : _currentValue.Value.ToString();
 
-        protected abstract bool TryParse(string text, out T value);
-
         protected void GetValueFromText()
         {
-            //No change?
             if (_currentValue != null && _currentValue.Value.ToString() == Text)
                 return;
 
-            T? newValue = !string.IsNullOrWhiteSpace(Text) && TryParse(Text, out T newValue2) ? (T?)Round(Clamp(newValue2, _minValue, _maxValue)) : (Nullable ? null : (T?)DefaultValue);
-            
-            if (!NumbersAreEqual(_currentValue, newValue))
-            {
-                _previousValue = _currentValue;
-                _currentValue = newValue;
-                ValueChanged?.Invoke(_previousValue, _currentValue);
-            }
-
-            UpdateTextWithValue();
+            Value = (!string.IsNullOrWhiteSpace(Text) && TryParse(Text, out T newValue2)) ? (T?)newValue2 : null;
         }
     }
 }

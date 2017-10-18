@@ -25,7 +25,7 @@ namespace TheraEngine.Core.Shapes
         [Serialize("Translation")]
         protected EventVec3 _translation = Vec3.Zero;
 
-        [TypeConverter(typeof(Vec3StringConverter))]
+        //[TypeConverter(typeof(Vec3StringConverter))]
         public Vec3 Minimum
         {
             get => _translation - _halfExtents;
@@ -36,7 +36,7 @@ namespace TheraEngine.Core.Shapes
             }
         }
 
-        [TypeConverter(typeof(Vec3StringConverter))]
+        //[TypeConverter(typeof(Vec3StringConverter))]
         public Vec3 Maximum
         {
             get => _translation + _halfExtents;

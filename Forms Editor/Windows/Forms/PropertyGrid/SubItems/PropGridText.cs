@@ -10,42 +10,21 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(string))]
+    [PropGridItem(typeof(string), typeof(object))]
     public partial class PropGridText : PropGridItem
     {
-        public PropGridText()
-        {
-            InitializeComponent();
-        }
-        protected override void OnPropertySet()
+        public PropGridText() => InitializeComponent();
+        protected override void UpdateDisplayInternal()
         {
             object value = GetPropertyValue();
-            
-            if (Property.PropertyType == typeof(string))
-                textBox.Text = value as string;
-            else
-                textBox.Text = value?.ToString();
+            textBox1.Text = value?.ToString();
         }
 
-        int _x = 0, _y = 0;
-        private void verticalSplitter_SplitterMoving(object sender, SplitterEventArgs e)
+        private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            Height += e.Y - _y;
-        }
-
-        private void verticalSplitter_MouseDown(object sender, MouseEventArgs e)
-        {
-            _y = e.Y;
-        }
-
-        private void horizontalSplitter_MouseDown(object sender, MouseEventArgs e)
-        {
-            _x = e.X;
-        }
-
-        private void horizontalSplitter_SplitterMoving(object sender, SplitterEventArgs e)
-        {
-            Width += e.X - _x;
+            if (_updating)
+                return;
+            UpdatePropertyValue(textBox1.Text);
         }
     }
 }

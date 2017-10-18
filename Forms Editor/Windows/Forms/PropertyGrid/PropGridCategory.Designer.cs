@@ -41,14 +41,15 @@
             this.tblProps.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tblProps.ColumnCount = 2;
             this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tblProps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblProps.Location = new System.Drawing.Point(10, 30);
+            this.tblProps.Location = new System.Drawing.Point(10, 25);
             this.tblProps.Margin = new System.Windows.Forms.Padding(0);
             this.tblProps.Name = "tblProps";
-            //this.tblProps.RowCount = 1;
-            //this.tblProps.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tblProps.Size = new System.Drawing.Size(190, 40);
+            this.tblProps.Padding = new System.Windows.Forms.Padding(2, 2, 2, 0);
+            this.tblProps.RowCount = 1;
+            this.tblProps.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tblProps.Size = new System.Drawing.Size(4, 22);
             this.tblProps.TabIndex = 0;
             // 
             // lblCategoryName
@@ -58,21 +59,26 @@
             this.lblCategoryName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCategoryName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.lblCategoryName.Location = new System.Drawing.Point(0, 0);
-            this.lblCategoryName.MinimumSize = new System.Drawing.Size(200, 30);
+            this.lblCategoryName.Margin = new System.Windows.Forms.Padding(0);
+            this.lblCategoryName.MinimumSize = new System.Drawing.Size(10, 25);
             this.lblCategoryName.Name = "lblCategoryName";
             this.lblCategoryName.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this.lblCategoryName.Size = new System.Drawing.Size(200, 30);
+            this.lblCategoryName.Size = new System.Drawing.Size(14, 25);
             this.lblCategoryName.TabIndex = 0;
             this.lblCategoryName.Text = "Miscellaneous";
             this.lblCategoryName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblCategoryName.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblCategoryName_MouseDown);
+            this.lblCategoryName.MouseEnter += new System.EventHandler(this.lblCategoryName_MouseEnter);
+            this.lblCategoryName.MouseLeave += new System.EventHandler(this.lblCategoryName_MouseLeave);
             // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panel1.Location = new System.Drawing.Point(0, 30);
+            this.panel1.Location = new System.Drawing.Point(0, 25);
+            this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(10, 40);
+            this.panel1.Size = new System.Drawing.Size(10, 22);
             this.panel1.TabIndex = 2;
             // 
             // PropGridCategory
@@ -86,9 +92,9 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.lblCategoryName);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.MinimumSize = new System.Drawing.Size(200, 70);
+            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "PropGridCategory";
-            this.Size = new System.Drawing.Size(200, 70);
+            this.Size = new System.Drawing.Size(14, 47);
             this.ResumeLayout(false);
             this.PerformLayout();
 

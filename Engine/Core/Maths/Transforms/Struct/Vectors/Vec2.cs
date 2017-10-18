@@ -16,7 +16,7 @@ namespace System
     /// Also see DVec2, IVec2, UVec2, BoolVec2, BVec2
     /// </summary>
     [Serializable]
-    [TypeConverter(typeof(Vec2StringConverter))]
+    //[TypeConverter(typeof(Vec2StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable, IParsable
     {

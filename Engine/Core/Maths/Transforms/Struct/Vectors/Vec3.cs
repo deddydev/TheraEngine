@@ -16,7 +16,7 @@ namespace System
     /// Also see DVec3, IVec3, UVec3, BoolVec3, BVec3
     /// </summary>
     [Serializable]
-    [TypeConverter(typeof(Vec3StringConverter))]
+    //[TypeConverter(typeof(Vec3StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable, IParsable
     {

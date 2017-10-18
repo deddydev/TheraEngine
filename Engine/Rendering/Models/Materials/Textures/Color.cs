@@ -14,8 +14,8 @@ namespace System
         //TODO: use ColorF4 for maximum quality
         Color Color { get; set; }
     }
-    [TypeConverter(typeof(ColorF4StringConverter))]
-    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    //[TypeConverter(typeof(ColorF4StringConverter))]
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ColorF4 : IUniformable4Float, IBufferable, IColor
     {
@@ -134,7 +134,7 @@ namespace System
     }
 
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     public class EventColorF3 : IColor
     {
         public event Action RedChanged;
@@ -249,8 +249,8 @@ namespace System
         public static implicit operator EventColorF3(ColorF3 v) { return new EventColorF3(v); }
     }
 
-    [TypeConverter(typeof(ColorF3StringConverter))]
-    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    //[TypeConverter(typeof(ColorF3StringConverter))]
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ColorF3 : IUniformable3Float, IBufferable, IColor, IParsable
     {
@@ -352,8 +352,8 @@ namespace System
         [Browsable(false)]
         public Color Color { get => (Color)this; set => this = (ColorF3)value; }
     }
-    
-    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct RGBAPixel : IBufferable, IColor
     {
@@ -377,7 +377,7 @@ namespace System
         [Browsable(false)]
         public Color Color { get => this; set => this = value; }
     }
-    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct RGBPixel : IBufferable, IColor
     {
@@ -403,7 +403,7 @@ namespace System
         public Color Color { get => this; set => this = (RGBPixel)value; }
     }
 
-    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ARGBPixel
     {
@@ -481,21 +481,21 @@ namespace System
             return false;
         }
 
-        internal unsafe ARGBPixel Inverse()
+        public unsafe ARGBPixel Inverse()
         {
             return new ARGBPixel(A, (byte)(255 - R), (byte)(255 - G), (byte)(255 - B));
         }
-        internal unsafe ARGBPixel Lighten(int amount)
+        public unsafe ARGBPixel Lighten(int amount)
         {
             return new ARGBPixel(A, (byte)Math.Min(R + amount, 255), (byte)Math.Min(G + amount, 255), (byte)Math.Min(B + amount, 255));
         }
-        internal unsafe ARGBPixel Darken(int amount)
+        public unsafe ARGBPixel Darken(int amount)
         {
             return new ARGBPixel(A, (byte)Math.Max(R - amount, 0), (byte)Math.Max(G - amount, 0), (byte)Math.Max(B - amount, 0));
         }
     }
 
-    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct HSVPixel
     {

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class NumericInputBoxSByte : NumericInputBoxBase<SByte>
+    public class NumericInputBoxSByte : NumericInputBoxBase<SByte>
     {
         protected override SByte Clamp(SByte value, SByte min, SByte max)
             => value.Clamp(min, max);
@@ -32,6 +32,8 @@ namespace TheraEditor.Windows.Forms
                 return false;
             return value1.Value == value2.Value;
         }
+        protected override bool TryParse(string text, out SByte value)
+            => SByte.TryParse(text, out value);
         public override SByte MinimumValue => SByte.MinValue;
         public override SByte MaximumValue => SByte.MaxValue;
         public override bool Integral => true;

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class NumericInputBoxUInt16 : NumericInputBoxBase<UInt16>
+    public class NumericInputBoxUInt16 : NumericInputBoxBase<UInt16>
     {
         protected override UInt16 Clamp(UInt16 value, UInt16 min, UInt16 max)
             => value.Clamp(min, max);
@@ -32,6 +32,8 @@ namespace TheraEditor.Windows.Forms
                 return false;
             return value1.Value == value2.Value;
         }
+        protected override bool TryParse(string text, out UInt16 value)
+            => UInt16.TryParse(text, out value);
         public override UInt16 MinimumValue => UInt16.MinValue;
         public override UInt16 MaximumValue => UInt16.MaxValue;
         public override bool Integral => true;

@@ -1,0 +1,66 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace TheraEditor.Windows.Forms.PropertyGrid
+{
+    [PropGridItem(typeof(UInt32))]
+    public partial class PropGridUInt32 : PropGridItem
+    {
+        public PropGridUInt32()
+        {
+            InitializeComponent();
+        }
+        protected override void UpdateDisplayInternal()
+        {
+            object value = GetPropertyValue();
+
+            if (value is UInt32 UInt32Val)
+                numericInputBox1.Value = UInt32Val;
+            else
+                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not a UInt32 type.");
+        }
+
+        protected override void OnLabelSet()
+        {
+            Label.MouseDown += LabelMouseDown;
+            Label.MouseUp += LabelMouseUp;
+        }
+
+        private int _y = 0;
+        private void LabelMouseDown(object sender, MouseEventArgs e)
+        {
+            if (numericInputBox1.Value != null)
+            {
+                _y = e.Location.Y;
+                Label.MouseMove += LabelMouseMove;
+            }
+        }
+        private void LabelMouseUp(object sender, MouseEventArgs e)
+        {
+            Label.MouseMove -= LabelMouseMove;
+        }
+        private void LabelMouseMove(object sender, MouseEventArgs e)
+        {
+            int diff = (e.Location.Y - _y);
+            if (diff == 0)
+                return;
+            if (diff < 0)
+                numericInputBox1.Value += numericInputBox1.SmallIncrement;
+            else
+                numericInputBox1.Value -= numericInputBox1.SmallIncrement;
+            _y = e.Location.Y;
+        }
+
+        private void numericInputBox1_ValueChanged(UInt32? previous, UInt32? current)
+        {
+            UpdatePropertyValue(current.Value);
+        }
+    }
+}

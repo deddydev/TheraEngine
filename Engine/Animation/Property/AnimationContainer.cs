@@ -206,8 +206,9 @@ namespace TheraEngine.Animation
         {
             RootFolder = rootFolder;
         }
-        public AnimationContainer(string propertyName, bool method, BasePropertyAnimation anim) : this()
+        public AnimationContainer(string animationName, string propertyName, bool method, BasePropertyAnimation anim) : this()
         {
+            Name = animationName;
             string[] parts = propertyName.Split('.');
             bool first = true;
             AnimFolder last = null;

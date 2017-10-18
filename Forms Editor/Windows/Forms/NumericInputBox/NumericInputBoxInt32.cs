@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class NumericInputBoxInt32 : NumericInputBoxBase<Int32>
+    public class NumericInputBoxInt32 : NumericInputBoxBase<Int32>
     {
         protected override Int32 Clamp(Int32 value, Int32 min, Int32 max)
             => value.Clamp(min, max);
@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
         protected override Int32 Round(Int32 value)
             => value;
         protected override Int32 Increment(Int32 value, Int32 increment, bool negative)
-            => (Int32)(value + (negative ? -increment : increment));
+            => value + (negative ? -increment : increment);
         protected override bool NumbersAreEqual(Int32? value1, Int32? value2)
         {
             bool null1 = value1 == null;
@@ -32,6 +32,8 @@ namespace TheraEditor.Windows.Forms
                 return false;
             return value1.Value == value2.Value;
         }
+        protected override bool TryParse(string text, out Int32 value)
+            => Int32.TryParse(text, out value);
         public override Int32 MinimumValue => Int32.MinValue;
         public override Int32 MaximumValue => Int32.MaxValue;
         public override bool Integral => true;

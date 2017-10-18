@@ -24,7 +24,7 @@ namespace TheraEngine.Worlds
         public void OnGameModeChanged(BaseGameMode oldMode) => GameModeChanged?.Invoke(oldMode);
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
 
-        [TypeConverter(typeof(Vec3StringConverter))]
+        //[TypeConverter(typeof(Vec3StringConverter))]
         public Vec3 Gravity
         {
             get => _gravity;
@@ -46,6 +46,7 @@ namespace TheraEngine.Worlds
                 OnGameModeChanged(oldMode);
             }
         }
+        [Category("Time")]
         [Description("How fast the game moves.")]
         public float TimeDilation
         {

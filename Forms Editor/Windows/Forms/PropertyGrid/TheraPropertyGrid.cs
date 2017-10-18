@@ -90,42 +90,68 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     continue;
 
                 Type subType = prop.PropertyType;
-                var attribs = subType.GetCustomAttributes(true);
+                var attribs = prop.GetCustomAttributes(true);
                 if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
                     continue;
 
-                Type controlType;
-                if (SubItemControlTypes.ContainsKey(subType))
-                    controlType = SubItemControlTypes[subType];
-                else
-                    controlType = typeof(PropGridText);
+                Type mainControlType = null;
+                Deque<Type> controlTypes = new Deque<Type>();
+                while (subType != null)
+                {
+                    if (mainControlType == null && SubItemControlTypes.ContainsKey(subType))
+                    {
+                        mainControlType = SubItemControlTypes[subType];
+                        controlTypes.PushFront(mainControlType);
+                    }
+                    Type[] interfaces = subType.GetInterfaces();
+                    foreach (Type i in interfaces)
+                        if (SubItemControlTypes.ContainsKey(i))
+                            controlTypes.PushBack(SubItemControlTypes[i]);
 
-                var control = Activator.CreateInstance(controlType) as PropGridItem;
+                    subType = subType.BaseType;
+                }
+
+                if (controlTypes.Count > 0)
+                    CreateControl(controlTypes, prop, obj, attribs);
+                else
+                {
+                    Engine.PrintLine("Unable to find control for " + prop.PropertyType.GetFriendlyName());
+                    continue;
+                }
+            }
+            pnlProps.ResumeLayout(true);
+        }
+
+        private void CreateControl(Deque<Type> controlTypes, PropertyInfo prop, object obj, object[] attribs)
+        {
+            var controls = controlTypes.Select(x =>
+            {
+                var control = Activator.CreateInstance(x) as PropGridItem;
                 control.SetProperty(prop, obj);
                 control.Dock = DockStyle.Fill;
                 control.Visible = true;
                 control.Show();
-                
-                var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
-                string catName = category == null ? MiscName : category.Category;
-                if (_categories.ContainsKey(catName))
-                    _categories[catName].AddProperty(control, attribs);
-                else
+                return control;
+            }).ToList();
+            
+            var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
+            string catName = category == null ? MiscName : category.Category;
+            if (_categories.ContainsKey(catName))
+                _categories[catName].AddProperty(controls, attribs);
+            else
+            {
+                PropGridCategory misc = new PropGridCategory()
                 {
-                    PropGridCategory misc = new PropGridCategory()
-                    {
-                        CategoryName = catName,
-                        Dock = DockStyle.Top,
-                    };
-                    misc.AddProperty(control, attribs);
-                    _categories.Add(catName, misc);
-                    pnlProps.Controls.Add(misc);
-                }
-                //}
-                //else
-                //    Engine.PrintLine("Unable to find control for " + subType);
+                    CategoryName = catName,
+                    Dock = DockStyle.Top,
+                };
+                misc.AddProperty(controls, attribs);
+                _categories.Add(catName, misc);
+                pnlProps.Controls.Add(misc);
             }
-            pnlProps.ResumeLayout(true);
+            //}
+            //else
+            //    Engine.PrintLine("Unable to find control for " + subType);
         }
 
         private void PopulateSceneComponentTree(TreeNodeCollection nodes, SceneComponent currentSceneComp)

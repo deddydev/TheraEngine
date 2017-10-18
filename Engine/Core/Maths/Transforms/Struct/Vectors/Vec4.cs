@@ -15,7 +15,7 @@ namespace System
     /// Also see DVec4, IVec4, UVec4, BoolVec4, BVec4
     /// </summary>
     [Serializable]
-    [TypeConverter(typeof(Vec4StringConverter))]
+    //[TypeConverter(typeof(Vec4StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable, IParsable
     {

@@ -37,17 +37,28 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             Property = propertyInfo;
             PropertyOwner = propertyOwner;
+            PropGridItemAttribute attrib = Property.GetCustomAttribute<PropGridItemAttribute>();
+            if (attrib != null)
+            {
+
+            }
+            //if (Property.PropertyType )
+            //throw new Exception(Property.PropertyType.GetFriendlyName() + " is not an acceptable type for " + GetType().GetFriendlyName());
             Enabled = Property.CanWrite;
-            _updating = true;
-            OnPropertySet();
-            _updating = false;
+            UpdateDisplay();
         }
         internal void SetLabel(Label label)
         {
             Label = label;
             OnLabelSet();
         }
-        protected virtual void OnPropertySet() { }
+        public void UpdateDisplay()
+        {
+            _updating = true;
+            UpdateDisplayInternal();
+            _updating = false;
+        }
+        protected virtual void UpdateDisplayInternal() { }
         protected virtual void OnLabelSet() { }
     }
 }

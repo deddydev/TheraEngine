@@ -14,8 +14,8 @@ namespace TheraEngine.Worlds.Actors
         private float _outerCutoff, _innerCutoff, _exponent, _brightness, _distance;
         private Vec3 _direction;
 
-        [DragRange(0.1f, 1000.0f)]
-        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        //[DragRange(0.1f, 1000.0f)]
+        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float Distance
         {
@@ -32,32 +32,32 @@ namespace TheraEngine.Worlds.Actors
                 _rotation.SetDirection(_direction);
             }
         }
-        [DragRange(0.0f, 1000.0f)]
-        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        //[DragRange(0.0f, 1000.0f)]
+        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float Exponent
         {
             get => _exponent;
             set => _exponent = value;
         }
-        [DragRange(0.1f, 1000.0f)]
-        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        //[DragRange(0.1f, 1000.0f)]
+        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float Brightness
         {
             get => _brightness;
             set => _brightness = value;
         }
-        [DragRange(0.0f, 90.0f)]
-        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        //[DragRange(0.0f, 90.0f)]
+        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float OuterCutoffAngleDegrees
         {
             get => CustomMath.RadToDeg((float)Math.Acos(_outerCutoff));
             set => _outerCutoff = (float)Math.Cos(CustomMath.DegToRad(value));
         }
-        [DragRange(0.0f, 90.0f)]
-        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        //[DragRange(0.0f, 90.0f)]
+        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float InnerCutoffAngleDegrees
         {

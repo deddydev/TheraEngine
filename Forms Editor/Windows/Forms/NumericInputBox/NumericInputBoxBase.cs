@@ -124,6 +124,10 @@ namespace TheraEditor.Windows.Forms
         {
             switch (e.KeyCode)
             {
+                case Keys.Back:
+                case Keys.Left:
+                case Keys.Right:
+                    break;
                 case Keys.D0:
                 case Keys.D1:
                 case Keys.D2:
@@ -149,10 +153,6 @@ namespace TheraEditor.Windows.Forms
                         e.Handled = true;
                         e.SuppressKeyPress = true;
                     }
-                    break;
-                case Keys.Back:
-                case Keys.Left:
-                case Keys.Right:
                     break;
                 case Keys.PageDown:
                 case Keys.PageUp:

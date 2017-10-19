@@ -43,7 +43,7 @@
             this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tblProps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblProps.Location = new System.Drawing.Point(10, 25);
+            this.tblProps.Location = new System.Drawing.Point(11, 31);
             this.tblProps.Margin = new System.Windows.Forms.Padding(0);
             this.tblProps.Name = "tblProps";
             this.tblProps.RowCount = 1;
@@ -60,8 +60,8 @@
             this.lblCategoryName.Location = new System.Drawing.Point(0, 0);
             this.lblCategoryName.Margin = new System.Windows.Forms.Padding(0);
             this.lblCategoryName.Name = "lblCategoryName";
-            this.lblCategoryName.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this.lblCategoryName.Size = new System.Drawing.Size(10, 25);
+            this.lblCategoryName.Padding = new System.Windows.Forms.Padding(11, 0, 0, 0);
+            this.lblCategoryName.Size = new System.Drawing.Size(11, 31);
             this.lblCategoryName.TabIndex = 0;
             this.lblCategoryName.Text = "Miscellaneous";
             this.lblCategoryName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -73,15 +73,15 @@
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panel1.Location = new System.Drawing.Point(0, 25);
+            this.panel1.Location = new System.Drawing.Point(0, 31);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(10, 0);
+            this.panel1.Size = new System.Drawing.Size(11, 0);
             this.panel1.TabIndex = 2;
             // 
             // PropGridCategory
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -92,7 +92,7 @@
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "PropGridCategory";
-            this.Size = new System.Drawing.Size(10, 25);
+            this.Size = new System.Drawing.Size(11, 31);
             this.ResumeLayout(false);
             this.PerformLayout();
 

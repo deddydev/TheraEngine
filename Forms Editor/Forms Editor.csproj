@@ -271,6 +271,12 @@
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridBool.Designer.cs">
       <DependentUpon>PropGridBool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridObject.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridObject.Designer.cs">
+      <DependentUpon>PropGridObject.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridEventVec3.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -457,6 +463,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\PropGridBool.resx">
       <DependentUpon>PropGridBool.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\PropGridObject.resx">
+      <DependentUpon>PropGridObject.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridEventVec3.resx">
       <DependentUpon>PropGridEventVec3.cs</DependentUpon>

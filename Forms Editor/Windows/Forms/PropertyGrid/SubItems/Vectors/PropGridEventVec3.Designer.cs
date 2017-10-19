@@ -52,7 +52,7 @@
             this.numericInputBoxX.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxX.Name = "numericInputBoxX";
             this.numericInputBoxX.Nullable = false;
-            this.numericInputBoxX.Size = new System.Drawing.Size(1, 27);
+            this.numericInputBoxX.Size = new System.Drawing.Size(1, 31);
             this.numericInputBoxX.SmallerIncrement = 0.1F;
             this.numericInputBoxX.SmallIncrement = 1F;
             this.numericInputBoxX.TabIndex = 0;
@@ -75,7 +75,7 @@
             this.numericInputBoxY.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxY.Name = "numericInputBoxY";
             this.numericInputBoxY.Nullable = false;
-            this.numericInputBoxY.Size = new System.Drawing.Size(1, 27);
+            this.numericInputBoxY.Size = new System.Drawing.Size(1, 31);
             this.numericInputBoxY.SmallerIncrement = 0.1F;
             this.numericInputBoxY.SmallIncrement = 1F;
             this.numericInputBoxY.TabIndex = 1;
@@ -93,12 +93,12 @@
             this.numericInputBoxZ.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxZ.LargeIncrement = 15F;
             this.numericInputBoxZ.LargerIncrement = 90F;
-            this.numericInputBoxZ.Location = new System.Drawing.Point(-36, 0);
+            this.numericInputBoxZ.Location = new System.Drawing.Point(-37, 0);
             this.numericInputBoxZ.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
             this.numericInputBoxZ.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxZ.Name = "numericInputBoxZ";
             this.numericInputBoxZ.Nullable = false;
-            this.numericInputBoxZ.Size = new System.Drawing.Size(1, 27);
+            this.numericInputBoxZ.Size = new System.Drawing.Size(1, 31);
             this.numericInputBoxZ.SmallerIncrement = 0.1F;
             this.numericInputBoxZ.SmallIncrement = 1F;
             this.numericInputBoxZ.TabIndex = 2;
@@ -125,28 +125,27 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 27);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 31);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(-57, 0);
+            this.checkBox1.Location = new System.Drawing.Point(-59, 0);
             this.checkBox1.Margin = new System.Windows.Forms.Padding(0);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Padding = new System.Windows.Forms.Padding(3);
-            this.checkBox1.Size = new System.Drawing.Size(60, 27);
+            this.checkBox1.Size = new System.Drawing.Size(61, 24);
             this.checkBox1.TabIndex = 3;
             this.checkBox1.Text = "Null";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // PropGridEventVec3
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "PropGridEventVec3";
-            this.Size = new System.Drawing.Size(0, 27);
+            this.Size = new System.Drawing.Size(0, 31);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

@@ -17,6 +17,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetPropertyValue();
+            Enabled = Property.PropertyType == typeof(string);
             textBox1.Text = value?.ToString();
         }
 

@@ -79,10 +79,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             pnlProps.SuspendLayout();
             Type targetObjectType = obj.GetType();
             PropertyInfo[] props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
             pnlProps.Controls.Clear();
             foreach (var category in _categories.Values)
                 category.DestroyProperties();
             _categories.Clear();
+
             foreach (PropertyInfo prop in props)
             {
                 var indexParams = prop.GetIndexParameters();
@@ -101,13 +103,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (mainControlType == null && SubItemControlTypes.ContainsKey(subType))
                     {
                         mainControlType = SubItemControlTypes[subType];
-                        controlTypes.PushFront(mainControlType);
+                        if (!controlTypes.Contains(mainControlType))
+                            controlTypes.PushFront(mainControlType);
                     }
                     Type[] interfaces = subType.GetInterfaces();
                     foreach (Type i in interfaces)
                         if (SubItemControlTypes.ContainsKey(i))
-                            controlTypes.PushBack(SubItemControlTypes[i]);
-
+                        {
+                            Type controlType = SubItemControlTypes[i];
+                            if (!controlTypes.Contains(controlType))
+                                controlTypes.PushBack(controlType);
+                        }
+                    
                     subType = subType.BaseType;
                 }
 

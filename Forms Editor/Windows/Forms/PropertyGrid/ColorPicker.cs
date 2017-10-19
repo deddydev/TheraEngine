@@ -39,7 +39,7 @@ namespace System.Windows.Forms
         public bool ShowAlpha
         {
             get => _showAlpha;
-            set { panel2.Visible = numA.Visible = lblA.Visible = _showAlpha = value; }
+            set => panel2.Visible = numA.Visible = lblA.Visible = _showAlpha = value;
         }
 
         public Color Color

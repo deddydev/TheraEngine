@@ -32,6 +32,7 @@
             this.numericInputBoxY = new TheraEditor.Windows.Forms.NumericInputBoxSingle();
             this.numericInputBoxZ = new TheraEditor.Windows.Forms.NumericInputBoxSingle();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,7 +51,7 @@
             this.numericInputBoxX.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxX.Name = "numericInputBoxX";
             this.numericInputBoxX.Nullable = false;
-            this.numericInputBoxX.Size = new System.Drawing.Size(95, 31);
+            this.numericInputBoxX.Size = new System.Drawing.Size(86, 27);
             this.numericInputBoxX.SmallerIncrement = 0.1F;
             this.numericInputBoxX.SmallIncrement = 1F;
             this.numericInputBoxX.TabIndex = 0;
@@ -67,12 +68,12 @@
             this.numericInputBoxY.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxY.LargeIncrement = 15F;
             this.numericInputBoxY.LargerIncrement = 90F;
-            this.numericInputBoxY.Location = new System.Drawing.Point(97, 0);
+            this.numericInputBoxY.Location = new System.Drawing.Point(88, 0);
             this.numericInputBoxY.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
             this.numericInputBoxY.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxY.Name = "numericInputBoxY";
             this.numericInputBoxY.Nullable = false;
-            this.numericInputBoxY.Size = new System.Drawing.Size(94, 31);
+            this.numericInputBoxY.Size = new System.Drawing.Size(86, 27);
             this.numericInputBoxY.SmallerIncrement = 0.1F;
             this.numericInputBoxY.SmallIncrement = 1F;
             this.numericInputBoxY.TabIndex = 1;
@@ -89,12 +90,12 @@
             this.numericInputBoxZ.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxZ.LargeIncrement = 15F;
             this.numericInputBoxZ.LargerIncrement = 90F;
-            this.numericInputBoxZ.Location = new System.Drawing.Point(193, 0);
+            this.numericInputBoxZ.Location = new System.Drawing.Point(176, 0);
             this.numericInputBoxZ.Margin = new System.Windows.Forms.Padding(1, 0, 0, 0);
             this.numericInputBoxZ.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxZ.Name = "numericInputBoxZ";
             this.numericInputBoxZ.Nullable = false;
-            this.numericInputBoxZ.Size = new System.Drawing.Size(97, 31);
+            this.numericInputBoxZ.Size = new System.Drawing.Size(87, 27);
             this.numericInputBoxZ.SmallerIncrement = 0.1F;
             this.numericInputBoxZ.SmallIncrement = 1F;
             this.numericInputBoxZ.TabIndex = 2;
@@ -105,32 +106,42 @@
             // 
             this.tableLayoutPanel1.AutoSize = true;
             this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnCount = 4;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxX, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxY, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxZ, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.checkBox1, 3, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(290, 31);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(324, 27);
             this.tableLayoutPanel1.TabIndex = 3;
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(266, 3);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(54, 21);
+            this.checkBox1.TabIndex = 3;
+            this.checkBox1.Text = "Null";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // PropGridEventVec3
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "PropGridEventVec3";
-            this.Size = new System.Drawing.Size(290, 31);
+            this.Size = new System.Drawing.Size(324, 27);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -143,5 +154,6 @@
         private NumericInputBoxSingle numericInputBoxY;
         private NumericInputBoxSingle numericInputBoxZ;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }

@@ -141,15 +141,15 @@ namespace System.Windows.Forms
                 ColorControl selectionControl = new ColorControl();
                 selectionControl.Closed += selectionControl_Closed;
                 
-                if (value is IColor)
-                    selectionControl.Color = ((IColor)value).Color;
+                if (value is IByteColor)
+                    selectionControl.Color = ((IByteColor)value).Color;
 
                 _service.DropDownControl(selectionControl);
 
                 if (selectionControl.DialogResult == DialogResult.OK)
                 {
-                    if (value is IColor)
-                        ((IColor)value).Color = selectionControl.Color;
+                    if (value is IByteColor)
+                        ((IByteColor)value).Color = selectionControl.Color;
                 }
                 _service = null;
             }

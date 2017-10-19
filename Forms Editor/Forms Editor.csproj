@@ -199,6 +199,12 @@
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\PropGridItemAttribute.cs" />
     <Compile Include="Windows\Forms\PropertyGrid\StringConverters.cs" />
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorF4.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorF4.Designer.cs">
+      <DependentUpon>PropGridColorF4.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -409,6 +415,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridItem.resx">
       <DependentUpon>PropGridItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorF4.resx">
+      <DependentUpon>PropGridColorF4.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.resx">
       <DependentUpon>PropGridSingleFileRef.cs</DependentUpon>

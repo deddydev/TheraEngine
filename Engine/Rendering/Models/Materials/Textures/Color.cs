@@ -9,7 +9,7 @@ using System.Drawing.Design;
 
 namespace System
 {
-    public interface IColor
+    public interface IByteColor
     {
         //TODO: use ColorF4 for maximum quality
         Color Color { get; set; }
@@ -17,7 +17,7 @@ namespace System
     //[TypeConverter(typeof(ColorF4StringConverter))]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct ColorF4 : IUniformable4Float, IBufferable, IColor
+    public unsafe struct ColorF4 : IUniformable4Float, IBufferable, IByteColor
     {
         public float R, G, B, A;
         
@@ -135,7 +135,7 @@ namespace System
 
     [TypeConverter(typeof(ExpandableObjectConverter))]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
-    public class EventColorF3 : IColor
+    public class EventColorF3 : IByteColor
     {
         public event Action RedChanged;
         public event Action GreenChanged;
@@ -252,7 +252,7 @@ namespace System
     //[TypeConverter(typeof(ColorF3StringConverter))]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct ColorF3 : IUniformable3Float, IBufferable, IColor, IParsable
+    public unsafe struct ColorF3 : IUniformable3Float, IBufferable, IByteColor, IParsable
     {
         public float R, G, B;
         
@@ -355,7 +355,7 @@ namespace System
 
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct RGBAPixel : IBufferable, IColor
+    public unsafe struct RGBAPixel : IBufferable, IByteColor
     {
         public byte R, G, B, A;
         
@@ -379,7 +379,7 @@ namespace System
     }
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct RGBPixel : IBufferable, IColor
+    public unsafe struct RGBPixel : IBufferable, IByteColor
     {
         public byte R, G, B;
 
@@ -427,15 +427,13 @@ namespace System
             val = B - p.B;
             return dist + val;
         }
+
         public float Luminance()
-        {
-            return (0.299f * R) + (0.587f * G) + (0.114f * B);
-        }
+            => (0.299f * R) + (0.587f * G) + (0.114f * B);
         public bool IsGreyscale()
-        {
-            return (R == G) && (G == B);
-        }
-        public int Greyscale() { return (R + G + B) / 3; }
+            => R == G && G == B;
+        public int Greyscale()
+            => (R + G + B) / 3;
 
         public static implicit operator ARGBPixel(int val) => *((ARGBPixel*)&val);
         public static implicit operator int(ARGBPixel p) => *((int*)&p);

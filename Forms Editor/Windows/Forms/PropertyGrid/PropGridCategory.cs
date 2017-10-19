@@ -16,7 +16,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridCategory()
         {
             InitializeComponent();
-            tblProps.RowStyles.Clear();
+            DestroyProperties();
         }
 
         public string CategoryName
@@ -28,6 +28,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public void DestroyProperties()
         {
             tblProps.Controls.Clear();
+            tblProps.RowStyles.Clear();
+            tblProps.RowCount = 0;
         }
         public void AddProperty(List<PropGridItem> editors, object[] attributes)
         {
@@ -43,7 +45,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 ForeColor = Color.FromArgb(200, 200, 220),
                 Dock = DockStyle.Fill,
                 Padding = new Padding(0),
-                Margin = new Padding(2),
+                Margin = new Padding(0),
                 Tag = desc,
             };
             label.MouseHover += Label_MouseHover;
@@ -56,14 +58,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 {
                     Dock = DockStyle.Fill,
                     Margin = new Padding(0),
-                    Padding = new Padding(0)
+                    Padding = new Padding(0),
+                    AutoSize = true,
+                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 };
                 foreach (PropGridItem item in editors)
                 {
                     item.SetLabel(label);
                     item.Dock = DockStyle.Top;
                     item.Margin = new Padding(0);
-                    item.Padding = new Padding(0, 1, 0, 1);
+                    item.Padding = new Padding(0);
                     p.Controls.Add(item);
                 }
                 tblProps.Controls.Add(p, 1, tblProps.RowCount - 1);

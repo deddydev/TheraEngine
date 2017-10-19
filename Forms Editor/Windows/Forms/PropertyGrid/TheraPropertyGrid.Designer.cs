@@ -121,6 +121,7 @@
             this.pnlProps.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.pnlProps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.pnlProps.Location = new System.Drawing.Point(0, 311);
+            this.pnlProps.Margin = new System.Windows.Forms.Padding(0);
             this.pnlProps.Name = "pnlProps";
             this.pnlProps.Size = new System.Drawing.Size(561, 234);
             this.pnlProps.TabIndex = 5;

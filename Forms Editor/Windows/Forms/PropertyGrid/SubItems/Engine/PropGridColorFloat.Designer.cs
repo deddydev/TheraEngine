@@ -42,26 +42,23 @@
             this.colorControl1.Color = System.Drawing.Color.Transparent;
             this.colorControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.colorControl1.EditAlpha = true;
-            this.colorControl1.Location = new System.Drawing.Point(0, 25);
-            this.colorControl1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.colorControl1.MaximumSize = new System.Drawing.Size(377, 316);
-            this.colorControl1.MinimumSize = new System.Drawing.Size(377, 316);
+            this.colorControl1.Location = new System.Drawing.Point(0, 20);
+            this.colorControl1.MaximumSize = new System.Drawing.Size(335, 253);
+            this.colorControl1.MinimumSize = new System.Drawing.Size(335, 253);
             this.colorControl1.Name = "colorControl1";
             this.colorControl1.ShowOldColor = false;
-            this.colorControl1.Size = new System.Drawing.Size(377, 316);
+            this.colorControl1.Size = new System.Drawing.Size(335, 253);
             this.colorControl1.TabIndex = 1;
             this.colorControl1.Visible = false;
-            this.colorControl1.OnColorChanged += new System.Windows.Forms.ColorControl.ColorChangedEvent(this.colorControl1_OnColorChanged);
+            this.colorControl1.ColorChanged += new System.Windows.Forms.ColorControl.ColorChangedEvent(this.colorControl1_OnColorChanged);
             this.colorControl1.Closed += new System.EventHandler(this.colorControl1_Closed);
-            this.colorControl1.ColorChanged += new System.Windows.Forms.ColorChanged(this.colorControl1_ColorChanged);
             // 
             // panel1
             // 
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(45, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.panel1.Location = new System.Drawing.Point(30, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(332, 25);
+            this.panel1.Size = new System.Drawing.Size(305, 20);
             this.panel1.TabIndex = 2;
             this.panel1.Click += new System.EventHandler(this.btnShowSelector_Click);
             // 
@@ -71,18 +68,17 @@
             this.panel2.Controls.Add(this.btnShowSelector);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 0);
-            this.panel2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(377, 25);
+            this.panel2.Size = new System.Drawing.Size(335, 20);
             this.panel2.TabIndex = 3;
             // 
             // btnShowSelector
             // 
             this.btnShowSelector.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnShowSelector.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnShowSelector.Location = new System.Drawing.Point(0, 0);
-            this.btnShowSelector.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnShowSelector.Name = "btnShowSelector";
-            this.btnShowSelector.Size = new System.Drawing.Size(45, 25);
+            this.btnShowSelector.Size = new System.Drawing.Size(30, 20);
             this.btnShowSelector.TabIndex = 4;
             this.btnShowSelector.Text = "▼";
             this.btnShowSelector.UseVisualStyleBackColor = true;
@@ -90,13 +86,12 @@
             // 
             // PropGridFloatColor
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.colorControl1);
             this.Controls.Add(this.panel2);
             this.Name = "PropGridFloatColor";
-            this.Size = new System.Drawing.Size(377, 341);
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.PropGridFileRef_DragDrop);
+            this.Size = new System.Drawing.Size(335, 273);
             this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

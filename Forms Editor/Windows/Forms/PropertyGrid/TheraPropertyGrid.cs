@@ -57,15 +57,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     treeViewSceneComps.Nodes.Clear();
                     PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor.RootComponent);
 
-                    lblLogicComps.Visible = true;
+                    lblProperties.Visible = true;
                     lblSceneComps.Visible = true;
                     treeViewSceneComps.Visible = true;
-                    lstLogicComps.Visible = true;
+
+                    lstLogicComps.Visible =
+                    lblLogicComps.Visible = actor.LogicComponents.Count > 0;
+
+                    treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
                 }
                 else
                 {
                     lblLogicComps.Visible = false;
                     lblSceneComps.Visible = false;
+                    lblProperties.Visible = false;
                     treeViewSceneComps.Visible = false;
                     lstLogicComps.Visible = false;
 

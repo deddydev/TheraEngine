@@ -11,8 +11,8 @@ namespace System.Windows.Forms
     {
         internal static HatchBrush TransparentCheckerboardBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.LightGray, Color.GhostWhite);
 
-        public delegate void ColorChangedEvent(Color selection);
-        public event ColorChangedEvent OnColorChanged;
+        public delegate void ColorChangedEvent(Color newColor);
+        public event ColorChangedEvent ColorChanged;
 
         private Color _color;
         private Color _newColor;
@@ -21,7 +21,8 @@ namespace System.Windows.Forms
             get => _color;
             set
             {
-                goodColorControl1.Color = _color = _newColor = value;
+                _color = _newColor = value;
+                goodColorControl1.ColorValue = _color;
                 pnlOld.Invalidate();
                 pnlNew.Invalidate();
             }
@@ -29,13 +30,13 @@ namespace System.Windows.Forms
 
         public bool EditAlpha
         {
-            get { return chkAlpha.Visible; }
+            get => chkAlpha.Visible;
             set
             {
                 if (chkAlpha.Visible = goodColorControl1.ShowAlpha = value)
-                    this.Height = 287;
+                    Height = 253;
                 else
-                    this.Height = 287 - 20;
+                    Height = 253 - 20;
 
                 pnlOld.Invalidate();
                 pnlNew.Invalidate();
@@ -52,7 +53,6 @@ namespace System.Windows.Forms
         public ColorControl() => InitializeComponent();
 
         public event EventHandler Closed;
-        public event ColorChanged ColorChanged;
 
         public DialogResult DialogResult;
 
@@ -103,10 +103,9 @@ namespace System.Windows.Forms
 
         private void goodColorControl1_ColorChanged(object sender, EventArgs e)
         {
-            _newColor = goodColorControl1.Color;
+            _newColor = goodColorControl1.ColorValue;
             pnlNew.Invalidate();
-            if (OnColorChanged != null)
-                OnColorChanged(_newColor);
+            ColorChanged?.Invoke(_newColor);
         }
 
         private void chkAlpha_CheckedChanged(object sender, EventArgs e)

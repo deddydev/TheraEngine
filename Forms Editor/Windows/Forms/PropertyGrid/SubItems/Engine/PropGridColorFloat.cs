@@ -15,6 +15,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridFloatColor : PropGridItem
     {
         public PropGridFloatColor() => InitializeComponent();
+        
+        object _previousColor;
         protected override void UpdateDisplayInternal()
         {
             object value = GetPropertyValue();
@@ -23,36 +25,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 ColorF3 color = (ColorF3)value;
                 panel1.BackColor = color.Color;
+                colorControl1.EditAlpha = false;
                 colorControl1.Color = color.Color;
             }
             else if (Property.PropertyType == typeof(ColorF4))
             {
                 ColorF4 color = (ColorF4)value;
                 panel1.BackColor = color.Color;
+                colorControl1.EditAlpha = true;
                 colorControl1.Color = color.Color;
             }
             else
                 throw new Exception(Property.PropertyType.GetFriendlyName() + " is not ColorF3 or ColorF4.");
-        }
-
-        private void PropGridFileRef_DragDrop(object sender, DragEventArgs e)
-        {
-
-        }
-
-        private void textBox1_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnBrowse_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void colorControl1_Load(object sender, EventArgs e)
-        {
-
         }
 
         private void btnShowSelector_Click(object sender, EventArgs e)
@@ -64,7 +48,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                colorControl1.Color = ((IByteColor)GetPropertyValue()).Color;
+                _previousColor = GetPropertyValue();
+                colorControl1.Color = ((IByteColor)_previousColor).Color;
                 colorControl1.Visible = true;
                 btnShowSelector.Text = "▲";
             }
@@ -76,25 +61,50 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 if (Property.PropertyType == typeof(ColorF3))
                 {
-                    UpdatePropertyValue((ColorF3)colorControl1.Color);
+                    ColorF3 color = (ColorF3)colorControl1.Color;
+                    panel1.BackColor = color.Color;
+                    UpdatePropertyValue(color);
                 }
                 else if (Property.PropertyType == typeof(ColorF4))
                 {
-                    UpdatePropertyValue((ColorF4)colorControl1.Color);
+                    ColorF4 color = colorControl1.Color;
+                    panel1.BackColor = colorControl1.Color;
+                    UpdatePropertyValue(color);
+                }
+            }
+            else
+            {
+                if (Property.PropertyType == typeof(ColorF3))
+                {
+                    ColorF3 color = (ColorF3)_previousColor;
+                    panel1.BackColor = color.Color;
+                    UpdatePropertyValue(color);
+                }
+                else if (Property.PropertyType == typeof(ColorF4))
+                {
+                    ColorF4 color = (ColorF4)_previousColor;
+                    panel1.BackColor = colorControl1.Color;
+                    UpdatePropertyValue(color);
                 }
             }
             colorControl1.Visible = false;
             btnShowSelector.Text = "▼";
         }
-
-        private void colorControl1_ColorChanged(Color c)
+        
+        private void colorControl1_OnColorChanged(Color newColor)
         {
-
-        }
-
-        private void colorControl1_OnColorChanged(Color selection)
-        {
-
+            if (Property.PropertyType == typeof(ColorF3))
+            {
+                ColorF3 color = (ColorF3)newColor;
+                panel1.BackColor = color.Color;
+                UpdatePropertyValue(color);
+            }
+            else if (Property.PropertyType == typeof(ColorF4))
+            {
+                ColorF4 color = newColor;
+                panel1.BackColor = newColor;
+                UpdatePropertyValue(color);
+            }
         }
     }
 }

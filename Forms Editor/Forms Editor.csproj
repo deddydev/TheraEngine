@@ -199,11 +199,11 @@
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\PropGridItemAttribute.cs" />
     <Compile Include="Windows\Forms\PropertyGrid\StringConverters.cs" />
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorF4.cs">
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorFloat.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorF4.Designer.cs">
-      <DependentUpon>PropGridColorF4.cs</DependentUpon>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorFloat.Designer.cs">
+      <DependentUpon>PropGridColorFloat.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.cs">
       <SubType>UserControl</SubType>
@@ -407,6 +407,12 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\ColorControl.resx">
+      <DependentUpon>ColorControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\ColorPicker.resx">
+      <DependentUpon>ColorPicker.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\MinMaxControl.resx">
       <DependentUpon>MinMaxControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -416,8 +422,8 @@
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridItem.resx">
       <DependentUpon>PropGridItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorF4.resx">
-      <DependentUpon>PropGridColorF4.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorFloat.resx">
+      <DependentUpon>PropGridColorFloat.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.resx">
       <DependentUpon>PropGridSingleFileRef.cs</DependentUpon>

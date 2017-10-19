@@ -45,7 +45,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 ForeColor = Color.FromArgb(200, 200, 220),
                 Dock = DockStyle.Fill,
                 Padding = new Padding(0),
-                Margin = new Padding(0),
+                Margin = new Padding(3, 0, 3, 0),
                 Tag = desc,
             };
             label.MouseHover += Label_MouseHover;

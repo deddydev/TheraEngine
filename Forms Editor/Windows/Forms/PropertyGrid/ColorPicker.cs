@@ -42,7 +42,7 @@ namespace System.Windows.Forms
             set => panel2.Visible = numA.Visible = lblA.Visible = _showAlpha = value;
         }
 
-        public Color Color
+        public Color ColorValue
         {
             get => _rgba;
             set
@@ -55,6 +55,8 @@ namespace System.Windows.Forms
         public ColorPicker()
         {
             InitializeComponent();
+
+            AutoScaleMode = AutoScaleMode.Dpi;
 
             _boxes = new NumericUpDown[] { numH, numS, numV, numR, numG, numB, numA };
             for (int i = 0; i < _boxes.Length; i++)

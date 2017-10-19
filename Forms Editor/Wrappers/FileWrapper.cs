@@ -96,6 +96,7 @@ namespace TheraEditor.Wrappers
         }
         #endregion
 
+        public abstract Type FileType { get; }
         public abstract bool IsLoaded { get; }
         public bool AlwaysReload { get; set; } = false;
         public bool ExternallyModified { get; set; } = false;
@@ -172,7 +173,9 @@ namespace TheraEditor.Wrappers
             get => Name;
             set => Name = value;
         }
-        
+
+        public override Type FileType => null;
+
         public override FileObject GetNewInstance()
         {
             return null;
@@ -184,6 +187,8 @@ namespace TheraEditor.Wrappers
     }
     public class FileWrapper<T> : BaseFileWrapper where T : FileObject
     {
+        public override Type FileType => typeof(T);
+
         protected SingleFileRef<T> _fileRef = new SingleFileRef<T>();
 
         public SingleFileRef<T> Resource => _fileRef;
@@ -198,9 +203,7 @@ namespace TheraEditor.Wrappers
             }
         }
         public override FileObject GetNewInstance()
-        {
-            return _fileRef.LoadNewInstance();
-        }
+            => _fileRef.LoadNewInstance();
         public override FileObject SingleInstance
         {
             get => Resource.File;
@@ -211,6 +214,7 @@ namespace TheraEditor.Wrappers
                 Name = FilePath;
             }
         }
+
         protected internal override void FixPath(string parentFolderPath)
         {
             string fileName = Text;

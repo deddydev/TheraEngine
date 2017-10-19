@@ -8,17 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Files;
+using TheraEditor.Wrappers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     [PropGridItem(typeof(IFileRef))]
     public partial class PropGridFileRef : PropGridItem
     {
-        public PropGridFileRef()
-        {
-            InitializeComponent();
-        }
-
+        public PropGridFileRef() => InitializeComponent();
+        
         public IFileRef _fileRef;
         protected override void UpdateDisplayInternal()
         {
@@ -36,7 +34,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void PropGridFileRef_DragDrop(object sender, DragEventArgs e)
         {
-
+            Type treeNodeType = typeof(BaseFileWrapper);
+            if (e.Data.GetDataPresent(treeNodeType))
+            {
+                BaseFileWrapper node = (BaseFileWrapper)e.Data.GetData(treeNodeType);
+                
+            }
         }
 
         private void textBox1_Enter(object sender, EventArgs e)

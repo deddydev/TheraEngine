@@ -32,7 +32,7 @@ namespace System.Windows.Forms
         {
             InitializeComponent();
             goodColorControl21.Closed += goodColorControl21_Closed;
-            goodColorControl21.OnColorChanged += goodColorControl21_ColorChanged;
+            goodColorControl21.ColorChanged += goodColorControl21_ColorChanged;
         }
 
         void goodColorControl21_ColorChanged(Color c)

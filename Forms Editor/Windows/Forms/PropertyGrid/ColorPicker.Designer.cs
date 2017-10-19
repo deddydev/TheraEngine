@@ -111,8 +111,9 @@
             // 
             // numB
             // 
-            this.numB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.numB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.numB.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.numB.Location = new System.Drawing.Point(23, 116);
             this.numB.Maximum = new decimal(new int[] {
             255,
@@ -120,13 +121,14 @@
             0,
             0});
             this.numB.Name = "numB";
-            this.numB.Size = new System.Drawing.Size(47, 20);
+            this.numB.Size = new System.Drawing.Size(55, 21);
             this.numB.TabIndex = 5;
             // 
             // numG
             // 
-            this.numG.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.numG.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.numG.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.numG.Location = new System.Drawing.Point(23, 97);
             this.numG.Maximum = new decimal(new int[] {
             255,
@@ -134,13 +136,14 @@
             0,
             0});
             this.numG.Name = "numG";
-            this.numG.Size = new System.Drawing.Size(47, 20);
+            this.numG.Size = new System.Drawing.Size(55, 21);
             this.numG.TabIndex = 6;
             // 
             // numR
             // 
-            this.numR.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.numR.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.numR.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.numR.Location = new System.Drawing.Point(23, 78);
             this.numR.Maximum = new decimal(new int[] {
             255,
@@ -148,13 +151,14 @@
             0,
             0});
             this.numR.Name = "numR";
-            this.numR.Size = new System.Drawing.Size(47, 20);
+            this.numR.Size = new System.Drawing.Size(55, 21);
             this.numR.TabIndex = 7;
             // 
             // numH
             // 
-            this.numH.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.numH.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.numH.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.numH.Location = new System.Drawing.Point(23, 6);
             this.numH.Maximum = new decimal(new int[] {
             360,
@@ -162,25 +166,27 @@
             0,
             0});
             this.numH.Name = "numH";
-            this.numH.Size = new System.Drawing.Size(47, 20);
+            this.numH.Size = new System.Drawing.Size(55, 21);
             this.numH.TabIndex = 13;
             // 
             // numS
             // 
-            this.numS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.numS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.numS.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.numS.Location = new System.Drawing.Point(23, 25);
             this.numS.Name = "numS";
-            this.numS.Size = new System.Drawing.Size(47, 20);
+            this.numS.Size = new System.Drawing.Size(55, 21);
             this.numS.TabIndex = 12;
             // 
             // numV
             // 
-            this.numV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.numV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.numV.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.numV.Location = new System.Drawing.Point(23, 44);
             this.numV.Name = "numV";
-            this.numV.Size = new System.Drawing.Size(47, 20);
+            this.numV.Size = new System.Drawing.Size(55, 21);
             this.numV.TabIndex = 11;
             // 
             // label3
@@ -215,8 +221,9 @@
             // 
             // numA
             // 
-            this.numA.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.numA.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.numA.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.numA.Location = new System.Drawing.Point(23, 135);
             this.numA.Maximum = new decimal(new int[] {
             255,
@@ -224,7 +231,7 @@
             0,
             0});
             this.numA.Name = "numA";
-            this.numA.Size = new System.Drawing.Size(47, 20);
+            this.numA.Size = new System.Drawing.Size(55, 21);
             this.numA.TabIndex = 15;
             this.numA.Value = new decimal(new int[] {
             255,
@@ -287,7 +294,7 @@
             // 
             // pnlAlpha
             // 
-            this.pnlAlpha.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.pnlAlpha.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlAlpha.BackColor = System.Drawing.Color.Transparent;
             this.pnlAlpha.Location = new System.Drawing.Point(3, 3);
@@ -318,29 +325,35 @@
             this.panel3.Controls.Add(this.label4);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(237, 0);
+            this.panel3.Margin = new System.Windows.Forms.Padding(0);
+            this.panel3.MinimumSize = new System.Drawing.Size(77, 187);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(77, 187);
+            this.panel3.Size = new System.Drawing.Size(85, 187);
             this.panel3.TabIndex = 18;
             // 
             // txtColorCode
             // 
+            this.txtColorCode.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtColorCode.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.txtColorCode.Location = new System.Drawing.Point(6, 161);
             this.txtColorCode.Name = "txtColorCode";
-            this.txtColorCode.Size = new System.Drawing.Size(64, 20);
+            this.txtColorCode.Size = new System.Drawing.Size(72, 21);
             this.txtColorCode.TabIndex = 16;
             this.txtColorCode.Text = "000000FF";
             this.txtColorCode.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.txtColorCode.TextChanged += new System.EventHandler(this.txtColorCode_TextChanged);
             this.txtColorCode.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtColorCode_KeyPress);
             // 
-            // GoodColorControl
+            // ColorPicker
             // 
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
+            this.MaximumSize = new System.Drawing.Size(0, 187);
             this.MinimumSize = new System.Drawing.Size(310, 187);
-            this.Name = "GoodColorControl";
-            this.Size = new System.Drawing.Size(314, 187);
+            this.Name = "ColorPicker";
+            this.Size = new System.Drawing.Size(322, 187);
             ((System.ComponentModel.ISupportInitialize)(this.numB)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numG)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numR)).EndInit();

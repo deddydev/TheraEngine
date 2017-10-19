@@ -23,6 +23,7 @@ namespace TheraEngine.Worlds
         void Despawned();
         void GenerateSceneComponentCache();
         SceneComponent RootComponent { get; }
+        MonitoredList<LogicComponent> LogicComponents { get; }
         void RebaseOrigin(Vec3 newOrigin);
     }
     public class Actor : Actor<SceneComponent>

@@ -413,8 +413,29 @@ namespace System
         public Color Color { get => this; set => this = value; }
 
         public byte A, R, G, B;
-        
-        public ARGBPixel(byte a, byte r, byte g, byte b) { A = a; R = r; G = g; B = b; }
+
+        public ARGBPixel(int argb)
+        {
+            A = (byte)((argb >> 24) & 0xFF);
+            R = (byte)((argb >> 16) & 0xFF);
+            G = (byte)((argb >> 8) & 0xFF);
+            B = (byte)((argb) & 0xFF);
+        }
+        public ARGBPixel(uint argb)
+        {
+            A = (byte)((argb >> 24) & 0xFF);
+            R = (byte)((argb >> 16) & 0xFF);
+            G = (byte)((argb >> 8) & 0xFF);
+            B = (byte)((argb) & 0xFF);
+        }
+
+        public ARGBPixel(byte a, byte r, byte g, byte b)
+        {
+            A = a;
+            R = r;
+            G = g;
+            B = b;
+        }
 
         public int DistanceTo(ARGBPixel p)
         {
@@ -435,10 +456,10 @@ namespace System
         public int Greyscale()
             => (R + G + B) / 3;
 
-        public static implicit operator ARGBPixel(int val) => *((ARGBPixel*)&val);
-        public static implicit operator int(ARGBPixel p) => *((int*)&p);
-        public static implicit operator ARGBPixel(uint val) => *((ARGBPixel*)&val);
-        public static implicit operator uint(ARGBPixel p) => *((uint*)&p);
+        public static implicit operator ARGBPixel(int val) => new ARGBPixel(val);
+        public static implicit operator int(ARGBPixel p) => *((bint*)&p);
+        public static implicit operator ARGBPixel(uint val) => new ARGBPixel(val);
+        public static implicit operator uint(ARGBPixel p) => *((buint*)&p);
         public static implicit operator ARGBPixel(Color val) => val.ToArgb();
         public static implicit operator Color(ARGBPixel p) => Color.FromArgb(p);
         public static explicit operator Vec3(ARGBPixel p) => new Vec3(p.R * ColorFactor, p.G * ColorFactor, p.B * ColorFactor);
@@ -552,24 +573,12 @@ namespace System
 
                 switch (h)
                 {
-                    case 0:
-                        newPixel = new ARGBPixel(255, v, t, p);
-                        break;
-                    case 1:
-                        newPixel = new ARGBPixel(255, q, v, p);
-                        break;
-                    case 2:
-                        newPixel = new ARGBPixel(255, p, v, t);
-                        break;
-                    case 3:
-                        newPixel = new ARGBPixel(255, p, q, v);
-                        break;
-                    case 4:
-                        newPixel = new ARGBPixel(255, t, p, v);
-                        break;
-                    default:
-                        newPixel = new ARGBPixel(255, v, p, q);
-                        break;
+                    case 0: newPixel = new ARGBPixel(255, v, t, p); break;
+                    case 1: newPixel = new ARGBPixel(255, q, v, p); break;
+                    case 2: newPixel = new ARGBPixel(255, p, v, t); break;
+                    case 3: newPixel = new ARGBPixel(255, p, q, v); break;
+                    case 4: newPixel = new ARGBPixel(255, t, p, v); break;
+                    default: newPixel = new ARGBPixel(255, v, p, q); break;
                 }
             }
             return newPixel;
@@ -577,7 +586,7 @@ namespace System
         public static explicit operator Color(HSVPixel p)
         {
             ARGBPixel np = (ARGBPixel)p;
-            return Color.FromArgb(*(int*)&np);
+            return Color.FromArgb(np);
         }
         public static explicit operator HSVPixel(Color c)
         {

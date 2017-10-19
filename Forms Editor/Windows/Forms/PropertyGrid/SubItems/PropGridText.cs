@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(string), typeof(object))]
+    [PropGridItem(typeof(string))]
     public partial class PropGridText : PropGridItem
     {
         public PropGridText() => InitializeComponent();

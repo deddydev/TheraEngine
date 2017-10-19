@@ -118,13 +118,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     subType = subType.BaseType;
                 }
 
-                if (controlTypes.Count > 0)
-                    CreateControl(controlTypes, prop, obj, attribs);
-                else
+                if (controlTypes.Count == 0)
                 {
                     Engine.PrintLine("Unable to find control for " + prop.PropertyType.GetFriendlyName());
-                    continue;
+                    controlTypes.PushBack(typeof(PropGridText));
                 }
+                CreateControl(controlTypes, prop, obj, attribs);
             }
             pnlProps.ResumeLayout(true);
         }

@@ -101,41 +101,46 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
                     continue;
 
-                Type mainControlType = null;
-                Deque<Type> controlTypes = new Deque<Type>();
-                while (subType != null)
-                {
-                    if (mainControlType == null && SubItemControlTypes.ContainsKey(subType))
-                    {
-                        mainControlType = SubItemControlTypes[subType];
-                        if (!controlTypes.Contains(mainControlType))
-                            controlTypes.PushFront(mainControlType);
-                    }
-                    Type[] interfaces = subType.GetInterfaces();
-                    foreach (Type i in interfaces)
-                        if (SubItemControlTypes.ContainsKey(i))
-                        {
-                            Type controlType = SubItemControlTypes[i];
-                            if (!controlTypes.Contains(controlType))
-                                controlTypes.PushBack(controlType);
-                        }
-                    
-                    subType = subType.BaseType;
-                }
-
-                if (controlTypes.Count == 0)
-                {
-                    Engine.PrintLine("Unable to find control for " + prop.PropertyType.GetFriendlyName());
-                    controlTypes.PushBack(typeof(PropGridText));
-                }
-                CreateControl(controlTypes, prop, obj, attribs);
+                Deque<Type> controlTypes = GetControlTypes(subType);
+                CreateControl(controlTypes, prop, pnlProps, _categories, obj, attribs);
             }
             pnlProps.ResumeLayout(true);
         }
 
-        private void CreateControl(Deque<Type> controlTypes, PropertyInfo prop, object obj, object[] attribs)
+        public static Deque<Type> GetControlTypes(Type propertyType)
         {
-            var controls = controlTypes.Select(x =>
+            Type mainControlType = null;
+            Type subType = propertyType;
+            Deque<Type> controlTypes = new Deque<Type>();
+            while (subType != null)
+            {
+                if (mainControlType == null && SubItemControlTypes.ContainsKey(subType))
+                {
+                    mainControlType = SubItemControlTypes[subType];
+                    if (!controlTypes.Contains(mainControlType))
+                        controlTypes.PushFront(mainControlType);
+                }
+                Type[] interfaces = subType.GetInterfaces();
+                foreach (Type i in interfaces)
+                    if (SubItemControlTypes.ContainsKey(i))
+                    {
+                        Type controlType = SubItemControlTypes[i];
+                        if (!controlTypes.Contains(controlType))
+                            controlTypes.PushBack(controlType);
+                    }
+
+                subType = subType.BaseType;
+            }
+            if (controlTypes.Count == 0)
+            {
+                Engine.PrintLine("Unable to find control for " + propertyType.GetFriendlyName());
+                controlTypes.PushBack(typeof(PropGridText));
+            }
+            return controlTypes;
+        }
+
+        public static List<PropGridItem> CreateControls(Deque<Type> controlTypes, PropertyInfo prop, object obj)
+            => controlTypes.Select(x =>
             {
                 var control = Activator.CreateInstance(x) as PropGridItem;
                 control.SetProperty(prop, obj);
@@ -144,11 +149,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 control.Show();
                 return control;
             }).ToList();
+
+        public static void CreateControls(
+            Deque<Type> controlTypes,
+            PropertyInfo prop,
+            Panel panel,
+            Dictionary<string, PropGridCategory> categories,
+            object obj,
+            object[] attribs)
+        {
+            var controls = CreateControls(controlTypes, prop, obj);
             
             var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
             string catName = category == null ? MiscName : category.Category;
-            if (_categories.ContainsKey(catName))
-                _categories[catName].AddProperty(controls, attribs);
+            if (categories.ContainsKey(catName))
+                categories[catName].AddProperty(controls, attribs);
             else
             {
                 PropGridCategory misc = new PropGridCategory()
@@ -157,12 +172,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Dock = DockStyle.Top,
                 };
                 misc.AddProperty(controls, attribs);
-                _categories.Add(catName, misc);
-                pnlProps.Controls.Add(misc);
+                categories.Add(catName, misc);
+                panel.Controls.Add(misc);
             }
-            //}
-            //else
-            //    Engine.PrintLine("Unable to find control for " + subType);
         }
 
         private void PopulateSceneComponentTree(TreeNodeCollection nodes, SceneComponent currentSceneComp)

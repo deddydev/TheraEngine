@@ -2,6 +2,13 @@
 {
     public static class ListExtension
     {
+        public static Type DetermineElementType(this IList list)
+        {
+            Type listType = list.GetType();
+            if (listType.IsGenericType)
+                return listType.GenericTypeArguments[0];
+            return null;
+        }
         /// <summary>
         /// Returns true if index >= 0 && index < count
         /// Use this so you don't have to write that every time.

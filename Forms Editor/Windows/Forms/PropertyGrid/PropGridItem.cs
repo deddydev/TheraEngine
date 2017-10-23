@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
+using TheraEngine;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -19,32 +20,31 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         protected bool _updating = false;
 
-        public PropGridItem()
-        {
-            InitializeComponent();
-        }
-
+        public PropGridItem() => InitializeComponent();
         public object GetPropertyValue()
         {
-            return Property.GetValue(PropertyOwner);
+            try
+            {
+                if (!Property.CanRead)
+                    return null;
+                return Property.GetValue(PropertyOwner);
+            }
+            catch (Exception ex)
+            {
+                Engine.PrintLine(ex.ToString());
+                return ex;
+            }
         }
+        
         public void UpdatePropertyValue(object newValue)
         {
-            if (!_updating)
+            if (Property.CanWrite && !_updating)
                 Property.SetValue(PropertyOwner, newValue);
         }
         internal void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
         {
             Property = propertyInfo;
             PropertyOwner = propertyOwner;
-            PropGridItemAttribute attrib = Property.GetCustomAttribute<PropGridItemAttribute>();
-            if (attrib != null)
-            {
-
-            }
-            //if (Property.PropertyType )
-            //throw new Exception(Property.PropertyType.GetFriendlyName() + " is not an acceptable type for " + GetType().GetFriendlyName());
-            Enabled = Property.CanWrite;
             UpdateDisplay();
         }
         internal void SetLabel(Label label)

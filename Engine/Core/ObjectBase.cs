@@ -61,6 +61,7 @@ namespace TheraEngine
 
         [Serialize("Name", IsXmlAttribute = true)]
         protected string _name = null;
+        [Serialize("UserData")]
         private object _userData = null;
 #if EDITOR
         private EditorState _editorState = new EditorState();
@@ -114,6 +115,7 @@ namespace TheraEngine
             set => _userData = value;
         }
 
+        //[Browsable(false)]
         [Category("Object")]
         public string Name
         {

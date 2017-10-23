@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
+using System.Collections;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -22,7 +23,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public string CategoryName
         {
             get => lblCategoryName.Text;
-            set => lblCategoryName.Text = value;
+            set
+            {
+                lblCategoryName.Text = value;
+                lblCategoryName.Visible = !string.IsNullOrWhiteSpace(value);
+            }
         }
 
         public void DestroyProperties()
@@ -103,6 +108,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblCategoryName_MouseDown(object sender, MouseEventArgs e)
         {
             tblProps.Visible = !tblProps.Visible;
+            Editor.Instance.PropertyGridForm.theraPropertyGrid1.pnlProps.ScrollControlIntoView(this);
         }
 
         //private void PropGridCategory_Resize(object sender, EventArgs e)

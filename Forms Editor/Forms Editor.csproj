@@ -271,11 +271,23 @@
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridBool.Designer.cs">
       <DependentUpon>PropGridBool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridList.Designer.cs">
+      <DependentUpon>PropGridList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridObject.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridObject.Designer.cs">
       <DependentUpon>PropGridObject.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridEnum.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridEnum.Designer.cs">
+      <DependentUpon>PropGridEnum.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridEventVec3.cs">
       <SubType>UserControl</SubType>
@@ -464,8 +476,14 @@
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\PropGridBool.resx">
       <DependentUpon>PropGridBool.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\PropGridList.resx">
+      <DependentUpon>PropGridList.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\PropGridObject.resx">
       <DependentUpon>PropGridObject.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\PropGridEnum.resx">
+      <DependentUpon>PropGridEnum.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridEventVec3.resx">
       <DependentUpon>PropGridEventVec3.cs</DependentUpon>

@@ -103,14 +103,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 _categories[catName].AddProperty(controls, attribs);
             else
             {
-                PropGridCategory misc = new PropGridCategory()
+                PropGridCategory catCtrl = new PropGridCategory()
                 {
                     CategoryName = catName,
                     Dock = DockStyle.Top,
                 };
-                misc.AddProperty(controls, attribs);
-                _categories.Add(catName, misc);
-                pnlProps.Controls.Add(misc);
+                catCtrl.AddProperty(controls, attribs);
+                pnlProps.Controls.Add(catCtrl);
+                _categories.Add(catName, catCtrl);
             }
             //}
             //else
@@ -124,12 +124,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
         {
-            lblObjectTypeName.BackColor = Color.FromArgb(54, 58, 74);
+            lblObjectTypeName.BackColor = Color.Transparent;
         }
 
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {
             pnlProps.Visible = !pnlProps.Visible;
+            Editor.Instance.PropertyGridForm.theraPropertyGrid1.pnlProps.ScrollControlIntoView(pnlProps);
         }
 
         private void pnlProps_VisibleChanged(object sender, EventArgs e)

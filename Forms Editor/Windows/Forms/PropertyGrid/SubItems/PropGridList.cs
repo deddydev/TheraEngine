@@ -23,9 +23,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 btnAdd.Visible = !list.IsFixedSize;
                 _list = list;
+                Type elementType = list.DetermineElementType();
                 for (int i = 0; i < _list.Count; ++i)
                 {
-                    object obj = _list[i];
+                    object obj = list[i];
                     
                 }
             }

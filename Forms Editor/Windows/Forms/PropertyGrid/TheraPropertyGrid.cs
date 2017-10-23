@@ -102,7 +102,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     continue;
 
                 Deque<Type> controlTypes = GetControlTypes(subType);
-                CreateControl(controlTypes, prop, pnlProps, _categories, obj, attribs);
+                CreateControls(controlTypes, prop, pnlProps, _categories, obj, attribs);
             }
             pnlProps.ResumeLayout(true);
         }

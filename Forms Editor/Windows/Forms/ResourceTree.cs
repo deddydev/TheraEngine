@@ -35,6 +35,9 @@ namespace TheraEditor.Windows.Forms
         LogicComponent,
         Settings,
     }
+    /// <summary>
+    /// Extended TreeView made specifically for synchronization with file directories.
+    /// </summary>
     public class ResourceTree : TreeViewEx<BaseWrapper>, IMappableShortcutControl
     {
         const int LEFT_MOUSE_BIT = 1;

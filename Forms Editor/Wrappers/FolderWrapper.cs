@@ -224,7 +224,7 @@ namespace TheraEditor.Wrappers
                 {
                     GenericsSelector gs = new GenericsSelector(fileType);
                     if (gs.ShowDialog() == DialogResult.OK)
-                        fileType = gs.FinalType;
+                        fileType = gs.FinalClassType;
                     else
                         return;
                 }
@@ -262,7 +262,7 @@ namespace TheraEditor.Wrappers
                 {
                     GenericsSelector gs = new GenericsSelector(fileType);
                     if (gs.ShowDialog() == DialogResult.OK)
-                        file = Activator.CreateInstance(gs.FinalType) as FileObject;
+                        file = Activator.CreateInstance(gs.FinalClassType) as FileObject;
                     else
                         return;
                 }

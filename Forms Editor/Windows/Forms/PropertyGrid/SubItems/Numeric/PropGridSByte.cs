@@ -19,12 +19,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected override void UpdateDisplayInternal()
         {
-            object value = GetPropertyValue();
+            object value = GetValue();
 
             if (value is SByte SByteVal)
                 numericInputBox1.Value = SByteVal;
             else
-                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not a SByte type.");
+                throw new Exception(ValueType.GetFriendlyName() + " is not a SByte type.");
         }
 
         protected override void OnLabelSet()
@@ -58,9 +58,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _y = e.Location.Y;
         }
 
-        private void numericInputBox1_ValueChanged(SByte? previous, SByte? current)
+        private void numericInputBox1_ValueChanged(NumericInputBoxBase<SByte> box, SByte? previous, SByte? current)
         {
-            UpdatePropertyValue(current.Value);
+            UpdateValue(current.Value);
         }
     }
 }

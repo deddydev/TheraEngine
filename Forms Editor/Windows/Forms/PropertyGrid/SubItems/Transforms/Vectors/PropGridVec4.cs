@@ -12,22 +12,22 @@ using TheraEngine.Animation;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(Vec3))]
-    public partial class PropGridVec3 : PropGridItem
+    [PropGridItem(typeof(Vec4))]
+    public partial class PropGridVec4 : PropGridItem
     {
-        public PropGridVec3() => InitializeComponent();
+        public PropGridVec4() => InitializeComponent();
         
         protected override void UpdateDisplayInternal()
         {
-            object value = GetPropertyValue();
-            if (value is Vec3 vec3Val)
+            object value = GetValue();
+            if (value is Vec4 Vec4Val)
             {
-                numericInputBoxX.Value = vec3Val.X;
-                numericInputBoxY.Value = vec3Val.Y;
-                numericInputBoxZ.Value = vec3Val.Z;
+                numericInputBoxX.Value = Vec4Val.X;
+                numericInputBoxY.Value = Vec4Val.Y;
+                numericInputBoxZ.Value = Vec4Val.Z;
             }
             else
-                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not a Vec3 type.");
+                throw new Exception(ValueType.GetFriendlyName() + " is not a Vec4 type.");
         }
 
         protected override void OnLabelSet()
@@ -73,7 +73,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (PropertyOwner is ObjectBase obj)
             {
-                var anim = new AnimationContainer("NewAnimVec3", Property.Name, false, new PropAnimVec3(0.0f, true, true));
+                var anim = new AnimationContainer("NewAnimVec4", Property.Name, false, new PropAnimVec4(0.0f, true, true));
                 obj.AddAnimation(anim);
                 var menu = Label.ContextMenu.MenuItems;
                 var menuItem = new MenuItem(anim.Name, EditAnimation) { Tag = anim };
@@ -89,20 +89,29 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         }
         
-        private void numericInputBoxX_ValueChanged(Single? previous, Single? current)
-            => UpdatePropertyValue(new Vec3(
+        private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
+            => UpdateValue(new Vec4(
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,
-                numericInputBoxZ.Value.Value));
-        private void numericInputBoxY_ValueChanged(Single? previous, Single? current)
-            => UpdatePropertyValue(new Vec3(
+                numericInputBoxZ.Value.Value,
+                numericInputBoxW.Value.Value));
+        private void numericInputBoxY_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
+            => UpdateValue(new Vec4(
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,
-                numericInputBoxZ.Value.Value));
-        private void numericInputBoxZ_ValueChanged(Single? previous, Single? current)
-            => UpdatePropertyValue(new Vec3(
+                numericInputBoxZ.Value.Value,
+                numericInputBoxW.Value.Value));
+        private void numericInputBoxZ_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
+            => UpdateValue(new Vec4(
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,
-                numericInputBoxZ.Value.Value));
+                numericInputBoxZ.Value.Value,
+                numericInputBoxW.Value.Value));
+        private void numericInputBoxW_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
+            => UpdateValue(new Vec4(
+                numericInputBoxX.Value.Value,
+                numericInputBoxY.Value.Value,
+                numericInputBoxZ.Value.Value,
+                numericInputBoxW.Value.Value));
     }
 }

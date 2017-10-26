@@ -19,12 +19,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected override void UpdateDisplayInternal()
         {
-            object value = GetPropertyValue();
+            object value = GetValue();
 
             if (value is Byte ByteVal)
                 numericInputBox1.Value = ByteVal;
             else
-                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not a Byte type.");
+                throw new Exception(ValueType.GetFriendlyName() + " is not a Byte type.");
         }
 
         protected override void OnLabelSet()
@@ -58,9 +58,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _y = e.Location.Y;
         }
 
-        private void numericInputBox1_ValueChanged(Byte? previous, Byte? current)
+        private void numericInputBox1_ValueChanged(NumericInputBoxBase<Byte> box, Byte? previous, Byte? current)
         {
-            UpdatePropertyValue(current.Value);
+            UpdateValue(current.Value);
         }
     }
 }

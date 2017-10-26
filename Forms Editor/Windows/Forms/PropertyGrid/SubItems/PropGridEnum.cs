@@ -16,16 +16,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridEnum() => InitializeComponent();
         protected override void UpdateDisplayInternal()
         {
-            object value = GetPropertyValue();
-            if (value is Enum)
+            object value = GetValue();
+            if (value is Enum e)
             {
-                string[] names = Enum.GetNames(Property.PropertyType);
-                Array values = Enum.GetValues(Property.PropertyType);
-                bool flags = Property.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+                string[] names = Enum.GetNames(ValueType);
+                Array values = Enum.GetValues(ValueType);
+                bool flags = ValueType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
                 if (flags)
                 {
                     string[] enumStrings = value.ToString().Split(new string[] { ", " }, StringSplitOptions.None);
-                    tableLayoutPanel1.Visible = true;
+                    panel1.Visible = true;
                     comboBox1.Visible = false;
                     tableLayoutPanel1.RowStyles.Clear();
                     tableLayoutPanel1.RowCount = 0;
@@ -38,29 +38,43 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                         CheckBox bitSet = new CheckBox()
                         {
+                            AutoSize = true,
                             Checked = enumStrings.Contains(name),
                             Tag = name,
+                            Margin = new Padding(0),
+                            Padding = new Padding(0),
+                            Dock = DockStyle.Left,
                         };
                         bitSet.CheckedChanged += BitSet_CheckedChanged;
+                        object number = values.GetValue(i);
+                        object number2 = Convert.ChangeType(number, e.GetTypeCode());
                         Label bitValue = new Label()
                         {
-                            Text = values.GetValue(i).ToString(),
-                            TextAlign = ContentAlignment.MiddleLeft
+                            AutoSize = true,
+                            Text = number2.ToString(),
+                            TextAlign = ContentAlignment.MiddleLeft,
+                            Margin = new Padding(0),
+                            Padding = new Padding(0),
+                            Dock = DockStyle.Left,
                         };
                         Label bitName = new Label()
                         {
+                            AutoSize = true,
                             Text = name,
-                            TextAlign = ContentAlignment.MiddleLeft
+                            TextAlign = ContentAlignment.MiddleLeft,
+                            Margin = new Padding(0),
+                            Padding = new Padding(0),
+                            Dock = DockStyle.Fill,
                         };
 
                         tableLayoutPanel1.Controls.Add(bitSet, 0, tableLayoutPanel1.RowCount - 1);
-                        tableLayoutPanel1.Controls.Add(bitValue, 1, tableLayoutPanel1.RowCount - 1);
-                        tableLayoutPanel1.Controls.Add(bitName, 2, tableLayoutPanel1.RowCount - 1);
+                        tableLayoutPanel1.Controls.Add(bitValue, 2, tableLayoutPanel1.RowCount - 1);
+                        tableLayoutPanel1.Controls.Add(bitName, 1, tableLayoutPanel1.RowCount - 1);
                     }
                 }
                 else
                 {
-                    tableLayoutPanel1.Visible = false;
+                    panel1.Visible = false;
                     comboBox1.Visible = true;
                     string enumName = value.ToString();
 
@@ -84,7 +98,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not an Enum type.");
+                throw new Exception(ValueType.GetFriendlyName() + " is not an Enum type.");
             }
         }
 

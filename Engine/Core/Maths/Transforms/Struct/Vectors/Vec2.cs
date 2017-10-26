@@ -105,7 +105,9 @@ namespace System
         public float DistanceToSquared(Vec2 otherPoint)
             => (otherPoint - this).LengthSquared;
 
+        [Browsable(false)]
         public float Length => (float)Sqrt(LengthSquared);
+        [Browsable(false)]
         public float LengthFast
         {
             get
@@ -116,15 +118,18 @@ namespace System
                 return 0.0f;
             }
         }
+        [Browsable(false)]
         public float LengthSquared => X * X + Y * Y;
 
         /// <summary>
         /// Gets the perpendicular vector on the right side of this vector.
         /// </summary>
+        [Browsable(false)]
         public Vec2 PerpendicularRight => new Vec2(Y, -X);
         /// <summary>
         /// Gets the perpendicular vector on the left side of this vector.
         /// </summary>
+        [Browsable(false)]
         public Vec2 PerpendicularLeft => new Vec2(-Y, X);
 
         public static readonly Vec2 UnitX = new Vec2(1.0f, 0.0f);
@@ -240,6 +245,7 @@ namespace System
             return new Vec2(v.X, v.Y);
         }
 
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Yx { get { return new Vec2(Y, X); } set { Y = value.X; X = value.Y; } }
 

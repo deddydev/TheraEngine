@@ -20,7 +20,14 @@ namespace TheraEditor.Windows.Forms
         public string Label { get; set; }
         public TreeNode Node { get; protected set; }
     }
+    /// <summary>
+    /// Extended TreeView class with multiple node selection and label edit validation.
+    /// </summary>
     public class TreeViewEx : TreeViewEx<TreeNode> { }
+    /// <summary>
+    /// Extended TreeView class with custom base tree node class, multiple node selection, and label edit validation.
+    /// </summary>
+    /// <typeparam name="T">The base class for tree nodes.</typeparam>
     public class TreeViewEx<T> : TreeView where T : TreeNode
     {
         #region Label Edit Extension

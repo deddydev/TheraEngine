@@ -13,7 +13,7 @@ namespace TheraEditor.Windows.Forms
     public abstract class NumericInputBoxBase<T> : TextBox
         where T : struct, IFormattable, IComparable, IConvertible
     {
-        public delegate void BoxValueChanged(T? previous, T? current);
+        public delegate void BoxValueChanged(NumericInputBoxBase<T> box, T? previous, T? current);
         public event BoxValueChanged ValueChanged;
 
         public NumericInputBoxBase()
@@ -37,8 +37,7 @@ namespace TheraEditor.Windows.Forms
             get => _currentValue;
             set
             {
-                T? newValue = 
-                    value == null ?
+                T? newValue = value == null ?
                     (Nullable ? null : (T?)DefaultValue) :
                     Round(Clamp(value.Value, MinimumValue, MaximumValue));
 
@@ -46,7 +45,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     _previousValue = _currentValue;
                     _currentValue = newValue;
-                    ValueChanged?.Invoke(_previousValue, _currentValue);
+                    ValueChanged?.Invoke(this, _previousValue, _currentValue);
                 }
 
                 UpdateTextWithValue();
@@ -86,6 +85,31 @@ namespace TheraEditor.Windows.Forms
         //        UpdateTextWithValue();
         //    }
         //}
+        private string _prefix = "", _suffix = "";
+        public string NumberPrefix
+        {
+            get => _prefix;
+            set
+            {
+                if (_prefix != null && !string.IsNullOrWhiteSpace(Text) && Text.StartsWith(_prefix))
+                    Text = Text.Substring(_prefix.Length);
+                _prefix = value;
+                if (_prefix != null && !string.IsNullOrWhiteSpace(Text))
+                    Text = _prefix + Text;
+            }
+        }
+        public string NumberSuffix
+        {
+            get => _suffix;
+            set
+            {
+                if (_suffix != null && !string.IsNullOrWhiteSpace(Text) && Text.EndsWith(_suffix))
+                    Text = Text.Substring(0, Text.Length - _suffix.Length);
+                _suffix = value;
+                if (_suffix != null && !string.IsNullOrWhiteSpace(Text))
+                    Text = Text + _suffix;
+            }
+        }
         public bool Nullable
         {
             get => _nullable;
@@ -102,10 +126,19 @@ namespace TheraEditor.Windows.Forms
             set => _defaultValue = value;
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            Text = GetTextValue();
+            base.OnGotFocus(e);
+        }
         protected override void OnLostFocus(EventArgs e)
         {
             //Submit text input
             GetValueFromText();
+            if (_prefix != null && !Text.StartsWith(_prefix))
+                Text = _prefix + Text;
+            if (_suffix != null && !Text.EndsWith(_suffix))
+                Text = Text + _suffix;
             base.OnLostFocus(e);
         }
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -215,14 +248,25 @@ namespace TheraEditor.Windows.Forms
         }
 
         protected void UpdateTextWithValue()
-            => Text = _currentValue == null ? "" : _currentValue.Value.ToString();
+            => Text = _currentValue == null ? "" : Focused ? _currentValue.Value.ToString() : (_prefix + _currentValue.Value.ToString() + _suffix);
 
         protected void GetValueFromText()
         {
-            if (_currentValue != null && _currentValue.Value.ToString() == Text)
+            string textValue = GetTextValue();
+            if (_currentValue != null && _currentValue.Value.ToString() == textValue)
                 return;
 
-            Value = (!string.IsNullOrWhiteSpace(Text) && TryParse(Text, out T newValue2)) ? (T?)newValue2 : null;
+            Value = (!string.IsNullOrWhiteSpace(textValue) && TryParse(textValue, out T newValue2)) ? (T?)newValue2 : null;
+        }
+
+        protected string GetTextValue()
+        {
+            string textValue = Text;
+            if (textValue.StartsWith(_prefix))
+                textValue = textValue.Substring(_prefix.Length, textValue.Length - _prefix.Length);
+            if (textValue.EndsWith(_suffix))
+                textValue = textValue.Substring(0, textValue.Length - _suffix.Length);
+            return textValue;
         }
     }
 }

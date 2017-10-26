@@ -11,6 +11,8 @@ using System.Reflection;
 using TheraEngine;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
+using System.Collections;
+using System.Collections.Concurrent;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -79,7 +81,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private void LoadProperties(object obj)
+        private class Prop
+        {
+            public Deque<Type> ControlTypes { get; set; }
+            public PropertyInfo Property { get; set; }
+            public object[] Attribs { get; set; }
+        }
+        private async void LoadProperties(object obj)
         {
             pnlProps.SuspendLayout();
             Type targetObjectType = obj.GetType();
@@ -90,20 +98,42 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 category.DestroyProperties();
             _categories.Clear();
 
-            foreach (PropertyInfo prop in props)
+            ConcurrentDictionary<int, Prop> info = new ConcurrentDictionary<int, Prop>();
+            await Task.Run(() => Parallel.For(0, props.Length, i =>
             {
+                PropertyInfo prop = props[i];
                 var indexParams = prop.GetIndexParameters();
                 if (indexParams != null && indexParams.Length > 0)
-                    continue;
+                    return;
 
                 Type subType = prop.PropertyType;
                 var attribs = prop.GetCustomAttributes(true);
                 if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
-                    continue;
+                    return;
 
-                Deque<Type> controlTypes = GetControlTypes(subType);
-                CreateControls(controlTypes, prop, pnlProps, _categories, obj, attribs);
+                Prop p = new Prop()
+                {
+                    ControlTypes = GetControlTypes(subType),
+                    Property = prop,
+                    Attribs = attribs,
+                };
+
+                //BeginInvoke((Action)(() => CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs)));
+
+                info.TryAdd(i, p);
+            }));
+
+            for (int i = 0; i < props.Length; ++i)
+            {
+                if (!info.ContainsKey(i))
+                    continue;
+                Prop p = info[i];
+                CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
             }
+
+            if (_categories.Count == 1 && _categories.ContainsKey(MiscName))
+                _categories[MiscName].CategoryName = null;
+
             pnlProps.ResumeLayout(true);
         }
 
@@ -140,16 +170,30 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         public static List<PropGridItem> CreateControls(Deque<Type> controlTypes, PropertyInfo prop, object obj)
-            => controlTypes.Select(x =>
+        {
+            return controlTypes.Select(x =>
             {
-                var control = Activator.CreateInstance(x) as PropGridItem;
+                PropGridItem control = Activator.CreateInstance(x) as PropGridItem;
                 control.SetProperty(prop, obj);
                 control.Dock = DockStyle.Fill;
                 control.Visible = true;
                 control.Show();
                 return control;
             }).ToList();
-
+        }
+        public static List<PropGridItem> CreateControls(Deque<Type> controlTypes, IList list, int listIndex)
+        {
+            Type elementType = list.DetermineElementType();
+            return controlTypes.Select(x =>
+            {
+                var control = Activator.CreateInstance(x) as PropGridItem;
+                control.SetIListOwner(list, elementType, listIndex);
+                control.Dock = DockStyle.Fill;
+                control.Visible = true;
+                control.Show();
+                return control;
+            }).ToList();
+        }
         public static void CreateControls(
             Deque<Type> controlTypes,
             PropertyInfo prop,

@@ -23,9 +23,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         object _object;
         protected override void UpdateDisplayInternal()
         {
-            _object = GetPropertyValue();
+            _object = GetValue();
             checkBox1.Checked = _object == null;
-            lblObjectTypeName.Text = Property.PropertyType.GetFriendlyName();
+            lblObjectTypeName.Text = ValueType.GetFriendlyName();
         }
 
         private void LoadProperties(object obj)
@@ -82,6 +82,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     CreateControl(controlTypes, prop, obj, attribs);
                 }
             }
+
+            if (_categories.Count == 1 && _categories.ContainsKey(MiscName))
+                _categories[MiscName].CategoryName = null;
+
             pnlProps.ResumeLayout(true);
         }
 

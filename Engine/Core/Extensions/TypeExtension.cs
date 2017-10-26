@@ -23,53 +23,74 @@ namespace System
     }
     public static class TypeExtension
     {
-        private static readonly Dictionary<Type, string> _typeToFriendlyName = new Dictionary<Type, string>
+        //public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">")
+        //{
+        //    if (type == null)
+        //        return "null";
+
+        //    if (_typeToFriendlyName.TryGetValue(type, out string friendlyName))
+        //        return friendlyName;
+
+        //    friendlyName = type.Name;
+        //    if (type.IsGenericType)
+        //    {
+        //        int backtick = friendlyName.IndexOf('`');
+        //        if (backtick > 0)
+        //        {
+        //            friendlyName = friendlyName.Remove(backtick);
+        //        }
+        //        friendlyName += openBracket;
+        //        Type[] typeParameters = type.GetGenericArguments();
+        //        for (int i = 0; i < typeParameters.Length; i++)
+        //        {
+        //            string typeParamName = typeParameters[i].GetFriendlyName(openBracket, closeBracket);
+        //            friendlyName += (i == 0 ? typeParamName : ", " + typeParamName);
+        //        }
+        //        friendlyName += closeBracket;
+        //    }
+
+        //    if (type.IsArray)
+        //        return type.GetElementType().GetFriendlyName() + "[]";
+
+        //    return friendlyName;
+        //}
+
+        private static Dictionary<Type, string> _defaultDictionary = new Dictionary<System.Type, string>
         {
-            { typeof(string), "string" },
-            { typeof(object), "object" },
+            { typeof(void), "void" },
+            { typeof(char), "char" },
             { typeof(bool), "bool" },
             { typeof(byte), "byte" },
-            { typeof(char), "char" },
-            { typeof(decimal), "decimal" },
-            { typeof(double), "double" },
-            { typeof(short), "short" },
-            { typeof(int), "int" },
-            { typeof(long), "long" },
             { typeof(sbyte), "sbyte" },
-            { typeof(float), "float" },
+            { typeof(short), "short" },
             { typeof(ushort), "ushort" },
+            { typeof(int), "int" },
             { typeof(uint), "uint" },
+            { typeof(long), "long" },
             { typeof(ulong), "ulong" },
-            { typeof(void), "void" }
+            { typeof(float), "float" },
+            { typeof(double), "double" },
+            { typeof(decimal), "decimal" },
+            { typeof(string), "string" },
+            { typeof(object), "object" },
         };
 
         public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">")
+            => type.GetFriendlyName(openBracket, closeBracket, _defaultDictionary);
+        public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">", Dictionary<Type, string> translations)
         {
-            if (_typeToFriendlyName.TryGetValue(type, out string friendlyName))
-                return friendlyName;
-
-            friendlyName = type.Name;
-            if (type.IsGenericType)
-            {
-                int backtick = friendlyName.IndexOf('`');
-                if (backtick > 0)
-                {
-                    friendlyName = friendlyName.Remove(backtick);
-                }
-                friendlyName += openBracket;
-                Type[] typeParameters = type.GetGenericArguments();
-                for (int i = 0; i < typeParameters.Length; i++)
-                {
-                    string typeParamName = typeParameters[i].GetFriendlyName(openBracket, closeBracket);
-                    friendlyName += (i == 0 ? typeParamName : ", " + typeParamName);
-                }
-                friendlyName += closeBracket;
-            }
-
-            if (type.IsArray)
-                return type.GetElementType().GetFriendlyName() + "[]";
-
-            return friendlyName;
+            if (type == null)
+                return "null";
+            else if (translations.ContainsKey(type))
+                return translations[type];
+            else if (type.IsArray)
+                return GetFriendlyName(type.GetElementType(), openBracket, closeBracket, translations) + "[]";
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                return type.GetGenericArguments()[0].GetFriendlyName() + "?";
+            else if (type.IsGenericType)
+                return type.Name.Split('`')[0] + openBracket + string.Join(", ", type.GetGenericArguments().Select(x => GetFriendlyName(x))) + closeBracket;
+            else
+                return type.Name;
         }
 
         public static object GetDefaultValue(this Type t)

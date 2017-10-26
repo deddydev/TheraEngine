@@ -40,7 +40,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             var displayName = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
             var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
-            string name = displayName?.DisplayName ?? editors[0].Property.Name;
+            string name = displayName?.DisplayName ?? (editors[0].Property?.Name ?? string.Format("[{0}]", editors[0].IListIndex));
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
             Label label = new Label()
             {

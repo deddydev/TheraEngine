@@ -114,6 +114,35 @@ namespace TheraEditor.Windows.Forms
                 Engine.World.State.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
             }
         }
+
+        /// <summary>
+        /// Creates an instance of T using user-chosen constructor and parameters.
+        /// </summary>
+        /// <typeparam name="T">The object type to create.</typeparam>
+        /// <returns>A newly created instance of T.</returns>
+        public static T UserCreateInstanceOf<T>()
+            => (T)UserCreateInstanceOf(typeof(T));
+        /// <summary>
+        /// Creates an instance of elementType using user-chosen constructor and parameters.
+        /// </summary>
+        /// <param name="elementType">The object type to create.</param>
+        /// <returns>A newly created instance of elementType.</returns>
+        public static object UserCreateInstanceOf(Type elementType)
+        {
+            ConstructorInfo[] constructors = elementType.GetConstructors(BindingFlags.Public);
+            if (constructors.Length == 1 && constructors[0].GetParameters().Length == 0)
+                return Activator.CreateInstance(elementType);
+            else
+            {
+                ConstructorSelector selector = new ConstructorSelector(elementType);
+                if (selector.ShowDialog() == DialogResult.OK)
+                {
+                    return selector.ConstructedObject;
+                }
+            }
+            return null;
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -127,6 +156,7 @@ namespace TheraEditor.Windows.Forms
             //Engine.SetPaused(true, PlayerIndex.One, true);
             Engine.Run();
         }
+        
         private IDockContent GetContentFromPersistString(string persistString)
         {
             if (persistString == typeof(DockableActorTree).ToString())
@@ -264,6 +294,9 @@ namespace TheraEditor.Windows.Forms
             CurrentWorld = new World();
         }
 
+        /// <summary>
+        /// The world that the editor is currently editing.
+        /// </summary>
         public World CurrentWorld
         {
             get => Engine.World;

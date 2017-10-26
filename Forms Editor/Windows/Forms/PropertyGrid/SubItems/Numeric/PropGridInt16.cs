@@ -19,12 +19,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected override void UpdateDisplayInternal()
         {
-            object value = GetPropertyValue();
+            object value = GetValue();
 
             if (value is Int16 Int16Val)
                 numericInputBox1.Value = Int16Val;
             else
-                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not a Int16 type.");
+                throw new Exception(ValueType.GetFriendlyName() + " is not a Int16 type.");
         }
 
         protected override void OnLabelSet()
@@ -58,9 +58,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _y = e.Location.Y;
         }
 
-        private void numericInputBox1_ValueChanged(Int16? previous, Int16? current)
+        private void numericInputBox1_ValueChanged(NumericInputBoxBase<Int16> box, Int16? previous, Int16? current)
         {
-            UpdatePropertyValue(current.Value);
+            UpdateValue(current.Value);
         }
     }
 }

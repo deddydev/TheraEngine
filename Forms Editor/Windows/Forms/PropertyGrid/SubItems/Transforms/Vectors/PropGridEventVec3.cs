@@ -21,9 +21,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public EventVec3 _eventVec3;
         protected override void UpdateDisplayInternal()
         {
-            object value = GetPropertyValue();
+            object value = GetValue();
             
-            if (Property.PropertyType == typeof(EventVec3))
+            if (ValueType == typeof(EventVec3))
             {
                 _eventVec3 = value as EventVec3;
                 numericInputBoxX.Value = _eventVec3?.X;
@@ -31,22 +31,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 numericInputBoxZ.Value = _eventVec3?.Z;
             }
             else
-                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not an EventVec3 type.");
+                throw new Exception(ValueType.GetFriendlyName() + " is not an EventVec3 type.");
         }
 
-        private void numericInputBoxX_ValueChanged(Single? previous, Single? current)
+        private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
             if (_eventVec3 != null)
                 _eventVec3.X = current.Value;
         }
 
-        private void numericInputBoxY_ValueChanged(Single? previous, Single? current)
+        private void numericInputBoxY_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
             if (_eventVec3 != null)
                 _eventVec3.Y = current.Value;
         }
 
-        private void numericInputBoxZ_ValueChanged(Single? previous, Single? current)
+        private void numericInputBoxZ_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
             if (_eventVec3 != null)
                 _eventVec3.Z = current.Value;

@@ -20,16 +20,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public IFileRef _fileRef;
         protected override void UpdateDisplayInternal()
         {
-            object value = GetPropertyValue();
+            object value = GetValue();
             
-            if (typeof(IFileRef).IsAssignableFrom(Property.PropertyType))
+            if (typeof(IFileRef).IsAssignableFrom(ValueType))
             {
                 _fileRef = value as IFileRef;
                 label1.Text = _fileRef?.ReferencedType.GetFriendlyName();
                 textBox1.Text = _fileRef?.FilePath;
             }
             else
-                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not an IFileRef type.");
+                throw new Exception(ValueType.GetFriendlyName() + " is not an IFileRef type.");
         }
 
         private void PropGridFileRef_DragDrop(object sender, DragEventArgs e)

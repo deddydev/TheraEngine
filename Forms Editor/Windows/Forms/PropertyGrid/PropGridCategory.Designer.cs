@@ -100,7 +100,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel tblProps;
+        public System.Windows.Forms.TableLayoutPanel tblProps;
         private System.Windows.Forms.Label lblCategoryName;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ToolTip toolTip1;

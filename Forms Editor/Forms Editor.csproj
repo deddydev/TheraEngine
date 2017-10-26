@@ -121,6 +121,12 @@
     <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.Designer.cs">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Class Creation\ConstructorSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Class Creation\ConstructorSelector.Designer.cs">
+      <DependentUpon>ConstructorSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxDecimal.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -289,16 +295,46 @@
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridEnum.Designer.cs">
       <DependentUpon>PropGridEnum.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridEventVec3.cs">
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridMatrix4.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridEventVec3.Designer.cs">
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridMatrix4.Designer.cs">
+      <DependentUpon>PropGridMatrix4.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec4.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec4.Designer.cs">
+      <DependentUpon>PropGridEventVec4.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec3.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec3.Designer.cs">
       <DependentUpon>PropGridEventVec3.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridVec3.cs">
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec2.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridVec3.Designer.cs">
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec2.Designer.cs">
+      <DependentUpon>PropGridEventVec2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec2.Designer.cs">
+      <DependentUpon>PropGridVec2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec4.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec4.Designer.cs">
+      <DependentUpon>PropGridVec4.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec3.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec3.Designer.cs">
       <DependentUpon>PropGridVec3.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\PropGridText.cs">
@@ -360,10 +396,10 @@
     </Compile>
     <Compile Include="Core\OS\Win32\Native.cs" />
     <Compile Include="Core\Extensions\ToolStripItemExtension.cs" />
-    <Compile Include="Windows\Forms\GenericSelector.cs">
+    <Compile Include="Windows\Forms\Class Creation\GenericSelector.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\GenericSelector.Designer.cs">
+    <Compile Include="Windows\Forms\Class Creation\GenericSelector.Designer.cs">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\MaterialEditor.cs">
@@ -411,7 +447,10 @@
     <EmbeddedResource Include="Windows\Forms\Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\GenericSelector.resx">
+    <EmbeddedResource Include="Windows\Forms\Class Creation\ConstructorSelector.resx">
+      <DependentUpon>ConstructorSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Class Creation\GenericSelector.resx">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\MaterialEditor.resx">
@@ -485,10 +524,25 @@
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\PropGridEnum.resx">
       <DependentUpon>PropGridEnum.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridEventVec3.resx">
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridMatrix4.resx">
+      <DependentUpon>PropGridMatrix4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec4.resx">
+      <DependentUpon>PropGridEventVec4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec3.resx">
       <DependentUpon>PropGridEventVec3.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Vectors\PropGridVec3.resx">
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec2.resx">
+      <DependentUpon>PropGridEventVec2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec2.resx">
+      <DependentUpon>PropGridVec2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec4.resx">
+      <DependentUpon>PropGridVec4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec3.resx">
       <DependentUpon>PropGridVec3.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\PropGridText.resx">

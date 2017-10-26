@@ -24,13 +24,26 @@ namespace TheraEditor.Windows.Forms
             Current = null;
             base.OnDeactivate(e);
         }
-        public GenericsSelector(Type fileType) : base()
+        public GenericsSelector(MethodInfo methodType) : base()
         {
             InitializeComponent();
 
-            OriginalType = fileType.GetGenericTypeDefinition();
+            OriginalMethodType = methodType.GetGenericMethodDefinition();
+            lblClassName.Text = OriginalMethodType.GetFriendlyName();
 
-            Type[] args = OriginalType.GetGenericArguments();
+            SetArgumentTypes(OriginalMethodType.GetGenericArguments());
+        }
+        public GenericsSelector(Type classType) : base()
+        {
+            InitializeComponent();
+
+            OriginalClassType = classType.GetGenericTypeDefinition();
+            lblClassName.Text = OriginalClassType.GetFriendlyName();
+            
+            SetArgumentTypes(OriginalClassType.GetGenericArguments());
+        }
+        private void SetArgumentTypes(Type[] args)
+        {
             SelectedTypes = new Type[args.Length];
             for (int i = 0; i < args.Length; ++i)
             {
@@ -95,12 +108,12 @@ namespace TheraEditor.Windows.Forms
 
                 ToolStripDropDownButton root = new ToolStripDropDownButton("Select a type...") { Tag = i };
 
-                Predicate<Type> test = type => 
+                Predicate<Type> test = type =>
                 {
                     return !(
 
                     //Base type isn't requested base type?
-                    (baseType != null && !baseType.IsAssignableFrom(type)) || 
+                    (baseType != null && !baseType.IsAssignableFrom(type)) ||
 
                     //Doesn't fit constraints?
                     !TypeFitsConstraints(type, gvf, tcf)// ||
@@ -119,11 +132,11 @@ namespace TheraEditor.Windows.Forms
                         {
                             GenericsSelector gs = new GenericsSelector(f);
                             if (gs.ShowDialog() == DialogResult.OK)
-                                f = gs.FinalType;
+                                f = gs.FinalClassType;
                             else
                                 return;
                         }
-                        
+
                         root.Text = f.GetFriendlyName();
                         SelectedTypes[(int)root.Tag] = f;
 
@@ -137,7 +150,6 @@ namespace TheraEditor.Windows.Forms
                 box.Controls.Add(menu);
                 BodyPanel.Controls.Add(box);
             }
-            lblClassName.Text = OriginalType.GetFriendlyName();
         }
         private bool TypeFitsConstraints(Type t, GenericVarianceFlag gvf, TypeConstraintFlag tcf)
         {
@@ -158,14 +170,19 @@ namespace TheraEditor.Windows.Forms
             return true;
         }
 
-        public Type OriginalType { get; private set; }
+        public Type OriginalClassType { get; private set; }
+        public Type FinalClassType { get; private set; }
+        
+        public MethodInfo OriginalMethodType { get; private set; }
+        public MethodInfo FinalMethodType { get; private set; }
+
         public Type[] SelectedTypes { get; private set; }
-        public Type FinalType { get; private set; }
 
         private void btnOkay_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
-            FinalType = OriginalType.MakeGenericType(SelectedTypes);
+            FinalClassType = OriginalClassType?.MakeGenericType(SelectedTypes);
+            FinalMethodType = OriginalMethodType?.MakeGenericMethod(SelectedTypes);
             Close();
         }
 

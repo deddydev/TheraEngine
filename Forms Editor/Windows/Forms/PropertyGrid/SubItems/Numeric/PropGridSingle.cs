@@ -19,12 +19,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected override void UpdateDisplayInternal()
         {
-            object value = GetPropertyValue();
+            object value = GetValue();
 
             if (value is Single SingleVal)
                 numericInputBox1.Value = SingleVal;
             else
-                throw new Exception(Property.PropertyType.GetFriendlyName() + " is not a Single type.");
+                throw new Exception(ValueType.GetFriendlyName() + " is not a Single type.");
         }
 
         protected override void OnLabelSet()
@@ -58,9 +58,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _y = e.Location.Y;
         }
 
-        private void numericInputBox1_ValueChanged(Single? previous, Single? current)
+        private void numericInputBox1_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            UpdatePropertyValue(current.Value);
+            UpdateValue(current.Value);
         }
     }
 }

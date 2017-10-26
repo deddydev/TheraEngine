@@ -5,6 +5,9 @@
         public static Type DetermineElementType(this IList list)
         {
             Type listType = list.GetType();
+            Type returnedType = listType.GetElementType();
+            if (returnedType != null)
+                return returnedType;
             if (listType.IsGenericType)
                 return listType.GenericTypeArguments[0];
             return null;

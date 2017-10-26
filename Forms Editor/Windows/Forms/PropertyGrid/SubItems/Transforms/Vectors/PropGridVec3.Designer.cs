@@ -51,11 +51,13 @@
             this.numericInputBoxX.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxX.Name = "numericInputBoxX";
             this.numericInputBoxX.Nullable = false;
+            this.numericInputBoxX.NumberPrefix = "X: ";
+            this.numericInputBoxX.NumberSuffix = "";
             this.numericInputBoxX.Size = new System.Drawing.Size(1, 27);
             this.numericInputBoxX.SmallerIncrement = 0.1F;
             this.numericInputBoxX.SmallIncrement = 1F;
             this.numericInputBoxX.TabIndex = 0;
-            this.numericInputBoxX.Text = "0";
+            this.numericInputBoxX.Text = "X: 0";
             this.numericInputBoxX.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxX_ValueChanged);
             // 
             // numericInputBoxY
@@ -74,11 +76,13 @@
             this.numericInputBoxY.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxY.Name = "numericInputBoxY";
             this.numericInputBoxY.Nullable = false;
+            this.numericInputBoxY.NumberPrefix = "Y: ";
+            this.numericInputBoxY.NumberSuffix = "";
             this.numericInputBoxY.Size = new System.Drawing.Size(1, 27);
             this.numericInputBoxY.SmallerIncrement = 0.1F;
             this.numericInputBoxY.SmallIncrement = 1F;
             this.numericInputBoxY.TabIndex = 1;
-            this.numericInputBoxY.Text = "0";
+            this.numericInputBoxY.Text = "Y: 0";
             this.numericInputBoxY.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxY_ValueChanged);
             // 
             // numericInputBoxZ
@@ -97,11 +101,13 @@
             this.numericInputBoxZ.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxZ.Name = "numericInputBoxZ";
             this.numericInputBoxZ.Nullable = false;
+            this.numericInputBoxZ.NumberPrefix = "Z: ";
+            this.numericInputBoxZ.NumberSuffix = "";
             this.numericInputBoxZ.Size = new System.Drawing.Size(1, 27);
             this.numericInputBoxZ.SmallerIncrement = 0.1F;
             this.numericInputBoxZ.SmallIncrement = 1F;
             this.numericInputBoxZ.TabIndex = 2;
-            this.numericInputBoxZ.Text = "0";
+            this.numericInputBoxZ.Text = "Z: 0";
             this.numericInputBoxZ.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxZ_ValueChanged);
             // 
             // tableLayoutPanel1

@@ -36,21 +36,50 @@ namespace System
             if (method.IsAbstract)
                 friendlyName += "abstract ";
             friendlyName += method.Name;
+            bool first = true;
             if (method.IsGenericMethod)
             {
                 friendlyName += openBracket;
-                Type[] parameters = method.GetGenericArguments();
-                bool first = true;
-                foreach (Type parameter in parameters)
+                Type[] genericArgs = method.GetGenericArguments();
+                foreach (Type generic in genericArgs)
                 {
                     if (first)
                         first = false;
                     else
                         friendlyName += ", ";
-                    friendlyName += parameter.GetFriendlyName(openBracket, closeBracket);
+                    friendlyName += generic.GetFriendlyName(openBracket, closeBracket);
                 }
                 friendlyName += closeBracket;
             }
+            friendlyName += "(";
+            ParameterInfo[] parameters = method.GetParameters();
+            first = true;
+            foreach (var p in parameters)
+            {
+                if (first)
+                    first = false;
+                else
+                    friendlyName += ", ";
+
+                if (p.IsIn)
+                    friendlyName += "in ";
+                if (p.IsOut)
+                    friendlyName += "out ";
+                if (p.ParameterType.IsByRef)
+                    friendlyName += "ref ";
+
+                string typeName = p.ParameterType.GetFriendlyName(openBracket, closeBracket);
+                friendlyName += typeName + " " + p.Name;
+                if (p.HasDefaultValue)
+                {
+                    if (p.ParameterType == typeof(string))
+                        friendlyName += " = \"" + p.DefaultValue.ToString() + "\"";
+                    else
+                        friendlyName += " = " + p.DefaultValue.ToString();
+                }
+            }
+            friendlyName += ")";
+            return friendlyName;
         }
     }
 }

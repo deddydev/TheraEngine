@@ -87,7 +87,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAdd_Click(object sender, EventArgs e)
         {
             int i = _list.Count;
-            object value = Editor.UserCreateInstanceOf(_elementType);
+            object value = Editor.UserCreateInstanceOf(_elementType, true);
+            if (value == null)
+                return;
+
             _list.Add(value);
             var items = TheraPropertyGrid.CreateControls(_controlTypes, _list, i);
             propGridCategory1.AddProperty(items, new object[0]);

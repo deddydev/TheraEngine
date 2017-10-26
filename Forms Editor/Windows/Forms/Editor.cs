@@ -116,31 +116,23 @@ namespace TheraEditor.Windows.Forms
         }
 
         /// <summary>
-        /// Creates an instance of T using user-chosen constructor and parameters.
+        /// Creates an instance of T using user-chosen derived type, constructor and parameters.
         /// </summary>
         /// <typeparam name="T">The object type to create.</typeparam>
         /// <returns>A newly created instance of T.</returns>
-        public static T UserCreateInstanceOf<T>()
-            => (T)UserCreateInstanceOf(typeof(T));
+        public static T UserCreateInstanceOf<T>(bool allowDerivedTypes)
+            => (T)UserCreateInstanceOf(typeof(T), allowDerivedTypes);
         /// <summary>
-        /// Creates an instance of elementType using user-chosen constructor and parameters.
+        /// Creates an instance of elementType using user-chosen derived type, constructor and parameters.
         /// </summary>
-        /// <param name="elementType">The object type to create.</param>
+        /// <param name="type">The object type to create.</param>
         /// <returns>A newly created instance of elementType.</returns>
-        public static object UserCreateInstanceOf(Type elementType)
+        public static object UserCreateInstanceOf(Type type, bool allowDerivedTypes)
         {
-            ConstructorInfo[] constructors = elementType.GetConstructors(BindingFlags.Public);
-            if (constructors.Length == 1 && constructors[0].GetParameters().Length == 0)
-                return Activator.CreateInstance(elementType);
-            else
-            {
-                ConstructorSelector selector = new ConstructorSelector(elementType);
-                if (selector.ShowDialog() == DialogResult.OK)
-                {
-                    return selector.ConstructedObject;
-                }
-            }
-            return null;
+            ObjectCreator selector = new ObjectCreator();
+            if (selector.Initialize(type, allowDerivedTypes))
+                selector.ShowDialog();
+            return selector.ConstructedObject;
         }
 
         protected override void OnLoad(EventArgs e)

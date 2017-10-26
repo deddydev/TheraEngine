@@ -76,15 +76,15 @@ namespace System
         };
 
         public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">")
-            => type.GetFriendlyName(openBracket, closeBracket, _defaultDictionary);
-        public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">", Dictionary<Type, string> translations)
+            => type.GetFriendlyName(_defaultDictionary, openBracket, closeBracket);
+        public static string GetFriendlyName(this Type type, Dictionary<Type, string> translations, string openBracket = "<", string closeBracket = ">")
         {
             if (type == null)
                 return "null";
             else if (translations.ContainsKey(type))
                 return translations[type];
             else if (type.IsArray)
-                return GetFriendlyName(type.GetElementType(), openBracket, closeBracket, translations) + "[]";
+                return GetFriendlyName(type.GetElementType(), translations, openBracket, closeBracket) + "[]";
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 return type.GetGenericArguments()[0].GetFriendlyName() + "?";
             else if (type.IsGenericType)

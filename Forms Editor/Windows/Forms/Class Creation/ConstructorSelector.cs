@@ -36,21 +36,41 @@ namespace TheraEditor.Windows.Forms
 
             if (allowDerivedTypes)
             {
-                Type[] allowed = Program.FindPublicTypes(x => !x.IsAbstract && type.IsAssignableFrom(x));
-                if (allowed.Length == 0)
-                    return false;
+                Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => !x.IsAbstract && type.IsAssignableFrom(x));
+                //Type[] allowed = Program.FindPublicTypes();
+                //if (allowed.Length == 0)
+                //    return false;
 
-                cboTypes.Items.AddRange(allowed);
+                //cboTypes.Items.AddRange(allowed);
             }
             else if (type.IsAbstract)
                 return false;
             else
-                cboTypes.Items.Add(type);
-            
-            cboTypes.SelectedIndex = 0;
+            {
+                string typeName = type.GetFriendlyName();
+                ToolStripDropDownButton btn = new ToolStripDropDownButton(typeName)
+                {
+                    AutoSize = false,
+                    ShowDropDownArrow = false,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    Tag = type,
+                };
+                Size s = TextRenderer.MeasureText(typeName, btn.Font);
+                btn.Width = s.Width;
+                btn.Height = s.Height + 10;
+                btn.Click += OnTypeSelected;
+                toolStripDropDownButton1.DropDownItems.Add(btn);
+            }
             
             return true;
         }
+
+        private void OnTypeSelected(object sender, EventArgs e)
+        {
+            ToolStripDropDownItem item = sender as ToolStripDropDownItem;
+            SetTargetType(item?.Tag as Type);
+        }
+
         public ObjectCreator() : base()
         {
             InitializeComponent();
@@ -62,13 +82,17 @@ namespace TheraEditor.Windows.Forms
             if (_updating)
                 return;
             CheckBox c = (CheckBox)sender;
+            ConstructorIndex = (int)c.Tag;
             _updating = true;
             if (c.Checked)
             {
-                int row = (int)c.Tag;
-                for (int i = 0; i < tblConstructors.RowCount; ++i)
+                for (int i = 0; i < FinalArguments.Length; ++i)
                 {
-                    
+                    if (i == ConstructorIndex)
+                        continue;
+                    int rowIndex = i << 1;
+                    CheckBox box = (CheckBox)tblConstructors.GetControlFromPosition(0, rowIndex);
+                    box.Checked = false;
                 }
             }
             else
@@ -76,34 +100,24 @@ namespace TheraEditor.Windows.Forms
             _updating = false;
         }
 
-        private void ObjectLabel_MouseLeave(object sender, EventArgs e)
+        private class ArgumentInfo
         {
-            Label s = (Label)sender;
-            s.BackColor = Color.FromArgb(50, 55, 70);
+            public Type Type { get; set; }
+            public int Index { get; set; }
+            public int RowIndex { get; set; }
+            public object Value { get; set; }
         }
 
-        private void ObjectLabel_MouseEnter(object sender, EventArgs e)
-        {
-            Label s = (Label)sender;
-            s.BackColor = Color.FromArgb(70, 75, 90);
-        }
-
-        private void ObjectLabel_MouseClick(object sender, MouseEventArgs e)
-        {
-            Label s = (Label)sender;
-            object o = Editor.UserCreateInstanceOf((Type)s.Tag, true);
-            FinalArguments[(int)s.Tag] = o;
-        }
-
+        public int ConstructorIndex { get; private set; }
         public Type ClassType { get; private set; }
         public ConstructorInfo[] PublicInstanceConstructors { get; private set; }
-        public object[] FinalArguments;
+        public object[][] FinalArguments;
         public object ConstructedObject { get; private set; } = null;
         
         private void btnOkay_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
-            ConstructedObject = FinalArguments.Length == 0 ? Activator.CreateInstance(ClassType) : Activator.CreateInstance(ClassType, FinalArguments);
+            ConstructedObject = FinalArguments[ConstructorIndex].Length == 0 ? Activator.CreateInstance(ClassType) : Activator.CreateInstance(ClassType, FinalArguments[ConstructorIndex]);
             Close();
         }
 
@@ -112,148 +126,49 @@ namespace TheraEditor.Windows.Forms
             DialogResult = DialogResult.Cancel;
             Close();
         }
-
-        private Control CreateControl(Type t, ParameterInfo p)
-        {
-            Control paramTool = null;
-            switch (t.Name)
-            {
-                case "Boolean":
-                    paramTool = new CheckBox()
-                    {
-
-                    };
-                    break;
-                case "SByte":
-                    paramTool = new NumericInputBoxSByte()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "Byte":
-                    paramTool = new NumericInputBoxByte()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "Char":
-                    paramTool = new TextBox()
-                    {
-
-                    };
-                    break;
-                case "Int16":
-                    paramTool = new NumericInputBoxInt16()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "UInt16":
-                    paramTool = new NumericInputBoxUInt16()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "Int32":
-                    paramTool = new NumericInputBoxInt32()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "UInt32":
-                    paramTool = new NumericInputBoxUInt32()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "Int64":
-                    paramTool = new NumericInputBoxInt64()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "UInt64":
-                    paramTool = new NumericInputBoxUInt64()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "Single":
-                    paramTool = new NumericInputBoxSingle()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "Double":
-                    paramTool = new NumericInputBoxDouble()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "Decimal":
-                    paramTool = new NumericInputBoxDecimal()
-                    {
-                        Nullable = t.IsByRef,
-                    };
-                    break;
-                case "String":
-                    paramTool = new TextBox()
-                    {
-
-                    };
-                    break;
-                default:
-                    Label defaultLabel = new Label()
-                    {
-                        Text = t.IsValueType ? "Unselected" : "null",
-                        Dock = DockStyle.Left,
-                        AutoSize = true,
-                        BackColor = Color.FromArgb(50, 55, 70),
-                        ForeColor = Color.FromArgb(200, 200, 220),
-                    };
-                    defaultLabel.MouseEnter += ObjectLabel_MouseEnter;
-                    defaultLabel.MouseLeave += ObjectLabel_MouseLeave;
-                    defaultLabel.MouseClick += ObjectLabel_MouseClick;
-                    break;
-            }
-            return paramTool;
-        }
-
-        private void cboTypes_SelectedIndexChanged(object sender, EventArgs e)
+        private void SetTargetType(Type type)
         {
             tblConstructors.RowStyles.Clear();
             tblConstructors.RowCount = 0;
             tblConstructors.ColumnStyles.Clear();
             tblConstructors.ColumnCount = 0;
+            tblConstructors.Controls.Clear();
 
-            Type type = (Type)cboTypes.SelectedItem;
+            toolStripDropDownButton1.Text = type.GetFriendlyName();
+
             PublicInstanceConstructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-            if (PublicInstanceConstructors.Length == 1)
-            {
-                var parameters = PublicInstanceConstructors[0].GetParameters();
-                if (parameters.Length == 0)
-                {
-                    FinalArguments = new object[0];
-                    return;
-                }
-            }
+            //if (PublicInstanceConstructors.Length == 1)
+            //{
+            //    var parameters = PublicInstanceConstructors[0].GetParameters();
+            //    if (parameters.Length == 0)
+            //    {
+            //        FinalArguments = new object[0][];
+            //        return;
+            //    }
+            //}
 
-            foreach (ConstructorInfo c in PublicInstanceConstructors)
+            FinalArguments = new object[PublicInstanceConstructors.Length][];
+
+            for (int constructorIndex = 0; constructorIndex < PublicInstanceConstructors.Length; ++constructorIndex)
             {
+                ConstructorInfo c = PublicInstanceConstructors[constructorIndex];
+
                 //First row: text representation
                 tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                tblConstructors.RowCount = tblConstructors.RowStyles.Count;
                 //Second row: input object editors
                 tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                //Update row count
                 tblConstructors.RowCount = tblConstructors.RowStyles.Count;
 
                 ParameterInfo[] parameters = c.GetParameters();
+                FinalArguments[constructorIndex] = new object[parameters.Length];
 
                 //Update column count if the number of parameters exceeds current count
                 int columns = Math.Max(parameters.Length + 2, tblConstructors.ColumnCount);
                 if (columns > tblConstructors.ColumnCount)
                 {
-                    for (int i = 0; i < columns - tblConstructors.ColumnCount; ++i)
+                    int total = columns - tblConstructors.ColumnCount;
+                    for (int i = 0; i < total; ++i)
                     {
                         tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
                         tblConstructors.ColumnCount = tblConstructors.ColumnStyles.Count;
@@ -265,43 +180,328 @@ namespace TheraEditor.Windows.Forms
                     Text = "",
                     Dock = DockStyle.Left,
                     AutoSize = true,
-                    Tag = tblConstructors.RowCount - 2,
+                    Tag = constructorIndex,
+                    Checked = constructorIndex == 0,
                 };
+
+                ConstructorIndex = 0;
+                
                 constructorSelector.CheckedChanged += ConstructorSelector_CheckedChanged;
-                tblConstructors.Controls.Add(constructorSelector, 0, tblConstructors.RowCount - 1);
+                tblConstructors.Controls.Add(constructorSelector, 0, tblConstructors.RowCount - 2);
 
                 Label constructorLabel = new Label()
                 {
-                    Text = c.Name,
+                    Text = ClassType.Name.Split('`')[0],
                     Dock = DockStyle.Left,
                     AutoSize = true,
                     BackColor = Color.FromArgb(50, 55, 70),
                     ForeColor = Color.FromArgb(200, 200, 220),
+                    Padding = new Padding(0),
+                    Margin = new Padding(0),
                 };
-                tblConstructors.Controls.Add(constructorLabel, 1, tblConstructors.RowCount - 1);
+                tblConstructors.Controls.Add(constructorLabel, 1, tblConstructors.RowCount - 2);
 
-                for (int i = 0; i < parameters.Length; ++i)
+                for (int paramIndex = 0; paramIndex < parameters.Length; ++paramIndex)
                 {
-                    ParameterInfo p = parameters[i];
+                    ParameterInfo p = parameters[paramIndex];
                     Type t = p.ParameterType;
+
+                    FinalArguments[constructorIndex][paramIndex] = t.GetDefaultValue();
+
                     string typeName = t.GetFriendlyName();
                     string varName = p.Name;
                     string finalText = typeName + " " + varName;
-                    if (i != parameters.Length - 1)
+                    if (paramIndex != parameters.Length - 1)
                         finalText += ", ";
+
                     Label paramLabel = new Label()
                     {
                         Text = finalText,
                         Dock = DockStyle.Left,
                         AutoSize = true,
+                        Padding = new Padding(0),
+                        Margin = new Padding(0),
+                        BackColor = Color.FromArgb(50, 55, 70),
+                        ForeColor = Color.FromArgb(200, 200, 220),
                     };
-                    Control paramTool = CreateControl(t, p);
+                    tblConstructors.Controls.Add(paramLabel, paramIndex + 2, tblConstructors.RowCount - 2);
 
-                    tblConstructors.Controls.Add(paramLabel, i + 2, tblConstructors.RowCount - 2);
+                    Control paramTool = CreateControl(t, p, constructorIndex);
                     if (paramTool != null)
-                        tblConstructors.Controls.Add(paramTool, i + 2, tblConstructors.RowCount - 1);
+                    {
+                        paramTool.Padding = new Padding(0);
+                        paramTool.Margin = new Padding(3);
+                        paramTool.Dock = DockStyle.Top;
+                        paramTool.AutoSize = true;
+                        paramTool.BackColor = Color.FromArgb(50, 55, 70);
+                        paramTool.ForeColor = Color.FromArgb(200, 200, 220);
+                        tblConstructors.Controls.Add(paramTool, paramIndex + 2, tblConstructors.RowCount - 1);
+                    }
                 }
             }
+        }
+        private Control CreateControl(Type t, ParameterInfo p, int rowIndex)
+        {
+            Control paramTool = null;
+            ArgumentInfo arg = new ArgumentInfo()
+            {
+                Type = t,
+                Index = p.Position,
+                RowIndex = rowIndex,
+                Value = t.GetDefaultValue(),
+            };
+            Type temp = Nullable.GetUnderlyingType(t);
+            if (temp != null)
+                t = temp;
+            switch (t.Name)
+            {
+                case "Boolean":
+                    {
+                        CheckBox box = new CheckBox()
+                        {
+                            Tag = arg,
+                        };
+                        box.CheckedChanged += (sender, e) =>
+                        {
+                            CheckBox checkBox = (CheckBox)sender;
+                            ArgumentInfo argInfo = (ArgumentInfo)checkBox.Tag;
+                            argInfo.Value = checkBox.Checked;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = checkBox.Checked;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "SByte":
+                    {
+                        NumericInputBoxSByte box = new NumericInputBoxSByte()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "Byte":
+                    {
+                        NumericInputBoxByte box = new NumericInputBoxByte()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "Char":
+                    paramTool = new TextBox()
+                    {
+                        Tag = arg
+                    };
+                    break;
+                case "Int16":
+                    {
+                        NumericInputBoxInt16 box = new NumericInputBoxInt16()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "UInt16":
+                    {
+                        NumericInputBoxUInt16 box = new NumericInputBoxUInt16()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "Int32":
+                    {
+                        NumericInputBoxInt32 box = new NumericInputBoxInt32()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "UInt32":
+                    {
+                        NumericInputBoxUInt32 box = new NumericInputBoxUInt32()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "Int64":
+                    {
+                        NumericInputBoxInt64 box = new NumericInputBoxInt64()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "UInt64":
+                    {
+                        NumericInputBoxUInt64 box = new NumericInputBoxUInt64()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "Single":
+                    {
+                        NumericInputBoxSingle box = new NumericInputBoxSingle()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "Double":
+                    {
+                        NumericInputBoxDouble box = new NumericInputBoxDouble()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "Decimal":
+                    {
+                        NumericInputBoxDecimal box = new NumericInputBoxDecimal()
+                        {
+                            Nullable = temp != null,
+                            Tag = arg
+                        };
+                        box.ValueChanged += (b, prev, current) =>
+                        {
+                            ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
+                            argInfo.Value = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                case "String":
+                    {
+                        TextBox box = new TextBox()
+                        {
+                            Tag = arg,
+                        };
+                        box.TextChanged += (sender, e) =>
+                        {
+                            TextBox s = (TextBox)sender;
+                            ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
+                            argInfo.Value = s.Text;
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = s.Text;
+                        };
+                        paramTool = box;
+                    }
+                    break;
+                default:
+                    {
+                        Label defaultLabel = new Label()
+                        {
+                            Text = arg.Value == null ? "null" : arg.Value.ToString(),
+                            Tag = arg
+                        };
+                        defaultLabel.MouseEnter += (sender, e) =>
+                        {
+                            Label s = (Label)sender;
+                            s.BackColor = Color.FromArgb(50, 55, 70);
+                        };
+                        defaultLabel.MouseLeave += (sender, e) =>
+                        {
+                            Label s = (Label)sender;
+                            s.BackColor = Color.FromArgb(70, 75, 90);
+                        };
+                        defaultLabel.MouseClick += (sender, e) =>
+                        {
+                            Label s = (Label)sender;
+                            ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
+
+                            object o = Editor.UserCreateInstanceOf(argInfo.Type, true);
+
+                            argInfo.Value = o;
+                            s.Text = o == null ? "null" : o.ToString();
+                            FinalArguments[argInfo.RowIndex][argInfo.Index] = o;
+                        };
+                        paramTool = defaultLabel;
+                    }
+                    break;
+            }
+            return paramTool;
         }
     }
 }

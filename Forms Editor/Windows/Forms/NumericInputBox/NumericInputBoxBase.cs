@@ -10,7 +10,8 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class NumericInputBoxBase<T> : TextBox
+    public class BaseNumericInputBox : TextBox { }
+    public abstract class NumericInputBoxBase<T> : BaseNumericInputBox
         where T : struct, IFormattable, IComparable, IConvertible
     {
         public delegate void BoxValueChanged(NumericInputBoxBase<T> box, T? previous, T? current);

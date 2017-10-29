@@ -23,7 +23,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             
-            if (ValueType == typeof(EventVec3))
+            if (DataType == typeof(EventVec3))
             {
                 _eventVec3 = value as EventVec3;
                 numericInputBoxX.Value = _eventVec3?.X;
@@ -31,7 +31,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 numericInputBoxZ.Value = _eventVec3?.Z;
             }
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not an EventVec3 type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not an EventVec3 type.");
         }
 
         private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
@@ -50,6 +50,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (_eventVec3 != null)
                 _eventVec3.Z = current.Value;
+        }
+        protected override void SetControlsEnabled(bool enabled)
+        {
+            checkBox1.Enabled = enabled;
         }
     }
 }

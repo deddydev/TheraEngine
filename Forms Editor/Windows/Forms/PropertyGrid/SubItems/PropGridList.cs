@@ -22,13 +22,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override async void UpdateDisplayInternal()
         {
             object value = GetValue();
-            if (value is IList list)
+            lblObjectTypeName.Text = DataType.GetFriendlyName();
+            checkBox1.Visible = DataType.IsValueType;
+            if (typeof(IList).IsAssignableFrom(DataType))
             {
-                lblObjectTypeName.Text = ValueType.GetFriendlyName();
-                btnAdd.Visible = !list.IsFixedSize;
-                _elementType = list.DetermineElementType();
-                _list = list;
-                _controlTypes = await Task.Run(() => TheraPropertyGrid.GetControlTypes(_elementType));
+                IList list = value as IList;
+                if (!(checkBox1.Checked = list == null))
+                {
+                    btnAdd.Visible = !list.IsFixedSize;
+                    _elementType = list.DetermineElementType();
+                    _list = list;
+                    _controlTypes = await Task.Run(() => TheraPropertyGrid.GetControlTypes(_elementType));
+                }
             }
             else if (value is Exception ex)
             {
@@ -36,7 +41,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                throw new Exception(ValueType.GetFriendlyName() + " is not an IList type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not an IList type.");
             }
         }
 

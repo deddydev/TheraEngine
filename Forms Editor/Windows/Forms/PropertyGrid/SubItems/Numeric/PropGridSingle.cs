@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is Single SingleVal)
                 numericInputBox1.Value = SingleVal;
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a Single type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a Single type.");
         }
 
         protected override void OnLabelSet()

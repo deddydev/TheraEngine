@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else if (value is Exception ex)
                 numericInputBox1.Text = ex.ToString();
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not an Int32 type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not an Int32 type.");
         }
 
         protected override void OnLabelSet()

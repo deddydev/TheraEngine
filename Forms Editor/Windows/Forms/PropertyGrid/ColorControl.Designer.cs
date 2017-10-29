@@ -51,7 +51,7 @@
             // 
             this.btnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOkay.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOkay.Location = new System.Drawing.Point(200, 221);
+            this.btnOkay.Location = new System.Drawing.Point(200, 224);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(61, 29);
             this.btnOkay.TabIndex = 0;
@@ -63,7 +63,7 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancel.Location = new System.Drawing.Point(267, 221);
+            this.btnCancel.Location = new System.Drawing.Point(267, 224);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(65, 29);
             this.btnCancel.TabIndex = 1;
@@ -79,7 +79,7 @@
             this.pnlColors.Controls.Add(this.pnlOld);
             this.pnlColors.Location = new System.Drawing.Point(14, 207);
             this.pnlColors.Name = "pnlColors";
-            this.pnlColors.Size = new System.Drawing.Size(180, 37);
+            this.pnlColors.Size = new System.Drawing.Size(180, 40);
             this.pnlColors.TabIndex = 3;
             // 
             // pnlNew
@@ -87,7 +87,7 @@
             this.pnlNew.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlNew.Location = new System.Drawing.Point(90, 0);
             this.pnlNew.Name = "pnlNew";
-            this.pnlNew.Size = new System.Drawing.Size(90, 37);
+            this.pnlNew.Size = new System.Drawing.Size(90, 40);
             this.pnlNew.TabIndex = 6;
             this.pnlNew.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlNew_Paint);
             // 
@@ -96,7 +96,7 @@
             this.pnlOld.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlOld.Location = new System.Drawing.Point(0, 0);
             this.pnlOld.Name = "pnlOld";
-            this.pnlOld.Size = new System.Drawing.Size(90, 37);
+            this.pnlOld.Size = new System.Drawing.Size(90, 40);
             this.pnlOld.TabIndex = 5;
             this.pnlOld.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlOld_Paint);
             // 
@@ -131,7 +131,7 @@
             this.chkAlpha.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAlpha.Location = new System.Drawing.Point(203, 198);
             this.chkAlpha.Name = "chkAlpha";
-            this.chkAlpha.Size = new System.Drawing.Size(104, 21);
+            this.chkAlpha.Size = new System.Drawing.Size(120, 24);
             this.chkAlpha.TabIndex = 6;
             this.chkAlpha.Text = "Show Alpha";
             this.chkAlpha.UseVisualStyleBackColor = true;
@@ -158,8 +158,11 @@
             this.Controls.Add(this.goodColorControl1);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOkay);
+            this.Margin = new System.Windows.Forms.Padding(0);
+            this.MaximumSize = new System.Drawing.Size(344, 264);
+            this.MinimumSize = new System.Drawing.Size(344, 244);
             this.Name = "ColorControl";
-            this.Size = new System.Drawing.Size(335, 253);
+            this.Size = new System.Drawing.Size(344, 264);
             this.pnlColors.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

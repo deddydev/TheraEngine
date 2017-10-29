@@ -197,8 +197,7 @@ namespace TheraEditor.Windows.Forms
                         if (_currentValue == null)
                             return;
                         T increment = e.KeyCode == Keys.Down || e.KeyCode == Keys.Up ? (e.Shift ? SmallerIncrement : SmallIncrement) : (e.Shift ? LargerIncrement : LargeIncrement);
-                        _currentValue = Clamp(Increment(_currentValue.Value, increment, e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Down), MinimumValue, MaximumValue);
-                        UpdateTextWithValue();
+                        Value = Increment(_currentValue.Value, increment, e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Down);
                         e.Handled = true;
                         e.SuppressKeyPress = true;
                     }

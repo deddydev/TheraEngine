@@ -34,9 +34,9 @@ namespace System.Windows.Forms
             set
             {
                 if (chkAlpha.Visible = goodColorControl1.ShowAlpha = value)
-                    Height = 253;
+                    Height = 264;
                 else
-                    Height = 253 - 20;
+                    Height = 264 - 20;
 
                 pnlOld.Invalidate();
                 pnlNew.Invalidate();

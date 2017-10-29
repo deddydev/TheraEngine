@@ -133,6 +133,7 @@ namespace TheraEditor.Windows.Forms
             tblConstructors.ColumnStyles.Clear();
             tblConstructors.ColumnCount = 0;
             tblConstructors.Controls.Clear();
+            ClassType = type;
 
             toolStripDropDownButton1.Text = type.GetFriendlyName();
 
@@ -164,7 +165,7 @@ namespace TheraEditor.Windows.Forms
                 FinalArguments[constructorIndex] = new object[parameters.Length];
 
                 //Update column count if the number of parameters exceeds current count
-                int columns = Math.Max(parameters.Length + 2, tblConstructors.ColumnCount);
+                int columns = Math.Max(parameters.Length + 1, tblConstructors.ColumnCount);
                 if (columns > tblConstructors.ColumnCount)
                 {
                     int total = columns - tblConstructors.ColumnCount;
@@ -177,7 +178,7 @@ namespace TheraEditor.Windows.Forms
 
                 CheckBox constructorSelector = new CheckBox()
                 {
-                    Text = "",
+                    Text = ClassType.Name.Split('`')[0],
                     Dock = DockStyle.Left,
                     AutoSize = true,
                     Tag = constructorIndex,
@@ -189,17 +190,17 @@ namespace TheraEditor.Windows.Forms
                 constructorSelector.CheckedChanged += ConstructorSelector_CheckedChanged;
                 tblConstructors.Controls.Add(constructorSelector, 0, tblConstructors.RowCount - 2);
 
-                Label constructorLabel = new Label()
-                {
-                    Text = ClassType.Name.Split('`')[0],
-                    Dock = DockStyle.Left,
-                    AutoSize = true,
-                    BackColor = Color.FromArgb(50, 55, 70),
-                    ForeColor = Color.FromArgb(200, 200, 220),
-                    Padding = new Padding(0),
-                    Margin = new Padding(0),
-                };
-                tblConstructors.Controls.Add(constructorLabel, 1, tblConstructors.RowCount - 2);
+                //Label constructorLabel = new Label()
+                //{
+                //    Text = ClassType.Name.Split('`')[0],
+                //    Dock = DockStyle.Left,
+                //    AutoSize = true,
+                //    BackColor = Color.FromArgb(50, 55, 70),
+                //    ForeColor = Color.FromArgb(200, 200, 220),
+                //    Padding = new Padding(0),
+                //    Margin = new Padding(0),
+                //};
+                //tblConstructors.Controls.Add(constructorLabel, 1, tblConstructors.RowCount - 2);
 
                 for (int paramIndex = 0; paramIndex < parameters.Length; ++paramIndex)
                 {
@@ -224,7 +225,7 @@ namespace TheraEditor.Windows.Forms
                         BackColor = Color.FromArgb(50, 55, 70),
                         ForeColor = Color.FromArgb(200, 200, 220),
                     };
-                    tblConstructors.Controls.Add(paramLabel, paramIndex + 2, tblConstructors.RowCount - 2);
+                    tblConstructors.Controls.Add(paramLabel, paramIndex + 1, tblConstructors.RowCount - 2);
 
                     Control paramTool = CreateControl(t, p, constructorIndex);
                     if (paramTool != null)
@@ -235,7 +236,7 @@ namespace TheraEditor.Windows.Forms
                         paramTool.AutoSize = true;
                         paramTool.BackColor = Color.FromArgb(50, 55, 70);
                         paramTool.ForeColor = Color.FromArgb(200, 200, 220);
-                        tblConstructors.Controls.Add(paramTool, paramIndex + 2, tblConstructors.RowCount - 1);
+                        tblConstructors.Controls.Add(paramTool, paramIndex + 1, tblConstructors.RowCount - 1);
                     }
                 }
             }
@@ -492,6 +493,9 @@ namespace TheraEditor.Windows.Forms
                             ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
 
                             object o = Editor.UserCreateInstanceOf(argInfo.Type, true);
+
+                            if (o == null && argInfo.Type.IsValueType)
+                                o = argInfo.Type.GetDefaultValue();
 
                             argInfo.Value = o;
                             s.Text = o == null ? "null" : o.ToString();

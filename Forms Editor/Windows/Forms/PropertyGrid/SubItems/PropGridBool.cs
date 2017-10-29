@@ -14,7 +14,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is bool boolVal)
                 checkBox1.Checked = boolVal;
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a boolean type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a boolean type.");
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
             => UpdateValue(checkBox1.Checked);

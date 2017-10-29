@@ -121,11 +121,11 @@
     <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.Designer.cs">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Class Creation\ConstructorSelector.cs">
+    <Compile Include="Windows\Forms\Class Creation\ObjectCreator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Class Creation\ConstructorSelector.Designer.cs">
-      <DependentUpon>ConstructorSelector.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Class Creation\ObjectCreator.Designer.cs">
+      <DependentUpon>ObjectCreator.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxDecimal.cs">
       <SubType>Component</SubType>
@@ -447,8 +447,8 @@
     <EmbeddedResource Include="Windows\Forms\Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Class Creation\ConstructorSelector.resx">
-      <DependentUpon>ConstructorSelector.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Class Creation\ObjectCreator.resx">
+      <DependentUpon>ObjectCreator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Class Creation\GenericSelector.resx">
       <DependentUpon>GenericSelector.cs</DependentUpon>

@@ -22,14 +22,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             
-            if (typeof(IFileRef).IsAssignableFrom(ValueType))
+            if (typeof(IFileRef).IsAssignableFrom(DataType))
             {
                 _fileRef = value as IFileRef;
                 label1.Text = _fileRef?.ReferencedType.GetFriendlyName();
                 textBox1.Text = _fileRef?.FilePath;
             }
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not an IFileRef type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not an IFileRef type.");
         }
 
         private void PropGridFileRef_DragDrop(object sender, DragEventArgs e)

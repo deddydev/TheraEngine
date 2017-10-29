@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is Byte ByteVal)
                 numericInputBox1.Value = ByteVal;
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a Byte type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a Byte type.");
         }
 
         protected override void OnLabelSet()

@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is Int64 Int64Val)
                 numericInputBox1.Value = Int64Val;
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a Int64 type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a Int64 type.");
         }
 
         protected override void OnLabelSet()

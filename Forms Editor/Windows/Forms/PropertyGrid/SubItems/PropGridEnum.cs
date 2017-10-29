@@ -19,9 +19,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             object value = GetValue();
             if (value is Enum e)
             {
-                string[] names = Enum.GetNames(ValueType);
-                Array values = Enum.GetValues(ValueType);
-                bool flags = ValueType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+                string[] names = Enum.GetNames(DataType);
+                Array values = Enum.GetValues(DataType);
+                bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
                 if (flags)
                 {
                     string[] enumStrings = value.ToString().Split(new string[] { ", " }, StringSplitOptions.None);
@@ -98,7 +98,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                throw new Exception(ValueType.GetFriendlyName() + " is not an Enum type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not an Enum type.");
             }
         }
 

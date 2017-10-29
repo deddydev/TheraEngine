@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is Double DoubleVal)
                 numericInputBox1.Value = DoubleVal;
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a Double type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a Double type.");
         }
 
         protected override void OnLabelSet()

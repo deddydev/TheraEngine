@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is UInt64 UInt64Val)
                 numericInputBox1.Value = UInt64Val;
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a UInt64 type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a UInt64 type.");
         }
 
         protected override void OnLabelSet()

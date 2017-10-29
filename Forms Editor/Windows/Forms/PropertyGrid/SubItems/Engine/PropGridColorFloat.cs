@@ -21,14 +21,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             
-            if (ValueType == typeof(ColorF3))
+            if (DataType == typeof(ColorF3))
             {
                 ColorF3 color = (ColorF3)value;
                 panel1.BackColor = color.Color;
                 colorControl1.EditAlpha = false;
                 colorControl1.Color = color.Color;
             }
-            else if (ValueType == typeof(ColorF4))
+            else if (DataType == typeof(ColorF4))
             {
                 ColorF4 color = (ColorF4)value;
                 panel1.BackColor = color.Color;
@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 colorControl1.Color = color.Color;
             }
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not ColorF3 or ColorF4.");
+                throw new Exception(DataType.GetFriendlyName() + " is not ColorF3 or ColorF4.");
         }
 
         private void btnShowSelector_Click(object sender, EventArgs e)
@@ -59,13 +59,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (colorControl1.DialogResult == DialogResult.OK)
             {
-                if (ValueType == typeof(ColorF3))
+                if (DataType == typeof(ColorF3))
                 {
                     ColorF3 color = (ColorF3)colorControl1.Color;
                     panel1.BackColor = color.Color;
                     UpdateValue(color);
                 }
-                else if (ValueType == typeof(ColorF4))
+                else if (DataType == typeof(ColorF4))
                 {
                     ColorF4 color = colorControl1.Color;
                     panel1.BackColor = colorControl1.Color;
@@ -74,13 +74,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                if (ValueType == typeof(ColorF3))
+                if (DataType == typeof(ColorF3))
                 {
                     ColorF3 color = (ColorF3)_previousColor;
                     panel1.BackColor = color.Color;
                     UpdateValue(color);
                 }
-                else if (ValueType == typeof(ColorF4))
+                else if (DataType == typeof(ColorF4))
                 {
                     ColorF4 color = (ColorF4)_previousColor;
                     panel1.BackColor = colorControl1.Color;
@@ -93,13 +93,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         private void colorControl1_OnColorChanged(Color newColor)
         {
-            if (ValueType == typeof(ColorF3))
+            if (DataType == typeof(ColorF3))
             {
                 ColorF3 color = (ColorF3)newColor;
                 panel1.BackColor = color.Color;
                 UpdateValue(color);
             }
-            else if (ValueType == typeof(ColorF4))
+            else if (DataType == typeof(ColorF4))
             {
                 ColorF4 color = newColor;
                 panel1.BackColor = newColor;

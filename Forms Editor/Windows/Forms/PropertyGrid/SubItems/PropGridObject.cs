@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             _object = GetValue();
             checkBox1.Checked = _object == null;
-            lblObjectTypeName.Text = ValueType.GetFriendlyName();
+            lblObjectTypeName.Text = DataType.GetFriendlyName();
         }
 
         private void LoadProperties(object obj)
@@ -148,6 +148,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 LoadProperties(null);
             }
+        }
+
+        protected override void SetControlsEnabled(bool enabled)
+        {
+            checkBox1.Enabled = enabled;
         }
     }
 }

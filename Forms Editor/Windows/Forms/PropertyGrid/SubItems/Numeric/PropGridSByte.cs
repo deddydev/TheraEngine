@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is SByte SByteVal)
                 numericInputBox1.Value = SByteVal;
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a SByte type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a SByte type.");
         }
 
         protected override void OnLabelSet()

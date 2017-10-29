@@ -49,7 +49,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         _boxes[r, c].Value = Matrix4Val[r, c];
             }
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a Matrix4 type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a Matrix4 type.");
         }
 
         protected override void OnLabelSet()

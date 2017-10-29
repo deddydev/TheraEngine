@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is UInt32 UInt32Val)
                 numericInputBox1.Value = UInt32Val;
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a UInt32 type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a UInt32 type.");
         }
 
         protected override void OnLabelSet()

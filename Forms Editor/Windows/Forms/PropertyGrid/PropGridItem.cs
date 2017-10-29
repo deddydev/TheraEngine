@@ -15,7 +15,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class PropGridItem : UserControl
     {
-        public Type ValueType { get; set; }
+        public Type DataType { get; set; }
         public PropertyInfo Property { get; set; }
         public object PropertyOwner { get; set; }
         public Label Label { get; set; }
@@ -67,14 +67,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             IListOwner = list;
             IListIndex = index;
-            ValueType = elementType;
+            DataType = elementType;
             SetControlsEnabled(!list.IsReadOnly);
         }
         internal void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
         {
             Property = propertyInfo;
             PropertyOwner = propertyOwner;
-            ValueType = Property.PropertyType;
+            DataType = Property.PropertyType;
             SetControlsEnabled(Property.CanWrite);
             UpdateDisplay();
         }

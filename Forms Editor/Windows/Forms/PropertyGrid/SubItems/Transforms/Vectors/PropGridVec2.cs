@@ -26,7 +26,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 numericInputBoxY.Value = vec3Val.Y;
             }
             else
-                throw new Exception(ValueType.GetFriendlyName() + " is not a Vec2 type.");
+                throw new Exception(DataType.GetFriendlyName() + " is not a Vec2 type.");
         }
 
         protected override void OnLabelSet()

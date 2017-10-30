@@ -9,19 +9,22 @@ namespace TheraEngine.Animation
         public event Action AnimationStarted;
         public event Action AnimationEnded;
         public event Action CurrentFrameChanged;
-        public event Action FramesPerSecondChanged;
         public event Action SpeedChanged;
         public event Action LoopChanged;
         public event Action LengthChanged;
-        
+
+        [Serialize("BakedFrameCount", Condition = "_isBaked")]
         protected int _bakedFrameCount = 0;
+        [Serialize("BakedFPS", Condition = "_isBaked")]
         protected float _bakedFPS = 0.0f;
 
+        [Serialize("LengthInSeconds")]
         protected float _lengthInSeconds = 0.0f;
         protected float _speed = 1.0f;
         protected float _currentTime = 0.0f;
         protected bool _looped = false;
         protected bool _isPlaying = false;
+        protected bool _isBaked = false;
         protected bool _useKeyframes = true;
 
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
@@ -55,7 +58,7 @@ namespace TheraEngine.Animation
         /// For example, if the animation is 30fps, and the game is running at 60fps,
         /// Only one frame of this animation will show for every two game frames (the animation won't be sped up).
         /// </summary>
-        [Category("Animation"), Serialize]
+        [Category("Animation")]
         public float BakedFramesPerSecond => _bakedFPS;
         
         /// <summary>

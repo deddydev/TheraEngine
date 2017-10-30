@@ -14,11 +14,18 @@ namespace TheraEngine.Files.Serialization
         public static unsafe Type DetermineType(string filePath)
         {
             Type t = null;
-            using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
-            using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
+            try
             {
-                if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals("Type", true))
-                    t = Type.GetType(reader.Value, false, false);
+                using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
+                using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
+                {
+                    if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals("Type", true))
+                        t = Type.GetType(reader.Value, false, false);
+                }
+            }
+            catch (Exception e)
+            {
+                Engine.PrintLine(e.ToString());
             }
             return t;
         }

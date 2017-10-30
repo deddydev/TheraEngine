@@ -36,22 +36,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                         tableLayoutPanel1.RowCount++;
 
+                        object number = Convert.ChangeType(values.GetValue(i), e.GetTypeCode());
+
                         CheckBox bitSet = new CheckBox()
                         {
                             AutoSize = true,
                             Checked = enumStrings.Contains(name),
-                            Tag = name,
+                            Tag = number,
                             Margin = new Padding(0),
                             Padding = new Padding(0),
                             Dock = DockStyle.Left,
                         };
                         bitSet.CheckedChanged += BitSet_CheckedChanged;
-                        object number = values.GetValue(i);
-                        object number2 = Convert.ChangeType(number, e.GetTypeCode());
                         Label bitValue = new Label()
                         {
                             AutoSize = true,
-                            Text = number2.ToString(),
+                            Text = number.ToString(),
                             TextAlign = ContentAlignment.MiddleLeft,
                             Margin = new Padding(0),
                             Padding = new Padding(0),

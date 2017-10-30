@@ -219,7 +219,7 @@ namespace TheraEngine.Files.Serialization
                         break;
                     case SerializationCommon.ValueType.Array:
                         for (int i = 0; i < array.Count; ++i)
-                            WriteArray(array, "Item", elementType, writer);
+                            WriteArray(array[i] as IList, "Item", elementType, writer);
                         break;
                     case SerializationCommon.ValueType.Enum:
                         WriteStringArray(array, writer, false, true);
@@ -275,7 +275,7 @@ namespace TheraEngine.Files.Serialization
             string output = "";
             for (int i = 0; i < array.Count; ++i)
             {
-                string s = parsable ? ((IParsable)array[i]).WriteToString() : array[i].ToString();
+                string s = parsable ? ((IParsable)(array[i])).WriteToString() : array[i].ToString();
 
                 if (enums)
                     s = s.Replace(", ", "|");

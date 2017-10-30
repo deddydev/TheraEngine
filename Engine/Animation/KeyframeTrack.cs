@@ -292,7 +292,7 @@ namespace TheraEngine.Animation
         {
             return false;
         }
-
+        
         public void CopyTo(T[] array, int arrayIndex)
         {
 

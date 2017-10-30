@@ -301,6 +301,7 @@
     <Compile Include="3rdParty\OBJ\TypeParsers\TypeParserBase.cs" />
     <Compile Include="3rdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
     <Compile Include="3rdParty\OBJ\TypeParsers\VertexParser.cs" />
+    <Compile Include="Animation\Model\TransformKeyCollection.cs" />
     <Compile Include="Core\Extensions\Numbers\DecimalExtension.cs" />
     <Compile Include="Core\Extensions\MethodInfoExtension.cs" />
     <Compile Include="Core\HelperMethods.cs" />

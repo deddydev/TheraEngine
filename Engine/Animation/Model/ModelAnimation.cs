@@ -154,68 +154,59 @@ namespace TheraEngine.Animation
         public bool UseKeyframes
         {
             get => _useKeyframes;
-            set { _useKeyframes = value; UseKeyframesChanged(); }
+            set
+            {
+                _useKeyframes = value;
+                UseKeyframesChanged();
+            }
         }
 
         protected virtual void UseKeyframesChanged() { }
 
-        public void SetLength(float seconds, bool stretchAnimation)
-        {
-            foreach (var track in _tracks)
-                track.SetLength(seconds, stretchAnimation);
-        }
-
+        public void SetLength(float seconds, bool stretchAnimation) => _tracks.SetLength(seconds, stretchAnimation);
+        
         internal ModelAnimation Parent { get; set; }
-        public RotationOrder EulerOrder = RotationOrder.RYP;
 
         [Category("Bone Animation"), Serialize("Name")]
         public string _name;
         private bool _useKeyframes = true;
-        
+
         [Serialize("TransformKeys")]
-        private KeyframeTrack<FloatKeyframe>[] _tracks = new KeyframeTrack<FloatKeyframe>[]
-        {
-            new KeyframeTrack<FloatKeyframe>(), //tx
-            new KeyframeTrack<FloatKeyframe>(), //ty
-            new KeyframeTrack<FloatKeyframe>(), //tz
-            new KeyframeTrack<FloatKeyframe>(), //rx
-            new KeyframeTrack<FloatKeyframe>(), //ry
-            new KeyframeTrack<FloatKeyframe>(), //rz
-            new KeyframeTrack<FloatKeyframe>(), //sx
-            new KeyframeTrack<FloatKeyframe>(), //sy
-            new KeyframeTrack<FloatKeyframe>(), //sz
-        };
+        private TransformKeyCollection _tracks = new TransformKeyCollection();
 
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> TranslationX => _tracks[0];
+        public KeyframeTrack<FloatKeyframe> TranslationX => _tracks.TranslationX;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> TranslationY => _tracks[1];
+        public KeyframeTrack<FloatKeyframe> TranslationY => _tracks.TranslationY;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> TranslationZ => _tracks[2];
+        public KeyframeTrack<FloatKeyframe> TranslationZ => _tracks.TranslationZ;
 
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationX => _tracks[3];
+        public KeyframeTrack<FloatKeyframe> RotationX => _tracks.RotationX;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationY => _tracks[4];
+        public KeyframeTrack<FloatKeyframe> RotationY => _tracks.RotationY;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationZ => _tracks[5];
+        public KeyframeTrack<FloatKeyframe> RotationZ => _tracks.RotationZ;
 
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> ScaleX => _tracks[6];
+        public KeyframeTrack<FloatKeyframe> ScaleX => _tracks.ScaleX;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> ScaleY => _tracks[7];
+        public KeyframeTrack<FloatKeyframe> ScaleY => _tracks.ScaleY;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> ScaleZ => _tracks[8];
+        public KeyframeTrack<FloatKeyframe> ScaleZ => _tracks.ScaleZ;
 
         public BoneFrame GetFrame()
             => GetFrame(Parent.CurrentTime);
         public BoneFrame GetFrame(float second)
         {
             float?[] values = new float?[9];
+            KeyframeTrack<FloatKeyframe> track;
             for (int i = 0; i < 9; ++i)
-                values[i] = _tracks[i].First == null ? null : (float?)_tracks[i].First.Interpolate(second);
-
-            return new BoneFrame(_name, values, EulerOrder);
+            {
+                track = _tracks[i];
+                values[i] = track.First == null ? null : (float?)track.First.Interpolate(second);
+            }
+            return new BoneFrame(_name, values, _tracks.EulerOrder);
         }
         //public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
         //{
@@ -242,38 +233,7 @@ namespace TheraEngine.Animation
         /// Retrieves the parts of the transform for this bone at the requested frame second.
         /// </summary>
         public unsafe void GetTransform(Transform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
-        {
-            Vec3 t, r, s;
-            Vec3
-                bt = bindState.Translation.Raw,
-                br = bindState.Rotation.RawPitchYawRoll,
-                bs = bindState.Scale.Raw;
-            float* pt = (float*)&t;
-            float* pr = (float*)&r;
-            float* ps = (float*)&s;
-            float* pbt = (float*)&bt;
-            float* pbr = (float*)&br;
-            float* pbs = (float*)&bs;
-            for (int i = 0; i < 3; ++i)
-            {
-                var track = _tracks[i];
-                *pt++ = track.First == null ? pbt[i] : track.First.Interpolate(second);
-            }
-            for (int i = 3; i < 6; ++i)
-            {
-                var track = _tracks[i];
-                *pr++ = track.First == null ? pbr[i] : track.First.Interpolate(second);
-            }
-            for (int i = 6; i < 9; ++i)
-            {
-                var track = _tracks[i];
-                *ps++ = track.First == null ? pbs[i] : track.First.Interpolate(second);
-            }
-
-            translation = t;
-            rotation = new Rotator(r, EulerOrder);
-            scale = s;
-        }
+            => _tracks.GetTransform(bindState, second, out translation, out rotation, out scale);
         public void UpdateStateBlended(Transform frameState, Transform bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
             => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentTime, otherBoneAnim.Parent.CurrentTime, otherWeight, blendType);
         public void UpdateStateBlended(

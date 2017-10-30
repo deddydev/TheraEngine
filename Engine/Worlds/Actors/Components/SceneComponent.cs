@@ -249,10 +249,11 @@ namespace TheraEngine.Worlds.Actors
         public Matrix4 GetInvActorTransform() =>
             InverseWorldMatrix * (OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.WorldMatrix);
 
+        //[Browsable(false)]
+        //[Category("Rendering")]
+        //public bool IsSpawned
+        //    => OwningActor == null ? false : OwningActor.IsSpawned;
         [Browsable(false)]
-        [Category("Rendering")]
-        public bool IsSpawned
-            => OwningActor == null ? false : OwningActor.IsSpawned;
         [Category("Rendering")]
         public virtual ISocket Parent
         {

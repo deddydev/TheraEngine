@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using TheraEngine.Rendering;
 using TheraEngine.Files;
+using System.Collections.Generic;
+using System;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -16,9 +18,30 @@ namespace TheraEngine.Worlds.Actors
 
         private SingleFileRef<SkeletalMesh> _model;
         private SingleFileRef<Skeleton> _skeleton;
+        private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
 
         //For internal runtime use
         private RenderableMesh[] _meshes;
+
+        public MeshSocket this[string socketName] 
+            => _sockets.ContainsKey(socketName) ? _sockets[socketName] : null;
+
+        public MeshSocket FindOrCreateSocket(string socketName)
+        {
+            if (_sockets.ContainsKey(socketName))
+                return _sockets[socketName];
+            else
+            {
+                MeshSocket socket = new MeshSocket(Transform.GetIdentity(), OwningActor);
+                _sockets.Add(socketName, socket);
+                return socket;
+            }
+        }
+        public void DeleteSocket(string socketName)
+        {
+            if (_sockets.ContainsKey(socketName))
+                _sockets.Remove(socketName);
+        }
 
         [Serialize]
         public SingleFileRef<SkeletalMesh> Model
@@ -85,6 +108,7 @@ namespace TheraEngine.Worlds.Actors
             }
         }
         
+        [Browsable(false)]
         public RenderableMesh[] Meshes => _meshes;
         
         public void SetAllSimulatingPhysics(bool doSimulation)

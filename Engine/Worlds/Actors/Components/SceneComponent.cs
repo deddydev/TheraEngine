@@ -254,7 +254,6 @@ namespace TheraEngine.Worlds.Actors
         //public bool IsSpawned
         //    => OwningActor == null ? false : OwningActor.IsSpawned;
         [Browsable(false)]
-        [Category("Rendering")]
         public virtual ISocket Parent
         {
             get => _parent;
@@ -277,22 +276,7 @@ namespace TheraEngine.Worlds.Actors
         public Matrix4 PreviousWorldTransform { get => _previousWorldTransform; set => _previousWorldTransform = value; }
         [Browsable(false)]
         public Matrix4 PreviousInverseWorldTransform { get => _previousInverseWorldTransform; set => _previousInverseWorldTransform = value; }
-
-        private bool _selected;
-        public bool Selected
-        {
-            get => _selected;
-            set
-            {
-                _selected = value;
-                //if (this is IPhysicsDrivable p && p.PhysicsDriver != null)
-                //    p.PhysicsDriver.SimulatingPhysics = false;
-            }
-        }
-        public abstract void HandleTranslation(Vec3 delta);
-        public abstract void HandleScale(Vec3 delta);
-        public abstract void HandleRotation(Quat delta);
-
+        
         protected internal abstract void OriginRebased(Vec3 newOrigin);
         public override void OnSpawned()
         {
@@ -391,27 +375,79 @@ namespace TheraEngine.Worlds.Actors
             item.RecalcGlobalTransform();
             OwningActor?.GenerateSceneComponentCache();
         }
-        public void AttachTo(SkeletalMeshComponent mesh, string socketName)
+
+        /// <summary>
+        /// Attaches this component to the given skeletal mesh component at the given socket.
+        /// </summary>
+        /// <param name="mesh">The skeletal mesh to attach to.</param>
+        /// <param name="socketName">The name of the socket to attach to.</param>
+        /// <returns>True if successfully attached.</returns>
+        public bool AttachTo(SkeletalMeshComponent mesh, string socketName)
         {
-            if (mesh == null || mesh.Skeleton == null)
-                throw new InvalidOperationException("No available mesh or skeleton to attach to.");
+            if (mesh == null)
+            {
+                Engine.PrintLine("Cannot attach to a null skeletal mesh.");
+                return false;
+            }
+            if (mesh.Skeleton == null)
+            {
+                mesh.ChildComponents.Add(this);
+                return true;
+            }
+
             Bone bone = mesh.Skeleton.File[socketName];
             if (bone != null)
+            {
                 bone.ChildComponents.Add(this);
-            else
-                mesh.ChildComponents.Add(this);
+                return true;
+            }
+
+            mesh.FindOrCreateSocket(socketName).ChildComponents.Add(mesh);
+            return true;
         }
-        public void DetachFromParent()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <param name="socketName"></param>
+        public bool AttachTo(StaticMeshComponent mesh, string socketName)
         {
-            Parent.ChildComponents.Remove(this);
+            if (mesh == null)
+            {
+                Engine.PrintLine("Cannot attach to a null static mesh.");
+                return false;
+            }
+            mesh.FindOrCreateSocket(socketName).ChildComponents.Add(mesh);
+            return true;
         }
-        public void AttachTo(StaticMeshComponent mesh, string socketName)
-        {
-            mesh[socketName]?.ChildComponents.Add(mesh);
-        }
+        /// <summary>
+        /// Attaches this component to the given scene component parent transform.
+        /// </summary>
         public void AttachTo(SceneComponent component)
+            => component.ChildComponents.Add(this);
+        /// <summary>
+        /// Detaches self from the current parent socket transform.
+        /// Retains current position in world space.
+        /// </summary>
+        public void DetachFromParent()
+            => Parent.ChildComponents.Remove(this);
+        
+#if EDITOR
+        private bool _selected;
+        [Browsable(false)]
+        public bool Selected
         {
-            component.ChildComponents.Add(this);
+            get => _selected;
+            set
+            {
+                _selected = value;
+                //if (this is IPhysicsDrivable p && p.PhysicsDriver != null)
+                //    p.PhysicsDriver.SimulatingPhysics = false;
+            }
         }
+        public abstract void HandleTranslation(Vec3 delta);
+        public abstract void HandleScale(Vec3 delta);
+        public abstract void HandleRotation(Quat delta);
+#endif
     }
 }

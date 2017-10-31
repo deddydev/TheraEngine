@@ -7,9 +7,9 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public class StaticMeshSocket : ISocket
+    public class MeshSocket : ISocket
     {
-        public StaticMeshSocket(Transform transform, IActor owner)
+        internal MeshSocket(Transform transform, IActor owner)
         {
             _owner = owner;
             _transform = transform;
@@ -120,20 +120,26 @@ namespace TheraEngine.Worlds.Actors
         {
             _physicsDriver.SetPhysicsTransform(WorldMatrix);
         }
+        
+        public MeshSocket this[string socketName]
+            => _sockets.ContainsKey(socketName) ? _sockets[socketName] : null;
 
-        public StaticMeshSocket this[string socketName]
+        public MeshSocket FindOrCreateSocket(string socketName)
         {
-            get => _sockets.ContainsKey(socketName) ? _sockets[socketName] : null;
-            set
+            if (_sockets.ContainsKey(socketName))
+                return _sockets[socketName];
+            else
             {
-                if (_sockets.ContainsKey(socketName))
-                    _sockets[socketName] = value;
-                else
-                    _sockets.Add(socketName, value);
+                MeshSocket socket = new MeshSocket(Transform.GetIdentity(), OwningActor);
+                _sockets.Add(socketName, socket);
+                return socket;
             }
         }
-
-        private Dictionary<string, StaticMeshSocket> _sockets = new Dictionary<string, StaticMeshSocket>();
+        public void DeleteSocket(string socketName)
+        {
+            if (_sockets.ContainsKey(socketName))
+                _sockets.Remove(socketName);
+        }
 
         private void _physicsDriver_TransformChanged(Matrix4 worldMatrix)
             => WorldMatrix = worldMatrix;
@@ -149,6 +155,7 @@ namespace TheraEngine.Worlds.Actors
         private StaticMesh _model;
         private PhysicsDriver _physicsDriver;
         private RenderableMesh[] _meshes;
+        private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
 
         public StaticMesh Model
         {

@@ -7,7 +7,7 @@ using System;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public partial class SkeletalMeshComponent : TRSComponent, IPreRenderNeeded
+    public partial class SkeletalMeshComponent : TRSComponent, IPreRenderNeeded, IMeshSocketOwner
     {
         public SkeletalMeshComponent(SkeletalMesh m, Skeleton skeleton)
         {
@@ -23,9 +23,9 @@ namespace TheraEngine.Worlds.Actors
         //For internal runtime use
         private RenderableMesh[] _meshes;
 
+        #region IMeshSocketOwner interface
         public MeshSocket this[string socketName] 
             => _sockets.ContainsKey(socketName) ? _sockets[socketName] : null;
-
         public MeshSocket FindOrCreateSocket(string socketName)
         {
             if (_sockets.ContainsKey(socketName))
@@ -37,11 +37,31 @@ namespace TheraEngine.Worlds.Actors
                 return socket;
             }
         }
+        public MeshSocket FindOrCreateSocket(string socketName, Transform transform)
+        {
+            if (_sockets.ContainsKey(socketName))
+            {
+                MeshSocket socket = _sockets[socketName];
+                socket.Transform = transform;
+                return socket;
+            }
+            else
+            {
+                MeshSocket socket = new MeshSocket(transform, OwningActor);
+                _sockets.Add(socketName, socket);
+                return socket;
+            }
+        }
         public void DeleteSocket(string socketName)
         {
             if (_sockets.ContainsKey(socketName))
                 _sockets.Remove(socketName);
         }
+        public void AddToSocket(string socketName, SceneComponent component)
+            => FindOrCreateSocket(socketName).ChildComponents.Add(component);
+        public void AddRangeToSocket(string socketName, IEnumerable<SceneComponent> components)
+            => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
+        #endregion
 
         [Serialize]
         public SingleFileRef<SkeletalMesh> Model

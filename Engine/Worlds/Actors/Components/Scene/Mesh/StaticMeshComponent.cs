@@ -7,90 +7,7 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public class MeshSocket : ISocket
-    {
-        internal MeshSocket(Transform transform, IActor owner)
-        {
-            _owner = owner;
-            _transform = transform;
-            _childComponents = new MonitoredList<SceneComponent>();
-            _childComponents.PostAdded          += _children_Added;
-            _childComponents.PostAddedRange     += _children_AddedRange;
-            _childComponents.PostInserted       += _children_Inserted;
-            _childComponents.PostInsertedRange  += _children_InsertedRange;
-            _childComponents.PostRemoved        += _children_Removed;
-            _childComponents.PostRemovedRange   += _children_RemovedRange;
-        }
-
-        private IActor _owner;
-        private Transform _transform = Transform.GetIdentity();
-        private MonitoredList<SceneComponent> _childComponents;
-
-        public Matrix4 WorldMatrix => _transform.Matrix;
-        public Matrix4 InverseWorldMatrix => _transform.InverseMatrix;
-        public MonitoredList<SceneComponent> ChildComponents => _childComponents;
-
-        private void _children_RemovedRange(IEnumerable<SceneComponent> items)
-        {
-            foreach (SceneComponent item in items)
-            {
-                item._parent = null;
-                item.OwningActor = null;
-                item.RecalcGlobalTransform();
-            }
-            //_owner?.GenerateSceneComponentCache();
-        }
-        private void _children_Removed(SceneComponent item)
-        {
-            item._parent = null;
-            item.OwningActor = null;
-            item.RecalcGlobalTransform();
-            //_owner?.GenerateSceneComponentCache();
-        }
-        private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
-            => _children_AddedRange(items);
-        private void _children_Inserted(SceneComponent item, int index)
-            => _children_Added(item);
-        private void _children_AddedRange(IEnumerable<SceneComponent> items)
-        {
-            foreach (SceneComponent item in items)
-            {
-                item._parent = this;
-                item.OwningActor = _owner;
-                item.RecalcGlobalTransform();
-            }
-            //_owner?.GenerateSceneComponentCache();
-        }
-        private void _children_Added(SceneComponent item)
-        {
-            item._parent = this;
-            item.OwningActor = _owner;
-            item.RecalcGlobalTransform();
-            //_owner?.GenerateSceneComponentCache();
-        }
-        private bool _selected;
-        public bool Selected
-        {
-            get => _selected;
-            set
-            {
-                _selected = value;
-            }
-        }
-        public void HandleTranslation(Vec3 delta)
-        {
-            _transform.Translation += delta;
-        }
-        public void HandleScale(Vec3 delta)
-        {
-            _transform.Scale += delta;
-        }
-        public void HandleRotation(Quat delta)
-        {
-            _transform.Quaternion *= delta;
-        }
-    }
-    public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
+    public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable, IMeshSocketOwner
     {
         public StaticMeshComponent(StaticMesh m, PhysicsConstructionInfo info) 
             : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info) { }
@@ -120,10 +37,10 @@ namespace TheraEngine.Worlds.Actors
         {
             _physicsDriver.SetPhysicsTransform(WorldMatrix);
         }
-        
+
+        #region IMeshSocketOwner interface
         public MeshSocket this[string socketName]
             => _sockets.ContainsKey(socketName) ? _sockets[socketName] : null;
-
         public MeshSocket FindOrCreateSocket(string socketName)
         {
             if (_sockets.ContainsKey(socketName))
@@ -135,11 +52,31 @@ namespace TheraEngine.Worlds.Actors
                 return socket;
             }
         }
+        public MeshSocket FindOrCreateSocket(string socketName, Transform transform)
+        {
+            if (_sockets.ContainsKey(socketName))
+            {
+                MeshSocket socket = _sockets[socketName];
+                socket.Transform = transform;
+                return socket;
+            }
+            else
+            {
+                MeshSocket socket = new MeshSocket(transform, OwningActor);
+                _sockets.Add(socketName, socket);
+                return socket;
+            }
+        }
         public void DeleteSocket(string socketName)
         {
             if (_sockets.ContainsKey(socketName))
                 _sockets.Remove(socketName);
         }
+        public void AddToSocket(string socketName, SceneComponent component)
+            => FindOrCreateSocket(socketName).ChildComponents.Add(component);
+        public void AddRangeToSocket(string socketName, IEnumerable<SceneComponent> components)
+            => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
+        #endregion
 
         private void _physicsDriver_TransformChanged(Matrix4 worldMatrix)
             => WorldMatrix = worldMatrix;

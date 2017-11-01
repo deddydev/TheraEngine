@@ -87,7 +87,7 @@ in vec3 FragPos;
 in vec3 FragNorm;
 in vec2 FragUV0;
 
-" + LightingSetupBasic() + @"
+" + LightingDeclBasic() + @"
 
 void main()
 {
@@ -95,7 +95,7 @@ void main()
     vec4 texColor = texture(Texture0, FragUV0);
     float AmbientOcclusion = 1.0;
 
-    " + LightingCalc("totalLight", "vec3(0.0f)", "normal", "FragPos", "texColor.rgb", "MatSpecularIntensity", "AmbientOcclusion") + @"
+    " + LightingCalcBasic("totalLight", "vec3(0.0f)", "normal", "FragPos", "texColor.rgb", "MatSpecularIntensity", "AmbientOcclusion") + @"
 
     OutColor = texColor * vec4(totalLight, 1.0);
 }
@@ -199,7 +199,7 @@ uniform vec3 CameraForward;
 in vec3 FragPos;
 in vec3 FragNorm;
 
-" + LightingSetupBasic() + @"
+" + LightingDeclBasic() + @"
 
 void main()
 {
@@ -213,8 +213,8 @@ void main()
             return new Shader(ShaderMode.Fragment, source);
         }
         public static string LightingCalcForward()
-            => LightingCalc("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity", "1.0");
-        public static string LightingCalc(
+            => LightingCalcBasic("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity", "1.0");
+        public static string LightingCalcBasic(
             string lightVarName,
             string baseLightVec3,
             string normalNameVec3,
@@ -236,7 +236,7 @@ void main()
         {0} += CalcSpotLight(SpotLights[i], {2}, {3}, {4}, {5}, {6});",
         lightVarName, baseLightVec3, normalNameVec3, fragPosNameVec3, albedoNameRGB, specNameIntensity, ambientOcclusionFloat);
         }
-        public static string LightingSetupBasic()
+        public static string LightingDeclBasic()
         {
             return @"
 

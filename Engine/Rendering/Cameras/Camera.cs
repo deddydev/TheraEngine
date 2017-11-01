@@ -398,7 +398,7 @@ namespace TheraEngine.Rendering.Cameras
         protected void OnRotationChanged(Rotator oldRotation)
             => RotationChanged?.Invoke(oldRotation);
         
-        internal static string ShaderSetup()
+        internal static string ShaderDecl()
         {
             return @"
 uniform vec3 CameraPosition;

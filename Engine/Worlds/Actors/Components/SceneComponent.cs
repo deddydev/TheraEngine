@@ -6,20 +6,6 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public interface ISocket
-    {
-        Matrix4 WorldMatrix { get; }
-        Matrix4 InverseWorldMatrix { get; }
-        MonitoredList<SceneComponent> ChildComponents { get; }
-
-#if EDITOR
-        bool Selected { get; set; }
-#endif
-
-        void HandleTranslation(Vec3 delta);
-        void HandleScale(Vec3 delta);
-        void HandleRotation(Quat delta);
-    }
     public abstract class SceneComponent : Component, ISocket
     {
         public SceneComponent()

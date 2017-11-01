@@ -600,6 +600,7 @@
     <None Include="Core\Tools\V-HACD\VHACD.cs" />
     <None Include="Core\Tools\V-HACD\Volume.cs" />
     <Compile Include="Tests\TestCharacter.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Mesh\MeshSocket.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Volumes\Blocking.cs" />
     <Compile Include="Worlds\Actors\Types\BSP\BSPSphereActor.cs" />
     <Compile Include="Worlds\Actors\Types\BSP\BSPBoxActor.cs" />

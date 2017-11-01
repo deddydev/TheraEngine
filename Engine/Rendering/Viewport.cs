@@ -831,8 +831,8 @@ uniform vec3 SSAOSamples[64];
 uniform float SSAORadius = 0.75;
 uniform float SSAOPower = 4.0;
 
-" + Camera.ShaderSetup() + @"
-" + ShaderHelpers.LightingSetupBasic() + @"
+" + Camera.ShaderDecl() + @"
+" + ShaderHelpers.LightingDeclBasic() + @"
 " + ShaderHelpers.Func_ViewPosFromDepth + @"
 
 void main()
@@ -878,7 +878,7 @@ void main()
 
     occlusion = pow(1.0 - (occlusion / kernelSize), SSAOPower);
 
-    " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "occlusion") + @"
+    " + ShaderHelpers.LightingCalcBasic("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "occlusion") + @"
 
     OutColor = vec4(AlbedoSpec.rgb * totalLight, 1.0);
 }";

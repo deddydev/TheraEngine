@@ -143,14 +143,14 @@ uniform sampler2D Texture0;
 
 uniform vec3 CameraPosition;
 
-" + ShaderHelpers.LightingSetupBasic() + @"
+" + ShaderHelpers.LightingDeclBasic() + @"
 
 void main()
 {
     vec3 normal = normalize(FragNorm);
     vec3 diffuseColor = texture(Texture0, FragUV0).rgb * Diffuse;
 
-    " + ShaderHelpers.LightingCalc("totalLight", "vec3(0.0)", "normal", "FragPos", "diffuseColor", "0.0", "1.0") + @"
+    " + ShaderHelpers.LightingCalcBasic("totalLight", "vec3(0.0)", "normal", "FragPos", "diffuseColor", "0.0", "1.0") + @"
     OutColor = vec4(diffuseColor * totalLight, 1.0);
 }");
             else

@@ -111,8 +111,7 @@ namespace TheraEngine.Files.Serialization
         }
         private static void WriteMember(object obj, VarInfo member, XmlWriter writer)
         {
-            if (member.Attrib.Condition != null &&
-                !ExpressionParser.Evaluate<bool>(member.Attrib.Condition, obj))
+            if (member.Attrib.Condition != null && !ExpressionParser.Evaluate<bool>(member.Attrib.Condition, obj))
                 return;
             
             object value = member.GetValue(obj);
@@ -136,6 +135,9 @@ namespace TheraEngine.Files.Serialization
         {
             switch (SerializationCommon.GetValueType(member.VariableType))
             {
+                case SerializationCommon.ValueType.Manual:
+                    ((FileObject)value).Write(writer);
+                    break;
                 case SerializationCommon.ValueType.Parsable:
                     writer.WriteElementString(member.Name, ((IParsable)value).WriteToString());
                     break;
@@ -265,10 +267,11 @@ namespace TheraEngine.Files.Serialization
         }
         private static void WriteStruct(object structObj, FieldInfo[] structMembers, XmlWriter writer)
         {
-            foreach (FieldInfo member in structMembers)
-            {
-                object value = member.GetValue(structObj);
-            }
+            throw new NotImplementedException();
+            //foreach (FieldInfo member in structMembers)
+            //{
+            //    object value = member.GetValue(structObj);
+            //}
         }
         private static void WriteStringArray(IList array, XmlWriter writer, bool parsable, bool enums)
         {

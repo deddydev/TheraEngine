@@ -83,9 +83,10 @@ namespace TheraEngine.Tools
         private static object GetValue(string token, object provider)
         {
             token = token.Trim();
+            string origToken = token;
 
-            FieldInfo[] fields = provider == null ? new FieldInfo[0] : provider.GetType().GetFields();
-            PropertyInfo[] properties = provider == null ? new PropertyInfo[0] : provider.GetType().GetProperties();
+            FieldInfo[] fields = provider == null ? new FieldInfo[0] : provider.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            PropertyInfo[] properties = provider == null ? new PropertyInfo[0] : provider.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
             int invertCount = 0;
             while (token.StartsWith("!"))
@@ -226,7 +227,8 @@ namespace TheraEngine.Tools
                         return double.Parse(token);
                 }
             }
-            throw new Exception();
+            Engine.PrintLine("[ExpressionParser] Token not recognized: " + origToken);
+            return null;
         }
         private static readonly Dictionary<string, string[]> _implicitConversions = new Dictionary<string, string[]>()
         {

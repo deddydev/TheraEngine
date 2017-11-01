@@ -43,7 +43,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         {
                             AutoSize = true,
                             Checked = enumStrings.Contains(name),
-                            Tag = number,
+                            Tag = name,
                             Margin = new Padding(0),
                             Padding = new Padding(0),
                             Dock = DockStyle.Left,
@@ -115,9 +115,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             string oldValue = GetValue().ToString();
             CheckBox box = (CheckBox)sender;
             if (box.Checked)
-                newValue = oldValue + ", " + box.Text;
+                newValue = oldValue + ", " + box.Tag.ToString();
             else
-                newValue = string.Join(", ", oldValue.Replace(box.Text, "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+                newValue = string.Join(", ", oldValue.Replace(box.Tag.ToString(), "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
             UpdateValue(Enum.Parse(DataType, newValue));
         }
     }

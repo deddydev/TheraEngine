@@ -807,7 +807,7 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void BeginTransformFeedback(FeedbackPrimitiveType type)
         {
-            GL.BeginTransformFeedback((TransformFeedbackPrimitiveType)type.Convert(typeof(TransformFeedbackPrimitiveType)));
+            GL.BeginTransformFeedback((TransformFeedbackPrimitiveType)type.ConvertByName(typeof(TransformFeedbackPrimitiveType)));
         }
         public override void EndTransformFeedback()
         {
@@ -1003,16 +1003,16 @@ namespace TheraEngine.Rendering.OpenGL
         public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData)
         {
             GL.TexParameter(
-                (TextureTarget)texTarget.Convert(typeof(TextureTarget)),
-                (TextureParameterName)texParam.Convert(typeof(TextureParameterName)),
+                (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget)),
+                (TextureParameterName)texParam.ConvertByName(typeof(TextureParameterName)),
                 paramData);
         }
 
         public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData)
         {
             GL.TexParameter(
-                (TextureTarget)texTarget.Convert(typeof(TextureTarget)),
-                (TextureParameterName)texParam.Convert(typeof(TextureParameterName)),
+                (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget)),
+                (TextureParameterName)texParam.ConvertByName(typeof(TextureParameterName)),
                 paramData);
         }
 
@@ -1026,10 +1026,10 @@ namespace TheraEngine.Rendering.OpenGL
             EPixelType type,
             VoidPtr data)
         {
-            TextureTarget tt = (TextureTarget)texTarget.Convert(typeof(TextureTarget));
-            PixelInternalFormat pit = (PixelInternalFormat)internalFormat.Convert(typeof(PixelInternalFormat));
-            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.Convert(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
-            PixelType pt = (PixelType)type.Convert(typeof(PixelType));
+            TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
+            PixelInternalFormat pit = (PixelInternalFormat)internalFormat.ConvertByName(typeof(PixelInternalFormat));
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
+            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
             GL.TexImage2D(tt, mipLevel, pit, width, height, 0, pf, pt, data);
         }
         public override void PushTextureData(
@@ -1042,15 +1042,15 @@ namespace TheraEngine.Rendering.OpenGL
             EPixelType type,
             byte[] data)
         {
-            TextureTarget tt = (TextureTarget)texTarget.Convert(typeof(TextureTarget));
-            PixelInternalFormat pit = (PixelInternalFormat)internalFormat.Convert(typeof(PixelInternalFormat));
-            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.Convert(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
-            PixelType pt = (PixelType)type.Convert(typeof(PixelType));
+            TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
+            PixelInternalFormat pit = (PixelInternalFormat)internalFormat.ConvertByName(typeof(PixelInternalFormat));
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
+            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
             GL.TexImage2D(tt, mipLevel, pit, width, height, 0, pf, pt, data);
         }
 
         public override void BindTexture(ETexTarget texTarget, int bindingId)
-            => GL.BindTexture((TextureTarget)texTarget.Convert(typeof(TextureTarget)), bindingId);
+            => GL.BindTexture((TextureTarget)texTarget.ConvertByName(typeof(TextureTarget)), bindingId);
 
         #region Blending Methods
         public override void BlendColor(ColorF4 color)

@@ -197,6 +197,10 @@ namespace TheraEngine.Files.Serialization
         {
             switch (SerializationCommon.GetValueType(memberType))
             {
+                case SerializationCommon.ValueType.Manual:
+                    FileObject o = (FileObject)Activator.CreateInstance(memberType);
+                    o.Read(reader);
+                    return o;
                 case SerializationCommon.ValueType.Array:
                     return ReadArray(memberType, reader);
                 case SerializationCommon.ValueType.Dictionary:

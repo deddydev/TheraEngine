@@ -219,11 +219,16 @@ namespace TheraEngine.Files.Serialization
             Enum,
             String,
             Struct,
-            Pointer
+            Pointer,
+            Manual,
         }
         public static ValueType GetValueType(Type t)
         {
-            if (t.GetInterface("IParsable") != null)
+            if (t.IsSubclassOf(typeof(FileObject)) && (FileObject.GetFileHeader(t)?.ManualXmlSerialize == true))
+            {
+                return ValueType.Manual;
+            }
+            else if (t.GetInterface("IParsable") != null)
             {
                 return ValueType.Parsable;
             }

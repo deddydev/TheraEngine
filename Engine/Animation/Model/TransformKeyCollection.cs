@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EnumsNET;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -231,14 +232,14 @@ namespace TheraEngine.Animation
                     if (_tracks.IndexInRange(trackIndex))
                     {
                         KeyframeTrack<FloatKeyframe> track = _tracks[trackIndex];
-
+                        
                         int keyCount = 0;
                         if (reader.ReadAttribute() && reader.Name.Equals("Count", false) && !int.TryParse(reader.Value, out keyCount))
                             keyCount = 0;
 
                         if (keyCount > 0)
                         {
-                            string[] seconds, inValues, outValues, inTans, outTans, interpolation;
+                            string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
                             while (reader.BeginElement())
                             {
                                 switch ((string)reader.Name)
@@ -264,6 +265,23 @@ namespace TheraEngine.Animation
                                 }
                                 reader.EndElement();
                             }
+                            FloatKeyframe prev = null, first = null;
+                            for (int i = 0; i < keyCount; ++i)
+                            {
+                                FloatKeyframe kf = new FloatKeyframe(
+                                    float.Parse(seconds[i]),
+                                    float.Parse(inValues[i]),
+                                    float.Parse(outValues[i]),
+                                    float.Parse(inTans[i]),
+                                    float.Parse(outTans[i]),
+                                    Enums.Parse<PlanarInterpType>(interpolation[i]));
+                                if (prev != null)
+                                    prev.Link(kf);
+                                else
+                                    first = kf;
+                                prev = kf;
+                            }
+                            track.Add(first);
                         }
                         _tracks[trackIndex] = track;
                     }

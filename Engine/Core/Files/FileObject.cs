@@ -380,7 +380,8 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="table">The string table. Add strings to this as you wish, and use their addresses when writing later.</param>
         /// <returns>The size of the object, in bytes.</returns>
-        protected virtual int OnCalculateSize(StringTable table) => throw new NotImplementedException();
+        protected virtual int OnCalculateSize(StringTable table)
+            => throw new NotImplementedException("Override of \"protected virtual int OnCalculateSize(StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Writes this object to the given address.
         /// The size of this object is CalculatedSize.
@@ -388,26 +389,30 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="address">The address to write to.</param>
         /// <param name="table">The table of all strings added in OnCalculateSize.</param>
-        internal protected virtual void Write(VoidPtr address, StringTable table) => throw new NotImplementedException();
+        internal protected virtual void Write(VoidPtr address, StringTable table)
+            => throw new NotImplementedException("Override of \"internal protected virtual void Write(VoidPtr address, StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from the given address.
         /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
         /// </summary>
         /// <param name="address">The address to read from.</param>
         /// <param name="strings">The string table to get strings from.</param>
-        internal protected virtual void Read(VoidPtr address, VoidPtr strings) => throw new NotImplementedException();
+        internal protected virtual void Read(VoidPtr address, VoidPtr strings)
+            => throw new NotImplementedException("Override of \"internal protected virtual void Read(VoidPtr address, VoidPtr strings)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Writes this object to an xml file using the given xml writer.
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="writer">The xml writer to write the file with.</param>
-        internal protected virtual void Write(XmlWriter writer) => throw new NotImplementedException();
+        internal protected virtual void Write(XmlWriter writer) 
+            => throw new NotImplementedException("Override of \"internal protected virtual void Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from an xml file using the given xml reader.
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="reader">The xml reader to read the file with.</param>
-        internal protected virtual void Read(XMLReader reader) => throw new NotImplementedException();
+        internal protected virtual void Read(XMLReader reader) 
+            => throw new NotImplementedException("Override of \"internal protected virtual void Read(XMLReader reader)\" required when using ManualXmlSerialize in FileClass attribute.");
 
         #endregion
 

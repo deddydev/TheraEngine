@@ -18,7 +18,11 @@ namespace TheraEngine.Animation
         public bool UseKeyframes
         {
             get => _useKeyframes;
-            set { _useKeyframes = value; UseKeyframesChanged(); }
+            set
+            {
+                _useKeyframes = value;
+                UseKeyframesChanged();
+            }
         }
         public override void SetLength(float lengthInSeconds, bool stretchAnimation)
         {

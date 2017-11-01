@@ -54,7 +54,7 @@ namespace System
 
         //    return friendlyName;
         //}
-
+        
         private static Dictionary<Type, string> _defaultDictionary = new Dictionary<System.Type, string>
         {
             { typeof(void), "void" },

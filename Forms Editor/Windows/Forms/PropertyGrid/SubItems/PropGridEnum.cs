@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using EnumsNET;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -87,6 +88,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             selectedIndex = i;
                     }
                     comboBox1.SelectedIndex = selectedIndex;
+                    comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
                 }
                 //textBox1.Text = value?.ToString();
             }
@@ -102,17 +104,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private void BitSet_CheckedChanged(object sender, EventArgs e)
+        private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            CheckBox box = (CheckBox)sender;
-
+            UpdateValue(Enum.Parse(DataType, (string)comboBox1.SelectedItem));
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void BitSet_CheckedChanged(object sender, EventArgs e)
         {
-            //if (_updating)
-            //    return;
-            //UpdatePropertyValue(textBox1.Text);
+            string newValue;
+            string oldValue = GetValue().ToString();
+            CheckBox box = (CheckBox)sender;
+            if (box.Checked)
+                newValue = oldValue + ", " + box.Text;
+            else
+                newValue = string.Join(", ", oldValue.Replace(box.Text, "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+            UpdateValue(Enum.Parse(DataType, newValue));
         }
     }
 }

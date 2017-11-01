@@ -163,7 +163,8 @@ namespace TheraEngine.Animation
 
         protected virtual void UseKeyframesChanged() { }
 
-        public void SetLength(float seconds, bool stretchAnimation) => _tracks.SetLength(seconds, stretchAnimation);
+        public void SetLength(float seconds, bool stretchAnimation)
+            => _tracks.SetLength(seconds, stretchAnimation);
         
         internal ModelAnimation Parent { get; set; }
 

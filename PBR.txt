@@ -1,0 +1,113 @@
+const float PI = 3.14159265359;
+
+//Trowbridge-Reitz GGX
+float SpecD_TRGGX(vec3 N, vec3 H, float a2)
+{
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float num    = a2;
+    float denom  = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom        = PI * denom * denom;
+
+    return num / denom;
+}
+float SpecG_SchlickGGX(float NdotV, float k)
+{
+    float num   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return num / denom;
+}
+float SpecG_Smith(vec3 N, vec3 V, vec3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+
+    float ggx1 = SpecG_SchlickGGX(NdotV, k);
+    float ggx2 = SpecG_SchlickGGX(NdotL, k);
+
+    return ggx1 * ggx2;
+}
+vec3 SpecF_Schlick(float VoH, vec3 F0)
+{
+	//Regular implementation
+	//float pow = pow(1.0 - VoH, 5.0);
+
+	//Spherical Gaussian Approximation
+	//https://seblagarde.wordpress.com/2012/06/03/spherical-gaussien-approximation-for-blinn-phong-phong-and-fresnel/
+	float pow = exp2((-5.55473 * VoH - 6.98316) * VoH);
+
+    	return F0 + (1.0 - F0) * pow;
+}
+float CookTorrance(vec3 albedo, float metallic, float roughness, float kdiff, float kspec)
+{
+	float a = roughness * roughness;
+	float a2 = a * a;
+	float k = pow(roughness + 1.0, 2.0) * 0.125; //divide by 8
+	vec3 F0 = vec3(0.04); 
+	F0      = mix(F0, albedo, metallic);
+
+	float D = SpecD_TRGGX(N, H, a2);
+	float G = SpecG_Smith(N, V, L, k);
+	float F = SpecF_Schlick(, F0);
+
+	vec3 num 	= D * G * F;
+	float denom	= 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; 
+	vec3 specular   = num / denom;
+
+	vec3 kS = F;
+	vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
+
+	float NdotL = max(dot(N, L), 0.0);        
+    	Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+}
+vec3 ImportanceSampleGGX(vec2 Xi, float a, vec3 N)
+{
+	float Phi = 2 * PI * Xi.x;
+
+	float CosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
+	float SinTheta = sqrt(1.0 - CosTheta * CosTheta);
+
+	vec3 H = vec3(SinTheta * cos(Phi), SinTheta * sin(Phi), CosTheta);
+	vec3 UpVector = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+	vec3 TangentX = normalize(cross(UpVector, N));
+	vec3 TangentY = cross(N, TangentX);
+
+	// Tangent to world space
+	return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+vec3 SpecularIBL(vec3 SpecularColor, float Roughness, vec3 N, vec3 V)
+{
+	float3 SpecularLighting = 0;
+	const uint NumSamples = 1024;
+	float a = Roughness * Roughness;
+	for (uint i = 0; i < NumSamples; i++)
+	{
+		vec2 Xi = Hammersley(i, NumSamples);
+		vec3 H = ImportanceSampleGGX(Xi, a, N);
+		float VoH = dot(V, H);
+		vec3 L = 2 * VoH * H - V;
+		float NoV = saturate(dot(N, V));
+		float NoL = saturate(dot(N, L));
+		float NoH = saturate(dot(N, H));
+		VoH = saturate(VoH);
+		if(NoL > 0)
+		{
+			vec3 SampleColor = EnvMap.SampleLevel(EnvMapSampler, L, 0).rgb;
+			float G = G_Smith(Roughness, NoV, NoL);
+			float Fc = pow( 1 - VoH, 5 );
+			float3 F = (1 - Fc) * SpecularColor + Fc;
+			// Incident light = SampleColor * NoL
+			// Microfacet specular = D*G*F / (4*NoL*NoV)
+			// pdf = D * NoH / (4 * VoH)
+			SpecularLighting += SampleColor * F * G * VoH / (NoH * NoV);
+		}
+	}
+	return SpecularLighting / NumSamples;
+}
+
+float CalcLighting()
+{
+	
+}

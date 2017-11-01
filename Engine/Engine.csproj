@@ -197,6 +197,9 @@
     <Reference Include="DiffSharp, Version=0.7.7.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\DiffSharp.0.7.7\lib\net46\DiffSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Enums.NET">
+      <HintPath>..\Libraries\Enums.NET.2.2.0\Bin\Net45\Enums.NET.dll</HintPath>
+    </Reference>
     <Reference Include="FreeImageNET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\FreeImageNET.dll</HintPath>
     </Reference>

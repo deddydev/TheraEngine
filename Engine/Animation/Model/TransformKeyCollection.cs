@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using TheraEngine.Files;
 
 namespace TheraEngine.Animation
 {
-    public class TransformKeyCollection : IEnumerable<KeyframeTrack<FloatKeyframe>>
+    [FileClass("tkc", "Transform Key Collection", ManualXmlSerialize = true)]
+    public class TransformKeyCollection : FileObject, IEnumerable<KeyframeTrack<FloatKeyframe>>
     {
-        public TransformKeyCollection()
-        {
+        public TransformKeyCollection() { }
 
-        }
-
+        public float LengthInSeconds { get; private set; }
         public TransformOrder TransformOrder { get; set; } = TransformOrder.TRS;
         public RotationOrder EulerOrder { get; set; } = RotationOrder.RYP;
 
@@ -54,12 +57,14 @@ namespace TheraEngine.Animation
 
         public void SetLength(float seconds, bool stretchAnimation)
         {
+            LengthInSeconds = seconds;
             foreach (var track in _tracks)
                 track.SetLength(seconds, stretchAnimation);
         }
 
         /// <summary>
-        /// Retrieves the parts of the transform for this bone at the requested frame second.
+        /// Retrieves the parts of the transform at the requested frame second.
+        /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
         public unsafe void GetTransform(Transform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
         {
@@ -93,6 +98,222 @@ namespace TheraEngine.Animation
             translation = t;
             rotation = new Rotator(r, EulerOrder);
             scale = s;
+        }
+        /// <summary>
+        /// Retrieves the parts of the transform at the requested frame second.
+        /// Uses the defaultTransform for tracks that have no keys.
+        /// </summary>
+        public unsafe void GetTransform(float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        {
+            Vec3 t, r, s;
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* ps = (float*)&s;
+            for (int i = 0; i < 3; ++i)
+            {
+                var track = _tracks[i];
+                *pt++ = track.First == null ? 0.0f : track.First.Interpolate(second);
+            }
+            for (int i = 3; i < 6; ++i)
+            {
+                var track = _tracks[i];
+                *pr++ = track.First == null ? 0.0f : track.First.Interpolate(second);
+            }
+            for (int i = 6; i < 9; ++i)
+            {
+                var track = _tracks[i];
+                *ps++ = track.First == null ? 1.0f : track.First.Interpolate(second);
+            }
+
+            translation = t;
+            rotation = new Rotator(r, EulerOrder);
+            scale = s;
+        }
+        /// <summary>
+        /// Retrieves the transform at the requested frame second.
+        /// Uses the defaultTransform for tracks that have no keys.
+        /// </summary>
+        public unsafe Transform GetTransform(Transform defaultTransform, float second)
+        {
+            Vec3 t, r, s;
+            Vec3
+                bt = defaultTransform.Translation.Raw,
+                br = defaultTransform.Rotation.RawPitchYawRoll,
+                bs = defaultTransform.Scale.Raw;
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* ps = (float*)&s;
+            float* pbt = (float*)&bt;
+            float* pbr = (float*)&br;
+            float* pbs = (float*)&bs;
+            for (int i = 0; i < 3; ++i)
+            {
+                var track = _tracks[i];
+                *pt++ = track.First == null ? pbt[i] : track.First.Interpolate(second);
+            }
+            for (int i = 3; i < 6; ++i)
+            {
+                var track = _tracks[i];
+                *pr++ = track.First == null ? pbr[i] : track.First.Interpolate(second);
+            }
+            for (int i = 6; i < 9; ++i)
+            {
+                var track = _tracks[i];
+                *ps++ = track.First == null ? pbs[i] : track.First.Interpolate(second);
+            }
+
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+        }
+        /// <summary>
+        /// Retrieves the transform at the requested frame second.
+        /// </summary>
+        public unsafe Transform GetTransform(float second)
+        {
+            Vec3 t, r, s;
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* ps = (float*)&s;
+            for (int i = 0; i < 3; ++i)
+            {
+                var track = _tracks[i];
+                *pt++ = track.First == null ? 0.0f : track.First.Interpolate(second);
+            }
+            for (int i = 3; i < 6; ++i)
+            {
+                var track = _tracks[i];
+                *pr++ = track.First == null ? 0.0f : track.First.Interpolate(second);
+            }
+            for (int i = 6; i < 9; ++i)
+            {
+                var track = _tracks[i];
+                *ps++ = track.First == null ? 1.0f : track.First.Interpolate(second);
+            }
+
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+        }
+
+        /// <summary>
+        /// Clears all keyframes and sets tracks to the proper length.
+        /// </summary>
+        public void ResetKeys()
+        {
+            foreach (var track in _tracks)
+            {
+                track.Clear();
+                track.SetLength(LengthInSeconds, false);
+            }
+        }
+
+        protected internal override void Read(XMLReader reader)
+        {
+            string[] names =
+            {
+                "TranslationX",
+                "TranslationY",
+                "TranslationZ",
+                "RotationX",
+                "RotationY",
+                "RotationZ",
+                "ScaleX",
+                "ScaleY",
+                "ScaleZ",
+            };
+            if (reader.BeginElement() && reader.Name.Equals("TransformKeyCollection", false))
+            {
+                if (reader.ReadAttribute() && reader.Name.Equals("LengthInSeconds", false))
+                    LengthInSeconds = float.TryParse(reader.Value, out float length) ? length : 0.0f;
+
+                ResetKeys();
+
+                while (reader.BeginElement())
+                {
+                    int trackIndex = names.IndexOf(reader.Name);
+                    if (_tracks.IndexInRange(trackIndex))
+                    {
+                        KeyframeTrack<FloatKeyframe> track = _tracks[trackIndex];
+
+                        int keyCount = 0;
+                        if (reader.ReadAttribute() && reader.Name.Equals("Count", false) && !int.TryParse(reader.Value, out keyCount))
+                            keyCount = 0;
+
+                        if (keyCount > 0)
+                        {
+                            string[] seconds, inValues, outValues, inTans, outTans, interpolation;
+                            while (reader.BeginElement())
+                            {
+                                switch ((string)reader.Name)
+                                {
+                                    case "Second":
+                                        seconds = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        break;
+                                    case "InValues":
+                                        inValues = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        break;
+                                    case "OutValues":
+                                        outValues = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        break;
+                                    case "InTangents":
+                                        inTans = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        break;
+                                    case "OutTangents":
+                                        outTans = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        break;
+                                    case "Interpolation":
+                                        interpolation = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        break;
+                                }
+                                reader.EndElement();
+                            }
+                        }
+                        _tracks[trackIndex] = track;
+                    }
+                    reader.EndElement();
+                }
+            }
+            else
+            {
+                LengthInSeconds = 0;
+                ResetKeys();
+            }
+        }
+
+        protected internal override void Write(XmlWriter writer)
+        {
+            string[] names = 
+            {
+                "TranslationX",
+                "TranslationY",
+                "TranslationZ",
+                "RotationX",
+                "RotationY",
+                "RotationZ",
+                "ScaleX",
+                "ScaleY",
+                "ScaleZ",
+            };
+            writer.WriteStartElement("TransformKeyCollection");
+            {
+                writer.WriteAttributeString("LengthInSeconds", LengthInSeconds.ToString());
+                for (int i = 0; i < 9; ++i)
+                {
+                    var track = _tracks[i];
+                    if (track.KeyCount > 0)
+                    {
+                        writer.WriteStartElement(names[i]);
+                        {
+                            writer.WriteAttributeString("Count", track.KeyCount.ToString());
+                            writer.WriteElementString("Second", string.Join(",", track.Select(x => x.Second)));
+                            writer.WriteElementString("InValues", string.Join(",", track.Select(x => x.InValue)));
+                            writer.WriteElementString("OutValues", string.Join(",", track.Select(x => x.OutValue)));
+                            writer.WriteElementString("InTangents", string.Join(",", track.Select(x => x.InTangent)));
+                            writer.WriteElementString("OutTangents", string.Join(",", track.Select(x => x.OutTangent)));
+                            writer.WriteElementString("Interpolation", string.Join(",", track.Select(x => x.InterpolationType)));
+                        }
+                        writer.WriteEndElement();
+                    }
+                }
+            }
+            writer.WriteEndElement();
         }
 
         public IEnumerator<KeyframeTrack<FloatKeyframe>> GetEnumerator()

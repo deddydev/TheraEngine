@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp1.1;netcoreapp1.0;net45;net40;net35;net20</TargetFrameworks>
+    <RootNamespace>EnumsNET.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.7.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1' OR '$(TargetFramework)' == 'netcoreapp1.0' OR '$(TargetFramework)' == 'net45'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Enums.NET.TestEnums\Enums.NET.TestEnums.csproj" />
+    <ProjectReference Include="..\Enums.NET\Enums.NET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net40'">
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <AssemblyTitle>Enums.NET Tests</AssemblyTitle>
+    <DefineConstants>NET45;ENUM_MEMBER_ATTRIBUTE;SECURITY_SAFE_CRITICAL;COVARIANCE;DISPLAY_ATTRIBUTE;ICONVERTIBLE;GET_TYPE_CODE;TYPE_REFLECTION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <AssemblyTitle>Enums.NET Tests .NET 4.0</AssemblyTitle>
+    <DefineConstants>NET40;ENUM_MEMBER_ATTRIBUTE;SECURITY_SAFE_CRITICAL;COVARIANCE;DISPLAY_ATTRIBUTE;ICONVERTIBLE;GET_TYPE_CODE;TYPE_REFLECTION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
+    <AssemblyTitle>Enums.NET Tests .NET 3.5</AssemblyTitle>
+    <DefineConstants>NET35;ENUM_MEMBER_ATTRIBUTE;ICONVERTIBLE;GET_TYPE_CODE;TYPE_REFLECTION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net20'">
+    <AssemblyTitle>Enums.NET Tests .NET 2.0</AssemblyTitle>
+    <DefineConstants>NET20;ICONVERTIBLE;GET_TYPE_CODE;TYPE_REFLECTION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
+    <AssemblyTitle>Enums.NET Tests .NET Core App 1.1</AssemblyTitle>
+    <DefineConstants>NETSTANDARD;NETSTANDARD1_3;ENUM_MEMBER_ATTRIBUTE;SECURITY_SAFE_CRITICAL;COVARIANCE;DISPLAY_ATTRIBUTE;ICONVERTIBLE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0'">
+    <AssemblyTitle>Enums.NET Tests .NET Core App 1.0</AssemblyTitle>
+    <DefineConstants>NETSTANDARD;NETSTANDARD1_3;ENUM_MEMBER_ATTRIBUTE;SECURITY_SAFE_CRITICAL;COVARIANCE;DISPLAY_ATTRIBUTE;ICONVERTIBLE</DefineConstants>
+  </PropertyGroup>
+</Project>

@@ -13,12 +13,22 @@ namespace TheraEditor
     public class EditorSettings : FileObject
     {
         [Serialize]
-        public EngineSettings EngineSettings { get; set; } = new EngineSettings()
+        public EngineSettings Engine { get; set; } = new EngineSettings()
         {
             CapFPS = false,
             TargetFPS = 60.0f,
             CapUPS = false,
             TargetUPS = 30.0f,
         };
+        public PropertyGridSettings PropertyGrid { get; set; } = new PropertyGridSettings()
+        {
+
+        };
+
+        [FileClass("PGSET", "Property Grid Settings")]
+        public class PropertyGridSettings : FileObject
+        {
+            public bool SplitCamelCase { get; set; } = true;
+        }
     }
 }

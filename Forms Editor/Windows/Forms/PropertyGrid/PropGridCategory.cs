@@ -44,7 +44,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
             Label label = new Label()
             {
-                Text = name,
+                Text = Editor.Settings.File.PropertyGrid.SplitCamelCase ? name.SplitCamelCase() : name,
                 TextAlign = ContentAlignment.MiddleRight,
                 AutoSize = true,
                 ForeColor = Color.FromArgb(200, 200, 220),

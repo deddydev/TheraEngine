@@ -12,6 +12,8 @@ namespace TheraEditor
 {
     static class Program
     {
+        public static string StartupFolderPath = Application.StartupPath;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

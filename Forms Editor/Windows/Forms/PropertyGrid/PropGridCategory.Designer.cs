@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.tblProps = new System.Windows.Forms.TableLayoutPanel();
+            this.tblProps = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.lblCategoryName = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -100,7 +100,7 @@
 
         #endregion
 
-        public System.Windows.Forms.TableLayoutPanel tblProps;
+        public TheraEditor.Windows.Forms.BetterTableLayoutPanel tblProps;
         private System.Windows.Forms.Label lblCategoryName;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ToolTip toolTip1;

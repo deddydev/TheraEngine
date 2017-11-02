@@ -438,5 +438,8 @@ namespace Core.Win32.Native
         public const int SPI_GETWORKAREA = 0x0030;
 
         public const int TVM_GETEDITCONTROL = 0x110F;
+
+        public const int WM_SETREDRAW = 0x000B; //uint WM_SETREDRAW
+        public const int WS_EX_COMPOSITED = 0x02000000;
     }
 }

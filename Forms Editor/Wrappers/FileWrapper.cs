@@ -110,7 +110,7 @@ namespace TheraEditor.Wrappers
 
         public void EditResource()
         {
-            Editor.Instance.PropertyGridForm.theraPropertyGrid1.TargetObject = GetNewInstance();
+            Editor.Instance.PropertyGridForm.theraPropertyGrid1.TargetObject = SingleInstance;
         }
 
         //public BaseFileWrapper(ContextMenuStrip menu) : base(menu)

@@ -14,12 +14,14 @@ namespace TheraEngine.Core.Shapes
             _startPoint = startPoint;
             _endPoint = endPoint;
         }
-        
+
+        [Serialize]
         public Vec3 StartPoint
         {
             get => _startPoint;
             set => _startPoint = value;
         }
+        [Serialize]
         public Vec3 EndPoint
         {
             get => _endPoint;
@@ -30,12 +32,8 @@ namespace TheraEngine.Core.Shapes
             get => _endPoint - _startPoint;
             set => _endPoint = _startPoint + value;
         }
-
-        [DefaultValue("0 0 0")]
-        [Serialize("StartPoint")]
+        
         private Vec3 _startPoint;
-        [DefaultValue("0 0 0")]
-        [Serialize("EndPoint")]
         private Vec3 _endPoint;
 
         public enum Part

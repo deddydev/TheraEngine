@@ -18,7 +18,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridList() => InitializeComponent();
         private IList _list;
         private Type _elementType;
-        private Deque<Type> _controlTypes;
         protected override async void UpdateDisplayInternal()
         {
             object value = GetValue();
@@ -32,7 +31,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     btnAdd.Visible = !list.IsFixedSize;
                     _elementType = list.DetermineElementType();
                     _list = list;
-                    _controlTypes = await Task.Run(() => TheraPropertyGrid.GetControlTypes(_elementType));
                 }
             }
             else if (value is Exception ex)
@@ -44,24 +42,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 throw new Exception(DataType.GetFriendlyName() + " is not an IList type.");
             }
         }
-
-        private void pnlHeader_MouseDown(object sender, MouseEventArgs e)
-        {
-        }
-
-        private void pnlHeader_MouseLeave(object sender, EventArgs e)
-        {
-        }
-
-        private void pnlHeader_MouseEnter(object sender, EventArgs e)
-        {
-        }
-
+        
         private void pnlElements_VisibleChanged(object sender, EventArgs e)
         {
-            if (propGridCategory1.Visible)
+            if (propGridListItems.Visible)
             {
-                if (propGridCategory1.tblProps.Controls.Count == 0)
+                if (propGridListItems.tblProps.Controls.Count == 0)
                     LoadList(_list);
             }
             else
@@ -73,19 +59,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private async void LoadList(IList list)
         {
             if (list == null)
-                propGridCategory1.DestroyProperties();
+                propGridListItems.DestroyProperties();
             else
             {
                 ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
                 await Task.Run(() => Parallel.For(0, list.Count, i =>
                 {
-                    List<PropGridItem> items = TheraPropertyGrid.CreateControls(_controlTypes, list, i);
+                    Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(list[i]?.GetType());
+                    List<PropGridItem> items = TheraPropertyGrid.CreateControls(controlTypes, list, i);
                     controls.TryAdd(i, items);
                 }));
+                propGridListItems.tblProps.SuspendLayout();
                 for (int i = 0; i < list.Count; ++i)
                 {
-                    propGridCategory1.AddProperty(controls[i], new object[0]);
+                    propGridListItems.AddProperty(controls[i], new object[0]);
                 }
+                propGridListItems.tblProps.ResumeLayout(true);
             }
         }
 
@@ -97,8 +86,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             _list.Add(value);
-            var items = TheraPropertyGrid.CreateControls(_controlTypes, _list, i);
-            propGridCategory1.AddProperty(items, new object[0]);
+            var items = TheraPropertyGrid.CreateControls(TheraPropertyGrid.GetControlTypes(value?.GetType()), _list, i);
+            propGridListItems.AddProperty(items, new object[0]);
             Editor.Instance.PropertyGridForm.theraPropertyGrid1.pnlProps.ScrollControlIntoView(items[items.Count - 1]);
         }
 
@@ -109,7 +98,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {
-            propGridCategory1.Visible = !propGridCategory1.Visible;
+            propGridListItems.Visible = !propGridListItems.Visible;
             Editor.Instance.PropertyGridForm.theraPropertyGrid1.pnlProps.ScrollControlIntoView(this);
         }
         protected override void SetControlsEnabled(bool enabled)

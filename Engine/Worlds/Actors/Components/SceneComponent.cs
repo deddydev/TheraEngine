@@ -39,7 +39,7 @@ namespace TheraEngine.Worlds.Actors
         internal ISocket _parent;
         protected MonitoredList<SceneComponent> _children;
 
-        [Browsable(false)]
+        [Browsable(true)]
         public virtual Matrix4 WorldMatrix
         {
             get => _worldTransform;
@@ -64,7 +64,7 @@ namespace TheraEngine.Worlds.Actors
         /// and also has to follow the parent heirarchy to create the inverse transform tree.
         /// Avoid calling if possible when simulating physics.
         /// </summary>
-        [Browsable(false)]
+        [Browsable(true)]
         public virtual Matrix4 InverseWorldMatrix
         {
             get
@@ -326,6 +326,9 @@ namespace TheraEngine.Worlds.Actors
         {
             foreach (SceneComponent item in items)
             {
+                if (item.IsSpawned)
+                    item.OnDespawned();
+
                 item._parent = null;
                 item.OwningActor = null;
                 item.RecalcGlobalTransform();
@@ -334,9 +337,13 @@ namespace TheraEngine.Worlds.Actors
         }
         private void _children_Removed(SceneComponent item)
         {
+            if (item.IsSpawned)
+                item.OnDespawned();
+
             item._parent = null;
             item.OwningActor = null;
             item.RecalcGlobalTransform();
+
             OwningActor?.GenerateSceneComponentCache();
         }
         private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
@@ -345,20 +352,42 @@ namespace TheraEngine.Worlds.Actors
             => _children_Added(item);
         private void _children_AddedRange(IEnumerable<SceneComponent> items)
         {
+            bool spawnedMismatch;
             foreach (SceneComponent item in items)
             {
+                spawnedMismatch = IsSpawned != item.IsSpawned;
+
                 item._parent = this;
                 item.OwningActor = OwningActor;
                 item.RecalcGlobalTransform();
+
+                if (spawnedMismatch)
+                {
+                    if (item.IsSpawned)
+                        item.OnSpawned();
+                    else
+                        item.OnDespawned();
+                }
             }
             OwningActor?.GenerateSceneComponentCache();
         }
 
         private void _children_Added(SceneComponent item)
         {
+            bool spawnedMismatch = IsSpawned != item.IsSpawned;
+
             item._parent = this;
             item.OwningActor = OwningActor;
             item.RecalcGlobalTransform();
+
+            if (spawnedMismatch)
+            {
+                if (item.IsSpawned)
+                    item.OnSpawned();
+                else
+                    item.OnDespawned();
+            }
+
             OwningActor?.GenerateSceneComponentCache();
         }
 
@@ -372,7 +401,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (mesh == null)
             {
-                Engine.PrintLine("Cannot attach to a null skeletal mesh.");
+                Engine.Log("Cannot attach to a null skeletal mesh.");
                 return false;
             }
             if (mesh.Skeleton == null)
@@ -400,7 +429,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (mesh == null)
             {
-                Engine.PrintLine("Cannot attach to a null static mesh.");
+                Engine.Log("Cannot attach to a null static mesh.");
                 return false;
             }
             mesh.FindOrCreateSocket(socketName).ChildComponents.Add(mesh);
@@ -410,13 +439,13 @@ namespace TheraEngine.Worlds.Actors
         /// Attaches this component to the given scene component parent transform.
         /// </summary>
         public void AttachTo(SceneComponent component)
-            => component.ChildComponents.Add(this);
+            => component?.ChildComponents.Add(this);
         /// <summary>
         /// Detaches self from the current parent socket transform.
         /// Retains current position in world space.
         /// </summary>
         public void DetachFromParent()
-            => Parent.ChildComponents.Remove(this);
+            => Parent?.ChildComponents.Remove(this);
         
 #if EDITOR
         private bool _selected;

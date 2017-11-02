@@ -19,6 +19,7 @@ using System.Drawing;
 using System.Text;
 using TheraEngine.GameModes;
 using TheraEngine.Core.Shapes;
+using System.Runtime.CompilerServices;
 
 namespace TheraEngine
 {
@@ -360,14 +361,14 @@ namespace TheraEngine
         public static Viewport GetViewport(int index)
             => RenderPanel.GamePanel?.GetViewport(index);
         
-        public static void LogError(string message, params string[] args)
-        {
-#if DEBUG
-            if (args.Length != 0)
-                message = string.Format(message, args);
-            throw new Exception(message);
-#endif
-        }
+//        public static void LogError(string message, params string[] args)
+//        {
+//#if DEBUG
+//            if (args.Length != 0)
+//                message = string.Format(message, args);
+//            throw new Exception(message);
+//#endif
+//        }
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
@@ -405,6 +406,13 @@ namespace TheraEngine
             //else
             //    panel.GlobalHud.DebugPrint(message);
 #endif
+        }
+        public static void Log(string message, [CallerMemberName] string callerName = "")
+        {
+            string m = message;
+            if (!string.IsNullOrEmpty(callerName))
+                m = "[" + callerName + "] " + m;
+            PrintLine(m);
         }
         /// <summary>
         /// Tells the engine to play in a new world.

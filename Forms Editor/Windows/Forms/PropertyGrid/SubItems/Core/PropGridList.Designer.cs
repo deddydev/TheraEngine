@@ -31,7 +31,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.propGridCategory1 = new TheraEditor.Windows.Forms.PropertyGrid.PropGridCategory();
+            this.propGridListItems = new TheraEditor.Windows.Forms.PropertyGrid.PropGridCategory();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.lblObjectTypeName = new System.Windows.Forms.Label();
@@ -40,21 +40,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.pnlHeader.SuspendLayout();
             this.SuspendLayout();
             // 
-            // propGridCategory1
+            // propGridListItems
             // 
-            this.propGridCategory1.AutoSize = true;
-            this.propGridCategory1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.propGridCategory1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.propGridCategory1.CategoryName = "";
-            this.propGridCategory1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propGridCategory1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.propGridCategory1.Location = new System.Drawing.Point(0, 31);
-            this.propGridCategory1.Margin = new System.Windows.Forms.Padding(0);
-            this.propGridCategory1.Name = "propGridCategory1";
-            this.propGridCategory1.Size = new System.Drawing.Size(11, 0);
-            this.propGridCategory1.TabIndex = 0;
-            this.propGridCategory1.Visible = false;
-            this.propGridCategory1.VisibleChanged += new System.EventHandler(this.pnlElements_VisibleChanged);
+            this.propGridListItems.AutoSize = true;
+            this.propGridListItems.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.propGridListItems.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.propGridListItems.CategoryName = "";
+            this.propGridListItems.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propGridListItems.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.propGridListItems.Location = new System.Drawing.Point(0, 31);
+            this.propGridListItems.Margin = new System.Windows.Forms.Padding(0);
+            this.propGridListItems.Name = "propGridListItems";
+            this.propGridListItems.Size = new System.Drawing.Size(11, 0);
+            this.propGridListItems.TabIndex = 0;
+            this.propGridListItems.Visible = false;
+            this.propGridListItems.VisibleChanged += new System.EventHandler(this.pnlElements_VisibleChanged);
             // 
             // checkBox1
             // 
@@ -100,9 +100,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Size = new System.Drawing.Size(11, 31);
             this.pnlHeader.TabIndex = 5;
-            this.pnlHeader.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnlHeader_MouseDown);
-            this.pnlHeader.MouseEnter += new System.EventHandler(this.pnlHeader_MouseEnter);
-            this.pnlHeader.MouseLeave += new System.EventHandler(this.pnlHeader_MouseLeave);
             // 
             // btnAdd
             // 
@@ -122,7 +119,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
-            this.Controls.Add(this.propGridCategory1);
+            this.Controls.Add(this.propGridListItems);
             this.Controls.Add(this.pnlHeader);
             this.Name = "PropGridList";
             this.Size = new System.Drawing.Size(11, 31);
@@ -139,6 +136,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Label lblObjectTypeName;
         private Panel pnlHeader;
         private Button btnAdd;
-        private PropGridCategory propGridCategory1;
+        private PropGridCategory propGridListItems;
     }
 }

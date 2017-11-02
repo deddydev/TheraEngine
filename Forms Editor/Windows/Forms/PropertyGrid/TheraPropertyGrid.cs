@@ -66,11 +66,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 if (_targetObject == null)
                 {
+                    pnlProps.Controls.Clear();
+                    foreach (var category in _categories.Values)
+                        category.DestroyProperties();
+                    _categories.Clear();
+
                     lblObjectName.Visible = false;
                     return;
                 }
+
                 lblObjectName.Text = _targetObject.ToString() + " [" + _targetObject.GetType().GetFriendlyName() + "]";
                 lblObjectName.Visible = true;
+
                 if (_targetObject is IActor actor)
                 {
                     treeViewSceneComps.Nodes.Clear();
@@ -81,7 +88,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     lblSceneComps.Visible = true;
                     treeViewSceneComps.Visible = true;
                     
-                    treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
+                    //treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
                 }
                 else
                 {
@@ -112,7 +119,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             public PropertyInfo Property { get; set; }
             public object[] Attribs { get; set; }
         }
-
+        
         private async void LoadProperties(object obj)
         {
             pnlProps.SuspendLayout();
@@ -150,27 +157,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 info.TryAdd(i, p);
             }));
-            ConcurrentDictionary<int, MethodInfo> methodInfos = new ConcurrentDictionary<int, MethodInfo>();
-            await Task.Run(() => Parallel.For(0, methods.Length, i =>
-            {
-                MethodInfo method = methods[i];
-
-                Type subType = prop.PropertyType;
-                var attribs = prop.GetCustomAttributes(true);
-                if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
-                    return;
-
-                PropertyData p = new PropertyData()
-                {
-                    ControlTypes = GetControlTypes(subType),
-                    Property = prop,
-                    Attribs = attribs,
-                };
-
-                //BeginInvoke((Action)(() => CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs)));
-
-                info.TryAdd(i, p);
-            }));
 
             for (int i = 0; i < props.Length; ++i)
             {
@@ -178,6 +164,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     continue;
                 PropertyData p = info[i];
                 CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
+            }
+
+            for (int i = 0; i < methods.Length; ++i)
+            {
+                MethodInfo p = methods[i];
+                //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
             }
 
             if (_categories.Count == 1 && _categories.ContainsKey(MiscName))
@@ -212,7 +204,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             if (controlTypes.Count == 0)
             {
-                Engine.PrintLine("Unable to find control for " + propertyType.GetFriendlyName());
+                Engine.Log("Unable to find control for " + propertyType == null ? "null" : propertyType.GetFriendlyName());
                 controlTypes.PushBack(typeof(PropGridText));
             }
             return controlTypes;

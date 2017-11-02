@@ -307,7 +307,10 @@ namespace TheraEditor.Windows.Forms
                 Engine.SetCurrentWorld(value, true, true, false);
             }
         }
-        
+
+        public static SingleFileRef<EditorSettings> Settings { get; }
+            = new SingleFileRef<EditorSettings>(Path.GetFullPath(Path.Combine(Program.StartupFolderPath, "..\\..\\..\\EditorConfig")));
+
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             PropertyGridForm.theraPropertyGrid1.TargetObject = ActorTreeForm.ActorTree.SelectedNode == null ? Engine.World.Settings : ActorTreeForm.ActorTree.SelectedNode.Tag;

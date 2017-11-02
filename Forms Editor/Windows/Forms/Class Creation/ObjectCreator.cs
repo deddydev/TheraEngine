@@ -227,21 +227,13 @@ namespace TheraEditor.Windows.Forms
                     };
                     tblConstructors.Controls.Add(paramLabel, paramIndex + 1, tblConstructors.RowCount - 2);
 
-                    Control paramTool = CreateControl(t, p, constructorIndex);
+                    Control paramTool = CreateControl(t, p, constructorIndex, FinalArguments);
                     if (paramTool != null)
-                    {
-                        paramTool.Padding = new Padding(0);
-                        paramTool.Margin = new Padding(3);
-                        paramTool.Dock = DockStyle.Top;
-                        paramTool.AutoSize = true;
-                        paramTool.BackColor = Color.FromArgb(50, 55, 70);
-                        paramTool.ForeColor = Color.FromArgb(200, 200, 220);
                         tblConstructors.Controls.Add(paramTool, paramIndex + 1, tblConstructors.RowCount - 1);
-                    }
                 }
             }
         }
-        private Control CreateControl(Type t, ParameterInfo p, int rowIndex)
+        public static Control CreateControl(Type t, ParameterInfo p, int rowIndex, object[][] finalArguments)
         {
             Control paramTool = null;
             ArgumentInfo arg = new ArgumentInfo()
@@ -267,7 +259,7 @@ namespace TheraEditor.Windows.Forms
                             CheckBox checkBox = (CheckBox)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)checkBox.Tag;
                             argInfo.Value = checkBox.Checked;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = checkBox.Checked;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = checkBox.Checked;
                         };
                         paramTool = box;
                     }
@@ -283,7 +275,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -299,7 +291,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -321,7 +313,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -337,7 +329,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -353,7 +345,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -369,7 +361,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -385,7 +377,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -401,7 +393,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -417,7 +409,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -433,7 +425,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -449,7 +441,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
                         };
                         paramTool = box;
                     }
@@ -465,7 +457,7 @@ namespace TheraEditor.Windows.Forms
                             TextBox s = (TextBox)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
                             argInfo.Value = s.Text;
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = s.Text;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = s.Text;
                         };
                         paramTool = box;
                     }
@@ -499,11 +491,20 @@ namespace TheraEditor.Windows.Forms
 
                             argInfo.Value = o;
                             s.Text = o == null ? "null" : o.ToString();
-                            FinalArguments[argInfo.RowIndex][argInfo.Index] = o;
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = o;
                         };
                         paramTool = defaultLabel;
                     }
                     break;
+            }
+            if (paramTool != null)
+            {
+                paramTool.Padding = new Padding(0);
+                paramTool.Margin = new Padding(3);
+                paramTool.Dock = DockStyle.Top;
+                paramTool.AutoSize = true;
+                paramTool.BackColor = Color.FromArgb(50, 55, 70);
+                paramTool.ForeColor = Color.FromArgb(200, 200, 220);
             }
             return paramTool;
         }

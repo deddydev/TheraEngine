@@ -10,12 +10,13 @@ namespace TheraEngine.Worlds.Actors
         /// </summary>
         [Browsable(false)]
         public bool Locked => _locked;
+        [Browsable(false)]
         public virtual IActor OwningActor
         {
             get => _owner;
             set => _owner = value;
         }
-
+        [Browsable(false)]
         public bool IsSpawned => OwningActor == null ? false : OwningActor.IsSpawned;
 
         private IActor _owner;

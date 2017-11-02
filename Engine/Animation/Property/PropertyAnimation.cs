@@ -6,7 +6,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Animation
 {
-    [FileClass("PANIM", "Property Animation")]
+    [FileClass("PANM", "Property Animation")]
     public abstract class BasePropertyAnimation : BaseAnimation
     {
         /// <summary>

@@ -7,6 +7,8 @@ namespace System
 {
     public static unsafe class StringExtension
     {
+        public static string SplitCamelCase(this string str)
+            => Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
         public static bool? IsDirectory(this string path)
         {
             if (Directory.Exists(path)) return true; //Is a folder 

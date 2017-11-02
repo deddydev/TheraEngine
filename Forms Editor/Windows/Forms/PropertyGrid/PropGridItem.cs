@@ -15,11 +15,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class PropGridItem : UserControl
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
         public Type DataType { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
         public PropertyInfo Property { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
         public object PropertyOwner { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
         public Label Label { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
         public int IListIndex { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
         public IList IListOwner { get; set; }
 
         protected bool _updating = false;
@@ -69,6 +81,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             IListIndex = index;
             DataType = elementType;
             SetControlsEnabled(!list.IsReadOnly);
+            UpdateDisplay();
         }
         internal void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
         {

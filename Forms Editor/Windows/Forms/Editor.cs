@@ -304,7 +304,7 @@ namespace TheraEditor.Windows.Forms
                     Engine.World.EditorState = null;
                 }
                 value.EditorState = new EditorState();
-                Engine.World = value;
+                Engine.SetCurrentWorld(value, true, true, false);
             }
         }
         

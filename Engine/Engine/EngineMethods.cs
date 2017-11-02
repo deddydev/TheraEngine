@@ -138,7 +138,7 @@ namespace TheraEngine
         {
             //Steamworks.SteamAPI.Shutdown();
             Stop();
-            World = null;
+            SetCurrentWorld(null, true, true, true);
             var files = new List<FileObject>(LoadedFiles.SelectMany(x => x.Value));
             foreach (FileObject o in files)
                 o?.Unload();

@@ -4,6 +4,25 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
+    /// <summary>
+    /// Dictates the current state of an animation.
+    /// </summary>
+    public enum AnimationState
+    {
+        /// <summary>
+        /// Stopped means that the animation is not playing and is set to its initial start position.
+        /// </summary>
+        Stopped,
+        /// <summary>
+        /// Paused means that the animation is not currently playing
+        /// but is stopped at some arbitrary point in the animation, ready to start from that point again.
+        /// </summary>
+        Paused,
+        /// <summary>
+        /// Playing means that the animation is currently progressing forward.
+        /// </summary>
+        Playing,
+    }
     public abstract class BaseAnimation : FileObject
     {
         public event Action AnimationStarted;
@@ -20,11 +39,17 @@ namespace TheraEngine.Animation
 
         [Serialize("LengthInSeconds")]
         protected float _lengthInSeconds = 0.0f;
+        [Serialize("Speed")]
         protected float _speed = 1.0f;
+        [Serialize("CurrentTime")]
         protected float _currentTime = 0.0f;
+        [Serialize("Looped")]
         protected bool _looped = false;
+        [Serialize("IsPlaying")]
         protected bool _isPlaying = false;
+        [Serialize("IsBaked")]
         protected bool _isBaked = false;
+        [Serialize("UseKeyframes")]
         protected bool _useKeyframes = true;
 
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
@@ -43,7 +68,7 @@ namespace TheraEngine.Animation
         /// A speed of 2.0f would shorten the animation to play in half the time, where 0.5f would be lengthen the animation to play two times slower.
         /// CAN be negative to play the animation in reverse.
         /// </summary>
-        [Category("Animation"), Serialize]
+        [Category("Animation")]
         public float Speed
         {
             get => _speed;
@@ -64,10 +89,10 @@ namespace TheraEngine.Animation
         /// <summary>
         /// How many frames this animation contains.
         /// </summary>
-        [Category("Animation"), Serialize]
+        [Category("Animation")]
         public int BakedFrameCount => _bakedFrameCount;
         
-        [Category("Animation"), Serialize]
+        [Category("Animation")]
         public bool Looped
         {
             get => _looped;
@@ -77,7 +102,7 @@ namespace TheraEngine.Animation
                 LoopChanged?.Invoke();
             }
         }
-        [Category("Animation"), Serialize]
+        [Category("Animation")]
         public float CurrentTime
         {
             get => _currentTime;
@@ -94,7 +119,7 @@ namespace TheraEngine.Animation
                 OnCurrentFrameChanged();
             }
         }
-        [Category("Animation"), Serialize]
+        [Category("Animation")]
         public bool IsPlaying
         {
             get => _isPlaying;
@@ -111,26 +136,34 @@ namespace TheraEngine.Animation
         {
             if (_isPlaying)
             {
-                AnimationStarted?.Invoke();
-                RegisterTick(ETickGroup.PostPhysics, ETickOrder.BoneAnimation, Progress);
+                _isPlaying = false;
+                Start();
             }
         }
+        protected virtual void PreStarted() { }
+        protected virtual void PostStarted() { }
         public void Start()
         {
             if (_isPlaying)
                 return;
+            PreStarted();
             _isPlaying = true;
             AnimationStarted?.Invoke();
             CurrentTime = 0.0f;
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.BoneAnimation, Progress);
+            PostStarted();
         }
+        protected virtual void PreStopped() { }
+        protected virtual void PostStopped() { }
         public void Stop()
         {
             if (!_isPlaying)
                 return;
+            PreStopped();
             _isPlaying = false;
             AnimationEnded?.Invoke();
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.BoneAnimation, Progress);
+            PostStopped();
         }
         public void Progress(float delta) => CurrentTime += delta * _speed;
         protected virtual void OnCurrentFrameChanged() => CurrentFrameChanged?.Invoke();

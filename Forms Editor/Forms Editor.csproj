@@ -470,6 +470,9 @@
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\ColorControl.resx">
       <DependentUpon>ColorControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\ColorDialog.resx">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </EmbeddedResource>

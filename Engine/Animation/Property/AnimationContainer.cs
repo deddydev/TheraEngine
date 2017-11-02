@@ -136,22 +136,6 @@ namespace TheraEngine.Animation
                 folder.StopAnimations();
         }
     }
-    public enum AnimationState
-    {
-        /// <summary>
-        /// Stopped means that the animation is not playing and is set to its initial start position.
-        /// </summary>
-        Stopped,
-        /// <summary>
-        /// Paused means that the animation is not currently playing
-        /// but is at some arbitrary point in the animation, ready to start up at that point again.
-        /// </summary>
-        Paused,
-        /// <summary>
-        /// Playing means that the animation is currently progressing forward.
-        /// </summary>
-        Playing,
-    }
     [FileClass("TANIM", "Property Animation Tree")]
     public class AnimationContainer : FileObject, IComponent
     {

@@ -45,6 +45,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private const string MiscName = "Miscellaneous";
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
 
+        private object _subObject;
+        private object SubObject
+        {
+            get => _subObject;
+            set
+            {
+                _subObject = value;
+                LoadProperties(_subObject);
+            }
+        }
+
         private object _targetObject;
         public object TargetObject
         {
@@ -52,20 +63,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             set
             {
                 _targetObject = value;
+
                 if (_targetObject == null)
+                {
+                    lblObjectName.Visible = false;
                     return;
+                }
+                lblObjectName.Text = _targetObject.ToString() + " [" + _targetObject.GetType().GetFriendlyName() + "]";
+                lblObjectName.Visible = true;
                 if (_targetObject is IActor actor)
                 {
                     treeViewSceneComps.Nodes.Clear();
                     PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor.RootComponent);
+                    PopulateLogicComponentList(actor.LogicComponents);
 
                     lblProperties.Visible = true;
                     lblSceneComps.Visible = true;
                     treeViewSceneComps.Visible = true;
-
-                    lstLogicComps.Visible =
-                    lblLogicComps.Visible = actor.LogicComponents.Count > 0;
-
+                    
                     treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
                 }
                 else
@@ -76,29 +91,42 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     treeViewSceneComps.Visible = false;
                     lstLogicComps.Visible = false;
 
-                    LoadProperties(TargetObject);
+                    SubObject = value;
                 }
             }
         }
 
-        private class Prop
+        private void PopulateLogicComponentList(MonitoredList<LogicComponent> logicComponents)
+        {
+            if (lstLogicComps.Visible = lblLogicComps.Visible = 
+                logicComponents != null && logicComponents.Count > 0)
+            {
+                lstLogicComps.DataSource = logicComponents;
+                //lstLogicComps.Items.AddRange(logicComponents.ToArray());
+            }
+        }
+
+        private class PropertyData
         {
             public Deque<Type> ControlTypes { get; set; }
             public PropertyInfo Property { get; set; }
             public object[] Attribs { get; set; }
         }
+
         private async void LoadProperties(object obj)
         {
             pnlProps.SuspendLayout();
-            Type targetObjectType = obj.GetType();
-            PropertyInfo[] props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             pnlProps.Controls.Clear();
             foreach (var category in _categories.Values)
                 category.DestroyProperties();
             _categories.Clear();
 
-            ConcurrentDictionary<int, Prop> info = new ConcurrentDictionary<int, Prop>();
+            Type targetObjectType = obj.GetType();
+            PropertyInfo[] props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            MethodInfo[] methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+            
+            ConcurrentDictionary<int, PropertyData> info = new ConcurrentDictionary<int, PropertyData>();
             await Task.Run(() => Parallel.For(0, props.Length, i =>
             {
                 PropertyInfo prop = props[i];
@@ -111,7 +139,28 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
                     return;
 
-                Prop p = new Prop()
+                PropertyData p = new PropertyData()
+                {
+                    ControlTypes = GetControlTypes(subType),
+                    Property = prop,
+                    Attribs = attribs,
+                };
+
+                //BeginInvoke((Action)(() => CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs)));
+
+                info.TryAdd(i, p);
+            }));
+            ConcurrentDictionary<int, MethodInfo> methodInfos = new ConcurrentDictionary<int, MethodInfo>();
+            await Task.Run(() => Parallel.For(0, methods.Length, i =>
+            {
+                MethodInfo method = methods[i];
+
+                Type subType = prop.PropertyType;
+                var attribs = prop.GetCustomAttributes(true);
+                if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
+                    return;
+
+                PropertyData p = new PropertyData()
                 {
                     ControlTypes = GetControlTypes(subType),
                     Property = prop,
@@ -127,7 +176,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 if (!info.ContainsKey(i))
                     continue;
-                Prop p = info[i];
+                PropertyData p = info[i];
                 CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
             }
 
@@ -264,12 +313,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void treeViewSceneComps_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            LoadProperties(treeViewSceneComps.SelectedNode.Tag);
+            SubObject = treeViewSceneComps.SelectedNode.Tag;
         }
 
         private void lstLogicComps_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadProperties(lstLogicComps.SelectedItem);
+            SubObject = lstLogicComps.SelectedItem;
         }
     }
 }

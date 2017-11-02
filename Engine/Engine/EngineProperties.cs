@@ -139,7 +139,7 @@ namespace TheraEngine
         public static World World
         {
             get => _currentWorld;
-            set => SetCurrentWorld(value, true);
+            //set => SetCurrentWorld(value, true);
         }
 
         public static bool IsPaused => _isPaused;

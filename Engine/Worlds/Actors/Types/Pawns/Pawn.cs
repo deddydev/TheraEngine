@@ -88,10 +88,14 @@ namespace TheraEngine.Worlds.Actors
             set
             {
                 if (_hud != null && _hud.OwningPawn == this)
+                {
                     _hud.OwningPawn = null;
+                }
                 _hud = value;
                 if (_hud != null)
+                {
                     _hud.OwningPawn = this;
+                }
             }
         }
 

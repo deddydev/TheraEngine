@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Rendering.HUD
 {
@@ -32,11 +33,37 @@ namespace TheraEngine.Rendering.HUD
             get => _owningPawn;
             set
             {
-                if (_owningPawn != null && _owningPawn.IsSpawned)
-                    Despawned();
+                InputInterface input;
+
+                if (_owningPawn != null)
+                {
+                    if (_owningPawn.IsSpawned)
+                        Despawned();
+
+                    if (_owningPawn != this && _owningPawn.LocalPlayerController != null)
+                    {
+                        //Unlink input commands from the owning controller to this hud
+                        input = _owningPawn.LocalPlayerController.Input;
+                        input.TryUnregisterInput();
+                        input.WantsInputsRegistered -= RegisterInput;
+                        input.TryRegisterInput();
+                    }
+                }
+
                 _owningPawn = value;
-                if (_owningPawn != null && _owningPawn.IsSpawned)
-                    Spawned(Engine.World);
+                if (_owningPawn != null)
+                {
+                    if (_owningPawn.IsSpawned)
+                        Spawned(Engine.World);
+
+                    if (_owningPawn != this && _owningPawn.LocalPlayerController != null)
+                    {
+                        //Link input commands from the owning controller to this hud
+                        input = _owningPawn.LocalPlayerController.Input;
+                        input.WantsInputsRegistered += RegisterInput;
+                        input.TryRegisterInput();
+                    }
+                }
             }
         }
 

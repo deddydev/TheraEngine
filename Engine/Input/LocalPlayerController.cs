@@ -95,6 +95,9 @@ namespace TheraEngine.Input
             get => base.ControlledPawn;
             set
             {
+                if (_controlledPawn == value)
+                    return;
+
                 if (_controlledPawn != null)
                 {
                     _controlledPawn.OnUnPossessed();

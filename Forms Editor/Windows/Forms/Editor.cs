@@ -309,7 +309,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         public static SingleFileRef<EditorSettings> Settings { get; }
-            = new SingleFileRef<EditorSettings>(Path.GetFullPath(Path.Combine(Program.StartupFolderPath, "..\\..\\..\\EditorConfig")));
+            = new SingleFileRef<EditorSettings>(Path.GetFullPath(Path.Combine(Program.StartupFolderPath, "..\\..\\..\\Editor", "Config.xset")), () => new EditorSettings());
 
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -404,7 +404,7 @@ namespace TheraEditor.Windows.Forms
 
         private void BtnEditorSettings_Click(object sender, EventArgs e)
         {
-
+            PropertyGridForm.theraPropertyGrid1.TargetObject = Editor.Settings;
         }
 
         private void BtnUserSettings_Click(object sender, EventArgs e)

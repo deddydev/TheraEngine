@@ -9,7 +9,7 @@ using TheraEngine.Files;
 
 namespace TheraEditor
 {
-    [FileClass("EDSET", "Editor Settings")]
+    [FileClass("SET", "Editor Settings")]
     public class EditorSettings : FileObject
     {
         [Serialize]

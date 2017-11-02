@@ -54,6 +54,18 @@ namespace TheraEngine.Files
             if (exportNow && File != null)
                 ExportReference();
         }
+        public SingleFileRef(string filePath, Func<T> createIfNotFound) : base(filePath)
+        {
+            if (!System.IO.File.Exists(ReferencePath) || DetermineType(ReferencePath) != typeof(T))
+            {
+                T file = createIfNotFound?.Invoke();
+                if (file != null)
+                    file.FilePath = ReferencePath;
+                File = file;
+                if (File != null)
+                    ExportReference();
+            }
+        }
         public SingleFileRef(string dir, string name, ProprietaryFileFormat format) : base(GetFilePath(dir, name, format, typeof(T))) { }
         public SingleFileRef(string dir, string name, ProprietaryFileFormat format, T file, bool exportNow) : this(dir, name, format)
         {
@@ -62,6 +74,18 @@ namespace TheraEngine.Files
             File = file;
             if (exportNow && File != null)
                 ExportReference();
+        }
+        public SingleFileRef(string dir, string name, ProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
+        {
+            if (!System.IO.File.Exists(ReferencePath) || DetermineType(ReferencePath) != typeof(T))
+            {
+                T file = createIfNotFound?.Invoke();
+                if (file != null)
+                    file.FilePath = ReferencePath;
+                File = file;
+                if (File != null)
+                    ExportReference();
+            }
         }
         public SingleFileRef(T file) : base(file.FilePath)
         {
@@ -202,6 +226,7 @@ namespace TheraEngine.Files
             }
         }
 
+        [Browsable(false)]
         public Type ReferencedType => typeof(T);
 
         private T GetFile()

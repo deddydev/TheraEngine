@@ -75,6 +75,8 @@ namespace TheraEngine.Input.Devices
         {
             if (_gamepad != null || _keyboard != null || _mouse != null)
             {
+                TryUnregisterInput();
+
                 _unregister = false;
                 //Interface gets input from pawn, hud, local controller, and global list
                 WantsInputsRegistered?.Invoke(this);

@@ -34,7 +34,7 @@ namespace TheraEngine.GameModes
             {
                 Viewport v = p.GetViewport((int)item.LocalPlayerIndex) ?? p.AddViewport();
                 if (v != null)
-                    v.Owner = item;
+                    v.RegisterController(item);
             }
             
             PawnType pawn = _pawnClass.CreateNew();

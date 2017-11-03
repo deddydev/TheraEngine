@@ -175,11 +175,11 @@ namespace TheraEditor.Windows.Forms
                 comp = v.PickScene(viewportPoint, true, true, out hitNormal, out _hitPoint, out _hitDistance, p != null ? new RigidBody[] { p.PhysicsDriver.CollisionObject } : new RigidBody[0]);
 
                 float upDist = 0.0f;
-                Vec3 forwardCameraVector = v.Camera.GetForwardVector();
                 if (comp == null)
                 {
                     hitNormal = Vec3.Up;// v.Camera.GetUpVector();
                     _hitDistance = prevHitDist;
+                    Vec3 forwardCameraVector = v.Camera.GetForwardVector();
                     _hitPoint = v.Camera.WorldPoint + forwardCameraVector * _hitDistance;
                 }
                 else if (p != null)
@@ -187,10 +187,11 @@ namespace TheraEditor.Windows.Forms
                     
                 }
 
-                Vec3 
-                    right = forwardCameraVector ^ hitNormal, 
+                Vec3 rightCameraVector = v.Camera.GetRightVector();
+                Vec3
+                    forward = rightCameraVector ^ hitNormal, 
                     up = hitNormal,
-                    forward = right ^ up,
+                    right = up ^ forward,
                     translation = _hitPoint;
 
                 right.NormalizeFast();

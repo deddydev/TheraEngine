@@ -1,0 +1,37 @@
+diff a/Engine/Rendering/Viewport.cs b/Engine/Rendering/Viewport.cs	(rejected hunks)
+@@ -178,30 +178,30 @@
+                 UWrap = ETexWrapMode.Clamp,
+                 VWrap = ETexWrapMode.Clamp,
+                 FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
+             };
+             TextureReference ssaoNoise = new TextureReference("SSAONoise",
+                 _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
+-                EPixelInternalFormat.Rgba16, EPixelFormat.Bgra, EPixelType.UnsignedShort,
++                EPixelInternalFormat.Rgba32ui, EPixelFormat.Bgra, EPixelType.UnsignedInt,
+                 PixelFormat.Format64bppArgb)
+             {
+                 MinFilter = ETexMinFilter.Nearest,
+                 MagFilter = ETexMagFilter.Nearest,
+                 UWrap = ETexWrapMode.Repeat,
+                 VWrap = ETexWrapMode.Repeat,
+                 DoNotResize = true,
+             };
+             Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
+             BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
+-            ushort* values = (ushort*)data.Scan0;
++            uint* values = (uint*)data.Scan0;
+             Vec3[] noise = _ssaoInfo.Noise;
+             foreach (Vec3 v in noise)
+             {
+-                *values++ = (ushort)(v.X * ushort.MaxValue);
+-                *values++ = (ushort)(v.Y * ushort.MaxValue);
+-                *values++ = (ushort)(v.Z * ushort.MaxValue);
++                *values++ = (uint)(v.X * uint.MaxValue);
++                *values++ = (uint)(v.Y * uint.MaxValue);
++                *values++ = (uint)(v.Z * uint.MaxValue);
+                 *values++ = 0;
+             }
+             bmp.UnlockBits(data);
+             TextureReference[] deferredRefs = new TextureReference[]
+             {
+                 new TextureReference("AlbedoSpec", width, height,

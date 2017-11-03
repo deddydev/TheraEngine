@@ -14,6 +14,7 @@ namespace TheraEngine.Timers
         }
 
         //Set on start
+        private bool _multi = false;
         private MultiFireAction _multiMethod;
         private Action _singleMethod;
         private float _secondsBetweenFires;
@@ -36,6 +37,7 @@ namespace TheraEngine.Timers
             _startSeconds = 0;
             _multiMethod = null;
             _singleMethod = null;
+            _multi = false;
         }
         public void Stop()
         {
@@ -63,6 +65,7 @@ namespace TheraEngine.Timers
                 method();
             else
             {
+                _multi = false;
                 _isRunning = true;
                 _singleMethod = method;
                 _startSeconds = seconds;
@@ -87,7 +90,34 @@ namespace TheraEngine.Timers
             if (maxFires == 0 || method == null)
                 return;
 
+            _multi = true;
             _multiMethod = method;
+            _fireMax = maxFires;
+
+            _secondsBetweenFires = secondsBetweenFires;
+            _startSeconds = startSeconds;
+            _isRunning = true;
+
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, Tick);
+        }
+        /// Executes a single method multiple times with a given interval of time between each execution.
+        /// </summary>
+        /// <param name="method">The method to execute per fire.</param>
+        /// <param name="secondsBetweenFires">How many seconds should pass before running the method again.</param>
+        /// <param name="maxFires">The maximum number of times the method should execute before the timer stops completely. Pass a number less than 0 for infinite.</param>
+        /// <param name="startSeconds">How many seconds should pass before running the method for the first time.</param>
+        public void StartMultiFire(Action method, float secondsBetweenFires, int maxFires = -1, float startSeconds = 0.0f)
+        {
+            if (_isRunning)
+                Stop();
+            else
+                Reset();
+
+            if (maxFires == 0 || method == null)
+                return;
+
+            _multi = true;
+            _singleMethod = method;
             _fireMax = maxFires;
 
             _secondsBetweenFires = secondsBetweenFires;
@@ -100,15 +130,16 @@ namespace TheraEngine.Timers
         {
             _totalElapsed += delta;
             _elapsedSinceLastFire += delta;
-            if ((_fireNumber == 0 && _elapsedSinceLastFire > _startSeconds) && _elapsedSinceLastFire > _secondsBetweenFires)
-                if (_multiMethod != null)
+            if ((_fireNumber == 0 && _elapsedSinceLastFire > _startSeconds) || _elapsedSinceLastFire > _secondsBetweenFires)
+                if (_multi)
                 {
-                    _multiMethod(_totalElapsed, _fireNumber++);
+                    _multiMethod?.Invoke(_totalElapsed, _fireNumber++);
+                    _singleMethod?.Invoke();
                     _elapsedSinceLastFire = 0;
-                    if (_fireNumber >= _fireMax)
+                    if (_fireMax >= 0 && _fireNumber >= _fireMax)
                         Stop();
                 }
-                else if (_singleMethod != null)
+                else
                 {
                     _singleMethod();
                     Stop();

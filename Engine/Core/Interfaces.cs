@@ -67,6 +67,7 @@ namespace TheraEngine
         /// Used to render objects in the same pass in a certain order.
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
         /// </summary>
+        [Browsable(false)]
         public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
         public bool ReceivesShadows { get; set; } = true;
         public bool CastsShadows { get; set; } = true;

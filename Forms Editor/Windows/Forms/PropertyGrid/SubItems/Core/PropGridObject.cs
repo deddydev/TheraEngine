@@ -24,7 +24,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             _object = GetValue();
-            checkBox1.Checked = _object == null;
+
+            if (checkBox1.Checked = _object == null && pnlProps.Visible == true)
+                pnlProps.Visible = false;
+            
             lblObjectTypeName.Text = DataType.GetFriendlyName();
         }
 

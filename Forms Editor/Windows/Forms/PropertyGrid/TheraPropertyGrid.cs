@@ -13,6 +13,7 @@ using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 using System.Collections;
 using System.Collections.Concurrent;
+using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -40,6 +41,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public TheraPropertyGrid()
         {
             InitializeComponent();
+            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, 1.0f);
         }
 
         private const string MiscName = "Miscellaneous";
@@ -56,6 +58,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
+        private bool _updating;
         private object _targetObject;
         public object TargetObject
         {
@@ -80,6 +83,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 if (_targetObject is IActor actor)
                 {
+                    _updating = true;
                     treeViewSceneComps.Nodes.Clear();
                     PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor.RootComponent);
                     PopulateLogicComponentList(actor.LogicComponents);
@@ -87,16 +91,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     lblProperties.Visible = true;
                     lblSceneComps.Visible = true;
                     treeViewSceneComps.Visible = true;
-                    
-                    //treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
+                    _updating = false;
+
+                    treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
                 }
                 else
                 {
+                    _updating = true;
                     lblLogicComps.Visible = false;
                     lblSceneComps.Visible = false;
                     lblProperties.Visible = false;
                     treeViewSceneComps.Visible = false;
                     lstLogicComps.Visible = false;
+                    _updating = false;
 
                     SubObject = value;
                 }
@@ -305,12 +312,37 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void treeViewSceneComps_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            if (_updating)
+                return;
             SubObject = treeViewSceneComps.SelectedNode.Tag;
         }
 
         private void lstLogicComps_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
             SubObject = lstLogicComps.SelectedItem;
         }
+
+        //protected override void OnMouseEnter(EventArgs e)
+        //{
+        //    PropGridItem.UpdateTimer.Stop();
+        //    base.OnMouseEnter(e);
+        //}
+
+        //protected override void OnMouseLeave(EventArgs e)
+        //{
+        //    base.OnMouseLeave(e);
+        //}
+
+        //protected override void OnGotFocus(EventArgs e)
+        //{
+        //    base.OnGotFocus(e);
+        //}
+
+        //protected override void OnLostFocus(EventArgs e)
+        //{
+        //    base.OnLostFocus(e);
+        //}
     }
 }

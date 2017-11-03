@@ -8,89 +8,44 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using EnumsNET;
+using System.Reflection;
+using System.Collections;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     [PropGridItem(typeof(Enum))]
     public partial class PropGridEnum : PropGridItem
     {
-        public PropGridEnum() => InitializeComponent();
+        public PropGridEnum()
+        {
+            InitializeComponent();
+        }
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
             if (value is Enum e)
             {
                 string[] names = Enum.GetNames(DataType);
-                Array values = Enum.GetValues(DataType);
                 bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
                 if (flags)
                 {
                     string[] enumStrings = value.ToString().Split(new string[] { ", " }, StringSplitOptions.None);
-                    panel1.Visible = true;
-                    comboBox1.Visible = false;
-                    tableLayoutPanel1.RowStyles.Clear();
-                    tableLayoutPanel1.RowCount = 0;
                     for (int i = 0; i < names.Length; ++i)
-                    {
-                        string name = names[i];
-
-                        tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                        tableLayoutPanel1.RowCount++;
-
-                        object number = Convert.ChangeType(values.GetValue(i), e.GetTypeCode());
-
-                        CheckBox bitSet = new CheckBox()
-                        {
-                            AutoSize = true,
-                            Checked = enumStrings.Contains(name),
-                            Tag = name,
-                            Margin = new Padding(0),
-                            Padding = new Padding(0),
-                            Dock = DockStyle.Left,
-                        };
-                        bitSet.CheckedChanged += BitSet_CheckedChanged;
-                        Label bitValue = new Label()
-                        {
-                            AutoSize = true,
-                            Text = number.ToString(),
-                            TextAlign = ContentAlignment.MiddleLeft,
-                            Margin = new Padding(0),
-                            Padding = new Padding(0),
-                            Dock = DockStyle.Left,
-                        };
-                        Label bitName = new Label()
-                        {
-                            AutoSize = true,
-                            Text = name,
-                            TextAlign = ContentAlignment.MiddleLeft,
-                            Margin = new Padding(0),
-                            Padding = new Padding(0),
-                            Dock = DockStyle.Fill,
-                        };
-
-                        tableLayoutPanel1.Controls.Add(bitSet, 0, tableLayoutPanel1.RowCount - 1);
-                        tableLayoutPanel1.Controls.Add(bitValue, 2, tableLayoutPanel1.RowCount - 1);
-                        tableLayoutPanel1.Controls.Add(bitName, 1, tableLayoutPanel1.RowCount - 1);
-                    }
+                        ((CheckBox)tableLayoutPanel1.GetControlFromPosition(0, i)).Checked = enumStrings.Contains(names[i]);
                 }
                 else
                 {
-                    panel1.Visible = false;
-                    comboBox1.Visible = true;
                     string enumName = value.ToString();
 
                     int selectedIndex = -1;
                     for (int i = 0; i < names.Length; ++i)
                     {
                         string name = names[i];
-                        comboBox1.Items.Add(name);
                         if (string.Equals(name, enumName, StringComparison.InvariantCulture))
                             selectedIndex = i;
                     }
                     comboBox1.SelectedIndex = selectedIndex;
-                    comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
                 }
-                //textBox1.Text = value?.ToString();
             }
             else if (value is Exception)
             {
@@ -119,6 +74,83 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 newValue = string.Join(", ", oldValue.Replace(box.Tag.ToString(), "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
             UpdateValue(Enum.Parse(DataType, newValue));
+        }
+
+        protected internal override void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
+        {
+            UpdateControls(propertyInfo.PropertyType);
+            base.SetProperty(propertyInfo, propertyOwner);
+        }
+
+        protected internal override void SetIListOwner(IList list, Type elementType, int index)
+        {
+            UpdateControls(elementType);
+            base.SetIListOwner(list, elementType, index);
+        }
+
+        private void UpdateControls(Type elementType)
+        {
+            string[] names = Enum.GetNames(elementType);
+            Array values = Enum.GetValues(elementType);
+            bool flags = elementType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+            if (flags)
+            {
+                panel1.Visible = true;
+                comboBox1.Visible = false;
+                tableLayoutPanel1.RowStyles.Clear();
+                tableLayoutPanel1.RowCount = 0;
+                for (int i = 0; i < names.Length; ++i)
+                {
+                    string name = names[i];
+
+                    tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    tableLayoutPanel1.RowCount++;
+
+                    object number = Convert.ChangeType(values.GetValue(i), Type.GetTypeCode(elementType));
+
+                    CheckBox bitSet = new CheckBox()
+                    {
+                        AutoSize = true,
+                        Checked = false,
+                        Tag = name,
+                        Margin = new Padding(0),
+                        Padding = new Padding(0),
+                        Dock = DockStyle.Left,
+                    };
+                    bitSet.CheckedChanged += BitSet_CheckedChanged;
+                    Label bitValue = new Label()
+                    {
+                        AutoSize = true,
+                        Text = number.ToString(),
+                        TextAlign = ContentAlignment.MiddleLeft,
+                        Margin = new Padding(0),
+                        Padding = new Padding(0),
+                        Dock = DockStyle.Left,
+                    };
+                    Label bitName = new Label()
+                    {
+                        AutoSize = true,
+                        Text = name,
+                        TextAlign = ContentAlignment.MiddleLeft,
+                        Margin = new Padding(0),
+                        Padding = new Padding(0),
+                        Dock = DockStyle.Fill,
+                    };
+
+                    tableLayoutPanel1.Controls.Add(bitSet, 0, tableLayoutPanel1.RowCount - 1);
+                    tableLayoutPanel1.Controls.Add(bitValue, 2, tableLayoutPanel1.RowCount - 1);
+                    tableLayoutPanel1.Controls.Add(bitName, 1, tableLayoutPanel1.RowCount - 1);
+                }
+            }
+            else
+            {
+                panel1.Visible = false;
+                comboBox1.Visible = true;
+                for (int i = 0; i < names.Length; ++i)
+                    comboBox1.Items.Add(names[i]);
+                comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
+            }
+            //textBox1.Text = value?.ToString();
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using TheraEngine;
 using System.Collections;
+using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -75,7 +76,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 UpdateDisplay();
             }
         }
-        internal void SetIListOwner(IList list, Type elementType, int index)
+        internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
         {
             IListOwner = list;
             IListIndex = index;
@@ -83,7 +84,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             SetControlsEnabled(!list.IsReadOnly);
             UpdateDisplay();
         }
-        internal void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
+        internal protected virtual void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
         {
             Property = propertyInfo;
             PropertyOwner = propertyOwner;
@@ -106,10 +107,34 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected virtual void UpdateDisplayInternal() { }
         protected virtual void OnLabelSet() { }
 
+        internal static GameTimer UpdateTimer = new GameTimer();
+
+        private static List<PropGridItem> VisibleItems = new List<PropGridItem>();
+        internal static void UpdateVisibleItems()
+        {
+            Parallel.For(0, VisibleItems.Count, i => VisibleItems[i].Invoke((Action)VisibleItems[i].UpdateDisplay));
+        }
         protected override void OnVisibleChanged(EventArgs e)
         {
             base.OnVisibleChanged(e);
-            
+            //if (Visible)
+            //    VisibleItems.Add(this);
+            //else
+            //    VisibleItems.Remove(this);
+        }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            VisibleItems.Add(this);
+        }
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            base.OnHandleDestroyed(e);
+            VisibleItems.Remove(this);
+        }
+        public override string ToString()
+        {
+            return DataType?.ToString() + " - " + Property.Name;
         }
     }
 }

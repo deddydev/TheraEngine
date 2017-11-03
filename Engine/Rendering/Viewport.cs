@@ -22,11 +22,6 @@ namespace TheraEngine.Rendering
 
         public DelOnRender Render;
 
-        public void RegisterController(LocalPlayerController controller)
-        {
-            Owners.Add(controller);
-        }
-
         private SSAOInfo _ssaoInfo = new SSAOInfo();
         private List<LocalPlayerController> _owners = new List<LocalPlayerController>();
         private HudManager _pawnHUD;
@@ -126,7 +121,7 @@ namespace TheraEngine.Rendering
 
         public List<LocalPlayerController> Owners => _owners;
         //{
-        //    get => _owners;
+        //    get => _owner;
         //    set
         //    {
         //        if (_owner != null)
@@ -181,7 +176,7 @@ namespace TheraEngine.Rendering
             };
             TextureReference ssaoNoise = new TextureReference("SSAONoise",
                 _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
-                EPixelInternalFormat.Rgba32ui, EPixelFormat.Bgra, EPixelType.UnsignedInt,
+                EPixelInternalFormat.Rgba16, EPixelFormat.Bgra, EPixelType.UnsignedShort,
                 PixelFormat.Format64bppArgb)
             {
                 MinFilter = ETexMinFilter.Nearest,
@@ -192,13 +187,13 @@ namespace TheraEngine.Rendering
             };
             Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
-            uint* values = (uint*)data.Scan0;
+            ushort* values = (ushort*)data.Scan0;
             Vec3[] noise = _ssaoInfo.Noise;
             foreach (Vec3 v in noise)
             {
-                *values++ = (uint)(v.X * uint.MaxValue);
-                *values++ = (uint)(v.Y * uint.MaxValue);
-                *values++ = (uint)(v.Z * uint.MaxValue);
+                *values++ = (ushort)(v.X * ushort.MaxValue);
+                *values++ = (ushort)(v.Y * ushort.MaxValue);
+                *values++ = (ushort)(v.Z * ushort.MaxValue);
                 *values++ = 0;
             }
             bmp.UnlockBits(data);
@@ -326,7 +321,13 @@ namespace TheraEngine.Rendering
 
         }
 
-        internal void UnregisterController(LocalPlayerController owner)
+        public void RegisterController(LocalPlayerController controller)
+        {
+            Owners.Add(controller);
+            controller.Viewport = this;
+            Camera = controller.CurrentCamera;
+        }
+        public void UnregisterController(LocalPlayerController owner)
         {
             if (owner.Viewport != this)
                 return;

@@ -42,7 +42,7 @@ namespace TheraEditor.Windows.Forms
             Engine.World.SpawnActor(EditorPawn);
             Viewport v = RenderPanel.GetViewport(0) ?? RenderPanel.AddViewport();
             if (Engine.ActivePlayers.Count > 0)
-                v.Owner = Engine.ActivePlayers[0];
+                v.RegisterController(Engine.ActivePlayers[0]);
             base.OnShown(e);
         }
         protected override void OnClosed(EventArgs e)
@@ -66,7 +66,7 @@ namespace TheraEditor.Windows.Forms
             LocalPlayerController c = Engine.ActivePlayers[index];
             Viewport v = RenderPanel?.GetViewport(0);
             if (v != null)
-                v.Owner = c;
+                v.RegisterController(c);
             c.ControlledPawn = EditorPawn;
             base.OnGotFocus(e);
         }

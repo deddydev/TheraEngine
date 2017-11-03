@@ -33,11 +33,7 @@ namespace System.Windows.Forms
             get => chkAlpha.Visible;
             set
             {
-                if (chkAlpha.Visible = goodColorControl1.ShowAlpha = value)
-                    Height = 264;
-                else
-                    Height = 264 - 20;
-
+                chkAlpha.Visible = goodColorControl1.ShowAlpha = value;
                 pnlOld.Invalidate();
                 pnlNew.Invalidate();
             }

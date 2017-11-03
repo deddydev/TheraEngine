@@ -476,14 +476,6 @@ namespace TheraEditor.Windows.Forms
             base.OnFormClosing(e);
         }
 
-        private void ActorPropertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-        {
-            if (PropertyGridForm.theraPropertyGrid1.TargetObject is ObjectBase obj)
-            {
-                obj.OnPropertyChanged(e.OldValue, e.ChangedItem.PropertyDescriptor.Name);
-            }
-        }
-
         protected override void OnDeactivate(EventArgs e)
         {
             TheraEngineText.ForeColor = InactiveTextColor;

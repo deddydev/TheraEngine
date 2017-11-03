@@ -12,7 +12,7 @@ namespace TheraEngine.Audio
         public abstract bool Pause(int soundId);
         public abstract void Update(int soundId, AudioSourceParameters param);
         public abstract AudioState GetState(int soundId);
-        public abstract void UpdateListener(PlayerIndex player, Vec3 position, Vec3 forward, Vec3 up, Vec3 velocity, float gain, float efxMetersPerUnit = 1.0f);
+        public abstract void UpdateListener(Vec3 position, Vec3 forward, Vec3 up, Vec3 velocity, float gain, float efxMetersPerUnit = 1.0f);
     }
     public enum AudioState
     {

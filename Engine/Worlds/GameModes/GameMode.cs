@@ -172,7 +172,7 @@ namespace TheraEngine.GameModes
         }
         protected internal override void HandleLocalPlayerLeft(LocalPlayerController item)
         {
-            RenderPanel.GamePanel?.RemoveViewport(item);
+            RenderPanel.GamePanel?.UnregisterController(item);
         }
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
@@ -181,7 +181,7 @@ namespace TheraEngine.GameModes
             {
                 Viewport v = p.GetViewport((int)item.LocalPlayerIndex) ?? p.AddViewport();
                 if (v != null)
-                    v.Owner = item;
+                    v.RegisterController(item);
             }
 
             PawnType pawn = _pawnClass.CreateNew();

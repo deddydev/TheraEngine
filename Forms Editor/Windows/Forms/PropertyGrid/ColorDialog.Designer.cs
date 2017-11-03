@@ -36,21 +36,21 @@
             this.goodColorControl21.EditAlpha = true;
             this.goodColorControl21.Location = new System.Drawing.Point(0, 0);
             this.goodColorControl21.Margin = new System.Windows.Forms.Padding(0);
-            this.goodColorControl21.MaximumSize = new System.Drawing.Size(344, 264);
-            this.goodColorControl21.MinimumSize = new System.Drawing.Size(344, 244);
             this.goodColorControl21.Name = "goodColorControl21";
+            this.goodColorControl21.Padding = new System.Windows.Forms.Padding(3);
             this.goodColorControl21.ShowOldColor = false;
-            this.goodColorControl21.Size = new System.Drawing.Size(344, 253);
+            this.goodColorControl21.Size = new System.Drawing.Size(315, 267);
             this.goodColorControl21.TabIndex = 7;
             // 
             // ColorDialog
             // 
-            this.ClientSize = new System.Drawing.Size(335, 253);
+            this.ClientSize = new System.Drawing.Size(315, 267);
             this.Controls.Add(this.goodColorControl21);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ColorDialog";
+            this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "Color Selector";
             this.ResumeLayout(false);

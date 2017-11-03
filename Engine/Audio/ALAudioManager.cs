@@ -137,7 +137,7 @@ namespace TheraEngine.Audio
         {
             return AudioState.Initial + ((int)AL.GetSourceState(soundId) - (int)ALSourceState.Initial);
         }
-        public override void UpdateListener(PlayerIndex player, Vec3 position, Vec3 forward, Vec3 up, Vec3 velocity, float gain, float efxMetersPerUnit = 1.0f)
+        public override void UpdateListener(Vec3 position, Vec3 forward, Vec3 up, Vec3 velocity, float gain, float efxMetersPerUnit = 1.0f)
         {
             float f;
             Vector3 v;

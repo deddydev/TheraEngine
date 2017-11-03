@@ -20,9 +20,7 @@ namespace TheraEditor
             if (item.LocalPlayerIndex != PlayerIndex.One)
                 return;
 
-            Viewport v = DockableRenderForm.ActiveRenderForm?.RenderPanel?.GetViewport(0);
-            if (v != null)
-                v.Owner = item;
+            DockableRenderForm.ActiveRenderForm?.RenderPanel?.GetViewport(0)?.RegisterController(item);
             
             //RenderPanel p = RenderPanel.GamePanel;
             //if (p != null)

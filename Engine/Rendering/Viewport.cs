@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using TheraEngine.Core.Shapes;
+using System.Collections.Generic;
 
 namespace TheraEngine.Rendering
 {
@@ -21,8 +22,13 @@ namespace TheraEngine.Rendering
 
         public DelOnRender Render;
 
+        public void RegisterController(LocalPlayerController controller)
+        {
+            Owners.Add(controller);
+        }
+
         private SSAOInfo _ssaoInfo = new SSAOInfo();
-        private LocalPlayerController _owner;
+        private List<LocalPlayerController> _owners = new List<LocalPlayerController>();
         private HudManager _pawnHUD;
         private int _index;
         private BoundingRectangle _region;
@@ -51,7 +57,7 @@ namespace TheraEngine.Rendering
                     else
                         _worldCamera.TransformChanged -= CameraTransformChanged;
 
-                    _worldCamera.OwningComponentChanged -= _worldCamera_OwningComponentChanged;
+                    _worldCamera.OwningComponentChanged -= WorldCameraOwningComponentChanged;
 
                     _worldCamera.Viewports.Remove(this);
                 }
@@ -65,7 +71,7 @@ namespace TheraEngine.Rendering
                     else
                         _worldCamera.TransformChanged += CameraTransformChanged;
 
-                    _worldCamera.OwningComponentChanged += _worldCamera_OwningComponentChanged;
+                    _worldCamera.OwningComponentChanged += WorldCameraOwningComponentChanged;
 
                     //TODO: what if the same camera is used by multiple viewports?
                     //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
@@ -78,7 +84,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        private void _worldCamera_OwningComponentChanged(CameraComponent previous, CameraComponent current)
+        private void WorldCameraOwningComponentChanged(CameraComponent previous, CameraComponent current)
         {
             if (previous != null)
                 previous.WorldTransformChanged -= CameraTransformChanged;
@@ -92,11 +98,12 @@ namespace TheraEngine.Rendering
 
         private void CameraTransformChanged()
         {
-            if (Owner == null || Camera == null || Engine.Audio == null)
+            if ((Owners.Count == 0 || Camera == null) && Engine.Audio == null)
                 return;
+
             Vec3 forward = _worldCamera.GetForwardVector();
             Vec3 up = _worldCamera.GetUpVector();
-            Engine.Audio.UpdateListener(Owner.LocalPlayerIndex, _worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
+            Engine.Audio.UpdateListener(_worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
         }
 
         public RenderPanel OwningPanel => _owningPanel;
@@ -117,23 +124,23 @@ namespace TheraEngine.Rendering
         public int Index => _index;
         public Vec2 Center => new Vec2(Width / 2.0f, Height / 2.0f);
 
-        public LocalPlayerController Owner
-        {
-            get => _owner;
-            set
-            {
-                if (_owner != null)
-                    _owner.Viewport = null;
+        public List<LocalPlayerController> Owners => _owners;
+        //{
+        //    get => _owners;
+        //    set
+        //    {
+        //        if (_owner != null)
+        //            _owner.Viewport = null;
                 
-                _owner = value;
+        //        _owner = value;
 
-                if (_owner != null)
-                {
-                    _owner.Viewport = this;
-                    Camera = _owner.CurrentCamera;
-                }
-            }
-        }
+        //        if (_owner != null)
+        //        {
+        //            _owner.Viewport = this;
+        //            Camera = _owner.CurrentCamera;
+        //        }
+        //    }
+        //}
 
         public BoundingRectangle InternalResolution => _internalResolution;
 
@@ -174,7 +181,7 @@ namespace TheraEngine.Rendering
             };
             TextureReference ssaoNoise = new TextureReference("SSAONoise",
                 _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
-                EPixelInternalFormat.Rgba16, EPixelFormat.Bgra, EPixelType.UnsignedShort,
+                EPixelInternalFormat.Rgba32ui, EPixelFormat.Bgra, EPixelType.UnsignedInt,
                 PixelFormat.Format64bppArgb)
             {
                 MinFilter = ETexMinFilter.Nearest,
@@ -185,13 +192,13 @@ namespace TheraEngine.Rendering
             };
             Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
-            ushort* values = (ushort*)data.Scan0;
+            uint* values = (uint*)data.Scan0;
             Vec3[] noise = _ssaoInfo.Noise;
             foreach (Vec3 v in noise)
             {
-                *values++ = (ushort)(v.X * ushort.MaxValue);
-                *values++ = (ushort)(v.Y * ushort.MaxValue);
-                *values++ = (ushort)(v.Z * ushort.MaxValue);
+                *values++ = (uint)(v.X * uint.MaxValue);
+                *values++ = (uint)(v.Y * uint.MaxValue);
+                *values++ = (uint)(v.Z * uint.MaxValue);
                 *values++ = 0;
             }
             bmp.UnlockBits(data);
@@ -318,6 +325,16 @@ namespace TheraEngine.Rendering
                 p.Aspect = Width / Height;
 
         }
+
+        internal void UnregisterController(LocalPlayerController owner)
+        {
+            if (owner.Viewport != this)
+                return;
+            owner.Viewport = null;
+            if (Owners.Contains(owner))
+                Owners.Remove(owner);
+        }
+
         public void DebugPrint(string message)
         {
             _pawnHUD.DebugPrint(message);

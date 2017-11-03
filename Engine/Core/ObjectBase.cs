@@ -5,6 +5,7 @@ using TheraEngine.Animation;
 using System;
 using TheraEngine.Input.Devices;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace TheraEngine
 {
@@ -127,23 +128,26 @@ namespace TheraEngine
                 OnRenamed(oldName);
             }
         }
-
-        public void OnPropertyChanged(object previousValue, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
+        
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+            => PropertyChanged?.Invoke(this, e);
+        
+        protected void SetPropertyField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
         {
-            PropertyInfo info = GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (info == null)
-                return;
-            
-            Engine.PrintLine("Changed property {0} in {1} \"{2}\"", info.Name, GetType().ToString(), ToString());
-            
+            Engine.PrintLine("Changed property {0} in {1} \"{2}\"", propertyName, GetType().GetFriendlyName(), ToString());
+
 #if EDITOR
             if (_editorState != null)
-                _editorState.ChangedProperties.Add(info);
+                _editorState.ChangedProperties.Add(propertyName);
 #endif
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info.Name));
+            if (!EqualityComparer<T>.Default.Equals(field, newValue))
+            {
+                field = newValue;
+                OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            }
         }
-        
+
         protected virtual void OnRenamed(string oldName) { Renamed?.Invoke(this, oldName); }
 
         public void AddAnimation(

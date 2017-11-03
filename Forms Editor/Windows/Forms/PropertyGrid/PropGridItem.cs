@@ -105,5 +105,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected virtual void SetControlsEnabled(bool enabled) { Enabled = enabled; }
         protected virtual void UpdateDisplayInternal() { }
         protected virtual void OnLabelSet() { }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            
+        }
     }
 }

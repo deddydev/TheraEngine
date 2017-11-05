@@ -62,19 +62,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public void UpdateValue(object newValue)
         {
+            if (_updating)
+                return;
             if (IListOwner != null)
                 IListOwner[IListIndex] = newValue;
-
-            if (Property == null)
-                throw new InvalidOperationException();
-
-            if (Property.CanWrite && !_updating)
+            else if (Property != null)
             {
-                Property.SetValue(PropertyOwner, newValue);
+                if (Property.CanWrite)
+                {
+                    Property.SetValue(PropertyOwner, newValue);
 
-                //Update the display in case the property's set method modifies the submitted data
-                UpdateDisplay();
+                    //Update the display in case the property's set method modifies the submitted data
+                    UpdateDisplay();
+                }
             }
+            else
+                throw new InvalidOperationException();
         }
         internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
         {

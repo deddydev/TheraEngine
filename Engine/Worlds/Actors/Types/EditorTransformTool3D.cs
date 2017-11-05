@@ -20,7 +20,8 @@ namespace TheraEngine.Worlds.Actors.Types
     {
         Scale,
         Rotate,
-        Translate
+        Translate,
+        //DragDrop,
     }
     public class EditorTransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
     {
@@ -697,11 +698,11 @@ namespace TheraEngine.Worlds.Actors.Types
         }
         public void Render()
         {
-            foreach (Vec3 v in _intersectionPoints)
-                Engine.Renderer.RenderPoint(v * _dragMatrix, Color.Orange);
-            Vec3 dragPoint = _dragMatrix.GetPoint();
-            Engine.Renderer.RenderLine(dragPoint, dragPoint + _dragPlaneNormal * 10.0f, Color.White);
-            Engine.Renderer.RenderPoint(_lastPoint * _dragMatrix, Color.Magenta);
+            //foreach (Vec3 v in _intersectionPoints)
+            //    Engine.Renderer.RenderPoint(v * _dragMatrix, Color.Orange);
+            //Vec3 dragPoint = _dragMatrix.GetPoint();
+            //Engine.Renderer.RenderLine(dragPoint, dragPoint + _dragPlaneNormal * 10.0f, Color.White);
+            //Engine.Renderer.RenderPoint(_lastPoint * _dragMatrix, Color.Magenta);
         }
     }
 }

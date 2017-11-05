@@ -15,16 +15,10 @@ namespace System
             _inches = inches;
         }
         public float ToFeet()
-        {
-            return _feet + _inches / 12.0f;
-        }
+            => _feet + _inches / 12.0f;
         public float ToInches()
-        {
-            return _feet * 12.0f + _inches;
-        }
+            => _feet * 12.0f + _inches;
         public float ToMeters()
-        {
-            return ToFeet().FeetToMeters();
-        }
+            => ToFeet().FeetToMeters();
     }
 }

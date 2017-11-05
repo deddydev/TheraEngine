@@ -297,6 +297,7 @@ namespace TheraEngine.Rendering
                     _collision.BroadphaseProxy.CollisionFilterMask = (CollisionFilterGroups)(short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None);
             }
         }
+        [Browsable(false)]
         public IPhysicsDrivable Owner => _owner;
         public Vec3 LinearFactor
         {

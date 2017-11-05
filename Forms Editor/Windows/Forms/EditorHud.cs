@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using TheraEngine.Worlds;
 using TheraEngine.Core.Shapes;
+using System.Threading.Tasks;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -250,7 +251,7 @@ namespace TheraEditor.Windows.Forms
                 Engine.Scene.Add(_highlightPoint);
             }
         }
-        public bool UseTransformTool { get; set; } = false;
+        public bool UseTransformTool { get; set; } = true;
         public SceneComponent DragComponent { get => _dragComponent; set => _dragComponent = value; }
 
         public void MouseDown()
@@ -298,10 +299,7 @@ namespace TheraEditor.Windows.Forms
                     TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
                     if (t != null)
                     {
-                        if (t.TreeView.InvokeRequired)
-                            t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t));
-                        else
-                            t.TreeView.SelectedNode = t;
+                        Task.Run(() => t.TreeView.InvokeRequired ? t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t)) : t.TreeView.SelectedNode = t);
                     }
                 }
             }

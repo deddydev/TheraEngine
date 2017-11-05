@@ -59,8 +59,8 @@
             this.r0c0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r0c0.LargeIncrement = 15F;
             this.r0c0.LargerIncrement = 90F;
-            this.r0c0.Location = new System.Drawing.Point(0, 0);
-            this.r0c0.Margin = new System.Windows.Forms.Padding(0, 0, 2, 2);
+            this.r0c0.Location = new System.Drawing.Point(0, 2);
+            this.r0c0.Margin = new System.Windows.Forms.Padding(0, 2, 2, 2);
             this.r0c0.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r0c0.Name = "r0c0";
             this.r0c0.Nullable = false;
@@ -83,8 +83,8 @@
             this.r0c1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r0c1.LargeIncrement = 15F;
             this.r0c1.LargerIncrement = 90F;
-            this.r0c1.Location = new System.Drawing.Point(2, 0);
-            this.r0c1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 2);
+            this.r0c1.Location = new System.Drawing.Point(2, 2);
+            this.r0c1.Margin = new System.Windows.Forms.Padding(2);
             this.r0c1.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r0c1.Name = "r0c1";
             this.r0c1.Nullable = false;
@@ -107,8 +107,8 @@
             this.r0c2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r0c2.LargeIncrement = 15F;
             this.r0c2.LargerIncrement = 90F;
-            this.r0c2.Location = new System.Drawing.Point(2, 0);
-            this.r0c2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 2);
+            this.r0c2.Location = new System.Drawing.Point(2, 2);
+            this.r0c2.Margin = new System.Windows.Forms.Padding(2);
             this.r0c2.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r0c2.Name = "r0c2";
             this.r0c2.Nullable = false;
@@ -155,7 +155,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 120);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 124);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // r0c3
@@ -169,8 +169,8 @@
             this.r0c3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r0c3.LargeIncrement = 15F;
             this.r0c3.LargerIncrement = 90F;
-            this.r0c3.Location = new System.Drawing.Point(2, 0);
-            this.r0c3.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
+            this.r0c3.Location = new System.Drawing.Point(2, 2);
+            this.r0c3.Margin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.r0c3.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r0c3.Name = "r0c3";
             this.r0c3.Nullable = false;
@@ -193,7 +193,7 @@
             this.r1c0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r1c0.LargeIncrement = 15F;
             this.r1c0.LargerIncrement = 90F;
-            this.r1c0.Location = new System.Drawing.Point(0, 31);
+            this.r1c0.Location = new System.Drawing.Point(0, 33);
             this.r1c0.Margin = new System.Windows.Forms.Padding(0, 2, 2, 2);
             this.r1c0.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r1c0.Name = "r1c0";
@@ -217,7 +217,7 @@
             this.r1c1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r1c1.LargeIncrement = 15F;
             this.r1c1.LargerIncrement = 90F;
-            this.r1c1.Location = new System.Drawing.Point(2, 31);
+            this.r1c1.Location = new System.Drawing.Point(2, 33);
             this.r1c1.Margin = new System.Windows.Forms.Padding(2);
             this.r1c1.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r1c1.Name = "r1c1";
@@ -241,7 +241,7 @@
             this.r1c2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r1c2.LargeIncrement = 15F;
             this.r1c2.LargerIncrement = 90F;
-            this.r1c2.Location = new System.Drawing.Point(2, 31);
+            this.r1c2.Location = new System.Drawing.Point(2, 33);
             this.r1c2.Margin = new System.Windows.Forms.Padding(2);
             this.r1c2.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r1c2.Name = "r1c2";
@@ -265,7 +265,7 @@
             this.r1c3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r1c3.LargeIncrement = 15F;
             this.r1c3.LargerIncrement = 90F;
-            this.r1c3.Location = new System.Drawing.Point(2, 31);
+            this.r1c3.Location = new System.Drawing.Point(2, 33);
             this.r1c3.Margin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.r1c3.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r1c3.Name = "r1c3";
@@ -289,7 +289,7 @@
             this.r2c0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r2c0.LargeIncrement = 15F;
             this.r2c0.LargerIncrement = 90F;
-            this.r2c0.Location = new System.Drawing.Point(0, 62);
+            this.r2c0.Location = new System.Drawing.Point(0, 64);
             this.r2c0.Margin = new System.Windows.Forms.Padding(0, 2, 2, 2);
             this.r2c0.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r2c0.Name = "r2c0";
@@ -313,7 +313,7 @@
             this.r2c1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r2c1.LargeIncrement = 15F;
             this.r2c1.LargerIncrement = 90F;
-            this.r2c1.Location = new System.Drawing.Point(2, 62);
+            this.r2c1.Location = new System.Drawing.Point(2, 64);
             this.r2c1.Margin = new System.Windows.Forms.Padding(2);
             this.r2c1.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r2c1.Name = "r2c1";
@@ -337,7 +337,7 @@
             this.r2c2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r2c2.LargeIncrement = 15F;
             this.r2c2.LargerIncrement = 90F;
-            this.r2c2.Location = new System.Drawing.Point(2, 62);
+            this.r2c2.Location = new System.Drawing.Point(2, 64);
             this.r2c2.Margin = new System.Windows.Forms.Padding(2);
             this.r2c2.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r2c2.Name = "r2c2";
@@ -361,7 +361,7 @@
             this.r2c3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r2c3.LargeIncrement = 15F;
             this.r2c3.LargerIncrement = 90F;
-            this.r2c3.Location = new System.Drawing.Point(2, 62);
+            this.r2c3.Location = new System.Drawing.Point(2, 64);
             this.r2c3.Margin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.r2c3.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r2c3.Name = "r2c3";
@@ -385,8 +385,8 @@
             this.r3c0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r3c0.LargeIncrement = 15F;
             this.r3c0.LargerIncrement = 90F;
-            this.r3c0.Location = new System.Drawing.Point(0, 93);
-            this.r3c0.Margin = new System.Windows.Forms.Padding(0, 2, 2, 0);
+            this.r3c0.Location = new System.Drawing.Point(0, 95);
+            this.r3c0.Margin = new System.Windows.Forms.Padding(0, 2, 2, 2);
             this.r3c0.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r3c0.Name = "r3c0";
             this.r3c0.Nullable = false;
@@ -409,8 +409,8 @@
             this.r3c1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r3c1.LargeIncrement = 15F;
             this.r3c1.LargerIncrement = 90F;
-            this.r3c1.Location = new System.Drawing.Point(2, 93);
-            this.r3c1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 0);
+            this.r3c1.Location = new System.Drawing.Point(2, 95);
+            this.r3c1.Margin = new System.Windows.Forms.Padding(2);
             this.r3c1.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r3c1.Name = "r3c1";
             this.r3c1.Nullable = false;
@@ -433,8 +433,8 @@
             this.r3c2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r3c2.LargeIncrement = 15F;
             this.r3c2.LargerIncrement = 90F;
-            this.r3c2.Location = new System.Drawing.Point(2, 93);
-            this.r3c2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 0);
+            this.r3c2.Location = new System.Drawing.Point(2, 95);
+            this.r3c2.Margin = new System.Windows.Forms.Padding(2);
             this.r3c2.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r3c2.Name = "r3c2";
             this.r3c2.Nullable = false;
@@ -457,8 +457,8 @@
             this.r3c3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.r3c3.LargeIncrement = 15F;
             this.r3c3.LargerIncrement = 90F;
-            this.r3c3.Location = new System.Drawing.Point(2, 93);
-            this.r3c3.Margin = new System.Windows.Forms.Padding(2, 2, 0, 0);
+            this.r3c3.Location = new System.Drawing.Point(2, 95);
+            this.r3c3.Margin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.r3c3.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.r3c3.Name = "r3c3";
             this.r3c3.Nullable = false;
@@ -477,7 +477,7 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "PropGridMatrix4";
-            this.Size = new System.Drawing.Size(0, 120);
+            this.Size = new System.Drawing.Size(0, 124);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

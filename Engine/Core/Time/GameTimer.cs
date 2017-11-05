@@ -14,11 +14,10 @@ namespace TheraEngine.Timers
         }
 
         //Set on start
-        private bool _multi = false;
         private MultiFireAction _multiMethod;
         private Action _singleMethod;
         private float _secondsBetweenFires;
-        private float _startSeconds;
+        private float _currentSecondsBetweenFires;
         private int _fireMax;
 
         //State
@@ -34,10 +33,9 @@ namespace TheraEngine.Timers
             _totalElapsed = 0;
             _elapsedSinceLastFire = 0;
             _secondsBetweenFires = 0;
-            _startSeconds = 0;
+            _currentSecondsBetweenFires = 0;
             _multiMethod = null;
             _singleMethod = null;
-            _multi = false;
         }
         public void Stop()
         {
@@ -47,7 +45,8 @@ namespace TheraEngine.Timers
             Reset();
             _isRunning = false;
 
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, Tick);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickMulti);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickSingle);
         }
         /// <summary>
         /// Executes a method once after the given time period.
@@ -65,12 +64,11 @@ namespace TheraEngine.Timers
                 method();
             else
             {
-                _multi = false;
                 _isRunning = true;
                 _singleMethod = method;
-                _startSeconds = seconds;
+                _currentSecondsBetweenFires = seconds;
 
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, Tick);
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickSingle);
             }
         }
         /// <summary>
@@ -89,16 +87,15 @@ namespace TheraEngine.Timers
 
             if (maxFires == 0 || method == null)
                 return;
-
-            _multi = true;
+            
             _multiMethod = method;
             _fireMax = maxFires;
 
             _secondsBetweenFires = secondsBetweenFires;
-            _startSeconds = startSeconds;
+            _currentSecondsBetweenFires = startSeconds;
             _isRunning = true;
 
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, Tick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickMulti);
         }
         /// Executes a single method multiple times with a given interval of time between each execution.
         /// </summary>
@@ -115,35 +112,40 @@ namespace TheraEngine.Timers
 
             if (maxFires == 0 || method == null)
                 return;
-
-            _multi = true;
+            
             _singleMethod = method;
             _fireMax = maxFires;
 
             _secondsBetweenFires = secondsBetweenFires;
-            _startSeconds = startSeconds;
+            _currentSecondsBetweenFires = startSeconds;
             _isRunning = true;
 
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, Tick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickMulti);
         }
-        private void Tick(float delta)
+        private void TickMulti(float delta)
         {
             _totalElapsed += delta;
             _elapsedSinceLastFire += delta;
-            if ((_fireNumber == 0 && _elapsedSinceLastFire > _startSeconds) || _elapsedSinceLastFire > _secondsBetweenFires)
-                if (_multi)
-                {
-                    _multiMethod?.Invoke(_totalElapsed, _fireNumber++);
-                    _singleMethod?.Invoke();
-                    _elapsedSinceLastFire = 0;
-                    if (_fireMax >= 0 && _fireNumber >= _fireMax)
-                        Stop();
-                }
-                else
-                {
-                    _singleMethod();
+            if (_elapsedSinceLastFire > _currentSecondsBetweenFires)
+            {
+                _currentSecondsBetweenFires = _secondsBetweenFires;
+                _multiMethod?.Invoke(_totalElapsed, _fireNumber++);
+                _singleMethod?.Invoke();
+                _elapsedSinceLastFire = 0;
+                if (_fireMax >= 0 && _fireNumber >= _fireMax)
                     Stop();
-                }
+            }
+        }
+        private void TickSingle(float delta)
+        {
+            _totalElapsed += delta;
+            _elapsedSinceLastFire += delta;
+            if (_elapsedSinceLastFire > _currentSecondsBetweenFires)
+            {
+                _currentSecondsBetweenFires = _secondsBetweenFires;
+                _singleMethod();
+                Stop();
+            }
         }
     }
 }

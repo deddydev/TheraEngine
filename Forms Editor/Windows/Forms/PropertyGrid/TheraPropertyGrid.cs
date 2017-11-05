@@ -41,7 +41,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public TheraPropertyGrid()
         {
             InitializeComponent();
-            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, 1.0f);
+            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, 0.2f);
         }
 
         private const string MiscName = "Miscellaneous";
@@ -148,7 +148,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (indexParams != null && indexParams.Length > 0)
                     return;
 
-                Type subType = prop.PropertyType;
+                object propObj = prop.GetValue(obj);
+                Type subType = propObj?.GetType() ?? prop.PropertyType;
                 var attribs = prop.GetCustomAttributes(true);
                 if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
                     return;
@@ -159,9 +160,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Property = prop,
                     Attribs = attribs,
                 };
-
-                //BeginInvoke((Action)(() => CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs)));
-
+                
                 info.TryAdd(i, p);
             }));
 

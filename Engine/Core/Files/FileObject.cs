@@ -55,43 +55,51 @@ namespace TheraEngine.Files
         static FileObject()
         {
             _thirdPartyLoaders = new Dictionary<string, Dictionary<Type, DelLoadThirdPartyFile>>();
-            var types = 
-            (
-                from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-                from assemblyType in domainAssembly.GetExportedTypes()
-                where assemblyType.IsSubclassOf(typeof(FileObject)) && !assemblyType.IsAbstract
-                select assemblyType
-            )
-            .ToArray();
-
-            foreach (Type t in types)
+            try
             {
-                FileClass c = GetFileHeader(t);
-                if (c != null && c.ImportableExtensions != null)
+                var types =
+                (
+                    from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+                    where !domainAssembly.IsDynamic
+                    from assemblyType in domainAssembly.GetExportedTypes()
+                    where assemblyType.IsSubclassOf(typeof(FileObject)) && !assemblyType.IsAbstract
+                    select assemblyType
+                )
+                .ToArray();
+
+                foreach (Type t in types)
                 {
-                    foreach (string ext3rd in c.ImportableExtensions)
+                    FileClass c = GetFileHeader(t);
+                    if (c != null && c.ImportableExtensions != null)
                     {
-                        string extLower = ext3rd.ToLowerInvariant();
-                        Dictionary<Type, DelLoadThirdPartyFile> d;
-                        if (_thirdPartyLoaders.ContainsKey(extLower))
-                            d = _thirdPartyLoaders[extLower];
-                        else
-                            _thirdPartyLoaders.Add(extLower, d = new Dictionary<Type, DelLoadThirdPartyFile>());
-                        if (!d.ContainsKey(t))
+                        foreach (string ext3rd in c.ImportableExtensions)
                         {
-                            var methods = t.GetMethods(
-                                BindingFlags.NonPublic |
-                                BindingFlags.Public | 
-                                BindingFlags.Static)
-                                .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
-                                .ToArray();
-                            if (methods.Length > 0 && Delegate.CreateDelegate(typeof(DelLoadThirdPartyFile), methods[0]) is DelLoadThirdPartyFile result)
-                                d.Add(t, result);
+                            string extLower = ext3rd.ToLowerInvariant();
+                            Dictionary<Type, DelLoadThirdPartyFile> d;
+                            if (_thirdPartyLoaders.ContainsKey(extLower))
+                                d = _thirdPartyLoaders[extLower];
+                            else
+                                _thirdPartyLoaders.Add(extLower, d = new Dictionary<Type, DelLoadThirdPartyFile>());
+                            if (!d.ContainsKey(t))
+                            {
+                                var methods = t.GetMethods(
+                                    BindingFlags.NonPublic |
+                                    BindingFlags.Public |
+                                    BindingFlags.Static)
+                                    .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
+                                    .ToArray();
+                                if (methods.Length > 0 && Delegate.CreateDelegate(typeof(DelLoadThirdPartyFile), methods[0]) is DelLoadThirdPartyFile result)
+                                    d.Add(t, result);
+                            }
+                            else
+                                throw new Exception(t.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
                         }
-                        else
-                            throw new Exception(t.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
                     }
                 }
+            }
+            catch
+            {
+
             }
         }
         public FileObject() { OnLoaded(); }

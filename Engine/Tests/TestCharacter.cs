@@ -48,14 +48,14 @@ namespace TheraEngine.Tests
                 _meshComp.Skeleton = skeleton;
                 _meshComp.Model = mesh;
 
-                //string animPath = //TestDefaults.DesktopPath + "test_anim.dae";
-                //TestDefaults.GoogleDrivePath + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
-                //ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
-                ////if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
-                //{
-                //    _animationStateMachine.Skeleton = _meshComp.Skeleton;
-                //    _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/m);
-                //}
+                string animPath = //TestDefaults.DesktopPath + "test_anim.dae";
+                TestDefaults.GoogleDrivePath + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
+                ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
+                //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
+                {
+                    _animationStateMachine.Skeleton = _meshComp.Skeleton;
+                    _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/m);
+                }
             }
         }
         protected override void PreConstruct()

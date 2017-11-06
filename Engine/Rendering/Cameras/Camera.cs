@@ -130,10 +130,8 @@ namespace TheraEngine.Rendering.Cameras
         }
         [DisplayName("World Point")]
         [Category("Camera")]
-        public Vec3 WorldPoint
-        {
-            get => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
-        }
+        public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
+        
         [DisplayName("Local Point")]
         [Category("Camera")]
         public EventVec3 LocalPoint
@@ -141,7 +139,7 @@ namespace TheraEngine.Rendering.Cameras
             get => _localPoint;
             set
             {
-                _localPoint = value;
+                _localPoint = value ?? new EventVec3();
                 _localPoint.Changed += PositionChanged;
                 PositionChanged();
             }
@@ -207,12 +205,7 @@ namespace TheraEngine.Rendering.Cameras
                 _viewTarget_Changed();
             }
         }
-
-        [Browsable(false)]
-        public ERenderPassType3D RenderPass => throw new NotImplementedException();
-        [Browsable(false)]
-        public float RenderOrder => throw new NotImplementedException();
-
+        
         private CameraComponent _owningComponent;
         private List<Viewport> _viewports = new List<Viewport>();
         private bool _isActive = false;
@@ -263,8 +256,14 @@ namespace TheraEngine.Rendering.Cameras
         /// </summary>
         public Vec3 WorldToScreen(Vec3 point)
             => _projectionRange * (((point * (ProjectionMatrix * WorldToCameraSpaceMatrix)) + 1.0f) / 2.0f);
+        /// <summary>
+        /// Takes an X, Y coordinate relative to the camera's Origin along with the normalized depth from NearDepth to FarDepth, and returns a position in the world.
+        /// </summary>
         public Vec3 ScreenToWorld(Vec2 point, float depth)
             => ScreenToWorld(point.X, point.Y, depth);
+        /// <summary>
+        /// Takes an X, Y coordinate relative to the camera's Origin along with the normalized depth from NearDepth to FarDepth, and returns a position in the world.
+        /// </summary>
         public Vec3 ScreenToWorld(float x, float y, float depth)
             => ScreenToWorld(new Vec3(x, y, depth));
         /// <summary>
@@ -290,11 +289,23 @@ namespace TheraEngine.Rendering.Cameras
         protected void UpdateTransformedFrustum()
             => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, CameraToWorldSpaceMatrix);
 
+        /// <summary>
+        /// Returns a uniform scale that will keep the given radius the same size on the screen at the given point.
+        /// </summary>
+        /// <param name="point">The location of the sphere.</param>
+        /// <param name="radius">The radius of the sphere.</param>
+        /// <returns>The scale on the screen.</returns>
         public abstract float DistanceScale(Vec3 point, float radius);
         public abstract void Zoom(float amount);
 
+        /// <summary>
+        /// Translates the camera relative to the camera's rotation.
+        /// </summary>
         public void TranslateRelative(float x, float y, float z) 
             => TranslateRelative(new Vec3(x, y, z));
+        /// <summary>
+        /// Translates the camera relative to the camera's rotation.
+        /// </summary>
         public void TranslateRelative(Vec3 translation)
         {
             _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * Matrix4.CreateTranslation(translation);
@@ -309,13 +320,28 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
 
+        /// <summary>
+        /// Translates the camera relative to the world.
+        /// </summary>
         public void TranslateAbsolute(float x, float y, float z) 
             => TranslateAbsolute(new Vec3(x, y, z));
+        /// <summary>
+        /// Translates the camera relative to the world.
+        /// </summary>
         public void TranslateAbsolute(Vec3 translation)
             => _localPoint.Raw += translation;
         
+        /// <summary>
+        /// Rotates the given vector by the camera's rotation. Does not normalize the returned vector.
+        /// For example, if given world-space forward, will return camera-space forward.
+        /// </summary>
+        /// <param name="dir">The vector to rotate.</param>
+        /// <returns>The rotated vector. Not normalized.</returns>
         public Vec3 RotateVector(Vec3 dir)
-            => Vec3.TransformVector(dir, CameraToWorldSpaceMatrix).NormalizedFast();
+            => Vec3.TransformVector(dir, CameraToWorldSpaceMatrix);
+        /// <summary>
+        /// Returns the up direction in camera space.
+        /// </summary>
         public Vec3 GetUpVector()
         {
             if (_upInvalidated)
@@ -325,6 +351,9 @@ namespace TheraEngine.Rendering.Cameras
             }
             return _upDirection;
         }
+        /// <summary>
+        /// Returns the forward direction in camera space.
+        /// </summary>
         public Vec3 GetForwardVector()
         {
             if (_forwardInvalidated)
@@ -334,6 +363,9 @@ namespace TheraEngine.Rendering.Cameras
             }
             return _forwardDirection;
         }
+        /// <summary>
+        /// Returns the right direction in camera space.
+        /// </summary>
         public Vec3 GetRightVector()
         {
             if (_rightInvalidated)
@@ -344,8 +376,14 @@ namespace TheraEngine.Rendering.Cameras
             return _rightDirection;
         }
 
+        /// <summary>
+        /// Increments the camera's pitch and yaw rotations.
+        /// </summary>
         public void AddRotation(float pitch, float yaw) 
             => AddRotation(pitch, yaw, 0.0f);
+        /// <summary>
+        /// Increments the camera's pitch, yaw and roll rotations.
+        /// </summary>
         public void AddRotation(float pitch, float yaw, float roll) 
             => SetRotation(
                 _localRotation.Pitch + pitch,

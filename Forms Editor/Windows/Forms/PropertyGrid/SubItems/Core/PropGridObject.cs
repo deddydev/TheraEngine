@@ -139,7 +139,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {
             pnlProps.Visible = !pnlProps.Visible;
-            Editor.Instance.PropertyGridForm.theraPropertyGrid1.pnlProps.ScrollControlIntoView(pnlProps);
+            Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(pnlProps);
         }
 
         private void pnlProps_VisibleChanged(object sender, EventArgs e)

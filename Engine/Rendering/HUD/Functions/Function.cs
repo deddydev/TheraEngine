@@ -147,7 +147,8 @@ namespace TheraEngine.Rendering.HUD.Functions
         internal const float MaxArgTextWidth = 20.0f;
         public void Resized()
         {
-            Height = _name.Length * TextCharWidth + Math.Max(_inputs.Count, _outputs.Count) * (BaseFuncValue.ConnectionBoxDims + BaseFuncValue.PaddingBetweenBoxes);
+            if (_name != null)
+                Height = _name.Length * TextCharWidth + Math.Max(_inputs.Count, _outputs.Count) * (BaseFuncValue.ConnectionBoxDims + BaseFuncValue.PaddingBetweenBoxes);
         }
 
         public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();

@@ -82,13 +82,16 @@ namespace TheraEditor.Windows.Forms
         public Editor() : base()
         {
             _instance = this;
+
+            Project p;
+
             //TODO: read editor state file instead
             string lastOpened = Properties.Settings.Default.LastOpened;//"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
             if (!string.IsNullOrEmpty(lastOpened))
-                Project = FileObject.FromFile<Project>(lastOpened);
+                p = FileObject.FromFile<Project>(lastOpened);
             else
             {
-                Project = new Project()
+                p = new Project()
                 {
                     OpeningWorld = typeof(TestWorld),
                     UserSettings = new UserSettings(),
@@ -97,8 +100,11 @@ namespace TheraEditor.Windows.Forms
             }
 
             Engine.EditorState.InGameMode = false;
-            Engine.SetGame(Project);
+            Engine.SetGame(p);
             InitializeComponent();
+
+            Project = p;
+
             menuStrip1.Renderer = new TheraToolstripRenderer();
             _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
 
@@ -139,10 +145,10 @@ namespace TheraEditor.Windows.Forms
         /// <returns>A newly created instance of elementType.</returns>
         public static object UserCreateInstanceOf(Type type, bool allowDerivedTypes)
         {
-            ObjectCreator selector = new ObjectCreator();
-            if (selector.Initialize(type, allowDerivedTypes))
-                selector.ShowDialog();
-            return selector.ConstructedObject;
+            ObjectCreator creator = new ObjectCreator();
+            if (creator.Initialize(type, allowDerivedTypes))
+                creator.ShowDialog();
+            return creator.ConstructedObject;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -154,11 +160,16 @@ namespace TheraEditor.Windows.Forms
 
             OnRedrawn = Redraw;
             Engine.RegisterRenderTick(RenderTick);
-            PropertyGridForm.theraPropertyGrid1.TargetObject = Engine.World?.Settings;
+            PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
             //Engine.SetPaused(true, PlayerIndex.One, true);
             Engine.Run();
         }
-        
+
+        public static void SetPropertyGridObject(object obj)
+        {
+            Instance.PropertyGridForm.PropertyGrid.TargetObject = obj;
+        }
+
         private IDockContent GetContentFromPersistString(string persistString)
         {
             if (persistString == typeof(DockableActorTree).ToString())
@@ -319,11 +330,11 @@ namespace TheraEditor.Windows.Forms
         }
 
         public static SingleFileRef<EditorSettings> Settings { get; }
-            = new SingleFileRef<EditorSettings>(Path.GetFullPath(Path.Combine(Program.StartupFolderPath, "..\\..\\..\\Editor", "Config.xset")), () => new EditorSettings());
+            = new SingleFileRef<EditorSettings>(Path.GetFullPath(Path.Combine(Application.StartupPath, "..\\..\\..\\Editor", "Config.xset")), () => new EditorSettings());
 
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            PropertyGridForm.theraPropertyGrid1.TargetObject = ActorTreeForm.ActorTree.SelectedNode == null ? Engine.World.Settings : ActorTreeForm.ActorTree.SelectedNode.Tag;
+            PropertyGridForm.PropertyGrid.TargetObject = ActorTreeForm.ActorTree.SelectedNode == null ? Engine.World.Settings : ActorTreeForm.ActorTree.SelectedNode.Tag;
         }
 
         private bool CloseProject()
@@ -399,27 +410,27 @@ namespace TheraEditor.Windows.Forms
 
         private void BtnProjectSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.theraPropertyGrid1.TargetObject = Project;
+            PropertyGridForm.PropertyGrid.TargetObject = Project;
         }
 
         private void BtnEngineSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.theraPropertyGrid1.TargetObject = Project?.EngineSettings;
+            PropertyGridForm.PropertyGrid.TargetObject = Project?.EngineSettings;
         }
 
         private void BtnEditorSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.theraPropertyGrid1.TargetObject = Editor.Settings;
+            PropertyGridForm.PropertyGrid.TargetObject = Editor.Settings;
         }
 
         private void BtnUserSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.theraPropertyGrid1.TargetObject = Project?.UserSettings;
+            PropertyGridForm.PropertyGrid.TargetObject = Project?.UserSettings;
         }
 
         private void BtnWorldSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.theraPropertyGrid1.TargetObject = Engine.World?.Settings;
+            PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
         }
 
         private void CboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)

@@ -108,16 +108,9 @@ namespace TheraEditor.Wrappers
 
         }
 
-        public void EditResource()
-        {
-            Editor.Instance.PropertyGridForm.theraPropertyGrid1.TargetObject = SingleInstance;
-        }
-
-        //public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
-        //{
-
-        //}
-
+        public virtual void EditResource()
+            => Editor.SetPropertyGridObject(SingleInstance);
+        
         internal protected override void OnExpand()
         {
 

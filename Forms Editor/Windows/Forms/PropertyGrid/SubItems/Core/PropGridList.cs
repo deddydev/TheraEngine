@@ -88,7 +88,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _list.Add(value);
             var items = TheraPropertyGrid.CreateControls(TheraPropertyGrid.GetControlTypes(value?.GetType()), _list, i);
             propGridListItems.AddProperty(items, new object[0]);
-            Editor.Instance.PropertyGridForm.theraPropertyGrid1.pnlProps.ScrollControlIntoView(items[items.Count - 1]);
+            Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(items[items.Count - 1]);
         }
 
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
@@ -99,7 +99,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {
             propGridListItems.Visible = !propGridListItems.Visible;
-            Editor.Instance.PropertyGridForm.theraPropertyGrid1.pnlProps.ScrollControlIntoView(this);
+            Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
         }
         protected override void SetControlsEnabled(bool enabled)
         {

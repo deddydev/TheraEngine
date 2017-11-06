@@ -19,7 +19,8 @@ namespace TheraEngine.Rendering.Cameras
         private float _height;
 
         private bool _overrideAspect = false;
-        [Serialize("Aspect", Order = 4, Condition = "_overrideAspect == true")]
+
+        [Serialize("Aspect", Order = 4, Condition = "_overrideAspect")]
         private float _aspect;
 
         private float _fovX = 90.0f;

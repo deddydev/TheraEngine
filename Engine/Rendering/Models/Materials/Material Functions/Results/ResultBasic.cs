@@ -13,19 +13,33 @@ namespace TheraEngine.Rendering.Models.Materials
                 "result output final return")]
     public class ResultBasicFunc : MaterialFunction
     {
-        MatFuncValueInput FinalColor;
+        MatFuncValueInput Color;
+        MatFuncValueInput Opacity;
         MatFuncValueInput WorldPositionOffset;
 
-        public ResultBasicFunc() : base(true) { }
+        public ResultBasicFunc(Material m) : base(false) { }
         protected override List<MatFuncValueInput> GetValueInputs()
         {
-            FinalColor = new MatFuncValueInput("FinalColor", ShaderVarType._vec4);
+            Color = new MatFuncValueInput("Color", ShaderVarType._vec3);
+            Opacity = new MatFuncValueInput("Opacity", ShaderVarType._float);
             WorldPositionOffset = new MatFuncValueInput("WorldPositionOffset", ShaderVarType._vec3);
-            return new List<MatFuncValueInput>() { FinalColor };
+            return new List<MatFuncValueInput>() { Color, Opacity, WorldPositionOffset };
         }
         protected override string GetOperation()
         {
             return FragmentShaderGenerator.OutputColorName + " = {0}";
+        }
+
+        public string CompileWorldPositionOffsetCode()
+        {
+            string code = "";
+            return code;
+        }
+
+        public string CompileFinalColorCode()
+        {
+            string code = "";
+            return code;
         }
     }
 }

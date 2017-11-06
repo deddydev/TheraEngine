@@ -164,7 +164,7 @@ namespace TheraEngine.GameModes
         }
         public override void EndGameplay()
         {
-
+            Engine.DestroyLocalPlayerControllers();
         }
         public override void AbortGameplay()
         {

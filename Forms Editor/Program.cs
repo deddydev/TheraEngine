@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Win32.Native;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,8 +13,6 @@ namespace TheraEditor
 {
     static class Program
     {
-        public static string StartupFolderPath = Application.StartupPath;
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -25,25 +24,24 @@ namespace TheraEditor
             Application.Run(new Editor());
         }
 
-        /// <summary>Returns true if the current application has focus, false otherwise</summary>
+        /// <summary>Returns true if any editor window has focus.</summary>
         private static bool CheckFocus()
         {
-            var activatedHandle = GetForegroundWindow();
+            var activatedHandle = NativeMethods.GetForegroundWindow();
             if (activatedHandle == IntPtr.Zero)
                 return false; //No window is currently activated
 
             int procId = Process.GetCurrentProcess().Id;
-            GetWindowThreadProcessId(activatedHandle, out int activeProcId);
+            NativeMethods.GetWindowThreadProcessId(activatedHandle, out int activeProcId);
 
             return activeProcId == procId;
         }
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-        private static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
-
+        /// <summary>
+        /// Finds all public types in all loaded assemblies that match the given predicate.
+        /// </summary>
+        /// <param name="match"></param>
+        /// <returns></returns>
         public static Type[] FindPublicTypes(Predicate<Type> match)
         {
             return
@@ -52,13 +50,17 @@ namespace TheraEditor
                 where match(assemblyType) && !assemblyType.IsAbstract
                 select assemblyType).ToArray();
         }
-        public static void PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
+        /// <summary>
+        /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
+        /// </summary>
+        /// <param name="button">The button to populate.</param>
+        /// <param name="onClick">The method to trigger when a leaf button is pressed.
+        /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
+        /// <param name="match">The predicate method used to find specific types.</param>
+        public static Type[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
         {
-            var fileObjectTypes =
-                            from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-                            from assemblyType in domainAssembly.GetExportedTypes()
-                            where match(assemblyType) && !assemblyType.IsAbstract
-                            select assemblyType;
+            Type[] fileObjectTypes = FindPublicTypes(match);
+
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (Type t in fileObjectTypes)
             {
@@ -76,6 +78,8 @@ namespace TheraEditor
                 }
                 node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);
             }
+
+            return fileObjectTypes;
         }
         private class NamespaceNode
         {

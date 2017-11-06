@@ -162,11 +162,15 @@ namespace TheraEngine
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
             ActiveGameMode?.HandleLocalPlayerLeft(item);
+
+            //TODO: remove controller from the server
         }
 
         private static void ActivePlayers_Added(LocalPlayerController item)
         {
             ActiveGameMode?.HandleLocalPlayerJoined(item);
+
+            //TODO: create controller on the server
         }
         
         #region Timing
@@ -326,6 +330,7 @@ namespace TheraEngine
         }
         #endregion
 
+        #region Fonts
         /// <summary>
         /// Loads a ttf or otf font from the given path and adds it to the collection of fonts.
         /// </summary>
@@ -355,6 +360,8 @@ namespace TheraEngine
         /// <param name="fontFamilyIndex">The index of the font, in the order it was loaded in.</param>
         public static FontFamily GetCustomFontFamily(int fontFamilyIndex)
             => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
+        #endregion
+
         /// <summary>
         /// Retrieves the viewport with the same index.
         /// </summary>
@@ -424,7 +431,6 @@ namespace TheraEngine
             bool wasRunning = _timer.IsRunning;
             World previous = World;
 
-            DestroyLocalPlayerControllers();
             Game.State.ActiveGameMode?.EndGameplay();
             World?.EndPlay();
 
@@ -450,7 +456,17 @@ namespace TheraEngine
             if (unloadPrevious)
                 previous?.Unload();
         }
-        private static void DestroyLocalPlayerControllers()
+        public static void SetGameMode(BaseGameMode mode)
+        {
+            if (Game != null)
+            {
+                Game.State.ActiveGameMode?.EndGameplay();
+                Game.State.ActiveGameMode = mode;
+                Game.State.ActiveGameMode?.BeginGameplay();
+            }
+        }
+
+        internal static void DestroyLocalPlayerControllers()
         {
             foreach (LocalPlayerController controller in ActivePlayers)
                 controller.Destroy();

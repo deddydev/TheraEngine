@@ -61,7 +61,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {
             propGridCategory1.Visible = !propGridCategory1.Visible;
-            Editor.Instance.PropertyGridForm.theraPropertyGrid1.pnlProps.ScrollControlIntoView(this);
+            Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
         }
         protected override void SetControlsEnabled(bool enabled)
         {

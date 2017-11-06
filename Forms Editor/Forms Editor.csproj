@@ -435,6 +435,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
+    <Compile Include="Wrappers\MaterialWrapper.cs" />
     <Compile Include="Wrappers\WorldWrapper.cs" />
     <Compile Include="Wrappers\FolderWrapper.cs" />
     <Compile Include="Wrappers\FileWrapper.cs" />

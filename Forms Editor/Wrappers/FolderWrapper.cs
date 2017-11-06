@@ -288,7 +288,6 @@ namespace TheraEditor.Wrappers
                 Process.Start("explorer.exe", path);
         }
         
-        [Localizable(true)]
         public new string Text
         {
             get => base.Text;

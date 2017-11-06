@@ -389,6 +389,12 @@ namespace Core.Win32.Native
 
         [DllImport("user32.dll")]
         public static extern bool SystemParametersInfo(uint uiAction, uint uiParam, IntPtr pvParam, uint fWinIni);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
     }
     [Flags]
     public enum AnimateWindowFlags : uint

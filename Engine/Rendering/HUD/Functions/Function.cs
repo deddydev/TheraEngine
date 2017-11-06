@@ -143,12 +143,32 @@ namespace TheraEngine.Rendering.HUD.Functions
         internal const float TitleHeight = 10.0f;
         internal const float TextCharWidth = 5.0f;
         internal const float TextCharHeight = 5.0f;
-        internal const float Padding = 3.0f;
         internal const float MaxArgTextWidth = 20.0f;
         public void Resized()
         {
-            if (_name != null)
-                Height = _name.Length * TextCharWidth + Math.Max(_inputs.Count, _outputs.Count) * (BaseFuncValue.ConnectionBoxDims + BaseFuncValue.PaddingBetweenBoxes);
+            float titleWidth = FunctionName.Length * TextCharWidth;
+            float titleHeight = TextCharHeight;
+            float connectionBoxBounds = BaseFuncValue.ConnectionBoxDims + BaseFuncValue.ConnectionBoxMargin;
+            int maxRows = Math.Max(_inputs.Count, _outputs.Count);
+
+            Height = titleHeight + maxRows * connectionBoxBounds;
+
+            float maxWidth = 0.0f;
+            float currentRowWidth;
+            for (int i = 0; i < maxRows; ++i)
+            {
+                currentRowWidth = 0.0f;
+                if (i < _inputs.Count)
+                {
+                    TVIn t = _inputs[i];
+                }
+                if (i < _outputs.Count)
+                {
+                    TVOut t = _outputs[i];
+                }
+            }
+
+            Width = titleWidth;
         }
 
         public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();

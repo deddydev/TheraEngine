@@ -148,10 +148,14 @@ namespace TheraEngine.Input
         }
         internal void Destroy()
         {
-            _possessionQueue.Clear();
-            ControlledPawn = null;
+            UnlinkControlledPawn();
             Viewport = null;
             _input.WantsInputsRegistered -= RegisterInput;
+        }
+        internal void UnlinkControlledPawn()
+        {
+            _possessionQueue.Clear();
+            ControlledPawn = null;
         }
     }
 }

@@ -12,7 +12,7 @@ using TheraEditor.Wrappers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(IFileRef))]
+    //[PropGridItem(typeof(IFileRef))]
     public partial class PropGridFileRef : PropGridItem
     {
         public PropGridFileRef() => InitializeComponent();

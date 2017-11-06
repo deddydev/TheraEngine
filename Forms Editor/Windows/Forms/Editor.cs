@@ -78,7 +78,8 @@ namespace TheraEditor.Windows.Forms
                     Text = "";
             }
         }
-        
+
+        EditorGameMode _editorGameMode;
         public Editor() : base()
         {
             _instance = this;
@@ -120,7 +121,7 @@ namespace TheraEditor.Windows.Forms
 
             DoubleBuffered = false;
             Engine.SetGamePanel(RenderForm1.RenderPanel, false);
-            Engine.Game.State.ActiveGameMode = new EditorGameMode();
+            Engine.Game.State.GameMode = _editorGameMode = new EditorGameMode();
             Engine.Initialize(true, false);
 
             GenerateInitialActorList();
@@ -440,12 +441,13 @@ namespace TheraEditor.Windows.Forms
 
         private void BtPlay_Click(object sender, EventArgs e)
         {
-            //RenderForm.RenderPanel.Focus();
-            //RenderForm.RenderPanel.Capture = true;
-            //Cursor.Clip = RenderForm.RenderPanel.RectangleToScreen(RenderForm.RenderPanel.ClientRectangle);
+            RenderPanel p = DockableRenderForm.ActiveRenderForm.RenderPanel;
+            p.Focus();
+            p.Capture = true;
+            Cursor.Clip = p.RectangleToScreen(p.ClientRectangle);
             Cursor.Hide();
             InputInterface.GlobalRegisters.Add(RegisterInput);
-            //Engine.World.DespawnActor(_editorCameraPawn);
+            Engine.SetGameMode(Engine.GetGameMode());
             Engine.World.BeginPlay();
         }
 
@@ -459,8 +461,8 @@ namespace TheraEditor.Windows.Forms
             Cursor.Show();
             Cursor.Clip = new Rectangle();
             InputInterface.GlobalRegisters.Remove(RegisterInput);
-            //Engine.World.SpawnActor(_editorCameraPawn);
             Engine.World.EndPlay();
+            Engine.SetGameMode(_editorGameMode);
         }
 
         private void ToolStripTextBox1_TextChanged(object sender, EventArgs e)

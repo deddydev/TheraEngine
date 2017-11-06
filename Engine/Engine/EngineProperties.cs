@@ -14,6 +14,7 @@ using System.Drawing.Text;
 using System.Threading;
 using System.Collections.Concurrent;
 using TheraEngine.Timers;
+using TheraEngine.GameModes;
 
 namespace TheraEngine
 {
@@ -24,10 +25,10 @@ namespace TheraEngine
         public static string ContentFolderRel = "Content\\";
         public static string ConfigFolderAbs = StartupPath + "Config\\";
         public static string ConfigFolderRel = "Config\\";
-        public static string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xeset";
-        public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xeset";
-        public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xuset";
-        public static string UserSettingsPathRel = ConfigFolderRel + "User.xuset";
+        public static string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xset";
+        public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xset";
+        public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
+        public static string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
         public static event Action<bool, PlayerIndex> Paused;
         public static event Action<string> DebugOutput;
@@ -78,6 +79,7 @@ namespace TheraEngine
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
         private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
+
         public static int MainThreadID;
         internal static int MaxTextureUnits;
 
@@ -200,5 +202,8 @@ namespace TheraEngine
                 }
             }
         }
+
+        public static BaseGameMode GetGameMode()
+            => World?.Settings.GameModeOverride?.File ?? Game.DefaultGameMode;
     }
 }

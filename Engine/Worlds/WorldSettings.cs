@@ -17,11 +17,11 @@ namespace TheraEngine.Worlds
     public class WorldSettings : FileObject
     {
         public GravityChange GravityChanged;
-        public GameModeChange GameModeChanged;
+        public GameModeChange GameModeOverrideChanged;
         public TimeMultiplierChange TimeMultiplierChanged;
 
         public void OnGravityChanged(Vec3 oldGravity) => GravityChanged?.Invoke(oldGravity);
-        public void OnGameModeChanged(BaseGameMode oldMode) => GameModeChanged?.Invoke(oldMode);
+        public void OnGameModeOverrideChanged(BaseGameMode oldMode) => GameModeOverrideChanged?.Invoke(oldMode);
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
 
         //[TypeConverter(typeof(Vec3StringConverter))]
@@ -35,15 +35,17 @@ namespace TheraEngine.Worlds
                 OnGravityChanged(oldGravity);
             }
         }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public SingleFileRef<BaseGameMode> GameMode
+        /// <summary>
+        /// Overrides the default game mode specified by the game.
+        /// </summary>
+        public SingleFileRef<BaseGameMode> GameModeOverride
         {
             get => _gameMode;
             set
             {
                 BaseGameMode oldMode = _gameMode;
                 _gameMode = value;
-                OnGameModeChanged(oldMode);
+                OnGameModeOverrideChanged(oldMode);
             }
         }
         [Description("How fast the game moves.")]

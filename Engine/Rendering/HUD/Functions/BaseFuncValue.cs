@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.HUD.Functions
     public static class BaseFuncValue
     {
         internal const float ConnectionBoxDims = 6.0f;
-        internal const float PaddingBetweenBoxes = 1.0f;
+        internal const float ConnectionBoxMargin = 1.0f;
     }
     public abstract class BaseFuncValue<T> : HudComponent where T : IBaseFuncValue
     {

@@ -149,16 +149,8 @@ namespace TheraEngine
         }
         #endregion
 
-        public static BaseGameMode ActiveGameMode
-        {
-            get => Game?.State.ActiveGameMode;
-            set
-            {
-                if (Game != null)
-                    Game.State.ActiveGameMode = value;
-            }
-        }
-
+        public static BaseGameMode ActiveGameMode => Game?.State.GameMode?.File;
+        
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
             ActiveGameMode?.HandleLocalPlayerLeft(item);
@@ -431,7 +423,7 @@ namespace TheraEngine
             bool wasRunning = _timer.IsRunning;
             World previous = World;
 
-            Game.State.ActiveGameMode?.EndGameplay();
+            ActiveGameMode?.EndGameplay();
             World?.EndPlay();
 
             //Stop();
@@ -445,10 +437,10 @@ namespace TheraEngine
                     World.BeginPlay();
             }
 
-            if (loadWorldGameMode)
-                Game.State.ActiveGameMode = World?.GetGameMode();
+            if (loadWorldGameMode && Game != null)
+                Game.State.GameMode.File = World?.GetGameMode();
 
-            Game.State.ActiveGameMode?.BeginGameplay();
+            ActiveGameMode?.BeginGameplay();
 
             //if (wasRunning)
             //    Run();
@@ -460,12 +452,17 @@ namespace TheraEngine
         {
             if (Game != null)
             {
-                Game.State.ActiveGameMode?.EndGameplay();
-                Game.State.ActiveGameMode = mode;
-                Game.State.ActiveGameMode?.BeginGameplay();
+                ActiveGameMode?.EndGameplay();
+                Game.State.GameMode.File = mode;
+                ActiveGameMode?.BeginGameplay();
             }
         }
 
+        internal static void ResetLocalPlayerControllers()
+        {
+            foreach (LocalPlayerController controller in ActivePlayers)
+                controller.UnlinkControlledPawn();
+        }
         internal static void DestroyLocalPlayerControllers()
         {
             foreach (LocalPlayerController controller in ActivePlayers)
@@ -496,15 +493,15 @@ namespace TheraEngine
                 _possessionQueues.Add(possessor, queue);
             }
         }
-        internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
+        internal static void AddLoadedFile<T>(string path, T file) where T : FileObject
         {
-            if (string.IsNullOrEmpty(relativePath))
+            if (string.IsNullOrEmpty(path))
                 return;
 
-            if (LoadedFiles.ContainsKey(relativePath))
-                LoadedFiles[relativePath].Add(file);
+            if (LoadedFiles.ContainsKey(path))
+                LoadedFiles[path].Add(file);
             else
-                LoadedFiles.Add(relativePath, new List<FileObject>() { file });
+                LoadedFiles.Add(path, new List<FileObject>() { file });
         }
         internal static void FoundInput(InputDevice device)
         {

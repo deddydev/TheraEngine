@@ -56,9 +56,9 @@ namespace TheraEngine.Worlds
         }
 
         public BaseGameMode GetGameMode()
-            => Settings?.GameMode?.File;
+            => Settings?.GameModeOverride?.File;
         public T GetGameMode<T>() where T : class, IGameMode
-            => Settings?.GameMode?.File as T;
+            => Settings?.GameModeOverride?.File as T;
 
         public int SpawnedActorCount => _settings.State.SpawnedActors.Count;
         public WorldState State => _settings.State;

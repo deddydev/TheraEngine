@@ -311,6 +311,7 @@
     <None Include="Core\Maths\Transforms\Class\Rotation\EventQuatRotator.cs" />
     <None Include="Core\Maths\Transforms\Class\Transforms\WorldRotTransform.cs" />
     <None Include="Core\Maths\Transforms\Struct\Rotation\QuatRotator.cs" />
+    <Compile Include="Core\Reflection\Attributes\StringAttribute.cs" />
     <Compile Include="Core\Reflection\Attributes\StateAttribute.cs" />
     <Compile Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />

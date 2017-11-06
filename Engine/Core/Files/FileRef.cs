@@ -104,6 +104,7 @@ namespace TheraEngine.Files
         {
             File = file;
         }
+        [Browsable(false)]
         public T File
         {
             get => GetInstance();
@@ -118,10 +119,16 @@ namespace TheraEngine.Files
                 _file = value;
                 if (_file != null)
                 {
-                    if (!string.IsNullOrEmpty(_file.FilePath))
-                        ReferencePath = _file.FilePath;
+                    string path = _file.FilePath;
 
-                    Engine.AddLoadedFile(_refPath, _file);
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        ReferencePath = path;
+
+                        if (!(Engine.LoadedFiles.ContainsKey(path) && Engine.LoadedFiles[path].Contains(_file)))
+                            Engine.AddLoadedFile(path, _file);
+                    }
+
                     _file.References.Add(this);
                 }
             }
@@ -161,7 +168,12 @@ namespace TheraEngine.Files
             T file = null;
             string absolutePath = ReferencePath;
             if (string.IsNullOrEmpty(absolutePath))
-                file = Activator.CreateInstance(_subType) as T;
+            {
+                if (!_subType.IsAbstract && !_subType.IsInterface && _subType.GetConstructor(new Type[0]) != null)
+                    file = Activator.CreateInstance(_subType) as T;
+                else
+                    Engine.Log("Can't automatically instantiate an interface, abstract class, or class with no parameterless constructor.");
+            }
             else if (Engine.LoadedFiles.ContainsKey(absolutePath))
             {
                 List<FileObject> files = Engine.LoadedFiles[absolutePath];

@@ -17,7 +17,17 @@ namespace TheraEngine.Rendering.Models.Materials
         MatFuncValueInput Opacity;
         MatFuncValueInput WorldPositionOffset;
 
-        public ResultBasicFunc(Material m) : base(false) { }
+        private Material _material;
+        public Material Material
+        {
+            get => _material;
+            set
+            {
+                _material = value;
+            }
+        }
+
+        public ResultBasicFunc() : base(false) { }
         protected override List<MatFuncValueInput> GetValueInputs()
         {
             Color = new MatFuncValueInput("Color", ShaderVarType._vec3);

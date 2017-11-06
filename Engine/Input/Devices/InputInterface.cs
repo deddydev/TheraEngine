@@ -17,17 +17,13 @@ namespace TheraEngine.Input.Devices
         Mouse,
     }
     public delegate void DelWantsInputsRegistered(InputInterface input);
-    public class LabeledInput
-    {
-        string _label;
-    }
     public enum MouseMoveType
     {
         Relative,
         Absolute,
     }
     /// <summary>
-    /// Input for server
+    /// Input from controllers.
     /// </summary>
     public class InputInterface : ObjectBase
     {

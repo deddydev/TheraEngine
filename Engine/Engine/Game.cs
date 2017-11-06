@@ -76,24 +76,17 @@ namespace TheraEngine
         }
 
         public virtual GameState State { get; set; } = new GameState();
+
+        public SingleFileRef<BaseGameMode> DefaultGameMode { get; set; } = null;
     }
 
     /// <summary>
     /// Contains all information pertaining to the game's current state in the engine.
     /// </summary>
-    [FileClass("GSTA", "Game State")]
+    [FileClass("STATE", "Game State")]
     public class GameState : FileObject
     {
-        private BaseGameMode _currentGameMode;
-        public BaseGameMode ActiveGameMode
-        {
-            get => _currentGameMode;
-            set
-            {
-                //_currentGameMode?.EndGameplay();
-                _currentGameMode = value;
-                //_currentGameMode?.BeginGameplay();
-            }
-        }
+        public SingleFileRef<World> World { get; set; }
+        public SingleFileRef<BaseGameMode> GameMode { get; set; }
     }
 }

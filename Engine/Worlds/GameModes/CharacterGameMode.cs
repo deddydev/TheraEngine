@@ -46,6 +46,7 @@ namespace TheraEngine.GameModes
         }
         public override void BeginGameplay()
         {
+            base.BeginGameplay();
             foreach (LocalPlayerController c in Engine.ActivePlayers)
             {
                 PawnType pawn = _pawnClass.CreateNew();
@@ -69,7 +70,7 @@ namespace TheraEngine.GameModes
         }
         public override void EndGameplay()
         {
-            
+            base.EndGameplay();
         }
         public virtual void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer)
         {

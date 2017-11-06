@@ -8,17 +8,22 @@ namespace TheraEditor.Windows.Forms
     {
         public MaterialEditorHud(Vec2 bounds) : base(bounds) { }
 
-        private ResultBasicFunc _end;
-        private ResultBasicFunc End
+        private ResultBasicFunc _endFunc;
+        private ResultBasicFunc EndFunc
         {
-            get => _end;
+            get => _endFunc;
             set
             {
-                if (_end != null)
-                    RootComponent.ChildComponents.Remove(_end);
-                _end = value;
-                if (_end != null)
-                    RootComponent.ChildComponents.Add(_end);
+                if (_endFunc != null)
+                {
+                    RootComponent.ChildComponents.Remove(_endFunc);
+                }
+                _endFunc = value;
+                if (_endFunc != null)
+                {
+                    RootComponent.ChildComponents.Add(_endFunc);
+                    _endFunc.Material = _targetMaterial;
+                }
             }
         }
 
@@ -39,7 +44,8 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _targetMaterial = value;
-                End = _targetMaterial != null ? new ResultBasicFunc(_targetMaterial) : null;
+                if (EndFunc != null)
+                    EndFunc.Material = _targetMaterial;
             }
         }
     }

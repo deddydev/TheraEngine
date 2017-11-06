@@ -262,7 +262,7 @@ namespace TheraEngine.Tests
                 //new CharacterPawn(PlayerIndex.Two, ColladaScene?.SkeletalModel, ColladaScene?.Skeleton) { Name = "PlayerCharacter", },
             };
 
-            _settings.GameMode = new TestGameMode();// new GameMode<FlyingCameraPawn>();
+            _settings.GameModeOverride = new TestGameMode();// new GameMode<FlyingCameraPawn>();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
             _settings.Maps[0].Settings.DefaultActors.AddRange(array);
 

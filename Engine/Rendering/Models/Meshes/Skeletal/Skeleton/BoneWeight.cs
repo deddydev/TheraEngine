@@ -7,9 +7,9 @@ namespace TheraEngine.Rendering.Models
     {
         public static float ComparisonTolerance = 0.00001f;
 
-        [Serialize("Bone", IsXmlAttribute = true)]
+        [Serialize("Bone", XmlNodeType = EXmlNodeType.Attribute)]
         private string _bone;
-        [Serialize("Weight", IsXmlAttribute = true)]
+        [Serialize("Weight", XmlNodeType = EXmlNodeType.Attribute)]
         private float _weight;
         private bool _locked;
 

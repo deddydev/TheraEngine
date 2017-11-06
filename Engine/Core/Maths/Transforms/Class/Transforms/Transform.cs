@@ -110,7 +110,7 @@ namespace System
         private EventVec3 _translation;
         [Serialize("Scale")]
         private EventVec3 _scale;
-        [Serialize("Order", IsXmlAttribute = true)]
+        [Serialize("Order", XmlNodeType = EXmlNodeType.Attribute)]
         private TransformOrder _transformOrder = TransformOrder.TRS;
 
         private Matrix4 _transform = Matrix4.Identity;

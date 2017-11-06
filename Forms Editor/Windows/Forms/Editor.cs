@@ -53,11 +53,20 @@ namespace TheraEditor.Windows.Forms
             {
                 if (_project == value)
                     return;
+
                 if (_project != null && !CloseProject())
                     return;
+
                 _project = value;
+
                 ContentTree?.OpenPath(_project?.FilePath);
-                if (_project != null)
+
+                bool projectOpened = _project != null;
+                btnEngineSettings.Enabled = projectOpened;
+                btnProjectSettings.Enabled = projectOpened;
+                btnUserSettings.Enabled = projectOpened;
+
+                if (projectOpened)
                 {
                     _project.EditorState = new EditorState();
                     if (string.IsNullOrEmpty(_project.FilePath))
@@ -73,6 +82,7 @@ namespace TheraEditor.Windows.Forms
         public Editor() : base()
         {
             _instance = this;
+            //TODO: read editor state file instead
             string lastOpened = Properties.Settings.Default.LastOpened;//"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
             if (!string.IsNullOrEmpty(lastOpened))
                 Project = FileObject.FromFile<Project>(lastOpened);
@@ -346,11 +356,6 @@ namespace TheraEditor.Windows.Forms
                     Project = Project.Create(fbd.SelectedPath, "NewProject");
                 }
             }
-
-            bool projectOpened = Project != null;
-            btnEngineSettings.Enabled = projectOpened;
-            btnProjectSettings.Enabled = projectOpened;
-            btnUserSettings.Enabled = projectOpened;
         }
 
         private void BtnOpenProject_Click(object sender, EventArgs e)

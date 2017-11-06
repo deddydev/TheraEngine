@@ -60,7 +60,7 @@ namespace TheraEngine.Animation
 
         protected delegate Matrix4 DelInterpolate(Matrix4Keyframe key1, Matrix4Keyframe key2, float time);
         
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Matrix4 Value { get; set; }
 
         public new Matrix4Keyframe Next

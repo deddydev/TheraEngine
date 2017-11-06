@@ -41,7 +41,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public TheraPropertyGrid()
         {
             InitializeComponent();
-            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, 0.2f);
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.Settings.File.PropertyGrid.File.UpdateRateInSeconds);
+            base.OnHandleCreated(e);
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            PropGridItem.UpdateTimer.Stop();
+            base.OnHandleDestroyed(e);
         }
 
         private const string MiscName = "Miscellaneous";

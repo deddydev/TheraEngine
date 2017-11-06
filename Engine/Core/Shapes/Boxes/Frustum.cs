@@ -23,7 +23,7 @@ namespace TheraEngine.Core.Shapes
         private Plane[] _planes = new Plane[6];
 
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
-        [Serialize("UseBoundingSphere", IsXmlAttribute = true)]
+        [Serialize("UseBoundingSphere", XmlNodeType = EXmlNodeType.Attribute)]
         private Sphere _boundingSphere;
 
         [CustomXMLSerializeMethod("UseBoundingSphere")]

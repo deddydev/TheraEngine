@@ -1,5 +1,6 @@
 ﻿using TheraEngine.Files;
 using System.ComponentModel;
+using System;
 
 namespace TheraEngine
 {
@@ -51,7 +52,7 @@ namespace TheraEngine
         /// </summary>
         [Description("Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).")]
         [Category("Frames Per Second")]
-        [Serialize("Capped", OverrideXmlCategory = "FramesPerSecond"/*, IsXmlAttribute = true*/)]
+        [Serialize("Capped", OverrideXmlCategory = "FramesPerSecond"/*, XmlNodeType = EXmlNodeType.Attribute*/)]
         public bool CapFPS { get; set; }
         /// <summary>
         /// How many frames are expected to be rendered per second.
@@ -66,7 +67,7 @@ namespace TheraEngine
         /// </summary>
         [Description("Determines if the update rate should be capped at a specific frequency. If not, will run as fast as possible.")]
         [Category("Updates Per Second")]
-        [Serialize("Capped", OverrideXmlCategory = "UpdatesPerSecond"/*, IsXmlAttribute = true*/)]
+        [Serialize("Capped", OverrideXmlCategory = "UpdatesPerSecond"/*, XmlNodeType = EXmlNodeType.Attribute*/)]
         public bool CapUPS { get; set; }
         /// <summary>
         /// How many internal engine tick update calls are expected to be made per second. This is not the same as the render frequency.

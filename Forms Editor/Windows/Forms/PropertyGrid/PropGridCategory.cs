@@ -32,6 +32,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public void DestroyProperties()
         {
+            foreach (Control control in tblProps.Controls)
+                control.Dispose();
             tblProps.Controls.Clear();
             tblProps.RowStyles.Clear();
             tblProps.RowCount = 0;
@@ -44,7 +46,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
             Label label = new Label()
             {
-                Text = Editor.Settings.File.PropertyGrid.SplitCamelCase ? name.SplitCamelCase() : name,
+                Text = Editor.Settings.File.PropertyGrid.File.SplitCamelCase ? name.SplitCamelCase() : name,
                 TextAlign = ContentAlignment.MiddleRight,
                 AutoSize = true,
                 ForeColor = Color.FromArgb(200, 200, 220),

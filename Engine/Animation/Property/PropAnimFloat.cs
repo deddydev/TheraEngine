@@ -74,14 +74,14 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate = CubicHermite;
         protected PlanarInterpType _interpolationType;
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float InValue { get; set; }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float OutValue { get; set; }
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float InTangent { get; set; }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float OutTangent { get; set; }
 
         public new FloatKeyframe Next
@@ -95,7 +95,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;

@@ -21,7 +21,7 @@ namespace TheraEngine.Worlds.Actors.Types
         Scale,
         Rotate,
         Translate,
-        //DragDrop,
+        DragDrop,
     }
     public class EditorTransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
     {

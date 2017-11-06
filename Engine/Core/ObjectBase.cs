@@ -56,16 +56,14 @@ namespace TheraEngine
         }
 
         [Browsable(false)]
-        public event PropertyChangedEventHandler PropertyChanged;
-        [Browsable(false)]
         public event RenamedEventHandler Renamed;
 
-        [Serialize("Name", IsXmlAttribute = true)]
+        [Serialize("Name", XmlNodeType = EXmlNodeType.Attribute)]
         protected string _name = null;
         [Serialize("UserData")]
         private object _userData = null;
 #if EDITOR
-        private EditorState _editorState = new EditorState();
+        private EditorState _editorState = null;
 #endif
 
         private ThreadSafeList<TickInfo> _tickFunctions = new ThreadSafeList<TickInfo>();
@@ -93,7 +91,7 @@ namespace TheraEngine
         [Category("Object")]
         public EditorState EditorState
         {
-            get => _editorState;
+            get => _editorState ?? (_editorState = new EditorState());
             set => _editorState = value;
         }
 #endif
@@ -128,27 +126,28 @@ namespace TheraEngine
                 OnRenamed(oldName);
             }
         }
-        
-        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
-            => PropertyChanged?.Invoke(this, e);
-        
-        protected void SetPropertyField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
-        {
-            Engine.PrintLine("Changed property {0} in {1} \"{2}\"", propertyName, GetType().GetFriendlyName(), ToString());
 
 #if EDITOR
-            if (_editorState != null)
-                _editorState.ChangedProperties.Add(propertyName);
-#endif
-
+        [Browsable(false)]
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+            => PropertyChanged?.Invoke(this, e);
+        protected void SetPropertyField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
+        {
             if (!EqualityComparer<T>.Default.Equals(field, newValue))
             {
+                Engine.PrintLine("Changed property {0} in {1} \"{2}\"", propertyName, GetType().GetFriendlyName(), ToString());
+
+                EditorState.AddChange(propertyName, field, newValue);
+
                 field = newValue;
                 OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             }
         }
+#endif
 
-        protected virtual void OnRenamed(string oldName) { Renamed?.Invoke(this, oldName); }
+        protected virtual void OnRenamed(string oldName)
+            => Renamed?.Invoke(this, oldName);
 
         public void AddAnimation(
             AnimationContainer anim,

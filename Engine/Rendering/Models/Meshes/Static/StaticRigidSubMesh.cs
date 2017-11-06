@@ -50,7 +50,7 @@ namespace TheraEngine.Rendering.Models
             get => _material;
             set => _material = value;
         }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool VisibleByDefault
         {
             get => _visibleByDefault;

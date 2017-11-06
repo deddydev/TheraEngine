@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Models
             return _vertexIndex.ToString();
         }
 
-        [Serialize("Index", IsXmlAttribute = true)]
+        [Serialize("Index", XmlNodeType = EXmlNodeType.Attribute)]
         private int _vertexIndex;
         private List<IndexLine> _connectedEdges = new List<IndexLine>();
 

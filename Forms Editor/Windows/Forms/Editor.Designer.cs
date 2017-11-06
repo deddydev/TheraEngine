@@ -99,9 +99,9 @@
             // 
             // FormTitle
             // 
-            this.FormTitle.Location = new System.Drawing.Point(596, 0);
+            this.FormTitle.Location = new System.Drawing.Point(458, 0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(8);
-            this.FormTitle.Size = new System.Drawing.Size(501, 45);
+            this.FormTitle.Size = new System.Drawing.Size(639, 45);
             this.FormTitle.Text = "";
             // 
             // MiddlePanel
@@ -124,7 +124,7 @@
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(8);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(389, 45);
+            this.menuStrip1.Size = new System.Drawing.Size(251, 45);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 

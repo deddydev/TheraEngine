@@ -49,13 +49,13 @@ namespace System
             }
         }
 
-        [Serialize("XYZ", IsXmlAttribute = true)]
+        [Serialize("XYZ", XmlNodeType = EXmlNodeType.Attribute)]
         private Vec3 XYZ;
-        [Serialize("LockX", IsXmlAttribute = true)]
+        [Serialize("LockX", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _lockX = false;
-        [Serialize("LockY", IsXmlAttribute = true)]
+        [Serialize("LockY", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _lockY = false;
-        [Serialize("LockZ", IsXmlAttribute = true)]
+        [Serialize("LockZ", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _lockZ = false;
 
         private void BeginUpdate()

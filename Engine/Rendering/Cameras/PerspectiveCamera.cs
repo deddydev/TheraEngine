@@ -13,9 +13,9 @@ namespace TheraEngine.Rendering.Cameras
         public PerspectiveCamera(float nearZ, float farZ, float fovY, float aspect)
             : base(aspect, 1.0f, nearZ, farZ) { VerticalFieldOfView = fovY; }
 
-        [Serialize("Width", IsXmlAttribute = true, Order = 0)]
+        [Serialize("Width", XmlNodeType = EXmlNodeType.Attribute, Order = 0)]
         private float _width;
-        [Serialize("Height", IsXmlAttribute = true, Order = 1)]
+        [Serialize("Height", XmlNodeType = EXmlNodeType.Attribute, Order = 1)]
         private float _height;
 
         private bool _overrideAspect = false;
@@ -65,7 +65,7 @@ namespace TheraEngine.Rendering.Cameras
         }
         [Category("Perspective Camera")]
         [DisplayName("Vertical Field Of View")]
-        //[Serialize("FovY", IsXmlAttribute = true, Order = 2)]
+        //[Serialize("FovY", XmlNodeType = EXmlNodeType.Attribute, Order = 2)]
         public float VerticalFieldOfView
         {
             get => _fovY;
@@ -78,7 +78,7 @@ namespace TheraEngine.Rendering.Cameras
         }
         [Category("Perspective Camera")]
         [DisplayName("Horizontal Field Of View")]
-        [Serialize("FovX", IsXmlAttribute = true, Order = 2)]
+        [Serialize("FovX", XmlNodeType = EXmlNodeType.Attribute, Order = 2)]
         public float HorizontalFieldOfView
         {
             get => _fovX;

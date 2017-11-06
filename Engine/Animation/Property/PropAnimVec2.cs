@@ -70,14 +70,14 @@ namespace TheraEngine.Animation
 
         protected PlanarInterpType _interpolationType;
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec2 InValue { get; set; }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec2 OutValue { get; set; }
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec2 InTangent { get; set; }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec2 OutTangent { get; set; }
 
         public new Vec2Keyframe Next
@@ -91,7 +91,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;

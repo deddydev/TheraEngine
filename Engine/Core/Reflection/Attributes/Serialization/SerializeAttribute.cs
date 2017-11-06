@@ -17,6 +17,12 @@
         //Text    = 0b1000,
         All = 0b1111,
     }
+    public enum EXmlNodeType
+    {
+        ChildElement,
+        Attribute,
+        ElementString,
+    }
     /// <summary>
     /// This attribute means the field should be serialized upon saving.
     /// </summary>
@@ -25,7 +31,7 @@
     {
         private int _order = -1;
         private string _nameOverride = null;
-        private bool _isXmlAttribute = false;
+        private EXmlNodeType _xmlNodeType = EXmlNodeType.ChildElement;
         private string _xmlCategoryGrouping = null;
         private string _serializeIf = null;
         private bool _useCategory = false;
@@ -46,7 +52,7 @@
         /// <summary>
         /// Determines if this object should be serialized as an attribute or element.
         /// </summary>
-        public bool IsXmlAttribute { get => _isXmlAttribute; set => _isXmlAttribute = value; }
+        public EXmlNodeType XmlNodeType { get => _xmlNodeType; set => _xmlNodeType = value; }
         /// <summary>
         /// Groups a set of fields together in one tag under this name.
         /// </summary>
@@ -67,29 +73,29 @@
         public bool External { get => _external; set => _external = value; }
         public bool IgnoreIfDefault { get => _ignoreIfDefault; set => _ignoreIfDefault = value; }
 
+        public bool IsXmlAttribute
+        {
+            get => XmlNodeType == EXmlNodeType.Attribute;
+            set => XmlNodeType = value ? EXmlNodeType.Attribute : EXmlNodeType.ChildElement;
+        }
+        public bool IsXmlChildElement
+        {
+            get => XmlNodeType == EXmlNodeType.ChildElement;
+            set => XmlNodeType = value ? EXmlNodeType.ChildElement : EXmlNodeType.Attribute;
+        }
+        public bool IsXmlElementString
+        {
+            get => XmlNodeType == EXmlNodeType.ElementString;
+            set => XmlNodeType = value ? EXmlNodeType.ElementString : EXmlNodeType.ChildElement;
+        }
+
         public Serialize() { }
         public Serialize(string nameOverride)
         {
             _nameOverride = nameOverride;
         }
-        public Serialize(int order, string nameOverride)
-        {
-            _order = order;
-            _nameOverride = nameOverride;
-        }
         public Serialize(string nameOverride, int order)
         {
-            _order = order;
-            _nameOverride = nameOverride;
-        }
-        public Serialize(string nameOverride, bool isXMLAttribute)
-        {
-            _isXmlAttribute = isXMLAttribute;
-            _nameOverride = nameOverride;
-        }
-        public Serialize(string nameOverride, bool isXMLAttribute, int order)
-        {
-            _isXmlAttribute = isXMLAttribute;
             _order = order;
             _nameOverride = nameOverride;
         }

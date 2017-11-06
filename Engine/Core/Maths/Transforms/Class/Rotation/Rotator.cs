@@ -61,15 +61,15 @@ namespace System
             }
         }
 
-        [Serialize("PitchYawRoll", IsXmlAttribute = true)]
+        [Serialize("PitchYawRoll", XmlNodeType = EXmlNodeType.Attribute)]
         private Vec3 _pyr;
-        [Serialize("Order", IsXmlAttribute = true)]
+        [Serialize("Order", XmlNodeType = EXmlNodeType.Attribute)]
         private RotationOrder _rotationOrder = RotationOrder.YPR;
-        [Serialize("LockYaw", IsXmlAttribute = true)]
+        [Serialize("LockYaw", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _lockYaw = false;
-        [Serialize("LockPitch", IsXmlAttribute = true)]
+        [Serialize("LockPitch", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _lockPitch = false;
-        [Serialize("LockRoll", IsXmlAttribute = true)]
+        [Serialize("LockRoll", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _lockRoll = false;
 
         [Category("Rotator")]

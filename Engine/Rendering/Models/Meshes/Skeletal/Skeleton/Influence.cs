@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.Models
         public int WeightCount { get { return _weightCount; } }
         public BoneWeight[] Weights { get { return _weights; } }
 
-        [Serialize("Count", IsXmlAttribute = true)]
+        [Serialize("Count", XmlNodeType = EXmlNodeType.Attribute)]
         private int _weightCount = 0;
         [Serialize("Weights")]
         private BoneWeight[] _weights = new BoneWeight[MaxWeightCount];

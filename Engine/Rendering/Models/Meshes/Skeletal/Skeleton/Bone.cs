@@ -99,9 +99,9 @@ namespace TheraEngine.Rendering.Models
         public void LinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Add(m);
         public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Remove(m);
 
-        [Serialize("BillboardType", IsXmlAttribute = true)]
+        [Serialize("BillboardType", XmlNodeType = EXmlNodeType.Attribute)]
         private BillboardType _billboardType = BillboardType.None;
-        [Serialize("ScaleByDistance", IsXmlAttribute = true)]
+        [Serialize("ScaleByDistance", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _scaleByDistance = false;
 
         private float _screenSize = 1.0f;

@@ -88,22 +88,22 @@ namespace TheraEngine.Rendering.Models
 
         internal BufferUsage _usage = BufferUsage.StaticDraw;
 
-        [Serialize("ComponentType", Order = 0, IsXmlAttribute = true)]
+        [Serialize("ComponentType", Order = 0, XmlNodeType = EXmlNodeType.Attribute)]
         internal ComponentType _componentType;
-        [Serialize("Normalize", Order = 1, IsXmlAttribute = true)]
+        [Serialize("Normalize", Order = 1, XmlNodeType = EXmlNodeType.Attribute)]
         internal bool _normalize;
-        [Serialize("Integral", Order = 2, IsXmlAttribute = true)]
+        [Serialize("Integral", Order = 2, XmlNodeType = EXmlNodeType.Attribute)]
         internal bool _integral = false;
         [Serialize("Data", Order = 2)]
         internal DataSource _data;
         internal int _bufferIndex;
         internal int _location, _vaoId = 0;
-        [Serialize("ComponentCount", IsXmlAttribute = true)]
+        [Serialize("ComponentCount", XmlNodeType = EXmlNodeType.Attribute)]
         internal int _componentCount;
-        [Serialize("ElementCount", IsXmlAttribute = true)]
+        [Serialize("ElementCount", XmlNodeType = EXmlNodeType.Attribute)]
         internal int _elementCount;
         internal EBufferTarget _target;
-        [Serialize("Type", IsXmlAttribute = true)]
+        [Serialize("Type", XmlNodeType = EXmlNodeType.Attribute)]
         internal BufferType _type = BufferType.Other;
 
         [CustomXMLSerializeMethod("Data")]

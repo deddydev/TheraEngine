@@ -65,7 +65,7 @@ namespace TheraEngine.Animation
             Value = value;
         }
         
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool Value { get; set; }
 
         public new BoolKeyframe Next

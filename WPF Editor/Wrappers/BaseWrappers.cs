@@ -127,8 +127,8 @@ namespace TheraEditor.Wrappers
         {
             if (_resource != null)
             {
-                _resource.Renamed -= OnRenamed;
-                _resource.PropertyChanged -= OnPropertyChanged;
+                //_resource.Renamed -= OnRenamed;
+                //_resource.PropertyChanged -= OnPropertyChanged;
                 _resource = null;
             }
 

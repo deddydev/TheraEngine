@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering.Models
      
         protected bool _visibleByDefault;
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool VisibleByDefault
         {
             get => _visibleByDefault;

@@ -20,7 +20,7 @@ namespace TheraEditor
 
         [Serialize]
         [Browsable(false)]
-        public ProjectState State
+        public ProjectState ProjectState
         {
             get => _state;
             set => _state = value;
@@ -39,9 +39,9 @@ namespace TheraEditor
             Project p = new Project()
             {
                 Name = name,
-                State = new SingleFileRef<ProjectState>(new ProjectState()),
-                UserSettings = new SingleFileRef<UserSettings>(new UserSettings()),
-                EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings()),
+                ProjectState = new ProjectState(),
+                UserSettings = new UserSettings(),
+                EngineSettings = new EngineSettings(),
             };
             return p;
         }
@@ -49,22 +49,26 @@ namespace TheraEditor
         {
             if (!directory.EndsWith("\\"))
                 directory += "\\";
-            string compileDir = directory + BinDirName + "\\";
+
+            string binariesDir = directory + BinDirName + "\\";
             string configDir = directory + ConfigDirName + "\\";
             string sourceDir = directory + SourceDirName + "\\";
             string contentDir = directory + ContentDirName + "\\";
-            Directory.CreateDirectory(sourceDir);
+
+            Directory.CreateDirectory(binariesDir);
             Directory.CreateDirectory(configDir);
             Directory.CreateDirectory(sourceDir);
             Directory.CreateDirectory(contentDir);
+
             ProjectState state = new ProjectState();
             UserSettings userSettings = new UserSettings();
             EngineSettings engineSettings = new EngineSettings();
+
             Project p = new Project()
             {
                 Name = name,
                 FilePath = GetFilePath(directory, name, ProprietaryFileFormat.XML, typeof(Project)),
-                State = new SingleFileRef<ProjectState>(directory, name, ProprietaryFileFormat.XML, state, true),
+                ProjectState = new SingleFileRef<ProjectState>(directory, name, ProprietaryFileFormat.XML, state, true),
                 UserSettings = new SingleFileRef<UserSettings>(directory, name, ProprietaryFileFormat.XML, userSettings, true),
                 EngineSettings = new SingleFileRef<EngineSettings>(directory, name, ProprietaryFileFormat.XML, engineSettings, true),
             };

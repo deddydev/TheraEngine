@@ -11,11 +11,11 @@ namespace TheraEngine.Animation
     [FileClass("CSTM", "Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent
     {
-        [Serialize("InitialStateIndex", true)]
+        [Serialize("InitialStateIndex", XmlNodeType = EXmlNodeType.Attribute)]
         private int _initialStateIndex;
-        [Serialize("States", true)]
+        [Serialize("States", XmlNodeType = EXmlNodeType.Attribute)]
         private List<AnimState> _states;
-        [Serialize("SkeletonRef", true)]
+        [Serialize("SkeletonRef", XmlNodeType = EXmlNodeType.Attribute)]
         private SingleFileRef<Skeleton> _skeleton;
         
         [State]

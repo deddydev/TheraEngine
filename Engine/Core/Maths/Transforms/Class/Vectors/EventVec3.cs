@@ -23,7 +23,7 @@ namespace System
 
         //private int _updating = 0;
         private float _oldX, _oldY, _oldZ;
-        [Serialize("XYZ", IsXmlAttribute = true)]
+        [Serialize("XYZ", XmlNodeType = EXmlNodeType.Attribute)]
         private Vec3 _data;
 
         public void SetRawNoUpdate(Vec3 raw)

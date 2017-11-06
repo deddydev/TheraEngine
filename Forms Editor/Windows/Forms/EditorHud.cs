@@ -100,11 +100,12 @@ namespace TheraEditor.Windows.Forms
             input.RegisterButtonEvent(EKey.Number1, ButtonInputType.Pressed, SetTranslationMode, InputPauseType.TickAlways);
             input.RegisterButtonEvent(EKey.Number2, ButtonInputType.Pressed, SetRotationMode, InputPauseType.TickAlways);
             input.RegisterButtonEvent(EKey.Number3, ButtonInputType.Pressed, SetScaleMode, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Number4, ButtonInputType.Pressed, SetDragDropMode, InputPauseType.TickAlways);
         }
         TransformType _transformType = TransformType.Translate;
         private void ToggleTransformMode()
         {
-            if (_transformType == TransformType.Translate)
+            if (_transformType == TransformType.DragDrop)
                 _transformType = TransformType.Scale;
             else
                 _transformType++;
@@ -112,11 +113,20 @@ namespace TheraEditor.Windows.Forms
         private void SetTranslationMode() => SetMode(TransformType.Translate);
         private void SetRotationMode() => SetMode(TransformType.Rotate);
         private void SetScaleMode() => SetMode(TransformType.Scale);
+        private void SetDragDropMode() => SetMode(TransformType.DragDrop);
         public void SetMode(TransformType type)
         {
             _transformType = type;
-            if (EditorTransformTool3D.Instance != null)
-                EditorTransformTool3D.Instance.TransformMode = _transformType;
+            if (UseTransformTool = _transformType != TransformType.DragDrop)
+            {
+                if (EditorTransformTool3D.Instance != null)
+                    EditorTransformTool3D.Instance.TransformMode = _transformType;
+            }
+            else
+            {
+                if (EditorTransformTool3D.Instance != null)
+                    EditorTransformTool3D.DestroyInstance();
+            }
         }
 
         protected override void OnMouseMove(float x, float y)
@@ -299,7 +309,10 @@ namespace TheraEditor.Windows.Forms
                     TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
                     if (t != null)
                     {
-                        Task.Run(() => t.TreeView.InvokeRequired ? t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t)) : t.TreeView.SelectedNode = t);
+                        if (t.TreeView.InvokeRequired)
+                            t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t));
+                        else
+                            t.TreeView.SelectedNode = t;
                     }
                 }
             }

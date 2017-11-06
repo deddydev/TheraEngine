@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheraEngine;
 using TheraEngine.Files;
+using TheraEngine.Input.Devices;
 
 namespace TheraEditor
 {
@@ -13,22 +14,49 @@ namespace TheraEditor
     public class EditorSettings : FileObject
     {
         [Serialize]
-        public EngineSettings Engine { get; set; } = new EngineSettings()
-        {
-            CapFPS = false,
-            TargetFPS = 60.0f,
-            CapUPS = false,
-            TargetUPS = 30.0f,
-        };
-        public PropertyGridSettings PropertyGrid { get; set; } = new PropertyGridSettings()
-        {
+        public SingleFileRef<EngineSettings> Engine { get; set; }
+        [Serialize]
+        public SingleFileRef<PropertyGridSettings> PropertyGrid { get; set; }
+        [Serialize]
+        public SingleFileRef<ControlSettings> Controls { get; set; }
 
-        };
-
-        [FileClass("PGSET", "Property Grid Settings")]
+        [FileClass("SET", "Property Grid Settings")]
         public class PropertyGridSettings : FileObject
         {
-            public bool SplitCamelCase { get; set; } = true;
+            [Serialize]
+            public bool SplitCamelCase { get; set; }
+            [Serialize]
+            public float UpdateRateInSeconds { get; set; }
+            [Serialize]
+            public bool IgnoreLoneSubCategories { get; set; }
+
+            public PropertyGridSettings()
+            {
+                SplitCamelCase = true;
+                UpdateRateInSeconds = 0.2f;
+                IgnoreLoneSubCategories = true;
+            }
+        }
+        [FileClass("SET", "Control Settings")]
+        public class ControlSettings : FileObject
+        {
+            public ControlSettings()
+            {
+
+            }
+        }
+
+        public EditorSettings()
+        {
+            Engine = new EngineSettings()
+            {
+                CapFPS = true,
+                TargetFPS = 15.0f,
+                CapUPS = false,
+                TargetUPS = 30.0f,
+            };
+            PropertyGrid = new PropertyGridSettings();
+            Controls = new ControlSettings();
         }
     }
 }

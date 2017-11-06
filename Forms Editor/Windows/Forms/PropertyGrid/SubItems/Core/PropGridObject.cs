@@ -34,6 +34,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void LoadProperties(object obj)
         {
             pnlProps.SuspendLayout();
+            foreach (Control control in pnlProps.Controls)
+                control.Dispose();
             pnlProps.Controls.Clear();
             foreach (var category in _categories.Values)
                 category.DestroyProperties();
@@ -86,8 +88,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
 
-            if (_categories.Count == 1 && _categories.ContainsKey(MiscName))
-                _categories[MiscName].CategoryName = null;
+            if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                _categories.Values.ToArray()[0].CategoryName = null;
 
             pnlProps.ResumeLayout(true);
         }

@@ -135,7 +135,7 @@ namespace TheraEngine.Rendering.Models
         [Serialize("VertexBuffers", Order = 3)]
         internal List<VertexBuffer> _buffers = null;
 
-        [Serialize("Culling", IsXmlAttribute = true)]
+        [Serialize("Culling", XmlNodeType = EXmlNodeType.Attribute)]
         internal Culling _culling = Culling.Back;
 
         internal VertexShaderDesc _bufferInfo;

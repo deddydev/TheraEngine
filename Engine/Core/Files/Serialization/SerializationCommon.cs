@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace TheraEngine.Files.Serialization
 {
@@ -172,9 +173,9 @@ namespace TheraEngine.Files.Serialization
                 Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(Serialize))).
                 Select(x => new VarInfo(x)).
                 //False comes first, so negate the bool so attributes are first
-                OrderBy(x => !x.Attrib.IsXmlAttribute).ToList();
+                OrderBy(x => x.Attrib.XmlNodeType != EXmlNodeType.Attribute).ToList();
 
-            int attribCount = fields.Count(x => x.Attrib.IsXmlAttribute);
+            int attribCount = fields.Count(x => x.Attrib.XmlNodeType == EXmlNodeType.Attribute);
             int elementCount = fields.Count - attribCount;
 
             for (int i = 0; i < fields.Count; ++i)

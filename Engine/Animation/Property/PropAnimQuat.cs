@@ -70,14 +70,14 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate = CubicBezier;
         protected RadialInterpType _interpolationType;
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat InValue { get; set; }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat OutValue { get; set; }
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat InTangent { get; set; }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat OutTangent { get; set; }
 
         public new QuatKeyframe Next
@@ -91,7 +91,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public RadialInterpType InterpolationType
         {
             get => _interpolationType;

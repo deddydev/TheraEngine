@@ -58,7 +58,7 @@ namespace TheraEngine.Animation
     public class StringKeyframe : Keyframe
     {
         protected string _value;
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public string Value
         {
             get => _value;

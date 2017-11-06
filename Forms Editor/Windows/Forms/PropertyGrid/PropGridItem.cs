@@ -65,7 +65,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (_updating)
                 return;
             if (IListOwner != null)
+            {
                 IListOwner[IListIndex] = newValue;
+            }
             else if (Property != null)
             {
                 if (Property.CanWrite)
@@ -117,14 +119,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             Parallel.For(0, VisibleItems.Count, i => VisibleItems[i].Invoke((Action)VisibleItems[i].UpdateDisplay));
         }
-        protected override void OnVisibleChanged(EventArgs e)
-        {
-            base.OnVisibleChanged(e);
-            //if (Visible)
-            //    VisibleItems.Add(this);
-            //else
-            //    VisibleItems.Remove(this);
-        }
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
@@ -132,8 +126,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            base.OnHandleDestroyed(e);
             VisibleItems.Remove(this);
+            base.OnHandleDestroyed(e);
         }
         public override string ToString()
         {

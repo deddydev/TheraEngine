@@ -60,7 +60,7 @@ namespace TheraEngine.Worlds.Actors
         float _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
         float _pitch = 0.0f, _yaw = 0.0f;
 
-        bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false;
+        bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false, _middleClickPressed = false, _leftClickPressed = false;
 
         [Browsable(false)]
         bool Rotating => _rightClickPressed && _ctrl;

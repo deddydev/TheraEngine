@@ -78,14 +78,14 @@ namespace TheraEngine.Animation
         protected DelInterpolate _interpolateVelocity = CubicHermiteVelocity;
         protected DelInterpolate _interpolateAcceleration = CubicHermiteAcceleration;
         
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 InValue { get; set; }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 OutValue { get; set; }
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 InTangent { get; set; }
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 OutTangent { get; set; }
 
         public new Vec3Keyframe Next
@@ -99,7 +99,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [Serialize(IsXmlAttribute = true)]
+        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;

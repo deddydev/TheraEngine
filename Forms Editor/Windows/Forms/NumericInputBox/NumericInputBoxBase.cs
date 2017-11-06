@@ -36,21 +36,7 @@ namespace TheraEditor.Windows.Forms
         public T? Value
         {
             get => _currentValue;
-            set
-            {
-                T? newValue = value == null ?
-                    (Nullable ? null : (T?)DefaultValue) :
-                    Round(Clamp(value.Value, MinimumValue, MaximumValue));
-
-                if (!NumbersAreEqual(_currentValue, newValue))
-                {
-                    _previousValue = _currentValue;
-                    _currentValue = newValue;
-                    ValueChanged?.Invoke(this, _previousValue, _currentValue);
-                }
-
-                UpdateTextWithValue();
-            }
+            set => SetValue(value, false);
         }
 
         protected abstract T Clamp(T value, T min, T max);
@@ -118,7 +104,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _nullable = value;
                 if (!_nullable && _currentValue == null)
-                    Value = DefaultValue;
+                    SetValue(DefaultValue, false);
             }
         }
         public T DefaultValue
@@ -148,10 +134,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             GetValueFromText();
             if (_currentValue != null)
-            {
-                _currentValue = Clamp(Increment(_currentValue.Value, SmallIncrement, e.Delta < 0), MinimumValue, MaximumValue);
-                UpdateTextWithValue();
-            }
+                SetValue(Increment(_currentValue.Value, SmallIncrement, e.Delta < 0), true);
             base.OnMouseWheel(e);
         }
         protected override void OnKeyDown(KeyEventArgs e)
@@ -197,7 +180,7 @@ namespace TheraEditor.Windows.Forms
                         if (_currentValue == null)
                             return;
                         T increment = e.KeyCode == Keys.Down || e.KeyCode == Keys.Up ? (e.Shift ? SmallerIncrement : SmallIncrement) : (e.Shift ? LargerIncrement : LargeIncrement);
-                        Value = Increment(_currentValue.Value, increment, e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Down);
+                        SetValue(Increment(_currentValue.Value, increment, e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Down), true);
                         e.Handled = true;
                         e.SuppressKeyPress = true;
                     }
@@ -216,7 +199,7 @@ namespace TheraEditor.Windows.Forms
 
                 case Keys.Escape:
                     //Reset text with current, unchanged value
-                    UpdateTextWithValue();
+                    UpdateTextWithValue(true);
                     e.SuppressKeyPress = true;
                     break;
 
@@ -247,8 +230,11 @@ namespace TheraEditor.Windows.Forms
             base.OnKeyDown(e);
         }
 
-        protected void UpdateTextWithValue()
-            => Text = _currentValue == null ? "" : Focused ? _currentValue.Value.ToString() : (_prefix + _currentValue.Value.ToString() + _suffix);
+        protected void UpdateTextWithValue(bool force = false)
+        {
+            if (!Focused || force)
+                Text = _currentValue == null ? "" : Focused ? _currentValue.Value.ToString() : (_prefix + _currentValue.Value.ToString() + _suffix);
+        }
 
         protected void GetValueFromText()
         {
@@ -256,7 +242,23 @@ namespace TheraEditor.Windows.Forms
             if (_currentValue != null && _currentValue.Value.ToString() == textValue)
                 return;
 
-            Value = (!string.IsNullOrWhiteSpace(textValue) && TryParse(textValue, out T newValue2)) ? (T?)newValue2 : null;
+            SetValue((!string.IsNullOrWhiteSpace(textValue) && TryParse(textValue, out T newValue2)) ? (T?)newValue2 : null, true);
+        }
+
+        protected void SetValue(T? value, bool forceTextUpdate)
+        {
+            T? newValue = value == null ?
+                    (Nullable ? null : (T?)DefaultValue) :
+                    Round(Clamp(value.Value, MinimumValue, MaximumValue));
+
+            if (!NumbersAreEqual(_currentValue, newValue))
+            {
+                _previousValue = _currentValue;
+                _currentValue = newValue;
+                ValueChanged?.Invoke(this, _previousValue, _currentValue);
+            }
+
+            UpdateTextWithValue(forceTextUpdate);
         }
 
         protected string GetTextValue()

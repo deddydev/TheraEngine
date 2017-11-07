@@ -40,6 +40,7 @@ namespace TheraEditor.Windows.Forms
                 if (types.Length == 1)
                 {
                     SetTargetType(types[0]);
+                    toolStripDropDownButton1.Visible = false;
                 }
             }
             else if (type.IsAbstract || type.IsInterface)

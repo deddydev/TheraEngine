@@ -38,6 +38,8 @@
         private bool _ignoreIfNull = true;
         private bool _ignoreIfDefault = true;
         private bool _external = false;
+        private bool _config = true;
+        private bool _state = true;
 
         /// <summary>
         /// The order this field should be serialized in.
@@ -87,6 +89,16 @@
         {
             get => XmlNodeType == EXmlNodeType.ElementString;
             set => XmlNodeType = value ? EXmlNodeType.ElementString : EXmlNodeType.ChildElement;
+        }
+        public bool Config
+        {
+            get => _config;
+            set => _config = value;
+        }
+        public bool State
+        {
+            get => _state;
+            set => _state = value;
         }
 
         public Serialize() { }

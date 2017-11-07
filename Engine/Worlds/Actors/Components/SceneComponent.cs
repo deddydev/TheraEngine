@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Rendering;
+using TheraEngine.Animation;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -29,12 +30,21 @@ namespace TheraEngine.Worlds.Actors
         }
         
         protected ISocket _ancestorSimulatingPhysics;
+        
+        [Serialize(Config = false)]
         protected bool _simulatingPhysics = false;
+        [Serialize(Config = false)]
         protected Matrix4 _previousWorldTransform = Matrix4.Identity;
+        [Serialize(Config = false)]
         protected Matrix4 _previousInverseWorldTransform = Matrix4.Identity;
+
+        [Serialize("WorldTransform")]
         protected Matrix4 _worldTransform = Matrix4.Identity;
+        [Serialize("InverseWorldTransform")]
         protected Matrix4 _inverseWorldTransform = Matrix4.Identity;
+        [Serialize("LocalTransform")]
         protected Matrix4 _localTransform = Matrix4.Identity;
+        [Serialize("InverseLocalTransform")]
         protected Matrix4 _inverseLocalTransform = Matrix4.Identity;
         internal ISocket _parent;
         protected MonitoredList<SceneComponent> _children;
@@ -133,6 +143,48 @@ namespace TheraEngine.Worlds.Actors
         }
         [Browsable(false)]
         protected bool SimulatingPhysics => _simulatingPhysics;
+
+        [Browsable(false)]
+        public override IActor OwningActor
+        {
+            get => base.OwningActor;
+            set
+            {
+                base.OwningActor = value;
+                foreach (SceneComponent c in _children)
+                    c.OwningActor = value;
+            }
+        }
+
+        [Serialize]
+        public MonitoredList<SceneComponent> ChildComponents
+        {
+            get => _children;
+            set
+            {
+                if (_children != null)
+                {
+                    _children.Clear();
+                    _children.PostAdded -= _children_Added;
+                    _children.PostAddedRange -= _children_AddedRange;
+                    _children.PostInserted -= _children_Inserted;
+                    _children.PostInsertedRange -= _children_InsertedRange;
+                    _children.PostRemoved -= _children_Removed;
+                    _children.PostRemovedRange -= _children_RemovedRange;
+                }
+                if (value != null)
+                {
+                    _children = value;
+                    _children.PostAdded += _children_Added;
+                    _children.PostAddedRange += _children_AddedRange;
+                    _children.PostInserted += _children_Inserted;
+                    _children.PostInsertedRange += _children_InsertedRange;
+                    _children.PostRemoved += _children_Removed;
+                    _children.PostRemovedRange += _children_RemovedRange;
+                }
+            }
+        }
+
         protected void PhysicsSimulationStarted()
         {
             _simulatingPhysics = true;
@@ -169,45 +221,6 @@ namespace TheraEngine.Worlds.Actors
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
-        [Browsable(false)]
-        public override IActor OwningActor
-        {
-            get => base.OwningActor;
-            set
-            {
-                base.OwningActor = value;
-                foreach (SceneComponent c in _children)
-                    c.OwningActor = value;
-            }
-        }
-        public MonitoredList<SceneComponent> ChildComponents
-        {
-            get => _children;
-            set
-            {
-                if (_children != null)
-                {
-                    _children.Clear();
-                    _children.PostAdded -= _children_Added;
-                    _children.PostAddedRange -= _children_AddedRange;
-                    _children.PostInserted -= _children_Inserted;
-                    _children.PostInsertedRange -= _children_InsertedRange;
-                    _children.PostRemoved -= _children_Removed;
-                    _children.PostRemovedRange -= _children_RemovedRange;
-                }
-                if (value != null)
-                {
-                    _children = value;
-                    _children.PostAdded += _children_Added;
-                    _children.PostAddedRange += _children_AddedRange;
-                    _children.PostInserted += _children_Inserted;
-                    _children.PostInsertedRange += _children_InsertedRange;
-                    _children.PostRemoved += _children_Removed;
-                    _children.PostRemovedRange += _children_RemovedRange;
-                }
-            }
-        }
-
         public Vec3 GetWorldPoint() 
             => _worldTransform.GetPoint();
         public Matrix4 GetWorldAnisotropicRotation() 

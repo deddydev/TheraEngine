@@ -445,7 +445,7 @@ namespace TheraEditor.Windows.Forms
             p.Focus();
             p.Capture = true;
             Cursor.Clip = p.RectangleToScreen(p.ClientRectangle);
-            Cursor.Hide();
+            //Cursor.Hide();
             InputInterface.GlobalRegisters.Add(RegisterInput);
             Engine.SetGameMode(Engine.GetGameMode());
             Engine.World.BeginPlay();
@@ -458,7 +458,7 @@ namespace TheraEditor.Windows.Forms
 
         private void EndGameplay()
         {
-            Cursor.Show();
+            //Cursor.Show();
             Cursor.Clip = new Rectangle();
             InputInterface.GlobalRegisters.Remove(RegisterInput);
             Engine.World.EndPlay();

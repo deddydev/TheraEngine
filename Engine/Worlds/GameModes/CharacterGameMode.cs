@@ -47,15 +47,10 @@ namespace TheraEngine.GameModes
         public override void BeginGameplay()
         {
             base.BeginGameplay();
-            foreach (LocalPlayerController c in Engine.ActivePlayers)
-            {
-                PawnType pawn = _pawnClass.CreateNew();
-                if (c.ControlledPawn == null)
-                    c.ControlledPawn = pawn;
-                else
-                    c.EnqueuePosession(pawn);
-                pawn.QueueRespawn();
-            }
+        }
+        public override void EndGameplay()
+        {
+            base.EndGameplay();
         }
         public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)
         {
@@ -67,10 +62,6 @@ namespace TheraEngine.GameModes
                 }
             transform = Matrix4.Identity;
             return false;
-        }
-        public override void EndGameplay()
-        {
-            base.EndGameplay();
         }
         public virtual void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer)
         {

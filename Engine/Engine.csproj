@@ -312,7 +312,6 @@
     <None Include="Core\Maths\Transforms\Class\Transforms\WorldRotTransform.cs" />
     <None Include="Core\Maths\Transforms\Struct\Rotation\QuatRotator.cs" />
     <Compile Include="Core\Reflection\Attributes\StringAttribute.cs" />
-    <Compile Include="Core\Reflection\Attributes\StateAttribute.cs" />
     <Compile Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
     <Compile Include="Audio\ALAudioManager.cs" />
@@ -678,7 +677,6 @@
     <Compile Include="Core\Extensions\Numbers\UInt32Extension.cs" />
     <Compile Include="Core\Extensions\Numbers\SingleExtension.cs" />
     <Compile Include="Core\ObjectBase.cs" />
-    <Compile Include="Core\Reflection\Attributes\EngineFlagsAttribute.cs" />
     <Compile Include="Core\Shapes\Cylindrical\YAligned\CapsuleY.cs" />
     <Compile Include="Core\Shapes\Boxes\BoundingBox.cs" />
     <Compile Include="Core\Memory\DataSource.cs" />

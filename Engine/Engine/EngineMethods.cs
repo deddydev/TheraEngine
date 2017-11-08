@@ -563,7 +563,7 @@ namespace TheraEngine
                 CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
                 CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
             };
-            World.PhysicsScene.RayTest(from, to, callback);
+            World?.PhysicsScene.RayTest(from, to, callback);
             return callback;
         }
         public static ClosestRayResultExceptCallback RaycastClosestExcept(Segment ray, params CollisionObject[] ignore)
@@ -579,7 +579,7 @@ namespace TheraEngine
                 CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
                 CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
             };
-            World.PhysicsScene.RayTest(from, to, callback);
+            World?.PhysicsScene.RayTest(from, to, callback);
             return callback;
         }
         public static AllHitsRayResultCallback RaycastMultiple(Segment ray)
@@ -589,13 +589,13 @@ namespace TheraEngine
             if (World == null)
                 return null;
             AllHitsRayResultCallback callback = new AllHitsRayResultCallback(from, to);
-            World.PhysicsScene.RayTest(from, to, callback);
+            World?.PhysicsScene.RayTest(from, to, callback);
             return callback;
         }
 
         public static void ShapeCastClosest(ConvexShape s, Matrix4 start, Matrix4 end, ClosestConvexResultCallback result)
         {
-            World.PhysicsScene.ConvexSweepTest(s, start, end, result);
+            World?.PhysicsScene.ConvexSweepTest(s, start, end, result);
         }
         #endregion
     }

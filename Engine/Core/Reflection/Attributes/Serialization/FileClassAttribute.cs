@@ -7,42 +7,36 @@ namespace System.ComponentModel
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
     public class FileClass : Attribute
     {
-        public FileClass(
-            string extension,
-            string userFriendlyName,
-            bool isSpecialDeserialize = false,
-            bool manualBinSerialize = false,
-            bool manualXmlSerialize = false,
-            SerializeFormat preferredFormat =
-#if DEBUG
-            SerializeFormat.XML
-#else
-            SerializeFormat.Binary
-#endif
-            )
+        public FileClass(string extension, string userFriendlyName)
         {
             UserFriendlyName = userFriendlyName;
             Extension = extension;
-            ManualBinSerialize = manualBinSerialize;
-            ManualXmlSerialize = manualXmlSerialize;
-            PreferredFormat = preferredFormat;
-            IsSpecialDeserialize = isSpecialDeserialize;
         }
 
         private string _extension;
 
         public string UserFriendlyName { get; set; }
         public string Extension { get => _extension; set => _extension = value.ToLowerInvariant(); }
-        public bool ManualXmlSerialize { get; set; } = false;
-        public bool ManualBinSerialize { get; set; } = false;
+
+        public bool ManualXmlConfigSerialize { get; set; } = false;
+        public bool ManualXmlStateSerialize { get; set; } = false;
+
+        public bool ManualBinConfigSerialize { get; set; } = false;
+        public bool ManualBinStateSerialize { get; set; } = false;
+
+        /// <summary>
+        /// Determines if the file needs special deserialization handling.
+        /// If so, the class needs a constructor that takes the file's absolute path (string) as its only argument.
+        /// </summary>
         public bool IsSpecialDeserialize { get; set; } = false;
         public string[] ImportableExtensions { get; set; } = null;
         public string[] ExportableExtensions { get; set; } = null;
 
+        public SerializeFormat PreferredFormat { get; set; }
 #if DEBUG
-        public SerializeFormat PreferredFormat { get; set; } = SerializeFormat.XML;
+            = SerializeFormat.XML;
 #else
-        public SerializeFormat PreferredFormat { get; set; } = SerializeFormat.Binary;
+            = SerializeFormat.Binary;
 #endif
 
         /// <summary>

@@ -235,7 +235,7 @@ namespace TheraEngine.Files
                 return null;
 
             FileObject obj;
-            if (GetFileHeader(t).ManualXmlSerialize)
+            if (GetFileHeader(t).ManualXmlConfigSerialize)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
@@ -279,7 +279,7 @@ namespace TheraEngine.Files
 
             _filePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.XML);
 
-            if (FileHeader.ManualXmlSerialize)
+            if (FileHeader.ManualXmlConfigSerialize)
             {
                 using (FileStream stream = new FileStream(_filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
                 using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
@@ -307,7 +307,7 @@ namespace TheraEngine.Files
                 return null;
 
             FileObject obj;
-            if (GetFileHeader(t).ManualBinSerialize)
+            if (GetFileHeader(t).ManualBinConfigSerialize)
             {
                 obj = SerializationCommon.CreateObject(t) as FileObject;
                 if (obj != null)
@@ -341,7 +341,7 @@ namespace TheraEngine.Files
 
             _filePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.Binary);
 
-            if (FileHeader.ManualBinSerialize)
+            if (FileHeader.ManualBinConfigSerialize)
             {
                 using (FileStream stream = new FileStream(_filePath,
                     FileMode.OpenOrCreate,

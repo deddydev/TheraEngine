@@ -35,7 +35,11 @@ namespace TheraEngine.Files
         public override string ReferencePath
         {
             get => base.ReferencePath;
-            set => base.ReferencePath = value;
+            set
+            {
+                base.ReferencePath = value;
+                StoredInternally = string.IsNullOrWhiteSpace(base.ReferencePath);
+            }
         }
         public bool IsLoaded => _file != null;
 
@@ -44,15 +48,15 @@ namespace TheraEngine.Files
         /// and loaded with the parent file instead of being loaded on demand from the external file.
         /// </summary>
         [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool StoreInternally { get; set; } = true;
+        public bool StoredInternally { get; private set; } = true;
 
         public SingleFileRef() : base(typeof(T)) { }
         public SingleFileRef(Type type) : base(type) { }
-        public SingleFileRef(string filePath) : base(filePath) { StoreInternally = false; }
-        public SingleFileRef(string filePath, Type type) : base(filePath, type) { StoreInternally = false; }
+        public SingleFileRef(string filePath) : base(filePath) { StoredInternally = false; }
+        public SingleFileRef(string filePath, Type type) : base(filePath, type) { StoredInternally = false; }
         public SingleFileRef(string filePath, T file, bool exportNow) : base(filePath)
         {
-            StoreInternally = false;
+            StoredInternally = false;
             if (file != null)
                 file.FilePath = ReferencePath;
             File = file;
@@ -66,7 +70,7 @@ namespace TheraEngine.Files
         /// <param name="createIfNotFound"></param>
         public SingleFileRef(string filePath, Func<T> createIfNotFound) : base(filePath)
         {
-            StoreInternally = false;
+            StoredInternally = false;
             if (!System.IO.File.Exists(ReferencePath) || DetermineType(ReferencePath) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
@@ -80,7 +84,7 @@ namespace TheraEngine.Files
         public SingleFileRef(string dir, string name, ProprietaryFileFormat format) : base(GetFilePath(dir, name, format, typeof(T))) { }
         public SingleFileRef(string dir, string name, ProprietaryFileFormat format, T file, bool exportNow) : this(dir, name, format)
         {
-            StoreInternally = false;
+            StoredInternally = false;
             if (file != null)
                 file.FilePath = ReferencePath;
             File = file;
@@ -89,7 +93,7 @@ namespace TheraEngine.Files
         }
         public SingleFileRef(string dir, string name, ProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
         {
-            StoreInternally = false;
+            StoredInternally = false;
             if (!System.IO.File.Exists(ReferencePath) || DetermineType(ReferencePath) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();

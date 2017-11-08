@@ -15,12 +15,10 @@ namespace TheraEngine.Animation
         private int _initialStateIndex;
         [Serialize("States", XmlNodeType = EXmlNodeType.Attribute)]
         private List<AnimState> _states;
-        [Serialize("SkeletonRef", XmlNodeType = EXmlNodeType.Attribute)]
+        [Serialize("Skeleton", XmlNodeType = EXmlNodeType.Attribute)]
         private SingleFileRef<Skeleton> _skeleton;
         
-        [State]
         private BlendManager _blendManager;
-        [State]
         private AnimState _currentState;
 
         public AnimStateMachineComponent()
@@ -28,6 +26,12 @@ namespace TheraEngine.Animation
             _initialStateIndex = -1;
             _states = new List<AnimState>();
             _skeleton = new SingleFileRef<Skeleton>();
+        }
+
+        [PostDeserialize]
+        private void InitPostDeserialize()
+        {
+
         }
 
         public AnimState InitialState

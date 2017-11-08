@@ -323,22 +323,17 @@ namespace TheraEngine.Rendering
 
         public void RegisterController(LocalPlayerController controller)
         {
-            Owners.Add(controller);
+            if (!Owners.Contains(controller))
+                Owners.Add(controller);
             controller.Viewport = this;
-            Camera = controller.CurrentCamera;
         }
-        public void UnregisterController(LocalPlayerController owner)
+        public void UnregisterController(LocalPlayerController controller)
         {
-            if (owner.Viewport != this)
+            if (controller.Viewport != this)
                 return;
-            owner.Viewport = null;
-            if (Owners.Contains(owner))
-                Owners.Remove(owner);
-        }
-
-        public void DebugPrint(string message)
-        {
-            _pawnHUD.DebugPrint(message);
+            controller.Viewport = null;
+            if (Owners.Contains(controller))
+                Owners.Remove(controller);
         }
         public void RenderDeferred(SceneProcessor scene)
         {

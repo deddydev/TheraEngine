@@ -92,10 +92,6 @@ namespace TheraEngine.Rendering.HUD
             if (_bounds != Vec2.Zero)
                 RootComponent?.Resize(new BoundingRectangle(Vec2.Zero, _bounds));
         }
-        public void DebugPrint(string message)
-        {
-            
-        }
         public void Render()
         {
             if (!Visible)

@@ -20,25 +20,14 @@ namespace TheraEditor
             if (item.LocalPlayerIndex != PlayerIndex.One)
                 return;
 
-            DockableRenderForm.ActiveRenderForm?.RenderPanel?.GetViewport(0)?.RegisterController(item);
-            
-            //RenderPanel p = RenderPanel.GamePanel;
-            //if (p != null)
-            //{
-            //    Viewport v = p.GetViewport(0) ?? p.AddViewport();
-            //    if (v != null)
-            //        v.Owner = item;
-            //}
-
-            //FlyingCameraPawn pawn = _pawnClass.CreateNew();
-            //pawn.Hud = new EditorHud(item.Viewport.Region.Bounds);
-            //if (item.ControlledPawn == null)
-            //    item.ControlledPawn = pawn;
-            //else
-            //    item.EnqueuePosession(pawn);
-            //Engine.World.SpawnActor(pawn);
-
+            DockableRenderForm form = DockableRenderForm.ActiveRenderForm;
+            if (form != null)
+            {
+                item.ControlledPawn = form.EditorPawn;
+                form.RenderPanel.GetViewport(0)?.RegisterController(item);
+            }
         }
+
         protected override void HandleLocalPlayerLeft(LocalPlayerController item)
         {
             base.HandleLocalPlayerLeft(item);

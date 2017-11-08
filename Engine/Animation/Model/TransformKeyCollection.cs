@@ -12,7 +12,7 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Animation
 {
-    [FileClass("tkc", "Transform Key Collection", ManualXmlSerialize = true)]
+    [FileClass("tkc", "Transform Key Collection", ManualXmlConfigSerialize = true)]
     public class TransformKeyCollection : FileObject, IEnumerable<KeyframeTrack<FloatKeyframe>>
     {
         public TransformKeyCollection() { }

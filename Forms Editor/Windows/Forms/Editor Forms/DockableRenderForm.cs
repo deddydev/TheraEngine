@@ -40,6 +40,7 @@ namespace TheraEditor.Windows.Forms
                 Hud = new EditorHud(RenderPanel.ClientSize)
             };
             Engine.World.SpawnActor(EditorPawn);
+
             Viewport v = RenderPanel.GetViewport(0) ?? RenderPanel.AddViewport();
             if (Engine.ActivePlayers.Count > 0)
                 v.RegisterController(Engine.ActivePlayers[0]);

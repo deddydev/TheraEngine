@@ -128,14 +128,14 @@ namespace TheraEngine.Rendering
             _previousAngularFactor = Vec3.One;
         bool _enableSleeping = true;
 
-        [Serialize("CollisionEnabled")]
+        [TSerialize("CollisionEnabled")]
         private bool _collisionEnabled;
-        [Serialize("SimulatingPhysics")]
+        [TSerialize("SimulatingPhysics")]
         private bool _simulatingPhysics;
         private bool _isSpawned;
-        [Serialize("CollisionGroup")]
+        [TSerialize("CollisionGroup")]
         private CustomCollisionGroup _group;
-        [Serialize("CollidesWith")]
+        [TSerialize("CollidesWith")]
         private CustomCollisionGroup _collidesWith;
 
         private IPhysicsDrivable _owner;

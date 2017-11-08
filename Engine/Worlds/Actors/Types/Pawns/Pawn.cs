@@ -8,7 +8,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public enum PlayerIndex
+    public enum LocalPlayerIndex
     {
         One     = 0,
         Two     = 1,
@@ -27,7 +27,7 @@ namespace TheraEngine.Worlds.Actors
         CameraComponent CurrentCameraComponent { get; set; }
         HudManager Hud { get; set; }
 
-        void QueuePossession(PlayerIndex possessor);
+        void QueuePossession(LocalPlayerIndex possessor);
         void OnUnPossessed();
         void OnPossessed(PawnController possessor);
         void RegisterInput(InputInterface input);
@@ -113,13 +113,13 @@ namespace TheraEngine.Worlds.Actors
 
         public Pawn() : this(false) { }
         public Pawn(bool deferInitialization) : base(deferInitialization) { }
-        public Pawn(bool deferInitialization, PlayerIndex possessor) : base(deferInitialization) { QueuePossession(possessor); }
+        public Pawn(bool deferInitialization, LocalPlayerIndex possessor) : base(deferInitialization) { QueuePossession(possessor); }
         public Pawn(T root, params LogicComponent[] logicComponents)
         : base(root, logicComponents) { }
-        public Pawn(PlayerIndex possessor, T root, params LogicComponent[] logicComponents)
+        public Pawn(LocalPlayerIndex possessor, T root, params LogicComponent[] logicComponents)
         : base(root, logicComponents) { QueuePossession(possessor); }
 
-        public void QueuePossession(PlayerIndex possessor)
+        public void QueuePossession(LocalPlayerIndex possessor)
             => Engine.QueuePossession(this, possessor);
         
         public virtual void OnPossessed(PawnController possessor)

@@ -11,11 +11,11 @@ namespace TheraEngine.Animation
     [FileClass("CSTM", "Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent
     {
-        [Serialize("InitialStateIndex", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("InitialStateIndex", XmlNodeType = EXmlNodeType.Attribute)]
         private int _initialStateIndex;
-        [Serialize("States", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("States", XmlNodeType = EXmlNodeType.Attribute)]
         private List<AnimState> _states;
-        [Serialize("Skeleton", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Skeleton", XmlNodeType = EXmlNodeType.Attribute)]
         private SingleFileRef<Skeleton> _skeleton;
         
         private BlendManager _blendManager;
@@ -71,14 +71,14 @@ namespace TheraEngine.Animation
             {
                 _currentState = InitialState;
                 _blendManager = new BlendManager(InitialState.Animation);
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Tick);
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
             }
         }
         public override void OnDespawned()
         {
             if (_initialStateIndex >= 0)
             {
-                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Tick);
+                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
                 _blendManager = null;
             }
         }
@@ -95,9 +95,9 @@ namespace TheraEngine.Animation
     }
     public class AnimState
     {
-        [Serialize]
+        [TSerialize]
         public List<AnimStateTransition> Transitions { get; set; } = new List<AnimStateTransition>();
-        [Serialize]
+        [TSerialize]
         public SingleFileRef<ModelAnimation> Animation { get; set; }
 
         public AnimState() { }
@@ -208,6 +208,7 @@ namespace TheraEngine.Animation
             _blendQueue = new LinkedList<BlendInfo>();
             _stateQueue = new LinkedList<ModelAnimation>();
             _stateQueue.AddFirst(initialState);
+            initialState.Start();
         }
 
         public void QueueState(
@@ -216,6 +217,7 @@ namespace TheraEngine.Animation
             AnimBlendType type,
             KeyframeTrack<FloatKeyframe> customBlendMethod)
         {
+            destinationState.Start();
             _stateQueue.AddLast(destinationState);
             _blendQueue.AddLast(new BlendInfo(blendDuration, type, customBlendMethod));
         }
@@ -228,7 +230,7 @@ namespace TheraEngine.Animation
             var stateNode = _stateQueue.First;
 
             //Tick first animation
-            stateNode.Value.Tick(delta);
+            //stateNode.Value.Tick(delta);
 
             //Get frame of first animation
             ModelAnimationFrame frame = stateNode.Value.GetFrame();
@@ -244,7 +246,7 @@ namespace TheraEngine.Animation
                     
                     //Tick the animation to be blended with next
                     stateNode = stateNode.Next;
-                    stateNode.Value.Tick(delta);
+                    //stateNode.Value.Tick(delta);
 
                     //Update blending information
                     if (blend.Tick(delta))
@@ -254,8 +256,10 @@ namespace TheraEngine.Animation
 
                         //All previous animations are now irrelevant. Remove them
                         while (_stateQueue.First != stateNode)
+                        {
+                            _stateQueue.First.Value.Stop();
                             _stateQueue.RemoveFirst();
-
+                        }
                         //Remove all previous blends
                         while (_blendQueue.First != blendNode)
                             _blendQueue.RemoveFirst();

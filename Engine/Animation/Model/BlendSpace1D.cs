@@ -5,9 +5,9 @@ namespace TheraEngine.Animation
 {
     public class BlendSpace1D : FileObject
     {
-        [Serialize("Poses")]
+        [TSerialize("Poses")]
         ModelAnimation[] _poses;
-        [Serialize("BlendAmount")]
+        [TSerialize("BlendAmount")]
         private float _blendAmount = 0.0f;
 
         public float BlendAmount

@@ -3,6 +3,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
+    [FileClass("ctrs", "Translate-Rotate-Scale Component")]
     public class TRSComponent : TRComponent
     {
         public TRSComponent() : base()

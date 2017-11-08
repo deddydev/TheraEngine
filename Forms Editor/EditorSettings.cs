@@ -13,21 +13,21 @@ namespace TheraEditor
     [FileClass("SET", "Editor Settings")]
     public class EditorSettings : FileObject
     {
-        [Serialize]
+        [TSerialize]
         public SingleFileRef<EngineSettings> Engine { get; set; }
-        [Serialize]
+        [TSerialize]
         public SingleFileRef<PropertyGridSettings> PropertyGrid { get; set; }
-        [Serialize]
+        [TSerialize]
         public SingleFileRef<ControlSettings> Controls { get; set; }
 
         [FileClass("SET", "Property Grid Settings")]
         public class PropertyGridSettings : FileObject
         {
-            [Serialize]
+            [TSerialize]
             public bool SplitCamelCase { get; set; }
-            [Serialize]
+            [TSerialize]
             public float UpdateRateInSeconds { get; set; }
-            [Serialize]
+            [TSerialize]
             public bool IgnoreLoneSubCategories { get; set; }
 
             public PropertyGridSettings()

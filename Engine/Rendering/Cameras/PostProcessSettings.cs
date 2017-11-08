@@ -28,19 +28,19 @@ namespace TheraEngine.Rendering.Cameras
             _ambientOcclusionSettings = new AmbientOcclusionSettings();
         }
 
-        [Serialize("Vignette")]
+        [TSerialize("Vignette")]
         VignetteSettings _vignetteSettings;
-        [Serialize("DOF")]
+        [TSerialize("DOF")]
         DepthOfFieldSettings _depthOfFieldSettings;
-        [Serialize("ColorGrade")]
+        [TSerialize("ColorGrade")]
         ColorGradeSettings _colorGradeSettings;
-        [Serialize("Bloom")]
+        [TSerialize("Bloom")]
         BloomSettings _bloomSettings;
-        [Serialize("Lens Flare")]
+        [TSerialize("Lens Flare")]
         LensFlareSettings _lensFlareSettings;
-        [Serialize("Anti-Alias")]
+        [TSerialize("Anti-Alias")]
         AntiAliasSettings _antiAliasSettings;
-        [Serialize("SSAO")]
+        [TSerialize("SSAO")]
         AmbientOcclusionSettings _ambientOcclusionSettings;
 
         [DisplayName("Anti-Aliasing")]

@@ -14,11 +14,11 @@
 
         public DXInputAwaiter(DelFoundInput uponFound) : base(uponFound) { }
 
-        public override CGamePad CreateGamepad(int controllerIndex)
+        public override BaseGamePad CreateGamepad(int controllerIndex)
             => new DXGamepad(controllerIndex);
-        public override CKeyboard CreateKeyboard(int index)
+        public override BaseKeyboard CreateKeyboard(int index)
             => new DXKeyboard(index);
-        public override CMouse CreateMouse(int index)
+        public override BaseMouse CreateMouse(int index)
             => new DXMouse(index);
 
         protected override void Tick(float delta)

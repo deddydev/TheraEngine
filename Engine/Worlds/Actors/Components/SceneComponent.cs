@@ -31,20 +31,20 @@ namespace TheraEngine.Worlds.Actors
         
         protected ISocket _ancestorSimulatingPhysics;
         
-        [Serialize(Config = false)]
+        [TSerialize(Config = false)]
         protected bool _simulatingPhysics = false;
-        [Serialize(Config = false)]
+        [TSerialize(Config = false)]
         protected Matrix4 _previousWorldTransform = Matrix4.Identity;
-        [Serialize(Config = false)]
+        [TSerialize(Config = false)]
         protected Matrix4 _previousInverseWorldTransform = Matrix4.Identity;
 
-        [Serialize("WorldTransform")]
+        [TSerialize("WorldTransform")]
         protected Matrix4 _worldTransform = Matrix4.Identity;
-        [Serialize("InverseWorldTransform")]
+        [TSerialize("InverseWorldTransform")]
         protected Matrix4 _inverseWorldTransform = Matrix4.Identity;
-        [Serialize("LocalTransform")]
+        [TSerialize("LocalTransform")]
         protected Matrix4 _localTransform = Matrix4.Identity;
-        [Serialize("InverseLocalTransform")]
+        [TSerialize("InverseLocalTransform")]
         protected Matrix4 _inverseLocalTransform = Matrix4.Identity;
         internal ISocket _parent;
         protected MonitoredList<SceneComponent> _children;
@@ -156,7 +156,7 @@ namespace TheraEngine.Worlds.Actors
             }
         }
 
-        [Serialize]
+        [TSerialize]
         public MonitoredList<SceneComponent> ChildComponents
         {
             get => _children;

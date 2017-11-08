@@ -34,7 +34,7 @@ namespace TheraEditor.Windows.Forms
         private Assembly _gameProgram;
         private DeserializeDockContent _deserializeDockContent;
 
-        public DockableRenderForm RenderForm1 = new DockableRenderForm(PlayerIndex.One, 0);
+        public DockableRenderForm RenderForm1 = new DockableRenderForm(LocalPlayerIndex.One, 0);
         public DockableRenderForm RenderForm2;
         public DockableRenderForm RenderForm3;
         public DockableRenderForm RenderForm4;
@@ -518,7 +518,7 @@ namespace TheraEditor.Windows.Forms
             if (RenderForm1 != null && !RenderForm1.IsDisposed)
                 RenderForm1.Focus();
             else
-                (RenderForm1 = new DockableRenderForm(PlayerIndex.One, 0)).Show(DockPanel);
+                (RenderForm1 = new DockableRenderForm(LocalPlayerIndex.One, 0)).Show(DockPanel);
         }
 
         private void viewport2ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -526,7 +526,7 @@ namespace TheraEditor.Windows.Forms
             if (RenderForm2 != null && !RenderForm2.IsDisposed)
                 RenderForm2.Focus();
             else
-                (RenderForm2 = new DockableRenderForm(PlayerIndex.One, 1)).Show(DockPanel);
+                (RenderForm2 = new DockableRenderForm(LocalPlayerIndex.One, 1)).Show(DockPanel);
         }
 
         private void viewport3ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -534,7 +534,7 @@ namespace TheraEditor.Windows.Forms
             if (RenderForm3 != null && !RenderForm3.IsDisposed)
                 RenderForm3.Focus();
             else
-                (RenderForm3 = new DockableRenderForm(PlayerIndex.One, 2)).Show(DockPanel);
+                (RenderForm3 = new DockableRenderForm(LocalPlayerIndex.One, 2)).Show(DockPanel);
         }
 
         private void viewport4ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -542,7 +542,7 @@ namespace TheraEditor.Windows.Forms
             if (RenderForm4 != null && !RenderForm4.IsDisposed)
                 RenderForm4.Focus();
             else
-                (RenderForm4 = new DockableRenderForm(PlayerIndex.One, 3)).Show(DockPanel);
+                (RenderForm4 = new DockableRenderForm(LocalPlayerIndex.One, 3)).Show(DockPanel);
         }
 
         private void btnViewFileTree_Click(object sender, EventArgs e)

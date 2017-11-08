@@ -19,9 +19,9 @@ namespace TheraEngine.Input.Devices
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
         }
         
-        public abstract CGamePad CreateGamepad(int index);
-        public abstract CKeyboard CreateKeyboard(int index);
-        public abstract CMouse CreateMouse(int index);
+        public abstract BaseGamePad CreateGamepad(int index);
+        public abstract BaseKeyboard CreateKeyboard(int index);
+        public abstract BaseMouse CreateMouse(int index);
 
         protected void OnFoundGamepad(int index)
         {

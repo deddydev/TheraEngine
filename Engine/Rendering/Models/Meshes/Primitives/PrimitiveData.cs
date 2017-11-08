@@ -108,34 +108,34 @@ namespace TheraEngine.Rendering.Models
 
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
-        [Serialize("Triangles", Order = 7)]
+        [TSerialize("Triangles", Order = 7)]
         internal List<IndexTriangle> _triangles = null;
-        [Serialize("Lines", Order = 6)]
+        [TSerialize("Lines", Order = 6)]
         internal List<IndexLine> _lines = null;
-        [Serialize("Points", Order = 5)]
+        [TSerialize("Points", Order = 5)]
         internal List<IndexPoint> _points = null;
         internal EPrimitiveType _type;
 
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
-        [Serialize("Influences", Order = 2)]
+        [TSerialize("Influences", Order = 2)]
         internal Influence[] _influences;
-        [Serialize("UtilizedBones", Order = 1)]
+        [TSerialize("UtilizedBones", Order = 1)]
         internal string[] _utilizedBones;
-        [Serialize("SingleBindBone", Order = 0)]
+        [TSerialize("SingleBindBone", Order = 0)]
         internal string _singleBindBone;
 
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
-        [Serialize("FacePoints", Order = 4)]
+        [TSerialize("FacePoints", Order = 4)]
         internal List<FacePoint> _facePoints = null;
 
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
-        [Serialize("VertexBuffers", Order = 3)]
+        [TSerialize("VertexBuffers", Order = 3)]
         internal List<VertexBuffer> _buffers = null;
 
-        [Serialize("Culling", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Culling", XmlNodeType = EXmlNodeType.Attribute)]
         internal Culling _culling = Culling.Back;
 
         internal VertexShaderDesc _bufferInfo;

@@ -32,24 +32,24 @@ namespace TheraEngine.Animation
         public event Action LoopChanged;
         public event Action LengthChanged;
 
-        [Serialize("BakedFrameCount", Condition = "_isBaked")]
+        [TSerialize("BakedFrameCount", Condition = "_isBaked")]
         protected int _bakedFrameCount = 0;
-        [Serialize("BakedFPS", Condition = "_isBaked")]
+        [TSerialize("BakedFPS", Condition = "_isBaked")]
         protected float _bakedFPS = 0.0f;
 
-        [Serialize("LengthInSeconds")]
+        [TSerialize("LengthInSeconds")]
         protected float _lengthInSeconds = 0.0f;
-        [Serialize("Speed")]
+        [TSerialize("Speed")]
         protected float _speed = 1.0f;
-        [Serialize("CurrentTime")]
+        [TSerialize("CurrentTime")]
         protected float _currentTime = 0.0f;
-        [Serialize("Looped")]
+        [TSerialize("Looped")]
         protected bool _looped = false;
-        [Serialize("IsPlaying")]
-        protected bool _isPlaying = false;
-        [Serialize("IsBaked")]
+        [TSerialize("State")]
+        protected AnimationState _state = AnimationState.Stopped;
+        [TSerialize("IsBaked")]
         protected bool _isBaked = false;
-        [Serialize("UseKeyframes")]
+        [TSerialize("UseKeyframes")]
         protected bool _useKeyframes = true;
 
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
@@ -109,34 +109,26 @@ namespace TheraEngine.Animation
             set
             {
                 _currentTime = value;
-                if (_isPlaying && (_currentTime > _lengthInSeconds || _currentTime < 0.0f))
+                if (_currentTime > _lengthInSeconds || _currentTime < 0.0f)
                 {
-                    if (_looped)
-                        _currentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
-                    else
+                    if (_state == AnimationState.Playing && !_looped)
                         Stop();
+                    else
+                        _currentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
                 }
                 OnCurrentFrameChanged();
             }
         }
+
         [Category("Animation")]
-        public bool IsPlaying
-        {
-            get => _isPlaying;
-            set
-            {
-                if (value)
-                    Start();
-                else
-                    Stop();
-            }
-        }
+        public AnimationState State  => _state;
+
         [PostDeserialize]
         private void PostDeserialize()
         {
-            if (_isPlaying)
+            if (_state == AnimationState.Playing)
             {
-                _isPlaying = false;
+                _state = AnimationState.Stopped;
                 Start();
             }
         }
@@ -144,25 +136,38 @@ namespace TheraEngine.Animation
         protected virtual void PostStarted() { }
         public void Start()
         {
-            if (_isPlaying)
+            if (_state == AnimationState.Playing)
                 return;
             PreStarted();
-            _isPlaying = true;
+            _state = AnimationState.Playing;
             AnimationStarted?.Invoke();
             CurrentTime = 0.0f;
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.BoneAnimation, Progress);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress);
             PostStarted();
         }
         protected virtual void PreStopped() { }
         protected virtual void PostStopped() { }
         public void Stop()
         {
-            if (!_isPlaying)
+            if (_state == AnimationState.Stopped)
                 return;
             PreStopped();
-            _isPlaying = false;
+            _currentTime = 0.0f;
+            _state = AnimationState.Stopped;
             AnimationEnded?.Invoke();
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.BoneAnimation, Progress);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress);
+            PostStopped();
+        }
+        protected virtual void PrePaused() { }
+        protected virtual void PostPaused() { }
+        public void Pause()
+        {
+            if (_state != AnimationState.Playing)
+                return;
+            PreStopped();
+            _state = AnimationState.Paused;
+            AnimationEnded?.Invoke();
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress);
             PostStopped();
         }
         public void Progress(float delta) => CurrentTime += delta * _speed;

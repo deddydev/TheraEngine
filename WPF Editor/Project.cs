@@ -18,7 +18,7 @@ namespace TheraEditor
 
         private SingleFileRef<ProjectState> _state;
 
-        [Serialize]
+        [TSerialize]
         [Browsable(false)]
         public ProjectState State
         {

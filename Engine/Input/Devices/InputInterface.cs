@@ -40,9 +40,9 @@ namespace TheraEngine.Input.Devices
             }
         }
 
-        public CGamePad Gamepad => _gamepad;
-        public CKeyboard Keyboard => _keyboard;
-        public CMouse Mouse => _mouse;
+        public BaseGamePad Gamepad => _gamepad;
+        public BaseKeyboard Keyboard => _keyboard;
+        public BaseMouse Mouse => _mouse;
 
         Dictionary<string, List<EKey>> _namedKeys = new Dictionary<string, List<EKey>>();
         Dictionary<string, List<GamePadButton>> _namedGamepadButtons = new Dictionary<string, List<GamePadButton>>();
@@ -55,9 +55,9 @@ namespace TheraEngine.Input.Devices
         private bool _unregister = false;
         private int _playerIndex;
 
-        private CGamePad _gamepad;
-        private CKeyboard _keyboard;
-        private CMouse _mouse;
+        private BaseGamePad _gamepad;
+        private BaseKeyboard _keyboard;
+        private BaseMouse _mouse;
 
         public InputInterface(int playerIndex) { PlayerIndex = playerIndex; }
 
@@ -102,17 +102,17 @@ namespace TheraEngine.Input.Devices
             InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
 
             if (_playerIndex >= 0 && _playerIndex < gamepads.Length)
-                _gamepad = gamepads[_playerIndex] as CGamePad;
+                _gamepad = gamepads[_playerIndex] as BaseGamePad;
 
             //Keyboard and mouse are reserved for the first player only
             //TODO: support multiple mice and keyboard? Could get difficult with laptops and trackpads and whatnot. Probably no-go.
             //TODO: support input from ALL keyboards and mice for first player. Not just the first found keyboard and mouse.
 
             if (keyboards.Length > 0 && _playerIndex == 0)
-                _keyboard = keyboards[0] as CKeyboard;
+                _keyboard = keyboards[0] as BaseKeyboard;
 
             if (mice.Length > 0 && _playerIndex == 0)
-                _mouse = mice[0] as CMouse;
+                _mouse = mice[0] as BaseMouse;
         }
 
         #region Mouse input registration

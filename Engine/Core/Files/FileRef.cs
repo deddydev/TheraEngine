@@ -28,10 +28,10 @@ namespace TheraEngine.Files
     {
         public event Action Loaded;
 
-        [Serialize("File", Condition = "StoreInternally")]
+        [TSerialize("File", Condition = "StoreInternally")]
         private T _file;
 
-        [Serialize(Condition = "!StoreInternally", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(Condition = "!StoreInternally", XmlNodeType = EXmlNodeType.Attribute)]
         public override string ReferencePath
         {
             get => base.ReferencePath;
@@ -47,7 +47,7 @@ namespace TheraEngine.Files
         /// If true, the referenced file will be written within the parent file's data
         /// and loaded with the parent file instead of being loaded on demand from the external file.
         /// </summary>
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool StoredInternally { get; private set; } = true;
 
         public SingleFileRef() : base(typeof(T)) { }
@@ -252,7 +252,7 @@ namespace TheraEngine.Files
         private string _absolutePath = null;
         protected Type _subType = null;
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public virtual string ReferencePath
         {
             get

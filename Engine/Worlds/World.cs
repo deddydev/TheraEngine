@@ -26,7 +26,7 @@ namespace TheraEngine.Worlds
         }
 
         internal DiscreteDynamicsWorld _physicsScene;
-        [Serialize("Settings")]
+        [TSerialize("Settings")]
         protected WorldSettings _settings;
 
         public DiscreteDynamicsWorld PhysicsScene => _physicsScene;

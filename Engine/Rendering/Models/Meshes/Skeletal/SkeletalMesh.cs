@@ -33,9 +33,9 @@ namespace TheraEngine.Rendering.Models
         public SkeletalMesh() : base() { }
         public SkeletalMesh(string name) : this() { _name = name; }
 
-        [Serialize("RigidChildren")]
+        [TSerialize("RigidChildren")]
         protected List<SkeletalRigidSubMesh> _rigidChildren = new List<SkeletalRigidSubMesh>();
-        [Serialize("SoftChildren")]
+        [TSerialize("SoftChildren")]
         protected List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
         
         public List<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;

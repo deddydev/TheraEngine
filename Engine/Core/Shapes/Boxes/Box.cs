@@ -18,14 +18,14 @@ namespace TheraEngine.Core.Shapes
         public Transform _transform;
 
         [Category("Box")]
-        [Serialize]
+        [TSerialize]
         public Transform Transform
         {
             get => _transform;
             set => _transform = value;
         }
         [Category("Box")]
-        [Serialize]
+        [TSerialize]
         public EventVec3 HalfExtents
         {
             get => _halfExtents;

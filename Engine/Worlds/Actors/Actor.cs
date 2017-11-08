@@ -146,9 +146,9 @@ namespace TheraEngine.Worlds
         private World _owningWorld;
         private ReadOnlyCollection<SceneComponent> _sceneComponentCache;
 
-        [Serialize("RootSceneComponent")]
+        [TSerialize("RootSceneComponent")]
         private T _rootSceneComponent;
-        [Serialize("LogicComponents")]
+        [TSerialize("LogicComponents")]
         private MonitoredList<LogicComponent> _logicComponents;
 
         [DisplayName("Logic Components")]

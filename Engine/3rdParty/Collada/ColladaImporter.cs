@@ -406,6 +406,7 @@ namespace TheraEngine.Rendering.Models
                     {
                         Node node = mtx.ParentElement;
                         string targetName = node.Name ?? (node.ID ?? node.SID);
+                        
                         if (node.Type == Node.EType.JOINT)
                         {
                             int x = 0;
@@ -445,8 +446,8 @@ namespace TheraEngine.Rendering.Models
                                 bone.TranslationY.Add(new FloatKeyframe(second, transform.Translation.Y, inTan, outTan, pType));
                                 bone.TranslationZ.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
 
-                                bone.RotationY.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
                                 bone.RotationX.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
+                                bone.RotationY.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
                                 bone.RotationZ.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
 
                                 bone.ScaleX.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));

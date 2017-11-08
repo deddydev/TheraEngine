@@ -54,23 +54,23 @@ namespace TheraEngine
         private AudioLibrary _audioLibrary = AudioLibrary.OpenAL;
         private InputLibrary _inputLibrary = InputLibrary.OpenTK;
 
-        [Serialize]
+        [TSerialize]
         public VSyncMode VSync { get => _vSyncMode; set => _vSyncMode = value; }
-        [Serialize]
+        [TSerialize]
         public EngineQuality TextureQuality { get => _textureQuality; set => _textureQuality = value; }
-        [Serialize]
+        [TSerialize]
         public EngineQuality ModelQuality { get => _modelQuality; set => _modelQuality = value; }
-        [Serialize]
+        [TSerialize]
         public EngineQuality SoundQuality { get => _soundQuality; set => _soundQuality = value; }
-        [Serialize]
+        [TSerialize]
         public RenderLibrary RenderLibrary { get => _renderLibrary; set => _renderLibrary = value; }
-        [Serialize]
+        [TSerialize]
         public AudioLibrary AudioLibrary { get => _audioLibrary; set => _audioLibrary = value; }
-        [Serialize]
+        [TSerialize]
         public InputLibrary InputLibrary { get => _inputLibrary; set => _inputLibrary = value; }
-        [Serialize]
+        [TSerialize]
         public WindowBorderStyle WindowBorderStyle { get => _windowBorderStyle; set => _windowBorderStyle = value; }
-        [Serialize]
+        [TSerialize]
         public bool FullScreen { get => _fullscreen; set => _fullscreen = value; }
     }
 }

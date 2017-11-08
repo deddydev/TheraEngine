@@ -27,9 +27,9 @@ namespace TheraEngine.Worlds.Actors
     {
         public CharacterPawn()
             : base() { }
-        public CharacterPawn(PlayerIndex possessor)
+        public CharacterPawn(LocalPlayerIndex possessor)
             : base(possessor) { }
-        public CharacterPawn(PlayerIndex possessor, SkeletalMesh mesh, Skeleton skeleton)
+        public CharacterPawn(LocalPlayerIndex possessor, SkeletalMesh mesh, Skeleton skeleton)
             : base(possessor, mesh, skeleton) { }
     }
     /// <summary>
@@ -41,9 +41,9 @@ namespace TheraEngine.Worlds.Actors
     {
         public CharacterPawn()
             : base() { }
-        public CharacterPawn(PlayerIndex possessor)
+        public CharacterPawn(LocalPlayerIndex possessor)
             : base(false, possessor) { }
-        public CharacterPawn(PlayerIndex possessor, SkeletalMesh mesh, Skeleton skeleton)
+        public CharacterPawn(LocalPlayerIndex possessor, SkeletalMesh mesh, Skeleton skeleton)
             : base(false, possessor)
         {
             _meshComp.Skeleton = skeleton;

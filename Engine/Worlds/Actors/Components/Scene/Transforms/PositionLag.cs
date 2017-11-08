@@ -7,6 +7,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
+    [FileClass("clag", "Position Lag Component")]
     public class PositionLagComponent : SceneComponent, I3DRenderable
     {
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
@@ -38,10 +39,10 @@ namespace TheraEngine.Worlds.Actors
         [Browsable(false)]
         public float RenderOrder => 0.0f;
 
-        [Serialize]
+        [TSerialize]
         [Category("Position Lag Component")]
         public float InterpSpeed { get => _interpSpeed; set => _interpSpeed = value; }
-        [Serialize]
+        [TSerialize]
         [Category("Position Lag Component")]
         public float MaxLagDistance { get => _maxLagDistance; set => _maxLagDistance = value; }
         [Browsable(false)]

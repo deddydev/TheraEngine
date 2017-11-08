@@ -70,13 +70,13 @@ namespace TheraEngine.Files.Serialization
         private string _name;
         private string _category = null;
         private MemberInfo _info;
-        private Serialize _attrib;
+        private TSerialize _attrib;
         private Type _variableType;
 
         public Type VariableType => _variableType;
         public string Name => _name;
         public string Category => _category;
-        public Serialize Attrib => _attrib;
+        public TSerialize Attrib => _attrib;
 
         public void SetValue(object obj, object value)
         {
@@ -114,7 +114,7 @@ namespace TheraEngine.Files.Serialization
         public VarInfo(MemberInfo info)
         {
             _info = info;
-            _attrib = _info.GetCustomAttribute<Serialize>();
+            _attrib = _info.GetCustomAttribute<TSerialize>();
             if (_info.MemberType.HasFlag(MemberTypes.Field))
                 _variableType = ((FieldInfo)_info).FieldType;
             else if (_info.MemberType.HasFlag(MemberTypes.Property))
@@ -170,7 +170,7 @@ namespace TheraEngine.Files.Serialization
         internal static List<VarInfo> CollectSerializedMembers(Type t)
         {
             List<VarInfo> fields = t.GetMembers(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).
-                Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(Serialize))).
+                Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).
                 Select(x => new VarInfo(x)).
                 //False comes first, so negate the bool so attributes are first
                 OrderBy(x => x.Attrib.XmlNodeType != EXmlNodeType.Attribute).ToList();
@@ -181,7 +181,7 @@ namespace TheraEngine.Files.Serialization
             for (int i = 0; i < fields.Count; ++i)
             {
                 VarInfo info = fields[i];
-                Serialize s = info.Attrib;
+                TSerialize s = info.Attrib;
                 if (s.Order >= 0)
                 {
                     int index = s.Order;

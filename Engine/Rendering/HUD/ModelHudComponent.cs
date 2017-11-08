@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.HUD
         //For internal runtime use
         internal RenderableMesh[] _meshes;
 
-        [Serialize]
+        [TSerialize]
         public SkeletalMesh Model
         {
             get => _model;
@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.HUD
                 }
             }
         }
-        [Serialize]
+        [TSerialize]
         public Skeleton Skeleton
         {
             get => _skeleton;

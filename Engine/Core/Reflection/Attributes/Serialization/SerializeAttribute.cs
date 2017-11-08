@@ -27,7 +27,7 @@
     /// This attribute means the field should be serialized upon saving.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class Serialize : Attribute
+    public class TSerialize : Attribute
     {
         private int _order = -1;
         private string _nameOverride = null;
@@ -60,7 +60,7 @@
         /// </summary>
         public string OverrideXmlCategory { get => _xmlCategoryGrouping; set => _xmlCategoryGrouping = value; }
         /// <summary>
-        /// Determines if the field should be serialized using an expression using information from other fields.
+        /// Determines if the field should be serialized using a boolean expression utilizing information from other fields and properties.
         /// </summary>
         public string Condition { get => _serializeIf; set => _serializeIf = value; }
         /// <summary>
@@ -101,12 +101,12 @@
             set => _state = value;
         }
 
-        public Serialize() { }
-        public Serialize(string nameOverride)
+        public TSerialize() { }
+        public TSerialize(string nameOverride)
         {
             _nameOverride = nameOverride;
         }
-        public Serialize(string nameOverride, int order)
+        public TSerialize(string nameOverride, int order)
         {
             _order = order;
             _nameOverride = nameOverride;

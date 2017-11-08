@@ -11,9 +11,9 @@ namespace TheraEngine.Worlds
         public List<Map> SpawnedMaps => _spawnedMaps;
         public MonitoredList<IActor> SpawnedActors => _spawnedActors;
 
-        [Serialize("SpawnedMaps")]
+        [TSerialize("SpawnedMaps")]
         private List<Map> _spawnedMaps;
-        [Serialize("SpawnedActors")]
+        [TSerialize("SpawnedActors")]
         private MonitoredList<IActor> _spawnedActors;
 
         public Dictionary<Type, HashSet<int>> _actorMap;

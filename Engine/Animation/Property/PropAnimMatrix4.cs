@@ -10,10 +10,10 @@ namespace TheraEngine.Animation
         private Matrix4 _defaultValue = Matrix4.Identity;
         private GetValue<Matrix4> _getValue;
 
-        [Serialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "!UseKeyframes")]
         private Matrix4[] _baked = null;
 
-        [Serialize(Condition = "UseKeyframes")]
+        [TSerialize(Condition = "UseKeyframes")]
         public Matrix4 DefaultValue
         {
             get => _defaultValue;
@@ -60,7 +60,7 @@ namespace TheraEngine.Animation
 
         protected delegate Matrix4 DelInterpolate(Matrix4Keyframe key1, Matrix4Keyframe key2, float time);
         
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Matrix4 Value { get; set; }
 
         public new Matrix4Keyframe Next

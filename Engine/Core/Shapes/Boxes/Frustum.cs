@@ -18,12 +18,12 @@ namespace TheraEngine.Core.Shapes
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
-        [Serialize("Points")]
+        [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];
         private Plane[] _planes = new Plane[6];
 
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
-        [Serialize("UseBoundingSphere", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("UseBoundingSphere", XmlNodeType = EXmlNodeType.Attribute)]
         private Sphere _boundingSphere;
 
         [CustomXMLSerializeMethod("UseBoundingSphere")]

@@ -10,10 +10,10 @@ namespace TheraEngine.Animation
         private string _defaultValue = "";
         private GetValue<string> _getValue;
 
-        [Serialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "!UseKeyframes")]
         private string[] _baked = null;
 
-        [Serialize(Condition = "UseKeyframes")]
+        [TSerialize(Condition = "UseKeyframes")]
         public string DefaultValue
         {
             get => _defaultValue;
@@ -58,7 +58,7 @@ namespace TheraEngine.Animation
     public class StringKeyframe : Keyframe
     {
         protected string _value;
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public string Value
         {
             get => _value;

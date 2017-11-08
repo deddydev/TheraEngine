@@ -8,6 +8,7 @@ namespace TheraEngine.Worlds.Actors
     {
         public DelOnOverlapEnter OnEntered;
         public DelOnOverlapLeave OnLeft;
+
         public TriggerVolumeComponent(Vec3 halfExtents)
             : base(halfExtents, null) { }
     }

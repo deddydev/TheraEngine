@@ -24,50 +24,50 @@ namespace TheraEngine
         /// The world the engine uses as a loading screen.
         /// </summary>
         [Category("Game")]
-        [Serialize]
+        [TSerialize]
         public SingleFileRef<World> TransitionWorld { get; set; } = new SingleFileRef<World>("TransitionWorld.xworld");
         /// <summary>
         /// The world the game starts with.
         /// </summary>
         [Category("Game")]
-        [Serialize]
+        [TSerialize]
         public SingleFileRef<World> OpeningWorld { get; set; } = new SingleFileRef<World>("OpeningWorld.xworld");
         [Category("Engine")]
-        [Serialize]
+        [TSerialize]
         [Browsable(false)]
         public SingleFileRef<EngineSettings> EngineSettings { get; set; } = new EngineSettings();
         [Category("Engine")]
-        [Serialize]
+        [TSerialize]
         [Browsable(false)]
         public SingleFileRef<UserSettings> UserSettings { get; set; } = new UserSettings();
         [Category("About")]
-        [Serialize]
+        [TSerialize]
         [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
         public string Description { get; set; }
         [Category("About")]
-        [Serialize]
+        [TSerialize]
         public string Copyright { get; set; }
         [Category("About")]
-        [Serialize]
+        [TSerialize]
         [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
         public string Credits { get; set; }
         [Category("About")]
-        [Serialize]
+        [TSerialize]
         public string IconPath { get; set; }
         [Category("Viewports")]
-        [Serialize]
+        [TSerialize]
         public Viewport.TwoPlayerPreference TwoPlayerPref { get; set; } = Viewport.TwoPlayerPreference.SplitHorizontally;
         [Category("Viewports")]
-        [Serialize]
+        [TSerialize]
         public Viewport.ThreePlayerPreference ThreePlayerPref { get; set; } = Viewport.ThreePlayerPreference.PreferFirstPlayer;
-        [Serialize]
+        [TSerialize]
         [Category("Text")]
         public LocalizedStringTable LocalizedStringTable
         {
             get => _localizedStringTable;
             set => _localizedStringTable = value;
         }
-        [Serialize]
+        [TSerialize]
         [Category("Text")]
         public VariableStringTable VariableStringTable
         {

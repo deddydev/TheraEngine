@@ -21,7 +21,7 @@ namespace TheraEngine.Tests
         {
             _settings = new WorldSettings("TestWorld");
             Random r = new Random();
-            IActor[] array = new IActor[20];
+            IActor[] array = new IActor[100];
             BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
             for (int i = 0; i < array.Length; ++i)
             {
@@ -41,10 +41,10 @@ namespace TheraEngine.Tests
                 float x = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.X;
                 float y = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Y;
                 float z = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Z;
-                SphereActor actor = new SphereActor(
+                BoxActor actor = new BoxActor(
                     "Box" + i, physicsInfo, 0.4f,
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
-                    new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
+                    new Rotator(x, y, z, RotationOrder.YPR),
                     Material.GetLitColorMaterial(Color.Purple));
                 actor.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
                 array[i] = actor;

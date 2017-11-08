@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using TheraEngine.Files;
 
 namespace TheraEngine.Worlds.Actors
 {
+    [FileClass("ccam", "Camera Component")]
     public class CameraComponent : SceneComponent
     {
         #region Constructors
@@ -28,39 +30,46 @@ namespace TheraEngine.Worlds.Actors
         #endregion
 
         //private bool _updatingTransform = false;
-        private Camera _camera;
+        private SingleFileRef<Camera> _camera;
 
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public Camera Camera
+        [TSerialize]
+        public SingleFileRef<Camera> Camera
         {
             get => _camera;
             set
             {
-                if (_camera != null)
+                if (_camera.IsLoaded && _camera.File != null)
                 {
+                    Camera camera = _camera.File;
+
                     if (IsSpawned && Engine.Settings.RenderCameraFrustums)
-                        Engine.Scene.Remove(_camera);
-                    _camera.OwningComponent = null;
-                    _camera.TransformChanged -= RecalcLocalTransform;
+                        Engine.Scene.Remove(camera);
+
+                    camera.OwningComponent = null;
+                    camera.TransformChanged -= RecalcLocalTransform;
                 }
                 _camera = value;
-                if (_camera != null)
-                {
-                    if (IsSpawned && Engine.Settings.RenderCameraFrustums)
-                        Engine.Scene.Add(_camera);
-                    _camera.OwningComponent = this;
-                    _camera.TransformChanged += RecalcLocalTransform;
-                }
+                _camera.Loaded += CameraLoaded;
+                
             }
         }
 
-        private void CameraComponent_WorldTransformChanged()
+        private void CameraLoaded()
         {
-            //_updatingTransform = true;
-            //_camera.LocalMatrix = _localTransform;
-            //_updatingTransform = false;
+            Camera camera = _camera.File;
+            
+            if (IsSpawned && Engine.Settings.RenderCameraFrustums)
+                Engine.Scene.Add(camera);
+
+            camera.OwningComponent = this;
+            camera.TransformChanged += RecalcLocalTransform;
         }
-        public void SetCurrentForPlayer(PlayerIndex playerIndex)
+
+        /// <summary>
+        /// The provided local player will see through this camera.
+        /// </summary>
+        /// <param name="playerIndex">The index of the local player to assign this camera to.</param>
+        public void SetCurrentForPlayer(LocalPlayerIndex playerIndex)
         {
             int index = (int)playerIndex;
             if (index >= 0 && index < Engine.ActivePlayers.Count)
@@ -112,24 +121,24 @@ namespace TheraEngine.Worlds.Actors
         }
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
-            _camera.TranslateAbsolute(-newOrigin);
+            _camera.File.TranslateAbsolute(-newOrigin);
         }
         public override void OnSpawned()
         {
             if (Engine.Settings.RenderCameraFrustums)
-                Engine.Scene.Add(_camera);
+                Engine.Scene.Add(_camera.File);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (Engine.Settings.RenderCameraFrustums)
-                Engine.Scene.Remove(_camera);
+                Engine.Scene.Remove(_camera.File);
             base.OnDespawned();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Camera.CameraToComponentSpaceMatrix;
-            inverseLocalTransform = Camera.ComponentToCameraSpaceMatrix;
+            localTransform = Camera.File.CameraToComponentSpaceMatrix;
+            inverseLocalTransform = Camera.File.ComponentToCameraSpaceMatrix;
         }
         internal override void RecalcGlobalTransform()
         {

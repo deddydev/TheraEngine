@@ -9,13 +9,5 @@ namespace TheraEngine.Tests
         {
 
         }
-        public override void AbortGameplay()
-        {
-            
-        }
-        public override void EndGameplay()
-        {
-
-        }
     }
 }

@@ -32,25 +32,25 @@ namespace TheraEngine.Rendering.Models
         protected Shape _cullingVolume;
         protected bool _visibleByDefault = true;
 
-        [Serialize]
+        [TSerialize]
         public PrimitiveData Data
         {
             get => _data;
             set => _data = value;
         }
-        [Serialize]
+        [TSerialize]
         public Shape CullingVolume
         {
             get => _cullingVolume;
             set => _cullingVolume = value;
         }
-        [Serialize]
+        [TSerialize]
         public Material Material
         {
             get => _material;
             set => _material = value;
         }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool VisibleByDefault
         {
             get => _visibleByDefault;

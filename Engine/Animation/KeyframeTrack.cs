@@ -97,21 +97,34 @@ namespace TheraEngine.Animation
             get
             {
                 if (index >= 0 && index < Count)
+                {
+                    int i = 0;
                     foreach (T key in this)
-                        if (key.TrackIndex == index)
+                    {
+                        if (i == index)
                             return key;
+                        ++i;
+                    }
+                }
                 return null;
             }
             set
             {
                 if (index >= 0 && index <= Count)
+                {
+                    int i = 0;
                     foreach (T key in this)
-                        if (key.TrackIndex == index)
+                    {
+                        if (i == index)
                         {
                             Keyframe prev = key.Prev;
                             key.Remove();
                             prev.Link(value);
+                            break;
                         }
+                        ++i;
+                    }
+                }
             }
         }
 
@@ -120,21 +133,34 @@ namespace TheraEngine.Animation
             get
             {
                 if (index >= 0 && index < Count)
+                {
+                    int i = 0;
                     foreach (T key in this)
-                        if (key.TrackIndex == index)
+                    {
+                        if (i == index)
                             return key;
+                        ++i;
+                    }
+                }
                 return null;
             }
             set
             {
                 if (value is T keyValue && index >= 0 && index <= Count)
+                {
+                    int i = 0;
                     foreach (T key in this)
-                        if (key.TrackIndex == index)
+                    {
+                        if (i == index)
                         {
                             Keyframe prev = key.Prev;
                             key.Remove();
                             prev.Link(keyValue);
+                            break;
                         }
+                        ++i;
+                    }
+                }
             }
         }
 
@@ -228,7 +254,7 @@ namespace TheraEngine.Animation
             if (value is T key)
             {
                 Add(key);
-                return key.TrackIndex;
+                return 0;//key.TrackIndex;
             }
             return -1;
         }
@@ -250,10 +276,14 @@ namespace TheraEngine.Animation
 
         public int IndexOf(object value)
         {
+            int i = 0;
             if (value is T keyValue)
                 foreach (T key in this)
+                {
                     if (key == keyValue)
-                        return key.TrackIndex;
+                        return i;
+                    ++i;
+                }
 
             return -1;
         }
@@ -331,7 +361,7 @@ namespace TheraEngine.Animation
     }
     public abstract class Keyframe : IParsable
     {
-        [Serialize("Second", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Second", XmlNodeType = EXmlNodeType.Attribute)]
         private float _second;
 
         protected Keyframe _next, _prev;
@@ -344,7 +374,7 @@ namespace TheraEngine.Animation
         {
             _next = this;
             _prev = this;
-            TrackIndex = 0;
+            //TrackIndex = 0;
             _isFirst = false;
             _owningTrack = null;
         }
@@ -367,18 +397,18 @@ namespace TheraEngine.Animation
             get => _owningTrack;
             internal set => _owningTrack = value;
         }
-        public int TrackIndex
-        {
-            get => _trackIndex;
-            private set
-            {
-                _trackIndex = value;
-                if (Prev != this && Prev.TrackIndex != _trackIndex - 1 && !IsFirst)
-                    Prev.TrackIndex = TrackIndex - 1;
-                if (Next != this && Next.TrackIndex != _trackIndex + 1 && !Next.IsFirst)
-                    Next.TrackIndex = TrackIndex + 1;
-            }
-        }
+        //public int TrackIndex
+        //{
+        //    get => _trackIndex;
+        //    private set
+        //    {
+        //        _trackIndex = value;
+        //        if (Prev != this && Prev.TrackIndex != _trackIndex - 1 && !IsFirst)
+        //            Prev.TrackIndex = TrackIndex - 1;
+        //        if (Next != this && Next.TrackIndex != _trackIndex + 1 && !Next.IsFirst)
+        //            Next.TrackIndex = TrackIndex + 1;
+        //    }
+        //}
 
         public bool IsFirst
         {
@@ -386,7 +416,7 @@ namespace TheraEngine.Animation
             internal set
             {
                 _isFirst = value;
-                TrackIndex = 0;
+                //TrackIndex = 0;
             }
         }
 
@@ -415,12 +445,12 @@ namespace TheraEngine.Animation
 
             if (!key.IsFirst)
             {
-                key.TrackIndex = key.Prev.TrackIndex + 1;
+                //key.TrackIndex = key.Prev.TrackIndex + 1;
                 key.OwningTrack = key.Prev.OwningTrack;
             }
             else
             {
-                key.TrackIndex = 0;
+                //key.TrackIndex = 0;
                 key.OwningTrack = key.Next.OwningTrack;
             }
 
@@ -443,10 +473,10 @@ namespace TheraEngine.Animation
                 _owningTrack.FirstKey = Next != this ? Next : null;
             _next._prev = Prev;
             _prev._next = Next;
-            if (Next != this && Next.TrackIndex != _trackIndex && !Next.IsFirst)
-                Next.TrackIndex = TrackIndex;
+            //if (Next != this && Next.TrackIndex != _trackIndex && !Next.IsFirst)
+            //    Next.TrackIndex = TrackIndex;
             _next = _prev = this;
-            TrackIndex = 0;
+            //TrackIndex = 0;
             if (_owningTrack != null)
             {
                 --_owningTrack.KeyCount;

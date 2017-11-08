@@ -48,9 +48,9 @@ namespace TheraEngine.Rendering.Models
 
         public ConvexShape Collision { get => _collision; set => _collision = value; }
         
-        [Serialize("RigidChildren")]
+        [TSerialize("RigidChildren")]
         protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();
-        [Serialize("SoftChildren")]
+        [TSerialize("SoftChildren")]
         protected List<StaticSoftSubMesh> _softChildren = new List<StaticSoftSubMesh>();
     }
 }

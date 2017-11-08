@@ -10,10 +10,10 @@ namespace TheraEngine.Animation
         private float _defaultValue = 0.0f;
         private GetValue<float> _getValue;
 
-        [Serialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "!UseKeyframes")]
         private float[] _baked = null;
 
-        [Serialize(Condition = "UseKeyframes")]
+        [TSerialize(Condition = "UseKeyframes")]
         public float DefaultValue
         {
             get => _defaultValue;
@@ -74,14 +74,14 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate = CubicHermite;
         protected PlanarInterpType _interpolationType;
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float InValue { get; set; }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float OutValue { get; set; }
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float InTangent { get; set; }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float OutTangent { get; set; }
 
         public new FloatKeyframe Next
@@ -95,7 +95,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;

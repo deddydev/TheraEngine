@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Input.Devices.OpenTK
 {
-    public class TKKeyboard : CKeyboard
+    public class TKKeyboard : BaseKeyboard
     {
         public TKKeyboard(int index) : base(index) { }
 
@@ -12,8 +12,11 @@ namespace TheraEngine.Input.Devices.OpenTK
             if (!UpdateConnected(state.IsConnected))
                 return;
 
-            foreach (EKey key in _registeredKeys)
-                _buttonStates[(int)key].Tick(state.IsKeyDown((Key)(int)key), delta);
+            for (int i = 0; i < _registeredKeys.Count; ++i)
+            {
+                int keyIndex = (int)_registeredKeys[i];
+                _buttonStates[keyIndex].Tick(state.IsKeyDown((Key)keyIndex), delta);
+            }
         }
     }
 }

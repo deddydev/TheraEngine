@@ -30,7 +30,7 @@ namespace TheraEngine.Audio
             get => _bufferId;
             internal set => _bufferId = value;
         }
-        [Serialize]
+        [TSerialize]
         public string SoundPath
         {
             get => _path;

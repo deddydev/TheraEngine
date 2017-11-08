@@ -63,7 +63,7 @@ namespace TheraEngine.Worlds.Actors
             => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
         #endregion
 
-        [Serialize]
+        [TSerialize]
         public SingleFileRef<SkeletalMesh> Model
         {
             get => _model;
@@ -105,7 +105,7 @@ namespace TheraEngine.Worlds.Actors
                 _skeleton = skel;
             }
         }
-        [Serialize]
+        [TSerialize]
         public SingleFileRef<Skeleton> Skeleton
         {
             get => _skeleton;

@@ -228,15 +228,15 @@ namespace TheraEngine.Rendering.Cameras
             _upInvalidated = true,
             _rightInvalidated = true;
 
-        [Serialize("Point")]
+        [TSerialize("Point")]
         protected EventVec3 _localPoint;
-        [Serialize("Rotation")]
+        [TSerialize("Rotation")]
         protected Rotator _localRotation;
-        [Serialize("NearZ")]
+        [TSerialize("NearZ")]
         protected float _nearZ;
-        [Serialize("FarZ")]
+        [TSerialize("FarZ")]
         protected float _farZ;
-        [Serialize("PostProcessSettings")]
+        [TSerialize("PostProcessSettings")]
         private PostProcessSettings _postProcessSettings;
 
         private void _viewTarget_Changed()

@@ -26,7 +26,7 @@ namespace TheraEngine.Animation
             return Collada.Import(path, o)?.Models[0].Animation;
         }
 
-        [Serialize("BoneAnimations")]
+        [TSerialize("BoneAnimations")]
         public Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
 
         public override void SetLength(float seconds, bool stretchAnimation)
@@ -150,7 +150,7 @@ namespace TheraEngine.Animation
         /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
         /// Baked takes up more memory but requires no calculations. However, the animation cannot be sped up at all, nor slowed down without artifacts.
         /// </summary>
-        [Category("Bone Animation"), Serialize]
+        [Category("Bone Animation"), TSerialize]
         public bool UseKeyframes
         {
             get => _useKeyframes;
@@ -168,11 +168,11 @@ namespace TheraEngine.Animation
         
         internal ModelAnimation Parent { get; set; }
 
-        [Category("Bone Animation"), Serialize("Name")]
+        [Category("Bone Animation"), TSerialize("Name")]
         public string _name;
         private bool _useKeyframes = true;
 
-        [Serialize("TransformKeys")]
+        [TSerialize("TransformKeys")]
         private TransformKeyCollection _tracks = new TransformKeyCollection();
 
         [Category("Bone Animation")]

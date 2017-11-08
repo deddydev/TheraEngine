@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Input.Devices.OpenTK
 {
-    public class TKMouse : CMouse
+    public class TKMouse : BaseMouse
     {
         public TKMouse(int index) : base(index) { }
 

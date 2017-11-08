@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace TheraEngine.Input.Devices.DirectX
 {
-    public class DXGamepad : CGamePad
+    public class DXGamepad : BaseGamePad
     {
         const float ByteDiv = 1.0f / byte.MaxValue;
         const float ShortDiv = 1.0f / short.MaxValue;

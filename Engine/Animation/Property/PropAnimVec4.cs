@@ -10,10 +10,10 @@ namespace TheraEngine.Animation
         private Vec4 _defaultValue = Vec4.Zero;
         private GetValue<Vec4> _getValue;
 
-        [Serialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "!UseKeyframes")]
         private Vec4[] _baked = null;
 
-        [Serialize(Condition = "UseKeyframes")]
+        [TSerialize(Condition = "UseKeyframes")]
         public Vec4 DefaultValue
         {
             get => _defaultValue;
@@ -70,14 +70,14 @@ namespace TheraEngine.Animation
 
         protected PlanarInterpType _interpolationType;
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec4 InValue { get; set; }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec4 OutValue { get; set; }
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec4 InTangent { get; set; }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec4 OutTangent { get; set; }
 
         public new Vec4Keyframe Next
@@ -91,7 +91,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;

@@ -15,11 +15,11 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         public static readonly BoundingRectangle Empty = new BoundingRectangle();
         
-        [Serialize("Translation")]
+        [TSerialize("Translation")]
         private Vec2 _translation;
-        [Serialize("Bounds")]
+        [TSerialize("Bounds")]
         private Vec2 _bounds;
-        [Serialize("LocalOriginPercentage")]
+        [TSerialize("LocalOriginPercentage")]
         private Vec2 _localOriginPercentage;
 
         /// <summary>

@@ -146,15 +146,15 @@ namespace TheraEngine.Animation
         private int _totalAnimCount = 0;
         private AnimFolder _root;
 
-        [Serialize("EndedAnimations")]
+        [TSerialize("EndedAnimations")]
         private int _endedAnimations = 0;
-        [Serialize("State")]
+        [TSerialize("State")]
         private AnimationState _state;
-        [Serialize("TickGroup")]
+        [TSerialize("TickGroup")]
         private ETickGroup _group;
-        [Serialize("TickOrder")]
+        [TSerialize("TickOrder")]
         private ETickOrder _order;
-        [Serialize("TickPausedBehavior")]
+        [TSerialize("TickPausedBehavior")]
         private InputPauseType _pausedBehavior;
 
         [PostDeserialize]
@@ -224,7 +224,7 @@ namespace TheraEngine.Animation
                 RegisterTick(_group, _order, Tick, _pausedBehavior);
         }
 
-        [Serialize]
+        [TSerialize]
         public AnimFolder RootFolder
         {
             get => _root;

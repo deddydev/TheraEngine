@@ -6,7 +6,7 @@ namespace Thera.GameModes
 {
     public class TheraCharacterController : LocalPlayerController
     {
-        public TheraCharacterController(PlayerIndex index) : base(index) { }
-        public TheraCharacterController(PlayerIndex index, Queue<IPawn> possessionQueue) : base(index, possessionQueue) { }
+        public TheraCharacterController(LocalPlayerIndex index) : base(index) { }
+        public TheraCharacterController(LocalPlayerIndex index, Queue<IPawn> possessionQueue) : base(index, possessionQueue) { }
     }
 }

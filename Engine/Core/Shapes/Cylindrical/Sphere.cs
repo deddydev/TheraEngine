@@ -15,9 +15,9 @@ namespace TheraEngine.Core.Shapes
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Sphere : Shape
     {
-        [Serialize("Radius")]
+        [TSerialize("Radius")]
         private float _radius = 1.0f;
-        [Serialize("Center")]
+        [TSerialize("Center")]
         private Vec3 _center = Vec3.Zero;
 
         public float Radius

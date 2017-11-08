@@ -63,7 +63,7 @@ namespace TheraEngine.Rendering.Models
 
         private Bone[] _rootBones;
 
-        [Serialize]
+        [TSerialize]
         public Bone[] RootBones
         {
             get => _rootBones;

@@ -16,19 +16,23 @@ namespace TheraEngine.GameModes
         where PawnType : class, ICharacterPawn, new()
         where ControllerType : LocalPlayerController
     {
-        public float _respawnTime = 3;
+        private float _respawnTime = 3;
+
+        public float RespawnTime
+        {
+            get => _respawnTime;
+            set => _respawnTime = value;
+        }
 
         public CharacterGameMode() : base()
         {
 
         }
-
-        public override void AbortGameplay()
-        {
-
-        }
+        
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
+            //base.HandleLocalPlayerJoined(item);
+
             RenderPanel p = RenderPanel.GamePanel;
             if (p != null)
             {
@@ -44,14 +48,6 @@ namespace TheraEngine.GameModes
                 item.EnqueuePosession(pawn);
             pawn.QueueRespawn();
         }
-        public override void BeginGameplay()
-        {
-            base.BeginGameplay();
-        }
-        public override void EndGameplay()
-        {
-            base.EndGameplay();
-        }
         public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)
         {
             foreach (IActor a in Engine.World.State.SpawnedActors)
@@ -65,7 +61,7 @@ namespace TheraEngine.GameModes
         }
         public virtual void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer)
         {
-            killed.QueueRespawn(_respawnTime);
+            killed.QueueRespawn(RespawnTime);
         }
     }
 }

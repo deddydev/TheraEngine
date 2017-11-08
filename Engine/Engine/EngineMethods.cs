@@ -304,7 +304,7 @@ namespace TheraEngine
         /// Toggles the pause state. If currently paused, will unpause. If currently unpaused, will pause.
         /// </summary>
         /// <param name="toggler">The player that's pausing the game.</param>
-        public static void TogglePause(PlayerIndex toggler)
+        public static void TogglePause(LocalPlayerIndex toggler)
         {
             SetPaused(!_isPaused, toggler);
         }
@@ -313,7 +313,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="wantsPause">The desired pause state.</param>
         /// <param name="toggler">The player that's pausing the game.</param>
-        public static void SetPaused(bool wantsPause, PlayerIndex toggler, bool force = false)
+        public static void SetPaused(bool wantsPause, LocalPlayerIndex toggler, bool force = false)
         {
             if (!force && wantsPause && ActiveGameMode.DisallowPausing)
                 return;
@@ -479,7 +479,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="pawn">The pawn to possess.</param>
         /// <param name="possessor">The controller to possess the pawn.</param>
-        public static void QueuePossession(IPawn pawn, PlayerIndex possessor)
+        public static void QueuePossession(IPawn pawn, LocalPlayerIndex possessor)
         {
             int index = (int)possessor;
             if (index < ActivePlayers.Count)
@@ -503,14 +503,19 @@ namespace TheraEngine
             else
                 LoadedFiles.Add(path, new List<FileObject>() { file });
         }
+
+        /// <summary>
+        /// Called when the input awaiter discovers a new input device.
+        /// </summary>
+        /// <param name="device">The device that was found.</param>
         internal static void FoundInput(InputDevice device)
         {
-            if (device is CKeyboard || device is CMouse)
+            if (device is BaseKeyboard || device is BaseMouse)
             {
                 if (ActivePlayers.Count == 0)
                 {
                     LocalPlayerController controller;
-                    PlayerIndex index = PlayerIndex.One;
+                    LocalPlayerIndex index = LocalPlayerIndex.One;
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
@@ -529,7 +534,7 @@ namespace TheraEngine
                 if (device.Index >= ActivePlayers.Count)
                 {
                     LocalPlayerController controller;
-                    PlayerIndex index = (PlayerIndex)ActivePlayers.Count;
+                    LocalPlayerIndex index = (LocalPlayerIndex)ActivePlayers.Count;
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself

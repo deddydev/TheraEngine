@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TheraEngine.Input.Devices
 {
@@ -14,7 +15,7 @@ namespace TheraEngine.Input.Devices
             _name = name;
         }
 
-        public List<DelButtonState>[] _onStateChanged = new List<DelButtonState>[3];
+        internal protected List<DelButtonState>[] _onStateChanged = new List<DelButtonState>[3];
 
         const float TimerMax = 0.5f;
 
@@ -28,7 +29,7 @@ namespace TheraEngine.Input.Devices
 
         protected string _name;
         protected List<Action>[] _actions;
-        protected List<int> _usedActions;
+        internal protected List<int> _usedActions;
 
         internal void Tick(bool isPressed, float delta)
         {
@@ -55,6 +56,7 @@ namespace TheraEngine.Input.Devices
                 }
             }
         }
+        public bool IsEmpty() => _usedActions.Count == 0 && _onStateChanged.All(x => x == null || x.Count == 0);
         public void Register(Action func, ButtonInputType type, InputPauseType pauseType, bool unregister)
         {
             int index = (int)type * 3 + (int)pauseType;

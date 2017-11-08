@@ -8,9 +8,9 @@ namespace TheraEngine.Input.Devices.OpenTK
 
         public TKInputAwaiter(DelFoundInput uponFound) : base(uponFound) { }
         
-        public override CGamePad CreateGamepad(int index) => new TKGamepad(index);
-        public override CKeyboard CreateKeyboard(int index) => new TKKeyboard(index);
-        public override CMouse CreateMouse(int index) => new TKMouse(index);
+        public override BaseGamePad CreateGamepad(int index) => new TKGamepad(index);
+        public override BaseKeyboard CreateKeyboard(int index) => new TKKeyboard(index);
+        public override BaseMouse CreateMouse(int index) => new TKMouse(index);
 
         protected override void Tick(float delta)
         {

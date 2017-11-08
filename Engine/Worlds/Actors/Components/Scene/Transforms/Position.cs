@@ -1,7 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
+    /// <summary>
+    /// Contains a general translation.
+    /// </summary>
+    [FileClass("cpos", "Position Component")]
     public class PositionComponent : SceneComponent
     {
         public PositionComponent() : base()

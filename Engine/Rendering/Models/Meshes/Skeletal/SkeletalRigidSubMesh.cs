@@ -24,19 +24,19 @@ namespace TheraEngine.Rendering.Models
             _visibleByDefault = visibleByDefault;
         }
         
-        [Serialize("Primitives")]
+        [TSerialize("Primitives")]
         protected SingleFileRef<PrimitiveData> _data;
         protected SingleFileRef<Material> _material;
      
         protected bool _visibleByDefault;
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool VisibleByDefault
         {
             get => _visibleByDefault;
             set => _visibleByDefault = value;
         }
-        [Serialize]
+        [TSerialize]
         public Material Material
         {
             get => _material;

@@ -44,7 +44,7 @@ namespace TheraEngine.Worlds.Actors
     public class FlyingCameraPawn : Pawn<CameraComponent>
     {
         public FlyingCameraPawn() : base() { }
-        public FlyingCameraPawn(PlayerIndex possessor) : base(false, possessor) { }
+        public FlyingCameraPawn(LocalPlayerIndex possessor) : base(false, possessor) { }
 
         protected override CameraComponent OnConstruct() => new CameraComponent(false);
         

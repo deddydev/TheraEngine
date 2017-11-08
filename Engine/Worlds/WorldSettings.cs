@@ -60,11 +60,11 @@ namespace TheraEngine.Worlds
                 Engine.TimeDilation = _timeSpeed;
             }
         }
-        [Serialize("Gravity")]
+        [TSerialize("Gravity")]
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
-        [Serialize("GameMode")]
+        [TSerialize("GameMode")]
         private SingleFileRef<BaseGameMode> _gameMode;
-        [Serialize("TimeDilation")]
+        [TSerialize("TimeDilation")]
         private float _timeSpeed = 1.0f;
         
         public BoundingBox OriginRebaseBounds
@@ -113,21 +113,21 @@ namespace TheraEngine.Worlds
             set => _globalAmbient = value;
         }
 
-        [Serialize("GlobalAmbient")]
+        [TSerialize("GlobalAmbient")]
         private ColorF3 _globalAmbient;
-        [Serialize("DefaultHud")]
+        [TSerialize("DefaultHud")]
         private HudManager _defaultHud;
-        [Serialize("Bounds")]
+        [TSerialize("Bounds")]
         private BoundingBox _bounds = BoundingBox.FromMinMax(-70.0f, 70.0f);
-        [Serialize("OriginRebaseBounds")]
+        [TSerialize("OriginRebaseBounds")]
         private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(float.MinValue, float.MaxValue);
-        [Serialize("Maps")]
+        [TSerialize("Maps")]
         private List<Map> _maps = new List<Map>();
-        [Serialize("State")]
+        [TSerialize("State")]
         private WorldState _state;
-        [Serialize("AmbientSound")]
+        [TSerialize("AmbientSound")]
         private SoundFile _ambientSound;
-        [Serialize("AmbientParams")]
+        [TSerialize("AmbientParams")]
         private AudioSourceParameters _ambientParams = new AudioSourceParameters()
         {
             SourceRelative = new UsableValue<bool>(true, false, true),

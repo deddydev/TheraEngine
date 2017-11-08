@@ -9,6 +9,7 @@ using TheraEngine.Rendering.Models;
 namespace TheraEngine.Worlds.Actors
 {
     public delegate void LengthChange(float newLength);
+    [FileClass("cboom", "Boom Component")]
     public class BoomComponent : RTComponent, I3DRenderable
     {
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
@@ -27,7 +28,7 @@ namespace TheraEngine.Worlds.Actors
         public IOctreeNode OctreeNode { get; set; }
 
         [DefaultValue(300.0f)]
-        [Serialize]
+        [TSerialize]
         public float MaxLength { get; set; } = 300.0f;
 
         public CollisionObject IgnoreCast { get; set; } = null;

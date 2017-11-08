@@ -24,9 +24,9 @@ namespace TheraEngine.Core.Shapes
         *          origin
         */
         
-        [Serialize("Normal")]
+        [TSerialize("Normal")]
         protected EventVec3 _normal;
-        [Serialize("Distance")]
+        [TSerialize("Distance")]
         protected float _distance;
 
         public Plane()

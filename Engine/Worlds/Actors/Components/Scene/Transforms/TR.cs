@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
     /// <summary>
     /// Translates first, then rotates.
     /// </summary>
+    [FileClass("ctr", "Translate-Rotate Component")]
     public class TRComponent : PositionComponent
     {
         public TRComponent() : base()

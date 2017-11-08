@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering.Text
     /// </summary>
     public class VariableStringTable
     {
-        [Serialize]
+        [TSerialize]
         private Dictionary<string, Func<string>> _table = new Dictionary<string, Func<string>>();
         public string this[string id]
         {

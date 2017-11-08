@@ -40,15 +40,15 @@ namespace TheraEngine.Core.Shapes
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        [Serialize("IsVisible", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("IsVisible", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _isVisible;
-        [Serialize("RenderSolid", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("RenderSolid", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _renderSolid;
-        [Serialize("VisibleInEditorOnly", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("VisibleInEditorOnly", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _visibleInEditorOnly = false;
-        [Serialize("HiddenFromOwner", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("HiddenFromOwner", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _hiddenFromOwner = false;
-        [Serialize("VisibleToOwnerOnly", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("VisibleToOwnerOnly", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _visibleToOwnerOnly = false;
         
         public bool RenderSolid

@@ -10,10 +10,10 @@ namespace TheraEngine.Animation
         private Vec3 _defaultValue = Vec3.Zero;
         private GetValue<Vec3> _getValue;
 
-        [Serialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "!UseKeyframes")]
         private Vec3[] _baked = null;
 
-        [Serialize(Condition = "UseKeyframes")]
+        [TSerialize(Condition = "UseKeyframes")]
         public Vec3 DefaultValue
         {
             get => _defaultValue;
@@ -78,14 +78,14 @@ namespace TheraEngine.Animation
         protected DelInterpolate _interpolateVelocity = CubicHermiteVelocity;
         protected DelInterpolate _interpolateAcceleration = CubicHermiteAcceleration;
         
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 InValue { get; set; }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 OutValue { get; set; }
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 InTangent { get; set; }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 OutTangent { get; set; }
 
         public new Vec3Keyframe Next
@@ -99,7 +99,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;

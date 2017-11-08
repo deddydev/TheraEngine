@@ -12,7 +12,7 @@ namespace TheraEngine.Input
     {
         public static Dictionary<int, ConcurrentQueue<Camera>> CameraPossessionQueue = new Dictionary<int, ConcurrentQueue<Camera>>();
 
-        public LocalPlayerController(PlayerIndex index, Queue<IPawn> possessionQueue = null) : base()
+        public LocalPlayerController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base()
         {
             _index = index;
             int i = (int)index;
@@ -31,7 +31,7 @@ namespace TheraEngine.Input
                 CurrentCamera = camera;
             }
         }
-        public LocalPlayerController(PlayerIndex index) : base()
+        public LocalPlayerController(LocalPlayerIndex index) : base()
         {
             _index = index;
             int i = (int)index;
@@ -57,11 +57,11 @@ namespace TheraEngine.Input
         }
 
         private Viewport _viewport;
-        private PlayerIndex _index;
+        private LocalPlayerIndex _index;
         protected InputInterface _input;
 
         public InputInterface Input => _input;
-        public PlayerIndex LocalPlayerIndex => _index;
+        public LocalPlayerIndex LocalPlayerIndex => _index;
         public Viewport Viewport
         {
             get => _viewport;

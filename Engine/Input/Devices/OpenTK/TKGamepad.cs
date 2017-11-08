@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace TheraEngine.Input.Devices.OpenTK
 {
-    public class TKGamepad : CGamePad
+    public class TKGamepad : BaseGamePad
     {
         public TKGamepad(int index) : base(index) { }
 

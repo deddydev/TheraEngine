@@ -9,6 +9,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds.Actors
 {
+    [FileClass("slc", "Spot Light Component")]
     public class SpotLightComponent : LightComponent
     {
         private float _outerCutoff, _innerCutoff, _exponent, _brightness, _distance;
@@ -16,12 +17,14 @@ namespace TheraEngine.Worlds.Actors
 
         //[DragRange(0.1f, 1000.0f)]
         //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [TSerialize]
         [Category("Spotlight Component")]
         public float Distance
         {
             get => _distance;
             set => _distance = value;
         }
+        [TSerialize]
         [Category("Spotlight Component")]
         public Vec3 Direction
         {

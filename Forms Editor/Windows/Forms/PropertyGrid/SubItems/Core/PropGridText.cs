@@ -20,12 +20,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Enabled = DataType == typeof(string);
             textBox1.Text = value?.ToString();
         }
-
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             if (_updating)
                 return;
             UpdateValue(textBox1.Text);
+        }
+        protected override void SetControlsEnabled(bool enabled)
+        {
+            if (textBox1.ReadOnly = !enabled)
+            {
+                textBox1.BackColor = Color.FromArgb(94, 94, 114);
+                textBox1.ForeColor = Color.FromArgb(180, 180, 200);
+            }
+            else
+            {
+                textBox1.BackColor = Color.FromArgb(94, 94, 114);
+                textBox1.ForeColor = Color.FromArgb(200, 200, 220);
+            }
         }
     }
 }

@@ -15,13 +15,13 @@ namespace TheraEngine.Core.Shapes
             _endPoint = endPoint;
         }
 
-        [Serialize]
+        [TSerialize]
         public Vec3 StartPoint
         {
             get => _startPoint;
             set => _startPoint = value;
         }
-        [Serialize]
+        [TSerialize]
         public Vec3 EndPoint
         {
             get => _endPoint;

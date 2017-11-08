@@ -91,7 +91,7 @@ namespace TheraEngine.GameModes
         void EndGameplay();
         void AbortGameplay();
     }
-    [FileClass("MODE", "World Game Mode")]
+    [FileClass("MODE", "Game Mode")]
     public abstract class BaseGameMode : FileObject, IGameMode
     {
         private bool _disallowPausing = false;
@@ -102,13 +102,60 @@ namespace TheraEngine.GameModes
             set => _disallowPausing = value;
         }
 
-        public abstract void BeginGameplay();
-        public abstract void EndGameplay();
-        public abstract void AbortGameplay();
         protected internal abstract void HandleLocalPlayerLeft(LocalPlayerController item);
         protected internal abstract void HandleLocalPlayerJoined(LocalPlayerController item);
-        protected internal abstract LocalPlayerController CreateLocalController(PlayerIndex index);
-        protected internal abstract LocalPlayerController CreateLocalController(PlayerIndex index, Queue<IPawn> possessionQueue);
+
+        /// <summary>
+        /// Creates a local player controller with methods and properties that may pertain to this specific game mode.
+        /// </summary>
+        /// <param name="index">The player that will provide input to the controller.</param>
+        /// <returns>The new local player controller.</returns>
+        protected internal abstract LocalPlayerController CreateLocalController(LocalPlayerIndex index);
+        /// <summary>
+        /// Creates a local player controller with methods and properties that may pertain to this specific game mode.
+        /// </summary>
+        /// <param name="index">The player that will provide input to the controller.</param>
+        /// <param name="possessionQueue">The queue of pawns that want to be possessed by the controller.</param>
+        /// <returns>The new local player controller.</returns>
+        protected internal abstract LocalPlayerController CreateLocalController(LocalPlayerIndex index, Queue<IPawn> possessionQueue);
+
+        protected virtual void OnBeginGameplay() { }
+        public void BeginGameplay()
+        {
+            CreateLocalPlayerControllers();
+            OnBeginGameplay();
+        }
+        protected virtual void OnEndGameplay() { }
+        public void EndGameplay()
+        {
+            Engine.DestroyLocalPlayerControllers();
+            OnEndGameplay();
+        }
+        protected virtual void OnAbortGameplay() { }
+        public void AbortGameplay()
+        {
+            OnAbortGameplay();
+        }
+
+        private void CreateLocalPlayerControllers()
+        {
+            InputDevice[] gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
+            InputDevice[] keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
+            InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
+
+            if (keyboards.Any(x => x != null) ||
+                mice.Any(x => x != null) ||
+                gamepads.Any(x => x != null && x.Index == 0))
+            {
+                Engine.ActivePlayers.Add(CreateLocalController(LocalPlayerIndex.One));
+            }
+            for (int i = 0; i < 4; ++i)
+            {
+                InputDevice gp = gamepads[i];
+                if (gp != null && gp.Index > 0)
+                    Engine.ActivePlayers.Add(CreateLocalController(LocalPlayerIndex.One + gp.Index));
+            }
+        }
     }
     public class GameMode<PawnType, ControllerType> : BaseGameMode
         where PawnType : class, IPawn, new()
@@ -129,47 +176,7 @@ namespace TheraEngine.GameModes
         }
 
         public int _numSpectators, _numPlayers, _numComputers;
-
-        private void CreateLocalPlayerControllers()
-        {
-            InputDevice[] gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
-            InputDevice[] keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
-            InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
-
-            if (keyboards.Any(x => x != null) ||
-                mice.Any(x => x != null) ||
-                gamepads.Any(x => x != null && x.Index == 0))
-            {
-                Engine.ActivePlayers.Add(CreateLocalController(PlayerIndex.One));
-            }
-            for (int i = 0; i < 4; ++i)
-            {
-                InputDevice gp = gamepads[i];
-                if (gp != null && gp.Index > 0)
-                    Engine.ActivePlayers.Add(CreateLocalController(PlayerIndex.One + gp.Index));
-            }
-        }
-        public override void BeginGameplay()
-        {
-            CreateLocalPlayerControllers();
-            //foreach (LocalPlayerController c in Engine.ActivePlayers)
-            //{
-            //    PawnType pawn = _pawnClass.CreateNew();
-            //    if (c.ControlledPawn == null)
-            //        c.ControlledPawn = pawn;
-            //    else
-            //        c.EnqueuePosession(pawn);
-            //    Engine.World.SpawnActor(pawn);
-            //}
-        }
-        public override void EndGameplay()
-        {
-            Engine.DestroyLocalPlayerControllers();
-        }
-        public override void AbortGameplay()
-        {
-
-        }
+        
         protected internal override void HandleLocalPlayerLeft(LocalPlayerController item)
         {
             RenderPanel.GamePanel?.UnregisterController(item);
@@ -183,7 +190,6 @@ namespace TheraEngine.GameModes
                 if (v != null)
                     v.RegisterController(item);
             }
-
             PawnType pawn = _pawnClass.CreateNew();
             if (item.ControlledPawn == null)
                 item.ControlledPawn = pawn;
@@ -191,13 +197,9 @@ namespace TheraEngine.GameModes
                 item.EnqueuePosession(pawn);
             Engine.World.SpawnActor(pawn);
         }
-        protected internal override LocalPlayerController CreateLocalController(PlayerIndex index, Queue<IPawn> queue)
-        {
-            return ControllerClass.CreateNew(index, queue);
-        }
-        protected internal override LocalPlayerController CreateLocalController(PlayerIndex index)
-        {
-            return ControllerClass.CreateNew(index);
-        }
+        protected internal override LocalPlayerController CreateLocalController(LocalPlayerIndex index, Queue<IPawn> queue)
+            => ControllerClass.CreateNew(index, queue);
+        protected internal override LocalPlayerController CreateLocalController(LocalPlayerIndex index)
+            => ControllerClass.CreateNew(index);
     }
 }

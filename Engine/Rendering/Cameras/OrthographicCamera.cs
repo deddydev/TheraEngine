@@ -52,7 +52,7 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
 
-        [Serialize("Scale")]
+        [TSerialize("Scale")]
         private EventVec3 _scale = Vec3.One;
 
         private float _orthoLeft = 0.0f;
@@ -60,17 +60,17 @@ namespace TheraEngine.Rendering.Cameras
         private float _orthoBottom = 0.0f;
         private float _orthoTop = 1.0f;
 
-        [Serialize("OrthoLeftPercentage")]
+        [TSerialize("OrthoLeftPercentage")]
         private float _orthoLeftPercentage = 0.0f;
-        [Serialize("OrthoRightPercentage")]
+        [TSerialize("OrthoRightPercentage")]
         private float _orthoRightPercentage = 1.0f;
-        [Serialize("OrthoBottomPercentage")]
+        [TSerialize("OrthoBottomPercentage")]
         private float _orthoBottomPercentage = 0.0f;
-        [Serialize("OrthoTopPercentage")]
+        [TSerialize("OrthoTopPercentage")]
         private float _orthoTopPercentage = 1.0f;
 
         private Vec2 _origin;
-        [Serialize("OriginPercentages")]
+        [TSerialize("OriginPercentages")]
         private EventVec2 _originPercentages = Vec2.Zero;
 
         public void SetCenteredStyle() 

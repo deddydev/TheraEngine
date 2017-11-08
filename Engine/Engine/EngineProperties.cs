@@ -30,7 +30,7 @@ namespace TheraEngine
         public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
-        public static event Action<bool, PlayerIndex> Paused;
+        public static event Action<bool, LocalPlayerIndex> Paused;
         public static event Action<string> DebugOutput;
 
         public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
@@ -74,7 +74,7 @@ namespace TheraEngine
         private static InputAwaiter _inputAwaiter;
 
         //Queue of what pawns should be possessed next for each player index when they either first join the game, or have their controlled pawn set to null.
-        private static Dictionary<PlayerIndex, Queue<IPawn>> _possessionQueues = new Dictionary<PlayerIndex, Queue<IPawn>>();
+        private static Dictionary<LocalPlayerIndex, Queue<IPawn>> _possessionQueues = new Dictionary<LocalPlayerIndex, Queue<IPawn>>();
 
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
         private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();

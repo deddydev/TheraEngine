@@ -1,7 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
+    [FileClass("crot", "Rotation Component")]
     public class RotationComponent : SceneComponent
     {
         public RotationComponent() : base()

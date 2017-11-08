@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Text
 {
     public class LocalizedStringTable
     {
-        [Serialize]
+        [TSerialize]
         private Dictionary<string, string> _table = new Dictionary<string, string>();
         public string this[string id]
         {

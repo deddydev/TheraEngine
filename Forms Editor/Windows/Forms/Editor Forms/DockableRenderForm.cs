@@ -20,7 +20,7 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class DockableRenderForm : DockContent
     {
-        public DockableRenderForm(PlayerIndex playerIndex, int formIndex)
+        public DockableRenderForm(LocalPlayerIndex playerIndex, int formIndex)
         {
             FormIndex = formIndex;
             PlayerIndex = playerIndex;
@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms
 
         public static DockableRenderForm ActiveRenderForm { get; set; } = null;
         public int FormIndex { get; private set; }
-        public PlayerIndex PlayerIndex { get; private set; } = PlayerIndex.One;
+        public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
         public FlyingCameraPawn EditorPawn { get; private set; }
 
         protected override void OnShown(EventArgs e)

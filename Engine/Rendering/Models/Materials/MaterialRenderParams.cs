@@ -15,27 +15,27 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public bool HasTransparency => Blend.Enabled || AlphaTest.Enabled;
 
-        [Serialize]
+        [TSerialize]
         public bool WriteRed { get; set; } = true;
-        [Serialize]
+        [TSerialize]
         public bool WriteGreen { get; set; } = true;
-        [Serialize]
+        [TSerialize]
         public bool WriteBlue { get; set; } = true;
-        [Serialize]
+        [TSerialize]
         public bool WriteAlpha { get; set; } = true;
-        [Serialize]
+        [TSerialize]
         public Culling CullMode { get; set; } = Culling.Back;
-        [Serialize]
+        [TSerialize]
         public AlphaTest AlphaTest { get; set; } = new AlphaTest();
-        [Serialize]
+        [TSerialize]
         public DepthTest DepthTest { get; set; } = new DepthTest();
-        [Serialize]
+        [TSerialize]
         public StencilTest StencilTest { get; set; } = new StencilTest();
-        [Serialize]
+        [TSerialize]
         public Blend Blend { get; set; } = new Blend();
-        [Serialize]
+        [TSerialize]
         public float PointSize { get; set; } = AbstractRenderer.DefaultPointSize;
-        [Serialize]
+        [TSerialize]
         public float LineWidth { get; set; } = AbstractRenderer.DefaultLineSize;
     }
     [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -94,19 +94,19 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <summary>
         /// Determines if this material will test against the previously written depth value to determine if color fragments should be written or not.
         /// </summary>
-        [Serialize]
+        [TSerialize]
         [Description("Determines if this material will test against the previously written depth value to determine if color fragments should be written or not.")]
         public bool Enabled { get; set; } = true;
         /// <summary>
         /// Determines if the material will update the depth value upon writing a new color fragment.
         /// </summary>
-        [Serialize]
+        [TSerialize]
         [Description("Determines if the material will update the depth value upon writing a new color fragment.")]
         public bool UpdateDepth { get; set; } = true;
         /// <summary>
         /// Determines the pass condition to write a new color fragment. Usually less or lequal, meaning closer to the camera than the previous depth means a success.
         /// </summary>
-        [Serialize]
+        [TSerialize]
         [Description("Determines the pass condition to write a new color fragment. Usually less or lequal, meaning closer to the camera than the previous depth means a success.")]
         public EComparison Function { get; set; } = EComparison.Lequal;
     }
@@ -125,19 +125,19 @@ namespace TheraEngine.Rendering.Models.Materials
             _rgbDstFactor = EBlendingFactor.ConstantColor,
             _alphaDstFactor = EBlendingFactor.ConstantAlpha;
 
-        [Serialize]
+        [TSerialize]
         public bool Enabled { get => _enabled; set => _enabled = value; }
-        [Serialize]
+        [TSerialize]
         public EBlendEquationMode RgbEquation { get => _rgbEquation; set => _rgbEquation = value; }
-        [Serialize]
+        [TSerialize]
         public EBlendEquationMode AlphaEquation { get => _alphaEquation; set => _alphaEquation = value; }
-        [Serialize]
+        [TSerialize]
         public EBlendingFactor RgbSrcFactor { get => _rgbSrcFactor; set => _rgbSrcFactor = value; }
-        [Serialize]
+        [TSerialize]
         public EBlendingFactor AlphaSrcFactor { get => _alphaSrcFactor; set => _alphaSrcFactor = value; }
-        [Serialize]
+        [TSerialize]
         public EBlendingFactor RgbDstFactor { get => _rgbDstFactor; set => _rgbDstFactor = value; }
-        [Serialize]
+        [TSerialize]
         public EBlendingFactor AlphaDstFactor { get => _alphaDstFactor; set => _alphaDstFactor = value; }
     }
 }

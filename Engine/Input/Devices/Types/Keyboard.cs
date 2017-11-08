@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
 namespace TheraEngine.Input.Devices
 {
-    public abstract class CKeyboard : InputDevice
+    public abstract class BaseKeyboard : InputDevice
     {
-        public CKeyboard(int index) : base(index) { }
+        public BaseKeyboard(int index) : base(index) { }
 
         protected List<EKey> _registeredKeys = new List<EKey>();
 
-        protected override int GetAxisCount() { return 0; }
-        protected override int GetButtonCount() { return 132; }
+        protected override int GetAxisCount() => 0;
+        protected override int GetButtonCount() => 132;
 
         private ButtonManager CacheKey(EKey key)
         {
@@ -24,7 +26,19 @@ namespace TheraEngine.Input.Devices
         public void RegisterButtonPressed(EKey key, InputPauseType pauseType, DelButtonState func, bool unregister)
         {
             if (unregister)
-                _buttonStates[(int)key]?.RegisterPressedState(func, pauseType, true);
+            {
+                int keyIndex = (int)key;
+                var state = _buttonStates[keyIndex];
+                if (state != null)
+                {
+                    state.RegisterPressedState(func, pauseType, true);
+                    if (state.IsEmpty())
+                    {
+                        _buttonStates[keyIndex] = null;
+                        _registeredKeys.Remove(key);
+                    }
+                }
+            }
             else
                 CacheKey(key)?.RegisterPressedState(func, pauseType, false);
         }

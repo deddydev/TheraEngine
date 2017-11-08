@@ -104,13 +104,13 @@ namespace System
         }
 
         private Quat _quaternion = Quat.Identity;
-        [Serialize("Rotation")]
+        [TSerialize("Rotation")]
         private Rotator _rotation;
-        [Serialize("Translation")]
+        [TSerialize("Translation")]
         private EventVec3 _translation;
-        [Serialize("Scale")]
+        [TSerialize("Scale")]
         private EventVec3 _scale;
-        [Serialize("Order", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Order", XmlNodeType = EXmlNodeType.Attribute)]
         private TransformOrder _transformOrder = TransformOrder.TRS;
 
         private Matrix4 _transform = Matrix4.Identity;

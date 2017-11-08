@@ -10,10 +10,10 @@ namespace TheraEngine.Animation
         private Quat _defaultValue = Quat.Identity;
         private GetValue<Quat> _getValue;
 
-        [Serialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "!UseKeyframes")]
         private Quat[] _baked = null;
 
-        [Serialize(Condition = "UseKeyframes")]
+        [TSerialize(Condition = "UseKeyframes")]
         public Quat DefaultValue
         {
             get => _defaultValue;
@@ -70,14 +70,14 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate = CubicBezier;
         protected RadialInterpType _interpolationType;
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat InValue { get; set; }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat OutValue { get; set; }
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat InTangent { get; set; }
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat OutTangent { get; set; }
 
         public new QuatKeyframe Next
@@ -91,7 +91,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public RadialInterpType InterpolationType
         {
             get => _interpolationType;

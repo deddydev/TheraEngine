@@ -17,7 +17,7 @@ namespace TheraEditor
     {
         protected override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
-            if (item.LocalPlayerIndex != PlayerIndex.One)
+            if (item.LocalPlayerIndex != LocalPlayerIndex.One)
                 return;
 
             DockableRenderForm form = DockableRenderForm.ActiveRenderForm;
@@ -27,16 +27,10 @@ namespace TheraEditor
                 form.RenderPanel.GetViewport(0)?.RegisterController(item);
             }
         }
-
-        protected override void HandleLocalPlayerLeft(LocalPlayerController item)
-        {
-            base.HandleLocalPlayerLeft(item);
-        }
-
-        public override void BeginGameplay()
+        
+        protected override void OnBeginGameplay()
         {
             //Engine.World.SpawnActor(new TestCharacter(), new Vec3(-5.0f, 50.0f, -5.0f));
-            base.BeginGameplay();
         }
     }
 }

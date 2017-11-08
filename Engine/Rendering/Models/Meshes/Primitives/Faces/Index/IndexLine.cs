@@ -15,9 +15,9 @@ namespace TheraEngine.Rendering.Models
             _point1.AddLine(this);
         }
 
-        [Serialize("Point0")]
+        [TSerialize("Point0")]
         private IndexPoint _point0;
-        [Serialize("Point1")]
+        [TSerialize("Point1")]
         private IndexPoint _point1;
 
         public List<IndexPrimitive> _connectedFaces = new List<IndexPrimitive>();

@@ -10,10 +10,10 @@ namespace TheraEngine.Animation
         private bool _defaultValue = false;
         private GetValue<bool> _getValue;
 
-        [Serialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "!UseKeyframes")]
         private bool[] _baked = null;
 
-        [Serialize(Condition = "UseKeyframes")]
+        [TSerialize(Condition = "UseKeyframes")]
         public bool DefaultValue
         {
             get => _defaultValue;
@@ -65,7 +65,7 @@ namespace TheraEngine.Animation
             Value = value;
         }
         
-        [Serialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool Value { get; set; }
 
         public new BoolKeyframe Next

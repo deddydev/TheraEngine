@@ -35,11 +35,11 @@ namespace TheraEngine.Input.Devices
     /// <summary>
     /// Input for local
     /// </summary>
-    public abstract class CGamePad : InputDevice
+    public abstract class BaseGamePad : InputDevice
     {
-        public CGamePad(int index) : base(index) { }
+        public BaseGamePad(int index) : base(index) { }
 
-        public static CGamePad NewInstance(int index)
+        public static BaseGamePad NewInstance(int index)
         {
             switch (Engine.InputLibrary)
             {

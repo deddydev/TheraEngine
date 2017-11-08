@@ -10,9 +10,9 @@ namespace TheraEngine.Rendering.Models
 
         //[Serialize("VertexIndex")]
         private int _vertexIndex;
-        [Serialize("BufferIndices")]
+        [TSerialize("BufferIndices")]
         private List<int> _bufferIndices = new List<int>();
-        [Serialize("InfluenceIndex")]
+        [TSerialize("InfluenceIndex")]
         internal int _influenceIndex;
         internal PrimitiveData _data;
 

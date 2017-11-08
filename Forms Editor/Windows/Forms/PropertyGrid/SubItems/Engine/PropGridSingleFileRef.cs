@@ -12,7 +12,7 @@ using TheraEditor.Wrappers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    //[PropGridItem(typeof(IFileRef))]
+    [PropGridItem(typeof(IFileRef))]
     public partial class PropGridFileRef : PropGridItem
     {
         public PropGridFileRef() => InitializeComponent();
@@ -38,7 +38,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (e.Data.GetDataPresent(treeNodeType))
             {
                 BaseFileWrapper node = (BaseFileWrapper)e.Data.GetData(treeNodeType);
-                
+                if (_fileRef.ReferencedType.IsAssignableFrom(node.FileType))
+                {
+                    
+                }
             }
         }
 

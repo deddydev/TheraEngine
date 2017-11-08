@@ -5,9 +5,9 @@ using System.Windows.Forms;
 
 namespace TheraEngine.Input.Devices
 {
-    public abstract class CMouse : InputDevice
+    public abstract class BaseMouse : InputDevice
     {
-        public CMouse(int index) : base(index) { }
+        public BaseMouse(int index) : base(index) { }
 
         protected CursorManager _cursor = new CursorManager();
         protected ScrollWheelManager _wheel = new ScrollWheelManager();

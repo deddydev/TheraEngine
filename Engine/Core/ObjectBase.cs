@@ -54,24 +54,42 @@ namespace TheraEngine
         {
             OnConstructed?.Invoke(this);
         }
-
-        [Browsable(false)]
-        public event RenamedEventHandler Renamed;
-
-        [Serialize("Name", XmlNodeType = EXmlNodeType.Attribute)]
+        
+        [TSerialize("Name", XmlNodeType = EXmlNodeType.Attribute)]
         protected string _name = null;
-        [Serialize("UserData")]
+        [TSerialize("UserData")]
         private object _userData = null;
-#if EDITOR
-        private EditorState _editorState = null;
-#endif
+        
+        [TSerialize]
+        [Browsable(false)]
+        [Category("Object")]
+        public object UserData
+        {
+            get => _userData;
+            set => _userData = value;
+        }
 
+        #region Name
+        [Category("Object")]
+        public string Name
+        {
+            get => string.IsNullOrEmpty(_name) ? GetType().GetFriendlyName().Replace("<", "[").Replace(">", "]") : _name;
+            set
+            {
+                string oldName = _name;
+                _name = value;
+                OnRenamed(oldName);
+            }
+        }
+        public event RenamedEventHandler Renamed;
+        protected virtual void OnRenamed(string oldName)
+            => Renamed?.Invoke(this, oldName);
+        #endregion
+
+        #region Ticking
         private ThreadSafeList<TickInfo> _tickFunctions = new ThreadSafeList<TickInfo>();
-        private List<AnimationContainer> _animations = null;
-
         [Browsable(false)]
         public bool IsTicking => _tickFunctions.Count > 0;
-
         public void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways)
         {
             _tickFunctions.Add(new TickInfo(group, order, tickFunc));
@@ -84,9 +102,13 @@ namespace TheraEngine
                 _tickFunctions.RemoveAt(index);
             Engine.UnregisterTick(group, order, tickFunc, pausedBehavior);
         }
+        #endregion
 
 #if EDITOR
-        [Serialize]
+
+        private EditorState _editorState = null;
+
+        [TSerialize]
         [Browsable(false)]
         [Category("Object")]
         public EditorState EditorState
@@ -94,40 +116,7 @@ namespace TheraEngine
             get => _editorState ?? (_editorState = new EditorState());
             set => _editorState = value;
         }
-#endif
 
-        [Serialize]
-        [Browsable(false)]
-        [Category("Object")]
-        public List<AnimationContainer> Animations
-        {
-            get => _animations;
-            set => _animations = value;
-        }
-
-        [Serialize]
-        [Browsable(false)]
-        [Category("Object")]
-        public object UserData
-        {
-            get => _userData;
-            set => _userData = value;
-        }
-
-        //[Browsable(false)]
-        [Category("Object")]
-        public string Name
-        {
-            get => string.IsNullOrEmpty(_name) ? GetType().GetFriendlyName().Replace("<", "[").Replace(">", "]") : _name;
-            set
-            {
-                string oldName = _name;
-                _name = value;
-                OnRenamed(oldName);
-            }
-        }
-
-#if EDITOR
         [Browsable(false)]
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -146,8 +135,18 @@ namespace TheraEngine
         }
 #endif
 
-        protected virtual void OnRenamed(string oldName)
-            => Renamed?.Invoke(this, oldName);
+        #region Animation
+
+        private List<AnimationContainer> _animations = null;
+
+        [TSerialize]
+        [Browsable(false)]
+        [Category("Object")]
+        public List<AnimationContainer> Animations
+        {
+            get => _animations;
+            set => _animations = value;
+        }
 
         public void AddAnimation(
             AnimationContainer anim,
@@ -175,64 +174,8 @@ namespace TheraEngine
                 _animations = null;
             anim._owners.Remove(this);
         }
+        #endregion
+
         public override string ToString() => Name;
     }
-//    [PSerializable]
-//    public class NotifyPropertyChangedAttribute : LocationInterceptionAspect
-//    {
-//        public override void OnSetValue(LocationInterceptionArgs args)
-//        {
-//            if (args.Value != args.GetCurrentValue())
-//            {
-//                PropertyInfo info = args.Location.PropertyInfo;
-//                if (info == null)
-//                    return;
-
-//                object currentValue = args.GetCurrentValue();
-
-//                Default def = info.GetCustomAttribute<Default>();
-//                if (def != null)
-//                {
-//#if EDITOR
-//                    return;
-//#endif
-//                }
-
-//                PreChanged pre = info.GetCustomAttribute<PreChanged>();
-//                if (pre != null)
-//                {
-//                    MethodInfo method = GetType().GetMethod(pre._methodName).MakeGenericMethod(info.PropertyType);
-//                    if (method != null)
-//                        method.Invoke(this, new object[] { currentValue });
-//                }
-
-//                args.Value = args.Value;
-//                args.ProceedSetValue();
-
-//                PostChanged post = info.GetCustomAttribute<PostChanged>();
-//                if (post != null)
-//                {
-//                    MethodInfo method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
-//                    if (method != null)
-//                        method.Invoke(this, new object[] { args.Value });
-//                    else
-//                    {
-//                        method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
-//                        if (method != null)
-//                            method.Invoke(this, new object[] { args.Value });
-//                    }
-//                }
-
-//                PostCall call = info.GetCustomAttribute<PostCall>();
-//                if (post != null)
-//                {
-//                    MethodInfo method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
-//                    if (method != null)
-//                        method.Invoke(this, new object[] { args.Value });
-//                }
-
-//                ((ObjectBase)args.Instance).OnPropertyChanged(args.Location.PropertyInfo, currentValue);
-//            }
-//        }
-//    }
 }

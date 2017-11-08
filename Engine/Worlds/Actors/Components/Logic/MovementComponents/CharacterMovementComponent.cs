@@ -186,8 +186,10 @@ namespace TheraEngine.Worlds.Actors
 
                     if (callback.HasHit)
                     {
-                        //if (callback.ClosestHitFraction.IsZero())
-                        //    break;
+                        if (callback.ClosestHitFraction.IsZero())
+                        {
+                            break;
+                        }
 
                         float hitF = callback.ClosestHitFraction;
 

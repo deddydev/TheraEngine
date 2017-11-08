@@ -99,9 +99,9 @@ namespace TheraEngine.Rendering.Models
         public void LinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Add(m);
         public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Remove(m);
 
-        [Serialize("BillboardType", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("BillboardType", XmlNodeType = EXmlNodeType.Attribute)]
         private BillboardType _billboardType = BillboardType.None;
-        [Serialize("ScaleByDistance", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("ScaleByDistance", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _scaleByDistance = false;
 
         private float _screenSize = 1.0f;
@@ -110,13 +110,13 @@ namespace TheraEngine.Rendering.Models
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
 
-        [Serialize("ChildBones")]
+        [TSerialize("ChildBones")]
         private MonitoredList<Bone> _childBones = new MonitoredList<Bone>();
         //[Serialize("ChildComponents")]
         private MonitoredList<SceneComponent> _childComponents = new MonitoredList<SceneComponent>();
-        [Serialize("PhysicsDriver")]
+        [TSerialize("PhysicsDriver")]
         private PhysicsDriver _physicsDriver;
-        [Serialize("Transform")]
+        [TSerialize("Transform")]
         private Transform _bindState;
 
         private bool _frameMatrixChanged = false, _childFrameMatrixChanged = false;

@@ -9,13 +9,13 @@ namespace TheraEngine.Worlds.Maps
 {
     public class MapSettings : FileObject
     {
-        [Serialize]
+        [TSerialize]
         public bool _visibleByDefault;
-        [Serialize]
+        [TSerialize]
         private List<IActor> _defaultActors = new List<IActor>();
-        [Serialize]
+        [TSerialize]
         public Vec3 _spawnPosition;
-        [Serialize]
+        [TSerialize]
         public BaseGameMode _defaultGameMode;
 
         public MapSettings(params IActor[] actors)

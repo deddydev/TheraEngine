@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Input.Devices.Windows
 {
-    public class WinMouse : CMouse
+    public class WinMouse : BaseMouse
     {
         public WinMouse(int index) : base(index) { }
         

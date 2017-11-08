@@ -13,13 +13,13 @@ namespace TheraEngine.Core.Shapes
             _startPoint = startPoint;
             _direction = direction.NormalizedFast();
         }
-        [Serialize]
+        [TSerialize]
         public Vec3 StartPoint
         {
             get => _startPoint;
             set => _startPoint = value;
         }
-        [Serialize]
+        [TSerialize]
         public Vec3 Direction
         {
             get => _direction;

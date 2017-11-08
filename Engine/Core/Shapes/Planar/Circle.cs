@@ -27,7 +27,7 @@ namespace TheraEngine.Core.Shapes
             : base(point0, point1, point2) { _radius = radius; }
 
         [DefaultValue(1.0f)]
-        [Serialize("Radius")]
+        [TSerialize("Radius")]
         private float _radius;
         public float Radius
         {

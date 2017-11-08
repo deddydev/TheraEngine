@@ -381,18 +381,18 @@ namespace TheraEngine
 
             return newViewport;
         }
-        public void UnregisterController(LocalPlayerController owner)
+        public void UnregisterController(LocalPlayerController controller)
         {
             if (IsDisposed)
                 return;
 
-            if (owner.Viewport != null && _viewports.Contains(owner.Viewport))
+            if (controller.Viewport != null && _viewports.Contains(controller.Viewport))
             {
-                owner.Viewport.UnregisterController(owner);
+                controller.Viewport.UnregisterController(controller);
 
-                if (owner.Viewport.Owners.Count == 0)
+                if (controller.Viewport.Owners.Count == 0)
                 {
-                    _viewports.Remove(owner.Viewport);
+                    _viewports.Remove(controller.Viewport);
                     for (int i = 0; i < _viewports.Count; ++i)
                     {
                         Viewport p = _viewports[i];

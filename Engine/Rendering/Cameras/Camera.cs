@@ -6,6 +6,7 @@ using TheraEngine.Worlds.Actors;
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Rendering.Cameras
 {

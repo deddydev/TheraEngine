@@ -15,21 +15,17 @@ namespace TheraEngine.Worlds.Actors
         public CameraComponent()
         {
             Camera = new PerspectiveCamera();
-            //WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
         public CameraComponent(bool orthographic)
         {
             Camera = orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera();
-            //WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
         public CameraComponent(Camera camera)
         {
             Camera = camera;
-            //WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
         #endregion
-
-        //private bool _updatingTransform = false;
+        
         private SingleFileRef<Camera> _camera;
 
         [TSerialize]
@@ -38,19 +34,22 @@ namespace TheraEngine.Worlds.Actors
             get => _camera;
             set
             {
-                if (_camera.IsLoaded && _camera.File != null)
+                if (_camera != null)
                 {
-                    Camera camera = _camera.File;
+                    _camera.UnregisterLoadEvent(CameraLoaded);
+                    if (_camera.IsLoaded && _camera.File != null)
+                    {
+                        Camera camera = _camera.File;
 
-                    if (IsSpawned && Engine.Settings.RenderCameraFrustums)
-                        Engine.Scene.Remove(camera);
+                        if (IsSpawned && Engine.Settings.RenderCameraFrustums)
+                            Engine.Scene.Remove(camera);
 
-                    camera.OwningComponent = null;
-                    camera.TransformChanged -= RecalcLocalTransform;
+                        camera.OwningComponent = null;
+                        camera.TransformChanged -= RecalcLocalTransform;
+                    }
                 }
                 _camera = value;
-                _camera.Loaded += CameraLoaded;
-                
+                _camera.RegisterLoadEvent(CameraLoaded);
             }
         }
 

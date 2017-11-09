@@ -152,32 +152,32 @@ namespace TheraEngine.Worlds.Actors.Types
                     VisibleByDefault = TransformMode == TransformType.Translate
                 });
 
-                PrimitiveData scalePrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), scaleLine1, scaleLine2);
-                scalePrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", scalePrim, scalePlaneMat, true)
-                {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
-                    VisibleByDefault = TransformMode == TransformType.Scale
-                });
+                //PrimitiveData scalePrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), scaleLine1, scaleLine2);
+                //scalePrim.SingleBindBone = rootBoneName;
+                //mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", scalePrim, scalePlaneMat, true)
+                //{
+                //    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                //    VisibleByDefault = TransformMode == TransformType.Scale
+                //});
 
-                PrimitiveData rotPrim = Circle3D.WireframeMesh(_orbRadius, unit, Vec3.Zero, _circlePrecision);
-                rotPrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Rotation", rotPrim, axisMat, true)
-                {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
-                    VisibleByDefault = TransformMode == TransformType.Rotate
-                });
+                //PrimitiveData rotPrim = Circle3D.WireframeMesh(_orbRadius, unit, Vec3.Zero, _circlePrecision);
+                //rotPrim.SingleBindBone = rootBoneName;
+                //mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Rotation", rotPrim, axisMat, true)
+                //{
+                //    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                //    VisibleByDefault = TransformMode == TransformType.Rotate
+                //});
             }
             
-            //Screen-aligned rotation
-            PrimitiveData screenRotPrim = Circle3D.WireframeMesh(_circRadius, Vec3.UnitZ, Vec3.Zero, _circlePrecision);
-            screenRotPrim.SingleBindBone = screenBoneName;
+            ////Screen-aligned rotation
+            //PrimitiveData screenRotPrim = Circle3D.WireframeMesh(_circRadius, Vec3.UnitZ, Vec3.Zero, _circlePrecision);
+            //screenRotPrim.SingleBindBone = screenBoneName;
             
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", screenRotPrim, _screenMat, true)
-            {
-                RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
-                VisibleByDefault = TransformMode == TransformType.Rotate
-            });
+            //mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", screenRotPrim, _screenMat, true)
+            //{
+            //    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+            //    VisibleByDefault = TransformMode == TransformType.Rotate
+            //});
 
             //Screen-aligned translation
             Vertex v1 = new Vec3(-_screenTransExtent, -_screenTransExtent, 0.0f);
@@ -232,10 +232,10 @@ namespace TheraEngine.Worlds.Actors.Types
                     RootComponent.Meshes[x++].Visible = _mode != TransformType.Rotate;
                     RootComponent.Meshes[x++].Visible = _mode == TransformType.Translate;
                     RootComponent.Meshes[x++].Visible = _mode == TransformType.Translate;
-                    RootComponent.Meshes[x++].Visible = _mode == TransformType.Scale;
-                    RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
+                    //RootComponent.Meshes[x++].Visible = _mode == TransformType.Scale;
+                    //RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
                 }
-                RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
+                //RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
                 RootComponent.Meshes[x++].Visible = _mode == TransformType.Translate;
 
                 GetDependentColors();

@@ -128,7 +128,7 @@ namespace TheraEngine.Worlds.Actors
             }
         }
         
-        [Browsable(false)]
+        //[Browsable(false)]
         public RenderableMesh[] Meshes => _meshes;
         
         public void SetAllSimulatingPhysics(bool doSimulation)

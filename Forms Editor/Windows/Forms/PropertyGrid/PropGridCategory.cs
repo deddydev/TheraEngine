@@ -40,13 +40,29 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public void AddProperty(List<PropGridItem> editors, object[] attributes)
         {
-            var displayName = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
+            var displayNameAttrib = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
             var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
-            string name = displayName?.DisplayName ?? (editors[0].Property?.Name ?? string.Format("[{0}]", editors[0].IListIndex));
+
+            string displayName = displayNameAttrib?.DisplayName;
+            string propName = editors[0].Property?.Name;
+            string name;
+            if (!string.IsNullOrWhiteSpace(displayName))
+            {
+                name = displayName;
+            }
+            else if (!string.IsNullOrWhiteSpace(propName))
+            {
+                name = Editor.Settings.File.PropertyGrid.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
+            }
+            else
+            {
+                name = string.Format("[{0}]", editors[0].IListIndex);
+            }
+
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
             Label label = new Label()
             {
-                Text = Editor.Settings.File.PropertyGrid.File.SplitCamelCase ? name.SplitCamelCase() : name,
+                Text = name,
                 TextAlign = ContentAlignment.MiddleRight,
                 AutoSize = true,
                 ForeColor = Color.FromArgb(200, 200, 220),
@@ -55,7 +71,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Margin = new Padding(3, 0, 3, 0),
                 Tag = desc,
             };
-            label.MouseHover += Label_MouseHover;
+            label.MouseEnter += Label_MouseEnter;
+            label.MouseLeave += Label_MouseLeave;
             tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tblProps.RowCount = tblProps.RowStyles.Count;
             tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
@@ -90,11 +107,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private void Label_MouseHover(object sender, EventArgs e)
+        private void Label_MouseLeave(object sender, EventArgs e)
         {
             Label label = sender as Label;
             if (label.Tag != null)
-                toolTip1.Show(label.Tag.ToString(), FindForm());
+                toolTip1.Hide(label);
+        }
+
+        private void Label_MouseEnter(object sender, EventArgs e)
+        {
+            Label label = sender as Label;
+            if (label.Tag != null)
+                toolTip1.Show(label.Tag.ToString(), label);
         }
 
         private void lblCategoryName_MouseEnter(object sender, EventArgs e)

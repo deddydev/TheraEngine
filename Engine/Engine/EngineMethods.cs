@@ -406,7 +406,7 @@ namespace TheraEngine
             //    panel.GlobalHud.DebugPrint(message);
 #endif
         }
-        public static void Log(string message, [CallerMemberName] string callerName = "")
+        public static void LogError(string message, [CallerMemberName] string callerName = "")
         {
             string m = message;
             if (!string.IsNullOrEmpty(callerName))

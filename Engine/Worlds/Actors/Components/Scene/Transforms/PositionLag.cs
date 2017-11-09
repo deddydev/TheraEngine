@@ -79,9 +79,9 @@ namespace TheraEngine.Worlds.Actors
             _currentPoint = _worldTransform.GetPoint();
             _destPoint = GetParentMatrix().GetPoint();
             _laggingDistance = _destPoint.DistanceToFast(_currentPoint);
-            if (_laggingDistance > _maxLagDistance)
-                _interpPoint = CustomMath.InterpLinearTo(_destPoint, _currentPoint, _maxLagDistance / _laggingDistance);
-            else
+            //if (_laggingDistance > _maxLagDistance)
+            //    _interpPoint = CustomMath.InterpLinearTo(_destPoint, _currentPoint, _maxLagDistance / _laggingDistance);
+            //else
                 _interpPoint = CustomMath.InterpLinearTo(_currentPoint, _destPoint, _delta, _interpSpeed);
 
             //Engine.DebugPrint(_currentPoint.DistanceTo(_destPoint));
@@ -91,13 +91,13 @@ namespace TheraEngine.Worlds.Actors
         {
             _currentPoint = _worldTransform.GetPoint();
             //Engine.Scene.Add(this);
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             //Engine.Scene.Remove(this);
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
             base.OnDespawned();
         }
 

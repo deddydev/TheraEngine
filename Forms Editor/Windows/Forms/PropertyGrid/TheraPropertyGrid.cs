@@ -189,8 +189,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
             }
 
-            if (_categories.Count == 1 && _categories.ContainsKey(MiscName))
-                _categories[MiscName].CategoryName = null;
+            if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                _categories.Values.ToArray()[0].CategoryName = null;
 
             pnlProps.ResumeLayout(true);
         }
@@ -221,7 +221,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             if (controlTypes.Count == 0)
             {
-                Engine.Log("Unable to find control for " + propertyType == null ? "null" : propertyType.GetFriendlyName());
+                Engine.LogError("Unable to find control for " + propertyType == null ? "null" : propertyType.GetFriendlyName());
                 controlTypes.PushBack(typeof(PropGridText));
             }
             return controlTypes;

@@ -31,38 +31,68 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void InitializeComponent()
         {
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.chkNull = new System.Windows.Forms.CheckBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox1
             // 
             this.textBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.textBox1.Location = new System.Drawing.Point(0, 0);
             this.textBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.textBox1.MinimumSize = new System.Drawing.Size(20, 20);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(20, 27);
+            this.textBox1.Size = new System.Drawing.Size(0, 31);
             this.textBox1.TabIndex = 0;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
+            // chkNull
+            // 
+            this.chkNull.AutoSize = true;
+            this.chkNull.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
+            this.chkNull.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
+            this.chkNull.Location = new System.Drawing.Point(-61, 0);
+            this.chkNull.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.chkNull.Name = "chkNull";
+            this.chkNull.Size = new System.Drawing.Size(61, 0);
+            this.chkNull.TabIndex = 1;
+            this.chkNull.Text = "Null";
+            this.chkNull.UseVisualStyleBackColor = false;
+            this.chkNull.CheckedChanged += new System.EventHandler(this.chkNull_CheckedChanged);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Controls.Add(this.chkNull);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Margin = new System.Windows.Forms.Padding(0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(0, 0);
+            this.panel1.TabIndex = 2;
+            // 
             // PropGridText
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.panel1);
             this.Name = "PropGridText";
-            this.Size = new System.Drawing.Size(0, 27);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
         private TextBox textBox1;
+        private CheckBox chkNull;
+        private Panel panel1;
     }
 }

@@ -73,8 +73,11 @@ namespace TheraEngine.Rendering.Models
                 RegenerateBoneCache();
             }
         }
+        [Browsable(false)]
         public Dictionary<string, Bone> BoneNameCache => _boneNameCache;
+        [Browsable(false)]
         public Dictionary<int, Bone> BoneIndexCache => _boneIndexCache;
+        [Browsable(false)]
         public SkeletalMeshComponent OwningComponent
         {
             get => _owningComponent;
@@ -157,12 +160,13 @@ namespace TheraEngine.Rendering.Models
                 Engine.Renderer.RenderPoint(point, b.Parent == null ? Color.Orange : Color.Purple, 15.0f);
                 if (b.Parent != null)
                     Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.GetPoint(), Color.Blue, 5.0f);
-                float scale = AbstractRenderer.CurrentCamera.DistanceScale(point, 2.0f);
-                Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), Color.Red, 5.0f);
-                Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), Color.Green, 5.0f);
-                Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), Color.Blue, 5.0f);
+                //float scale = AbstractRenderer.CurrentCamera.DistanceScale(point, 2.0f);
+                //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), Color.Red, 5.0f);
+                //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), Color.Green, 5.0f);
+                //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), Color.Blue, 5.0f);
             }
         }
+        [Browsable(false)]
         internal int BillboardBoneCount => _cameraBones.Count;
         internal void AddCameraBone(Bone bone)
         {
@@ -184,9 +188,7 @@ namespace TheraEngine.Rendering.Models
         {
             _childMatrixModified = true;
         }
-
         
-
         public void UpdateIK()
         {
             Func<DV, DV> f = (vecIn) => 

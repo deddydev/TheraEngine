@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Files;
 using System;
 using System.ComponentModel;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Animation
 {
@@ -142,7 +143,7 @@ namespace TheraEngine.Animation
             _state = AnimationState.Playing;
             AnimationStarted?.Invoke();
             CurrentTime = 0.0f;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
             PostStarted();
         }
         protected virtual void PreStopped() { }
@@ -155,7 +156,7 @@ namespace TheraEngine.Animation
             _currentTime = 0.0f;
             _state = AnimationState.Stopped;
             AnimationEnded?.Invoke();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
             PostStopped();
         }
         protected virtual void PrePaused() { }
@@ -167,7 +168,7 @@ namespace TheraEngine.Animation
             PreStopped();
             _state = AnimationState.Paused;
             AnimationEnded?.Invoke();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
             PostStopped();
         }
         public void Progress(float delta) => CurrentTime += delta * _speed;

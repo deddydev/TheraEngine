@@ -162,7 +162,7 @@ namespace TheraEditor.Windows.Forms
             OnRedrawn = Redraw;
             Engine.RegisterRenderTick(RenderTick);
             PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
-            //Engine.SetPaused(true, PlayerIndex.One, true);
+            Engine.SetPaused(true, LocalPlayerIndex.One, true);
             Engine.Run();
         }
 
@@ -448,6 +448,7 @@ namespace TheraEditor.Windows.Forms
             //Cursor.Hide();
             InputInterface.GlobalRegisters.Add(RegisterInput);
             Engine.SetGameMode(Engine.GetGameMode());
+            Engine.SetPaused(false, LocalPlayerIndex.One, true);
             Engine.World.BeginPlay();
         }
 
@@ -463,28 +464,9 @@ namespace TheraEditor.Windows.Forms
             InputInterface.GlobalRegisters.Remove(RegisterInput);
             Engine.World.EndPlay();
             Engine.SetGameMode(_editorGameMode);
-        }
-
-        private void ToolStripTextBox1_TextChanged(object sender, EventArgs e)
-        {
-            //if (float.TryParse(toolStripTextBox1.Text, out float fps))
-            //    Engine.TargetRenderFreq = fps;
+            Engine.SetPaused(true, LocalPlayerIndex.One, true);
         }
         
-        //private void BtnMaximize_Click(object sender, EventArgs e)
-        //{
-        //    //if (WindowState == FormWindowState.Normal)
-        //    //{
-        //    //    WindowState = FormWindowState.Maximized;
-        //    //    btnMaximize.Text = "🗗";
-        //    //}
-        //    //else
-        //    //{
-        //    //    WindowState = FormWindowState.Normal;
-        //    //    btnMaximize.Text = "🗖";
-        //    //}
-        //}
-
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (CloseProject())

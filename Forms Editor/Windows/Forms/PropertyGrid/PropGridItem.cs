@@ -35,6 +35,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [Browsable(false)]
         public IList IListOwner { get; set; }
 
+        /// <summary>
+        /// When true, disallows UpdateDisplay() from doing anything until set to false.
+        /// </summary>
+        public bool IsEditing { get; protected set; }
+
         protected bool _updating = false;
 
         public PropGridItem() => InitializeComponent();
@@ -104,6 +109,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public void UpdateDisplay()
         {
+            if (IsEditing)
+                return;
+
             _updating = true;
             UpdateDisplayInternal();
             _updating = false;

@@ -311,6 +311,7 @@
     <None Include="Core\Maths\Transforms\Class\Rotation\EventQuatRotator.cs" />
     <None Include="Core\Maths\Transforms\Class\Transforms\WorldRotTransform.cs" />
     <None Include="Core\Maths\Transforms\Struct\Rotation\QuatRotator.cs" />
+    <Compile Include="Core\Reflection\Attributes\DragRangeAttribute.cs" />
     <Compile Include="Core\Reflection\Attributes\StringAttribute.cs" />
     <Compile Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
@@ -564,7 +565,6 @@
     <Compile Include="Core\Reflection\Attributes\Serialization\CustomSerializeMethodAttribute.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
-    <Compile Include="Core\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\SerializeAttribute.cs" />
     <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="Core\Files\FileObject.cs" />

@@ -26,7 +26,7 @@ namespace TheraEngine.Files
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
     {
-        public event Action Loaded;
+        private event Action Loaded;
 
         [TSerialize("File", Condition = "StoreInternally")]
         private T _file;
@@ -52,6 +52,24 @@ namespace TheraEngine.Files
 
         public SingleFileRef() : base(typeof(T)) { }
         public SingleFileRef(Type type) : base(type) { }
+
+        public void RegisterLoadEvent(Action onLoaded)
+        {
+            if (onLoaded == null)
+                return;
+            
+            Loaded += onLoaded;
+
+            if (_file != null)
+                onLoaded();
+        }
+        public void UnregisterLoadEvent(Action onLoaded)
+        {
+            if (onLoaded == null)
+                return;
+            Loaded -= onLoaded;
+        }
+
         public SingleFileRef(string filePath) : base(filePath) { StoredInternally = false; }
         public SingleFileRef(string filePath, Type type) : base(filePath, type) { StoredInternally = false; }
         public SingleFileRef(string filePath, T file, bool exportNow) : base(filePath)
@@ -108,7 +126,8 @@ namespace TheraEngine.Files
         {
             File = file;
         }
-        [Browsable(false)]
+
+        //[Browsable(false)]
         public T File
         {
             get => GetInstance();
@@ -173,10 +192,20 @@ namespace TheraEngine.Files
             string absolutePath = ReferencePath;
             if (string.IsNullOrEmpty(absolutePath))
             {
-                if (!_subType.IsAbstract && !_subType.IsInterface && _subType.GetConstructor(new Type[0]) != null)
-                    file = Activator.CreateInstance(_subType) as T;
+                if (_subType.IsAbstract)
+                {
+                    Engine.LogError("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
+                }
+                else if (_subType.IsInterface)
+                {
+                    Engine.LogError("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
+                }
+                else if (_subType.GetConstructor(new Type[0]) == null)
+                {
+                    Engine.LogError("Can't automatically instantiate a class with no parameterless constructor: " + _subType.GetFriendlyName());
+                }
                 else
-                    Engine.Log("Can't automatically instantiate an interface, abstract class, or class with no parameterless constructor.");
+                    file = Activator.CreateInstance(_subType) as T;
             }
             else if (Engine.LoadedFiles.ContainsKey(absolutePath))
             {

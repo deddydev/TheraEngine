@@ -1,6 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
-namespace System
+namespace TheraEngine.Core.Reflection.Attributes.Serialization
 {
     /// <summary>
     /// Called after a class has just been deserialized.

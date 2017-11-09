@@ -77,6 +77,7 @@ namespace TheraEngine.Worlds.Actors
                 get => _visibleToOwnerOnly;
                 set => _visibleToOwnerOnly = value;
             }
+
             [TypeConverter(typeof(ExpandableObjectConverter))]
             public ISkeletalSubMesh Mesh
             {
@@ -89,7 +90,7 @@ namespace TheraEngine.Worlds.Actors
             [Browsable(false)]
             public IOctreeNode OctreeNode { get; set; }
 
-            [TypeConverter(typeof(ExpandableObjectConverter))]
+            [Browsable(false)]
             public Skeleton Skeleton
             {
                 get => _skeleton;

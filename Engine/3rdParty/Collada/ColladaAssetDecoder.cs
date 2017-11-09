@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models
                     if (node != null && node.UserData is Bone b)
                         boneList[i] = b;
                     else
-                        Engine.PrintLine("Bone '{0}' not found", sid);
+                        Engine.LogError(string.Format("Bone '{0}' not found", sid));
                 }
 
                 //Build input command list
@@ -180,7 +180,7 @@ namespace TheraEngine.Rendering.Models
                 if (sources.ContainsKey(ESemantic.VERTEX))
                     info._morphCount = sources[ESemantic.VERTEX].Count - 1;
                 else
-                    Engine.Log("Mesh has no vertices.");
+                    Engine.LogError("Mesh has no vertices.");
 
                 info._hasNormals =
                     sources.ContainsKey(ESemantic.NORMAL) &&

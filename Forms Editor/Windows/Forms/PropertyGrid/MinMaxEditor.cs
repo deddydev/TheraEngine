@@ -7,19 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.Design;
 using TheraEngine;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace System.Windows.Forms
 {
-    public class DragRangeAttribute : Attribute
-    {
-        public float Minimum { get; set; }
-        public float Maximum { get; set; }
-        public DragRangeAttribute(float min, float max)
-        {
-            Minimum = min;
-            Maximum = max;
-        }
-    }
     internal class FloatDragEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)

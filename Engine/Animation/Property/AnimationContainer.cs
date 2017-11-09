@@ -6,6 +6,7 @@ using System.Reflection;
 using System.ComponentModel;
 using TheraEngine.Input.Devices;
 using System.ComponentModel.Design;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Animation
 {

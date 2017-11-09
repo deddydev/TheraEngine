@@ -414,7 +414,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (mesh == null)
             {
-                Engine.Log("Cannot attach to a null skeletal mesh.");
+                Engine.LogError("Cannot attach to a null skeletal mesh.");
                 return false;
             }
             if (mesh.Skeleton == null)
@@ -442,7 +442,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (mesh == null)
             {
-                Engine.Log("Cannot attach to a null static mesh.");
+                Engine.LogError("Cannot attach to a null static mesh.");
                 return false;
             }
             mesh.FindOrCreateSocket(socketName).ChildComponents.Add(mesh);

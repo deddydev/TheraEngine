@@ -28,7 +28,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (checkBox1.Checked = _object == null && pnlProps.Visible == true)
                 pnlProps.Visible = false;
             
-            lblObjectTypeName.Text = DataType.GetFriendlyName();
+            string typeName = DataType.GetFriendlyName();
+            lblObjectTypeName.Text = IListOwner != null ? _object.ToString() + " [" + typeName + "]" : typeName;
         }
 
         private void LoadProperties(object obj)

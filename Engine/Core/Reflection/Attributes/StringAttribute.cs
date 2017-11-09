@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System.ComponentModel
+namespace TheraEngine.Core.Reflection.Attributes
 {
     public enum StringType
     {

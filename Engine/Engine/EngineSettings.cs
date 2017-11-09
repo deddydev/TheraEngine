@@ -52,6 +52,7 @@ namespace TheraEngine
         /// </summary>
         [Description("Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).")]
         [Category("Frames Per Second")]
+        [DisplayName("Capped")]
         [TSerialize("Capped", OverrideXmlCategory = "FramesPerSecond"/*, XmlNodeType = EXmlNodeType.Attribute*/)]
         public bool CapFPS { get; set; }
         /// <summary>
@@ -59,6 +60,7 @@ namespace TheraEngine
         /// </summary>
         [Description("How many frames are expected to be rendered per second.")]
         [Category("Frames Per Second")]
+        [DisplayName("Target")]
         [TSerialize("Target", OverrideXmlCategory = "FramesPerSecond", Condition = "CapFPS")]
         public float TargetFPS { get; set; }
 
@@ -67,6 +69,7 @@ namespace TheraEngine
         /// </summary>
         [Description("Determines if the update rate should be capped at a specific frequency. If not, will run as fast as possible.")]
         [Category("Updates Per Second")]
+        [DisplayName("Capped")]
         [TSerialize("Capped", OverrideXmlCategory = "UpdatesPerSecond"/*, XmlNodeType = EXmlNodeType.Attribute*/)]
         public bool CapUPS { get; set; }
         /// <summary>
@@ -74,6 +77,7 @@ namespace TheraEngine
         /// </summary>
         [Description("How many internal engine tick update calls are made per second. This is not the same as the render frequency.")]
         [Category("Updates Per Second")]
+        [DisplayName("Target")]
         [TSerialize("Target", OverrideXmlCategory = "UpdatesPerSecond", Condition = "CapUPS")]
         public float TargetUPS { get; set; }
 
@@ -102,7 +106,7 @@ namespace TheraEngine
             RenderOctree = false;
             RenderQuadtree = true;
             RenderSkeletons = true;
-            RenderCameraFrustums = true;
+            RenderCameraFrustums = false;
             RenderSplines = true;
             RenderCullingVolumes = false;
             RenderLights = false;

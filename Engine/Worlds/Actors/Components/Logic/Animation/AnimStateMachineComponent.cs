@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Files;
 using System.Linq;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Animation
 {

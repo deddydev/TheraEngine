@@ -16,7 +16,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridByte()
         {
             InitializeComponent();
+            numericInputBox1.GotFocus += NumericInputBox1_GotFocus;
+            numericInputBox1.LostFocus += NumericInputBox1_LostFocus;
         }
+        private void NumericInputBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
+        private void NumericInputBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
+
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();

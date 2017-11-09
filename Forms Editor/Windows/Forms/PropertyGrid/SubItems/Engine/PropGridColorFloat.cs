@@ -17,6 +17,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridFloatColor() => InitializeComponent();
         
         object _previousColor;
+
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
@@ -45,6 +46,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 colorControl1.Visible = false;
                 btnShowSelector.Text = "▼";
+                IsEditing = false;
             }
             else
             {
@@ -52,6 +54,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 colorControl1.Color = ((IByteColor)_previousColor).Color;
                 colorControl1.Visible = true;
                 btnShowSelector.Text = "▲";
+                IsEditing = true;
             }
         }
 
@@ -89,6 +92,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             colorControl1.Visible = false;
             btnShowSelector.Text = "▼";
+            IsEditing = false;
         }
         
         private void colorControl1_OnColorChanged(Color newColor)

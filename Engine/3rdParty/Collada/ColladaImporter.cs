@@ -69,6 +69,7 @@ namespace TheraEngine.Rendering.Models
                             }
                         }
                     }
+
                     Scene scene = root.GetChild<Scene>();
                     if (scene != null)
                     {
@@ -88,9 +89,10 @@ namespace TheraEngine.Rendering.Models
                                 List<ObjectInfo> objects = new List<ObjectInfo>();
                                 List<Camera> cameras = new List<Camera>();
                                 List<LightComponent> lights = new List<LightComponent>();
+                                
                                 foreach (var node in nodes)
                                 {
-                                    Bone b = EnumNode(null, node, nodes, objects, Matrix4.Identity, Matrix4.Identity, baseTransform, lights, cameras, options.IgnoreFlags);
+                                    Bone b = EnumNode(null, node, nodes, objects, baseTransform, Matrix4.Identity, lights, cameras, options.IgnoreFlags);
                                     if (b != null)
                                         rootBones.Add(b);
                                 }
@@ -108,7 +110,7 @@ namespace TheraEngine.Rendering.Models
                                         if (!obj.UsesController)
                                             obj.Initialize(modelScene.StaticModel, visualScene);
                                         else
-                                            Engine.PrintLine("Model contains no bones, but has one or more controllers.");
+                                            Engine.LogError("Object " + obj._node.Name + " needs bones, but no bones were found.");
                                 }
                                 else
                                 {
@@ -210,7 +212,7 @@ namespace TheraEngine.Rendering.Models
                                 bool zAxis = axisAngle.X == 0.0f && axisAngle.Y == 0.0f && axisAngle.Z == 1.0f;
                                 if (!xAxis && !yAxis && !zAxis)
                                 {
-                                    Engine.PrintLine("Animation rotation axes that are not the unit axes are not supported.");
+                                    Engine.LogError("Animation rotation axes that are not the one of the three unit axes are not supported.");
                                 }
                                 else
                                 {
@@ -267,16 +269,16 @@ namespace TheraEngine.Rendering.Models
                                     }
                                     else
                                     {
-                                        Engine.PrintLine("Generic node selective-rotation animation not supported.");
+                                        Engine.LogError("Non-joint axis-angle rotation animation not supported.");
                                     }
                                 }
                             }
                             else
-                                Engine.PrintLine("ANGLE channel selector expects Node.Rotate element, but got " + target.GetType().GetFriendlyName());
+                                Engine.LogError("ANGLE channel selector expects Node.Rotate element, but got " + target.GetType().GetFriendlyName());
                         }
                         else if (s == Channel.ESelector.TIME)
                         {
-                            Engine.PrintLine("TIME animation selector not supported.");
+                            Engine.LogError("TIME animation selector not supported.");
                         }
                         else
                         {
@@ -332,7 +334,7 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 else
                                 {
-                                    Engine.PrintLine("Generic node selective-translation animation not supported.");
+                                    Engine.LogError("Non-joint single-axis translation animation not supported.");
                                 }
                             }
                             else if (target is Node.Scale scale)
@@ -386,16 +388,16 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 else
                                 {
-                                    Engine.PrintLine("Generic node selective-scale animation not supported.");
+                                    Engine.LogError("Non-joint single-axis scale animation not supported.");
                                 }
                             }
                             else if (target is BaseFXColorTexture.Color color)
                             {
-                                Engine.PrintLine("Reading animation for " + color.GetType().GetFriendlyName() + " is not supported.");
+                                Engine.LogError("Reading animation for " + color.GetType().GetFriendlyName() + " is not supported.");
                             }
                             else
                             {
-                                Engine.PrintLine("Reading selective animation for " + target.GetType().GetFriendlyName());
+                                Engine.LogError("Reading single-axis animation for " + target.GetType().GetFriendlyName() + " is not supported.");
                             }
                         }
                     }
@@ -424,7 +426,7 @@ namespace TheraEngine.Rendering.Models
                                         outTan = outTanData[i];
                                         break;
                                     case PlanarInterpType.CubicBezier:
-                                        Engine.PrintLine("Matrix has bezier interpolation");
+                                        Engine.LogError("Matrix has bezier interpolation");
                                         //inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
                                         //outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
                                         //if (float.IsNaN(inTan) || float.IsInfinity(inTan) || float.IsNaN(outTan) || float.IsInfinity(outTan))
@@ -459,40 +461,40 @@ namespace TheraEngine.Rendering.Models
                         }
                         else
                         {
-                            Engine.PrintLine("Generic node matrix animation not supported.");
+                            Engine.LogError("Non-joint transform matrix animation not supported.");
                         }
                     }
                     else if (target is Node.Translate trans)
                     {
                         if (trans.ParentElement.Type == Node.EType.JOINT)
                         {
-                            Engine.PrintLine("Bone full-translation animation not supported.");
+                            Engine.LogError("Joint all-axes translation animation not supported.");
                         }
                         else
                         {
-                            Engine.PrintLine("Generic node translation animation not supported.");
+                            Engine.LogError("Non-joint all-axes translation animation not supported.");
                         }
                     }
                     else if (target is Node.Rotate rot)
                     {
                         if (rot.ParentElement.Type == Node.EType.JOINT)
                         {
-                            Engine.PrintLine("Bone full-rotation animation not supported.");
+                            Engine.LogError("Joint all-axes rotation animation not supported.");
                         }
                         else
                         {
-                            Engine.PrintLine("Generic node rotation animation not supported.");
+                            Engine.LogError("Non-joint all-axes rotation animation not supported.");
                         }
                     }
                     else if (target is Node.Scale scale)
                     {
                         if (scale.ParentElement.Type == Node.EType.JOINT)
                         {
-                            Engine.PrintLine("Bone full-scale animation not supported.");
+                            Engine.LogError("Joint all-axes scale animation not supported.");
                         }
                         else
                         {
-                            Engine.PrintLine("Generic node scale animation not supported.");
+                            Engine.LogError("Non-joint all-axes scale animation not supported.");
                         }
                     }
                 }
@@ -513,7 +515,6 @@ namespace TheraEngine.Rendering.Models
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
             Matrix4 invParent,
-            Matrix4 rootMatrix,
             List<LightComponent> lights,
             List<Camera> cameras,
             IgnoreFlags ignore)
@@ -521,22 +522,27 @@ namespace TheraEngine.Rendering.Models
             Bone rootBone = null;
 
             Matrix4 nodeMatrix = node.GetTransformMatrix();
-            bindMatrix = rootMatrix * bindMatrix * nodeMatrix;
+            bindMatrix = bindMatrix * nodeMatrix;
 
+            Matrix4 inv = invParent;
             if (node.Type == Node.EType.JOINT)
             {
-                Bone bone = new Bone(node.Name ?? node.ID, Transform.DeriveTRS(rootMatrix * nodeMatrix/*invParent * bindMatrix*/));
+                Bone bone = new Bone(node.Name ?? node.ID, Transform.DeriveTRS(invParent * bindMatrix));
                 node.UserData = bone;
                 if (parent == null)
                     rootBone = bone;
                 else
                     parent.ChildBones.Add(bone);
                 parent = bone;
+                inv = bindMatrix.Inverted();
             }
 
-            Matrix4 inv = bindMatrix.Inverted();
             foreach (Node e in node.NodeElements)
-                EnumNode(parent, e, nodes, objects, bindMatrix, inv, Matrix4.Identity, lights, cameras, ignore);
+            {
+                Bone b = EnumNode(parent, e, nodes, objects, bindMatrix, inv, lights, cameras, ignore);
+                if (rootBone == null && b != null)
+                    rootBone = b;
+            }
 
             foreach (IInstanceElement inst in node.InstanceElements)
             {
@@ -554,12 +560,12 @@ namespace TheraEngine.Rendering.Models
                             if (skin.Source.GetElement(skin.Root) is LibraryGeometries.Geometry geometry)
                                 objects.Add(new ObjectInfo(geometry, skin, bindMatrix, controllerRef, parent, node));
                             else
-                                Engine.PrintLine(skin.Source.URI + " does not point to a valid geometry entry.");
+                                Engine.LogError(skin.Source.URI + " does not point to a valid geometry entry.");
                         }
                         else if (child is LibraryControllers.Controller.Morph morph)
                         {
                             //var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as COLLADA.LibraryGeometries.Geometry;
-                            Engine.PrintLine("Importing morphs is not yet supported.");
+                            Engine.LogError("Importing morphs is not yet supported.");
                         }
                     }
                 }
@@ -572,7 +578,7 @@ namespace TheraEngine.Rendering.Models
                     if (geometry != null)
                         objects.Add(new ObjectInfo(geometry, null, bindMatrix, geomRef, parent, node));
                     else
-                        Engine.PrintLine(geomRef.Url.URI + " does not point to a valid geometry entry.");
+                        Engine.LogError(geomRef.Url.URI + " does not point to a valid geometry entry.");
                    
                 }
                 //Camera?

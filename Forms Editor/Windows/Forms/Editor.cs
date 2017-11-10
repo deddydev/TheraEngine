@@ -438,14 +438,14 @@ namespace TheraEditor.Windows.Forms
         {
 
         }
-
+        
         private void BtPlay_Click(object sender, EventArgs e)
         {
             RenderPanel p = DockableRenderForm.ActiveRenderForm.RenderPanel;
-            p.Focus();
-            p.Capture = true;
-            Cursor.Clip = p.RectangleToScreen(p.ClientRectangle);
+            //p.Focus();
+            //p.Capture = true;
             //Cursor.Hide();
+            Cursor.Clip = p.RectangleToScreen(p.ClientRectangle);
             InputInterface.GlobalRegisters.Add(RegisterInput);
             Engine.SetGameMode(Engine.GetGameMode());
             Engine.SetPaused(false, LocalPlayerIndex.One, true);
@@ -459,11 +459,10 @@ namespace TheraEditor.Windows.Forms
 
         private void EndGameplay()
         {
-            //Cursor.Show();
             Cursor.Clip = new Rectangle();
-            InputInterface.GlobalRegisters.Remove(RegisterInput);
+            //Cursor.Show();
             Engine.World.EndPlay();
-            Engine.SetGameMode(_editorGameMode);
+            Engine.SetGameMode(_editorGameMode, () => InputInterface.GlobalRegisters.Remove(RegisterInput));
             Engine.SetPaused(true, LocalPlayerIndex.One, true);
         }
         

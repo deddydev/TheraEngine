@@ -65,23 +65,23 @@ namespace TheraEngine.Tests
                 "Floor1",
                 floorInfo,
                 new Vec3(5.0f, 0.2f, 5.0f),
-                new Vec3(-5.0f, 0.0f, 0.0f),
-                new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
+                new Vec3(-17.0f, 2.0f, 0.0f),
+                new Rotator(20.0f, -20.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Orange));
             //floorActor1.RootComponent.PhysicsDriver.Kinematic = true;
             BoxActor floorActor2 = new BoxActor(
                 "Floor2",
                 floorInfo,
-                new Vec3(2.0f, 0.3f, 2.0f),
-                new Vec3(0.0f, 0.0f, 0.0f),
+                new Vec3(100.0f, 20.0f, 100.0f),
+                new Vec3(0.0f, -20.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
-                Material.GetLitColorMaterial(Color.Blue));
+                Material.GetLitColorMaterial(Color.FromArgb(180, 200, 230)));
             BoxActor floorActor3 = new BoxActor(
                 "Floor3",
                 floorInfo,
-                new Vec3(3.0f, 5.0f, 2.0f),
-                new Vec3(2.0f, 0.0f, 0.0f),
-                new Rotator(0.0f, 40.0f, 0.0f, RotationOrder.YPR),
+                new Vec3(2.0f, 10.0f, 7.0f),
+                new Vec3(6.0f, 0.0f, 0.0f),
+                new Rotator(-10.0f, 60.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Gray));
             //BoxActor floorActor4 = new BoxActor(
             //    "Floor4",
@@ -133,8 +133,8 @@ namespace TheraEngine.Tests
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
-            StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main1\\landtable.obj"*/"X:\\Repositories\\TheraEngine\\Build\\test\\test.obj", objOptions);
-            Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
+            //StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main1\\landtable.obj"*/"X:\\Repositories\\TheraEngine\\Build\\test\\test.obj", objOptions);
+            //Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
 
             //ModelImportOptions options = new ModelImportOptions()
             //{
@@ -235,18 +235,18 @@ namespace TheraEngine.Tests
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
             spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
 
-            Actor<BlockingVolumeComponent> block = new Actor<BlockingVolumeComponent>(new BlockingVolumeComponent(
-                    new Vec3(50.0f, 10.0f, 50.0f),
-                    new Vec3(0.0f, -10.22f, 0.0f),
-                    Rotator.GetZero(),
-                    CustomCollisionGroup.StaticWorld,
-                    CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld)) { Name = "Floor" };
+            //Actor<BlockingVolumeComponent> block = new Actor<BlockingVolumeComponent>(new BlockingVolumeComponent(
+            //        new Vec3(500.0f, 10.0f, 500.0f),
+            //        new Vec3(0.0f, -10.22f, 0.0f),
+            //        Rotator.GetZero(),
+            //        CustomCollisionGroup.StaticWorld,
+            //        CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld)) { Name = "Floor" };
 
             IActor[] actors = new IActor[]
             {
                 //spotlight,
-                block,
-                testActor,
+                //block,
+                //testActor,
                 floorActor1,
                 floorActor2,
                 floorActor3,

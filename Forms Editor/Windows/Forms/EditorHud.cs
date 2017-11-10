@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms
         Point2PointConstraint _currentConstraint;
         private float _hitDistance;
         private Vec3 _hitPoint;
-        private float _toolSize = 2.0f;
+        private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
         private bool _mouseDown;
         
@@ -216,7 +216,7 @@ namespace TheraEditor.Windows.Forms
             else if (_selectedComponent != null)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
-                if (EditorTransformTool3D.Instance != null)
+                if (EditorTransformTool3D.Instance != null && EditorTransformTool3D.Instance.IsSpawned)
                 {
                     if (EditorTransformTool3D.Instance.MouseMove(cursor, v.Camera, _mouseDown))
                     {
@@ -264,7 +264,7 @@ namespace TheraEditor.Windows.Forms
         public bool UseTransformTool { get; set; } = true;
         public SceneComponent DragComponent { get => _dragComponent; set => _dragComponent = value; }
 
-        public void MouseDown()
+        public async void MouseDown()
         {
             _mouseDown = true;
             _selectedComponent = HighlightedComponent;
@@ -284,6 +284,9 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (_selectedComponent is IPhysicsDrivable d && d.PhysicsDriver.SimulatingPhysics)
                     {
+                        _dragComponent = null;
+                        EditorTransformTool3D.DestroyInstance();
+
                         _pickedBody = d.PhysicsDriver.CollisionObject;
                         _pickedBody.ForceActivationState(ActivationState.DisableDeactivation);
 
@@ -301,6 +304,7 @@ namespace TheraEditor.Windows.Forms
                             EditorTransformTool3D.GetInstance(_selectedComponent, _transformType);
                         else
                         {
+                            EditorTransformTool3D.DestroyInstance();
                             _dragComponent = _selectedComponent;
                             _hitDistance = 20.0f;
                         }
@@ -309,10 +313,11 @@ namespace TheraEditor.Windows.Forms
                     TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
                     if (t != null)
                     {
-                        if (t.TreeView.InvokeRequired)
-                            t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t));
-                        else
-                            t.TreeView.SelectedNode = t;
+                        await Task.Run(() => t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t)));
+                        //if (t.TreeView.InvokeRequired)
+                        //    t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t));
+                        //else
+                        //    t.TreeView.SelectedNode = t;
                     }
                 }
             }

@@ -283,8 +283,8 @@ uniform PointLight PointLights[16];
 //0 is fully in shadow, 1 is fully lit
 float ReadShadowMap(in vec3 fragPos, in vec3 normal, in float diffuseFactor, in BaseLight light)
 {
-    float maxBias = 0.05;
-    float minBias = 0.004;
+    float maxBias = 0.04;
+    float minBias = 0.001;
 
     vec4 fragPosLightSpace = light.WorldToLightSpaceProjMatrix * vec4(fragPos, 1.0);
     vec3 fragCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;

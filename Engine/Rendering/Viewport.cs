@@ -321,12 +321,18 @@ namespace TheraEngine.Rendering
 
         }
 
+        /// <summary>
+        /// Associates the given local player controller with this viewport.
+        /// </summary>
         public void RegisterController(LocalPlayerController controller)
         {
             if (!Owners.Contains(controller))
                 Owners.Add(controller);
             controller.Viewport = this;
         }
+        /// <summary>
+        /// Disassociates the given local player controller with this viewport.
+        /// </summary>
         public void UnregisterController(LocalPlayerController controller)
         {
             if (controller.Viewport != this)

@@ -102,22 +102,22 @@ namespace TheraEngine.GameModes
             set => _disallowPausing = value;
         }
 
-        protected internal abstract void HandleLocalPlayerLeft(LocalPlayerController item);
-        protected internal abstract void HandleLocalPlayerJoined(LocalPlayerController item);
+        //protected internal abstract void HandleLocalPlayerLeft(LocalPlayerController item);
+        //protected internal abstract void HandleLocalPlayerJoined(LocalPlayerController item);
 
         /// <summary>
         /// Creates a local player controller with methods and properties that may pertain to this specific game mode.
         /// </summary>
         /// <param name="index">The player that will provide input to the controller.</param>
         /// <returns>The new local player controller.</returns>
-        protected internal abstract LocalPlayerController CreateLocalController(LocalPlayerIndex index);
+        protected internal abstract void CreateLocalController(LocalPlayerIndex index);
         /// <summary>
         /// Creates a local player controller with methods and properties that may pertain to this specific game mode.
         /// </summary>
         /// <param name="index">The player that will provide input to the controller.</param>
         /// <param name="possessionQueue">The queue of pawns that want to be possessed by the controller.</param>
         /// <returns>The new local player controller.</returns>
-        protected internal abstract LocalPlayerController CreateLocalController(LocalPlayerIndex index, Queue<IPawn> possessionQueue);
+        protected internal abstract void CreateLocalController(LocalPlayerIndex index, Queue<IPawn> possessionQueue);
 
         protected virtual void OnBeginGameplay() { }
         public void BeginGameplay()
@@ -147,13 +147,13 @@ namespace TheraEngine.GameModes
                 mice.Any(x => x != null) ||
                 gamepads.Any(x => x != null && x.Index == 0))
             {
-                Engine.ActivePlayers.Add(CreateLocalController(LocalPlayerIndex.One));
+                CreateLocalController(LocalPlayerIndex.One);
             }
             for (int i = 0; i < 4; ++i)
             {
                 InputDevice gp = gamepads[i];
                 if (gp != null && gp.Index > 0)
-                    Engine.ActivePlayers.Add(CreateLocalController(LocalPlayerIndex.One + gp.Index));
+                    CreateLocalController(LocalPlayerIndex.One + gp.Index);
             }
         }
     }
@@ -177,11 +177,11 @@ namespace TheraEngine.GameModes
 
         public int _numSpectators, _numPlayers, _numComputers;
         
-        protected internal override void HandleLocalPlayerLeft(LocalPlayerController item)
+        protected internal virtual void HandleLocalPlayerLeft(ControllerType item)
         {
             RenderPanel.GamePanel?.UnregisterController(item);
         }
-        protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
+        protected internal virtual void HandleLocalPlayerJoined(ControllerType item)
         {
             RenderPanel p = RenderPanel.GamePanel;
             if (p != null)
@@ -197,9 +197,17 @@ namespace TheraEngine.GameModes
                 item.EnqueuePosession(pawn);
             Engine.World.SpawnActor(pawn);
         }
-        protected internal override LocalPlayerController CreateLocalController(LocalPlayerIndex index, Queue<IPawn> queue)
-            => ControllerClass.CreateNew(index, queue);
-        protected internal override LocalPlayerController CreateLocalController(LocalPlayerIndex index)
-            => ControllerClass.CreateNew(index);
+        protected internal override void CreateLocalController(LocalPlayerIndex index, Queue<IPawn> queue)
+        {
+            ControllerType t = ControllerClass.CreateNew(index, queue);
+            Engine.ActivePlayers.Add(t);
+            HandleLocalPlayerJoined(t);
+        }
+        protected internal override void CreateLocalController(LocalPlayerIndex index)
+        {
+            ControllerType t = ControllerClass.CreateNew(index);
+            Engine.ActivePlayers.Add(t);
+            HandleLocalPlayerJoined(t);
+        }
     }
 }

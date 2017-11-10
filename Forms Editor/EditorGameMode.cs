@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEditor.Windows.Forms;
-using TheraEngine;
+﻿using TheraEditor.Windows.Forms;
 using TheraEngine.GameModes;
-using TheraEngine.Input;
-using TheraEngine.Rendering;
-using TheraEngine.Tests;
 using TheraEngine.Worlds.Actors;
 
 namespace TheraEditor
 {
-    public class EditorGameMode : GameMode<FlyingCameraPawn, LocalPlayerController>
+    public class EditorGameMode : GameMode<FlyingCameraPawn, EditorPlayerController>
     {
-        protected override void HandleLocalPlayerJoined(LocalPlayerController item)
+        protected override void HandleLocalPlayerJoined(EditorPlayerController item)
         {
             if (item.LocalPlayerIndex != LocalPlayerIndex.One)
                 return;
@@ -23,8 +14,8 @@ namespace TheraEditor
             DockableRenderForm form = DockableRenderForm.ActiveRenderForm;
             if (form != null)
             {
-                item.ControlledPawn = form.EditorPawn;
                 form.RenderPanel.GetViewport(0)?.RegisterController(item);
+                item.ControlledPawn = form.EditorPawn;
             }
         }
         

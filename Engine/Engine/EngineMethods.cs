@@ -153,14 +153,14 @@ namespace TheraEngine
         
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
-            ActiveGameMode?.HandleLocalPlayerLeft(item);
+            //ActiveGameMode?.HandleLocalPlayerLeft(item);
 
             //TODO: remove controller from the server
         }
 
         private static void ActivePlayers_Added(LocalPlayerController item)
         {
-            ActiveGameMode?.HandleLocalPlayerJoined(item);
+            //ActiveGameMode?.HandleLocalPlayerJoined(item);
 
             //TODO: create controller on the server
         }
@@ -448,12 +448,14 @@ namespace TheraEngine
             if (unloadPrevious)
                 previous?.Unload();
         }
-        public static void SetGameMode(BaseGameMode mode)
+        public static void SetGameMode(BaseGameMode mode) => SetGameMode(mode, null);
+        public static void SetGameMode(BaseGameMode mode, Action beforeBeginGameplay)
         {
             if (Game != null)
             {
                 ActiveGameMode?.EndGameplay();
                 Game.State.GameMode.File = mode;
+                beforeBeginGameplay?.Invoke();
                 ActiveGameMode?.BeginGameplay();
             }
         }
@@ -514,17 +516,15 @@ namespace TheraEngine
             {
                 if (ActivePlayers.Count == 0)
                 {
-                    LocalPlayerController controller;
                     LocalPlayerIndex index = LocalPlayerIndex.One;
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
-                        _possessionQueues.Remove(controller.LocalPlayerIndex);
+                        ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
+                        _possessionQueues.Remove(index);
                     }
                     else
-                        controller = ActiveGameMode?.CreateLocalController(index);
-                    ActivePlayers.Add(controller);
+                        ActiveGameMode?.CreateLocalController(index);
                 }
                 else
                     ActivePlayers[0].Input.UpdateDevices();
@@ -533,17 +533,15 @@ namespace TheraEngine
             {
                 if (device.Index >= ActivePlayers.Count)
                 {
-                    LocalPlayerController controller;
                     LocalPlayerIndex index = (LocalPlayerIndex)ActivePlayers.Count;
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
-                        _possessionQueues.Remove(controller.LocalPlayerIndex);
+                        ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
+                        _possessionQueues.Remove(index);
                     }
                     else
-                        controller = ActiveGameMode?.CreateLocalController(index);
-                    ActivePlayers.Add(controller);
+                        ActiveGameMode?.CreateLocalController(index);
                 }
                 else
                     ActivePlayers[device.Index].Input.UpdateDevices();

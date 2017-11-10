@@ -29,10 +29,8 @@ namespace TheraEngine.GameModes
 
         }
         
-        protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
+        protected internal override void HandleLocalPlayerJoined(ControllerType item)
         {
-            //base.HandleLocalPlayerJoined(item);
-
             RenderPanel p = RenderPanel.GamePanel;
             if (p != null)
             {

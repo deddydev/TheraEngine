@@ -2,7 +2,7 @@
 
 namespace System.Collections.Generic
 {
-    public class MonitoredList<T> : ThreadSafeList<T>
+    public class MonitoredList<T> : ThreadSafeList<T>, IList
     {
         public delegate void SingleHandler(T item);
         public delegate void MultiHandler(IEnumerable<T> items);
@@ -38,7 +38,7 @@ namespace System.Collections.Generic
         public MonitoredList(IEnumerable<T> list) => AddRange(list);
         public MonitoredList(IEnumerable<T> list, bool allowDuplicates) : this(allowDuplicates) => AddRange(list);
         public MonitoredList(int capacity) : base(capacity) { }
-
+        
         public new void Add(T item) => Add(item, true, true);
         public void Add(T item, bool reportAdded, bool reportModified)
         {
@@ -319,5 +319,24 @@ namespace System.Collections.Generic
             if (report)
                 PostModified?.Invoke();
         }
+
+        object IList.this[int index]
+        {
+            get => this[index];
+            set => this[index] = (T)value;
+        }
+        bool IList.IsReadOnly => false;
+        bool IList.IsFixedSize => false;
+        int IList.Add(object value)
+        {
+            Add((T)value);
+            return Count - 1;
+        }
+        void IList.Clear() => Clear();
+        bool IList.Contains(object value) => Contains((T)value);
+        int IList.IndexOf(object value) => IndexOf((T)value);
+        void IList.Insert(int index, object value) => Insert(index, (T)value);
+        void IList.Remove(object value) => Remove((T)value);
+        void IList.RemoveAt(int index) => RemoveAt(index);
     }
 }

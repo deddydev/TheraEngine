@@ -188,6 +188,20 @@ namespace TheraEngine.Worlds.Actors
                     {
                         if (callback.ClosestHitFraction.IsZero())
                         {
+                            Vec3 n = callback.HitNormalWorld;
+                            finalInput.Normalize();
+                            float dot = n | finalInput;
+                            if (dot < 0.0f)
+                            {
+                                //running left is up, right is down
+                                Vec3 up = finalInput ^ n;
+                                Vec3 newMovement = n ^ up;
+                                if (!newMovement.Equals(movementInput, 0.0001f))
+                                {
+                                    movementInput = newMovement;
+                                    continue;
+                                }
+                            }
                             break;
                         }
 

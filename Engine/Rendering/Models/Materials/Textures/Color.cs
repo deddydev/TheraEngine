@@ -11,11 +11,143 @@ namespace System
 {
     public interface IByteColor
     {
-        //TODO: use ColorF4 for maximum quality
         Color Color { get; set; }
     }
-    //[TypeConverter(typeof(ColorF4StringConverter))]
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    public interface IFloatColor
+    {
+        ColorF4 Color { get; set; }
+    }
+
+    public class EventColorF4 : IByteColor
+    {
+        public event Action RedChanged;
+        public event Action GreenChanged;
+        public event Action BlueChanged;
+        public event Action AlphaChanged;
+        public event FloatChange RedValueChanged;
+        public event FloatChange GreenValueChanged;
+        public event FloatChange BlueValueChanged;
+        public event FloatChange AlphaValueChanged;
+        public event Action Changed;
+
+        ColorF4 _raw;
+        private float _oldR, _oldG, _oldB, _oldA;
+        
+        public EventColorF4(ColorF4 rgba)
+        {
+            _raw = rgba;
+        }
+
+        public void SetRawNoUpdate(ColorF4 raw)
+        {
+            _raw = raw;
+        }
+
+        [Browsable(false)]
+        public ColorF4 Raw
+        {
+            get => _raw;
+            set => _raw = value;
+        }
+
+        private void BeginUpdate()
+        {
+            _oldR = R;
+            _oldG = G;
+            _oldB = B;
+            _oldA = A;
+        }
+        private void EndUpdate()
+        {
+            bool changed = false;
+            if (R != _oldR)
+            {
+                changed = true;
+                RedChanged?.Invoke();
+                RedValueChanged?.Invoke(R, _oldR);
+            }
+            if (G != _oldG)
+            {
+                changed = true;
+                GreenChanged?.Invoke();
+                GreenValueChanged?.Invoke(G, _oldG);
+            }
+            if (B != _oldB)
+            {
+                changed = true;
+                BlueChanged?.Invoke();
+                BlueValueChanged?.Invoke(B, _oldB);
+            }
+            if (A != _oldA)
+            {
+                changed = true;
+                AlphaChanged?.Invoke();
+                AlphaValueChanged?.Invoke(A, _oldA);
+            }
+            if (changed)
+                Changed?.Invoke();
+        }
+
+        public float R
+        {
+            get => _raw.R;
+            set
+            {
+                BeginUpdate();
+                _raw.R = value;
+                EndUpdate();
+            }
+        }
+        public float G
+        {
+            get => _raw.G;
+            set
+            {
+                BeginUpdate();
+                _raw.G = value;
+                EndUpdate();
+            }
+        }
+        public float B
+        {
+            get => _raw.B;
+            set
+            {
+                BeginUpdate();
+                _raw.B = value;
+                EndUpdate();
+            }
+        }
+        public float A
+        {
+            get => _raw.A;
+            set
+            {
+                BeginUpdate();
+                _raw.A = value;
+                EndUpdate();
+            }
+        }
+        public string HexCode
+        {
+            get => _raw.HexCode;
+            set
+            {
+                BeginUpdate();
+                _raw.HexCode = value;
+                EndUpdate();
+            }
+        }
+
+        public override string ToString() => _raw.ToString();
+
+        [Browsable(false)]
+        public Color Color { get => _raw.Color; set => _raw.Color = value; }
+
+        public static implicit operator ColorF4(EventColorF4 v) => v._raw;
+        public static implicit operator EventColorF4(ColorF4 v) => new EventColorF4(v);
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ColorF4 : IUniformable4Float, IBufferable, IByteColor
     {
@@ -132,9 +264,7 @@ namespace System
             return String.Format("[R:{0},G:{1},B:{2},A:{3}]", R, G, B, A);
         }
     }
-
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    
     public class EventColorF3 : IByteColor
     {
         public event Action RedChanged;
@@ -248,9 +378,7 @@ namespace System
         public static implicit operator ColorF3(EventColorF3 v) { return v._raw; }
         public static implicit operator EventColorF3(ColorF3 v) { return new EventColorF3(v); }
     }
-
-    //[TypeConverter(typeof(ColorF3StringConverter))]
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ColorF3 : IUniformable3Float, IBufferable, IByteColor, IParsable
     {
@@ -352,8 +480,7 @@ namespace System
         [Browsable(false)]
         public Color Color { get => (Color)this; set => this = (ColorF3)value; }
     }
-
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct RGBAPixel : IBufferable, IByteColor
     {
@@ -377,7 +504,7 @@ namespace System
         [Browsable(false)]
         public Color Color { get => this; set => this = value; }
     }
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct RGBPixel : IBufferable, IByteColor
     {
@@ -402,8 +529,7 @@ namespace System
         [Browsable(false)]
         public Color Color { get => this; set => this = (RGBPixel)value; }
     }
-
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ARGBPixel
     {
@@ -513,8 +639,7 @@ namespace System
             return new ARGBPixel(A, (byte)Math.Max(R - amount, 0), (byte)Math.Max(G - amount, 0), (byte)Math.Max(B - amount, 0));
         }
     }
-
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct HSVPixel
     {

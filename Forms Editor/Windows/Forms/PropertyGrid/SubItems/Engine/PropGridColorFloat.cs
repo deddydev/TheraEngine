@@ -11,12 +11,18 @@ using TheraEngine.Files;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(ColorF4), typeof(ColorF3))]
+    [PropGridItem(
+        typeof(ColorF4),
+        typeof(EventColorF4),
+        typeof(ColorF3),
+        typeof(EventColorF3))]
     public partial class PropGridFloatColor : PropGridItem
     {
         public PropGridFloatColor() => InitializeComponent();
         
         object _previousColor;
+        EventColorF3 _colorF3;
+        EventColorF3 _colorF4;
 
         protected override void UpdateDisplayInternal()
         {
@@ -32,6 +38,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else if (DataType == typeof(ColorF4))
             {
                 ColorF4 color = (ColorF4)value;
+                panel1.BackColor = color.Color;
+                colorControl1.EditAlpha = true;
+                colorControl1.Color = color.Color;
+            }
+            else if (DataType == typeof(EventColorF3))
+            {
+                EventColorF3 color = (EventColorF3)value;
+                panel1.BackColor = color.Color;
+                colorControl1.EditAlpha = false;
+                colorControl1.Color = color.Color;
+            }
+            else if (DataType == typeof(EventColorF4))
+            {
+                EventColorF4 color = (EventColorF4)value;
                 panel1.BackColor = color.Color;
                 colorControl1.EditAlpha = true;
                 colorControl1.Color = color.Color;
@@ -106,6 +126,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else if (DataType == typeof(ColorF4))
             {
                 ColorF4 color = newColor;
+                panel1.BackColor = newColor;
+                UpdateValue(color);
+            }
+            else if (DataType == typeof(EventColorF3))
+            {
+                EventColorF3 color = newColor;
+                panel1.BackColor = color.Color;
+                UpdateValue(color);
+            }
+            else if (DataType == typeof(EventColorF4))
+            {
+                EventColorF4 color = newColor;
                 panel1.BackColor = newColor;
                 UpdateValue(color);
             }

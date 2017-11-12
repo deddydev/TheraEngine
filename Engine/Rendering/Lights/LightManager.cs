@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering
         
         internal void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", Engine.World.Settings.GlobalAmbient);
+            Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", Engine.World.Settings.File.GlobalAmbient);
             Engine.Renderer.Uniform(programBindingId, "DirLightCount", _directionalLights.Count.Clamp(0, MaxDirectionalLights));
             Engine.Renderer.Uniform(programBindingId, "PointLightCount", _pointLights.Count.Clamp(0, MaxPointLights));
             Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count.Clamp(0, MaxSpotLights));

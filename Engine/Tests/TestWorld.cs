@@ -18,7 +18,7 @@ namespace TheraEngine.Tests
 {
     public unsafe class TestWorld : World
     {
-        protected override void OnLoaded()
+        internal protected override void OnLoaded()
         {
             _settings = new WorldSettings("TestWorld");
             Random r = new Random();
@@ -250,7 +250,7 @@ namespace TheraEngine.Tests
                      Core.Files.IgnoreFlags.Lights |
                      Core.Files.IgnoreFlags.Cameras |
                      Core.Files.IgnoreFlags.Animations,
-                InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(20.0f), TransformOrder.TRS),
+                InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
             
             var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
@@ -278,9 +278,9 @@ namespace TheraEngine.Tests
                 //new CharacterPawn(PlayerIndex.Two, ColladaScene?.SkeletalModel, ColladaScene?.Skeleton) { Name = "PlayerCharacter", },
             };
 
-            _settings.GameModeOverride = new TestGameMode();// new GameMode<FlyingCameraPawn>();
-            _settings.Maps.Add(new Map(this, new MapSettings(actors)));
-            _settings.Maps[0].Settings.DefaultActors.AddRange(array);
+            _settings.File.GameModeOverride = new TestGameMode();// new GameMode<FlyingCameraPawn>();
+            _settings.File.Maps.Add(new Map(this, new MapSettings(actors)));
+            _settings.File.Maps[0].File.Settings.DefaultActors.AddRange(array);
 
             //Export(Engine.ContentFolderAbs, "TestWorld", FileFormat.XML);
 

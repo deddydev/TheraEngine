@@ -16,7 +16,7 @@ namespace TheraEngine.Worlds.Actors
         }
         public void OnOverlapLeft(IPhysicsDrivable driver)
         {
-            driver.PhysicsDriver.CollisionObject.Gravity = Engine.World.Settings.Gravity;
+            driver.PhysicsDriver.CollisionObject.Gravity = Engine.World.Settings.File.Gravity;
         }
     }
 }

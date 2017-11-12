@@ -10,7 +10,7 @@ using System.Linq;
 namespace TheraEngine.Rendering
 {
     /// <summary>
-    /// Use for calculating something right before anything in the scene is rendered.
+    /// Use for calculating something right before *anything* in the scene is rendered.
     /// Generally used for setting up data for a collection of sub-renderables just before they are rendered separately.
     /// </summary>
     public interface IPreRenderNeeded
@@ -152,7 +152,7 @@ namespace TheraEngine.Rendering
                 return;
             }
 
-            _renderTree = new Octree(Engine.World.Settings.Bounds);
+            _renderTree = new Octree(Engine.World.Settings.File.Bounds);
             //_renderTree.ItemRenderChanged += RenderModified;
             _lightManager = new LightManager();
             _passes = new RenderPasses();

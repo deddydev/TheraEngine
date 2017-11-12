@@ -111,7 +111,7 @@ namespace TheraEngine
         internal DelPointConvert PointToScreenDelegate;
 
         private bool _resizing = false;
-        private VSyncMode _vsyncMode = VSyncMode.Adaptive;
+        private VSyncMode _vsyncMode = VSyncMode.Disabled;
         internal RenderContext _context;
         private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>(MaxViewports);

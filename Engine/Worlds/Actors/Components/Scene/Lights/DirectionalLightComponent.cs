@@ -69,7 +69,7 @@ namespace TheraEngine.Worlds.Actors
             {
                 Engine.Scene.Lights.Add(this);
 
-                _worldRadius = Engine.World.Settings.Bounds.HalfExtents.LengthFast;
+                _worldRadius = Engine.World.Settings.File.Bounds.HalfExtents.LengthFast;
                 SetShadowMapResolution(4096, 4096);
                 _shadowCamera.LocalPoint.Raw = GetWorldPoint();
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius + 1.0f);

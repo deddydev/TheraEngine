@@ -127,8 +127,8 @@ namespace TheraEditor.Windows.Forms
             GenerateInitialActorList();
             if (Engine.World != null)
             {
-                Engine.World.State.SpawnedActors.PostAdded += SpawnedActors_PostAdded;
-                Engine.World.State.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
+                Engine.World.State.File.SpawnedActors.PostAdded += SpawnedActors_PostAdded;
+                Engine.World.State.File.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
             }
         }
 
@@ -212,7 +212,7 @@ namespace TheraEditor.Windows.Forms
             }
             ActorTreeForm.ActorTree.Nodes.Clear();
             if (Engine.World != null)
-                ActorTreeForm.ActorTree.Nodes.AddRange(Engine.World.State.SpawnedActors.Select(x => x.EditorState.TreeNode = new TreeNode(x.ToString()) { Tag = x }).ToArray());
+                ActorTreeForm.ActorTree.Nodes.AddRange(Engine.World.State.File.SpawnedActors.Select(x => x.EditorState.TreeNode = new TreeNode(x.ToString()) { Tag = x }).ToArray());
         }
         private void SpawnedActors_PostAdded(IActor item)
         {

@@ -33,7 +33,7 @@ namespace TheraEditor
         {
             Engine.Settings.RenderSkeletons = !Engine.Settings.RenderSkeletons;
 
-            TestCharacter t = Engine.World.State.GetSpawnedActorsOfType<TestCharacter>().ToArray()[0];
+            TestCharacter t = Engine.World.State.File.GetSpawnedActorsOfType<TestCharacter>().ToArray()[0];
             SkeletalMeshComponent skm = t.RootComponent.ChildComponents[0] as SkeletalMeshComponent;
 
             if (skm.Skeleton.IsLoaded)
@@ -48,7 +48,7 @@ namespace TheraEditor
         {
             Engine.Settings.RenderCameraFrustums = !Engine.Settings.RenderCameraFrustums;
 
-            TestCharacter t = Engine.World.State.GetSpawnedActorsOfType<TestCharacter>().ToArray()[0];
+            TestCharacter t = Engine.World.State.File.GetSpawnedActorsOfType<TestCharacter>().ToArray()[0];
             CameraComponent c = t.RootComponent.ChildComponents[1].ChildComponents[0].ChildComponents[0] as CameraComponent;
 
             if (c.Camera.IsLoaded)

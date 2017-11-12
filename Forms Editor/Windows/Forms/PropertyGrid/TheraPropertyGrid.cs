@@ -221,7 +221,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             if (controlTypes.Count == 0)
             {
-                Engine.LogError("Unable to find control for " + propertyType == null ? "null" : propertyType.GetFriendlyName());
+                Engine.LogWarning("Unable to find control for " + propertyType == null ? "null" : propertyType.GetFriendlyName());
                 controlTypes.PushBack(typeof(PropGridText));
             }
             return controlTypes;

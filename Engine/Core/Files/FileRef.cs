@@ -127,7 +127,7 @@ namespace TheraEngine.Files
             File = file;
         }
 
-        //[Browsable(false)]
+        [BrowsableIf("_file != null")]
         public T File
         {
             get => GetInstance();
@@ -194,15 +194,15 @@ namespace TheraEngine.Files
             {
                 if (_subType.IsAbstract)
                 {
-                    Engine.LogError("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
+                    Engine.LogWarning("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
                 }
                 else if (_subType.IsInterface)
                 {
-                    Engine.LogError("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
+                    Engine.LogWarning("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
                 }
                 else if (_subType.GetConstructor(new Type[0]) == null)
                 {
-                    Engine.LogError("Can't automatically instantiate a class with no parameterless constructor: " + _subType.GetFriendlyName());
+                    Engine.LogWarning("Can't automatically instantiate a class with no parameterless constructor: " + _subType.GetFriendlyName());
                 }
                 else
                     file = Activator.CreateInstance(_subType) as T;
@@ -257,7 +257,7 @@ namespace TheraEngine.Files
             if (typeof(T).IsAssignableFrom(type))
                 _subType = type;
             else
-                throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
+                throw new Exception(type.ToString() + " is not assignable to " + typeof(T).ToString());
         }
         public FileRef(string filePath)
         {
@@ -268,10 +268,10 @@ namespace TheraEngine.Files
         }
         public FileRef(string filePath, Type type)
         {
-            if (type.IsSubclassOf(typeof(T)))
+            if (typeof(T).IsAssignableFrom(type))
                 _subType = type;
             else
-                throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
+                throw new Exception(type.ToString() + " is not assignable to " + typeof(T).ToString());
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
             ReferencePath = filePath;

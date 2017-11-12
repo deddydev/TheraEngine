@@ -15,22 +15,22 @@ namespace System
         
         public int ElementCount
         {
-            get { return _elementCount; }
-            set { _elementCount = value; }
+            get => _elementCount;
+            set => _elementCount = value;
         }
         public int DataLength
         {
-            get { return _dataLength; }
-            set { _dataLength = value; }
+            get => _dataLength;
+            set => _dataLength = value;
         }
         public float Divisor
         {
-            get { return _divisor; }
-            set { _divisor = value; }
+            get => _divisor;
+            set => _divisor = value;
         }
         public int BitCount
         {
-            get { return (int)_flags[7, 5]; }
+            get => (int)_flags[7, 5];
             set
             {
                 if (value < 1 || value > 32)

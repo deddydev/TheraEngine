@@ -38,7 +38,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             tblProps.RowStyles.Clear();
             tblProps.RowCount = 0;
         }
-        public void AddProperty(List<PropGridItem> editors, object[] attributes)
+        public Label AddProperty(List<PropGridItem> editors, object[] attributes)
         {
             var displayNameAttrib = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
             var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
@@ -67,8 +67,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 AutoSize = true,
                 ForeColor = Color.FromArgb(200, 200, 220),
                 Dock = DockStyle.Fill,
-                Padding = new Padding(0),
-                Margin = new Padding(3, 0, 3, 0),
+                Padding = new Padding(3, 0, 3, 0),
+                Margin = new Padding(0),
                 Tag = desc,
             };
             label.MouseEnter += Label_MouseEnter;
@@ -105,6 +105,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.Padding = new Padding(0);
                 tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
             }
+
+            return label;
         }
 
         private void Label_MouseLeave(object sender, EventArgs e)

@@ -68,7 +68,7 @@ namespace TheraEngine.Tests
                 new Vec3(50.0f, 0.2f, 50.0f),
                 new Vec3(0.0f, 0.0f, 0.0f),
                 new Rotator(00.0f, 0.0f, 0.0f, RotationOrder.YPR),
-                Material.GetLitColorMaterial(Color.Orange));
+                Material.GetLitColorMaterial(Color.FromArgb(180, 200, 230)));
             //floorActor1.RootComponent.PhysicsDriver.Kinematic = true;
             BoxActor floorActor2 = new BoxActor(
                 "Floor2",
@@ -267,7 +267,7 @@ namespace TheraEngine.Tests
                 //floorActor2,
                 //floorActor3,
                 //floorActor4,
-                //dirLightActor,
+                dirLightActor,
                 //skybox,
                 //splineActor,
                 //cam,

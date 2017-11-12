@@ -75,7 +75,7 @@ namespace TheraEngine.Worlds.Actors
                 _outerCutoff = (float)Math.Cos(rad);
                 _outerCone.Radius = (float)Math.Tan(rad) * _distance;
 
-                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f;
+                _shadowCamera.VerticalFieldOfView = Math.Max(value, InnerCutoffAngleDegrees) * 2.0f;
             }
         }
         [Category("Spotlight Component")]
@@ -88,7 +88,7 @@ namespace TheraEngine.Worlds.Actors
                 _innerCutoff = (float)Math.Cos(rad);
                 _innerCone.Radius = (float)Math.Tan(rad) * _distance;
 
-                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f;
+                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, value) * 2.0f;
             }
         }
 
@@ -143,7 +143,7 @@ namespace TheraEngine.Worlds.Actors
 
             if (_shadowCamera != null)
             {
-                _shadowCamera.LocalRotation.SetRotationsNoUpdate(_rotation);
+                _shadowCamera.LocalRotation.SetRotations(_rotation);
                 _shadowCamera.LocalPoint.Raw = _translation;
             }
 

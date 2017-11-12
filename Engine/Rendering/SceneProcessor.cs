@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         OpaqueDeferredLit,
         /// <summary>
-        /// Use for any opaque objects that you need special lighting for (or not lighting at all).
+        /// Use for any opaque objects that you need special lighting for (or no lighting at all).
         /// </summary>
         OpaqueForward,
         /// <summary>

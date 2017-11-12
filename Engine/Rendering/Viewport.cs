@@ -390,7 +390,7 @@ namespace TheraEngine.Rendering
 
                         //Render forward opaque objects first
                         scene.Render(ERenderPassType3D.OpaqueForward);
-                        Engine.World.PhysicsScene.DebugDrawWorld();
+                        //Engine.World.PhysicsScene.DebugDrawWorld();
                         //Render forward transparent objects next
                         scene.Render(ERenderPassType3D.TransparentForward);
                         //Render forward on-top objects last

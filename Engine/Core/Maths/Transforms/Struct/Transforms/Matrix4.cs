@@ -617,14 +617,14 @@ namespace System
         {
             fovy = DegToRad(fovy);
 
-            if (fovy <= 0 || fovy > PI)
-                throw new ArgumentOutOfRangeException("fovy");
-            if (aspect <= 0)
-                throw new ArgumentOutOfRangeException("aspect");
-            if (zNear <= 0)
-                throw new ArgumentOutOfRangeException("zNear");
-            if (zFar <= 0)
-                throw new ArgumentOutOfRangeException("zFar");
+            //if (fovy <= 0 || fovy > PI)
+            //    throw new ArgumentOutOfRangeException("fovy");
+            //if (aspect <= 0)
+            //    throw new ArgumentOutOfRangeException("aspect");
+            //if (zNear <= 0)
+            //    throw new ArgumentOutOfRangeException("zNear");
+            //if (zFar <= 0)
+            //    throw new ArgumentOutOfRangeException("zFar");
 
             float yMax = zNear * (float)Tan(0.5f * fovy);
             float yMin = -yMax;
@@ -637,14 +637,14 @@ namespace System
         {
             fovy = DegToRad(fovy);
 
-            if (fovy <= 0 || fovy > PI)
-                throw new ArgumentOutOfRangeException("fovy");
-            if (aspect <= 0)
-                throw new ArgumentOutOfRangeException("aspect");
-            if (zNear <= 0)
-                throw new ArgumentOutOfRangeException("zNear");
-            if (zFar <= 0)
-                throw new ArgumentOutOfRangeException("zFar");
+            //if (fovy <= 0 || fovy > PI)
+            //    throw new ArgumentOutOfRangeException("fovy");
+            //if (aspect <= 0)
+            //    throw new ArgumentOutOfRangeException("aspect");
+            //if (zNear <= 0)
+            //    throw new ArgumentOutOfRangeException("zNear");
+            //if (zFar <= 0)
+            //    throw new ArgumentOutOfRangeException("zFar");
 
             float yMax = zNear * (float)Tan(0.5f * fovy);
             float yMin = -yMax;
@@ -673,12 +673,12 @@ namespace System
         /// </exception>
         public static Matrix4 CreatePerspectiveOffCenter(float left, float right, float bottom, float top, float zNear, float zFar)
         {
-            if (zNear <= 0)
-                throw new ArgumentOutOfRangeException("zNear");
-            if (zFar <= 0)
-                throw new ArgumentOutOfRangeException("zFar");
-            if (zNear >= zFar)
-                throw new ArgumentOutOfRangeException("zNear");
+            //if (zNear <= 0)
+            //    throw new ArgumentOutOfRangeException("zNear");
+            //if (zFar <= 0)
+            //    throw new ArgumentOutOfRangeException("zFar");
+            //if (zNear >= zFar)
+            //    throw new ArgumentOutOfRangeException("zNear");
 
             float x = (2.0f * zNear) / (right - left);
             float y = (2.0f * zNear) / (top - bottom);

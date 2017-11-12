@@ -6,7 +6,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors
 {
-    [FileClass("plc", "Point Light Component")]
+    [FileClass("cpointlight", "Point Light Component")]
     public class PointLightComponent : LightComponent
     {
         [Category("Point Light Component")]

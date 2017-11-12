@@ -57,7 +57,10 @@ namespace TheraEngine.Rendering
             _spotLights.Add(light);
 
             if (Engine.Settings.RenderLights)
-                Engine.Scene.Add(light._cullingVolume);
+            {
+                Engine.Scene.Add(light._outerCone);
+                Engine.Scene.Add(light._innerCone);
+            }
         }
         internal void Remove(SpotLightComponent light)
         {
@@ -65,7 +68,10 @@ namespace TheraEngine.Rendering
             light.LightIndex = -1;
 
             if (Engine.Settings.RenderLights)
-                Engine.Scene.Remove(light._cullingVolume);
+            {
+                Engine.Scene.Remove(light._outerCone);
+                Engine.Scene.Remove(light._innerCone);
+            }
         }
         internal void Add(PointLightComponent light)
         {

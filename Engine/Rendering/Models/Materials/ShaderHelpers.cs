@@ -365,9 +365,271 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, floa
 }
 ";
         }
+        public static string LightingDeclPhysicallyBased()
+        {
+            return @"
+
+struct BaseLight
+{
+    vec3 Color;
+    float DiffuseIntensity;
+    float AmbientIntensity;
+    mat4 WorldToLightSpaceProjMatrix;
+    sampler2D ShadowMap;
+};
+struct DirLight
+{
+    BaseLight Base;
+    vec3 Direction;
+};
+struct PointLight
+{
+    BaseLight Base;
+    vec3 Position;
+    float Radius;
+    float Brightness;
+};
+struct SpotLight
+{
+    PointLight Base;
+    vec3 Direction;
+    float InnerCutoff;
+    float OuterCutoff;
+    float Exponent;
+};
+
+uniform vec3 GlobalAmbient;
+
+uniform int DirLightCount; 
+uniform DirLight DirectionalLights[2];
+
+uniform int SpotLightCount;
+uniform SpotLight SpotLights[16];
+
+uniform int PointLightCount;
+uniform PointLight PointLights[16];
+
+//0 is fully in shadow, 1 is fully lit
+float ReadShadowMap(in vec3 fragPos, in vec3 normal, in float diffuseFactor, in BaseLight light)
+{
+    float maxBias = 0.04;
+    float minBias = 0.001;
+
+    vec4 fragPosLightSpace = light.WorldToLightSpaceProjMatrix * vec4(fragPos, 1.0);
+    vec3 fragCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    fragCoord = fragCoord * vec3(0.5) + vec3(0.5);
+    float bias = max(maxBias * -diffuseFactor, minBias);
+
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(light.ShadowMap, 0);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(light.ShadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
+            shadow += fragCoord.z - bias > pcfDepth ? 0.0 : 1.0;        
+        }    
+    }
+    shadow *= 0.111111111; //divided by 9
+    return shadow;
+}
+
+float Attenuate(in float dist, in float radius)
+{
+    return " + GetLightFalloff("radius", "dist") + @"
+}
+
+vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
+{
+    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity);
+    vec3 DiffuseColor = vec3(0.0);
+    vec3 SpecularColor = vec3(0.0);
+
+    float DiffuseFactor = dot(normal, -lightDirection);
+    if (DiffuseFactor > 0.0)
+    {
+        DiffuseColor = light.Color * light.DiffuseIntensity * albedo * DiffuseFactor;
+
+        vec3 posToEye = normalize(CameraPosition - fragPos);
+        vec3 reflectDir = reflect(lightDirection, normal);
+        float SpecularFactor = dot(posToEye, reflectDir);
+        if (SpecularFactor > 0.0)
+        {
+            SpecularColor = light.Color * spec * pow(SpecularFactor, 64.0);
+        }
+    }
+
+    float shadow = ReadShadowMap(fragPos, normal, DiffuseFactor, light);
+    return (AmbientColor + (DiffuseColor + SpecularColor) * shadow) * ambientOcclusion;
+}
+
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
+{
+    return CalcColor(light.Base, light.Direction, normal, fragPos, albedo, spec, ambientOcclusion);
+}
+
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
+{
+    vec3 lightToPos = fragPos - light.Position;
+    return Attenuate(length(lightToPos), light.Radius) * CalcColor(light.Base, normalize(lightToPos), normal, fragPos, albedo, spec, ambientOcclusion);
+} 
+
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
+{
+    //if (light.OuterCutoff <= 1.5707) //~90 degrees in radians
+    {
+        vec3 lightToPos = normalize(fragPos - light.Base.Position);
+        float clampedCosine = max(0.0, dot(lightToPos, normalize(light.Direction)));
+        float spotEffect = smoothstep(light.OuterCutoff, light.InnerCutoff, clampedCosine);
+	    //if (clampedCosine >= light.OuterCutoff)
+        {
+            vec3 lightToPos = fragPos - light.Base.Position;
+            float spotAttn = pow(clampedCosine, light.Exponent);
+            float distAttn = Attenuate(length(lightToPos) / light.Base.Brightness, light.Base.Radius);
+            vec3 color = CalcColor(light.Base.Base, normalize(lightToPos), normal, fragPos, albedo, spec, ambientOcclusion);
+            return spotEffect * spotAttn * distAttn * color;
+        }
+    }
+    return vec3(0.0);
+}
+";
+        }
         public static Shader LightingSetupPhysicallyBased()
         {
             string source = @"
+const float PI = 3.14159265359;
+const float InvPI = 0.31831;
+
+//Trowbridge-Reitz GGX
+float SpecD_TRGGX(float NoH2, float a2)
+{
+    float num    = a2;
+    float denom  = (NoH2 * (a2 - 1.0) + 1.0);
+    denom        = PI * denom * denom;
+
+    return num / denom;
+}
+float SpecG_SchlickGGX(float NdotV, float k)
+{
+    float num   = NdotV;
+   	float denom = NdotV * (1.0 - k) + k;
+
+    return num / denom;
+}
+float SpecG_Smith(float NoV, float NoL, float k)
+{
+    float ggx1 = SpecG_SchlickGGX(NoV, k);
+    float ggx2 = SpecG_SchlickGGX(NoL, k);
+    return ggx1 * ggx2;
+}
+vec3 SpecF_Schlick(float VoH, vec3 F0)
+{
+	//Regular implementation
+	//float pow = pow(1.0 - VoH, 5.0);
+
+	//Spherical Gaussian Approximation
+	//https://seblagarde.wordpress.com/2012/06/03/spherical-gaussien-approximation-for-blinn-phong-phong-and-fresnel/
+	float pow = exp2((-5.55473 * VoH - 6.98316) * VoH);
+
+    return F0 + (1.0 - F0) * pow;
+}
+vec3 Spec_CookTorrance(float D, float G, vec3 F, float NoV, float NoL)
+{
+	vec3 num = D * G * F;
+	float denom = 4.0 * NoV * NoL + 0.001; 
+	return num / denom;
+}
+vec3 CalcLighting(vec3 N, vec3 L, vec3 color, float roughness, float metallic, float ior)
+{
+	float NoV = max(dot(N, V), 0.0);
+	float NoL = max(dot(N, L), 0.0);
+	float NoH = max(dot(N, H), 0.0);
+	float NoH2 = NoH * NoH;
+
+	float a = roughness * roughness;
+	float a2 = a * a;
+
+	float k = pow(roughness + 1.0, 2.0) * 0.125; //divide by 8
+
+	float D = SpecD_TRGGX(NoH2, a2);
+	float G = SpecG_Smith(NoV, NoL, k);
+	float F = SpecF_Schlick(VoH, F0);
+
+	float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+	vec3 F0 = abs((1.0 - ior) / (1.0 + ior));
+	F0      = mix(F0, color, metallic);
+ 
+	vec3 kS = F;
+	vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
+
+	vec3 specular = Spec_CookTorrance(D, G, F, NoV, NoL);
+	return kd * color * InvPI + ks * specular;
+      
+    Lo += CalcLighting() * radiance * NoL;
+}
+
+float RiemannSum()
+{
+    int steps = 100;
+    float sum = 0.0f;
+    vec3 P    = ...;
+    vec3 Wo   = ...;
+    vec3 N    = ...;
+    float dW  = 1.0f / steps;
+    for(int i = 0; i < steps; ++i) 
+    {
+        vec3 Wi = getNextIncomingLightDir(i);
+        sum += Fr(P, Wi, Wo) * L(P, Wi) * dot(N, Wi) * dW;
+    }
+}
+
+vec3 ImportanceSampleGGX(vec2 Xi, float a, vec3 N)
+{
+	float Phi = 2.0 * PI * Xi.x;
+
+	float CosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
+	float SinTheta = sqrt(1.0 - CosTheta * CosTheta);
+
+	vec3 H = vec3(SinTheta * cos(Phi), SinTheta * sin(Phi), CosTheta);
+	vec3 UpVector = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+	vec3 TangentX = normalize(cross(UpVector, N));
+	vec3 TangentY = cross(N, TangentX);
+
+	// Tangent to world space
+	return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+vec3 SpecularIBL(vec3 SpecularColor, float Roughness, vec3 N, vec3 V)
+{
+	const uint NumSamples = 1024;
+
+	vec3 radiance = vec3(0.0);
+	float a = Roughness * Roughness;
+	for (uint i = 0; i < NumSamples; i++)
+	{
+		vec2 Xi = Hammersley(i, NumSamples);
+		vec3 H = ImportanceSampleGGX(Xi, a, N);
+		float VoH = dot(V, H);
+		vec3 L = vec3(2.0 * VoH) * H - V;
+		float NoV = saturate(dot(N, V));
+		float NoL = saturate(dot(N, L));
+		float NoH = saturate(dot(N, H));
+		VoH = saturate(VoH);
+		if(NoL > 0)
+		{
+			vec3 SampleColor = EnvMap.SampleLevel(EnvMapSampler, L, 0).rgb;
+			float G = G_Smith(Roughness, NoV, NoL);
+			float Fc = pow( 1 - VoH, 5 );
+			float3 F = (1 - Fc) * SpecularColor + Fc;
+			// Incident light = SampleColor * NoL
+			// Microfacet specular = D*G*F / (4*NoL*NoV)
+			// pdf = D * NoH / (4 * VoH)
+			radiance += SampleColor * F * G * VoH / (NoH * NoV);
+		}
+	}
+	return radiance / NumSamples;
+}
 
 in vec2 v_texcoord; // texture coords
 in vec3 v_normal;   // normal

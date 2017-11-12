@@ -14,7 +14,7 @@ namespace TheraEngine.Worlds.Actors
         //Does not move. Allows baking light into shadow maps.
         Static,
     }
-    [FileClass("lc", "Light Component")]
+    [FileClass("clight", "Light Component")]
     public abstract class LightComponent : TRComponent
     {
         protected EventColorF3 _color = (ColorF3)Color.Blue/*, _specular = Color.Yellow*/;

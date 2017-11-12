@@ -6,7 +6,6 @@ using System;
 namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Z-Aligned Cone")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ConeZ : BaseCone
     {
         public ConeZ(float radius, float height) 

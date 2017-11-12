@@ -9,20 +9,38 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds.Actors
 {
-    [FileClass("slc", "Spot Light Component")]
+    [FileClass("cspotlight", "Spot Light Component")]
     public class SpotLightComponent : LightComponent
     {
         private float _outerCutoff, _innerCutoff, _exponent, _brightness, _distance;
         private Vec3 _direction;
+        private MaterialFrameBuffer _shadowMap;
+        private PerspectiveCamera _shadowCamera;
+        private int _shadowWidth, _shadowHeight;
+        private Matrix4 _worldToLightSpaceProjMatrix;
+        internal protected ConeZ _outerCone, _innerCone;
 
-        //[DragRange(0.1f, 1000.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [TSerialize]
         [Category("Spotlight Component")]
         public float Distance
         {
             get => _distance;
-            set => _distance = value;
+            set
+            {
+                _distance = value;
+
+                Vec3 translation = _translation + _direction * (_distance / 2.0f);
+
+                _outerCone.State.Translation.Raw = translation;
+                _outerCone.Height = _distance;
+                _outerCone.Radius = (float)Math.Tan(CustomMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
+
+                _innerCone.State.Translation.Raw = translation;
+                _innerCone.Height = _distance;
+                _innerCone.Radius = (float)Math.Tan(CustomMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
+
+                _shadowCamera.FarZ = _distance - 0.1f;
+            }
         }
         [TSerialize]
         [Category("Spotlight Component")]
@@ -35,37 +53,43 @@ namespace TheraEngine.Worlds.Actors
                 _rotation.SetDirection(_direction);
             }
         }
-        //[DragRange(0.0f, 1000.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float Exponent
         {
             get => _exponent;
             set => _exponent = value;
         }
-        //[DragRange(0.1f, 1000.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float Brightness
         {
             get => _brightness;
             set => _brightness = value;
         }
-        //[DragRange(0.0f, 90.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float OuterCutoffAngleDegrees
         {
             get => CustomMath.RadToDeg((float)Math.Acos(_outerCutoff));
-            set => _outerCutoff = (float)Math.Cos(CustomMath.DegToRad(value));
+            set
+            {
+                float rad = CustomMath.DegToRad(value);
+                _outerCutoff = (float)Math.Cos(rad);
+                _outerCone.Radius = (float)Math.Tan(rad) * _distance;
+
+                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f;
+            }
         }
-        //[DragRange(0.0f, 90.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Spotlight Component")]
         public float InnerCutoffAngleDegrees
         {
             get => CustomMath.RadToDeg((float)Math.Acos(_innerCutoff));
-            set => _innerCutoff = (float)Math.Cos(CustomMath.DegToRad(value));
+            set
+            {
+                float rad = CustomMath.DegToRad(value);
+                _innerCutoff = (float)Math.Cos(rad);
+                _innerCone.Radius = (float)Math.Tan(rad) * _distance;
+
+                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f;
+            }
         }
 
         public SpotLightComponent(
@@ -73,13 +97,16 @@ namespace TheraEngine.Worlds.Actors
             Vec3 direction, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent) 
             : base(color, diffuseIntensity, ambientIntensity)
         {
-            OuterCutoffAngleDegrees = outerCutoffDeg;
-            InnerCutoffAngleDegrees = innerCutoffDeg;
+            _outerCone = new ConeZ((float)Math.Tan(CustomMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            _innerCone = new ConeZ((float)Math.Tan(CustomMath.DegToRad(innerCutoffDeg)) * distance, distance);
+
+            _outerCutoff = (float)Math.Cos(CustomMath.DegToRad(outerCutoffDeg));
+            _innerCutoff = (float)Math.Cos(CustomMath.DegToRad(innerCutoffDeg));
             _distance = distance;
             _brightness = brightness;
-            _cullingVolume = new ConeZ((float)Math.Tan(CustomMath.DegToRad(outerCutoffDeg)) * _distance, _distance);
-            Direction = direction;
             _exponent = exponent;
+            Direction = direction;
+
             //_cullingVolume.State.Rotation.SyncFrom(_rotation);
             //_cullingVolume.State.Translation.SyncFrom(_translation);
         }
@@ -88,13 +115,16 @@ namespace TheraEngine.Worlds.Actors
             Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
             : base(color, diffuseIntensity, ambientIntensity)
         {
-            OuterCutoffAngleDegrees = outerCutoffDeg;
-            InnerCutoffAngleDegrees = innerCutoffDeg;
+            _outerCone = new ConeZ((float)Math.Tan(CustomMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            _innerCone = new ConeZ((float)Math.Tan(CustomMath.DegToRad(innerCutoffDeg)) * distance, distance);
+
+            _outerCutoff = (float)Math.Cos(CustomMath.DegToRad(outerCutoffDeg));
+            _innerCutoff = (float)Math.Cos(CustomMath.DegToRad(innerCutoffDeg));
             _distance = distance;
             _brightness = brightness;
-            _cullingVolume = new ConeZ((float)Math.Tan(CustomMath.DegToRad(outerCutoffDeg)) * _distance, _distance);
-            _rotation.SetRotations(rotation);
             _exponent = exponent;
+            _rotation.SetRotations(rotation);
+
             //_cullingVolume.State.Rotation.SyncFrom(_rotation);
             //_cullingVolume.State.Translation.SyncFrom(_translation);
         }
@@ -102,16 +132,23 @@ namespace TheraEngine.Worlds.Actors
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             _direction = _rotation.GetDirection();
-            _cullingVolume.State.Rotation.SetDirection(-_direction);
-            _cullingVolume.State.Translation.Raw = _translation + _direction * (_distance / 2.0f);
+
+            Vec3 translation = _translation + _direction * (_distance / 2.0f);
+
+            _outerCone.State.Rotation.SetDirection(-_direction);
+            _outerCone.State.Translation.Raw = translation;
+
+            _innerCone.State.Rotation.SetDirection(-_direction);
+            _innerCone.State.Translation.Raw = translation;
+
+            if (_shadowCamera != null)
+            {
+                _shadowCamera.LocalRotation.SetRotationsNoUpdate(_rotation);
+                _shadowCamera.LocalPoint.Raw = _translation;
+            }
+
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
-
-        private MaterialFrameBuffer _shadowMap;
-        private PerspectiveCamera _shadowCamera;
-        private int _shadowWidth, _shadowHeight;
-        private Matrix4 _worldToLightSpaceProjMatrix;
-        internal protected ConeZ _cullingVolume;
 
         public override void OnSpawned()
         {
@@ -167,9 +204,7 @@ namespace TheraEngine.Worlds.Actors
 
             if (_shadowCamera == null)
             {
-                _shadowCamera = new PerspectiveCamera(0.1f, _distance - 0.1f, OuterCutoffAngleDegrees * 2.0f, 1.0f);
-                _shadowCamera.LocalRotation.SyncFrom(_rotation);
-                _shadowCamera.LocalPoint.SyncFrom(_translation);
+                _shadowCamera = new PerspectiveCamera(0.1f, _distance - 0.1f, Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f, 1.0f);
                 _shadowCamera.ProjectionChanged += UpdateMatrix;
                 _shadowCamera.TransformChanged += UpdateMatrix;
                 UpdateMatrix();

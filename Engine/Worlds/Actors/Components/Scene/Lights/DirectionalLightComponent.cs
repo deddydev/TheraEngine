@@ -9,7 +9,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors
 {
-    [FileClass("dlc", "Directional Light Component")]
+    [FileClass("cdirlight", "Directional Light Component")]
     public class DirectionalLightComponent : LightComponent
     {
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity)

@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 using TheraEngine.Animation;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
@@ -64,9 +65,9 @@ namespace TheraEngine.Tests
             BoxActor floorActor1 = new BoxActor(
                 "Floor1",
                 floorInfo,
-                new Vec3(5.0f, 0.2f, 5.0f),
-                new Vec3(-17.0f, 2.0f, 0.0f),
-                new Rotator(20.0f, -20.0f, 0.0f, RotationOrder.YPR),
+                new Vec3(50.0f, 0.2f, 50.0f),
+                new Vec3(0.0f, 0.0f, 0.0f),
+                new Rotator(00.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Orange));
             //floorActor1.RootComponent.PhysicsDriver.Kinematic = true;
             BoxActor floorActor2 = new BoxActor(
@@ -228,7 +229,7 @@ namespace TheraEngine.Tests
             //Engine.TimeDilation = 0.3f;
             //cam.RootComponent.SetCurrentForPlayer(PlayerIndex.One);
 
-            SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, 0.3f, new Rotator(-70.0f, 0.0f, 0.0f, RotationOrder.YPR), 30.0f, 10.0f, 40.0f, 100.0f);
+            SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, 0.3f, Vec3.Down, 30.0f, 10.0f, 40.0f, 100.0f);
             spotLightComp.Translation.Y = 50.0f;
             Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>(spotLightComp) { Name = "SpotLight" };
 
@@ -242,16 +243,31 @@ namespace TheraEngine.Tests
             //        CustomCollisionGroup.StaticWorld,
             //        CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld)) { Name = "Floor" };
 
+            ModelImportOptions options = new ModelImportOptions()
+            {
+                IgnoreFlags =
+                     Core.Files.IgnoreFlags.Extra |
+                     Core.Files.IgnoreFlags.Lights |
+                     Core.Files.IgnoreFlags.Cameras |
+                     Core.Files.IgnoreFlags.Animations,
+                InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(20.0f), TransformOrder.TRS),
+            };
+            
+            var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
+            ModelScene gunScene = dae.Models[0];
+            Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
+
             IActor[] actors = new IActor[]
             {
-                //spotlight,
+                gunActor,
+                spotlight,
                 //block,
                 //testActor,
                 floorActor1,
-                floorActor2,
-                floorActor3,
+                //floorActor2,
+                //floorActor3,
                 //floorActor4,
-                dirLightActor,
+                //dirLightActor,
                 //skybox,
                 //splineActor,
                 //cam,

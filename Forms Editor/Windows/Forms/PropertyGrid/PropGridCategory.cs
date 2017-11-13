@@ -38,7 +38,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             tblProps.RowStyles.Clear();
             tblProps.RowCount = 0;
         }
-        public Label AddProperty(List<PropGridItem> editors, object[] attributes)
+        public Label AddProperty(List<PropGridItem> editors, object[] attributes, bool readOnly)
         {
             var displayNameAttrib = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
             var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
@@ -92,6 +92,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.Dock = DockStyle.Top;
                     item.Margin = new Padding(0);
                     item.Padding = new Padding(0);
+                    item.ReadOnly = readOnly;
                     p.Controls.Add(item);
                 }
                 tblProps.Controls.Add(p, 1, tblProps.RowCount - 1);

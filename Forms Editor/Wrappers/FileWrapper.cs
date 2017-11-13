@@ -196,7 +196,7 @@ namespace TheraEditor.Wrappers
             }
         }
         public override FileObject GetNewInstance()
-            => _fileRef.LoadNewInstance();
+            => _fileRef.GetInstance();
         public override FileObject SingleInstance
         {
             get => Resource.File;

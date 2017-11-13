@@ -14,6 +14,7 @@ using TheraEngine.Worlds.Actors;
 using System.Collections;
 using System.Collections.Concurrent;
 using TheraEngine.Timers;
+using TheraEngine.Files;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -136,6 +137,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             public Deque<Type> ControlTypes { get; set; }
             public PropertyInfo Property { get; set; }
             public object[] Attribs { get; set; }
+            public bool ReadOnly { get; set; }
         }
         
         private async void LoadProperties(object obj)
@@ -162,14 +164,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 object propObj = prop.GetValue(obj);
                 Type subType = propObj?.GetType() ?? prop.PropertyType;
                 var attribs = prop.GetCustomAttributes(true);
-                if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
-                    return;
+                bool readOnly = false;
+
+                foreach (var attrib in attribs)
+                {
+                    if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
+                        return;
+                    if (attrib is BrowsableIfAttribute browsableIf && !browsableIf.Evaluate(obj))
+                        return;
+                    if (attrib is ReadOnlyAttribute readOnlyAttrib)
+                        readOnly = readOnlyAttrib.IsReadOnly;
+                }
 
                 PropertyData p = new PropertyData()
                 {
                     ControlTypes = GetControlTypes(subType),
                     Property = prop,
                     Attribs = attribs,
+                    ReadOnly = readOnly,
                 };
                 
                 info.TryAdd(i, p);
@@ -180,7 +192,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (!info.ContainsKey(i))
                     continue;
                 PropertyData p = info[i];
-                CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
+                CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly);
             }
 
             for (int i = 0; i < methods.Length; ++i)
@@ -258,14 +270,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Panel panel,
             Dictionary<string, PropGridCategory> categories,
             object obj,
-            object[] attribs)
+            object[] attribs,
+            bool readOnly)
         {
             var controls = CreateControls(controlTypes, prop, obj);
             
             var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
             string catName = category == null ? MiscName : category.Category;
             if (categories.ContainsKey(catName))
-                categories[catName].AddProperty(controls, attribs);
+                categories[catName].AddProperty(controls, attribs, readOnly);
             else
             {
                 PropGridCategory misc = new PropGridCategory()
@@ -273,7 +286,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     CategoryName = catName,
                     Dock = DockStyle.Top,
                 };
-                misc.AddProperty(controls, attribs);
+                misc.AddProperty(controls, attribs, readOnly);
                 categories.Add(catName, misc);
                 panel.Controls.Add(misc);
             }

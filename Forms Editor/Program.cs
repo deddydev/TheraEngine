@@ -164,7 +164,7 @@ namespace TheraEditor
                 {
                     IsFocused = false;
                     Engine.TargetRenderFreq = 3.0f;
-                    Engine.TargetUpdateFreq = 3.0f;
+                    Engine.TargetUpdateFreq = 30.0f;
                     LostFocus?.Invoke();
                 }
             }

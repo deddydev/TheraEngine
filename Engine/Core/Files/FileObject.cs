@@ -234,17 +234,17 @@ namespace TheraEngine.Files
             if (!File.Exists(filePath))
                 return null;
 
-            FileObject obj;
+            FileObject file;
             if (GetFileHeader(t).ManualXmlConfigSerialize)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                 {
-                    obj = SerializationCommon.CreateObject(t) as FileObject;
-                    if (obj != null && reader.BeginElement())
+                    file = SerializationCommon.CreateObject(t) as FileObject;
+                    if (file != null && reader.BeginElement())
                     {
                         //if (reader.Name.Equals(t.ToString(), true))
-                        obj.Read(reader);
+                        file.Read(reader);
                         //else
                         //    throw new Exception("File was not of expected type.");
                         reader.EndElement();
@@ -252,13 +252,13 @@ namespace TheraEngine.Files
                 }
             }
             else
-                obj = CustomXmlSerializer.Deserialize(filePath) as FileObject;
-            if (obj != null)
+                file = CustomXmlSerializer.Deserialize(filePath) as FileObject;
+            if (file != null)
             {
-                obj._filePath = filePath;
-                Engine.AddLoadedFile(obj._filePath, obj);
+                file.FilePath = filePath;
+                Engine.AddLoadedFile(file._filePath, file);
             }
-            return obj;
+            return file;
         }
         private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
         {
@@ -322,7 +322,7 @@ namespace TheraEngine.Files
 
             if (obj != null)
             {
-                obj._filePath = filePath;
+                obj.FilePath = filePath;
                 Engine.AddLoadedFile(obj._filePath, obj);
             }
             return obj;

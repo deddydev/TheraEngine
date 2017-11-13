@@ -264,7 +264,7 @@ namespace TheraEngine.Tools
                         return double.Parse(token);
                 }
             }
-            Engine.PrintLine("[ExpressionParser] Token not recognized: " + origToken);
+            Engine.LogWarning("Token not recognized: " + origToken);
             return null;
         }
         private static readonly Dictionary<string, string[]> _implicitConversions = new Dictionary<string, string[]>()
@@ -296,6 +296,28 @@ namespace TheraEngine.Tools
                     //Parse each operand so they can be evaluated
                     object value1 = GetValue(stackToken1, provider);
                     object value2 = GetValue(stackToken2, provider);
+
+                    if (value1 == null)
+                    {
+                        bool isNull = value2 == null;
+                        if (token == "==")
+                            stack.Push(isNull ? "true" : "false");
+                        else if (token == "!=")
+                            stack.Push(isNull ? "false" : "true");
+                        else
+                            throw new Exception();
+                        continue;
+                    }
+                    else if (value2 == null)
+                    {
+                        if (token == "==")
+                            stack.Push("false");
+                        else if (token == "!=")
+                            stack.Push("true");
+                        else
+                            throw new Exception();
+                        continue;
+                    }
 
                     Type t1 = value1.GetType();
                     Type t2 = value2.GetType();
@@ -343,7 +365,8 @@ namespace TheraEngine.Tools
                 else if (!token.Equals("("))
                 {
                     //Push numbers directly to the stack; ignore '('
-                    stack.Push(GetValue(token, provider).ToString());
+                    object value = GetValue(token, provider);
+                    stack.Push(value == null ? "null" : value.ToString());
                 }
             }
             //The result of the expression is now the only number in the stack

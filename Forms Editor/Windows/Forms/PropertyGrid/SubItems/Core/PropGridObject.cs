@@ -110,7 +110,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
             string catName = category == null ? MiscName : category.Category;
             if (_categories.ContainsKey(catName))
-                _categories[catName].AddProperty(controls, attribs);
+                _categories[catName].AddProperty(controls, attribs, false);
             else
             {
                 PropGridCategory catCtrl = new PropGridCategory()
@@ -118,7 +118,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     CategoryName = catName,
                     Dock = DockStyle.Top,
                 };
-                catCtrl.AddProperty(controls, attribs);
+                catCtrl.AddProperty(controls, attribs, false);
                 pnlProps.Controls.Add(catCtrl);
                 _categories.Add(catName, catCtrl);
             }

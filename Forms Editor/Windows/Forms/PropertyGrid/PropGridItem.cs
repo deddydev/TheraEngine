@@ -16,6 +16,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class PropGridItem : UserControl
     {
+        private bool _readOnly = false;
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type DataType { get; set; }
@@ -34,7 +36,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public IList IListOwner { get; set; }
-
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public bool ReadOnly
+        {
+            get => _readOnly;
+            set
+            {
+                _readOnly = value;
+                SetControlsEnabled(!_readOnly && (Property != null ? Property.CanWrite : (IListOwner != null ? !IListOwner.IsReadOnly : true)));
+            }
+        }
+         
         /// <summary>
         /// When true, disallows UpdateDisplay() from doing anything until set to false.
         /// </summary>
@@ -91,7 +104,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             IListOwner = list;
             IListIndex = index;
             DataType = elementType;
-            SetControlsEnabled(!list.IsReadOnly);
+            SetControlsEnabled(!list.IsReadOnly && !_readOnly);
             UpdateDisplay();
         }
         internal protected virtual void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
@@ -99,7 +112,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Property = propertyInfo;
             PropertyOwner = propertyOwner;
             DataType = Property.PropertyType;
-            SetControlsEnabled(Property.CanWrite);
+            SetControlsEnabled(Property.CanWrite && !_readOnly);
             UpdateDisplay();
         }
         internal void SetLabel(Label label)

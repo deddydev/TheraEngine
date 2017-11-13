@@ -152,7 +152,8 @@ namespace TheraEngine.Files
                             Engine.AddLoadedFile(path, _file);
                     }
 
-                    _file.References.Add(this);
+                    if (!_file.References.Contains(this))
+                        _file.References.Add(this);
                 }
             }
         }
@@ -170,58 +171,23 @@ namespace TheraEngine.Files
         /// <summary>
         /// Loads or retrieves the single instance of this file.
         /// </summary>
-        public override T GetInstance()
+        public T GetInstance()
         {
             if (_file != null)
                 return _file;
-            else
-            {
-                File = LoadNewInstance();
-                Loaded?.Invoke();
-            }
-            return _file;
-        }
-        
-        /// <summary>
-        /// Loads a new completely new and unique instance of this file.
-        /// Must be called explicitly and does not store the returned reference.
-        /// </summary>
-        public T LoadNewInstance()
-        {
-            T file = null;
+
             string absolutePath = ReferencePath;
-            if (string.IsNullOrEmpty(absolutePath))
-            {
-                if (_subType.IsAbstract)
-                {
-                    Engine.LogWarning("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
-                }
-                else if (_subType.IsInterface)
-                {
-                    Engine.LogWarning("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
-                }
-                else if (_subType.GetConstructor(new Type[0]) == null)
-                {
-                    Engine.LogWarning("Can't automatically instantiate a class with no parameterless constructor: " + _subType.GetFriendlyName());
-                }
-                else
-                    file = Activator.CreateInstance(_subType) as T;
-            }
-            else if (Engine.LoadedFiles.ContainsKey(absolutePath))
+            if (absolutePath != null && Engine.LoadedFiles.ContainsKey(absolutePath))
             {
                 List<FileObject> files = Engine.LoadedFiles[absolutePath];
-                file = files.Count > 0 ? files[0] as T : GetFile();
+                if (files.Count > 0)
+                    return _file = files[0] as T;
             }
-            else
-                file = GetFile();
-
-            if (file != null)
-            {
-                file.FilePath = ReferencePath;
-                file.References.Add(this);
-            }
-
-            return file;
+            
+            _file = LoadNewInstance();
+            Loaded?.Invoke();
+            
+            return _file;
         }
 
         public void UnloadReference()
@@ -307,39 +273,57 @@ namespace TheraEngine.Files
         [Browsable(false)]
         public Type ReferencedType => typeof(T);
 
-        protected T GetFile()
+        protected virtual T LoadNewInstance()
         {
             string absolutePath = ReferencePath;
 
             if (string.IsNullOrWhiteSpace(absolutePath))
-                return null;
+            {
+                T file = CreateNewInstance();
+                if (file != null)
+                {
+                    file.FilePath = absolutePath;
+                    file.References.Add(this);
+                    file.OnLoaded();
+                }
+                return file;
+            }
 
             if (!File.Exists(absolutePath))
             {
-                //File = Activator.CreateInstance(_subType) as T;
-                Engine.PrintLine(string.Format("Could not load file at \"{0}\".", absolutePath));
+                Engine.LogWarning(string.Format("Could not load file at \"{0}\".", absolutePath));
                 return null;
             }
 
             try
             {
                 if (IsSpecial())
-                    return Activator.CreateInstance(_subType, absolutePath) as T;
+                {
+                    T file = Activator.CreateInstance(_subType, absolutePath) as T;
+                    file.FilePath = absolutePath;
+                    file.References.Add(this);
+                    file.OnLoaded();
+                    return file;
+                }
                 else
                     switch (GetFormat())
                     {
                         case FileFormat.XML:
-                            return FromXML(_subType, absolutePath) as T;
+                            T xmlFile = FromXML(_subType, absolutePath) as T;
+                            xmlFile?.References.Add(this);
+                            return xmlFile;
                         case FileFormat.Binary:
-                            return FromBinary(_subType, absolutePath) as T;
+                            T binFile = FromBinary(_subType, absolutePath) as T;
+                            binFile?.References.Add(this);
+                            return binFile;
                         default:
-                            Engine.PrintLine(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
+                            Engine.LogWarning(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
                             break;
                     }
             }
             catch (Exception e)
             {
-                Engine.PrintLine(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
+                Engine.LogWarning(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
             }
             
             return null;
@@ -362,25 +346,34 @@ namespace TheraEngine.Files
             return FileFormat.Binary;
         }
 
-        public void GetInstanceAsync(Action<T> onLoaded, TaskCreationOptions options = TaskCreationOptions.PreferFairness)
-            => GetInstanceAsync(options).ContinueWith(task => onLoaded(task.Result));
+        public void LoadNewInstanceAsync(Action<T> onLoaded, TaskCreationOptions options = TaskCreationOptions.PreferFairness)
+            => LoadNewInstanceAsync(options).ContinueWith(task => onLoaded(task.Result));
+        public void LoadNewInstanceAsync(Action<T> onLoaded) 
+            => LoadNewInstanceAsync().ContinueWith(task => onLoaded(task.Result));
+        public async Task<T> LoadNewInstanceAsync() => await Task.Run(() => LoadNewInstance());
+        public async Task<T> LoadNewInstanceAsync(TaskCreationOptions options) => await Task.Factory.StartNew(() => LoadNewInstance(), options);
 
-        public void GetInstanceAsync(Action<T> onLoaded) 
-            => GetInstanceAsync().ContinueWith(task => onLoaded(task.Result));
-
-        public async Task<T> GetInstanceAsync() => await Task.Run(() => GetInstance());
-        public async Task<T> GetInstanceAsync(TaskCreationOptions options) => await Task.Factory.StartNew(() => GetInstance(), options);
-
-        public virtual T GetInstance()
+        public T CreateNewInstance()
         {
-            T file = string.IsNullOrEmpty(_refPath) ? Activator.CreateInstance(_subType) as T : GetFile();
-            if (file != null)
+            if (_subType.IsAbstract)
             {
-                file.FilePath = ReferencePath;
-                file.References.Add(this);
+                Engine.LogWarning("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
             }
-            return file;
+            else if (_subType.IsInterface)
+            {
+                Engine.LogWarning("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
+            }
+            else if (_subType.GetConstructor(new Type[0]) == null)
+            {
+                Engine.LogWarning("Can't automatically instantiate a class with no parameterless constructor: " + _subType.GetFriendlyName());
+            }
+            else
+            {
+                return Activator.CreateInstance(_subType) as T;
+            }
+            return null;
         }
+
         /// <summary>
         /// Returns true if the file needs special deserialization handling.
         /// If so, the class needs a constructor that takes the file's absolute path (string) as its only argument.

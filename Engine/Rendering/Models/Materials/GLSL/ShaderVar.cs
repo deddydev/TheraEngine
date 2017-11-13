@@ -107,16 +107,17 @@ namespace TheraEngine.Rendering.Models.Materials
             set
             {
                 //Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value)
-                _name = value.ReplaceWhitespace("");
+                _name = (value ?? "").ReplaceWhitespace("");
             }
         }
 
         internal void SetProgramUniform(int programBindingId, string name)
         {
             int loc = Engine.Renderer.GetUniformLocation(programBindingId, name);
-            if (loc < 0)
-                throw new Exception();
-            SetProgramUniform(programBindingId, loc);
+            if (loc >= 0)
+                SetProgramUniform(programBindingId, loc);
+            //else
+            //    throw new Exception();
         }
 
         internal void SetProgramUniform(int programBindingId) 

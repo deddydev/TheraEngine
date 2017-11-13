@@ -72,7 +72,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 propGridListItems.tblProps.SuspendLayout();
                 for (int i = 0; i < list.Count; ++i)
                 {
-                    Label label = propGridListItems.AddProperty(controls[i], new object[0]);
+                    Label label = propGridListItems.AddProperty(controls[i], new object[0], false);
                     label.MouseEnter += Label_MouseEnter;
                     label.MouseLeave += Label_MouseLeave;
                     label.MouseDown += Label_MouseDown;
@@ -113,7 +113,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _list.Add(value);
             var items = TheraPropertyGrid.CreateControls(TheraPropertyGrid.GetControlTypes(value?.GetType()), _list, i);
-            propGridListItems.AddProperty(items, new object[0]);
+            propGridListItems.AddProperty(items, new object[0], false);
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(items[items.Count - 1]);
         }
 

@@ -307,6 +307,7 @@
     <Compile Include="Animation\Model\TransformKeyCollection.cs" />
     <Compile Include="Core\Extensions\Numbers\DecimalExtension.cs" />
     <Compile Include="Core\Extensions\MethodInfoExtension.cs" />
+    <Compile Include="Core\Reflection\Attributes\BrowsableIfAttribute.cs" />
     <Compile Include="Core\HelperMethods.cs" />
     <None Include="Core\Maths\Transforms\Class\Rotation\EventQuatRotator.cs" />
     <None Include="Core\Maths\Transforms\Class\Transforms\WorldRotTransform.cs" />

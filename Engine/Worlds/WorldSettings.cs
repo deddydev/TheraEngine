@@ -77,20 +77,13 @@ namespace TheraEngine.Worlds
             get => _bounds;
             set => _bounds = value;
         }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public WorldState State
-        {
-            get => _state;
-            set => _state = value;
-        }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public SoundFile AmbientSound
         {
             get => _ambientSound;
             set => _ambientSound = value;
         }
         [Browsable(false)]
-        public List<Map> Maps
+        public List<SingleFileRef<Map>> Maps
         {
             get => _maps;
             set => _maps = value;
@@ -122,9 +115,7 @@ namespace TheraEngine.Worlds
         [TSerialize("OriginRebaseBounds")]
         private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(float.MinValue, float.MaxValue);
         [TSerialize("Maps")]
-        private List<Map> _maps = new List<Map>();
-        [TSerialize("State")]
-        private WorldState _state;
+        private List<SingleFileRef<Map>> _maps = new List<SingleFileRef<Map>>();
         [TSerialize("AmbientSound")]
         private SoundFile _ambientSound;
         [TSerialize("AmbientParams")]
@@ -149,28 +140,13 @@ namespace TheraEngine.Worlds
 
         public WorldSettings()
         {
-            _state = new WorldState();
+
         }
-        public WorldSettings(string name, WorldState state, params Map[] maps)
+        public WorldSettings(string name, params Map[] maps)
         {
-            _maps = maps.ToList();
+            _maps = maps.Select(x => new SingleFileRef<Map>(x)).ToList();
             _originRebaseBounds = _bounds;
             _name = name;
-            _state = state;
-        }
-        public WorldSettings(string name, WorldState state)
-        {
-            _originRebaseBounds = _bounds;
-            _maps = new List<Map>();
-            _name = name;
-            _state = state;
-        }
-        public WorldSettings(string name)
-        {
-            _originRebaseBounds = _bounds;
-            _maps = new List<Map>();
-            _name = name;
-            _state = new WorldState();
         }
 
         public void SetOriginRebaseDistance(float distance)

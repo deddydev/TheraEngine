@@ -83,10 +83,11 @@ namespace TheraEngine.Tools
         private static object GetValue(string token, object provider)
         {
             token = token.Trim();
-            string origToken = token;
 
-            FieldInfo[] fields = provider == null ? new FieldInfo[0] : provider.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            PropertyInfo[] properties = provider == null ? new PropertyInfo[0] : provider.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (token == "null")
+                return null;
+
+            string origToken = token;
 
             int invertCount = 0;
             while (token.StartsWith("!"))
@@ -97,33 +98,69 @@ namespace TheraEngine.Tools
 
             bool shouldInvert = (invertCount & 1) != 0;
 
-            foreach (FieldInfo field in fields)
-                if (field.Name.Equals(token))
+            if (token.StartsWith("\""))
+            {
+                if (token.EndsWith("\""))
                 {
-                    object value = field.GetValue(provider);
-                    if (field.FieldType == typeof(bool))
+                    string str = token.Substring(1, token.Length - 2);
+                    for (int i = 0; i < str.Length; ++i)
                     {
-                        if (shouldInvert)
-                            return !(bool)value;
+                        char c = str[i];
+                        if (c == '\\')
+                            str = str.Remove(i, 1);
                     }
-                    else if (invertCount > 0)
-                        throw new Exception("Cannot invert non-bool");
-                    return value;
+                    return str;
                 }
+                else
+                    throw new Exception("Invalid string: " + token);
+            }
 
-            foreach (PropertyInfo property in properties)
-                if (property.Name.Equals(token))
+            int paramStart = token.IndexOf("(");
+            if (paramStart > 0)
+            {
+                int paramEnd = token.LastIndexOf(")");
+                if (paramEnd > paramStart)
                 {
-                    object value = property.GetValue(provider);
-                    if (property.PropertyType == typeof(bool))
-                    {
-                        if (shouldInvert)
-                            return !(bool)value;
-                    }
-                    else if (invertCount > 0)
-                        throw new Exception("Cannot invert non-bool");
-                    return value;
+                    string methodName = token.Substring(0, paramStart);
+                    MethodInfo[] methods = provider == null ? new MethodInfo[0] : provider.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(x => string.Equals(x.Name, methodName)).ToArray();
+                    var parameters = token.Substring(paramStart + 1, paramEnd - (paramStart + 1)).Split(',');
+                    
+                    //TODO: invoke matching method, return value
                 }
+                else
+                    throw new Exception("Invalid method: " + token);
+            }
+
+            FieldInfo[] fields = provider == null ? new FieldInfo[0] : provider.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            PropertyInfo[] properties = provider == null ? new PropertyInfo[0] : provider.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            FieldInfo field = fields.FirstOrDefault(x => x.Name.Equals(token));
+            if (field != null)
+            {
+                object value = field.GetValue(provider);
+                if (field.FieldType == typeof(bool))
+                {
+                    if (shouldInvert)
+                        return !(bool)value;
+                }
+                else if (invertCount > 0)
+                    throw new Exception("Cannot invert non-bool");
+                return value;
+            }
+
+            PropertyInfo property = properties.FirstOrDefault(x => x.Name.Equals(token));
+            if (property != null)
+            {
+                object value = property.GetValue(provider);
+                if (property.PropertyType == typeof(bool))
+                {
+                    if (shouldInvert)
+                        return !(bool)value;
+                }
+                else if (invertCount > 0)
+                    throw new Exception("Cannot invert non-bool");
+                return value;
+            }
 
             token = token.ToLowerInvariant();
 

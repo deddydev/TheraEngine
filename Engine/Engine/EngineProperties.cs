@@ -204,6 +204,6 @@ namespace TheraEngine
         }
 
         public static BaseGameMode GetGameMode()
-            => World?.Settings.GameModeOverride?.File ?? Game.DefaultGameMode;
+            => World?.Settings.File?.GameModeOverride?.File ?? Game.DefaultGameMode;
     }
 }

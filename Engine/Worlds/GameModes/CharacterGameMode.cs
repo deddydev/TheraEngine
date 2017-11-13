@@ -48,7 +48,7 @@ namespace TheraEngine.GameModes
         }
         public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)
         {
-            foreach (IActor a in Engine.World.State.SpawnedActors)
+            foreach (IActor a in Engine.World.State.File.SpawnedActors)
                 if (a is CharacterSpawnPointActor p && p.CanSpawnPlayer(c))
                 {
                     transform = p.RootComponent.WorldMatrix;

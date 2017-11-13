@@ -72,10 +72,36 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 propGridListItems.tblProps.SuspendLayout();
                 for (int i = 0; i < list.Count; ++i)
                 {
-                    propGridListItems.AddProperty(controls[i], new object[0]);
+                    Label label = propGridListItems.AddProperty(controls[i], new object[0]);
+                    label.MouseEnter += Label_MouseEnter;
+                    label.MouseLeave += Label_MouseLeave;
+                    label.MouseDown += Label_MouseDown;
+                    label.MouseUp += Label_MouseUp;
                 }
                 propGridListItems.tblProps.ResumeLayout(true);
             }
+        }
+
+        private void Label_MouseUp(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void Label_MouseDown(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void Label_MouseLeave(object sender, EventArgs e)
+        {
+            Label label = (Label)sender;
+            label.BackColor = Color.FromArgb(82, 83, 90);
+        }
+
+        private void Label_MouseEnter(object sender, EventArgs e)
+        {
+            Label label = (Label)sender;
+            label.BackColor = Color.FromArgb(14, 18, 34);
         }
 
         private void btnAdd_Click(object sender, EventArgs e)

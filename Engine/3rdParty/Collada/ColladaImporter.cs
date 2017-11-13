@@ -110,7 +110,7 @@ namespace TheraEngine.Rendering.Models
                                         if (!obj.UsesController)
                                             obj.Initialize(modelScene.StaticModel, visualScene);
                                         else
-                                            Engine.LogError("Object " + obj._node.Name + " needs bones, but no bones were found.");
+                                            Engine.LogWarning("Object " + obj._node.Name + " needs bones, but no bones were found.");
                                 }
                                 else
                                 {
@@ -134,10 +134,12 @@ namespace TheraEngine.Rendering.Models
                                         Name = Path.GetFileNameWithoutExtension(filePath),
                                         Looped = true,
                                     };
+
                                     float animationLength = 0.0f;
                                     foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
                                         foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
                                             ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations, ref animationLength);
+
                                     anim.SetLength(animationLength, false);
                                     Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
                                     data.Models[0].Animation = anim;
@@ -149,357 +151,7 @@ namespace TheraEngine.Rendering.Models
             }
             return data;
         }
-
-        private static void ParseAnimation(LibraryAnimations.Animation animElem, ModelAnimation anim, VisualScene visualScene, List<BasePropertyAnimation> propAnims, ref float animationLength)
-        {
-            foreach (var animElemChild in animElem.AnimationElements)
-                ParseAnimation(animElemChild, anim, visualScene, propAnims, ref animationLength);
-
-            foreach (var channel in animElem.ChannelElements)
-            {
-                var sampler = channel.Source.GetElement<Sampler>(animElem.Root);
-                ISID target = channel.Target.GetElement(animElem.Root, out string selector);
-                if (!(target is IStringElement))
-                    continue;
-
-                float[] inputData = null, outputData = null, inTanData = null, outTanData = null;
-                string[] interpTypeData = null;
-                foreach (var input in sampler.InputElements)
-                {
-                    Source source = input.Source.GetElement<Source>(sampler.Root);
-                    switch (input.CommonSemanticType)
-                    {
-                        case ESemantic.INPUT:
-                            inputData = source.GetArrayElement<FloatArray>().StringContent.Values;
-                            break;
-                        case ESemantic.OUTPUT:
-                            outputData = source.GetArrayElement<FloatArray>().StringContent.Values;
-                            break;
-                        case ESemantic.INTERPOLATION:
-                            interpTypeData = source.GetArrayElement<NameArray>().StringContent.Values;
-                            break;
-                        case ESemantic.IN_TANGENT:
-                            inTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
-                            break;
-                        case ESemantic.OUT_TANGENT:
-                            outTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
-                            break;
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(selector))
-                {
-                    //Animation is targeting only part of the value
-
-                    int matrixIndex = selector.IndexOf('(');
-                    if (matrixIndex >= 0)
-                    {
-                        int rowIndex = -1, colIndex = -1;
-                        int rowEnd = selector.IndexOf(')');
-                        string row = selector.Substring(matrixIndex + 1, rowEnd - matrixIndex - 1);
-                        rowIndex = int.Parse(row);
-                    }
-                    else
-                    {
-                        var s = selector.ParseAs<Channel.ESelector>();
-                        if (s == Channel.ESelector.ANGLE)
-                        {
-                            if (target is Node.Rotate rotate)
-                            {
-                                Vec4 axisAngle = rotate.StringContent.Value;
-                                bool xAxis = axisAngle.X == 1.0f && axisAngle.Y == 0.0f && axisAngle.Z == 0.0f;
-                                bool yAxis = axisAngle.X == 0.0f && axisAngle.Y == 1.0f && axisAngle.Z == 0.0f;
-                                bool zAxis = axisAngle.X == 0.0f && axisAngle.Y == 0.0f && axisAngle.Z == 1.0f;
-                                if (!xAxis && !yAxis && !zAxis)
-                                {
-                                    Engine.LogError("Animation rotation axes that are not the one of the three unit axes are not supported.");
-                                }
-                                else
-                                {
-                                    Node node = rotate.ParentElement;
-                                    string targetName = node.Name ?? (node.ID ?? node.SID);
-                                    if (node.Type == Node.EType.JOINT)
-                                    {
-                                        BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
-                                        if (!wasFound)
-                                        {
-
-                                        }
-
-                                        int x = 0;
-                                        for (int i = 0; i < inputData.Length; ++i, x += 2)
-                                        {
-                                            float second = inputData[i];
-                                            float value = outputData[i];
-                                            InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                            PlanarInterpType pType = (PlanarInterpType)(int)type;
-
-                                            float inTan = 0.0f, outTan = 0.0f;
-                                            switch (pType)
-                                            {
-                                                case PlanarInterpType.CubicHermite:
-                                                    inTan = inTanData[i];
-                                                    outTan = outTanData[i];
-                                                    break;
-                                                case PlanarInterpType.CubicBezier:
-                                                    inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
-                                                    outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
-                                                    if (float.IsNaN(inTan) || float.IsInfinity(inTan))
-                                                    {
-                                                        inTan = 0.0f;
-                                                        //Engine.PrintLine("Invalid in-tangent calculated");
-                                                    }
-                                                    if (float.IsNaN(outTan) || float.IsInfinity(outTan))
-                                                    {
-                                                        outTan = 0.0f;
-                                                        //Engine.PrintLine("Invalid out-tangent calculated");
-                                                    }
-                                                    break;
-                                            }
-
-                                            FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
-                                            animationLength = Math.Max(animationLength, second);
-                                            if (xAxis)
-                                                bone.RotationX.Add(kf);
-                                            else if (yAxis)
-                                                bone.RotationY.Add(kf);
-                                            else
-                                                bone.RotationZ.Add(kf);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Engine.LogError("Non-joint axis-angle rotation animation not supported.");
-                                    }
-                                }
-                            }
-                            else
-                                Engine.LogError("ANGLE channel selector expects Node.Rotate element, but got " + target.GetType().GetFriendlyName());
-                        }
-                        else if (s == Channel.ESelector.TIME)
-                        {
-                            Engine.LogError("TIME animation selector not supported.");
-                        }
-                        else
-                        {
-                            int valueIndex = ((int)s) & 0b11;
-                            if (target is Node.Translate translate)
-                            {
-                                Node node = translate.ParentElement;
-                                string targetName = node.Name ?? (node.ID ?? node.SID);
-                                if (node.Type == Node.EType.JOINT)
-                                {
-                                    BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
-
-                                    int x = 0;
-                                    for (int i = 0; i < inputData.Length; ++i, x += 2)
-                                    {
-                                        float second = inputData[i];
-                                        float value = outputData[i];
-                                        InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                        PlanarInterpType pType = (PlanarInterpType)(int)type;
-
-                                        float inTan = 0.0f, outTan = 0.0f;
-                                        switch (pType)
-                                        {
-                                            case PlanarInterpType.CubicHermite:
-                                                inTan = inTanData[i];
-                                                outTan = outTanData[i];
-                                                break;
-                                            case PlanarInterpType.CubicBezier:
-                                                inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
-                                                outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
-                                                if (float.IsNaN(inTan) || float.IsInfinity(inTan))
-                                                {
-                                                    inTan = 0.0f;
-                                                    //Engine.PrintLine("Invalid in-tangent calculated");
-                                                }
-                                                if (float.IsNaN(outTan) || float.IsInfinity(outTan))
-                                                {
-                                                    outTan = 0.0f;
-                                                    //Engine.PrintLine("Invalid out-tangent calculated");
-                                                }
-                                                break;
-                                        }
-
-                                        FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
-                                        animationLength = Math.Max(animationLength, second);
-                                        switch (valueIndex)
-                                        {
-                                            case 0: bone.TranslationX.Add(kf); break;
-                                            case 1: bone.TranslationY.Add(kf); break;
-                                            case 2: bone.TranslationZ.Add(kf); break;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    Engine.LogError("Non-joint single-axis translation animation not supported.");
-                                }
-                            }
-                            else if (target is Node.Scale scale)
-                            {
-                                Node node = scale.ParentElement;
-                                string targetName = node.Name ?? (node.ID ?? node.SID);
-                                if (node.Type == Node.EType.JOINT)
-                                {
-                                    BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
-
-                                    int x = 0;
-                                    for (int i = 0; i < inputData.Length; ++i, x += 2)
-                                    {
-                                        float second = inputData[i];
-                                        float value = outputData[i];
-                                        InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                        PlanarInterpType pType = (PlanarInterpType)(int)type;
-
-                                        float inTan = 0.0f, outTan = 0.0f;
-                                        switch (pType)
-                                        {
-                                            case PlanarInterpType.CubicHermite:
-                                                inTan = inTanData[i];
-                                                outTan = outTanData[i];
-                                                break;
-                                            case PlanarInterpType.CubicBezier:
-                                                inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
-                                                outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
-                                                if (float.IsNaN(inTan) || float.IsInfinity(inTan))
-                                                {
-                                                    inTan = 0.0f;
-                                                    //Engine.PrintLine("Invalid in-tangent calculated");
-                                                }
-                                                if (float.IsNaN(outTan) || float.IsInfinity(outTan))
-                                                {
-                                                    outTan = 0.0f;
-                                                    //Engine.PrintLine("Invalid out-tangent calculated");
-                                                }
-                                                break;
-                                        }
-
-                                        FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
-                                        animationLength = Math.Max(animationLength, second);
-                                        switch (valueIndex)
-                                        {
-                                            case 0: bone.ScaleX.Add(kf); break;
-                                            case 1: bone.ScaleY.Add(kf); break;
-                                            case 2: bone.ScaleZ.Add(kf); break;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    Engine.LogError("Non-joint single-axis scale animation not supported.");
-                                }
-                            }
-                            else if (target is BaseFXColorTexture.Color color)
-                            {
-                                Engine.LogError("Reading animation for " + color.GetType().GetFriendlyName() + " is not supported.");
-                            }
-                            else
-                            {
-                                Engine.LogError("Reading single-axis animation for " + target.GetType().GetFriendlyName() + " is not supported.");
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (target is Node.Matrix mtx)
-                    {
-                        Node node = mtx.ParentElement;
-                        string targetName = node.Name ?? (node.ID ?? node.SID);
-                        
-                        if (node.Type == Node.EType.JOINT)
-                        {
-                            int x = 0;
-                            for (int i = 0; i < inputData.Length; ++i, x += 16)
-                            {
-                                float second = inputData[i];
-                                InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                PlanarInterpType pType = (PlanarInterpType)(int)type;
-
-                                float inTan = 0.0f, outTan = 0.0f;
-                                switch (pType)
-                                {
-                                    case PlanarInterpType.CubicHermite:
-                                        inTan = inTanData[i];
-                                        outTan = outTanData[i];
-                                        break;
-                                    case PlanarInterpType.CubicBezier:
-                                        Engine.LogError("Matrix has bezier interpolation");
-                                        //inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
-                                        //outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
-                                        //if (float.IsNaN(inTan) || float.IsInfinity(inTan) || float.IsNaN(outTan) || float.IsInfinity(outTan))
-                                        //    Engine.PrintLine("Invalid tangent calculated");
-                                        break;
-                                }
-
-                                Matrix4 matrix = new Matrix4(
-                                        outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
-                                        outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
-                                        outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
-                                        outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
-
-                                Transform transform = Transform.DeriveTRS(matrix);
-
-                                BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
-
-                                bone.TranslationX.Add(new FloatKeyframe(second, transform.Translation.X, inTan, outTan, pType));
-                                bone.TranslationY.Add(new FloatKeyframe(second, transform.Translation.Y, inTan, outTan, pType));
-                                bone.TranslationZ.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
-
-                                bone.RotationX.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
-                                bone.RotationY.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
-                                bone.RotationZ.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
-
-                                bone.ScaleX.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
-                                bone.ScaleY.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));
-                                bone.ScaleZ.Add(new FloatKeyframe(second, transform.Scale.Z, inTan, outTan, pType));
-
-                                animationLength = Math.Max(animationLength, second);
-                            }
-                        }
-                        else
-                        {
-                            Engine.LogError("Non-joint transform matrix animation not supported.");
-                        }
-                    }
-                    else if (target is Node.Translate trans)
-                    {
-                        if (trans.ParentElement.Type == Node.EType.JOINT)
-                        {
-                            Engine.LogError("Joint all-axes translation animation not supported.");
-                        }
-                        else
-                        {
-                            Engine.LogError("Non-joint all-axes translation animation not supported.");
-                        }
-                    }
-                    else if (target is Node.Rotate rot)
-                    {
-                        if (rot.ParentElement.Type == Node.EType.JOINT)
-                        {
-                            Engine.LogError("Joint all-axes rotation animation not supported.");
-                        }
-                        else
-                        {
-                            Engine.LogError("Non-joint all-axes rotation animation not supported.");
-                        }
-                    }
-                    else if (target is Node.Scale scale)
-                    {
-                        if (scale.ParentElement.Type == Node.EType.JOINT)
-                        {
-                            Engine.LogError("Joint all-axes scale animation not supported.");
-                        }
-                        else
-                        {
-                            Engine.LogError("Non-joint all-axes scale animation not supported.");
-                        }
-                    }
-                }
-            }
-        }
+        
         private enum InterpType
         {
             STEP,
@@ -560,12 +212,12 @@ namespace TheraEngine.Rendering.Models
                             if (skin.Source.GetElement(skin.Root) is LibraryGeometries.Geometry geometry)
                                 objects.Add(new ObjectInfo(geometry, skin, bindMatrix, controllerRef, parent, node));
                             else
-                                Engine.LogError(skin.Source.URI + " does not point to a valid geometry entry.");
+                                Engine.LogWarning(skin.Source.URI + " does not point to a valid geometry entry.");
                         }
                         else if (child is LibraryControllers.Controller.Morph morph)
                         {
                             //var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as COLLADA.LibraryGeometries.Geometry;
-                            Engine.LogError("Importing morphs is not yet supported.");
+                            Engine.LogWarning("Importing morphs is not yet supported.");
                         }
                     }
                 }
@@ -578,7 +230,7 @@ namespace TheraEngine.Rendering.Models
                     if (geometry != null)
                         objects.Add(new ObjectInfo(geometry, null, bindMatrix, geomRef, parent, node));
                     else
-                        Engine.LogError(geomRef.Url.URI + " does not point to a valid geometry entry.");
+                        Engine.LogWarning(geomRef.Url.URI + " does not point to a valid geometry entry.");
                    
                 }
                 //Camera?
@@ -643,13 +295,13 @@ namespace TheraEngine.Rendering.Models
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
                 Material m = null;
-                //if (_inst?.
-                //    BindMaterialElement?.
-                //    TechniqueCommonElement?.
-                //    InstanceMaterialElements?[0].
-                //    Target.GetElement(scene.Root)
-                //    is LibraryMaterials.Material mat)
-                //    m = CreateMaterial(mat);
+                if (_inst?.
+                    BindMaterialElement?.
+                    TechniqueCommonElement?.
+                    InstanceMaterialElements?[0].
+                    Target.GetElement(scene.Root)
+                    is LibraryMaterials.Material mat)
+                    m = CreateMaterial(mat);
 
                 if (m == null)
                     m = Material.GetLitColorMaterial();
@@ -665,13 +317,13 @@ namespace TheraEngine.Rendering.Models
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
                 Material m = null;
-                //if (_inst?.
-                //    BindMaterialElement?.
-                //    TechniqueCommonElement?.
-                //    InstanceMaterialElements?[0].
-                //    Target.GetElement(scene.Root)
-                //    is LibraryMaterials.Material mat)
-                //    m = CreateMaterial(mat);
+                if (_inst?.
+                    BindMaterialElement?.
+                    TechniqueCommonElement?.
+                    InstanceMaterialElements?[0].
+                    Target.GetElement(scene.Root)
+                    is LibraryMaterials.Material mat)
+                    m = CreateMaterial(mat);
 
                 if (m == null)
                     m = Material.GetLitColorMaterial();
@@ -766,6 +418,356 @@ namespace TheraEngine.Rendering.Models
             HERMITE,
             CARDINAL,
             BSPLINE,
+        }
+        private static void ParseAnimation(LibraryAnimations.Animation animElem, ModelAnimation anim, VisualScene visualScene, List<BasePropertyAnimation> propAnims, ref float animationLength)
+        {
+            foreach (var animElemChild in animElem.AnimationElements)
+                ParseAnimation(animElemChild, anim, visualScene, propAnims, ref animationLength);
+
+            foreach (var channel in animElem.ChannelElements)
+            {
+                var sampler = channel.Source.GetElement<Sampler>(animElem.Root);
+                ISID target = channel.Target.GetElement(animElem.Root, out string selector);
+                if (!(target is IStringElement))
+                    continue;
+
+                float[] inputData = null, outputData = null, inTanData = null, outTanData = null;
+                string[] interpTypeData = null;
+                foreach (var input in sampler.InputElements)
+                {
+                    Source source = input.Source.GetElement<Source>(sampler.Root);
+                    switch (input.CommonSemanticType)
+                    {
+                        case ESemantic.INPUT:
+                            inputData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            break;
+                        case ESemantic.OUTPUT:
+                            outputData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            break;
+                        case ESemantic.INTERPOLATION:
+                            interpTypeData = source.GetArrayElement<NameArray>().StringContent.Values;
+                            break;
+                        case ESemantic.IN_TANGENT:
+                            inTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            break;
+                        case ESemantic.OUT_TANGENT:
+                            outTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            break;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(selector))
+                {
+                    //Animation is targeting only part of the value
+
+                    int matrixIndex = selector.IndexOf('(');
+                    if (matrixIndex >= 0)
+                    {
+                        int rowIndex = -1, colIndex = -1;
+                        int rowEnd = selector.IndexOf(')');
+                        string row = selector.Substring(matrixIndex + 1, rowEnd - matrixIndex - 1);
+                        rowIndex = int.Parse(row);
+                    }
+                    else
+                    {
+                        var s = selector.ParseAs<Channel.ESelector>();
+                        if (s == Channel.ESelector.ANGLE)
+                        {
+                            if (target is Node.Rotate rotate)
+                            {
+                                Vec4 axisAngle = rotate.StringContent.Value;
+                                bool xAxis = axisAngle.X == 1.0f && axisAngle.Y == 0.0f && axisAngle.Z == 0.0f;
+                                bool yAxis = axisAngle.X == 0.0f && axisAngle.Y == 1.0f && axisAngle.Z == 0.0f;
+                                bool zAxis = axisAngle.X == 0.0f && axisAngle.Y == 0.0f && axisAngle.Z == 1.0f;
+                                if (!xAxis && !yAxis && !zAxis)
+                                {
+                                    Engine.LogWarning("Animation rotation axes that are not the one of the three unit axes are not supported.");
+                                }
+                                else
+                                {
+                                    Node node = rotate.ParentElement;
+                                    string targetName = node.Name ?? (node.ID ?? node.SID);
+                                    if (node.Type == Node.EType.JOINT)
+                                    {
+                                        BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+                                        if (!wasFound)
+                                        {
+
+                                        }
+
+                                        int x = 0;
+                                        for (int i = 0; i < inputData.Length; ++i, x += 2)
+                                        {
+                                            float second = inputData[i];
+                                            float value = outputData[i];
+                                            InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                            PlanarInterpType pType = (PlanarInterpType)(int)type;
+
+                                            float inTan = 0.0f, outTan = 0.0f;
+                                            switch (pType)
+                                            {
+                                                case PlanarInterpType.CubicHermite:
+                                                    inTan = inTanData[i];
+                                                    outTan = outTanData[i];
+                                                    break;
+                                                case PlanarInterpType.CubicBezier:
+                                                    inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                                    outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                                    if (float.IsNaN(inTan) || float.IsInfinity(inTan))
+                                                    {
+                                                        inTan = 0.0f;
+                                                        //Engine.PrintLine("Invalid in-tangent calculated");
+                                                    }
+                                                    if (float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                                    {
+                                                        outTan = 0.0f;
+                                                        //Engine.PrintLine("Invalid out-tangent calculated");
+                                                    }
+                                                    break;
+                                            }
+
+                                            FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
+                                            animationLength = Math.Max(animationLength, second);
+                                            if (xAxis)
+                                                bone.RotationX.Add(kf);
+                                            else if (yAxis)
+                                                bone.RotationY.Add(kf);
+                                            else
+                                                bone.RotationZ.Add(kf);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Engine.LogWarning("Non-joint axis-angle rotation animation not supported.");
+                                    }
+                                }
+                            }
+                            else
+                                Engine.LogWarning("ANGLE channel selector expects Node.Rotate element, but got " + target.GetType().GetFriendlyName());
+                        }
+                        else if (s == Channel.ESelector.TIME)
+                        {
+                            Engine.LogWarning("TIME animation selector not supported.");
+                        }
+                        else
+                        {
+                            int valueIndex = ((int)s) & 0b11;
+                            if (target is Node.Translate translate)
+                            {
+                                Node node = translate.ParentElement;
+                                string targetName = node.Name ?? (node.ID ?? node.SID);
+                                if (node.Type == Node.EType.JOINT)
+                                {
+                                    BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+
+                                    int x = 0;
+                                    for (int i = 0; i < inputData.Length; ++i, x += 2)
+                                    {
+                                        float second = inputData[i];
+                                        float value = outputData[i];
+                                        InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                        PlanarInterpType pType = (PlanarInterpType)(int)type;
+
+                                        float inTan = 0.0f, outTan = 0.0f;
+                                        switch (pType)
+                                        {
+                                            case PlanarInterpType.CubicHermite:
+                                                inTan = inTanData[i];
+                                                outTan = outTanData[i];
+                                                break;
+                                            case PlanarInterpType.CubicBezier:
+                                                inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                                outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                                if (float.IsNaN(inTan) || float.IsInfinity(inTan))
+                                                {
+                                                    inTan = 0.0f;
+                                                    //Engine.PrintLine("Invalid in-tangent calculated");
+                                                }
+                                                if (float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                                {
+                                                    outTan = 0.0f;
+                                                    //Engine.PrintLine("Invalid out-tangent calculated");
+                                                }
+                                                break;
+                                        }
+
+                                        FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
+                                        animationLength = Math.Max(animationLength, second);
+                                        switch (valueIndex)
+                                        {
+                                            case 0: bone.TranslationX.Add(kf); break;
+                                            case 1: bone.TranslationY.Add(kf); break;
+                                            case 2: bone.TranslationZ.Add(kf); break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Engine.LogWarning("Non-joint single-axis translation animation not supported.");
+                                }
+                            }
+                            else if (target is Node.Scale scale)
+                            {
+                                Node node = scale.ParentElement;
+                                string targetName = node.Name ?? (node.ID ?? node.SID);
+                                if (node.Type == Node.EType.JOINT)
+                                {
+                                    BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+
+                                    int x = 0;
+                                    for (int i = 0; i < inputData.Length; ++i, x += 2)
+                                    {
+                                        float second = inputData[i];
+                                        float value = outputData[i];
+                                        InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                        PlanarInterpType pType = (PlanarInterpType)(int)type;
+
+                                        float inTan = 0.0f, outTan = 0.0f;
+                                        switch (pType)
+                                        {
+                                            case PlanarInterpType.CubicHermite:
+                                                inTan = inTanData[i];
+                                                outTan = outTanData[i];
+                                                break;
+                                            case PlanarInterpType.CubicBezier:
+                                                inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                                outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                                if (float.IsNaN(inTan) || float.IsInfinity(inTan))
+                                                {
+                                                    inTan = 0.0f;
+                                                    //Engine.PrintLine("Invalid in-tangent calculated");
+                                                }
+                                                if (float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                                {
+                                                    outTan = 0.0f;
+                                                    //Engine.PrintLine("Invalid out-tangent calculated");
+                                                }
+                                                break;
+                                        }
+
+                                        FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
+                                        animationLength = Math.Max(animationLength, second);
+                                        switch (valueIndex)
+                                        {
+                                            case 0: bone.ScaleX.Add(kf); break;
+                                            case 1: bone.ScaleY.Add(kf); break;
+                                            case 2: bone.ScaleZ.Add(kf); break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Engine.LogWarning("Non-joint single-axis scale animation not supported.");
+                                }
+                            }
+                            else if (target is BaseFXColorTexture.Color color)
+                            {
+                                Engine.LogWarning("Reading animation for " + color.GetType().GetFriendlyName() + " is not supported.");
+                            }
+                            else
+                            {
+                                Engine.LogWarning("Reading single-axis animation for " + target.GetType().GetFriendlyName() + " is not supported.");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (target is Node.Matrix mtx)
+                    {
+                        Node node = mtx.ParentElement;
+                        string targetName = node.Name ?? (node.ID ?? node.SID);
+
+                        if (node.Type == Node.EType.JOINT)
+                        {
+                            int x = 0;
+                            for (int i = 0; i < inputData.Length; ++i, x += 16)
+                            {
+                                float second = inputData[i];
+                                InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                PlanarInterpType pType = (PlanarInterpType)(int)type;
+
+                                float inTan = 0.0f, outTan = 0.0f;
+                                switch (pType)
+                                {
+                                    case PlanarInterpType.CubicHermite:
+                                        inTan = inTanData[i];
+                                        outTan = outTanData[i];
+                                        break;
+                                    case PlanarInterpType.CubicBezier:
+                                        Engine.LogWarning("Matrix has bezier interpolation");
+                                        //inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                        //outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                        //if (float.IsNaN(inTan) || float.IsInfinity(inTan) || float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                        //    Engine.PrintLine("Invalid tangent calculated");
+                                        break;
+                                }
+
+                                Matrix4 matrix = new Matrix4(
+                                        outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
+                                        outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
+                                        outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
+                                        outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
+
+                                Transform transform = Transform.DeriveTRS(matrix);
+
+                                BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+
+                                bone.TranslationX.Add(new FloatKeyframe(second, transform.Translation.X, inTan, outTan, pType));
+                                bone.TranslationY.Add(new FloatKeyframe(second, transform.Translation.Y, inTan, outTan, pType));
+                                bone.TranslationZ.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
+
+                                bone.RotationX.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
+                                bone.RotationY.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
+                                bone.RotationZ.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
+
+                                bone.ScaleX.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
+                                bone.ScaleY.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));
+                                bone.ScaleZ.Add(new FloatKeyframe(second, transform.Scale.Z, inTan, outTan, pType));
+
+                                animationLength = Math.Max(animationLength, second);
+                            }
+                        }
+                        else
+                        {
+                            Engine.LogWarning("Non-joint transform matrix animation not supported.");
+                        }
+                    }
+                    else if (target is Node.Translate trans)
+                    {
+                        if (trans.ParentElement.Type == Node.EType.JOINT)
+                        {
+                            Engine.LogWarning("Joint all-axes translation animation not supported.");
+                        }
+                        else
+                        {
+                            Engine.LogWarning("Non-joint all-axes translation animation not supported.");
+                        }
+                    }
+                    else if (target is Node.Rotate rot)
+                    {
+                        if (rot.ParentElement.Type == Node.EType.JOINT)
+                        {
+                            Engine.LogWarning("Joint all-axes rotation animation not supported.");
+                        }
+                        else
+                        {
+                            Engine.LogWarning("Non-joint all-axes rotation animation not supported.");
+                        }
+                    }
+                    else if (target is Node.Scale scale)
+                    {
+                        if (scale.ParentElement.Type == Node.EType.JOINT)
+                        {
+                            Engine.LogWarning("Joint all-axes scale animation not supported.");
+                        }
+                        else
+                        {
+                            Engine.LogWarning("Non-joint all-axes scale animation not supported.");
+                        }
+                    }
+                }
+            }
         }
     }
 }

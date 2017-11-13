@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models
                     if (node != null && node.UserData is Bone b)
                         boneList[i] = b;
                     else
-                        Engine.LogError(string.Format("Bone '{0}' not found", sid));
+                        Engine.LogWarning(string.Format("Bone '{0}' not found", sid));
                 }
 
                 //Build input command list
@@ -180,7 +180,7 @@ namespace TheraEngine.Rendering.Models
                 if (sources.ContainsKey(ESemantic.VERTEX))
                     info._morphCount = sources[ESemantic.VERTEX].Count - 1;
                 else
-                    Engine.LogError("Mesh has no vertices.");
+                    Engine.LogWarning("Mesh has no vertices.");
 
                 info._hasNormals =
                     sources.ContainsKey(ESemantic.NORMAL) &&
@@ -208,13 +208,13 @@ namespace TheraEngine.Rendering.Models
                 Vertex vtx;
                 Vertex[][] vertices;
                 float[] list;
-                Matrix4 invBind = bindMatrix;
-                if (info.HasNormals || info.HasBinormals || info.HasTangents)
-                {
-                    invBind.Invert();
-                    invBind.Transpose();
-                    invBind = invBind.GetRotationMatrix4();
-                }
+                Matrix4 invBind = Matrix4.Identity;// bindMatrix;
+                //if (info.HasNormals || info.HasBinormals || info.HasTangents)
+                //{
+                //    invBind.Invert();
+                //    invBind.Transpose();
+                //    invBind = invBind.GetRotationMatrix4();
+                //}
 
                 TechniqueCommon.Accessor acc;
                 var indices = prim.IndicesElement.StringContent.Values;

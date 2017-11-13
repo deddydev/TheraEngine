@@ -406,7 +406,7 @@ namespace TheraEngine
             //    panel.GlobalHud.DebugPrint(message);
 #endif
         }
-        public static void LogError(string message, [CallerMemberName] string callerName = "")
+        public static void LogWarning(string message, [CallerMemberName] string callerName = "")
         {
             string m = message;
             if (!string.IsNullOrEmpty(callerName))
@@ -420,6 +420,9 @@ namespace TheraEngine
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
         public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false, bool loadWorldGameMode = true)
         {
+            if (_currentWorld == world)
+                return;
+
             bool wasRunning = _timer.IsRunning;
             World previous = World;
 
@@ -497,13 +500,15 @@ namespace TheraEngine
         }
         internal static void AddLoadedFile<T>(string path, T file) where T : FileObject
         {
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path) || file == null)
                 return;
 
             if (LoadedFiles.ContainsKey(path))
                 LoadedFiles[path].Add(file);
             else
                 LoadedFiles.Add(path, new List<FileObject>() { file });
+
+            file.OnLoaded();
         }
 
         /// <summary>

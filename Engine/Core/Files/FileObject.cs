@@ -102,8 +102,8 @@ namespace TheraEngine.Files
 
             }
         }
-        public FileObject() { OnLoaded(); }
-        protected virtual void OnLoaded() { }
+        public FileObject() { }
+        internal protected virtual void OnLoaded() { }
 
         [Category("File Object")]
         public string FilePath

@@ -31,20 +31,6 @@ namespace TheraEngine.Cutscenes
             if (Engine.World != _world)
                 Engine.SetCurrentWorld(_world, false, false, false);
         }
-        /// <summary>
-        /// Pauses progression of the cutscene, but does not end it.
-        /// </summary>
-        public void Pause()
-        {
-
-        }
-        /// <summary>
-        /// Ends the cutscene early and resumes gameplay.
-        /// </summary>
-        public void End()
-        {
-
-        }
         public void Tick(float delta)
         {
 

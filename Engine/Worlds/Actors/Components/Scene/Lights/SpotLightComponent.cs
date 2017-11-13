@@ -18,7 +18,7 @@ namespace TheraEngine.Worlds.Actors
         private PerspectiveCamera _shadowCamera;
         private int _shadowWidth, _shadowHeight;
         private Matrix4 _worldToLightSpaceProjMatrix;
-        internal protected ConeZ _outerCone, _innerCone;
+        private ConeZ _innerCone, _outerCone;
 
         [TSerialize]
         [Category("Spotlight Component")]
@@ -91,6 +91,13 @@ namespace TheraEngine.Worlds.Actors
                 _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, value) * 2.0f;
             }
         }
+
+        [ReadOnly(true)]
+        [Category("Spotlight Component")]
+        public ConeZ OuterCone => _outerCone;
+        [ReadOnly(true)]
+        [Category("Spotlight Component")]
+        public ConeZ InnerCone => _innerCone;
 
         public SpotLightComponent(
             float distance, ColorF3 color, float diffuseIntensity, float ambientIntensity,

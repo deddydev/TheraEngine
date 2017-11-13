@@ -6,6 +6,7 @@ using TheraEngine.Worlds.Actors;
 using System.Collections.Concurrent;
 using System.Collections;
 using System.Linq;
+using TheraEngine.Particles;
 
 namespace TheraEngine.Rendering
 {
@@ -103,10 +104,14 @@ namespace TheraEngine.Rendering
         private RenderPasses _passes;
         private Octree _renderTree;
         private LightManager _lightManager;
+        private ParticleManager _particles;
         private List<IPreRenderNeeded> _preRenderList = new List<IPreRenderNeeded>();
+        private List<SplineComponent> _splines = new List<SplineComponent>();
+        private List<Camera> _cameras;
 
         public Octree RenderTree => _renderTree;
         public LightManager Lights => _lightManager;
+        public ParticleManager Particles => _particles;
         internal RenderPasses RenderPasses => _passes;
 
         public void RenderShadowMaps()
@@ -200,6 +205,15 @@ namespace TheraEngine.Rendering
                 return;
             if (_preRenderList.Contains(obj))
                 _preRenderList.Remove(obj);
+        }
+        public void RegisterSpline(SplineComponent comp)
+        {
+            if (Engine.Settings.RenderSplines)
+                Add(comp);
+        }
+        public void UnregisterSpline(SplineComponent comp)
+        {
+            Remove(comp);
         }
     }
 }

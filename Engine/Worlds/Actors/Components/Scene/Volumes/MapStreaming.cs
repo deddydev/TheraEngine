@@ -11,5 +11,6 @@ namespace TheraEngine.Worlds.Actors
 
         [TSerialize]
         public SingleFileRef<Map> MapToLoad { get; set; }
+
     }
 }

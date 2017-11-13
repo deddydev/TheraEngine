@@ -8,7 +8,6 @@ using System;
 namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Cone")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public abstract class BaseCone : Shape
     {
         public override Shape CullingVolume => null;

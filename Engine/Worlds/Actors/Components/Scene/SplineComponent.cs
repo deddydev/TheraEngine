@@ -11,8 +11,9 @@ namespace TheraEngine.Worlds.Actors
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueDeferredLit, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
+
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
@@ -73,14 +74,12 @@ namespace TheraEngine.Worlds.Actors
         }
         public override void OnSpawned()
         {
-            if (Engine.Settings.RenderSplines)
-                Engine.Scene.Add(this);
+            Engine.Scene.RegisterSpline(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            if (Engine.Settings.RenderSplines)
-                Engine.Scene.Remove(this);
+            Engine.Scene.UnregisterSpline(this);
             base.OnDespawned();
         }
 

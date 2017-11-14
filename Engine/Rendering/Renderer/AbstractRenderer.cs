@@ -385,7 +385,7 @@ namespace TheraEngine.Rendering
         /// <param name="type">The type of shader</param>
         /// <param name="source">The code for the shader</param>
         /// <returns>The shader's handle.</returns>
-        public abstract int GenerateShader(string source);
+        public abstract int GenerateShader(params string[] source);
         /// <summary>
         /// Creates a new shader program with the given shaders.
         /// </summary>

@@ -17,11 +17,9 @@ namespace TheraEngine.Core.Shapes
     {
         //public static List<BoundingBox> Active = new List<BoundingBox>();
         public static BoundingBox ExpandableBox() => FromMinMax(float.MaxValue, float.MinValue);
-
-        [DefaultValue("0 0 0")]
+        
         [TSerialize("HalfExtents")]
         protected EventVec3 _halfExtents = Vec3.Half;
-        [DefaultValue("0 0 0")]
         [TSerialize("Translation")]
         protected EventVec3 _translation = Vec3.Zero;
 

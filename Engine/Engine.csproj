@@ -336,6 +336,7 @@
     <Compile Include="Animation\Property\PropAnimVec2.cs" />
     <Compile Include="Animation\Property\PropAnimVec3.cs" />
     <Compile Include="Animation\Property\PropAnimVec4.cs" />
+    <Compile Include="Rendering\Models\Materials\TextFileRef.cs" />
     <Compile Include="Tests\TestDefaults.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\Animation\AnimStateMachineComponent.cs" />
     <Compile Include="Animation\BaseAnimation.cs" />

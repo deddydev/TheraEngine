@@ -19,7 +19,8 @@ namespace TheraEngine.Tools
             Stack<String> stack = new Stack<String>();
             ConvertToPostFix(expression, queue, stack);
             string result = GetAnswer(provider, queue, stack);
-            return (T)GetValue(result, provider);
+            T value = (T)GetValue(result, provider);
+            return value;
         }
         private static string[] SplitInFix(string inFix)
         {
@@ -365,8 +366,9 @@ namespace TheraEngine.Tools
                 else if (!token.Equals("("))
                 {
                     //Push numbers directly to the stack; ignore '('
-                    object value = GetValue(token, provider);
-                    stack.Push(value == null ? "null" : value.ToString());
+                    //object value = GetValue(token, provider);
+                    //stack.Push(value == null ? "null" : value.ToString());
+                    stack.Push(token);
                 }
             }
             //The result of the expression is now the only number in the stack

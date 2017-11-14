@@ -163,7 +163,7 @@ namespace TheraEngine.Worlds.Actors
             {
                 Engine.Scene.Lights.Add(this);
                 
-                SetShadowMapResolution(2048, 2048);
+                SetShadowMapResolution(256, 256);
 
                 if (Engine.Settings.RenderCameraFrustums)
                     Engine.Scene.Add(_shadowCamera);

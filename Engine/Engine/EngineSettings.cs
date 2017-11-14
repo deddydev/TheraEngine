@@ -103,7 +103,7 @@ namespace TheraEngine
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
 #if DEBUG
-            RenderOctree = false;
+            RenderOctree = true;
             RenderQuadtree = true;
             RenderSkeletons = false;
             RenderCameraFrustums = true;

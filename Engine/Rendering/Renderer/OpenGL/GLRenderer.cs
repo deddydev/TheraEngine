@@ -235,7 +235,7 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.BindFragDataLocation(bindingId, location, name);
         }
-        public override int GenerateShader(string source)
+        public override int GenerateShader(params string[] source)
         {
             int handle = GL.CreateShader(_currentShaderMode);
             if (handle == 0)
@@ -244,7 +244,8 @@ namespace TheraEngine.Rendering.OpenGL
                 return 0;
             }
 
-            GL.ShaderSource(handle, source);
+            foreach (string s in source)
+                GL.ShaderSource(handle, s);
             GL.CompileShader(handle);
 
 #if DEBUG
@@ -254,19 +255,22 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.GetShaderInfoLog(handle, out string info);
 
                 if (string.IsNullOrEmpty(info) && status == 0)
-                    Engine.PrintLine("Unable to compile shader, but no error was returned.");
+                    Engine.LogWarning("Unable to compile shader, but no error was returned.");
                 else
                 {
-                    Engine.PrintLine(info + "\n\n");
+                    Engine.LogWarning(info);
+                    for (int i = 0; i < source.Length; ++i)
+                    {
+                        Engine.PrintLine("\n\nSource{0}\n", i.ToString());
 
-                    //Split the source by new lines
-                    string[] s = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                        //Split the source by new lines
+                        string[] s = source[i].Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
-                    //Add the line number to the source so we can go right to errors on specific lines
-                    int lineNumber = 1;
-                    foreach (string line in s)
-                        Engine.PrintLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
-
+                        //Add the line number to the source so we can go right to errors on specific lines
+                        int lineNumber = 1;
+                        foreach (string line in s)
+                            Engine.PrintLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
+                    }
                     Engine.PrintLine("\n\n");
                 }
             }

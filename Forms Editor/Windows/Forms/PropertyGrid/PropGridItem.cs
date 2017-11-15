@@ -134,7 +134,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private static List<PropGridItem> VisibleItems = new List<PropGridItem>();
         internal static void UpdateVisibleItems()
         {
-            Parallel.For(0, VisibleItems.Count, i => VisibleItems[i].Invoke((Action)VisibleItems[i].UpdateDisplay));
+            Parallel.For(0, VisibleItems.Count, i =>
+            {
+                if (VisibleItems.IndexInRange(i))
+                    VisibleItems[i].Invoke((Action)VisibleItems[i].UpdateDisplay);
+            });
         }
         protected override void OnHandleCreated(EventArgs e)
         {

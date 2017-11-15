@@ -261,6 +261,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         #region Shortcuts
+        [Description("Deletes all nodes that are currently selected.")]
         public bool DeleteSelectedNodes()
         {
             if (SelectedNodes.Count > 0)
@@ -273,6 +274,7 @@ namespace TheraEditor.Windows.Forms
             }
             return false;
         }
+        [Description("Selects all nodes that are currently visible.")]
         public bool SelectAllVisibleNodes()
         {
             List<BaseWrapper> nodes = new List<BaseWrapper>();
@@ -284,6 +286,32 @@ namespace TheraEditor.Windows.Forms
             }
             SelectedNodes = nodes;
             return true;
+        }
+        [Description("Copies the selected nodes to the clipboard.")]
+        public bool CopySelectedNodes()
+        {
+            if (SelectedNodes == null || SelectedNodes.Count == 0)
+                return false;
+            SetClipboard(SelectedNodes.Select(x => x.FilePath).ToArray(), false);
+            return true;
+        }
+        [Description("Removes the selected nodes and moves them to the clipboard.")]
+        public bool CutSelectedNodes()
+        {
+            if (SelectedNodes == null || SelectedNodes.Count == 0)
+                return false;
+            SetClipboard(SelectedNodes.Select(x => x.FilePath).ToArray(), true);
+            return true;
+        }
+        [Description("Pastes files/folders from the clipboard to the selected node.")]
+        public bool Paste()
+        {
+            if (SelectedNode != null)
+            {
+                Paste(SelectedNode.FilePath);
+                return true;
+            }
+            return false;
         }
         #endregion
 
@@ -301,29 +329,6 @@ namespace TheraEditor.Windows.Forms
             stream.Write(bytes, 0, bytes.Length);
             data.SetData("Preferred DropEffect", stream);
             Clipboard.SetDataObject(data);
-        }
-        public bool CopySelectedNodes()
-        {
-            if (SelectedNodes == null || SelectedNodes.Count == 0)
-                return false;
-            SetClipboard(SelectedNodes.Select(x => x.FilePath).ToArray(), false);
-            return true;
-        }
-        public bool CutSelectedNodes()
-        {
-            if (SelectedNodes == null || SelectedNodes.Count == 0)
-                return false;
-            SetClipboard(SelectedNodes.Select(x => x.FilePath).ToArray(), true);
-            return true;
-        }
-        public bool Paste()
-        {
-            if (SelectedNode != null)
-            {
-                Paste(SelectedNode.FilePath);
-                return true;
-            }
-            return false;
         }
         public void Paste(string destPath)
         {

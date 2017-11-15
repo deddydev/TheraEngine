@@ -38,6 +38,7 @@
             this.ActorTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ActorTree.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.ActorTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.ActorTree.HideSelection = false;
             this.ActorTree.Location = new System.Drawing.Point(0, 0);
             this.ActorTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ActorTree.Name = "ActorTree";

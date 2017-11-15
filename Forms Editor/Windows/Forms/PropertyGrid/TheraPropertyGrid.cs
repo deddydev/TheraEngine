@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -62,12 +63,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             get => _subObject;
             set
             {
+                //Do nothing if target object is the same
+                if (_subObject == value)
+                    return;
+
+                //Destroy old properties
+                if (_subObject != null)
+                    LoadProperties(null);
+
                 _subObject = value;
+
+                //If scene component, select it in the scene
                 if (_subObject is SceneComponent s)
                 {
                     EditorHud hud = (EditorHud)Engine.ActivePlayers[0].ControlledPawn.Hud;
                     hud.SelectedComponent = s;
                 }
+
+                //Load the properties of the object
                 LoadProperties(_subObject);
             }
         }
@@ -79,15 +92,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             get => _targetObject;
             set
             {
-                _targetObject = value;
+                if (_targetObject == value)
+                    return;
 
-                if (_targetObject == null)
+                if (_targetObject != null)
                 {
                     pnlProps.Controls.Clear();
                     foreach (var category in _categories.Values)
                         category.DestroyProperties();
                     _categories.Clear();
+                }
 
+                _targetObject = value;
+
+                if (_targetObject == null)
+                {
                     lblObjectName.Visible = false;
                     return;
                 }
@@ -107,7 +126,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     treeViewSceneComps.Visible = true;
                     _updating = false;
 
-                    treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
+                    //treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
                 }
                 else
                 {
@@ -118,9 +137,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     treeViewSceneComps.Visible = false;
                     lstLogicComps.Visible = false;
                     _updating = false;
-
-                    SubObject = value;
                 }
+                SubObject = value;
             }
         }
 
@@ -150,6 +168,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             foreach (var category in _categories.Values)
                 category.DestroyProperties();
             _categories.Clear();
+
+            if (obj == null)
+            {
+                pnlProps.ResumeLayout(true);
+                return;
+            }
 
             Type targetObjectType = obj.GetType();
             PropertyInfo[] props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -314,7 +338,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblProperties_MouseDown(object sender, MouseEventArgs e)
         {
             _y = e.Y;
-            lblProperties.MouseMove += MouseMoveLogicComps;
+            if (lstLogicComps.Visible)
+                lblProperties.MouseMove += MouseMoveLogicComps;
+            else
+                lblProperties.MouseMove += MouseMoveSceneComps;
         }
         private void lblLogicComps_MouseUp(object sender, MouseEventArgs e)
         {
@@ -322,7 +349,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void lblProperties_MouseUp(object sender, MouseEventArgs e)
         {
-            lblProperties.MouseMove -= MouseMoveLogicComps;
+            if (lstLogicComps.Visible)
+                lblProperties.MouseMove -= MouseMoveLogicComps;
+            else
+                lblProperties.MouseMove -= MouseMoveSceneComps;
         }
         private void MouseMoveSceneComps(object sender, MouseEventArgs e)
         {
@@ -337,9 +367,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void treeViewSceneComps_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (_updating)
-                return;
-            SubObject = treeViewSceneComps.SelectedNode.Tag;
+            
         }
 
         private void lstLogicComps_SelectedIndexChanged(object sender, EventArgs e)
@@ -347,6 +375,35 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (_updating)
                 return;
             SubObject = lstLogicComps.SelectedItem;
+        }
+
+        private void lblObjectName_MouseEnter(object sender, EventArgs e)
+        {
+            lblObjectName.BackColor = Color.FromArgb(14, 18, 34);
+        }
+
+        private void lblObjectName_MouseLeave(object sender, EventArgs e)
+        {
+            lblObjectName.BackColor = Color.FromArgb(55, 55, 60);
+        }
+
+        private void lblObjectName_Click(object sender, EventArgs e)
+        {
+            SubObject = _targetObject;
+        }
+
+        private void treeViewSceneComps_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (_updating)
+                return;
+            TreeNode node = treeViewSceneComps.GetNodeAt(e.Location);
+            if (node != null)
+            {
+                Rectangle r = node.Bounds;
+                r.X -= 25; r.Width += 25;
+                if (r.Contains(e.Location))
+                    SubObject = node.Tag;
+            }
         }
 
         //protected override void OnMouseEnter(EventArgs e)

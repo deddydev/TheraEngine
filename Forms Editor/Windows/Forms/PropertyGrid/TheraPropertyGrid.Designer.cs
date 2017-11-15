@@ -42,7 +42,7 @@
             this.lblSceneComps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblSceneComps.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSceneComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblSceneComps.Location = new System.Drawing.Point(0, 20);
+            this.lblSceneComps.Location = new System.Drawing.Point(0, 37);
             this.lblSceneComps.Name = "lblSceneComps";
             this.lblSceneComps.Size = new System.Drawing.Size(561, 20);
             this.lblSceneComps.TabIndex = 0;
@@ -54,7 +54,7 @@
             this.lblLogicComps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblLogicComps.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblLogicComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblLogicComps.Location = new System.Drawing.Point(0, 65);
+            this.lblLogicComps.Location = new System.Drawing.Point(0, 82);
             this.lblLogicComps.Name = "lblLogicComps";
             this.lblLogicComps.Size = new System.Drawing.Size(561, 20);
             this.lblLogicComps.TabIndex = 1;
@@ -68,7 +68,7 @@
             this.lblProperties.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblProperties.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblProperties.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblProperties.Location = new System.Drawing.Point(0, 110);
+            this.lblProperties.Location = new System.Drawing.Point(0, 127);
             this.lblProperties.Name = "lblProperties";
             this.lblProperties.Size = new System.Drawing.Size(561, 20);
             this.lblProperties.TabIndex = 2;
@@ -86,11 +86,12 @@
             this.treeViewSceneComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.treeViewSceneComps.HideSelection = false;
             this.treeViewSceneComps.HotTracking = true;
-            this.treeViewSceneComps.Location = new System.Drawing.Point(0, 40);
+            this.treeViewSceneComps.Location = new System.Drawing.Point(0, 57);
             this.treeViewSceneComps.Name = "treeViewSceneComps";
             this.treeViewSceneComps.Size = new System.Drawing.Size(561, 25);
             this.treeViewSceneComps.TabIndex = 3;
             this.treeViewSceneComps.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewSceneComps_AfterSelect);
+            this.treeViewSceneComps.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSceneComps_MouseDown);
             // 
             // lstLogicComps
             // 
@@ -102,7 +103,7 @@
             this.lstLogicComps.FormattingEnabled = true;
             this.lstLogicComps.IntegralHeight = false;
             this.lstLogicComps.ItemHeight = 20;
-            this.lstLogicComps.Location = new System.Drawing.Point(0, 85);
+            this.lstLogicComps.Location = new System.Drawing.Point(0, 102);
             this.lstLogicComps.Name = "lstLogicComps";
             this.lstLogicComps.Size = new System.Drawing.Size(561, 25);
             this.lstLogicComps.TabIndex = 4;
@@ -117,10 +118,10 @@
             this.pnlProps.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlProps.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.pnlProps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.pnlProps.Location = new System.Drawing.Point(0, 130);
+            this.pnlProps.Location = new System.Drawing.Point(0, 147);
             this.pnlProps.Margin = new System.Windows.Forms.Padding(0);
             this.pnlProps.Name = "pnlProps";
-            this.pnlProps.Size = new System.Drawing.Size(561, 415);
+            this.pnlProps.Size = new System.Drawing.Size(561, 398);
             this.pnlProps.TabIndex = 5;
             // 
             // lblObjectName
@@ -130,10 +131,13 @@
             this.lblObjectName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lblObjectName.Location = new System.Drawing.Point(0, 0);
             this.lblObjectName.Name = "lblObjectName";
-            this.lblObjectName.Size = new System.Drawing.Size(561, 20);
+            this.lblObjectName.Size = new System.Drawing.Size(561, 37);
             this.lblObjectName.TabIndex = 6;
             this.lblObjectName.Text = "ObjectName";
             this.lblObjectName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblObjectName.Click += new System.EventHandler(this.lblObjectName_Click);
+            this.lblObjectName.MouseEnter += new System.EventHandler(this.lblObjectName_MouseEnter);
+            this.lblObjectName.MouseLeave += new System.EventHandler(this.lblObjectName_MouseLeave);
             // 
             // TheraPropertyGrid
             // 

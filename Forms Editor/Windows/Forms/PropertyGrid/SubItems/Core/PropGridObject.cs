@@ -30,6 +30,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             lblObjectTypeName.Text = IListOwner != null ? _object.ToString() + " [" + typeName + "]" : typeName;
         }
 
+        protected override void DestroyHandle()
+        {
+            foreach (Control control in pnlProps.Controls)
+                control.Dispose();
+            pnlProps.Controls.Clear();
+            foreach (var category in _categories.Values)
+                category.DestroyProperties();
+            _categories.Clear();
+            base.DestroyHandle();
+        }
+
         private void LoadProperties(object obj)
         {
             pnlProps.SuspendLayout();

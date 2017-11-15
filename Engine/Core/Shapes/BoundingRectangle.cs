@@ -7,7 +7,6 @@ namespace TheraEngine.Core.Shapes
     /// Axis-aligned rectangle struct. Supports position, size, and a local origin. All translations are relative to the bottom left (0, 0), like a graph.
     /// </summary>    
     [FileClass("SHAPE", "Rectangle")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public struct BoundingRectangle
     {
         /// <summary>
@@ -26,6 +25,8 @@ namespace TheraEngine.Core.Shapes
         /// The relative translation of the origin from the bottom left, as a percentage.
         /// 0,0 is bottom left, 0.5,0.5 is center, 1,1 is top right.
         /// </summary>
+        [Description(@"The relative translation of the origin from the bottom left, as a percentage.
+0,0 is bottom left, 0.5,0.5 is center, 1,1 is top right.")]
         public Vec2 LocalOriginPercentage
         {
             get => _localOriginPercentage;
@@ -40,6 +41,7 @@ namespace TheraEngine.Core.Shapes
         /// <summary>
         /// The actual translation of the origin of this rectangle, relative to the bottom left.
         /// </summary>
+        [Description(@"The actual translation of the origin of this rectangle, relative to the bottom left.")]
         public Vec2 LocalOrigin
         {
             get => _localOriginPercentage * _bounds;
@@ -49,6 +51,8 @@ namespace TheraEngine.Core.Shapes
         /// The location of the origin of this rectangle as a world point relative to the bottom left (0, 0).
         /// Bottom left point of this rectangle is Position - LocalOrigin.
         /// </summary>
+        [Description(@"The location of the origin of this rectangle as a world point relative to the bottom left (0, 0).
+Bottom left point of this rectangle is Position - LocalOrigin.")]
         public Vec2 Position
         {
             get => _translation + LocalOrigin;

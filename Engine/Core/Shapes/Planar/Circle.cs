@@ -24,8 +24,7 @@ namespace TheraEngine.Core.Shapes
             : base(point, normal) { _radius = radius; }
         public Circle3D(float radius, Vec3 point0, Vec3 point1, Vec3 point2)
             : base(point0, point1, point2) { _radius = radius; }
-
-        [DefaultValue(1.0f)]
+        
         [TSerialize("Radius")]
         private float _radius;
         public float Radius

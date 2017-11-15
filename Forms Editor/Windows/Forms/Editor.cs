@@ -257,7 +257,7 @@ namespace TheraEditor.Windows.Forms
         public Action OnRedrawn;
         private void Redraw()
         {
-            if (!RenderForm1.IsDisposed)
+            if (RenderForm1 != null && !RenderForm1.IsDisposed)
                 RenderForm1.RenderPanel.Invalidate();
             if (RenderForm2 != null && !RenderForm2.IsDisposed)
                 RenderForm2.RenderPanel.Invalidate();

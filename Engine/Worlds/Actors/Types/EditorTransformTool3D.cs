@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
@@ -50,7 +51,7 @@ namespace TheraEngine.Worlds.Actors.Types
         private Material[] _scalePlaneMat = new Material[3];
         private Material _screenMat;
         
-        private ESpace _transformSpace = ESpace.Local;
+        private ESpace _transformSpace = ESpace.Screen;
 
         protected override SkeletalMeshComponent OnConstruct()
         {
@@ -213,6 +214,20 @@ namespace TheraEngine.Worlds.Actors.Types
         private TransformType _mode = TransformType.Translate;
         private ISocket _targetSocket = null;
 
+        [Category("Transform Tool 3D")]
+        public ESpace TransformSpace
+        {
+            get => _transformSpace;
+            set
+            {
+                _transformSpace = value;
+                RootComponent.WorldMatrix = GetWorldMatrix();
+                _dragMatrix = RootComponent.WorldMatrix;
+                _invDragMatrix = RootComponent.InverseWorldMatrix;
+            }
+        }
+
+        [Category("Transform Tool 3D")]
         public TransformType TransformMode
         {
             get => _mode;
@@ -253,6 +268,7 @@ namespace TheraEngine.Worlds.Actors.Types
         /// <summary>
         /// The socket transform that is being manipulated by this transform tool.
         /// </summary>
+        [Browsable(false)]
         public ISocket TargetSocket
         {
             get => _targetSocket;
@@ -285,12 +301,26 @@ namespace TheraEngine.Worlds.Actors.Types
 
         private Matrix4 GetWorldMatrix()
         {
-            switch (_transformSpace)
+            switch (TransformSpace)
             {
                 case ESpace.Local:
                     return _targetSocket.WorldMatrix.ClearScale();
+
                 case ESpace.Parent:
-                    return _targetSocket.ParentSocket.WorldMatrix.ClearScale();
+
+                    if (_targetSocket.ParentSocket != null)
+                        return _targetSocket.ParentSocket.WorldMatrix.ClearScale();
+                    else
+                        return _targetSocket.WorldMatrix.GetPoint().AsTranslationMatrix();
+
+                case ESpace.Screen:
+
+                    Camera c = Engine.ActivePlayers[0].CurrentCamera;
+                    Vec3 f = c.GetForwardVector();
+                    Vec3 u = c.GetUpVector();
+                    Vec3 r = c.GetRightVector();
+                    return Matrix4.CreateSpacialTransform(_targetSocket.WorldMatrix.GetPoint(), r, u, f);
+
                 case ESpace.World:
                 default:
                     return _targetSocket.WorldMatrix.GetPoint().AsTranslationMatrix();
@@ -298,12 +328,26 @@ namespace TheraEngine.Worlds.Actors.Types
         }
         private Matrix4 GetInvWorldMatrix()
         {
-            switch (_transformSpace)
+            switch (TransformSpace)
             {
                 case ESpace.Local:
                     return _targetSocket.InverseWorldMatrix.ClearScale();
+
                 case ESpace.Parent:
-                    return _targetSocket.ParentSocket.InverseWorldMatrix.ClearScale();
+
+                    if (_targetSocket.ParentSocket != null)
+                        return _targetSocket.ParentSocket.InverseWorldMatrix.ClearScale();
+                    else
+                        return _targetSocket.InverseWorldMatrix.GetPoint().AsTranslationMatrix();
+
+                case ESpace.Screen:
+
+                    Camera c = Engine.ActivePlayers[0].CurrentCamera;
+                    Vec3 f = c.GetForwardVector();
+                    Vec3 u = c.GetUpVector();
+                    Vec3 r = c.GetRightVector();
+                    return Matrix4.CreateSpacialTransform(_targetSocket.InverseWorldMatrix.GetPoint(), r, u, f);
+
                 case ESpace.World:
                 default:
                     return _targetSocket.InverseWorldMatrix.GetPoint().AsTranslationMatrix();

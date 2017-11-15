@@ -53,6 +53,11 @@ namespace TheraEngine.Rendering.Cameras
         public Matrix4 ProjectionMatrix => _projectionMatrix;
         [Browsable(false)]
         public Matrix4 InverseProjectionMatrix => _projectionInverse;
+
+        /// <summary>
+        /// Transformation from the space relative to the camera to space relative to the world.
+        /// Also can be considered the camera's world transform.
+        /// </summary>
         [Browsable(false)]
         public Matrix4 CameraToWorldSpaceMatrix
         {
@@ -72,6 +77,9 @@ namespace TheraEngine.Rendering.Cameras
             //    }
             //}
         }
+        /// <summary>
+        /// Transformation from the space relative to the world to space relative to the camera.
+        /// </summary>
         [Browsable(false)]
         public Matrix4 WorldToCameraSpaceMatrix
         {
@@ -129,11 +137,10 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
-        [DisplayName("World Point")]
+
         [Category("Camera")]
         public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
         
-        [DisplayName("Local Point")]
         [Category("Camera")]
         public EventVec3 LocalPoint
         {
@@ -145,7 +152,6 @@ namespace TheraEngine.Rendering.Cameras
                 PositionChanged();
             }
         }
-        [DisplayName("Local Rotation")]
         [Category("Camera")]
         public Rotator LocalRotation
         {
@@ -191,8 +197,6 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         [Category("Camera")]
-        [DisplayName("View Target")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public EventVec3 ViewTarget
         {
             get => _viewTarget;
@@ -340,6 +344,16 @@ namespace TheraEngine.Rendering.Cameras
         /// <returns>The rotated vector. Not normalized.</returns>
         public Vec3 RotateVector(Vec3 dir)
             => Vec3.TransformVector(dir, CameraToWorldSpaceMatrix);
+
+        /// <summary>
+        /// Rotates the given vector by the camera's rotation. Does not normalize the returned vector.
+        /// For example, if given world-space forward, will return camera-space forward.
+        /// </summary>
+        /// <param name="dir">The vector to rotate.</param>
+        /// <returns>The rotated vector. Not normalized.</returns>
+        public Vec3 RotateVectorInverse(Vec3 dir)
+            => Vec3.TransformVector(dir, CameraToWorldSpaceMatrix);
+
         /// <summary>
         /// Returns the up direction in camera space.
         /// </summary>

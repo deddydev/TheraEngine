@@ -52,6 +52,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
+        protected override void DestroyHandle()
+        {
+            LoadList(null);
+            base.DestroyHandle();
+        }
+
         private async void LoadList(IList list)
         {
             if (list == null)

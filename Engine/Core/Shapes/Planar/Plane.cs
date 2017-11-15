@@ -68,10 +68,14 @@ namespace TheraEngine.Core.Shapes
             _distance = -point.Dot(normal);
         }
 
+        /// <summary>
+        /// Returns distance from the plane defined by a point and normal to the origin.
+        /// </summary>
+        /// <param name="planePoint">Point in space the plane intersects.</param>
+        /// <param name="planeNormal">The normal of the plane.</param>
+        /// <returns>Shortest distance to the origin from the plane.</returns>
         public static float ComputeDistance(Vec3 planePoint, Vec3 planeNormal)
-        {
-            return -planePoint.Dot(planeNormal);
-        }
+            => -planePoint.Dot(planeNormal);
 
         /// <summary>
         /// Constructs a plane given three points.

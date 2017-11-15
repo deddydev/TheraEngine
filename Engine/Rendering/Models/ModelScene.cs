@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Animation;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models
 {

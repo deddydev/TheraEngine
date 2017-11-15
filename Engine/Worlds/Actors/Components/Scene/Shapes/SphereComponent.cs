@@ -2,6 +2,7 @@
 using TheraEngine.Rendering;
 using BulletSharp;
 using TheraEngine.Core.Shapes;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -18,11 +19,14 @@ namespace TheraEngine.Worlds.Actors
             InitPhysics(info);
         }
 
+        [Category("Sphere")]
         public float Radius
         {
             get => _sphere.Radius;
             set => _sphere.Radius = value;
         }
+
+        [Browsable(false)]
         public Vec3 Center
             => _sphere.Center;
 

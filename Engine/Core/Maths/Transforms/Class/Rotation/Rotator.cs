@@ -2,8 +2,9 @@
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Maths.Transforms
 {
     public enum RotationOrder
     {
@@ -16,8 +17,8 @@ namespace System
     }
     public delegate void RotatorChange(Rotator rotation);
     public delegate void RotationOrderChange(RotationOrder newOrder, RotationOrder prevOrder);
+
     [Serializable]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe class Rotator : IEquatable<Rotator>
     {
@@ -73,7 +74,6 @@ namespace System
         private bool _lockRoll = false;
 
         [Category("Rotator")]
-        [DisplayName("Order")]
         public RotationOrder Order
         {
             get => _rotationOrder;
@@ -671,7 +671,7 @@ namespace System
         public static explicit operator Rotator(Vec3 v)
             => new Rotator(v.X, v.Y, v.Z, RotationOrder.PYR);
 
-        private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        private static string listSeparator = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
 
         public static Rotator GetZero(RotationOrder order = RotationOrder.YPR)
         {

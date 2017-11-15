@@ -29,22 +29,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_eventVec4 != null)
+            if (_eventVec4 != null && !_updating)
                 _eventVec4.X = current.Value;
         }
         private void numericInputBoxY_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_eventVec4 != null)
+            if (_eventVec4 != null && !_updating)
                 _eventVec4.Y = current.Value;
         }
         private void numericInputBoxZ_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_eventVec4 != null)
+            if (_eventVec4 != null && !_updating)
                 _eventVec4.Z = current.Value;
         }
         private void numericInputBoxW_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_eventVec4 != null)
+            if (_eventVec4 != null && !_updating)
                 _eventVec4.W = current.Value;
         }
         protected override void SetControlsEnabled(bool enabled)

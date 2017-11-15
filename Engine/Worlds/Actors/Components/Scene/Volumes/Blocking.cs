@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Rendering;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -24,19 +25,21 @@ namespace TheraEngine.Worlds.Actors
             Rotation.SetRotations(rotation);
         }
 
-#if EDITOR
         public override void OnSpawned()
         {
+#if EDITOR
             if (!Engine.EditorState.InGameMode)
                 Engine.Scene.Add(this);
+#endif
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
+#if EDITOR
             if (!Engine.EditorState.InGameMode)
                 Engine.Scene.Remove(this);
+#endif
             base.OnDespawned();
         }
-#endif
     }
 }

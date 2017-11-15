@@ -3,19 +3,37 @@ using TheraEngine.Rendering;
 using System;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
+using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public class CapsuleComponent : ShapeComponent
+    public class CapsuleYComponent : ShapeComponent
     {
         BaseCapsule _capsule;
 
-        public CapsuleComponent(float radius, float halfHeight, PhysicsConstructionInfo info) : base()
+        public CapsuleYComponent(float radius, float halfHeight, PhysicsConstructionInfo info) : base()
         {
             _capsule = new CapsuleY(Vec3.Zero, Rotator.GetZero(), Vec3.One, radius, halfHeight);
             InitPhysics(info);
         }
+
+        [Browsable(false)]
         public override Shape CullingVolume => _capsule;
+
+        [Category("Y-Aligned Capsule")]
+        public float Radius
+        {
+            get => _capsule.Radius;
+            set => _capsule.Radius = value;
+        }
+        [Category("Y-Aligned Capsule")]
+        public float HalfHeight
+        {
+            get => _capsule.HalfHeight;
+            set => _capsule.HalfHeight = value;
+        }
+
         internal override void RecalcGlobalTransform()
         {
             base.RecalcGlobalTransform();

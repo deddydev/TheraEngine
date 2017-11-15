@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
 using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
@@ -44,14 +45,17 @@ namespace TheraEngine.Worlds.Actors.Types
         public Shape CullingVolume => null;
         public IOctreeNode OctreeNode { get; set; }
 
-        public EditorTransformTool3D() : base() { }
+        public EditorTransformTool3D() : base()
+        {
+            TransformSpace = ESpace.Local;
+        }
 
         private Material[] _axisMat = new Material[3];
         private Material[] _transPlaneMat = new Material[6];
         private Material[] _scalePlaneMat = new Material[3];
         private Material _screenMat;
         
-        private ESpace _transformSpace = ESpace.Screen;
+        private ESpace _transformSpace;
 
         protected override SkeletalMeshComponent OnConstruct()
         {
@@ -221,10 +225,26 @@ namespace TheraEngine.Worlds.Actors.Types
             set
             {
                 _transformSpace = value;
+
                 RootComponent.WorldMatrix = GetWorldMatrix();
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
+
+                if (_transformSpace == ESpace.Screen)
+                {
+                    RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, UpdateScreenSpace);
+                }
+                else
+                {
+                    UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, UpdateScreenSpace);
+                }
             }
+        }
+
+        private void UpdateScreenSpace(float delta)
+        {
+            if (_targetSocket != null)
+                TranformChanged(null);
         }
 
         [Category("Transform Tool 3D")]
@@ -301,6 +321,9 @@ namespace TheraEngine.Worlds.Actors.Types
 
         private Matrix4 GetWorldMatrix()
         {
+            if (_targetSocket == null)
+                return Matrix4.Identity;
+
             switch (TransformSpace)
             {
                 case ESpace.Local:
@@ -315,11 +338,15 @@ namespace TheraEngine.Worlds.Actors.Types
 
                 case ESpace.Screen:
 
+                    Vec3 point = _targetSocket.WorldMatrix.GetPoint();
                     Camera c = Engine.ActivePlayers[0].CurrentCamera;
-                    Vec3 f = c.GetForwardVector();
-                    Vec3 u = c.GetUpVector();
-                    Vec3 r = c.GetRightVector();
-                    return Matrix4.CreateSpacialTransform(_targetSocket.WorldMatrix.GetPoint(), r, u, f);
+                    Rotator angles = (c.WorldPoint - point).LookatAngles();
+                    Matrix4 angleMatrix = angles.GetMatrix();
+                    //float dot = c.GetRightVector().Dot(Vec3.TransformVector(Vec3.Right, angleMatrix));
+                    //dot = (1.0f + dot) * -90.0f;
+                    //Engine.PrintLine(dot.ToString());
+                    //angles.Roll = dot;
+                    return point.AsTranslationMatrix() * angleMatrix;
 
                 case ESpace.World:
                 default:
@@ -328,6 +355,9 @@ namespace TheraEngine.Worlds.Actors.Types
         }
         private Matrix4 GetInvWorldMatrix()
         {
+            if (_targetSocket == null)
+                return Matrix4.Identity;
+
             switch (TransformSpace)
             {
                 case ESpace.Local:

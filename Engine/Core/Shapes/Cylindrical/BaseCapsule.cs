@@ -3,11 +3,11 @@ using System.Drawing;
 using static System.Math;
 using System.ComponentModel;
 using System;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Capsule")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public abstract class BaseCapsule : BaseCylinder
     {
         public BaseCapsule(Vec3 center, Rotator rotation, Vec3 scale, Vec3 upAxis, float radius, float halfHeight) 

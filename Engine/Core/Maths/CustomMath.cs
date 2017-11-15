@@ -1,4 +1,6 @@
 ﻿using static System.Math;
+using TheraEngine.Core.Maths.Transforms;
+
 namespace System
 {
     public unsafe static class CustomMath

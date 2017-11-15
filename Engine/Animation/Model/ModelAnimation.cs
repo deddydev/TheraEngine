@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Files;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Animation
 {

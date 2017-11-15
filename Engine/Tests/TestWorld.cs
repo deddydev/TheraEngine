@@ -8,6 +8,7 @@ using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Types;
 using TheraEngine.Worlds.Maps;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Tests
 {

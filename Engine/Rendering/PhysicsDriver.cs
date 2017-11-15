@@ -125,7 +125,7 @@ namespace TheraEngine.Rendering
         private Vec3
             _previousLinearFactor = Vec3.One,
             _previousAngularFactor = Vec3.One;
-        bool _enableSleeping = true;
+        bool _sleepingEnabled = true;
 
         [TSerialize("CollisionEnabled")]
         private bool _collisionEnabled;
@@ -141,7 +141,11 @@ namespace TheraEngine.Rendering
         private RigidBody _collision;
         private ThreadSafeList<PhysicsDriver> _overlapping = new ThreadSafeList<PhysicsDriver>();
 
+        [Browsable(false)]
+        public IPhysicsDrivable Owner => _owner;
+        [Browsable(false)]
         public ThreadSafeList<PhysicsDriver> Overlapping => _overlapping;
+        [Browsable(false)]
         public RigidBody CollisionObject
         {
             get => _collision;
@@ -183,7 +187,7 @@ namespace TheraEngine.Rendering
                     {
                         _collision.LinearFactor = _previousLinearFactor;
                         _collision.AngularFactor = _previousAngularFactor;
-                        _collision.ForceActivationState(_enableSleeping ? ActivationState.ActiveTag : ActivationState.DisableDeactivation);
+                        _collision.ForceActivationState(_sleepingEnabled ? ActivationState.ActiveTag : ActivationState.DisableDeactivation);
                     }
 
                     if (wasInWorld && _isSpawned && Engine.World != null)
@@ -195,6 +199,7 @@ namespace TheraEngine.Rendering
                 }
             }
         }
+        [Category("Physics Driver")]
         public bool SimulatingPhysics
         {
             get => _simulatingPhysics;
@@ -218,7 +223,7 @@ namespace TheraEngine.Rendering
                         _collision.LinearFactor = _previousLinearFactor;
                         _collision.AngularFactor = _previousAngularFactor;
                         SetPhysicsTransform(_owner.WorldMatrix);
-                        _collision.ForceActivationState(_enableSleeping ? ActivationState.ActiveTag : ActivationState.DisableDeactivation);
+                        _collision.ForceActivationState(_sleepingEnabled ? ActivationState.ActiveTag : ActivationState.DisableDeactivation);
                         if (_isSpawned)
                             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
                     }
@@ -226,6 +231,7 @@ namespace TheraEngine.Rendering
                 SimulationStateChanged?.Invoke(_simulatingPhysics);
             }
         }
+        [Category("Physics Driver")]
         public bool CollisionEnabled
         {
             get => _collisionEnabled;
@@ -244,6 +250,7 @@ namespace TheraEngine.Rendering
                     _collision.BroadphaseProxy.CollisionFilterMask = (CollisionFilterGroups)(short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None);
             }
         }
+        [Category("Physics Driver")]
         public bool Kinematic
         {
             get => _collision == null ? false : _collision.CollisionFlags.HasFlag(CollisionFlags.KinematicObject);
@@ -258,6 +265,7 @@ namespace TheraEngine.Rendering
                     _collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
             }
         }
+        [Category("Physics Driver")]
         public bool Static
         {
             get => _collision == null ? false : _collision.CollisionFlags.HasFlag(CollisionFlags.StaticObject);
@@ -272,6 +280,7 @@ namespace TheraEngine.Rendering
                     _collision.CollisionFlags &= ~CollisionFlags.StaticObject;
             }
         }
+        [Category("Physics Driver")]
         public CustomCollisionGroup CollisionGroup
         {
             get => _group;
@@ -284,6 +293,7 @@ namespace TheraEngine.Rendering
                     _collision.BroadphaseProxy.CollisionFilterGroup = (CollisionFilterGroups)(short)_group;
             }
         }
+        [Category("Physics Driver")]
         public CustomCollisionGroup CollidesWith
         {
             get => _collidesWith;
@@ -296,27 +306,28 @@ namespace TheraEngine.Rendering
                     _collision.BroadphaseProxy.CollisionFilterMask = (CollisionFilterGroups)(short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None);
             }
         }
-        [Browsable(false)]
-        public IPhysicsDrivable Owner => _owner;
+        [Category("Physics Driver")]
         public Vec3 LinearFactor
         {
             get => _previousLinearFactor;
             set => _previousLinearFactor = value;
         }
+        [Category("Physics Driver")]
         public Vec3 AngularFactor
         {
             get => _previousAngularFactor;
             set => _previousAngularFactor = value;
         }
-        public bool EnableSleeping
+        [Category("Physics Driver")]
+        public bool SleepingEnabled
         {
-            get => _enableSleeping;
+            get => _sleepingEnabled;
             set
             {
-                _enableSleeping = value;
+                _sleepingEnabled = value;
                 if (_collision.ActivationState != ActivationState.DisableSimulation)
                 {
-                    if (_enableSleeping)
+                    if (_sleepingEnabled)
                     {
                         if (_collision.ActivationState == ActivationState.DisableDeactivation)
                         {

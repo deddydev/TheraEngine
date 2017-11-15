@@ -3,6 +3,7 @@ using BulletSharp;
 using TheraEngine.Rendering;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -34,13 +35,16 @@ namespace TheraEngine.Worlds.Actors
             _box = new Box(uniformExtents);
             InitPhysics(info);
         }
-
+        
+        [Browsable(false)]
         public Box Box
         {
             get => _box;
             set => _box = value;
         }
         public override Shape CullingVolume => _box;
+
+        [Category("Box")]
         public Vec3 HalfExtents
         {
             get => _box.HalfExtents;

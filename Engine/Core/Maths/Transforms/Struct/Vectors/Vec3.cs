@@ -7,6 +7,7 @@ using TheraEngine;
 using TheraEngine.Rendering.Models;
 using System.ComponentModel;
 using System.Globalization;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace System
 {
@@ -465,21 +466,27 @@ namespace System
                 (Y - y) / height * 2.0f - 1.0f,
                 Z / (maxZ - minZ) * 2.0f - 1.0f);
 
-        /// <summary>
-        /// Returns a YPR rotator relative to -Z with azimuth as yaw, elevation as pitch, and 0 as roll.
-        /// </summary>
+        ///// <summary>
+        ///// Returns a YPR rotator relative to -Z with azimuth as yaw, elevation as pitch, and 0 as roll.
+        ///// </summary>
         //public Rotator LookatAngles()
         //    => LookatAngles(Forward);
-        /// <summary>
-        /// Returns a YPR rotator relative to the start normal with azimuth as yaw, elevation as pitch, and 0 as roll.
-        /// </summary>
+        ///// <summary>
+        ///// Returns a YPR rotator relative to the start normal with azimuth as yaw, elevation as pitch, and 0 as roll.
+        ///// </summary>
         //public Rotator LookatAngles(Vec3 startNormal)
         //{
 
         //    return Quat.BetweenVectors(startNormal, this).ToYawPitchRoll();
         //}
 
+        /// <summary>
+        /// Returns a YPR rotator looking from the origin to the end of this vector.
+        /// </summary>
         public Rotator LookatAngles() { return new Rotator((float)RadToDeg(Atan2(Y, Sqrt(X * X + Z * Z))), (float)RadToDeg(Atan2(-X, -Z)), 0.0f, RotationOrder.YPR); }
+        /// <summary>
+        /// Returns a YPR rotator looking from the origin to this point.
+        /// </summary>
         public Rotator LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
 
         //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)

@@ -314,6 +314,12 @@
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridMatrix4.Designer.cs">
       <DependentUpon>PropGridMatrix4.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridRotator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridRotator.Designer.cs">
+      <DependentUpon>PropGridRotator.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec4.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -546,6 +552,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridMatrix4.resx">
       <DependentUpon>PropGridMatrix4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridRotator.resx">
+      <DependentUpon>PropGridRotator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec4.resx">
       <DependentUpon>PropGridEventVec4.cs</DependentUpon>

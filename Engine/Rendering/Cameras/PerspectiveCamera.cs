@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Cameras
 {

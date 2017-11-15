@@ -4,6 +4,7 @@ using System.ComponentModel;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models
 {

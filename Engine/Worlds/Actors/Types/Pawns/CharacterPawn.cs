@@ -7,6 +7,7 @@ using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Animation;
 using TheraEngine.Timers;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -34,7 +35,7 @@ namespace TheraEngine.Worlds.Actors
     /// Use this character pawn type to specify your own derivation of the CharacterMovementComponent.
     /// </summary>
     /// <typeparam name="MovementClass"></typeparam>
-    public class CharacterPawn<MovementClass> : Pawn<CapsuleComponent>, ICharacterPawn
+    public class CharacterPawn<MovementClass> : Pawn<CapsuleYComponent>, ICharacterPawn
         where MovementClass : CharacterMovementComponent
     {
         public CharacterPawn()
@@ -213,7 +214,7 @@ namespace TheraEngine.Worlds.Actors
             LogicComponents.Add(_movement);
             LogicComponents.Add(_animationStateMachine);
         }
-        protected override CapsuleComponent OnConstruct()
+        protected override CapsuleYComponent OnConstruct()
         {
             float characterHeight = new FeetInches(5.0f, 8.0f).ToMeters();// 1.72f; //5'8" in m = 1.72f
             float radius = 0.172f;
@@ -235,7 +236,7 @@ namespace TheraEngine.Worlds.Actors
                 CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld,
             };
 
-            CapsuleComponent rootCapsule = new CapsuleComponent(radius, halfHeight, info);
+            CapsuleYComponent rootCapsule = new CapsuleYComponent(radius, halfHeight, info);
             rootCapsule.PhysicsDriver.OnHit += OnHit;
             rootCapsule.PhysicsDriver.AngularFactor = Vec3.Zero;
             rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);

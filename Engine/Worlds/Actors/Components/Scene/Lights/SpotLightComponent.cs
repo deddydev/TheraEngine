@@ -4,6 +4,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -14,10 +15,17 @@ namespace TheraEngine.Worlds.Actors
         private Vec3 _direction;
         private MaterialFrameBuffer _shadowMap;
         private PerspectiveCamera _shadowCamera;
-        private int _shadowWidth, _shadowHeight;
+        private IVec2 _shadowDims;
         private Matrix4 _worldToLightSpaceProjMatrix;
         private ConeZ _innerCone, _outerCone;
 
+        [TSerialize]
+        [Category("Spotlight Component")]
+        public IVec2 ShadowMapResolution
+        {
+            get => _shadowDims;
+            set => SetShadowMapResolution(value.X, value.Y);
+        }
         [TSerialize]
         [Category("Spotlight Component")]
         public float Distance
@@ -73,7 +81,7 @@ namespace TheraEngine.Worlds.Actors
                 _outerCutoff = (float)Math.Cos(rad);
                 _outerCone.Radius = (float)Math.Tan(rad) * _distance;
 
-                _shadowCamera.VerticalFieldOfView = Math.Max(value, InnerCutoffAngleDegrees) * 2.0f;
+                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f;
             }
         }
         [Category("Spotlight Component")]
@@ -86,7 +94,7 @@ namespace TheraEngine.Worlds.Actors
                 _innerCutoff = (float)Math.Cos(rad);
                 _innerCone.Radius = (float)Math.Tan(rad) * _distance;
 
-                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, value) * 2.0f;
+                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f;
             }
         }
 
@@ -96,6 +104,9 @@ namespace TheraEngine.Worlds.Actors
         [ReadOnly(true)]
         [Category("Spotlight Component")]
         public ConeZ InnerCone => _innerCone;
+        [ReadOnly(true)]
+        [Category("Spotlight Component")]
+        public PerspectiveCamera ShadowCamera  => _shadowCamera;
 
         public SpotLightComponent(
             float distance, ColorF3 color, float diffuseIntensity, float ambientIntensity,
@@ -161,7 +172,7 @@ namespace TheraEngine.Worlds.Actors
             {
                 Engine.Scene.Lights.Add(this);
                 
-                SetShadowMapResolution(256, 256);
+                SetShadowMapResolution(3840, 2160);
 
                 if (Engine.Settings.RenderCameraFrustums)
                     Engine.Scene.Add(_shadowCamera);
@@ -198,14 +209,16 @@ namespace TheraEngine.Worlds.Actors
 
             _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount + Engine.Scene.Lights.DirectionalLights.Count + LightIndex, indexer + "Base.Base.ShadowMap", programBindingId);
         }
+
         public void SetShadowMapResolution(int width, int height)
+            => SetShadowMapResolution(new IVec2(width, height));
+        public void SetShadowMapResolution(IVec2 dims)
         {
-            _shadowWidth = width;
-            _shadowHeight = height;
+            _shadowDims = dims;
             if (_shadowMap == null)
-                _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
+                _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(dims.X, dims.Y));
             else
-                _shadowMap.ResizeTextures(width, height);
+                _shadowMap.ResizeTextures(dims.X, dims.Y);
 
             if (_shadowCamera == null)
             {
@@ -228,7 +241,7 @@ namespace TheraEngine.Worlds.Actors
             }
             return EPixelInternalFormat.DepthComponent32f;
         }
-        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
+        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
         {
             //These are listed in order of appearance in the shader
             TextureReference[] refs = new TextureReference[]
@@ -251,7 +264,7 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
 
             _shadowMap.Bind(EFramebufferTarget.Framebuffer);
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowWidth, _shadowHeight, 0.0f, 0.0f));
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowDims.X, _shadowDims.Y, 0.0f, 0.0f));
 
             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
             Engine.Renderer.AllowDepthWrite(true);

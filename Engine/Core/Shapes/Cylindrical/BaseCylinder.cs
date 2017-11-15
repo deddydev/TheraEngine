@@ -1,11 +1,11 @@
 ﻿using System.Drawing;
 using System.ComponentModel;
 using System;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Cylinder")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public abstract class BaseCylinder : Shape
     {
         public BaseCylinder(Vec3 center, Rotator rotation, Vec3 scale, Vec3 upAxis, float radius, float halfHeight)
@@ -19,6 +19,7 @@ namespace TheraEngine.Core.Shapes
             _state.Scale = scale;
         }
 
+        [Category("Cylinder")]
         public Transform State
         {
             get => _state;
@@ -39,16 +40,19 @@ namespace TheraEngine.Core.Shapes
         public Circle3D GetTopCircle(bool normalFacingIn = false)
             => new Circle3D(_radius, GetTopCenterPoint(), normalFacingIn ? -WorldUpAxis : WorldUpAxis);
         
+        [Browsable(false)]
         public Vec3 Center
         {
             get => _state.Translation;
             set => _state.Translation = value;
         }
+        [Category("Cylinder")]
         public float Radius
         {
             get => _radius;
             set => _radius = value;
         }
+        [Category("Cylinder")]
         public float HalfHeight
         {
             get => _halfHeight;

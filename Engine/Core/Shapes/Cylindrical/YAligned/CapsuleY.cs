@@ -1,11 +1,11 @@
 ﻿using BulletSharp;
 using System;
 using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Y-Aligned Capsule")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class CapsuleY : BaseCapsule
     {
         public CapsuleY() : base(Vec3.Zero, Rotator.GetZero(), Vec3.One, Vec3.Up, 1.0f, 1.0f)

@@ -47,7 +47,7 @@ namespace TheraEngine.Worlds.Actors
             {
                 if (_currentMovementMode == value)
                     return;
-                if (OwningActor.RootComponent is CapsuleComponent root)
+                if (OwningActor.RootComponent is CapsuleYComponent root)
                 {
                     switch (value)
                     {
@@ -101,7 +101,7 @@ namespace TheraEngine.Worlds.Actors
             //TODO: change to falling if ground accelerates down with gravity faster than the character
             SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
             Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
+            CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
             Vec3 point = moved.GetPoint();
 
@@ -119,7 +119,7 @@ namespace TheraEngine.Worlds.Actors
             if (OwningActor.RootComponent is IPhysicsDrivable root)
             {
                 //root.PhysicsDriver.Kinematic = false;
-                root.PhysicsDriver.EnableSleeping = false;
+                root.PhysicsDriver.SleepingEnabled = false;
                 root.PhysicsDriver.SimulatingPhysics = true;
                 root.PhysicsDriver.CollisionObject.LinearVelocity = Vec3.Zero;
             }
@@ -148,7 +148,7 @@ namespace TheraEngine.Worlds.Actors
         {
             ClosestConvexResultExceptCallback callback;
             Matrix4 inputTransform;
-            CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
+            CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             ConvexShape shape = (ConvexShape)root.CullingVolume.GetCollisionShape();
             RigidBody body = root.PhysicsDriver.CollisionObject;
             
@@ -291,7 +291,7 @@ namespace TheraEngine.Worlds.Actors
         }
         protected virtual void TickFalling(float delta, Vec3 movementInput)
         {
-            CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
+            CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             Vec3 v = root.PhysicsDriver.CollisionObject.LinearVelocity;
             //Engine.DebugPrint(v.Xz.LengthFast);
             if (v.Xz.LengthFast < 8.667842f)
@@ -393,7 +393,7 @@ namespace TheraEngine.Worlds.Actors
                 {
                     CurrentWalkingSurface = other.PhysicsDriver;
                     CurrentMovementMode = MovementMode.Walking;
-                    ((CapsuleComponent)OwningActor.RootComponent).Translation.Raw += normal * -point.Distance;
+                    ((CapsuleYComponent)OwningActor.RootComponent).Translation.Raw += normal * -point.Distance;
                 }
             }
             else if (CurrentMovementMode == MovementMode.Walking)

@@ -2,6 +2,7 @@
 using static System.Math;
 using static System.CustomMath;
 using TheraEngine;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace System
 {
@@ -347,20 +348,21 @@ namespace System
             m.Column3 = Vec4.Zero;
             return m;
         }
-        public Vec3 ExtractTranslation() { return Row3.Xyz; }
-        public Vec3 ExtractScale() { return new Vec3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length); }
+
+        public Vec3 ExtractTranslation() => Row3.Xyz;
+        public Vec3 ExtractScale() => new Vec3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length);
 
         /// <summary>
         /// Returns the rotation component of this instance. Quite slow.
         /// </summary>
-        /// <param name="row_normalise">Whether the method should row-normalise (i.e. remove scale from) the Matrix. Pass false if you know it's already normalised.</param>
-        public Quat ExtractRotation(bool row_normalise = true)
+        /// <param name="rowNormalize">Whether the method should row-normalise (i.e. remove scale from) the Matrix. Pass false if you know it's already normalised.</param>
+        public Quat ExtractRotation(bool rowNormalize = true)
         {
             var row0 = Row0.Xyz;
             var row1 = Row1.Xyz;
             var row2 = Row2.Xyz;
 
-            if (row_normalise)
+            if (rowNormalize)
             {
                 row0 = row0.Normalized();
                 row1 = row1.Normalized();

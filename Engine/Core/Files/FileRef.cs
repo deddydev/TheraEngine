@@ -21,10 +21,9 @@ namespace TheraEngine.Files
 
     }
     /// <summary>
-    /// Allows only one loaded instance of this file
+    /// Allows only one loaded instance of this file. File can be loaded on-demand or preloaded.
     /// </summary>
     [FileClass("SREF", "Single File Reference")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
     {
         private event Action Loaded;
@@ -32,6 +31,7 @@ namespace TheraEngine.Files
         [TSerialize("File", Condition = "StoreInternally")]
         private T _file;
 
+        [Category("Single File Reference")]
         [TSerialize(Condition = "!StoreInternally", XmlNodeType = EXmlNodeType.Attribute)]
         public override string ReferencePath
         {
@@ -42,12 +42,25 @@ namespace TheraEngine.Files
                 StoredInternally = string.IsNullOrWhiteSpace(base.ReferencePath);
             }
         }
-        public bool IsLoaded => _file != null;
+
+        [Category("Single File Reference")]
+        public bool IsLoaded
+        {
+            get => _file != null;
+            set
+            {
+                if (value)
+                    GetInstance();
+                else
+                    UnloadReference();
+            }
+        }
 
         /// <summary>
         /// If true, the referenced file will be written within the parent file's data
         /// and loaded with the parent file instead of being loaded on demand from the external file.
         /// </summary>
+        [Category("Single File Reference")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool StoredInternally { get; private set; } = true;
 
@@ -128,6 +141,7 @@ namespace TheraEngine.Files
             File = file;
         }
 
+        [Category("Single File Reference")]
         [BrowsableIf("_file != null")]
         public T File
         {
@@ -248,6 +262,7 @@ namespace TheraEngine.Files
         private string _absolutePath = null;
         protected Type _subType = null;
 
+        [Category("File Reference")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public virtual string ReferencePath
         {

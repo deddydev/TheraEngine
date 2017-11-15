@@ -4,11 +4,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using TheraEngine.Files;
 using System.IO;
-using System.Linq;
-using System.Diagnostics;
 using TheraEditor.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
-using System.ComponentModel;
 
 namespace TheraEditor.Wrappers
 {

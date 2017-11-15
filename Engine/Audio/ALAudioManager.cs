@@ -2,7 +2,6 @@
 using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using System;
-using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Audio
 {

@@ -1,6 +1,4 @@
-﻿using EnumsNET;
-
-namespace System
+﻿namespace System
 {
     public static class EnumExtension
     {

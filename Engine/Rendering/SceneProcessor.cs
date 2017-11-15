@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
-using System.Collections.Concurrent;
-using System.Collections;
-using System.Linq;
 using TheraEngine.Particles;
 
 namespace TheraEngine.Rendering
@@ -18,7 +15,7 @@ namespace TheraEngine.Rendering
     {
         void PreRender();
     }
-    public enum ERenderPassType3D
+    public enum ERenderPass3D
     {
         /// <summary>
         /// Use for any objects that will ALWAYS be rendered behind the scene, even if they are outside of the viewing frustum.
@@ -79,7 +76,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public void Render(ERenderPassType3D pass)
+        public void Render(ERenderPass3D pass)
         {
             var list = _passes[(int)pass];
             foreach (I3DRenderable r in list/*.OrderBy(x => x, _sorter)*/)
@@ -128,7 +125,7 @@ namespace TheraEngine.Rendering
             foreach (IPreRenderNeeded p in _preRenderList)
                 p.PreRender();
         }
-        internal void Render(ERenderPassType3D pass)
+        internal void Render(ERenderPass3D pass)
         {
             if (_renderTree == null)
                 return;

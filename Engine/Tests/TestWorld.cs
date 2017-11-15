@@ -1,11 +1,6 @@
-﻿using ObjLoader.Loader.Loaders;
-using System;
+﻿using System;
 using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
-using TheraEngine.Animation;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;

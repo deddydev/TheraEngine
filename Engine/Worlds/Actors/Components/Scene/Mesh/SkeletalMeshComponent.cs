@@ -32,7 +32,7 @@ namespace TheraEngine.Worlds.Actors
                 return _sockets[socketName];
             else
             {
-                MeshSocket socket = new MeshSocket(Transform.GetIdentity(), OwningActor);
+                MeshSocket socket = new MeshSocket(Transform.GetIdentity(), this, OwningActor);
                 _sockets.Add(socketName, socket);
                 return socket;
             }
@@ -47,7 +47,7 @@ namespace TheraEngine.Worlds.Actors
             }
             else
             {
-                MeshSocket socket = new MeshSocket(transform, OwningActor);
+                MeshSocket socket = new MeshSocket(transform, this, OwningActor);
                 _sockets.Add(socketName, socket);
                 return socket;
             }

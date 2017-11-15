@@ -13,7 +13,6 @@ using Microsoft.VisualBasic.FileIO;
 using System.Collections;
 using System.Linq;
 using Core.Win32.Native;
-using Microsoft.VisualBasic.Devices;
 
 namespace TheraEditor.Windows.Forms
 {

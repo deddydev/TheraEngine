@@ -20,6 +20,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         protected EventVec3 _translation;
+        [Category("Transform")]
         public EventVec3 Translation
         {
             get => _translation;
@@ -39,11 +40,11 @@ namespace TheraEngine.Worlds.Actors
         protected internal override void OriginRebased(Vec3 newOrigin)
             => Translation -= newOrigin;
 
-        public override void HandleTranslation(Vec3 delta)
+        public override void HandleLocalTranslation(Vec3 delta)
         {
             Translation.Raw += delta;
         }
-        public override void HandleScale(Vec3 delta) { }
-        public override void HandleRotation(Quat delta) { }
+        public override void HandleLocalScale(Vec3 delta) { }
+        public override void HandleLocalRotation(Quat delta) { }
     }
 }

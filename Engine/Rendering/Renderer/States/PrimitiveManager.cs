@@ -254,8 +254,8 @@ namespace TheraEngine.Rendering.Models
                             {
                                 matrixIndices[i] = new IVec4();
                                 matrixWeights[i] = new Vec4();
-                                Influence inf = _data._influences[_data._facePoints[i]._influenceIndex];
-                                for (int j = 0; j < Influence.MaxWeightCount; ++j)
+                                InfluenceDef inf = _data._influences[_data._facePoints[i]._influenceIndex];
+                                for (int j = 0; j < InfluenceDef.MaxWeightCount; ++j)
                                 {
                                     BoneWeight weight = inf.Weights[j];
                                     int index;
@@ -290,8 +290,8 @@ namespace TheraEngine.Rendering.Models
                         {
                             matrixIndices[i] = new Vec4();
                             matrixWeights[i] = new Vec4();
-                            Influence inf = _data._influences[_data._facePoints[i]._influenceIndex];
-                            for (int j = 0; j < Influence.MaxWeightCount; ++j)
+                            InfluenceDef inf = _data._influences[_data._facePoints[i]._influenceIndex];
+                            for (int j = 0; j < InfluenceDef.MaxWeightCount; ++j)
                             {
                                 BoneWeight weight = inf.Weights[j];
                                 int index;

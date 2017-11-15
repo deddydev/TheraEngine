@@ -1,5 +1,4 @@
-﻿using System;
-using TheraEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
@@ -9,7 +8,7 @@ namespace TheraEngine.Rendering.Models
     [FileClass("OBJ", "Static Rigid Sub Mesh")]
     public class StaticRigidSubMesh : FileObject, IStaticSubMesh
     {
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPassType3D.OpaqueDeferredLit, null);
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
 
         public StaticRigidSubMesh()
         {

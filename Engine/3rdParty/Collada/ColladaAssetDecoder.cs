@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryControllers.Controller;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries;
@@ -30,7 +29,7 @@ namespace TheraEngine.Rendering.Models
                 var boneCounts = influences.BoneCountsElement;
                 var prims = influences.PrimitiveIndicesElement;
 
-                Influence[] infList = new Influence[influences.Count];
+                InfluenceDef[] infList = new InfluenceDef[influences.Count];
                 
                 //Find joint source
                 string[] jointSIDs = null;
@@ -88,7 +87,7 @@ namespace TheraEngine.Rendering.Models
                 int[] primIndices = prims.StringContent.Values;
                 for (int i = 0, primIndex = 0; i < influences.Count; i++)
                 {
-                    Influence inf = new Influence();
+                    InfluenceDef inf = new InfluenceDef();
                     for (int boneIndex = 0; boneIndex < boneIndices[i]; boneIndex++)
                     {
                         for (int cmd = 0; cmd < pCmd.Length; cmd++, primIndex++)
@@ -121,7 +120,7 @@ namespace TheraEngine.Rendering.Models
         {
             return DecodePrimitives(geo, bindMatrix, null);
         }
-        static PrimitiveData DecodePrimitives(Geometry geo, Matrix4 bindMatrix, Influence[] infList)
+        static PrimitiveData DecodePrimitives(Geometry geo, Matrix4 bindMatrix, InfluenceDef[] infList)
         {
             Source src;
             List<VertexPrimitive> linePrimitives = null;
@@ -130,7 +129,7 @@ namespace TheraEngine.Rendering.Models
             if (infList != null)
             {
                 HashSet<string> bones = new HashSet<string>();
-                foreach (Influence inf in infList)
+                foreach (InfluenceDef inf in infList)
                     for (int i = 0; i < inf.WeightCount; ++i)
                         bones.Add(inf.Weights[i].Bone);
                 boneCount = bones.Count;

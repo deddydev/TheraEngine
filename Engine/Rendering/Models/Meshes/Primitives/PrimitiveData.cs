@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using System.Diagnostics;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -98,7 +97,7 @@ namespace TheraEngine.Rendering.Models
         public VertexShaderDesc BufferInfo => _bufferInfo;
 
         public List<VertexBuffer> Buffers { get => _buffers; set => _buffers = value; }
-        public Influence[] Influences { get => _influences; set => _influences = value; }
+        public InfluenceDef[] Influences { get => _influences; set => _influences = value; }
         public string[] UtilizedBones { get => _utilizedBones; set => _utilizedBones = value; }
         public List<FacePoint> FacePoints { get => _facePoints; set => _facePoints = value; }
         public List<IndexTriangle> Triangles { get => _triangles; set => _triangles = value; }
@@ -119,7 +118,7 @@ namespace TheraEngine.Rendering.Models
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
         [TSerialize("Influences", Order = 2)]
-        internal Influence[] _influences;
+        internal InfluenceDef[] _influences;
         [TSerialize("UtilizedBones", Order = 1)]
         internal string[] _utilizedBones;
         [TSerialize("SingleBindBone", Order = 0)]
@@ -322,18 +321,18 @@ namespace TheraEngine.Rendering.Models
             AddBuffer(binormals, new VertexAttribInfo(BufferType.Binormal));
             AddBuffer(tangents, new VertexAttribInfo(BufferType.Tangent));
         }
-        private void SetInfluences(params Influence[] influences)
+        private void SetInfluences(params InfluenceDef[] influences)
         {
             Remapper remap = new Remapper();
             remap.Remap(influences);
             for (int i = 0; i < remap.RemapTable.Length; ++i)
                 _facePoints[i]._influenceIndex = remap.RemapTable[i];
-            _influences = new Influence[remap.ImplementationLength];
+            _influences = new InfluenceDef[remap.ImplementationLength];
             for (int i = 0; i < remap.ImplementationLength; ++i)
                 _influences[i] = influences[remap.ImplementationTable[i]];
 
             HashSet<string> utilized = new HashSet<string>();
-            foreach (Influence inf in _influences)
+            foreach (InfluenceDef inf in _influences)
                 if (inf != null)
                     for (int i = 0; i < inf.WeightCount; ++i)
                         utilized.Add(inf.Weights[i].Bone);
@@ -787,13 +786,13 @@ namespace TheraEngine.Rendering.Models
                 writer.WriteAttributeString("Count", _influences.Length.ToString());
                 {
                     writer.WriteStartElement("Counts");
-                    foreach (Influence inf in _influences)
+                    foreach (InfluenceDef inf in _influences)
                     {
                         writer.WriteString(inf.WeightCount.ToString() + " ");
                     }
                     writer.WriteEndElement();
                     writer.WriteStartElement("Indices");
-                    foreach (Influence inf in _influences)
+                    foreach (InfluenceDef inf in _influences)
                     {
                         for (int i = 0; i < inf.WeightCount; ++i)
                         {
@@ -802,7 +801,7 @@ namespace TheraEngine.Rendering.Models
                     }
                     writer.WriteEndElement();
                     writer.WriteStartElement("Weights");
-                    foreach (Influence inf in _influences)
+                    foreach (InfluenceDef inf in _influences)
                     {
                         for (int i = 0; i < inf.WeightCount; ++i)
                         {
@@ -823,7 +822,7 @@ namespace TheraEngine.Rendering.Models
                 if (reader.Name.Equals("Count", true))
                 {
                     int count = int.Parse(reader.Value);
-                    _influences = new Influence[count];
+                    _influences = new InfluenceDef[count];
                 }
             }
             int[] counts = null, indices = null;
@@ -843,7 +842,7 @@ namespace TheraEngine.Rendering.Models
             int k = 0;
             for (int i = 0; i < _influences.Length; ++i)
             {
-                Influence inf = new Influence();
+                InfluenceDef inf = new InfluenceDef();
                 for (int j = 0; j < counts[i]; ++j, ++k)
                     inf.AddWeight(new BoneWeight(_utilizedBones[indices[k]], weights[k]));
                 _influences[i] = inf;

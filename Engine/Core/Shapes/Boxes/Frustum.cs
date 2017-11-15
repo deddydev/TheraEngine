@@ -1,5 +1,4 @@
-﻿using TheraEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.ComponentModel;
@@ -16,7 +15,7 @@ namespace TheraEngine.Core.Shapes
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Frustum : I3DRenderable, IEnumerable<Plane>
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
         [TSerialize("Points")]
@@ -208,7 +207,7 @@ namespace TheraEngine.Core.Shapes
         public Plane[] Planes => _planes;
 
         [Browsable(false)]
-        public ERenderPassType3D RenderPass => ERenderPassType3D.OpaqueForward;
+        public ERenderPass3D RenderPass => ERenderPass3D.OpaqueForward;
         [Browsable(false)]
         public float RenderOrder => 0.0f;
 

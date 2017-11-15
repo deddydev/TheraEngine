@@ -424,7 +424,11 @@ namespace TheraEngine.Tools
             new string[] { "&&" },
             new string[] { "||" },
         };
-        // True if op1 >= op2 in precedence.
+        /// <summary>
+        /// True if op1 >= op2 in precedence.
+        /// </summary>
+        /// <param name="op1">First operator to compare.</param>
+        /// <param name="op2">Second operator to compare.</param>
         private static bool ComparePrecedence(String op1, String op2)
         {
             int op1p = -1, op2p = -1;

@@ -1,7 +1,6 @@
 ﻿using TheraEngine;
 using TheraEngine.Tests;
 using System;
-using System.Windows.Forms;
 
 namespace Thera
 {

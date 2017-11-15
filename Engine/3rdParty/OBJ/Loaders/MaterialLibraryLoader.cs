@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using ObjLoader.Loader.Data;
 using ObjLoader.Loader.Data.DataStore;
 

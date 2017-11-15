@@ -103,7 +103,7 @@ namespace TheraEngine.Rendering.HUD
             set
             {
                 _dockStyle = value;
-                if (Parent is HudComponent h)
+                if (ParentSocket is HudComponent h)
                     Resize(h.Region);
             }
         }
@@ -113,7 +113,7 @@ namespace TheraEngine.Rendering.HUD
             set
             {
                 _anchorFlags = value;
-                if (Parent is HudComponent h)
+                if (ParentSocket is HudComponent h)
                     Resize(h.Region);
             }
         }
@@ -132,7 +132,7 @@ namespace TheraEngine.Rendering.HUD
                     _anchorFlags |= AnchorFlags.Bottom;
                 else
                     _anchorFlags &= ~AnchorFlags.Bottom;
-                if (Parent is HudComponent h)
+                if (ParentSocket is HudComponent h)
                     Resize(h.Region);
             }
         }
@@ -147,7 +147,7 @@ namespace TheraEngine.Rendering.HUD
                     _anchorFlags |= AnchorFlags.Top;
                 else
                     _anchorFlags &= ~AnchorFlags.Top;
-                if (Parent is HudComponent h)
+                if (ParentSocket is HudComponent h)
                     Resize(h.Region);
             }
         }
@@ -162,7 +162,7 @@ namespace TheraEngine.Rendering.HUD
                     _anchorFlags |= AnchorFlags.Left;
                 else
                     _anchorFlags &= ~AnchorFlags.Left;
-                if (Parent is HudComponent h)
+                if (ParentSocket is HudComponent h)
                     Resize(h.Region);
             }
         }
@@ -177,7 +177,7 @@ namespace TheraEngine.Rendering.HUD
                     _anchorFlags |= AnchorFlags.Right;
                 else
                     _anchorFlags &= ~AnchorFlags.Right;
-                if (Parent is HudComponent h)
+                if (ParentSocket is HudComponent h)
                     Resize(h.Region);
             }
         }

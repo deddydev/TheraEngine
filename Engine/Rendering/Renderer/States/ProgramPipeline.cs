@@ -1,11 +1,4 @@
-﻿using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Textures;
-using System.Linq;
-using System.Collections.Generic;
-using System;
-
-namespace TheraEngine.Rendering
+﻿namespace TheraEngine.Rendering
 {
 
     public class ProgramPipeline : BaseRenderState

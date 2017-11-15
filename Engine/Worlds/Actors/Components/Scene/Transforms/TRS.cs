@@ -27,7 +27,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         protected EventVec3 _scale;
-        
+        [Category("Transform")]
         public EventVec3 Scale
         {
             get => _scale;
@@ -55,7 +55,7 @@ namespace TheraEngine.Worlds.Actors
             localTransform = t * r * s;
             inverseLocalTransform = iS * ir * it;
         }
-        public override void HandleScale(Vec3 delta)
+        public override void HandleLocalScale(Vec3 delta)
         {
             _scale.Raw += delta;
         }

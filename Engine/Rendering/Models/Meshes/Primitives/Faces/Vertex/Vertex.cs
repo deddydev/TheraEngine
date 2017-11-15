@@ -11,21 +11,21 @@ namespace TheraEngine.Rendering.Models
         }
 
         public int _index = -1;
-        public Influence _influence;
+        public InfluenceDef _influence;
         public Vec3 _position, _normal, _tangent, _binormal;
         public Vec2 _texCoord;
         public ColorF4 _color;
         public List<VertexLine> _connectedEdges = new List<VertexLine>();
 
         public Vertex() { }
-        public Vertex(Influence inf)
+        public Vertex(InfluenceDef inf)
             { _influence = inf; }
         public Vertex(Vec3 position)
             { _position = position; }
-        public Vertex(Vec3 position, Influence inf) 
+        public Vertex(Vec3 position, InfluenceDef inf) 
             : this(position) { _influence = inf; }
 
-        public Vertex(Vec3 position, Influence inf, Vec3 normal) 
+        public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal) 
             : this(position, inf) { _normal = normal; }
 
         public Vertex HardCopy()
@@ -44,14 +44,14 @@ namespace TheraEngine.Rendering.Models
             };
         }
 
-        public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord) 
+        public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord) 
             : this(position, inf, normal) { _texCoord = texCoord; }
-        public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
+        public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
             : this(position, inf, normal, texCoord) { _color = color; }
-        public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
+        public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
             : this(position, inf, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
 
-        public Vertex(Vec3 position, Influence inf, Vec2 texCoord)
+        public Vertex(Vec3 position, InfluenceDef inf, Vec2 texCoord)
             : this(position, inf) { _texCoord = texCoord; }
         public Vertex(Vec3 position, Vec2 texCoord)
             : this(position) { _texCoord = texCoord; }

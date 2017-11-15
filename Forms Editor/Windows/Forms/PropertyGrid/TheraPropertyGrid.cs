@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Reflection;
-using TheraEngine;
-using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
 using System.Collections;
 using System.Collections.Concurrent;
-using TheraEngine.Timers;
-using TheraEngine.Files;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using TheraEngine;
+using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Worlds;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -66,6 +63,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             set
             {
                 _subObject = value;
+                if (_subObject is SceneComponent s)
+                {
+                    EditorHud hud = (EditorHud)Engine.ActivePlayers[0].ControlledPawn.Hud;
+                    hud.SelectedComponent = s;
+                }
                 LoadProperties(_subObject);
             }
         }

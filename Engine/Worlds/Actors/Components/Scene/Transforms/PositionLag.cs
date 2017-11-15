@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 
@@ -10,7 +8,7 @@ namespace TheraEngine.Worlds.Actors
     [FileClass("clag", "Position Lag Component")]
     public class PositionLagComponent : SceneComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
         public PositionLagComponent() : this(20.0f, 2.0f) { }
@@ -35,7 +33,7 @@ namespace TheraEngine.Worlds.Actors
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
         [Browsable(false)]
-        public ERenderPassType3D RenderPass => ERenderPassType3D.OpaqueForward;
+        public ERenderPass3D RenderPass => ERenderPass3D.OpaqueForward;
         [Browsable(false)]
         public float RenderOrder => 0.0f;
 
@@ -108,17 +106,17 @@ namespace TheraEngine.Worlds.Actors
             //Engine.Renderer.RenderSphere(_destPoint, 10.0f, false, Color.White);
         }
 
-        public override void HandleTranslation(Vec3 delta)
+        public override void HandleLocalTranslation(Vec3 delta)
         {
             throw new NotImplementedException();
         }
 
-        public override void HandleScale(Vec3 delta)
+        public override void HandleLocalScale(Vec3 delta)
         {
             throw new NotImplementedException();
         }
 
-        public override void HandleRotation(Quat delta)
+        public override void HandleLocalRotation(Quat delta)
         {
             throw new NotImplementedException();
         }

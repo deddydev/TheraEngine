@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TheraEngine.Rendering
+﻿namespace TheraEngine.Rendering
 {
     public class RenderBuffer : BaseRenderState
     {

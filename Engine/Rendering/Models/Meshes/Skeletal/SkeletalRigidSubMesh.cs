@@ -1,14 +1,13 @@
 ﻿using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
 using System.ComponentModel;
-using System;
 
 namespace TheraEngine.Rendering.Models
 {
     [FileClass("OBJ", "Skeletal Rigid Sub Mesh")]
     public class SkeletalRigidSubMesh : FileObject, ISkeletalSubMesh
     {
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPassType3D.OpaqueDeferredLit, null);
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
 
         public SkeletalRigidSubMesh()
         {

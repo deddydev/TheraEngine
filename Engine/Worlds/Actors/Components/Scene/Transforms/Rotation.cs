@@ -46,17 +46,17 @@ namespace TheraEngine.Worlds.Actors
         }
         protected internal override void OriginRebased(Vec3 newOrigin) { }
 
-        public override void HandleTranslation(Vec3 delta)
+        public override void HandleLocalTranslation(Vec3 delta)
         {
             throw new NotImplementedException();
         }
 
-        public override void HandleScale(Vec3 delta)
+        public override void HandleLocalScale(Vec3 delta)
         {
             throw new NotImplementedException();
         }
 
-        public override void HandleRotation(Quat delta)
+        public override void HandleLocalRotation(Quat delta)
         {
             throw new NotImplementedException();
         }

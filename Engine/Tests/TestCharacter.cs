@@ -1,5 +1,4 @@
 ﻿using System;
-using TheraEngine.Files;
 using TheraEngine.Animation;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Worlds.Actors;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TheraEngine.Input.Devices
+﻿namespace TheraEngine.Input.Devices
 {
     public delegate void DelFoundInput(InputDevice device);
     public abstract class InputAwaiter : ObjectBase

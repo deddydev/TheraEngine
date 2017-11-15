@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Rendering

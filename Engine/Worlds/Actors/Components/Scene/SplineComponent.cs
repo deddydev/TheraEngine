@@ -11,7 +11,7 @@ namespace TheraEngine.Worlds.Actors
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueDeferredLit, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
         [Browsable(false)]

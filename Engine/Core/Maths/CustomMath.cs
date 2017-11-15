@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using static System.Math;
+﻿using static System.Math;
 namespace System
 {
     public unsafe static class CustomMath

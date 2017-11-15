@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         private ShaderMode _type;
         [TSerialize("Sources")]
-        internal TextFileRef[] _sources;
+        internal string[] _sources;
 
         public Shader(ShaderMode type)
         {

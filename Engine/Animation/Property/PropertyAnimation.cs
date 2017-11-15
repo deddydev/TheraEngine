@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
-using TheraEngine.Files;
-using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Animation
 {

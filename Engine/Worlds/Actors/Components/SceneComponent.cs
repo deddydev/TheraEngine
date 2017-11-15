@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Rendering;
-using TheraEngine.Animation;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -15,6 +14,11 @@ namespace TheraEngine.Worlds.Actors
         }
 
         public event Action WorldTransformChanged;
+
+        /// <summary>
+        /// This is the method that will be called immediately after any world transform change.
+        /// Use this to update anything that depends on this component's transform.
+        /// </summary>
         protected virtual void OnWorldTransformChanged()
         {
             if (this is IPhysicsDrivable p)
@@ -27,6 +31,7 @@ namespace TheraEngine.Worlds.Actors
                 c.RecalcGlobalTransform();
 
             WorldTransformChanged?.Invoke();
+            SocketTransformChanged?.Invoke(this);
         }
         
         protected ISocket _ancestorSimulatingPhysics;
@@ -50,6 +55,7 @@ namespace TheraEngine.Worlds.Actors
         protected MonitoredList<SceneComponent> _children;
 
         [Browsable(true)]
+        [Category("Transform")]
         public virtual Matrix4 WorldMatrix
         {
             get => _worldTransform;
@@ -74,7 +80,7 @@ namespace TheraEngine.Worlds.Actors
         /// and also has to follow the parent heirarchy to create the inverse transform tree.
         /// Avoid calling if possible when simulating physics.
         /// </summary>
-        [Browsable(true)]
+        [Browsable(false)]
         public virtual Matrix4 InverseWorldMatrix
         {
             get
@@ -157,6 +163,8 @@ namespace TheraEngine.Worlds.Actors
         }
 
         [TSerialize]
+        //[Browsable(false)]
+        [Category("Scene Component")]
         public MonitoredList<SceneComponent> ChildComponents
         {
             get => _children;
@@ -230,12 +238,12 @@ namespace TheraEngine.Worlds.Actors
         /// Returns the world transform of the parent scene component.
         /// </summary>
         public Matrix4 GetParentMatrix()
-            => Parent == null ? Matrix4.Identity : Parent.WorldMatrix;
+            => ParentSocket == null ? Matrix4.Identity : ParentSocket.WorldMatrix;
         /// <summary>
         /// Returns the inverse of the world transform of the parent scene component.
         /// </summary>
         public Matrix4 GetInverseParentMatrix()
-            => Parent == null ? Matrix4.Identity : Parent.InverseWorldMatrix;
+            => ParentSocket == null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
         
         /// <summary>
         /// Gets the transformation of this component in relation to the actor's root component.
@@ -253,7 +261,7 @@ namespace TheraEngine.Worlds.Actors
         //public bool IsSpawned
         //    => OwningActor == null ? false : OwningActor.IsSpawned;
         [Browsable(false)]
-        public virtual ISocket Parent
+        public virtual ISocket ParentSocket
         {
             get => _parent;
             set
@@ -409,44 +417,63 @@ namespace TheraEngine.Worlds.Actors
         /// </summary>
         /// <param name="mesh">The skeletal mesh to attach to.</param>
         /// <param name="socketName">The name of the socket to attach to.</param>
-        /// <returns>True if successfully attached.</returns>
-        public bool AttachTo(SkeletalMeshComponent mesh, string socketName)
+        /// <returns>The socket that this component was attached to. Null if failed to attach.</returns>
+        public ISocket AttachTo(SkeletalMeshComponent mesh, string socketName)
         {
             if (mesh == null)
             {
                 Engine.LogWarning("Cannot attach to a null skeletal mesh.");
-                return false;
+                return null;
             }
-            if (mesh.Skeleton == null)
+
+            //No socket name given? Attach to mesh component itself as child
+            if (string.IsNullOrWhiteSpace(socketName))
             {
                 mesh.ChildComponents.Add(this);
-                return true;
+                return mesh;
             }
 
-            Bone bone = mesh.Skeleton.File[socketName];
-            if (bone != null)
+            //Try to find matching bone
+            if (mesh.Skeleton?.File != null)
             {
-                bone.ChildComponents.Add(this);
-                return true;
+                Bone bone = mesh.Skeleton.File[socketName];
+                if (bone != null)
+                {
+                    bone.ChildComponents.Add(this);
+                    return bone;
+                }
             }
 
-            mesh.FindOrCreateSocket(socketName).ChildComponents.Add(mesh);
-            return true;
+            //Find or create socket
+            MeshSocket socket = mesh.FindOrCreateSocket(socketName);
+            socket.ChildComponents.Add(mesh);
+            return socket;
         }
         /// <summary>
-        /// 
+        /// Attaches this scene component to the given static mesh component at the given socket name.
         /// </summary>
         /// <param name="mesh"></param>
         /// <param name="socketName"></param>
-        public bool AttachTo(StaticMeshComponent mesh, string socketName)
+        /// <returns>The socket that this component was attached to. Null if failed to attach.</returns>
+        public ISocket AttachTo(StaticMeshComponent mesh, string socketName)
         {
             if (mesh == null)
             {
                 Engine.LogWarning("Cannot attach to a null static mesh.");
-                return false;
+                return null;
             }
-            mesh.FindOrCreateSocket(socketName).ChildComponents.Add(mesh);
-            return true;
+
+            //No socket name given? Attach to mesh component itself as child
+            if (string.IsNullOrWhiteSpace(socketName))
+            {
+                mesh.ChildComponents.Add(this);
+                return mesh;
+            }
+
+            //Find or create socket
+            MeshSocket socket = mesh.FindOrCreateSocket(socketName);
+            socket.ChildComponents.Add(mesh);
+            return socket;
         }
         /// <summary>
         /// Attaches this component to the given scene component parent transform.
@@ -458,7 +485,7 @@ namespace TheraEngine.Worlds.Actors
         /// Retains current position in world space.
         /// </summary>
         public void DetachFromParent()
-            => Parent?.ChildComponents.Remove(this);
+            => ParentSocket?.ChildComponents.Remove(this);
         
 #if EDITOR
         private bool _selected;
@@ -473,9 +500,20 @@ namespace TheraEngine.Worlds.Actors
                 //    p.PhysicsDriver.SimulatingPhysics = false;
             }
         }
-        public abstract void HandleTranslation(Vec3 delta);
-        public abstract void HandleScale(Vec3 delta);
-        public abstract void HandleRotation(Quat delta);
 #endif
+
+        public abstract void HandleLocalTranslation(Vec3 delta);
+        public abstract void HandleLocalScale(Vec3 delta);
+        public abstract void HandleLocalRotation(Quat delta);
+
+        public event DelSocketTransformChange SocketTransformChanged;
+
+        public void RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister = false)
+        {
+            if (unregister)
+                SocketTransformChanged -= eventMethod;
+            else
+                SocketTransformChanged += eventMethod;
+        }
     }
 }

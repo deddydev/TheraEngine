@@ -294,17 +294,17 @@ namespace TheraEngine.Rendering.HUD
         public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
 
-        public override void HandleTranslation(Vec3 delta)
+        public override void HandleLocalTranslation(Vec3 delta)
         {
 
         }
 
-        public override void HandleScale(Vec3 delta)
+        public override void HandleLocalScale(Vec3 delta)
         {
 
         }
 
-        public override void HandleRotation(Quat delta)
+        public override void HandleLocalRotation(Quat delta)
         {
 
         }

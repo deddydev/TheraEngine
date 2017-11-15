@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using TheraEngine.Animation;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;

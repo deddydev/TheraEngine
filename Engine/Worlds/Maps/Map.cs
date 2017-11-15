@@ -1,6 +1,5 @@
 ﻿using TheraEngine.Worlds.Maps;
 using TheraEngine.Files;
-using System;
 
 namespace TheraEngine.Worlds
 {

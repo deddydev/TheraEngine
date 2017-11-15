@@ -11,26 +11,46 @@ namespace TheraEngine.Rendering.Models
         private string _bone;
         [TSerialize("Weight", XmlNodeType = EXmlNodeType.Attribute)]
         private float _weight;
+        [TSerialize("Locked", XmlNodeType = EXmlNodeType.Attribute, Config = false)]
         private bool _locked;
 
-        public string Bone { get { return _bone; } set { _bone = value; } }
-        public float Weight { get { return _weight; } set { _weight = value; } }
-        public bool Locked { get { return _locked; } set { _locked = value; } }
+        /// <summary>
+        /// The name of the bone to use in the transformation. Names are case-sensitive.
+        /// </summary>
+        public string Bone
+        {
+            get => _bone;
+            set => _bone = value;
+        }
+
+        /// <summary>
+        /// How much this bone affects the overall transformation where 0.0f is no influence and 1.0f is total influence.
+        /// </summary>
+        public float Weight
+        {
+            get => _weight;
+            set => _weight = value;
+        }
+
+        /// <summary>
+        /// If true, this weight's value cannot be modified by normalization of the parent influence's weights.
+        /// </summary>
+        public bool Locked
+        {
+            get => _locked;
+            set => _locked = value;
+        }
 
         public BoneWeight() : this(null, 1.0f) { }
         public BoneWeight(string bone) : this(bone, 1.0f) { }
         public BoneWeight(string bone, float weight) { Bone = bone; Weight = weight; }
 
-        public void ClampWeight() { _weight.Clamp(0.0f, 1.0f); }
+        public void ClampWeight() => _weight = _weight.Clamp(0.0f, 1.0f);
 
         public override bool Equals(object obj)
-        {
-            return Equals(obj as BoneWeight, ComparisonTolerance);
-        }
+            => Equals(obj as BoneWeight, ComparisonTolerance);
         public bool Equals(BoneWeight other, float weightTolerance)
-        {
-            return other != null ? (other.Bone == Bone && Weight.EqualTo(other.Weight, weightTolerance) && Locked == other.Locked) : false;
-        }
+            => other != null ? (other.Bone == Bone && Weight.EqualTo(other.Weight, weightTolerance) && Locked == other.Locked) : false;
         public static bool operator ==(BoneWeight left, BoneWeight right)
         {
             if (ReferenceEquals(left, null))
@@ -43,9 +63,6 @@ namespace TheraEngine.Rendering.Models
                 return !ReferenceEquals(right, null);
             return !left.Equals(right);
         }
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+        public override int GetHashCode() => base.GetHashCode();
     }
 }

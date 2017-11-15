@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using TheraEngine.Files;
-using TheraEngine.Rendering.Textures;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 
 namespace TheraEngine.Rendering.Models.Materials

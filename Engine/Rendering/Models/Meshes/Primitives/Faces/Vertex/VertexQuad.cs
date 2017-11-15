@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models
@@ -62,10 +61,10 @@ namespace TheraEngine.Rendering.Models
         /// Makes a quad using positions, influences, and a common normal.
         /// </summary>
         public static VertexQuad MakeQuad(
-            Vec3 bottomLeft,    Influence bottomLeftInf,
-            Vec3 bottomRight,   Influence bottomRightInf,
-            Vec3 topRight,      Influence topRightInf,
-            Vec3 topLeft,       Influence topLeftInf,
+            Vec3 bottomLeft,    InfluenceDef bottomLeftInf,
+            Vec3 bottomRight,   InfluenceDef bottomRightInf,
+            Vec3 topRight,      InfluenceDef topRightInf,
+            Vec3 topLeft,       InfluenceDef topLeftInf,
             Vec3 normal)
         {
             return new VertexQuad(
@@ -75,10 +74,10 @@ namespace TheraEngine.Rendering.Models
                 new Vertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, 1.0f)));
         }
         public static VertexQuad MakeQuad(
-           Vec3 bottomLeft,     Influence bottomLeftInf,    Vec3 bottomLeftNormal,
-           Vec3 bottomRight,    Influence bottomRightInf,   Vec3 bottomRightNormal,
-           Vec3 topRight,       Influence topRightInf,      Vec3 topRightNormal,
-           Vec3 topLeft,        Influence topLeftInf,       Vec3 topLeftNormal)
+           Vec3 bottomLeft,     InfluenceDef bottomLeftInf,    Vec3 bottomLeftNormal,
+           Vec3 bottomRight,    InfluenceDef bottomRightInf,   Vec3 bottomRightNormal,
+           Vec3 topRight,       InfluenceDef topRightInf,      Vec3 topRightNormal,
+           Vec3 topLeft,        InfluenceDef topLeftInf,       Vec3 topLeftNormal)
         {
             return new VertexQuad(
                 new Vertex(bottomLeft,  bottomLeftInf,  bottomLeftNormal,   new Vec2(0.0f, 0.0f)),
@@ -88,10 +87,10 @@ namespace TheraEngine.Rendering.Models
         }
 
         public static VertexQuad MakeQuad(
-           Vec3 bottomLeft, Influence bottomLeftInf,
-           Vec3 bottomRight, Influence bottomRightInf,
-           Vec3 topRight, Influence topRightInf,
-           Vec3 topLeft, Influence topLeftInf,
+           Vec3 bottomLeft, InfluenceDef bottomLeftInf,
+           Vec3 bottomRight, InfluenceDef bottomRightInf,
+           Vec3 topRight, InfluenceDef topRightInf,
+           Vec3 topLeft, InfluenceDef topLeftInf,
            bool addAutoNormal = false)
         {
             if (addAutoNormal)

@@ -2,11 +2,9 @@
 using TheraEngine.Rendering.Models.Materials;
 using OpenTK.Graphics.OpenGL;
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Text;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.OpenGL

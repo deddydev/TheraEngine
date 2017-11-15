@@ -12,7 +12,6 @@ using TheraEngine.Rendering.HUD;
 using TheraEngine.Rendering.DirectX;
 using TheraEngine.Rendering.OpenGL;
 using TheraEngine.Timers;
-using System.Diagnostics;
 using System.ComponentModel;
 
 namespace TheraEngine

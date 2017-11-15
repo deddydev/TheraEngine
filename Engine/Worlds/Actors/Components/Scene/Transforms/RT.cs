@@ -27,6 +27,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         protected Rotator _rotation;
+        [Category("Transform")]
         public Rotator Rotation
         {
             get { return _rotation; }

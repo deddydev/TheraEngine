@@ -1,14 +1,11 @@
 ﻿using System.Windows.Forms;
 using System.ComponentModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using TheraEngine.Files;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.VisualBasic.FileIO;
 using TheraEditor.Windows.Forms;
-using System.Reflection;
 
 namespace TheraEditor.Wrappers
 {

@@ -1,10 +1,8 @@
 ﻿using System;
-using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering;
 using System.ComponentModel;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors
@@ -169,10 +167,10 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.AllowDepthWrite(true);
             
             scene.PreRender(_shadowCamera, true);
-            scene.Render(ERenderPassType3D.OpaqueDeferredLit);
-            scene.Render(ERenderPassType3D.OpaqueForward);
-            scene.Render(ERenderPassType3D.TransparentForward);
-            scene.Render(ERenderPassType3D.OnTopForward);
+            scene.Render(ERenderPass3D.OpaqueDeferredLit);
+            scene.Render(ERenderPass3D.OpaqueForward);
+            scene.Render(ERenderPass3D.TransparentForward);
+            scene.Render(ERenderPass3D.OnTopForward);
             scene.PostRender();
 
             Engine.Renderer.PopRenderArea();

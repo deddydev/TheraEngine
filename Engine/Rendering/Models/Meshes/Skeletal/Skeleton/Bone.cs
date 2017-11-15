@@ -119,7 +119,8 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("Transform")]
         private Transform _bindState;
 
-        private bool _frameMatrixChanged = false, _childFrameMatrixChanged = false;
+        private bool _frameMatrixChanged = false;
+        //private bool _childFrameMatrixChanged = false;
         private Skeleton _skeleton;
         private Bone _parent;
         private Transform _frameState;
@@ -189,8 +190,8 @@ namespace TheraEngine.Rendering.Models
         public Matrix4 NormalMatrix => _vtxNrmMtx;
         [Browsable(false)]
         public bool FrameMatrixChanged => _frameMatrixChanged;
-        [Browsable(false)]
-        public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
+        //[Browsable(false)]
+        //public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
 
         [Category("Bone")]
         public MonitoredList<SceneComponent> ChildComponents => _childComponents;
@@ -258,15 +259,15 @@ namespace TheraEngine.Rendering.Models
         {
             return (Parent == null ? (OwningComponent == null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
         }
-        public void HandleTranslation(Vec3 delta)
+        public void HandleLocalTranslation(Vec3 delta)
         {
 
         }
-        public void HandleScale(Vec3 delta)
+        public void HandleLocalScale(Vec3 delta)
         {
 
         }
-        public void HandleRotation(Quat delta)
+        public void HandleLocalRotation(Quat delta)
         {
 
         }
@@ -297,75 +298,16 @@ namespace TheraEngine.Rendering.Models
                 {
                     if (BillboardType != BillboardType.None)
                     {
-                        
-                        //Apply local translation component to parent matrix
-                        Matrix4 frameTrans = parentMatrix * _frameState.Translation.Raw.AsTranslationMatrix();
-                        Matrix4 invFramTrans = (-_frameState.Translation.Raw).AsTranslationMatrix() * inverseParentMatrix;
-
-                        //Reset rotation for billboard
-                        frameTrans = parentMatrix.ClearRotation();
-                        invFramTrans = inverseParentMatrix.ClearRotation();
-
-                        //Calculate angles from current position to camera
-                        Matrix4 angles = Matrix4.Identity, invAngles = Matrix4.Identity;
-                        switch (BillboardType)
-                        {
-                            case BillboardType.PerspectiveXYZ:
-
-                                Vec3 componentPoint = c.WorldPoint * OwningComponent.InverseWorldMatrix;
-                                Vec3 diff = frameTrans.GetPoint() - componentPoint;
-                                Rotator r = diff.LookatAngles();
-
-                                angles = r.GetMatrix();
-                                invAngles = r.GetInverseMatrix();
-
-                                break;
-                            case BillboardType.PerspectiveXY:
-
-                                break;
-                            case BillboardType.PerspectiveY:
-
-                                break;
-                            case BillboardType.RotationXYZ:
-
-                                Vec3 up1 = c.GetUpVector();
-                                Vec3 forward1 = c.GetForwardVector();
-
-                                angles = new Matrix4(new Vec4(forward1 ^ up1, 0.0f), new Vec4(up1, 0.0f), new Vec4(forward1, 0.0f), Vec4.UnitW);
-                                invAngles = new Matrix4(new Vec4(up1 ^ forward1, 0.0f), new Vec4(-up1, 0.0f), new Vec4(-forward1, 0.0f), Vec4.UnitW);
-
-                                break;
-                            case BillboardType.RotationXY:
-                                
-                                Vec3 forward2 = c.GetForwardVector();
-                                Vec3 right2 = c.GetRightVector();
-                                right2.Y = 0.0f;
-
-                                angles = new Matrix4(new Vec4(right2, 0.0f), new Vec4(right2 ^ forward2, 0.0f), new Vec4(forward2, 0.0f), Vec4.UnitW);
-                                invAngles = new Matrix4(new Vec4(-right2, 0.0f), new Vec4(forward2 ^ right2, 0.0f), new Vec4(-forward2, 0.0f), Vec4.UnitW);
-
-                                break;
-                            case BillboardType.RotationY:
-
-                                Vec3 up3 = Vec3.TransformNormalInverse(Vec3.UnitY, inverseParentMatrix); //Up is related to parent
-                                Vec3 forward3 = c.GetForwardVector();
-                                forward3.Y = 0.0f;
-
-                                angles = new Matrix4(new Vec4(forward3 ^ up3, 0.0f), new Vec4(up3, 0.0f), new Vec4(forward3, 0.0f), Vec4.UnitW);
-                                invAngles = new Matrix4(new Vec4(up3 ^ forward3, 0.0f), new Vec4(-up3, 0.0f), new Vec4(-forward3, 0.0f), Vec4.UnitW);
-
-                                break;
-                        }
-
-                        //Multiply translation, rotation and scale parts together
-                        _frameMatrix = frameTrans * angles * _frameState.Scale.Raw.AsScaleMatrix();
-                        _inverseFrameMatrix = (1.0f / _frameState.Scale).AsScaleMatrix() * invAngles * invFramTrans;
+                        //Align rotation using camera
+                        HandleBillboarding(parentMatrix, inverseParentMatrix, c); 
                     }
                     else
                     {
+                        //Regular parent-child transformation
                         _frameMatrix = parentMatrix * _frameState.Matrix;
                         _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
                     }
+
                     if (ScaleByDistance)
                     {
                         float scale = c.DistanceScale(WorldMatrix.GetPoint(), _screenSize);
@@ -375,10 +317,12 @@ namespace TheraEngine.Rendering.Models
                 }
                 else
                 {
+                    //Regular parent-child transformation
                     _frameMatrix = parentMatrix * _frameState.Matrix;
                     _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
                 }
                 
+                //Precalculate vertex/normal weighting matrices
                 _vtxPosMtx = FrameMatrix * InverseBindMatrix;
                 _vtxNrmMtx = (BindMatrix * InverseFrameMatrix).Transposed().GetRotationMatrix4();
 
@@ -399,16 +343,18 @@ namespace TheraEngine.Rendering.Models
                     comp.RecalcGlobalTransform();
             }
 
-            if (_childFrameMatrixChanged || _frameMatrixChanged || usesCamera || force)
+            //Update child bone transforms
+            if (/*_childFrameMatrixChanged ||*/ _frameMatrixChanged || usesCamera || force)
             {
+                SocketTransformChanged?.Invoke(this);
                 foreach (Bone b in _childBones)
                     b.CalcFrameMatrix(c, _frameMatrix, _inverseFrameMatrix, force || _frameMatrixChanged || usesCamera);
             }
 
-            _childFrameMatrixChanged = false;
+            //_childFrameMatrixChanged = false;
             _frameMatrixChanged = false;
         }
-
+        
         public void CalcBindMatrix(bool updateMesh)
         {
             CalcBindMatrix(Matrix4.Identity, Matrix4.Identity, updateMesh);
@@ -434,11 +380,11 @@ namespace TheraEngine.Rendering.Models
         {
             //if (_childFrameMatrixChanged)
             //    return;
-            _childFrameMatrixChanged = true;
-            if (_parent != null)
-                _parent.TriggerChildFrameMatrixUpdate();
-            else
-                _skeleton?.TriggerChildFrameMatrixUpdate();
+            //_childFrameMatrixChanged = true;
+            //if (_parent != null)
+            //    _parent.TriggerChildFrameMatrixUpdate();
+            //else
+            //    _skeleton?.TriggerChildFrameMatrixUpdate();
         }
         /// <summary>
         /// Call if this bone has been updated.
@@ -448,10 +394,10 @@ namespace TheraEngine.Rendering.Models
             //if (_frameMatrixChanged)
             //    return;
             _frameMatrixChanged = true;
-            if (_parent != null)
-                _parent.TriggerChildFrameMatrixUpdate();
-            else
-                _skeleton?.TriggerChildFrameMatrixUpdate();
+            //if (_parent != null)
+            //    _parent.TriggerChildFrameMatrixUpdate();
+            //else
+            //    _skeleton?.TriggerChildFrameMatrixUpdate();
         }
 
         #region Child Bone List Events
@@ -544,5 +490,113 @@ namespace TheraEngine.Rendering.Models
             }
         }
         #endregion
+
+        private void HandleBillboarding(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, Camera c)
+        {
+            //Apply local translation component to parent matrix
+            Matrix4 frameTrans = parentMatrix * _frameState.Translation.Raw.AsTranslationMatrix();
+            Matrix4 invFramTrans = (-_frameState.Translation.Raw).AsTranslationMatrix() * inverseParentMatrix;
+
+            //Reset rotation for billboard
+            frameTrans = parentMatrix.ClearRotation();
+            invFramTrans = inverseParentMatrix.ClearRotation();
+
+            //Calculate angles from current position to camera
+            Matrix4 angles = Matrix4.Identity, invAngles = Matrix4.Identity;
+            switch (BillboardType)
+            {
+                case BillboardType.PerspectiveXYZ:
+
+                    Vec3 componentPoint = c.WorldPoint * OwningComponent.InverseWorldMatrix;
+                    Vec3 diff = frameTrans.GetPoint() - componentPoint;
+                    Rotator r = diff.LookatAngles();
+
+                    angles = r.GetMatrix();
+                    invAngles = r.GetInverseMatrix();
+
+                    break;
+
+                case BillboardType.PerspectiveXY:
+
+                    break;
+
+                case BillboardType.PerspectiveY:
+
+                    break;
+
+                case BillboardType.RotationXYZ:
+
+                    Vec3 up1 = c.GetUpVector();
+                    Vec3 forward1 = c.GetForwardVector();
+
+                    angles = new Matrix4(
+                        new Vec4(forward1 ^ up1, 0.0f),
+                        new Vec4(up1, 0.0f),
+                        new Vec4(forward1, 0.0f),
+                        Vec4.UnitW);
+
+                    invAngles = new Matrix4(
+                        new Vec4(up1 ^ forward1, 0.0f),
+                        new Vec4(-up1, 0.0f),
+                        new Vec4(-forward1, 0.0f),
+                        Vec4.UnitW);
+
+                    break;
+
+                case BillboardType.RotationXY:
+
+                    Vec3 forward2 = c.GetForwardVector();
+                    Vec3 right2 = c.GetRightVector();
+                    right2.Y = 0.0f;
+
+                    angles = new Matrix4(
+                        new Vec4(right2, 0.0f),
+                        new Vec4(right2 ^ forward2, 0.0f),
+                        new Vec4(forward2, 0.0f),
+                        Vec4.UnitW);
+
+                    invAngles = new Matrix4(
+                        new Vec4(-right2, 0.0f),
+                        new Vec4(forward2 ^ right2, 0.0f),
+                        new Vec4(-forward2, 0.0f),
+                        Vec4.UnitW);
+
+                    break;
+
+                case BillboardType.RotationY:
+
+                    Vec3 up3 = Vec3.TransformNormalInverse(Vec3.UnitY, inverseParentMatrix); //Up is related to parent
+                    Vec3 forward3 = c.GetForwardVector();
+                    forward3.Y = 0.0f;
+
+                    angles = new Matrix4(
+                        new Vec4(forward3 ^ up3, 0.0f),
+                        new Vec4(up3, 0.0f),
+                        new Vec4(forward3, 0.0f), 
+                        Vec4.UnitW);
+
+                    invAngles = new Matrix4(
+                        new Vec4(up3 ^ forward3, 0.0f),
+                        new Vec4(-up3, 0.0f), 
+                        new Vec4(-forward3, 0.0f),
+                        Vec4.UnitW);
+
+                    break;
+            }
+
+            //Multiply translation, rotation and scale parts together
+            _frameMatrix = frameTrans * angles * _frameState.Scale.Raw.AsScaleMatrix();
+            _inverseFrameMatrix = (1.0f / _frameState.Scale).AsScaleMatrix() * invAngles * invFramTrans;
+        }
+
+        ISocket ISocket.ParentSocket => _parent;
+        public event DelSocketTransformChange SocketTransformChanged;
+        void ISocket.RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister)
+        {
+            if (unregister)
+                SocketTransformChanged -= eventMethod;
+            else
+                SocketTransformChanged += eventMethod;
+        }
     }
 }

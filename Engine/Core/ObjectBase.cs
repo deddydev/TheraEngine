@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
 using System.ComponentModel;
 using TheraEngine.Animation;
 using System;
 using TheraEngine.Input.Devices;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace TheraEngine

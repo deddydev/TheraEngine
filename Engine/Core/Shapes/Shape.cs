@@ -1,5 +1,4 @@
 ﻿using BulletSharp;
-using TheraEngine;
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Rendering;
@@ -33,7 +32,7 @@ namespace TheraEngine.Core.Shapes
     [FileClass("SHAPE", "Shape")]
     public abstract class Shape : FileObject, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueDeferredLit, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
         [Browsable(false)]

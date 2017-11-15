@@ -3,7 +3,6 @@ using TheraEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering
 {

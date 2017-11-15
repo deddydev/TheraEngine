@@ -17,7 +17,7 @@ namespace TheraEngine.Worlds.Actors
         {
             RenderInfo.CastsShadows = false;
             RenderInfo.ReceivesShadows = false;
-            RenderInfo.RenderPass = ERenderPassType3D.OpaqueDeferredLit;
+            RenderInfo.RenderPass = ERenderPass3D.OpaqueDeferredLit;
             RenderParams.DepthTest.Enabled = false;
 
             Translation.Raw = translation;

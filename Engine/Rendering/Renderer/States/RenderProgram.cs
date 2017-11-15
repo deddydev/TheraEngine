@@ -1,9 +1,5 @@
-﻿using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Textures;
+﻿using TheraEngine.Rendering.Models.Materials;
 using System.Linq;
-using System.Collections.Generic;
-using System;
 
 namespace TheraEngine.Rendering
 {

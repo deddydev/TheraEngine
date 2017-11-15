@@ -203,12 +203,7 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override int GenerateShader(string source)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override float GetDepth(float x, float y)
         {
             throw new NotImplementedException();
@@ -521,6 +516,11 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void Uniform(int programBindingId, int location, params IUniformable4Bool[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GenerateShader(params string[] source)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,4 @@
-﻿using TheraEngine;
-using TheraEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System.Drawing;
 using static System.Math;
 using System.ComponentModel;

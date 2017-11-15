@@ -1,5 +1,4 @@
-﻿using TheraEngine.Rendering;
-using TheraEngine.Rendering.HUD.Functions;
+﻿using TheraEngine.Rendering.HUD.Functions;
 
 namespace TheraEngine.Animation
 {

@@ -1,5 +1,4 @@
-﻿using System;
-using TheraEngine.Files;
+﻿using TheraEngine.Files;
 using System.ComponentModel;
 using System.Collections.Generic;
 

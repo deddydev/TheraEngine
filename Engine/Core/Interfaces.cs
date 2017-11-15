@@ -71,11 +71,11 @@ namespace TheraEngine
         public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
         public bool ReceivesShadows { get; set; } = true;
         public bool CastsShadows { get; set; } = true;
-        public ERenderPassType3D RenderPass { get; set; } = ERenderPassType3D.OpaqueDeferredLit;
+        public ERenderPass3D RenderPass { get; set; } = ERenderPass3D.OpaqueDeferredLit;
 
         public Func<float> RenderOrderFunc;
 
-        public RenderInfo3D(ERenderPassType3D pass, Func<float> renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
+        public RenderInfo3D(ERenderPass3D pass, Func<float> renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
         {
             RenderPass = pass;
             RenderOrderFunc = renderOrderFunc;

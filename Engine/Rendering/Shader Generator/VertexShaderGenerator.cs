@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 

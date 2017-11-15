@@ -1,9 +1,7 @@
 ﻿using TheraEngine.Files;
 using TheraEngine.Rendering.Textures;
-using System.IO;
 using System.Drawing.Imaging;
 using System.Drawing;
-using System;
 using System.ComponentModel;
 using System.Linq;
 

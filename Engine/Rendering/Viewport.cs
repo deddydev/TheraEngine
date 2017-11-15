@@ -3,7 +3,6 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.HUD;
 using TheraEngine.Worlds.Actors;
 using System;
-using TheraEngine.Rendering.Text;
 using BulletSharp;
 using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
@@ -372,7 +371,7 @@ namespace TheraEngine.Rendering
                         Engine.Renderer.AllowDepthWrite(true);
                         
                         //Render deferred objects
-                        scene.Render(ERenderPassType3D.OpaqueDeferredLit);
+                        scene.Render(ERenderPass3D.OpaqueDeferredLit);
                     }
                     _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
@@ -389,12 +388,12 @@ namespace TheraEngine.Rendering
                         Engine.Renderer.AllowDepthWrite(true);
 
                         //Render forward opaque objects first
-                        scene.Render(ERenderPassType3D.OpaqueForward);
+                        scene.Render(ERenderPass3D.OpaqueForward);
                         //Engine.World.PhysicsScene.DebugDrawWorld();
                         //Render forward transparent objects next
-                        scene.Render(ERenderPassType3D.TransparentForward);
+                        scene.Render(ERenderPass3D.TransparentForward);
                         //Render forward on-top objects last
-                        scene.Render(ERenderPassType3D.OnTopForward);
+                        scene.Render(ERenderPass3D.OnTopForward);
 
                         //Now render the hud over everything
                         _pawnHUD.Render();
@@ -443,15 +442,15 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.AllowDepthWrite(true);
 
                     //Render forward opaque objects first
-                    scene.Render(ERenderPassType3D.OpaqueForward);
+                    scene.Render(ERenderPass3D.OpaqueForward);
                     //Render forward transparent objects next
-                    scene.Render(ERenderPassType3D.TransparentForward);
+                    scene.Render(ERenderPass3D.TransparentForward);
 
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
 
                     //Render forward on-top objects last
-                    scene.Render(ERenderPassType3D.OnTopForward);
+                    scene.Render(ERenderPass3D.OnTopForward);
 
                     _pawnHUD.Render();
                 }

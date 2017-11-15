@@ -5,16 +5,19 @@ using System.Linq;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class Influence
+    /// <summary>
+    /// Describes a weighted group of 4 bones. Contains no actual transformation information.
+    /// </summary>
+    public class InfluenceDef
     {
         public const int MaxWeightCount = 4;
 
-        public Influence(string bone)
+        public InfluenceDef(string bone)
         {
             _weights[0] = new BoneWeight(bone);
             ++_weightCount;
         }
-        public Influence(params BoneWeight[] weights) { SetWeights(weights); }
+        public InfluenceDef(params BoneWeight[] weights) { SetWeights(weights); }
 
         public int WeightCount { get { return _weightCount; } }
         public BoneWeight[] Weights { get { return _weights; } }
@@ -51,42 +54,6 @@ namespace TheraEngine.Rendering.Models
         {
             Normalize(_weights);
         }
-
-        //private Matrix4 _matrix;
-        //private Matrix4? _invMatrix;
-
-        //public void CalcMatrix()
-        //{
-        //    if (IsWeighted)
-        //    {
-        //        _matrix = InfluenceMatrix();
-        //        _invMatrix = InverseInfluenceMatrix();
-        //    }
-        //    else if (Bone != null)
-        //    {
-        //        _matrix = Bone.FrameMatrix;
-        //        _invMatrix = Bone.InverseFrameMatrix;
-        //    }
-        //    else
-        //        _invMatrix = _matrix = Matrix4.Identity;
-        //}
-        //private Matrix4 InfluenceMatrix()
-        //{
-        //    Matrix4 value = new Matrix4();
-        //    foreach (BoneWeight w in _weights)
-        //        if (w != null)
-        //            value += (w.Bone.FrameMatrix * w.Bone.InverseBindMatrix) * w.Weight;
-        //    return value;
-        //}
-        //private Matrix4 InverseInfluenceMatrix()
-        //{
-        //    Matrix4 value = new Matrix4();
-        //    foreach (BoneWeight w in _weights)
-        //        if (w.Bone != null)
-        //            value += (w.Bone.InverseFrameMatrix * w.Bone.BindMatrix) * w.Weight;
-        //    return value;
-        //}
-
         public static BoneWeight[] Optimize(List<BoneWeight> weights, out int weightCount)
         {
             BoneWeight[] optimized = new BoneWeight[MaxWeightCount];
@@ -129,13 +96,13 @@ namespace TheraEngine.Rendering.Models
                     if (b != null && !b.Locked) //Only normalize unlocked weights used in the calculation
                         b.Weight = (float)Math.Round(b.Weight / denom * num, weightDecimalPlaces);
         }
-        public static bool operator ==(Influence left, Influence right)
+        public static bool operator ==(InfluenceDef left, InfluenceDef right)
         {
             if (ReferenceEquals(left, null))
                 return ReferenceEquals(right, null);
             return left.Equals(right);
         }
-        public static bool operator !=(Influence left, Influence right)
+        public static bool operator !=(InfluenceDef left, InfluenceDef right)
         {
             if (ReferenceEquals(left, null))
                 return !ReferenceEquals(right, null);
@@ -143,7 +110,7 @@ namespace TheraEngine.Rendering.Models
         }
         public override bool Equals(object obj)
         {
-            Influence other = obj as Influence;
+            InfluenceDef other = obj as InfluenceDef;
             if (other == null || WeightCount == other.WeightCount)
                 return false;
             

@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.Models
             _data = data;
         }
 
-        public Influence GetInfluence()
+        public InfluenceDef GetInfluence()
             => _data._influences?[_influenceIndex];
 
         //public int this[string name]

@@ -4,7 +4,6 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors;
 using System.Collections.Concurrent;
-using System;
 
 namespace TheraEngine.Input
 {

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public interface IMeshSocketOwner
+    public interface IMeshSocketOwner : ISocket
     {
         MeshSocket this[string socketName] { get; }
         MeshSocket FindOrCreateSocket(string socketName);
@@ -15,25 +12,29 @@ namespace TheraEngine.Worlds.Actors
         void AddToSocket(string socketName, SceneComponent component);
         void AddRangeToSocket(string socketName, IEnumerable<SceneComponent> components);
     }
+    public delegate void DelSocketTransformChange(ISocket socket);
     public interface ISocket
     {
+        ISocket ParentSocket { get; }
         Matrix4 WorldMatrix { get; }
         Matrix4 InverseWorldMatrix { get; }
         MonitoredList<SceneComponent> ChildComponents { get; }
+        void RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister = false);
 
 #if EDITOR
         bool Selected { get; set; }
 #endif
 
-        void HandleTranslation(Vec3 delta);
-        void HandleScale(Vec3 delta);
-        void HandleRotation(Quat delta);
+        void HandleLocalTranslation(Vec3 delta);
+        void HandleLocalScale(Vec3 delta);
+        void HandleLocalRotation(Quat delta);
     }
     public class MeshSocket : ISocket
     {
-        internal MeshSocket(Transform transform, IActor owner)
+        internal MeshSocket(Transform transform, IMeshSocketOwner owner, IActor actor)
         {
             _owner = owner;
+            _owningActor = actor;
             _transform = transform;
             _childComponents = new MonitoredList<SceneComponent>();
             _childComponents.PostAdded += _children_Added;
@@ -44,7 +45,8 @@ namespace TheraEngine.Worlds.Actors
             _childComponents.PostRemovedRange += _children_RemovedRange;
         }
 
-        private IActor _owner;
+        private IMeshSocketOwner _owner;
+        private IActor _owningActor;
         private Transform _transform = Transform.GetIdentity();
         private MonitoredList<SceneComponent> _childComponents;
 
@@ -78,7 +80,7 @@ namespace TheraEngine.Worlds.Actors
             foreach (SceneComponent item in items)
             {
                 item._parent = this;
-                item.OwningActor = _owner;
+                item.OwningActor = _owningActor;
                 item.RecalcGlobalTransform();
             }
             //_owner?.GenerateSceneComponentCache();
@@ -86,7 +88,7 @@ namespace TheraEngine.Worlds.Actors
         private void _children_Added(SceneComponent item)
         {
             item._parent = this;
-            item.OwningActor = _owner;
+            item.OwningActor = _owningActor;
             item.RecalcGlobalTransform();
             //_owner?.GenerateSceneComponentCache();
         }
@@ -100,19 +102,43 @@ namespace TheraEngine.Worlds.Actors
             }
         }
 
-        public Transform Transform { get => _transform; set => _transform = value; }
+        public Transform Transform
+        {
+            get => _transform;
+            set
+            {
+                _transform = value;
+                _transform.MatrixChanged += _transform_MatrixChanged;
+            }
+        }
+        
+        public ISocket ParentSocket => _owner;
 
-        public void HandleTranslation(Vec3 delta)
+        private void _transform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        {
+            SocketTransformChanged?.Invoke(this);
+        }
+
+        public void HandleLocalTranslation(Vec3 delta)
         {
             _transform.Translation += delta;
         }
-        public void HandleScale(Vec3 delta)
+        public void HandleLocalScale(Vec3 delta)
         {
             _transform.Scale += delta;
         }
-        public void HandleRotation(Quat delta)
+        public void HandleLocalRotation(Quat delta)
         {
             _transform.Quaternion *= delta;
+        }
+
+        private DelSocketTransformChange SocketTransformChanged;
+        public void RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister = false)
+        {
+            if (unregister)
+                SocketTransformChanged -= eventMethod;
+            else
+                SocketTransformChanged += eventMethod;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using ObjLoader.Loader.Data.DataStore;
-using System;
 
 namespace ObjLoader.Loader.Data.Elements
 {

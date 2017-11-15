@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace TheraEngine.Rendering.Models
 {
     public class CPUSkinInfo
     {
+        /// <summary>
+        /// Holds transformation information pertaining to a weighted group of up to 4 bones.
+        /// </summary>
         public class LiveInfluence
         {
             public int _weightCount;
@@ -16,7 +18,7 @@ namespace TheraEngine.Rendering.Models
             public Matrix4 _normalMatrix;
             internal bool _hasChanged;
 
-            public static LiveInfluence FromInfluence(Influence inf, Skeleton skel)
+            public static LiveInfluence FromInfluence(InfluenceDef inf, Skeleton skel)
             {
                 LiveInfluence f = new LiveInfluence()
                 {
@@ -95,7 +97,7 @@ namespace TheraEngine.Rendering.Models
             }
             catch
             {
-                Engine.PrintLine("Modified vertex indices was modified while being evaluated; could not finish updating buffers.");
+                Engine.LogWarning("Modified vertex indices was modified while being evaluated; could not finish updating buffers.");
             }
         }
     }

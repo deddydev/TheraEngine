@@ -1,5 +1,4 @@
 ﻿using System;
-using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Audio
 {

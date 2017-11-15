@@ -1,6 +1,5 @@
 ﻿using System.Windows.Forms;
 using System.ComponentModel;
-using TheraEngine.Worlds;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Rendering.Models.Materials;
 

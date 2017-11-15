@@ -1,9 +1,6 @@
 ﻿using TheraEngine.Files;
 using System;
 using System.ComponentModel;
-using System.Drawing.Design;
-using System.Windows.Forms;
-using System.Drawing;
 
 namespace TheraEngine.Rendering.Cameras
 {

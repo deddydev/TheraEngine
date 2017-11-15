@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Files
 {

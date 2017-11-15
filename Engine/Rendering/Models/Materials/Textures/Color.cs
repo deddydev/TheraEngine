@@ -4,8 +4,6 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Globalization;
-using System.Windows.Forms;
-using System.Drawing.Design;
 
 namespace System
 {

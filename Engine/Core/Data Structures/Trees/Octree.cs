@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine.Rendering;
-using System.Threading.Tasks;
 using System.Threading;
 using TheraEngine.Core.Shapes;
 

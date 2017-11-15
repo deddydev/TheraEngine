@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;
-using Microsoft.FSharp.Core;
 using DiffSharp.Interop.Float32;
 using TheraEngine.Core.Shapes;
 
@@ -17,7 +16,7 @@ namespace TheraEngine.Rendering.Models
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Skeleton : FileObject, IEnumerable<Bone>, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -59,7 +58,7 @@ namespace TheraEngine.Rendering.Models
         private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
         private Dictionary<int, Bone> _boneIndexCache = new Dictionary<int, Bone>();
         private SkeletalMeshComponent _owningComponent;
-        private bool _childMatrixModified = false;
+        //private bool _childMatrixModified = false;
 
         private Bone[] _rootBones;
 
@@ -100,12 +99,8 @@ namespace TheraEngine.Rendering.Models
             //Looping recursively is more efficient than looping through the whole bone cache
             //because bone subtrees that do not need updating will be skipped entirely
             //instead of being iterated through
-            if (_childMatrixModified || _cameraBones.Count > 0)
-            {
-                _childMatrixModified = false;
-                foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix(c, Matrix4.Identity, Matrix4.Identity);
-            }
+            foreach (Bone b in RootBones)
+                b.CalcFrameMatrix(c, Matrix4.Identity, Matrix4.Identity);
         }
 
         public bool VisibleInEditorOnly
@@ -186,7 +181,7 @@ namespace TheraEngine.Rendering.Models
         }
         public void TriggerChildFrameMatrixUpdate()
         {
-            _childMatrixModified = true;
+            //_childMatrixModified = true;
         }
         
         public void UpdateIK()

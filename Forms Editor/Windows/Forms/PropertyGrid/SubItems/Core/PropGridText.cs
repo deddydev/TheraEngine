@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -81,7 +75,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                UpdateValue("");
+                if (DataType == typeof(string))
+                    UpdateValue("");
+                else
+                {
+                    object o = Editor.UserCreateInstanceOf(DataType, true);
+                    UpdateValue(o);
+                }
                 SetControlsEnabled(true);
             }
         }

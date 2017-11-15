@@ -4,7 +4,6 @@ using ObjLoader.Loader.Data.Elements;
 using System;
 using TheraEngine.Rendering.Models.Materials;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using TheraEngine.Core.Shapes;
 

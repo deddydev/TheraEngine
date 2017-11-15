@@ -4,16 +4,27 @@ using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
     public enum ESpace
     {
+        /// <summary>
+        /// Relative to the world.
+        /// </summary>
         World,
+        /// <summary>
+        /// Relative to the parent transform (or world if no parent).
+        /// </summary>
         Parent,
+        /// <summary>
+        /// Relative to the current transform.
+        /// </summary>
         Local,
+        /// <summary>
+        /// Relative to the camera transform.
+        /// </summary>
         Screen,
     }
     public enum TransformType
@@ -28,7 +39,7 @@ namespace TheraEngine.Worlds.Actors.Types
         public static EditorTransformTool3D Instance => _currentInstance;
         private static EditorTransformTool3D _currentInstance;
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null);
         public Shape CullingVolume => null;
         public IOctreeNode OctreeNode { get; set; }
 
@@ -39,7 +50,7 @@ namespace TheraEngine.Worlds.Actors.Types
         private Material[] _scalePlaneMat = new Material[3];
         private Material _screenMat;
         
-        private ESpace _transformSpace = ESpace.World;
+        private ESpace _transformSpace = ESpace.Local;
 
         protected override SkeletalMeshComponent OnConstruct()
         {
@@ -123,7 +134,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 axisPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Axis", axisPrim, axisMat, true)
                 {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                    RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode != TransformType.Rotate
                 });
 
@@ -132,7 +143,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 arrowPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Arrow", arrowPrim, axisMat, true)
                 {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                    RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode != TransformType.Rotate
                 });
                 
@@ -140,7 +151,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 transPrim1.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane1", transPrim1, planeMat1, true)
                 {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                    RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode == TransformType.Translate
                 });
 
@@ -148,7 +159,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 transPrim2.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane2", transPrim2, planeMat2, true)
                 {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                    RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode == TransformType.Translate
                 });
 
@@ -156,7 +167,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 scalePrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", scalePrim, scalePlaneMat, true)
                 {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                    RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode == TransformType.Scale
                 });
 
@@ -164,7 +175,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 rotPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Rotation", rotPrim, axisMat, true)
                 {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                    RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode == TransformType.Rotate
                 });
             }
@@ -175,7 +186,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", screenRotPrim, _screenMat, true)
             {
-                RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                 VisibleByDefault = TransformMode == TransformType.Rotate
             });
 
@@ -190,7 +201,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenTranslation", screenTransPrim, _screenMat, true)
             {
-                RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                 VisibleByDefault = TransformMode == TransformType.Translate
             });
             
@@ -247,20 +258,26 @@ namespace TheraEngine.Worlds.Actors.Types
             get => _targetSocket;
             set
             {
-#if EDITOR
                 if (_targetSocket != null)
+                {
+#if EDITOR
                     _targetSocket.Selected = false;
 #endif
+                    _targetSocket.RegisterWorldMatrixChanged(_currentInstance.TranformChanged, true);
+                }
                 _targetSocket = value;
                 if (_targetSocket != null)
                 {
 #if EDITOR
                     _targetSocket.Selected = true;
 #endif
+                    
                     RootComponent.WorldMatrix = GetWorldMatrix();
+                    _targetSocket.RegisterWorldMatrixChanged(_currentInstance.TranformChanged, false);
                 }
                 else
                     RootComponent.WorldMatrix = Matrix4.Identity;
+
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
             }
@@ -268,15 +285,29 @@ namespace TheraEngine.Worlds.Actors.Types
 
         private Matrix4 GetWorldMatrix()
         {
-            return _targetSocket.WorldMatrix.GetPoint().AsTranslationMatrix();
+            switch (_transformSpace)
+            {
+                case ESpace.Local:
+                    return _targetSocket.WorldMatrix.ClearScale();
+                case ESpace.Parent:
+                    return _targetSocket.ParentSocket.WorldMatrix.ClearScale();
+                case ESpace.World:
+                default:
+                    return _targetSocket.WorldMatrix.GetPoint().AsTranslationMatrix();
+            }
         }
         private Matrix4 GetInvWorldMatrix()
         {
-            return _targetSocket.InverseWorldMatrix.GetPoint().AsTranslationMatrix();
-        }
-        private Matrix4 GetLocalMatrix()
-        {
-            return _targetSocket.WorldMatrix;
+            switch (_transformSpace)
+            {
+                case ESpace.Local:
+                    return _targetSocket.InverseWorldMatrix.ClearScale();
+                case ESpace.Parent:
+                    return _targetSocket.ParentSocket.InverseWorldMatrix.ClearScale();
+                case ESpace.World:
+                default:
+                    return _targetSocket.InverseWorldMatrix.GetPoint().AsTranslationMatrix();
+            }
         }
         public static EditorTransformTool3D GetInstance(ISocket comp, TransformType transformType)
         {
@@ -291,6 +322,17 @@ namespace TheraEngine.Worlds.Actors.Types
 
             return _currentInstance;
         }
+
+        private void TranformChanged(ISocket socket)
+        {
+            if (!_pressed)
+            {
+                RootComponent.WorldMatrix = GetWorldMatrix();
+                _dragMatrix = RootComponent.WorldMatrix;
+                _invDragMatrix = RootComponent.InverseWorldMatrix;
+            }
+        }
+
         public static void DestroyInstance()
         {
             _currentInstance?.Despawn();
@@ -337,19 +379,21 @@ namespace TheraEngine.Worlds.Actors.Types
         private void DragRotation(Vec3 dragPoint)
         {
             Quat delta = Quat.BetweenVectors(_lastPoint, dragPoint);
-            _targetSocket.HandleRotation(delta);
+            _targetSocket.HandleLocalRotation(delta);
             RootComponent.WorldMatrix = GetWorldMatrix();
         }
         private void DragTranslation(Vec3 dragPoint)
         {
             Vec3 delta = dragPoint - _lastPoint;
-            _targetSocket.HandleTranslation(delta);
+            Matrix4 m = _targetSocket.InverseWorldMatrix.ClearScale();
+            m = m.ClearTranslation();
+            _targetSocket.HandleLocalTranslation(m * delta);
             RootComponent.WorldMatrix = GetWorldMatrix();
         }
         private void DragScale(Vec3 dragPoint)
         {
             Vec3 delta = dragPoint - _lastPoint;
-            _targetSocket.HandleScale(delta);
+            _targetSocket.HandleLocalScale(delta);
             RootComponent.WorldMatrix = GetWorldMatrix();
         }
         /// <summary>

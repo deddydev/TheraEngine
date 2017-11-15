@@ -1,10 +1,8 @@
 ﻿using BulletSharp;
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -12,7 +10,7 @@ namespace TheraEngine.Worlds.Actors
     [FileClass("cboom", "Boom Component")]
     public class BoomComponent : RTComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
         public event LengthChange CurrentDistanceChanged;

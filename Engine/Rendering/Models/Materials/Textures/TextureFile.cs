@@ -1,8 +1,6 @@
 ﻿using TheraEngine.Files;
-using FreeImageAPI;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Drawing.Imaging;
 
 namespace TheraEngine.Rendering.Textures

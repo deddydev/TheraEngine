@@ -1,5 +1,4 @@
 ﻿using static System.Math;
-using TheraEngine;
 using TheraEngine.Rendering.Models;
 using BulletSharp;
 using System.Collections.Generic;

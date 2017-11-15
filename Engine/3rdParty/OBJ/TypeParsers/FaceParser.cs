@@ -1,5 +1,4 @@
 ﻿using System;
-using ObjLoader.Loader.Data;
 using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.Data.Elements;
 using ObjLoader.Loader.TypeParsers.Interfaces;

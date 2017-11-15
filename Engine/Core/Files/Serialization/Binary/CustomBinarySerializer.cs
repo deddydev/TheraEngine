@@ -6,7 +6,6 @@ using SevenZip.Compression.LZMA;
 using SevenZip;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Diagnostics;
 
 namespace TheraEngine.Files.Serialization
 {

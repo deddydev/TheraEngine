@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-using TheraEngine.Files;
-using TheraEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEditor.Windows.Forms
 {

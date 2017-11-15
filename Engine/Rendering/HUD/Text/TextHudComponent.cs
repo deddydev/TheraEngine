@@ -1,8 +1,6 @@
-﻿using System.Drawing;
-using TheraEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Text;
-using System;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.HUD

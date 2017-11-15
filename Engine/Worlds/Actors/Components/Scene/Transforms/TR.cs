@@ -28,6 +28,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         protected Rotator _rotation;
+        [Category("Transform")]
         public Rotator Rotation
         {
             get => _rotation;
@@ -57,12 +58,12 @@ namespace TheraEngine.Worlds.Actors
             _inverseLocalTransform = Matrix4.CreateTranslation(-translation) * InverseLocalMatrix;
             _translation = LocalMatrix.GetPoint();
         }
-        public override void HandleRotation(Quat delta)
+        public override void HandleLocalRotation(Quat delta)
         {
             Quat q = _rotation.ToQuaternion();
             q = q * delta;
             _rotation.SetRotations(q.ToYawPitchRoll());
-            base.HandleRotation(delta);
+            base.HandleLocalRotation(delta);
         }
     }
 }

@@ -13,6 +13,7 @@ using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Components;
 using TheraEngine.Worlds.Actors.Types;
+using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -95,7 +96,6 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-
         protected override void PreConstruct()
         {
             _highlightPoint = new HighlightPoint();
@@ -142,12 +142,7 @@ namespace TheraEditor.Windows.Forms
                     EditorTransformTool3D.DestroyInstance();
             }
         }
-
-        protected override void OnMouseMove(float x, float y)
-        {
-            base.OnMouseMove(x, y);
-        }
-
+        
         protected void OnMouseDown()
         {
             if (!_mouseDown)

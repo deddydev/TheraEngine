@@ -1,5 +1,6 @@
 ﻿using TheraEngine.Worlds.Maps;
 using TheraEngine.Files;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Worlds
 {

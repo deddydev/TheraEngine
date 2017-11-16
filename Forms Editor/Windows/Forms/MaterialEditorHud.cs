@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Rendering.HUD;
 using TheraEngine.Rendering.Models.Materials;
 using System;
+using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEditor.Windows.Forms
 {

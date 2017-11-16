@@ -252,13 +252,13 @@ namespace TheraEngine.Tests
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
             
-            var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
-            ModelScene gunScene = dae.Models[0];
-            Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
+            //var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
+            //ModelScene gunScene = dae.Models[0];
+            //Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
 
             IActor[] actors = new IActor[]
             {
-                gunActor,
+                //gunActor,
                 spotlight,
                 //block,
                 //testActor,

@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Files;
 using TheraEngine.Worlds;
 using System.ComponentModel;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEditor
 {

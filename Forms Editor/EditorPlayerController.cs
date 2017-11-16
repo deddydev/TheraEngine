@@ -5,6 +5,8 @@ using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Tests;
 using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
 namespace TheraEditor
 {

@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
+using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering;
 
-namespace TheraEngine.Rendering.HUD
+namespace TheraEngine.Worlds.Actors.Types.Pawns
 {
     /// <summary>
     /// Each viewport has a hud manager. 

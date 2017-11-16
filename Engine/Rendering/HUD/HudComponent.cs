@@ -5,6 +5,7 @@ using System.ComponentModel;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Components;
+using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEngine.Rendering.HUD
 {

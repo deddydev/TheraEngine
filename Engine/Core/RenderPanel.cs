@@ -13,6 +13,7 @@ using TheraEngine.Rendering.DirectX;
 using TheraEngine.Rendering.OpenGL;
 using TheraEngine.Timers;
 using System.ComponentModel;
+using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEngine
 {

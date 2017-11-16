@@ -7,6 +7,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Worlds.Actors.Components;
+using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -83,7 +84,6 @@ namespace TheraEngine.Worlds.Actors
         }
 
         [Category("Pawn")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public HudManager Hud
         {
             get => _hud;

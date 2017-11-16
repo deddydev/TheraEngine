@@ -63,6 +63,8 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
 
         bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false, _middleClickPressed = false, _leftClickPressed = false;
 
+        Vec3? _hitPoint;
+
         [Browsable(false)]
         bool Rotating => _rightClickPressed && _ctrl;
         [Browsable(false)]
@@ -181,9 +183,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
                 Camera_TransformChanged();
             }
         }
-
-        Vec3? _hitPoint;
-
+        
         private void OnRightClick(bool pressed)
         {
             _rightClickPressed = pressed;
@@ -196,13 +196,6 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
                 _hitPoint = null;
         }
         
-        //private void ExecuteCombo(EMouseButton button, bool pressed)
-        //{
-        //    //ComboModifier mod = GetModifier(button, _alt, _ctrl, _shift);
-        //    //if (_combos.ContainsKey(mod))
-        //    //    _combos[mod](pressed);
-        //}
-
         public void MouseMove(float x, float y)
         {
             if (Rotating)
@@ -231,7 +224,37 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         {
 
         }
+
+        public override void OnSpawnedPostComponentSetup(World world)
+        {
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+        }
+        public override void OnDespawned()
+        {
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+            base.OnDespawned();
+        }
+        private void Tick(float delta)
+        {
+            bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
+            bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
+            if (translate)
+                RootComponent.Camera.File.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+            if (rotate)
+                RootComponent.Camera.File.AddRotation(_pitch * delta, _yaw * delta);
+            if (translate || rotate)
+                Camera_TransformChanged();
+        }
+
+        #region Customizable Input
         //Dictionary<ComboModifier, Action<bool>> _combos = new Dictionary<ComboModifier, Action<bool>>();
+
+        //private void ExecuteCombo(EMouseButton button, bool pressed)
+        //{
+        //    //ComboModifier mod = GetModifier(button, _alt, _ctrl, _shift);
+        //    //if (_combos.ContainsKey(mod))
+        //    //    _combos[mod](pressed);
+        //}
 
         //private ComboModifier GetModifier(EMouseButton button, bool alt, bool ctrl, bool shift)
         //{
@@ -262,25 +285,6 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         //        else
         //            _combos.Add(mod, func);
         //}
-        public override void OnSpawnedPostComponentSetup(World world)
-        {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
-        }
-        public override void OnDespawned()
-        {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
-            base.OnDespawned();
-        }
-        private void Tick(float delta)
-        {
-            bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
-            bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
-            if (translate)
-                RootComponent.Camera.File.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
-            if (rotate)
-                RootComponent.Camera.File.AddRotation(_pitch * delta, _yaw * delta);
-            if (translate || rotate)
-                Camera_TransformChanged();
-        }
+        #endregion
     }
 }

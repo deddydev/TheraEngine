@@ -7,6 +7,7 @@ using TheraEngine.Input;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors.Types.Pawns;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms

@@ -18,14 +18,20 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         private IVec2 _shadowDims;
         private Matrix4 _worldToLightSpaceProjMatrix;
         private ConeZ _innerCone, _outerCone;
-
-        [TSerialize]
+        
         [Category("Spotlight Component")]
-        public IVec2 ShadowMapResolution
+        public int ShadowMapResolutionWidth
         {
-            get => _shadowDims;
-            set => SetShadowMapResolution(value.X, value.Y);
+            get => _shadowDims.X;
+            set => SetShadowMapResolution(value, _shadowDims.Y);
         }
+        [Category("Spotlight Component")]
+        public int ShadowMapResolutionHeight
+        {
+            get => _shadowDims.Y;
+            set => SetShadowMapResolution(_shadowDims.X, value);
+        }
+
         [TSerialize]
         [Category("Spotlight Component")]
         public float Distance

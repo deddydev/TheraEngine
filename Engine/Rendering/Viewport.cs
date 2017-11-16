@@ -12,6 +12,7 @@ using TheraEngine.Core.Shapes;
 using System.Collections.Generic;
 using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Worlds.Actors.Components;
+using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEngine.Rendering
 {

@@ -13,6 +13,7 @@ namespace System
         public bool Y { get => _y; set => _y = value; }
 
         private bool _x, _y;
+        [Browsable(false)]
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
         [Browsable(false)]
@@ -64,6 +65,7 @@ namespace System
         public int Y { get => _y; set => _y = value; }
 
         private int _x, _y;
+        [Browsable(false)]
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
         [Browsable(false)]
@@ -157,6 +159,7 @@ namespace System
         public uint Y { get => _y; set => _y = value; }
 
         private uint _x, _y;
+        [Browsable(false)]
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
         [Browsable(false)]
@@ -208,6 +211,7 @@ namespace System
         public double Y { get => _y; set => _y = value; }
 
         private double _x, _y;
+        [Browsable(false)]
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
         [Browsable(false)]
@@ -260,6 +264,7 @@ namespace System
         public bool Z { get => _z; set => _z = value; }
 
         private bool _x, _y, _z;
+        [Browsable(false)]
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
         [Browsable(false)]
@@ -317,6 +322,7 @@ namespace System
         public int Z { get => _z; set => _z = value; }
 
         private int _x, _y, _z;
+        [Browsable(false)]
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
         [Browsable(false)]
@@ -370,6 +376,7 @@ namespace System
         public uint Z { get => _z; set => _z = value; }
 
         private uint _x, _y, _z;
+        [Browsable(false)]
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
         [Browsable(false)]
@@ -423,6 +430,7 @@ namespace System
         public double Z { get => _z; set => _z = value; }
 
         private double _x, _y, _z;
+        [Browsable(false)]
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
         [Browsable(false)]
@@ -477,6 +485,7 @@ namespace System
         public bool W { get => _w; set => _w = value; }
 
         private bool _x, _y, _z, _w;
+        [Browsable(false)]
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
         [Browsable(false)]
@@ -532,6 +541,7 @@ namespace System
         public int W { get => _w; set => _w = value; }
 
         private int _x, _y, _z, _w;
+        [Browsable(false)]
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
         [Browsable(false)]
@@ -592,6 +602,7 @@ namespace System
         public uint W { get => _w; set => _w = value; }
 
         private uint _x, _y, _z, _w;
+        [Browsable(false)]
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
         [Browsable(false)]
@@ -647,6 +658,7 @@ namespace System
         public double W { get => _w; set => _w = value; }
 
         private double _x, _y, _z, _w;
+        [Browsable(false)]
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
         [Browsable(false)]

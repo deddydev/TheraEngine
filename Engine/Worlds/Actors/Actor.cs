@@ -107,8 +107,8 @@ namespace TheraEngine.Worlds.Actors
         /// <summary>
         /// Sets the root component (and usually any logic components as well).
         /// </summary>
-        /// <returns></returns>
-        protected virtual T OnConstruct() { return Activator.CreateInstance<T>(); }
+        /// <returns>The root scene component for this actor.</returns>
+        protected virtual T OnConstruct() => Activator.CreateInstance<T>();
 
         [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0;

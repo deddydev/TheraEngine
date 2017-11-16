@@ -54,12 +54,12 @@
             this.numericInputBoxPitch.Name = "numericInputBoxPitch";
             this.numericInputBoxPitch.Nullable = false;
             this.numericInputBoxPitch.NumberPrefix = "Pitch: ";
-            this.numericInputBoxPitch.NumberSuffix = "";
+            this.numericInputBoxPitch.NumberSuffix = "°";
             this.numericInputBoxPitch.Size = new System.Drawing.Size(1, 31);
             this.numericInputBoxPitch.SmallerIncrement = 0.1F;
             this.numericInputBoxPitch.SmallIncrement = 1F;
             this.numericInputBoxPitch.TabIndex = 0;
-            this.numericInputBoxPitch.Text = "Pitch: 0";
+            this.numericInputBoxPitch.Text = "Pitch: 0°";
             this.numericInputBoxPitch.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxPitch_ValueChanged);
             // 
             // numericInputBoxYaw
@@ -73,18 +73,18 @@
             this.numericInputBoxYaw.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxYaw.LargeIncrement = 15F;
             this.numericInputBoxYaw.LargerIncrement = 90F;
-            this.numericInputBoxYaw.Location = new System.Drawing.Point(-38, 1);
+            this.numericInputBoxYaw.Location = new System.Drawing.Point(-41, 1);
             this.numericInputBoxYaw.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.numericInputBoxYaw.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxYaw.Name = "numericInputBoxYaw";
             this.numericInputBoxYaw.Nullable = false;
             this.numericInputBoxYaw.NumberPrefix = "Yaw: ";
-            this.numericInputBoxYaw.NumberSuffix = "";
+            this.numericInputBoxYaw.NumberSuffix = "°";
             this.numericInputBoxYaw.Size = new System.Drawing.Size(1, 31);
             this.numericInputBoxYaw.SmallerIncrement = 0.1F;
             this.numericInputBoxYaw.SmallIncrement = 1F;
             this.numericInputBoxYaw.TabIndex = 1;
-            this.numericInputBoxYaw.Text = "Yaw: 0";
+            this.numericInputBoxYaw.Text = "Yaw: 0°";
             this.numericInputBoxYaw.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxYaw_ValueChanged);
             // 
             // numericInputBoxRoll
@@ -98,18 +98,18 @@
             this.numericInputBoxRoll.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxRoll.LargeIncrement = 15F;
             this.numericInputBoxRoll.LargerIncrement = 90F;
-            this.numericInputBoxRoll.Location = new System.Drawing.Point(-78, 1);
+            this.numericInputBoxRoll.Location = new System.Drawing.Point(-84, 1);
             this.numericInputBoxRoll.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.numericInputBoxRoll.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
             this.numericInputBoxRoll.Name = "numericInputBoxRoll";
             this.numericInputBoxRoll.Nullable = false;
             this.numericInputBoxRoll.NumberPrefix = "Roll: ";
-            this.numericInputBoxRoll.NumberSuffix = "";
+            this.numericInputBoxRoll.NumberSuffix = "°";
             this.numericInputBoxRoll.Size = new System.Drawing.Size(1, 31);
             this.numericInputBoxRoll.SmallerIncrement = 0.1F;
             this.numericInputBoxRoll.SmallIncrement = 1F;
             this.numericInputBoxRoll.TabIndex = 2;
-            this.numericInputBoxRoll.Text = "Roll: 0";
+            this.numericInputBoxRoll.Text = "Roll: 0°";
             this.numericInputBoxRoll.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxRoll_ValueChanged);
             // 
             // tableLayoutPanel1
@@ -144,10 +144,10 @@
             this.cboOrder.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.cboOrder.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.cboOrder.FormattingEnabled = true;
-            this.cboOrder.Location = new System.Drawing.Point(-118, 0);
+            this.cboOrder.Location = new System.Drawing.Point(-127, 0);
             this.cboOrder.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.cboOrder.Name = "cboOrder";
-            this.cboOrder.Size = new System.Drawing.Size(57, 33);
+            this.cboOrder.Size = new System.Drawing.Size(65, 33);
             this.cboOrder.TabIndex = 4;
             this.cboOrder.SelectedIndexChanged += new System.EventHandler(this.cboOrder_SelectedIndexChanged);
             // 
@@ -155,7 +155,7 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.checkBox1.Location = new System.Drawing.Point(-59, 0);
+            this.checkBox1.Location = new System.Drawing.Point(-60, 0);
             this.checkBox1.Margin = new System.Windows.Forms.Padding(0);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(61, 33);

@@ -44,7 +44,7 @@ namespace TheraEngine
         Scene           = 12, //Update scene
     }
 
-    public abstract class ObjectBase : INotifyPropertyChanged
+    public abstract class ObjectBase// : INotifyPropertyChanged
     {
         public static event Action<ObjectBase> OnConstructed;
 
@@ -115,22 +115,22 @@ namespace TheraEngine
             set => _editorState = value;
         }
 
-        [Browsable(false)]
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
-            => PropertyChanged?.Invoke(this, e);
-        protected void SetPropertyField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
-        {
-            if (!EqualityComparer<T>.Default.Equals(field, newValue))
-            {
-                Engine.PrintLine("Changed property {0} in {1} \"{2}\"", propertyName, GetType().GetFriendlyName(), ToString());
+        //[Browsable(false)]
+        //public event PropertyChangedEventHandler PropertyChanged;
+        //protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        //    => PropertyChanged?.Invoke(this, e);
+        //protected void SetPropertyField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
+        //{
+        //    if (!EqualityComparer<T>.Default.Equals(field, newValue))
+        //    {
+        //        Engine.PrintLine("Changed property {0} in {1} \"{2}\"", propertyName, GetType().GetFriendlyName(), ToString());
 
-                EditorState.AddChange(propertyName, field, newValue);
+        //        EditorState.AddChange(propertyName, field, newValue);
 
-                field = newValue;
-                OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-            }
-        }
+        //        field = newValue;
+        //        OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+        //    }
+        //}
 #endif
 
         #region Animation

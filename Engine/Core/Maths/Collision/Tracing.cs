@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Rendering.Models;
 using TheraEngine.Worlds;
 using System;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine
 {

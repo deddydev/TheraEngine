@@ -25,7 +25,7 @@ namespace TheraEngine.Files
     {
 
     }
-    public abstract class FileObject : ObjectBase, IFileObject, INotifyPropertyChanged
+    public abstract class FileObject : ObjectBase, IFileObject
     {
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
         public class ThirdPartyLoader : Attribute

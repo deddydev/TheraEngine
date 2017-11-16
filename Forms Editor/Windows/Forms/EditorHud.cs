@@ -11,6 +11,7 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors.Components;
 using TheraEngine.Worlds.Actors.Types;
 
 namespace TheraEditor.Windows.Forms

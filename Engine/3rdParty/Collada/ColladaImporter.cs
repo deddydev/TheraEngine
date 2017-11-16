@@ -8,6 +8,7 @@ using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 using static TheraEngine.Rendering.Models.Collada.COLLADA;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryAnimations.Animation;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;

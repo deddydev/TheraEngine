@@ -4,6 +4,7 @@ using TheraEngine.Input;
 using TheraEngine.Worlds.Actors.Types;
 using TheraEngine.Worlds;
 using TheraEngine.Rendering;
+using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEngine.GameModes
 {

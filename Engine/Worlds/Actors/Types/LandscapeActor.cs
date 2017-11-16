@@ -1,6 +1,7 @@
 ﻿using System;
 using BulletSharp;
 using System.Drawing;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

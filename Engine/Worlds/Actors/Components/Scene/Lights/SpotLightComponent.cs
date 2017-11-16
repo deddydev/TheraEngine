@@ -6,7 +6,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Core.Maths.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {
     [FileClass("cspotlight", "Spot Light Component")]
     public class SpotLightComponent : LightComponent

@@ -3,8 +3,9 @@ using System;
 using TheraEngine.Rendering;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {

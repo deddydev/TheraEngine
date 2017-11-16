@@ -1,13 +1,14 @@
-﻿using TheraEngine.Animation;
+﻿using System;
+using System.ComponentModel;
+using System.Drawing;
+using TheraEngine.Animation;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using System;
-using System.Drawing;
-using System.ComponentModel;
-using TheraEngine.Rendering;
-using TheraEngine.Core.Shapes;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {

@@ -5,8 +5,9 @@ using System.ComponentModel;
 using BulletSharp;
 using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable, IMeshSocketOwner
     {

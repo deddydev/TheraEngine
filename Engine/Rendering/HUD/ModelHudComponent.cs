@@ -2,7 +2,6 @@
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using static TheraEngine.Worlds.Actors.SkeletalMeshComponent;
 
 namespace TheraEngine.Rendering.HUD
 {

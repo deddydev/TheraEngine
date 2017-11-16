@@ -3,6 +3,8 @@ using TheraEngine.Rendering.HUD;
 using System;
 using System.Collections.Generic;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

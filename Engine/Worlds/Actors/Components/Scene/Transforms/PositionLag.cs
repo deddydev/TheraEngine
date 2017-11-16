@@ -3,7 +3,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
 {
     [FileClass("clag", "Position Lag Component")]
     public class PositionLagComponent : SceneComponent, I3DRenderable

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Files;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Components.Logic.Animation;
 
 namespace TheraEngine.Animation
 {

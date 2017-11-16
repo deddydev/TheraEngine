@@ -1,6 +1,7 @@
 ﻿using System;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

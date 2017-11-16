@@ -5,8 +5,9 @@ using System.ComponentModel;
 using TheraEngine.Rendering;
 using BulletSharp;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Worlds.Actors.Components.Scene;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Types.Pawns
 {
     public enum CameraInputType
     {

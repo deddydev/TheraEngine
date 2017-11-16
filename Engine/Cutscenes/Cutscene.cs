@@ -1,14 +1,22 @@
 ﻿using TheraEngine.Worlds;
 using System.Collections.Generic;
 using TheraEngine.Animation;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Cutscenes
 {
     public class Cutscene : BaseAnimation
     {
-        public World World { get => _world; set => _world = value; }
-        public float Length { get => _length; set => _length = value; }
-        public List<IActor> InvolvedActors { get => _involvedActors; set => _involvedActors = value; }
+        public World World
+        {
+            get => _world;
+            set => _world = value;
+        }
+        public List<IActor> InvolvedActors
+        {
+            get => _involvedActors;
+            set => _involvedActors = value;
+        }
 
         //ONLY render actors visible in the cutsene to improve performance
         //Precompute visibility in the editor, then compile the list of visible actors here.

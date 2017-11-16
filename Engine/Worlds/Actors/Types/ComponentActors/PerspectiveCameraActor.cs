@@ -1,4 +1,5 @@
 ﻿using TheraEngine.Rendering.Cameras;
+using TheraEngine.Worlds.Actors.Components.Scene;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

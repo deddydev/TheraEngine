@@ -10,6 +10,8 @@ using System.Drawing.Imaging;
 using System.Linq;
 using TheraEngine.Core.Shapes;
 using System.Collections.Generic;
+using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Worlds.Actors.Components;
 
 namespace TheraEngine.Rendering
 {

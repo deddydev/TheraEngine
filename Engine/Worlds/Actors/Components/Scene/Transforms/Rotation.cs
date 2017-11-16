@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
 {
     [FileClass("crot", "Rotation Component")]
     public class RotationComponent : SceneComponent

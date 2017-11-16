@@ -259,12 +259,12 @@ namespace TheraEditor.Wrappers
                 {
                     GenericsSelector gs = new GenericsSelector(fileType);
                     if (gs.ShowDialog() == DialogResult.OK)
-                        file = Activator.CreateInstance(gs.FinalClassType) as FileObject;
+                        file = Editor.UserCreateInstanceOf(gs.FinalClassType, true) as FileObject;
                     else
                         return;
                 }
                 else
-                    file = Activator.CreateInstance(fileType) as FileObject;
+                    file = Editor.UserCreateInstanceOf(fileType, true) as FileObject;
                 
                 FolderWrapper folderNode = GetInstance<FolderWrapper>();
                 string dir = folderNode.FilePath as string;

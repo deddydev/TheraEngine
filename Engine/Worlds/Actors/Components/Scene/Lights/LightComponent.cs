@@ -2,8 +2,9 @@
 using System.Drawing;
 using System.ComponentModel;
 using TheraEngine.Rendering;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {
     public enum LightType
     {

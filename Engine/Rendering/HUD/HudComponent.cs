@@ -4,6 +4,7 @@ using System.Collections;
 using System.ComponentModel;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Worlds.Actors.Components;
 
 namespace TheraEngine.Rendering.HUD
 {

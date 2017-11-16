@@ -1,8 +1,9 @@
 ﻿using System;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene
 {
     public class DecalComponent : BoxComponent
     {

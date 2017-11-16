@@ -7,6 +7,7 @@ using System.Drawing;
 using TheraEngine.Core.Shapes;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

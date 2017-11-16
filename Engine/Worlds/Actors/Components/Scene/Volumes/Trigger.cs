@@ -1,6 +1,7 @@
 ﻿using System;
+using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Volumes
 {
     public delegate void DelOnOverlapEnter(IActor actor);
     public delegate void DelOnOverlapLeave(IActor actor);

@@ -4,7 +4,7 @@ using BulletSharp;
 using TheraEngine.Core.Shapes;
 using System.ComponentModel;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 {
     public class SphereComponent : ShapeComponent
     {

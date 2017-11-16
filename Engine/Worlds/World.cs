@@ -5,6 +5,7 @@ using System;
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.GameModes;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Worlds
 {

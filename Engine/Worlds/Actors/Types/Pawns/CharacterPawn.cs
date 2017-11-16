@@ -8,8 +8,13 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Animation;
 using TheraEngine.Timers;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Components.Logic.Movement;
+using TheraEngine.Worlds.Actors.Components.Logic.Animation;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Worlds.Actors.Components.Scene;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Types.Pawns
 {
     /// <summary>
     /// Use this interface for interaction with pawns.

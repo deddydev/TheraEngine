@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using TheraEngine.Files;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene
 {
     [FileClass("ccam", "Camera Component")]
     public class CameraComponent : SceneComponent

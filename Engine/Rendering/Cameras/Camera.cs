@@ -8,6 +8,7 @@ using System.Drawing;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Components.Scene;
 
 namespace TheraEngine.Rendering.Cameras
 {

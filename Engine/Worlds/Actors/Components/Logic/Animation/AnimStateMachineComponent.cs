@@ -6,8 +6,9 @@ using System.ComponentModel;
 using TheraEngine.Files;
 using System.Linq;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Animation;
 
-namespace TheraEngine.Animation
+namespace TheraEngine.Worlds.Actors.Components.Logic.Animation
 {
     [FileClass("CSTM", "Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent

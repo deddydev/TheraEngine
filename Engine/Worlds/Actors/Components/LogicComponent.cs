@@ -1,4 +1,4 @@
-﻿namespace TheraEngine.Worlds.Actors
+﻿namespace TheraEngine.Worlds.Actors.Components
 {
     public abstract class LogicComponent : Component
     {

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Files;
+using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Volumes
 {
     public class MapStreamingVolumeComponent : BoxComponent
     {

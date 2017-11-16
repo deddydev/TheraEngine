@@ -4,8 +4,9 @@ using TheraEngine.Rendering;
 using TheraEngine.Files;
 using System.Collections.Generic;
 using System;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
     public partial class SkeletalMeshComponent : TRSComponent, IPreRenderNeeded, IMeshSocketOwner
     {

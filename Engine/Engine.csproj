@@ -696,7 +696,7 @@
     <Compile Include="Worlds\Actors\Types\Pawns\HudManagerPawn.cs" />
     <Compile Include="Worlds\Actors\Types\Pawns\FlyingCameraPawn.cs" />
     <Compile Include="Worlds\Actors\Types\LandscapeActor.cs" />
-    <Compile Include="Worlds\Actors\Types\Pawns\Pawn.cs" />
+    <Compile Include="Worlds\Actors\Pawn.cs" />
     <Compile Include="Worlds\Actors\Types\EditorTransformTool3D.cs" />
     <Compile Include="Worlds\Actors\Types\CharacterSpawnPointActor.cs" />
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />

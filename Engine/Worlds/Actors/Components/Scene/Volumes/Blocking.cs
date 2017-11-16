@@ -1,8 +1,9 @@
 ﻿using System;
 using TheraEngine.Rendering;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Volumes
 {
     public class BlockingVolumeComponent : BoxComponent
     {

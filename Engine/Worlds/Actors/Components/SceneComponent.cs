@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Rendering;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components
 {
     public abstract class SceneComponent : Component, ISocket
     {

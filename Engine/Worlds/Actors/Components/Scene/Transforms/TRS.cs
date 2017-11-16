@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
 {
     [FileClass("ctrs", "Translate-Rotate-Scale Component")]
     public class TRSComponent : TRComponent

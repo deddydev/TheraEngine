@@ -4,8 +4,9 @@ using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 {
     public abstract class ShapeComponent : TRComponent, I3DRenderable, IPhysicsDrivable
     {

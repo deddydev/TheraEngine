@@ -9,6 +9,7 @@ using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;
 using DiffSharp.Interop.Float32;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
 namespace TheraEngine.Rendering.Models
 {

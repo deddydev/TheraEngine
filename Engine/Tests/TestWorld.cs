@@ -9,6 +9,9 @@ using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Types;
 using TheraEngine.Worlds.Maps;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes;
+using TheraEngine.Worlds.Actors.Components.Scene.Lights;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
 namespace TheraEngine.Tests
 {

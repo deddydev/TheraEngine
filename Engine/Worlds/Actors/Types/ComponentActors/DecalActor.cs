@@ -1,4 +1,6 @@
-﻿namespace TheraEngine.Worlds.Actors.Types
+﻿using TheraEngine.Worlds.Actors.Components.Scene;
+
+namespace TheraEngine.Worlds.Actors.Types
 {
     public class DecalActor : Actor<DecalComponent>
     {

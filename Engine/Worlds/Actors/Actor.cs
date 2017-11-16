@@ -6,8 +6,10 @@ using System.Linq;
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds.Actors.Components;
+using TheraEngine.Worlds.Actors.Components.Scene;
 
-namespace TheraEngine.Worlds
+namespace TheraEngine.Worlds.Actors
 {
     public enum EActorType
     {

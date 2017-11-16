@@ -4,7 +4,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
 {
     public delegate void LengthChange(float newLength);
     [FileClass("cboom", "Boom Component")]

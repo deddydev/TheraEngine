@@ -5,6 +5,8 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.HUD;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Worlds.Actors.Components;
 
 namespace TheraEngine.Worlds.Actors
 {

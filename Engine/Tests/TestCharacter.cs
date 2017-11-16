@@ -3,6 +3,8 @@ using TheraEngine.Animation;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Worlds.Actors;
 using System.Threading.Tasks;
+using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Worlds.Actors.Components.Logic.Animation;
 
 namespace TheraEngine.Tests
 {

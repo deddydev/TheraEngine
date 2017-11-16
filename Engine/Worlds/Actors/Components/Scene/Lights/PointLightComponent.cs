@@ -4,7 +4,7 @@ using System.ComponentModel;
 using TheraEngine.Rendering;
 using TheraEngine.Core.Shapes;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {
     [FileClass("cpointlight", "Point Light Component")]
     public class PointLightComponent : LightComponent

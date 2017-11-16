@@ -5,8 +5,9 @@ using TheraEngine.Rendering.Models.Materials;
 using System;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
 {
     public class BoxActor : Actor<StaticMeshComponent>
     {

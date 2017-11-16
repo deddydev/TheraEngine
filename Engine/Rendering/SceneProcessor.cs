@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Particles;
+using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 
 namespace TheraEngine.Rendering
 {

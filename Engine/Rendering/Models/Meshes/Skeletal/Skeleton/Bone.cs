@@ -5,6 +5,8 @@ using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Worlds.Actors.Components;
 
 namespace TheraEngine.Rendering.Models
 {

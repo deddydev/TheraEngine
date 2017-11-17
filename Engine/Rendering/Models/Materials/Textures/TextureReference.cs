@@ -10,12 +10,13 @@ using System;
 namespace TheraEngine.Rendering.Models.Materials
 {
     [FileClass("TREF", "Texture Reference")]
-    public class TextureReference : FileObject
+    public abstract class BaseTextureReference : FileObject
     {
-
+        public abstract BaseRenderTexture GetTextureGeneric();
+        public abstract Task<BaseRenderTexture> GetTextureGenericAsync();
     }
 
-    public class TextureReference2D : TextureReference
+    public class TextureReference2D : BaseTextureReference
     {
         #region Constructors
         public TextureReference2D() : this(null, 1, 1) { }
@@ -83,7 +84,12 @@ namespace TheraEngine.Rendering.Models.Materials
         
         private Texture2D _texture;
 
-        private int _width, _height, _index;
+        [TSerialize("Width")]
+        private int _width;
+        [TSerialize("Height")]
+        private int _height;
+
+        private int _index;
         private ETexWrapMode _uWrapMode = ETexWrapMode.Repeat;
         private ETexWrapMode _vWrapMode = ETexWrapMode.Repeat;
         private ETexMinFilter _minFilter = ETexMinFilter.LinearMipmapLinear;
@@ -94,36 +100,43 @@ namespace TheraEngine.Rendering.Models.Materials
         private EPixelType _pixelType;
         private EFramebufferAttachment? _frameBufferAttachment;
 
+        [TSerialize]
         public EFramebufferAttachment? FrameBufferAttachment
         {
             get => _frameBufferAttachment;
             set => _frameBufferAttachment = value;
         }
+        [TSerialize]
         public int Index
         {
             get => _index;
             set => _index = value;
         }
+        [TSerialize]
         public ETexMagFilter MagFilter
         {
             get => _magFilter;
             set => _magFilter = value;
         }
+        [TSerialize]
         public ETexMinFilter MinFilter
         {
             get => _minFilter;
             set => _minFilter = value;
         }
+        [TSerialize]
         public ETexWrapMode UWrap
         {
             get => _uWrapMode;
             set => _uWrapMode = value;
         }
+        [TSerialize]
         public ETexWrapMode VWrap
         {
             get => _uWrapMode;
             set => _uWrapMode = value;
         }
+        [TSerialize]
         public float LodBias
         {
             get => _lodBias;
@@ -167,6 +180,9 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return _texture;
         }
+
+        public override BaseRenderTexture GetTextureGeneric() => GetTexture();
+        public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
         private void FinalizeTextureLoaded()
         {

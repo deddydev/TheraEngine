@@ -2,26 +2,27 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Textures
 {
     public class Texture3D : BaseRenderTexture
     {
         public Texture3D() : this(null) { }
-        public Texture3D(int bindingId) : base(EObjectType.Texture, bindingId) => Init(null);
-        public Texture3D(params Bitmap[] mipmaps) : base(EObjectType.Texture) => Init(mipmaps);
+        public Texture3D(int bindingId) : base(bindingId) => Init(null);
+        public Texture3D(params TBitmap3D[] mipmaps) : base() => Init(mipmaps);
         public Texture3D(
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
             EPixelType pixelType,
-            params Bitmap[] mipmaps)
+            params TBitmap3D[] mipmaps)
             : this(mipmaps)
         {
             InternalFormat = internalFormat;
             PixelFormat = pixelFormat;
             PixelType = pixelType;
         }
-        public Texture3D(int bindingId, params Bitmap[] mipmaps) : base(EObjectType.Texture, bindingId) => Init(mipmaps);
+        public Texture3D(int bindingId, params TBitmap3D[] mipmaps) : base(bindingId) => Init(mipmaps);
         /// <summary>
         /// Initializes the texture as an unallocated texture to be filled by a framebuffer.
         /// </summary>
@@ -34,7 +35,7 @@ namespace TheraEngine.Rendering.Textures
             PixelType = pixelType;
             _mipmaps = null;
         }
-        private void Init(params Bitmap[] mipmaps)
+        private void Init(params TBitmap3D[] mipmaps)
         {
             _mipmaps = mipmaps;
             _width = mipmaps != null && mipmaps.Length > 0 ? mipmaps[0].Width : 1;
@@ -42,11 +43,11 @@ namespace TheraEngine.Rendering.Textures
         }
         
         private int _width, _height, _depth;
-        private Bitmap3D[] _mipmaps;
+        private TBitmap3D[] _mipmaps;
 
         public override ETexTarget TextureTarget => ETexTarget.Texture3D;
 
-        public Bitmap[] Mipmaps
+        public TBitmap3D[] Mipmaps
         {
             get => _mipmaps;
             set
@@ -62,11 +63,6 @@ namespace TheraEngine.Rendering.Textures
         
         public static Texture3D[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<Texture3D>(EObjectType.Texture, count);
-
-        public void AttachToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int mipLevel = 0)
-        {
-            Engine.Renderer.AttachTextureToFrameBuffer(frameBufferBindingId, attachment, BindingId, mipLevel);
-        }
         
         public override void PushData()
         {
@@ -81,12 +77,12 @@ namespace TheraEngine.Rendering.Textures
             else
                 for (int i = 0; i < _mipmaps.Length; ++i)
                 {
-                    Bitmap bmp = _mipmaps[i];
+                    TBitmap3D bmp = _mipmaps[i];
                     if (bmp != null)
                     {
-                        BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                        Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, data.Scan0);
-                        bmp.UnlockBits(data);
+                        //BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                        Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, bmp.Scan0);
+                        //bmp.UnlockBits(data);
                     }
                     else
                         Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
@@ -101,23 +97,24 @@ namespace TheraEngine.Rendering.Textures
         }
         public void Resize(int width, int height, int depth)
         {
-            _width = width;
-            _height = height;
-            _depth = depth;
-
             if (_mipmaps != null && _mipmaps.Length > 0)
             {
-                _mipmaps[0] = _mipmaps[0].Resized(_width, _height);
+                _mipmaps[0] = _mipmaps[0].Resized(width, height, depth);
 
                 double wratio = (double)width / _width;
                 double hratio = (double)height / _height;
+                double dratio = (double)depth / _depth;
 
                 for (int i = 1; i < _mipmaps.Length; ++i)
                 {
-                    Bitmap bmp = _mipmaps[i];
-                    _mipmaps[i] = bmp.Resized((int)(bmp.Width * wratio), (int)(bmp.Height * wratio));
+                    TBitmap3D bmp = _mipmaps[i];
+                    _mipmaps[i] = bmp.Resized((int)(bmp.Width * wratio), (int)(bmp.Height * wratio), (int)(bmp.Depth * dratio));
                 }
             }
+
+            _width = width;
+            _height = height;
+            _depth = depth;
 
             PushData();
         }
@@ -129,9 +126,10 @@ namespace TheraEngine.Rendering.Textures
                 if (disposing)
                 {
                     Destroy();
-                    if (_mipmaps != null)
-                        Array.ForEach(_mipmaps, x => x?.Dispose());
                 }
+
+                if (_mipmaps != null)
+                    Array.ForEach(_mipmaps, x => x?.Dispose());
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.

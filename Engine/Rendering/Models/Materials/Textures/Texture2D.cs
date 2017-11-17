@@ -18,8 +18,8 @@ namespace TheraEngine.Rendering.Textures
         protected void OnPrePushData() => PrePushData?.Invoke();
         protected void OnPostPushData() => PostPushData?.Invoke();
 
-        public BaseRenderTexture(EObjectType type) : base(type) { }
-        public BaseRenderTexture(EObjectType type, int bindingId) : base(type, bindingId) { }
+        public BaseRenderTexture() : base(EObjectType.Texture) { }
+        public BaseRenderTexture(int bindingId) : base(EObjectType.Texture, bindingId) { }
         
         public EPixelInternalFormat InternalFormat { get; set; }
         public EPixelFormat PixelFormat { get; set; }
@@ -32,8 +32,8 @@ namespace TheraEngine.Rendering.Textures
 
         public void Bind()
             => Engine.Renderer.BindTexture(TextureTarget, BindingId);
-        public void Clear(ColorF4 clearColor)
-            => Engine.Renderer.ClearTexImage(BindingId, TextureTarget, clearColor);
+        public void Clear(ColorF4 clearColor, int level = 0)
+            => Engine.Renderer.ClearTexImage(BindingId, level, clearColor);
 
         protected override int CreateObject()
             => Engine.Renderer.CreateTextures(TextureTarget, 1)[0];
@@ -48,8 +48,8 @@ namespace TheraEngine.Rendering.Textures
             => Engine.Renderer.CreateObjects<Texture2D>(EObjectType.Texture, count);
 
         public Texture2D() : this(null) { }
-        public Texture2D(int bindingId) : base(EObjectType.Texture, bindingId) => Init(null);
-        public Texture2D(params Bitmap[] mipmaps) : base(EObjectType.Texture) => Init(mipmaps);
+        public Texture2D(int bindingId) : base(bindingId) => Init(null);
+        public Texture2D(params Bitmap[] mipmaps) : base() => Init(mipmaps);
         public Texture2D(
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
@@ -61,7 +61,7 @@ namespace TheraEngine.Rendering.Textures
             PixelFormat = pixelFormat;
             PixelType = pixelType;
         }
-        public Texture2D(int bindingId, params Bitmap[] mipmaps) : base(EObjectType.Texture, bindingId) => Init(mipmaps);
+        public Texture2D(int bindingId, params Bitmap[] mipmaps) : base(bindingId) => Init(mipmaps);
         /// <summary>
         /// Initializes the texture as an unallocated texture to be filled by a framebuffer.
         /// </summary>
@@ -131,12 +131,9 @@ namespace TheraEngine.Rendering.Textures
         }
         public void Resize(int width, int height)
         {
-            _width = width;
-            _height = height;
-
             if (_mipmaps != null && _mipmaps.Length > 0)
             {
-                _mipmaps[0] = _mipmaps[0].Resized(_width, _height);
+                _mipmaps[0] = _mipmaps[0].Resized(width, height);
 
                 double wratio = (double)width / _width;
                 double hratio = (double)height / _height;
@@ -148,6 +145,9 @@ namespace TheraEngine.Rendering.Textures
                 }
             }
 
+            _width = width;
+            _height = height;
+
             PushData();
         }
 
@@ -158,9 +158,10 @@ namespace TheraEngine.Rendering.Textures
                 if (disposing)
                 {
                     Destroy();
-                    if (_mipmaps != null)
-                        Array.ForEach(_mipmaps, x => x?.Dispose());
                 }
+
+                if (_mipmaps != null)
+                    Array.ForEach(_mipmaps, x => x?.Dispose());
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.

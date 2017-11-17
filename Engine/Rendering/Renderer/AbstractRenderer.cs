@@ -33,8 +33,16 @@ namespace TheraEngine.Rendering
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
         private static Stack<Camera> _cameraStack = new Stack<Camera>();
 
-        public abstract void ClearTexImage(int bindingId, ETexTarget textureTarget, ColorF4 clearColor);
+        public abstract void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor);
+        public void ClearTexImage(int bindingId, int level, ColorF4 color)
+            => ClearTexImage(bindingId, level, EPixelFormat.Rgba, EPixelType.Float, color.Address);
+        public void ClearTexImage(int bindingId, int level, ColorF3 color)
+           => ClearTexImage(bindingId, level, EPixelFormat.Rgb, EPixelType.Float, color.Address);
+        public void ClearTexImage(int bindingId, int level, RGBAPixel color)
+           => ClearTexImage(bindingId, level, EPixelFormat.Rgba, EPixelType.Byte, color.Address);
         public abstract void SetActiveTexture(int unit);
+
+        public abstract void ColorMask(bool r, bool g, bool b, bool a);
 
         #region Debug Primitives
 
@@ -157,6 +165,7 @@ namespace TheraEngine.Rendering
             }
             return null;
         }
+
         //public void CacheWireframePlane()
         //{
         //    _wirePlane = new PrimitiveManager(

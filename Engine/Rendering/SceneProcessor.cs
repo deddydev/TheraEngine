@@ -116,23 +116,33 @@ namespace TheraEngine.Rendering
         public ParticleManager Particles => _particles;
         internal RenderPasses RenderPasses => _passes;
 
-        private SingleFileRef<Material> _voxelizationMaterial = new Material();
+        private SingleFileRef<Material> _voxelizationMaterial;
+
+        public SceneProcessor()
+        {
+            Material m = new Material("VoxelizeMat");
+            m.RenderParams.CullMode = Models.Culling.None;
+            m.RenderParams.DepthTest.Enabled = false;
+            m.RenderParams.Blend.Enabled = false;
+
+            _voxelizationMaterial = m;
+        }
 
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
         public void Voxelize()
         {
             Material m = _voxelizationMaterial.File;
-            Texture3D tex = m.TexRefs[0].GetTexture();
+            Texture3D tex = m.TexRefs[0].GetTextureGeneric() as Texture3D;
 
             glUseProgram(material->program);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
             // Settings.
-            glViewport(0, 0, voxelTextureSize, voxelTextureSize);
-            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-            glDisable(GL_CULL_FACE);
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_BLEND);
+            Engine.Renderer.Viewport(0, 0, voxelTextureSize, voxelTextureSize);
+            Engine.Renderer.ColorMask(false, false, false, false);
+            Engine.Renderer.Disable(GL_CULL_FACE);
+            Engine.Renderer.Disable(GL_DEPTH_TEST);
+            Engine.Renderer.Disable(GL_BLEND);
 
             // Texture.
             voxelTexture->Activate(material->program, "texture3D", 0);
@@ -148,7 +158,7 @@ namespace TheraEngine.Rendering
                 glGenerateMipmap(GL_TEXTURE_3D);
                 regenerateMipmapQueued = false;
             }
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+            Engine.Renderer.ColorMask(true, true, true, true);
         }
         
         /// <summary>

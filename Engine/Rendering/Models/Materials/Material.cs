@@ -28,8 +28,10 @@ namespace TheraEngine.Rendering.Models.Materials
         private FrameBuffer _frameBuffer;
         private UniformRequirements _requirements = UniformRequirements.None;
 
+        [TSerialize("Parameters")]
         protected ShaderVar[] _parameters;
-        protected TextureReference2D[] _textures;
+        [TSerialize("Textures")]
+        protected BaseTextureReference[] _textures;
 
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
         private int _uniqueID = -1;
@@ -59,7 +61,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Parameters.FirstOrDefault(x => x.Name == name) as T2;
         
         public ShaderVar[] Parameters => _parameters;
-        public TextureReference2D[] TexRefs
+        public BaseTextureReference[] TexRefs
         {
             get => _textures;
             set
@@ -175,7 +177,7 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 foreach (var t in _textures)
                 {
-                    Texture2D texture = t.GetTexture();
+                    BaseRenderTexture texture = t.GetTextureGeneric();
                     if (texture.IsActive)
                         texture.PushData();
                     else
@@ -280,7 +282,7 @@ namespace TheraEngine.Rendering.Models.Materials
                     switch (s.ShaderType)
                     {
                         case ShaderMode.Vertex:
-                            throw new Exception();
+                            throw new InvalidOperationException("Vertex shaders cannot be included in materials.");
                         case ShaderMode.Fragment:
                             _fragmentShaders.Add(s);
                             break;

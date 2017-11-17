@@ -41,29 +41,39 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         Format32bppRGBAf,
     }
     [FileClass("bmp3D", "3D Bitmap")]
-    public class TBitmap3D : FileObject
+    public class TBitmap3D : FileObject, IDisposable
     {
-        public TBitmap3D()
-        {
-
-        }
+        public TBitmap3D() : this(1, 1, 1) { }
         public TBitmap3D(int width, int height, int depth)
         {
+            _format = TPixelFormat.Format8bppRGBA;
             _pixelSize = GetPixelSize();
             _wh = width * height;
             _width = width;
             _height = height;
             _depth = depth;
-
             _data = new DataSource(_wh * _depth * _pixelSize);
         }
-        public TBitmap3D(int width, int height, int depth, TPixelFormat format) : this(width, height, depth)
+        public TBitmap3D(int width, int height, int depth, TPixelFormat format)
         {
-
+            _format = format;
+            _pixelSize = GetPixelSize();
+            _wh = width * height;
+            _width = width;
+            _height = height;
+            _depth = depth;
+            _data = new DataSource(_wh * _depth * _pixelSize);
         }
-        public TBitmap3D(int width, int height,  int depth,int stride, TPixelFormat format, IntPtr scan0)
+        public TBitmap3D(int width, int height, int depth, TPixelFormat format, IntPtr scan0)
         {
-
+            _format = format;
+            _pixelSize = GetPixelSize();
+            _wh = width * height;
+            _width = width;
+            _height = height;
+            _depth = depth;
+            _data = new DataSource(_wh * _depth * _pixelSize);
+            Memory.Move(_data.Address, scan0, (uint)_data.Length);
         }
 
         private TPixelFormat _format;
@@ -120,6 +130,12 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             int index = x * (y * _width) * (z * _wh);
             SetPixel(_data.Address[index, _pixelSize], color);
         }
+
+        internal TBitmap3D Resized(int width, int height, int depth)
+        {
+            throw new NotImplementedException();
+        }
+
         private unsafe void SetPixel(VoidPtr addr, ColorF4 color)
         {
             switch (_format)
@@ -172,21 +188,54 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                     *(byte*)(addr + 2) = color.B.ToByte();
                     *(byte*)(addr + 3) = color.A.ToByte();
                     break;
+
                 case TPixelFormat.Format16bppRGBi:
                     *(ushort*)addr = color.R.ToUShort();
-                    *(ushort*)(addr + 1) = color.G.ToUShort();
-                    *(ushort*)(addr + 2) = color.B.ToUShort();
+                    *(ushort*)(addr + 2) = color.G.ToUShort();
+                    *(ushort*)(addr + 4) = color.B.ToUShort();
                     break;
-                case TPixelFormat.Format16bppRGBAi: return new ColorF4(*(ushort*)(addr + 0), *(ushort*)(addr + 2), *(ushort*)(addr + 4), *(ushort*)(addr + 6));
+                case TPixelFormat.Format16bppRGBAi:
+                    *(ushort*)addr = color.R.ToUShort();
+                    *(ushort*)(addr + 2) = color.G.ToUShort();
+                    *(ushort*)(addr + 4) = color.B.ToUShort();
+                    *(ushort*)(addr + 6) = color.A.ToUShort();
+                    break;
 
-                case TPixelFormat.Format16bppRGBf: return new ColorF4(*(Half*)(addr + 0), *(Half*)(addr + 2), *(Half*)(addr + 4));
-                case TPixelFormat.Format16bppRGBAf: return new ColorF4(*(Half*)(addr + 0), *(Half*)(addr + 2), *(Half*)(addr + 4), *(Half*)(addr + 6));
+                case TPixelFormat.Format16bppRGBf:
+                    *(Half*)addr = (Half)color.R;
+                    *(Half*)(addr + 2) = (Half)color.G;
+                    *(Half*)(addr + 4) = (Half)color.B;
+                    break;
+                case TPixelFormat.Format16bppRGBAf:
+                    *(Half*)addr = (Half)color.R;
+                    *(Half*)(addr + 2) = (Half)color.G;
+                    *(Half*)(addr + 4) = (Half)color.B;
+                    *(Half*)(addr + 6) = (Half)color.A;
+                    break;
 
-                case TPixelFormat.Format32bppRGBi: return new ColorF4(*(uint*)(addr + 0), *(uint*)(addr + 4), *(uint*)(addr + 8));
-                case TPixelFormat.Format32bppRGBAi: return new ColorF4();
+                case TPixelFormat.Format32bppRGBi:
+                    *(uint*)addr = color.R.ToUInt();
+                    *(uint*)(addr + 4) = color.G.ToUInt();
+                    *(uint*)(addr + 8) = color.B.ToUInt();
+                    break;
+                case TPixelFormat.Format32bppRGBAi:
+                    *(uint*)addr = color.R.ToUInt();
+                    *(uint*)(addr + 4) = color.G.ToUInt();
+                    *(uint*)(addr + 8) = color.B.ToUInt();
+                    *(uint*)(addr + 12) = color.A.ToUInt();
+                    break;
 
-                case TPixelFormat.Format32bppRGBf: return new ColorF4(*(float*)(addr + 0), *(float*)(addr + 4), *(float*)(addr + 8));
-                case TPixelFormat.Format32bppRGBAf: return new ColorF4();
+                case TPixelFormat.Format32bppRGBf:
+                    *(float*)addr = color.R;
+                    *(float*)(addr + 4) = color.G;
+                    *(float*)(addr + 8) = color.B;
+                    break;
+                case TPixelFormat.Format32bppRGBAf:
+                    *(float*)addr = color.R;
+                    *(float*)(addr + 4) = color.G;
+                    *(float*)(addr + 8) = color.B;
+                    *(float*)(addr + 12) = color.A;
+                    break;
             }
         }
         private unsafe ColorF4 GetPixel(VoidPtr addr)
@@ -202,25 +251,62 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 case TPixelFormat.Format8bppIntensityAlpha: return new ColorF4(*(byte*)addr / (float)byte.MaxValue, *(byte*)(addr + 1) / (float)byte.MaxValue);
                 case TPixelFormat.Format16bppIntensityAlphai: return new ColorF4(*(ushort*)addr / (float)ushort.MaxValue, *(ushort*)(addr + 2) / (float)ushort.MaxValue);
                 case TPixelFormat.Format16bppIntensityAlphaf: return new ColorF4(*(Half*)addr, *(Half*)(addr + 2));
-                case TPixelFormat.Format32bppIntensityAlphai: return new ColorF4(*(uint*)addr, *(uint*)(addr + 4));
+                case TPixelFormat.Format32bppIntensityAlphai: return new ColorF4(*(uint*)addr / (float)uint.MaxValue, *(uint*)(addr + 4) / (float)uint.MaxValue);
                 case TPixelFormat.Format32bppIntensityAlphaf: return new ColorF4(*(float*)addr, *(float*)(addr + 4));
                 
-                case TPixelFormat.Format8bppRGB: return new ColorF4(*(byte*)(addr + 0), *(byte*)(addr + 1), *(byte*)(addr + 2));
-                case TPixelFormat.Format8bppRGBA: return new ColorF4(*(byte*)(addr + 0), *(byte*)(addr + 1), *(byte*)(addr + 2), *(byte*)(addr + 3));
+                case TPixelFormat.Format8bppRGB: return new ColorF4(*(byte*)(addr + 0) / (float)byte.MaxValue, *(byte*)(addr + 1) / (float)byte.MaxValue, *(byte*)(addr + 2) / (float)byte.MaxValue);
+                case TPixelFormat.Format8bppRGBA: return new ColorF4(*(byte*)(addr + 0) / (float)byte.MaxValue, *(byte*)(addr + 1) / (float)byte.MaxValue, *(byte*)(addr + 2) / (float)byte.MaxValue, *(byte*)(addr + 3) / (float)byte.MaxValue);
 
-                case TPixelFormat.Format16bppRGBi: return new ColorF4(*(ushort*)(addr + 0), *(ushort*)(addr + 2), *(ushort*)(addr + 4));
-                case TPixelFormat.Format16bppRGBAi: return new ColorF4(*(ushort*)(addr + 0), *(ushort*)(addr + 2), *(ushort*)(addr + 4), *(ushort*)(addr + 6));
+                case TPixelFormat.Format16bppRGBi: return new ColorF4(*(ushort*)(addr + 0) / (float)ushort.MaxValue, *(ushort*)(addr + 2) / (float)ushort.MaxValue, *(ushort*)(addr + 4) / (float)ushort.MaxValue);
+                case TPixelFormat.Format16bppRGBAi: return new ColorF4(*(ushort*)(addr + 0) / (float)ushort.MaxValue, *(ushort*)(addr + 2) / (float)ushort.MaxValue, *(ushort*)(addr + 4) / (float)ushort.MaxValue, *(ushort*)(addr + 6) / (float)ushort.MaxValue);
 
                 case TPixelFormat.Format16bppRGBf: return new ColorF4(*(Half*)(addr + 0), *(Half*)(addr + 2), *(Half*)(addr + 4));
                 case TPixelFormat.Format16bppRGBAf: return new ColorF4(*(Half*)(addr + 0), *(Half*)(addr + 2), *(Half*)(addr + 4), *(Half*)(addr + 6));
 
-                case TPixelFormat.Format32bppRGBi: return new ColorF4(*(uint*)(addr + 0), *(uint*)(addr + 4), *(uint*)(addr + 8));
-                case TPixelFormat.Format32bppRGBAi: return new ColorF4();
+                case TPixelFormat.Format32bppRGBi: return new ColorF4(*(uint*)(addr + 0) / (float)uint.MaxValue, *(uint*)(addr + 4) / (float)uint.MaxValue, *(uint*)(addr + 8) / (float)uint.MaxValue);
+                case TPixelFormat.Format32bppRGBAi: return new ColorF4(*(uint*)(addr + 0) / (float)uint.MaxValue, *(uint*)(addr + 4) / (float)uint.MaxValue, *(uint*)(addr + 8) / (float)uint.MaxValue, *(uint*)(addr + 12) / (float)uint.MaxValue);
 
                 case TPixelFormat.Format32bppRGBf: return new ColorF4(*(float*)(addr + 0), *(float*)(addr + 4), *(float*)(addr + 8));
-                case TPixelFormat.Format32bppRGBAf: return new ColorF4();
+                case TPixelFormat.Format32bppRGBAf: return new ColorF4(*(float*)(addr + 0), *(float*)(addr + 4), *(float*)(addr + 8), *(float*)(addr + 12));
             }
             return new ColorF4();
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                }
+
+                _data?.Dispose();
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+         ~TBitmap3D()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

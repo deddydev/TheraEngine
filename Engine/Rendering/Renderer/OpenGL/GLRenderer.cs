@@ -1105,10 +1105,16 @@ namespace TheraEngine.Rendering.OpenGL
                 throw new Exception("Problem compiling framebuffer: " + c.ToString());
         }
 
-        public override void ClearTexImage(int bindingId, ETexTarget textureTarget, ColorF4 clearColor)
+        public override void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor)
         {
-            throw new NotImplementedException();
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
+            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
+            GL.ClearTexImage(bindingId, level, pf, pt, clearColor);
         }
 
+        public override void ColorMask(bool r, bool g, bool b, bool a)
+        {
+            GL.ColorMask(r, g, b, a);
+        }
     }
 }

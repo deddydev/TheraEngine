@@ -19,7 +19,10 @@ namespace TheraEngine.Tests
     {
         internal protected override void OnLoaded()
         {
-            _settings = new WorldSettings("TestWorld");
+            _settings = new WorldSettings("TestWorld")
+            {
+                Bounds = BoundingBox.FromHalfExtentsTranslation(new Vec3(200.0f), Vec3.Zero),
+            };
             Random r = new Random();
             IActor[] array = new IActor[100];
             BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
@@ -295,7 +298,7 @@ namespace TheraEngine.Tests
             //_param.ReferenceDistance.Value = 1.0f;
             //_param.MaxDistance.Value = 50.0f;
 
-            ToXML(TestDefaults.DesktopPath, "testworld");
+            //ToXML(TestDefaults.DesktopPath, "testworld");
         }
         
         private void PhysicsDriver_OnHit(IPhysicsDrivable me, IPhysicsDrivable other, BulletSharp.ManifoldPoint point)

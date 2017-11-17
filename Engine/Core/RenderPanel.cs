@@ -208,11 +208,13 @@ namespace TheraEngine
         }
         protected virtual void OnRender(PaintEventArgs e)
         {
-            Engine.Scene?.RenderShadowMaps();
+            SceneProcessor scene = Engine.Scene;
+            scene.Voxelize();
+            scene.RenderShadowMaps();
 
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
-                v.Render(Engine.Scene);
+                v.Render(scene);
             _globalHud?.Render();
             _context.EndDraw();
         }

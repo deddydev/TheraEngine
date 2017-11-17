@@ -58,6 +58,8 @@ namespace TheraEngine.Rendering.Models
         [CustomXMLSerializeMethod("Collision")]
         private void SerializeConvexShape(XmlWriter writer)
         {
+            if (_collision == null)
+                return;
             int size = _collision.CalculateSerializeBufferSize();
         }
         [TSerialize("RigidChildren")]

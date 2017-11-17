@@ -384,6 +384,8 @@ namespace TheraEngine.Rendering
                         //No need to clear anything, 
                         //color will be fully overwritten by the previous pass, 
                         //and we need depth from the previous pass
+                        //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        Engine.Renderer.AllowDepthWrite(false);
 
                         //Render the deferred pass result
                         _deferredGBuffer.Render();
@@ -392,6 +394,8 @@ namespace TheraEngine.Rendering
 
                         //Render forward opaque objects first
                         scene.Render(ERenderPass3D.OpaqueForward);
+                        scene.RenderTree.DebugRender(Camera.GetFrustum(), true);
+
                         //Engine.World.PhysicsScene.DebugDrawWorld();
                         //Render forward transparent objects next
                         scene.Render(ERenderPass3D.TransparentForward);

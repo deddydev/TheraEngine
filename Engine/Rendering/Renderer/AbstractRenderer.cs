@@ -33,6 +33,7 @@ namespace TheraEngine.Rendering
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
         private static Stack<Camera> _cameraStack = new Stack<Camera>();
 
+        public abstract void ClearTexImage(int bindingId, ETexTarget textureTarget, ColorF4 clearColor);
         public abstract void SetActiveTexture(int unit);
 
         #region Debug Primitives

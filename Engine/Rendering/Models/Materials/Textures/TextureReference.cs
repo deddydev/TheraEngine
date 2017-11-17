@@ -68,6 +68,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         //Note: one TextureData object may contain all the mips
         public SingleFileRef<TextureFile>[] _mipmaps;
+
+        [TSerialize]
         public SingleFileRef<TextureFile>[] Mipmaps
         {
             get => _mipmaps;

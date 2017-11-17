@@ -6,6 +6,8 @@ using TheraEngine.Worlds.Actors;
 using TheraEngine.Particles;
 using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Worlds.Actors.Components.Scene.Lights;
+using System.Drawing;
+using TheraEngine.Files;
 
 namespace TheraEngine.Rendering
 {
@@ -113,8 +115,39 @@ namespace TheraEngine.Rendering
         public ParticleManager Particles => _particles;
         internal RenderPasses RenderPasses => _passes;
 
-        public void RenderShadowMaps()
-            => Lights?.RenderShadowMaps(this);
+        private SingleFileRef<Material> _voxelizationMaterial = new Material();
+
+        public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
+        public void Voxelize()
+        {
+            Material m = _voxelizationMaterial.File;
+
+            glUseProgram(material->program);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            // Settings.
+            glViewport(0, 0, voxelTextureSize, voxelTextureSize);
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+            glDisable(GL_CULL_FACE);
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_BLEND);
+
+            // Texture.
+            voxelTexture->Activate(material->program, "texture3D", 0);
+            glBindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+            // Lighting.
+            uploadLighting(renderingScene, material->program);
+
+            // Render.
+            renderQueue(renderingScene.renderers, material->program, true);
+            if (automaticallyRegenerateMipmap || regenerateMipmapQueued)
+            {
+                glGenerateMipmap(GL_TEXTURE_3D);
+                regenerateMipmapQueued = false;
+            }
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        }
         
         /// <summary>
         /// Call this to only enable visibility for items visible from the given camera.

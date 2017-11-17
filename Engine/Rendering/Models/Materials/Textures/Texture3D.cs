@@ -1,56 +1,16 @@
-﻿using System;
+﻿using FreeImageAPI;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
 namespace TheraEngine.Rendering.Textures
 {
-    public enum TextureType
+    public class Texture3D : BaseRenderTexture
     {
-        Texture2D,
-        Texture3D,
-        TextureCubeMap
-    }
-    public abstract class BaseRenderTexture : BaseRenderState, IDisposable
-    {
-        public event Action PrePushData;
-        public event Action PostPushData;
-
-        protected void OnPrePushData() => PrePushData?.Invoke();
-        protected void OnPostPushData() => PostPushData?.Invoke();
-
-        public BaseRenderTexture(EObjectType type) : base(type) { }
-        public BaseRenderTexture(EObjectType type, int bindingId) : base(type, bindingId) { }
-        
-        public EPixelInternalFormat InternalFormat { get; set; }
-        public EPixelFormat PixelFormat { get; set; }
-        public EPixelType PixelType { get; set; }
-
-        public abstract ETexTarget TextureTarget { get; }
-
-        public static T[] GenTextures<T>(int count) where T : BaseRenderTexture
-            => Engine.Renderer.CreateObjects<T>(EObjectType.Texture, count);
-
-        public void Bind()
-            => Engine.Renderer.BindTexture(TextureTarget, BindingId);
-        public void Clear(ColorF4 clearColor)
-            => Engine.Renderer.ClearTexImage(BindingId, TextureTarget, clearColor);
-
-        protected override int CreateObject()
-            => Engine.Renderer.CreateTextures(TextureTarget, 1)[0];
-        protected override void OnGenerated()
-            => PushData();
-
-        public abstract void PushData();
-    }
-    public class Texture2D : BaseRenderTexture
-    {
-        public static Texture2D[] GenTextures(int count)
-            => Engine.Renderer.CreateObjects<Texture2D>(EObjectType.Texture, count);
-
-        public Texture2D() : this(null) { }
-        public Texture2D(int bindingId) : base(EObjectType.Texture, bindingId) => Init(null);
-        public Texture2D(params Bitmap[] mipmaps) : base(EObjectType.Texture) => Init(mipmaps);
-        public Texture2D(
+        public Texture3D() : this(null) { }
+        public Texture3D(int bindingId) : base(EObjectType.Texture, bindingId) => Init(null);
+        public Texture3D(params Bitmap[] mipmaps) : base(EObjectType.Texture) => Init(mipmaps);
+        public Texture3D(
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
             EPixelType pixelType,
@@ -61,11 +21,11 @@ namespace TheraEngine.Rendering.Textures
             PixelFormat = pixelFormat;
             PixelType = pixelType;
         }
-        public Texture2D(int bindingId, params Bitmap[] mipmaps) : base(EObjectType.Texture, bindingId) => Init(mipmaps);
+        public Texture3D(int bindingId, params Bitmap[] mipmaps) : base(EObjectType.Texture, bindingId) => Init(mipmaps);
         /// <summary>
         /// Initializes the texture as an unallocated texture to be filled by a framebuffer.
         /// </summary>
-        public Texture2D(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType) : this(null)
+        public Texture3D(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType) : this(null)
         {
             _width = width;
             _height = height;
@@ -81,12 +41,11 @@ namespace TheraEngine.Rendering.Textures
             _height = mipmaps != null && mipmaps.Length > 0 ? mipmaps[0].Height : 1;
         }
         
-        private int _width, _height;
-        private Bitmap[] _mipmaps;
+        private int _width, _height, _depth;
+        private Bitmap3D[] _mipmaps;
 
-        public override ETexTarget TextureTarget => ETexTarget.Texture2D;
-        public int Width => _width;
-        public int Height => _height;
+        public override ETexTarget TextureTarget => ETexTarget.Texture3D;
+
         public Bitmap[] Mipmaps
         {
             get => _mipmaps;
@@ -98,6 +57,17 @@ namespace TheraEngine.Rendering.Textures
             }
         }
 
+        public int Width => _width;
+        public int Height => _height;
+        
+        public static Texture3D[] GenTextures(int count)
+            => Engine.Renderer.CreateObjects<Texture3D>(EObjectType.Texture, count);
+
+        public void AttachToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int mipLevel = 0)
+        {
+            Engine.Renderer.AttachTextureToFrameBuffer(frameBufferBindingId, attachment, BindingId, mipLevel);
+        }
+        
         public override void PushData()
         {
             if (RenderPanel.NeedsInvoke(PushData, RenderPanel.PanelType.Rendering))
@@ -129,10 +99,11 @@ namespace TheraEngine.Rendering.Textures
 
             OnPostPushData();
         }
-        public void Resize(int width, int height)
+        public void Resize(int width, int height, int depth)
         {
             _width = width;
             _height = height;
+            _depth = depth;
 
             if (_mipmaps != null && _mipmaps.Length > 0)
             {

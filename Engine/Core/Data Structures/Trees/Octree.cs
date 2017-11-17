@@ -1,10 +1,10 @@
-﻿using TheraEngine;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using TheraEngine.Rendering;
 using System.Threading;
+using TheraEngine;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering;
 
 namespace System
 {
@@ -18,6 +18,8 @@ namespace System
         /// otherwise the octree will not be updated.
         /// </summary>
         void ItemMoved(I3DBoundable item);
+        void DebugRender(bool recurse, bool onlyContainingItems, Frustum f, float lineWidth);
+        void DebugRender(Color color, float lineWidth);
     }
     /// <summary>
     /// 
@@ -79,8 +81,8 @@ namespace System
         public void CollectVisible(Frustum frustum, RenderPasses passes, bool shadowPass)
             => _head.CollectVisible(frustum, passes, shadowPass);
         
-        public void DebugRender(Frustum f)
-            => _head.DebugRender(true, f);
+        public void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f)
+            => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
 
         public void Add(T value)
             => _head.Add(value, -1, true);
@@ -197,19 +199,22 @@ namespace System
                 
                 return false;
             }
-            public void DebugRender(bool recurse, Frustum f)
+            public void DebugRender(bool recurse, bool onlyContainingItems, Frustum f, float lineWidth)
             {
-                Color clr = Color.Red;
+                Color color = Color.Red;
                 if (recurse)
                 {
-                    EContainment c = f.Contains(_bounds);
-                    clr = c == EContainment.Intersects ? Color.Green : c == EContainment.Contains ? Color.White : Color.Red;
-                    if (c == EContainment.Contains)
+                    EContainment containment = f.Contains(_bounds);
+                    color = containment == EContainment.Intersects ? Color.Green : containment == EContainment.Contains ? Color.White : Color.Red;
+                    if (containment != EContainment.Disjoint)
                         foreach (Node n in _subNodes)
-                            n?.DebugRender(true, f);
+                            n?.DebugRender(true, onlyContainingItems, f, lineWidth);
                 }
-                Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, clr, 5.0f);
+                if (!onlyContainingItems || _items.Count != 0)
+                    DebugRender(color, lineWidth);
             }
+            public void DebugRender(Color color, float lineWidth)
+                => Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, color, 1.0f);
             public void CollectVisible(Frustum frustum, RenderPasses passes, bool shadowPass)
             {
                 EContainment c = frustum.Contains(_bounds);

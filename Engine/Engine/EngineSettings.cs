@@ -107,7 +107,7 @@ namespace TheraEngine
             RenderSkeletons = false;
             RenderCameraFrustums = true;
             RenderSplines = true;
-            RenderCullingVolumes = false;
+            RenderCullingVolumes = true;
             RenderLights = true;
 #else
             RenderOctree = false;

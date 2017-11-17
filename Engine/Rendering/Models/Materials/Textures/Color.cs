@@ -194,6 +194,9 @@ namespace System
             }
         }
 
+        public ColorF4(float intensity) { R = G = B = intensity;  A = 1.0f; }
+        public ColorF4(float intensity, float alpha) { R = G = B = intensity; A = alpha; }
+        public ColorF4(float r, float g, float b) { R = r; G = g; B = b; A = 1.0f; }
         public ColorF4(float r, float g, float b, float a) { R = r; G = g; B = b; A = a; }
         public ColorF4(string s)
         {

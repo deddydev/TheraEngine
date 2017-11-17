@@ -2,11 +2,12 @@
 using TheraEngine.Files;
 using BulletSharp;
 using System.ComponentModel;
+using System;
+using System.Xml;
 
 namespace TheraEngine.Rendering.Models
 {
     [FileClass("STMDL", "Static Mesh", ImportableExtensions = new string[] { "DAE", "OBJ" })]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class StaticMesh : FileObject, IModelFile
     {
         [ThirdPartyLoader("DAE")]
@@ -46,8 +47,19 @@ namespace TheraEngine.Rendering.Models
         public List<StaticRigidSubMesh> RigidChildren => _rigidChildren;
         public List<StaticSoftSubMesh> SoftChildren => _softChildren;
 
-        public ConvexShape Collision { get => _collision; set => _collision = value; }
-        
+        //TODO: serialize convex shape collision using bullet serializer
+        [TSerialize]
+        public ConvexShape Collision
+        {
+            get => _collision;
+            set => _collision = value;
+        }
+
+        [CustomXMLSerializeMethod("Collision")]
+        private void SerializeConvexShape(XmlWriter writer)
+        {
+            int size = _collision.CalculateSerializeBufferSize();
+        }
         [TSerialize("RigidChildren")]
         protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();
         [TSerialize("SoftChildren")]

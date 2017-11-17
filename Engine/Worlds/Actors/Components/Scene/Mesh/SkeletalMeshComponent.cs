@@ -64,6 +64,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
         #endregion
 
+        [Category("Skeletal Mesh Component")]
         [TSerialize]
         public SingleFileRef<SkeletalMesh> Model
         {
@@ -80,6 +81,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                     if (_model.IsLoaded || IsSpawned)
                     {
                         SkeletalMesh model = _model.GetInstance();
+
                         _meshes = new RenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
                         for (int i = 0; i < model.RigidChildren.Count; ++i)
                         {
@@ -99,13 +101,15 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 {
                     if (_meshes != null)
                     {
-                        //foreach (RenderableMesh mesh in _meshes)
-                            
+                        foreach (RenderableMesh mesh in _meshes)
+                            mesh.Visible = false;
+                        _meshes = null;
                     }
                 }
                 _skeleton = skel;
             }
         }
+        [Category("Skeletal Mesh Component")]
         [TSerialize]
         public SingleFileRef<Skeleton> Skeleton
         {
@@ -129,7 +133,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             }
         }
         
-        //[Browsable(false)]
+        [Category("Skeletal Mesh Component")]
         public RenderableMesh[] Meshes => _meshes;
         
         public void SetAllSimulatingPhysics(bool doSimulation)

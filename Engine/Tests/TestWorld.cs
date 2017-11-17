@@ -134,7 +134,8 @@ namespace TheraEngine.Tests
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
             //StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main1\\landtable.obj"*/"X:\\Repositories\\TheraEngine\\Build\\test\\test.obj", objOptions);
-            //Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
+            StaticMesh testModel = OBJ.Import(TestDefaults.DesktopPath + "sponza.obj", objOptions);
+            Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
 
             //ModelImportOptions options = new ModelImportOptions()
             //{
@@ -251,17 +252,17 @@ namespace TheraEngine.Tests
                      Core.Files.IgnoreFlags.Animations,
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
-            
-            //var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
-            //ModelScene gunScene = dae.Models[0];
-            //Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
+
+            var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
+            ModelScene gunScene = dae.Models[0];
+            Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
 
             IActor[] actors = new IActor[]
             {
-                //gunActor,
+                gunActor,
                 spotlight,
                 //block,
-                //testActor,
+                testActor,
                 floorActor1,
                 //floorActor2,
                 //floorActor3,
@@ -293,11 +294,13 @@ namespace TheraEngine.Tests
             //_param.SourceRelative.Value = false;
             //_param.ReferenceDistance.Value = 1.0f;
             //_param.MaxDistance.Value = 50.0f;
+
+            ToXML(TestDefaults.DesktopPath, "testworld");
         }
         
         private void PhysicsDriver_OnHit(IPhysicsDrivable me, IPhysicsDrivable other, BulletSharp.ManifoldPoint point)
         {
-            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.RigidChildren[0].Material.Parameters[0];
+            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.File.RigidChildren[0].Material.Parameters[0];
             color.Value = (ColorF4)Color.Green;
 
             //_collideSound.Play(_param);

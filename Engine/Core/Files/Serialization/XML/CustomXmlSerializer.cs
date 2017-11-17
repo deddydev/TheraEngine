@@ -1,11 +1,11 @@
-﻿using TheraEngine.Tools;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Files.Serialization
 {
@@ -212,7 +212,7 @@ namespace TheraEngine.Files.Serialization
             if (array.Count > 0)
             {
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
-                string elementName = elementType.GetFriendlyName("[", "]");
+                string elementName = SerializationCommon.GetTypeName(elementType);//elementType.GetFriendlyName("[", "]");
                 SerializationCommon.ValueType type = SerializationCommon.GetValueType(elementType);
                 switch (type)
                 {

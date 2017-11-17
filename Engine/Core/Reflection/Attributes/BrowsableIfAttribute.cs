@@ -1,5 +1,5 @@
 ﻿using System;
-using TheraEngine.Tools;
+using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Reflection.Attributes
 {

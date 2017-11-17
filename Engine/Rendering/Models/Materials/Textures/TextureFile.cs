@@ -21,6 +21,9 @@ namespace TheraEngine.Rendering.Textures
         public TextureFile(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb)
             => _bitmaps = new Bitmap[] { new Bitmap(width, height, format) };
         public TextureFile(string path)
-            => _bitmaps = TextureConverter.Decode(path);
+        {
+            Engine.PrintLine("Loading texture from " + path);
+            _bitmaps = TextureConverter.Decode(path);
+        }
     }
 }

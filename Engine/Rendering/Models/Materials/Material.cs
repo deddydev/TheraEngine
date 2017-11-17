@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using TheraEngine.Files;
+using TheraEngine.Rendering.Textures;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -170,11 +172,24 @@ namespace TheraEngine.Rendering.Models.Materials
         public void GenerateTextures()
         {
             if (_textures != null)
-                foreach (TextureReference t in _textures)
-                    if (t.Texture.IsActive)
-                        t.Texture.PushData();
+            {
+                foreach (var t in _textures)
+                {
+                    Texture2D texture = t.GetTexture();
+                    if (texture.IsActive)
+                        texture.PushData();
                     else
-                        t.Texture.Generate();
+                        texture.Generate();
+                }
+                //Parallel.ForEach(_textures, t => 
+                //{
+                //    Texture2D texture = t.GetTexture().Result;
+                //    if (texture.IsActive)
+                //        texture.PushData();
+                //    else
+                //        texture.Generate();
+                //});
+            }
         }
         internal void AddReference(PrimitiveManager user)
         {
@@ -234,7 +249,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             Engine.Renderer.SetActiveTexture(textureUnit);
             Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
-            TexRefs[textureIndex].Texture.Bind();
+            Texture2D tex = TexRefs[textureIndex].GetTexture();
+            tex.Bind();
         }
 
         public Material()

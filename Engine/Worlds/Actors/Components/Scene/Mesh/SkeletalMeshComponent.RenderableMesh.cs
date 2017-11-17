@@ -78,8 +78,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 get => _visibleToOwnerOnly;
                 set => _visibleToOwnerOnly = value;
             }
-
-            [TypeConverter(typeof(ExpandableObjectConverter))]
+            
             public ISkeletalSubMesh Mesh
             {
                 get => _mesh;

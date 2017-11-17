@@ -108,11 +108,20 @@ namespace TheraEngine.Rendering.Models
                     //new ShaderFloat(objMat.SpecularCoefficient, "SpecularCoef"),
                     //new ShaderFloat(objMat.Transparency, "Transparency"),
                 };
+
                 string mapPath = objMat.DiffuseTextureMap;
-                TextureReference[] textures = new TextureReference[]
+
+                TextureReference[] textures;
+                if (mapPath != null)
                 {
-                    new TextureReference(Path.GetFileNameWithoutExtension(mapPath), mapPath.Contains(":") ? mapPath : dirPath + "\\" + mapPath ),
-                };
+                    textures = new TextureReference[]
+                    {
+                        new TextureReference(Path.GetFileNameWithoutExtension(mapPath), mapPath.Contains(":") ? mapPath : dirPath + "\\" + mapPath ),
+                    };
+                }
+                else
+                    textures = new TextureReference[0];
+
                 return new Material(objMat.Name, parameters, textures, shader)
                 {
                     Requirements = forward ? Material.UniformRequirements.NeedsLightsAndCamera : Material.UniformRequirements.None

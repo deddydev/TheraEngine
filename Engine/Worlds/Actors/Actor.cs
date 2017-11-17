@@ -79,6 +79,17 @@ namespace TheraEngine.Worlds.Actors
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
+
+        private bool _isConstructing;
+        private List<PrimitiveComponent> _renderableComponentCache = new List<PrimitiveComponent>();
+        public int _spawnIndex = -1;
+        private World _owningWorld;
+        private ReadOnlyCollection<SceneComponent> _sceneComponentCache;
+        private T _rootComponent;
+
+        [TSerialize("LogicComponents")]
+        private MonitoredList<LogicComponent> _logicComponents;
+
         //Do not call Initialize when deserializing!
         //The constructor is run before deserializing, so set defaults there.
         /// <summary>
@@ -120,58 +131,43 @@ namespace TheraEngine.Worlds.Actors
 
         [Browsable(false)]
         SceneComponent IActor.RootComponent => RootComponent;
-        [DisplayName("Root Component")]
+
+        [TSerialize]
         [Category("Actor")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public T RootComponent
         {
-            get => _rootSceneComponent;
+            get => _rootComponent;
             set
             {
-                if (_rootSceneComponent != null)
-                    _rootSceneComponent.OwningActor = null;
+                if (_rootComponent != null)
+                    _rootComponent.OwningActor = null;
                 
-                _rootSceneComponent = value;
+                _rootComponent = value;
 
-                if (_rootSceneComponent != null)
+                if (_rootComponent != null)
                 {
-                    _rootSceneComponent.OwningActor = this;
-                    _rootSceneComponent.RecalcGlobalTransform();
+                    _rootComponent.OwningActor = this;
+                    _rootComponent.RecalcGlobalTransform();
                 }
                 GenerateSceneComponentCache();
             }
         }
-
-        private bool _isConstructing;
-        private List<PrimitiveComponent> _renderableComponentCache = new List<PrimitiveComponent>();
-        public int _spawnIndex = -1;
-        private World _owningWorld;
-        private ReadOnlyCollection<SceneComponent> _sceneComponentCache;
-
-        [TSerialize("RootSceneComponent")]
-        private T _rootSceneComponent;
-        [TSerialize("LogicComponents")]
-        private MonitoredList<LogicComponent> _logicComponents;
-
-        [DisplayName("Logic Components")]
+        
         [Category("Actor")]
         public MonitoredList<LogicComponent> LogicComponents => _logicComponents;
+        [Browsable(false)]
+        public bool IsConstructing => _isConstructing;
+        [Browsable(false)]
+        public List<PrimitiveComponent> RenderableComponentCache => _renderableComponentCache;
+        [Browsable(false)]
+        public bool HasRenderableComponents => RenderableComponentCache.Count > 0;
 
-        [Browsable(false)]
-        public bool IsConstructing
-            => _isConstructing;
-        [Browsable(false)]
-        public List<PrimitiveComponent> RenderableComponentCache
-            => _renderableComponentCache;
-        [Browsable(false)]
-        public bool HasRenderableComponents
-            => RenderableComponentCache.Count > 0;
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)
             {
                 _renderableComponentCache = new List<PrimitiveComponent>();
-                _sceneComponentCache = _rootSceneComponent?.GenerateChildCache().AsReadOnly();
+                _sceneComponentCache = _rootComponent?.GenerateChildCache().AsReadOnly();
             }
         }
         public void RebaseOrigin(Vec3 newOrigin)
@@ -195,7 +191,7 @@ namespace TheraEngine.Worlds.Actors
 
             OnSpawnedPreComponentSetup(world);
 
-            _rootSceneComponent.OnSpawned();
+            _rootComponent.OnSpawned();
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnSpawned();
 
@@ -210,7 +206,7 @@ namespace TheraEngine.Worlds.Actors
 
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnDespawned();
-            _rootSceneComponent.OnDespawned();
+            _rootComponent.OnDespawned();
 
             _spawnIndex = -1;
             _owningWorld = null;
@@ -220,6 +216,7 @@ namespace TheraEngine.Worlds.Actors
         public virtual void OnSpawnedPostComponentSetup(World world) { }
         public virtual void OnDespawned() { }
 
+        #region Logic Components
         private void _logicComponents_InsertedRange(IEnumerable<LogicComponent> items, int index)
         {
             foreach (LogicComponent item in items)
@@ -247,5 +244,6 @@ namespace TheraEngine.Worlds.Actors
         {
             item.OwningActor = this;
         }
+        #endregion
     }
 }

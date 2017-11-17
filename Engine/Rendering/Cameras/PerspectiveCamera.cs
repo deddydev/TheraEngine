@@ -28,8 +28,7 @@ namespace TheraEngine.Rendering.Cameras
         private float _fovY = 78.0f;
 
         [Category("Perspective Camera")]
-        [DisplayName("Override Aspect")]
-        [TSerialize("OverrideAspect", Order = 3)]
+        [TSerialize(Order = 3)]
         public bool OverrideAspect
         {
             get => _overrideAspect;

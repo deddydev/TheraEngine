@@ -28,11 +28,11 @@ namespace TheraEngine.Files
     {
         private event Action Loaded;
 
-        [TSerialize("File", Condition = "StoreInternally")]
+        [TSerialize("File", Condition = "StoredInternally")]
         private T _file;
 
         [Category("Single File Reference")]
-        [TSerialize(Condition = "!StoreInternally", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(Condition = "!StoredInternally", XmlNodeType = EXmlNodeType.Attribute)]
         public override string ReferencePath
         {
             get => base.ReferencePath;
@@ -198,8 +198,8 @@ namespace TheraEngine.Files
                 if (files.Count > 0)
                     return _file = files[0] as T;
             }
-            
-            _file = LoadNewInstance();
+
+            File = LoadNewInstance();
             Loaded?.Invoke();
             
             return _file;

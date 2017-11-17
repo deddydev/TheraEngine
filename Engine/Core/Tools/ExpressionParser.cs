@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace TheraEngine.Tools
+namespace TheraEngine.Core.Tools
 {
     public static class ExpressionParser
     {
@@ -87,9 +87,8 @@ namespace TheraEngine.Tools
 
             if (token == "null")
                 return null;
-
-            string origToken = token;
-
+            
+            //Inversions will be found first
             int invertCount = 0;
             while (token.StartsWith("!"))
             {
@@ -97,8 +96,10 @@ namespace TheraEngine.Tools
                 token = token.Substring(1);
             }
 
+            //Don't invert if even, invert if odd
             bool shouldInvert = (invertCount & 1) != 0;
 
+            //Handle strings FIRST, since they could contain anything
             if (token.StartsWith("\""))
             {
                 if (token.EndsWith("\""))
@@ -116,6 +117,7 @@ namespace TheraEngine.Tools
                     throw new Exception("Invalid string: " + token);
             }
 
+            //Only methods can contain parentheses
             int paramStart = token.IndexOf("(");
             if (paramStart > 0)
             {
@@ -131,7 +133,28 @@ namespace TheraEngine.Tools
                 else
                     throw new Exception("Invalid method: " + token);
             }
+            
+            //Handle boolean literals.
+            //Only valid if lowercase
+            if (token.Equals("true", StringComparison.InvariantCulture) || 
+                token.Equals("false", StringComparison.InvariantCulture))
+            {
+                bool value = bool.Parse(token);
+                if (shouldInvert)
+                    return !value;
+                return value;
+            }
 
+            //Handle numeric literals
+            object numericValue = TryParseNumeric(token);
+            if (numericValue != null)
+            {
+                if (invertCount > 0)
+                    throw new Exception("Cannot invert numeric types.");
+                return numericValue;
+            }
+
+            //Handle field/property names
             FieldInfo[] fields = provider == null ? new FieldInfo[0] : provider.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             PropertyInfo[] properties = provider == null ? new PropertyInfo[0] : provider.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -145,7 +168,7 @@ namespace TheraEngine.Tools
                         return !(bool)value;
                 }
                 else if (invertCount > 0)
-                    throw new Exception("Cannot invert non-bool");
+                    throw new Exception("Cannot invert non-bool.");
                 return value;
             }
 
@@ -159,25 +182,17 @@ namespace TheraEngine.Tools
                         return !(bool)value;
                 }
                 else if (invertCount > 0)
-                    throw new Exception("Cannot invert non-bool");
+                    throw new Exception("Cannot invert non-bool.");
                 return value;
             }
 
+            throw new InvalidOperationException("Token not recognized: " + token);
+            //return null;
+        }
+        private static object TryParseNumeric(string token)
+        {
             token = token.ToLowerInvariant();
 
-            //Handle boolean literals
-            if (token.Equals("true") || token.Equals("false"))
-            {
-                bool value = bool.Parse(token);
-                if (shouldInvert)
-                    return !value;
-                return value;
-            }
-
-            if (invertCount > 0)
-                throw new Exception("Cannot invert non-bool");
-
-            //Handle numeric literals
             bool isIntegral = !token.Contains(".");
             if (isIntegral)
             {
@@ -262,10 +277,9 @@ namespace TheraEngine.Tools
                     if (forceDecimal)
                         return decimal.Parse(token);
                     //if (forceDouble)
-                        return double.Parse(token);
+                    return double.Parse(token);
                 }
             }
-            Engine.LogWarning("Token not recognized: " + origToken);
             return null;
         }
         private static readonly Dictionary<string, string[]> _implicitConversions = new Dictionary<string, string[]>()

@@ -10,14 +10,10 @@ namespace TheraEngine.Worlds.Maps
 {
     public class MapSettings : FileObject
     {
-        [TSerialize]
-        public bool _visibleByDefault;
-        [TSerialize]
-        private List<IActor> _defaultActors = new List<IActor>();
-        [TSerialize]
-        public Vec3 _spawnPosition;
-        [TSerialize]
-        public BaseGameMode _defaultGameMode;
+        protected bool _visibleByDefault;
+        protected List<IActor> _defaultActors = new List<IActor>();
+        protected Vec3 _spawnPosition;
+        protected BaseGameMode _defaultGameMode;
 
         public MapSettings(params IActor[] actors)
         {
@@ -31,21 +27,30 @@ namespace TheraEngine.Worlds.Maps
             _spawnPosition = spawnOrigin;
             _defaultActors = actors.ToList();
         }
-        
+
+        [TSerialize]
         public bool VisibleByDefault
         {
             get => _visibleByDefault;
             set => _visibleByDefault = value;
         }
+        [TSerialize]
         public Vec3 SpawnPosition
         {
             get => _spawnPosition;
             set => _spawnPosition = value;
         }
+        [TSerialize]
         public List<IActor> DefaultActors
         {
             get => _defaultActors;
             set => _defaultActors = value;
+        }
+        [TSerialize]
+        public BaseGameMode DefaultGameMode
+        {
+            get => _defaultGameMode;
+            set => _defaultGameMode = value;
         }
     }
 }

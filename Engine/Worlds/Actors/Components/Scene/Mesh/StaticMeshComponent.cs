@@ -6,6 +6,7 @@ using BulletSharp;
 using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Files;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
@@ -30,15 +31,15 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 //info.InitialWorldTransform = WorldMatrix;
                 info.CollisionShape = m.Collision;
                 info.MotionState = new DefaultMotionState(WorldMatrix);
-                _physicsDriver = new PhysicsDriver(this, info, _physicsDriver_TransformChanged);
+                _physicsDriver = new PhysicsDriver(this, info, PhysicsDriver_TransformChanged);
                 WorldTransformChanged += StaticMeshComponent_WorldTransformChanged;
             }
         }
 
         private void StaticMeshComponent_WorldTransformChanged()
-        {
-            _physicsDriver.SetPhysicsTransform(WorldMatrix);
-        }
+            => _physicsDriver.SetPhysicsTransform(WorldMatrix);
+        private void PhysicsDriver_TransformChanged(Matrix4 worldMatrix)
+            => WorldMatrix = worldMatrix;
 
         #region IMeshSocketOwner interface
         public MeshSocket this[string socketName]
@@ -80,9 +81,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
         #endregion
 
-        private void _physicsDriver_TransformChanged(Matrix4 worldMatrix)
-            => WorldMatrix = worldMatrix;
-        
         //internal override void RecalcGlobalTransform()
         //{
         //    base.RecalcGlobalTransform();
@@ -91,12 +89,19 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         //            m.CullingVolume.SetTransform(WorldMatrix);
         //}
 
-        private StaticMesh _model;
-        private PhysicsDriver _physicsDriver;
+        //For internal runtime use
         private RenderableMesh[] _meshes;
+
+        private SingleFileRef<StaticMesh> _model;
+
+        [TSerialize("PhysicsDriver")]
+        private PhysicsDriver _physicsDriver;
+        [TSerialize("Sockets")]
         private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
 
-        public StaticMesh Model
+        [Category("Static Mesh Component")]
+        [TSerialize]
+        public SingleFileRef<StaticMesh> Model
         {
             get => _model;
             set
@@ -106,18 +111,41 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 _model = value;
                 if (_model != null)
                 {
-                    _meshes = new RenderableMesh[_model.RigidChildren.Count + _model.SoftChildren.Count];
-                    for (int i = 0; i < _model.RigidChildren.Count; ++i)
-                        _meshes[i] = new RenderableMesh(_model.RigidChildren[i], this);
-                    for (int i = 0; i < _model.SoftChildren.Count; ++i)
-                        _meshes[_model.RigidChildren.Count + i] = new RenderableMesh(_model.SoftChildren[i], this);
+                    if (_model.IsLoaded || IsSpawned)
+                    {
+                        StaticMesh model = _model.GetInstance();
+
+                        _meshes = new RenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
+                        for (int i = 0; i < model.RigidChildren.Count; ++i)
+                        {
+                            RenderableMesh m = new RenderableMesh(model.RigidChildren[i], this);
+                            m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
+                            _meshes[i] = m;
+                        }
+                        for (int i = 0; i < model.SoftChildren.Count; ++i)
+                        {
+                            RenderableMesh m = new RenderableMesh(model.SoftChildren[i], this);
+                            m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
+                            _meshes[model.RigidChildren.Count + i] = m;
+                        }
+                    }
+                }
+                else
+                {
+                    if (_meshes != null)
+                    {
+                        foreach (RenderableMesh mesh in _meshes)
+                            mesh.Visible = false;
+                        _meshes = null;
+                    }
                 }
             }
         }
 
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [Category("Static Mesh Component")]
         public PhysicsDriver PhysicsDriver => _physicsDriver;
-        
+
+        [Category("Static Mesh Component")]
         public RenderableMesh[] Meshes => _meshes;
 
         public override void OnSpawned()

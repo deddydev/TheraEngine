@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Worlds.Maps;
 using TheraEngine.Files;
 using TheraEngine.Worlds.Actors;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds
 {
@@ -15,6 +16,7 @@ namespace TheraEngine.Worlds
         private World _owningWorld;
         private MapSettings _settings;
 
+        [TSerialize]
         public MapSettings Settings
         {
             get { return _settings; }

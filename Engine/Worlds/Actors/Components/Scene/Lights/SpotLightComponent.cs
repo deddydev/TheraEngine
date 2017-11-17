@@ -174,7 +174,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 
         public override void OnSpawned()
         {
-            if (_type == LightType.Dynamic)
+            if (Type == LightType.Dynamic)
             {
                 Engine.Scene.Lights.Add(this);
                 
@@ -186,7 +186,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         }
         public override void OnDespawned()
         {
-            if (_type == LightType.Dynamic)
+            if (Type == LightType.Dynamic)
             {
                 Engine.Scene.Lights.Remove(this);
                 if (Engine.Settings.RenderCameraFrustums)
@@ -250,9 +250,9 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
         {
             //These are listed in order of appearance in the shader
-            TextureReference[] refs = new TextureReference[]
+            TextureReference2D[] refs = new TextureReference2D[]
             {
-                new TextureReference("SpotDepth", width, height,
+                new TextureReference2D("SpotDepth", width, height,
                     GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,

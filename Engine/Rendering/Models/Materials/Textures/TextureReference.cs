@@ -12,9 +12,14 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileClass("TREF", "Texture Reference")]
     public class TextureReference : FileObject
     {
+
+    }
+
+    public class TextureReference2D : TextureReference
+    {
         #region Constructors
-        public TextureReference() : this(null, 1, 1) { }
-        public TextureReference(string name, int width, int height)
+        public TextureReference2D() : this(null, 1, 1) { }
+        public TextureReference2D(string name, int width, int height)
         {
             _mipmaps = null;
             _name = name;
@@ -24,7 +29,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _pixelFormat = EPixelFormat.Bgra;
             _pixelType = EPixelType.UnsignedByte;
         }
-        public TextureReference(string name, int width, int height,
+        public TextureReference2D(string name, int width, int height,
             PixelFormat bitmapFormat = PixelFormat.Format32bppArgb, int mipCount = 1)
             : this(name, width, height)
         {
@@ -32,7 +37,7 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
                 _mipmaps[i] = new TextureFile(width / scale, height / scale, bitmapFormat);
         }
-        public TextureReference(string name, int width, int height,
+        public TextureReference2D(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
             : this(name, width, height)
         {
@@ -43,13 +48,13 @@ namespace TheraEngine.Rendering.Models.Materials
             _width = width;
             _height = height;
         }
-        public TextureReference(string name, int width, int height,
+        public TextureReference2D(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, PixelFormat bitmapFormat)
             : this(name, width, height, internalFormat, pixelFormat, pixelType)
         {
             _mipmaps = new SingleFileRef<TextureFile>[] { new TextureFile(width, height, bitmapFormat) };
         }
-        public TextureReference(string name, params string[] mipMapPaths)
+        public TextureReference2D(string name, params string[] mipMapPaths)
         {
             _name = name;
             _mipmaps = new SingleFileRef<TextureFile>[mipMapPaths.Length];

@@ -108,7 +108,7 @@ namespace TheraEngine.Rendering
             if (resultFunction == null)
                 return null;
 
-            Material m = new Material(name, new ShaderVar[0], new TextureReference[0]);
+            Material m = new Material(name, new ShaderVar[0], new TextureReference2D[0]);
 
             //TODO: determine shader types needed
             foreach (MatFuncValueInput arg in resultFunction.InputArguments)

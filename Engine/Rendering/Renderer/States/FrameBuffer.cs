@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering
                 }
             }
         }
-        public TextureReference[] Textures => Material?.TexRefs;
+        public TextureReference2D[] Textures => Material?.TexRefs;
         public void ResizeTextures(int width, int height) => Material?.ResizeTextures(width, height);
         public void Compile()
         {

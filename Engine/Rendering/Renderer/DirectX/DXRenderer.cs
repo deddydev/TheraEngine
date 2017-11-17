@@ -524,5 +524,10 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void ClearTexImage(int bindingId, ETexTarget textureTarget, ColorF4 clearColor)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

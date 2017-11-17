@@ -124,5 +124,25 @@
             float f2 = value.Clamp(0.0f, 1.0f);
             return (byte)Math.Floor(f2 == 1.0f ? 255.0f : f2 * 256.0f);
         }
+        /// <summary>
+        /// Converts a float from the range 0.0-1.0 to 0-65535.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static ushort ToUShort(this Single value)
+        {
+            float f2 = value.Clamp(0.0f, 1.0f);
+            return (byte)Math.Floor(f2 == 1.0f ? 65535.0f : f2 * 65536.0f);
+        }
+        /// <summary>
+        /// Converts a float from the range 0.0-1.0 to 0-4294967295.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static uint ToUInt(this Single value)
+        {
+            float f2 = value.Clamp(0.0f, 1.0f);
+            return (byte)Math.Floor(f2 == 1.0f ? 4294967295.0f : f2 * 4294967296.0f);
+        }
     }
 }

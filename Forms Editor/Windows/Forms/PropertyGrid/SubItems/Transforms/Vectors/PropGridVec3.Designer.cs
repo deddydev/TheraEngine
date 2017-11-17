@@ -58,7 +58,7 @@
             this.numericInputBoxX.SmallIncrement = 1F;
             this.numericInputBoxX.TabIndex = 0;
             this.numericInputBoxX.Text = "X: 0";
-            this.numericInputBoxX.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxX_ValueChanged);
+            this.numericInputBoxX.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBox_ValueChanged);
             // 
             // numericInputBoxY
             // 
@@ -83,7 +83,7 @@
             this.numericInputBoxY.SmallIncrement = 1F;
             this.numericInputBoxY.TabIndex = 1;
             this.numericInputBoxY.Text = "Y: 0";
-            this.numericInputBoxY.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxY_ValueChanged);
+            this.numericInputBoxY.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBox_ValueChanged);
             // 
             // numericInputBoxZ
             // 
@@ -108,7 +108,7 @@
             this.numericInputBoxZ.SmallIncrement = 1F;
             this.numericInputBoxZ.TabIndex = 2;
             this.numericInputBoxZ.Text = "Z: 0";
-            this.numericInputBoxZ.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxZ_ValueChanged);
+            this.numericInputBoxZ.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBox_ValueChanged);
             // 
             // tableLayoutPanel1
             // 

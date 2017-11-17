@@ -70,15 +70,20 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
             _physicsDriver?.OnDespawned();
             base.OnDespawned();
         }
-
+        [TSerialize("RenderParams")]
         private RenderingParameters _renderParams = new RenderingParameters();
+        [TSerialize("PhysicsDriver")]
         protected PhysicsDriver _physicsDriver;
-        protected bool
-            _isVisible,
-            _visibleByDefault,
-            _visibleInEditorOnly,
-            _hiddenFromOwner,
-            _visibleToOwnerOnly;
+        [TSerialize("IsVisible")]
+        protected bool _isVisible;
+        [TSerialize("VisibleByDefault")]
+        protected bool _visibleByDefault;
+        [TSerialize("VisibleInEditorOnly")]
+        protected bool _visibleInEditorOnly;
+        [TSerialize("HiddenFromOwner")]
+        protected bool _hiddenFromOwner;
+        [TSerialize("VisibleToOwnerOnly")]
+        protected bool _visibleToOwnerOnly;
 
         [Browsable(false)]
         public CustomCollisionGroup CollisionGroup

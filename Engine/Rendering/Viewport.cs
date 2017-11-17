@@ -167,7 +167,7 @@ namespace TheraEngine.Rendering
 
             _ssaoInfo.Generate();
 
-            TextureReference depthTexture = new TextureReference("Depth", width, height,
+            TextureReference2D depthTexture = new TextureReference2D("Depth", width, height,
                 EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
             {
                 MinFilter = ETexMinFilter.Nearest,
@@ -176,7 +176,7 @@ namespace TheraEngine.Rendering
                 VWrap = ETexWrapMode.Clamp,
                 FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
             };
-            TextureReference ssaoNoise = new TextureReference("SSAONoise",
+            TextureReference2D ssaoNoise = new TextureReference2D("SSAONoise",
                 _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
                 EPixelInternalFormat.Rgba16, EPixelFormat.Bgra, EPixelType.UnsignedShort,
                 PixelFormat.Format64bppArgb)
@@ -199,9 +199,9 @@ namespace TheraEngine.Rendering
                 *values++ = 0;
             }
             bmp.UnlockBits(data);
-            TextureReference[] deferredRefs = new TextureReference[]
+            TextureReference2D[] deferredRefs = new TextureReference2D[]
             {
-                new TextureReference("AlbedoSpec", width, height,
+                new TextureReference2D("AlbedoSpec", width, height,
                     EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
                 {
                     MinFilter = ETexMinFilter.Nearest,
@@ -210,7 +210,7 @@ namespace TheraEngine.Rendering
                     VWrap = ETexWrapMode.Clamp,
                     FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
                 },
-                new TextureReference("Normal", width, height,
+                new TextureReference2D("Normal", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
                 {
                     MinFilter = ETexMinFilter.Nearest,
@@ -222,9 +222,9 @@ namespace TheraEngine.Rendering
                 ssaoNoise,
                 depthTexture,
             };
-            TextureReference[] postProcessRefs = new TextureReference[]
+            TextureReference2D[] postProcessRefs = new TextureReference2D[]
             {
-                new TextureReference("OutputColor", width, height,
+                new TextureReference2D("OutputColor", width, height,
                     EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
                 {
                     MinFilter = ETexMinFilter.Nearest,

@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private UniformRequirements _requirements = UniformRequirements.None;
 
         protected ShaderVar[] _parameters;
-        protected TextureReference[] _textures;
+        protected TextureReference2D[] _textures;
 
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
         private int _uniqueID = -1;
@@ -59,7 +59,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Parameters.FirstOrDefault(x => x.Name == name) as T2;
         
         public ShaderVar[] Parameters => _parameters;
-        public TextureReference[] TexRefs
+        public TextureReference2D[] TexRefs
         {
             get => _textures;
             set
@@ -132,7 +132,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_frameBuffer != null && _textures != null && _textures.Length > 0)
             {
                 List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-                foreach (TextureReference tref in _textures)
+                foreach (TextureReference2D tref in _textures)
                 {
                     tref.Material = this;
                     if (!tref.FrameBufferAttachment.HasValue || _overrideAttachments)
@@ -237,7 +237,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public void ResizeTextures(int width, int height)
         {
             //Update each texture's dimensions
-            foreach (TextureReference t in TexRefs)
+            foreach (TextureReference2D t in TexRefs)
                 t.Resize(width, height);
         }
         private void SetTextureUniforms(int programBindingId)
@@ -254,19 +254,19 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         public Material()
-            : this("NewMaterial", new ShaderVar[0], new TextureReference[0]) { }
+            : this("NewMaterial", new ShaderVar[0], new TextureReference2D[0]) { }
 
         public Material(string name, params Shader[] shaders) 
-            : this(name, new ShaderVar[0], new TextureReference[0], shaders) { }
+            : this(name, new ShaderVar[0], new TextureReference2D[0], shaders) { }
         public Material(string name, ShaderVar[] parameters, params Shader[] shaders)
-            : this(name, parameters, new TextureReference[0], shaders) { }
-        public Material(string name, TextureReference[] textures, params Shader[] shaders)
+            : this(name, parameters, new TextureReference2D[0], shaders) { }
+        public Material(string name, TextureReference2D[] textures, params Shader[] shaders)
             : this(name, new ShaderVar[0], textures, shaders) { }
-        public Material(string name, ShaderVar[] parameters, TextureReference[] textures, params Shader[] shaders)
+        public Material(string name, ShaderVar[] parameters, TextureReference2D[] textures, params Shader[] shaders)
         {
             _name = name;
             _parameters = parameters ?? new ShaderVar[0];
-            TexRefs = textures ?? new TextureReference[0];
+            TexRefs = textures ?? new TextureReference2D[0];
 
             _shaders = shaders;
             _fragmentShaders = new List<Shader>();
@@ -320,10 +320,10 @@ namespace TheraEngine.Rendering.Models.Materials
         //        Engine.DebugPrint(r.ToString());
         //}
 
-        public static Material GetUnlitTextureMaterialForward(TextureReference texture)
+        public static Material GetUnlitTextureMaterialForward(TextureReference2D texture)
         {
             return new Material("UnlitTextureMaterial",
-                new TextureReference[] { texture },
+                new TextureReference2D[] { texture },
                 ShaderHelpers.UnlitTextureFragForward())
             {
                 Requirements = UniformRequirements.None,
@@ -345,11 +345,11 @@ namespace TheraEngine.Rendering.Models.Materials
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-        public static Material GetLitTextureMaterial(TextureReference texture) => GetLitTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetLitTextureMaterial(TextureReference texture, bool deferred)
+        public static Material GetLitTextureMaterial(TextureReference2D texture) => GetLitTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitTextureMaterial(TextureReference2D texture, bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
-            return new Material("LitTextureMaterial", new TextureReference[] { texture }, frag)
+            return new Material("LitTextureMaterial", new TextureReference2D[] { texture }, frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };

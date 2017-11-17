@@ -21,7 +21,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         protected EventColorF3 _color = (ColorF3)Color.Blue/*, _specular = Color.Yellow*/;
         protected float _diffuseIntensity = 1.0f, _ambientIntensity = 0.2f;
         protected int _lightIndex = -1;
-        protected LightType _type;
+        private LightType _type;
 
         [Category("Light Component")]
         public EventColorF3 LightColor
@@ -47,7 +47,12 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             get => _lightIndex;
             internal set => _lightIndex = value;
         }
-        
+        protected LightType Type
+        {
+            get => _type;
+            set => _type = value;
+        }
+
         public LightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity) : base()
         {
             _color = color;

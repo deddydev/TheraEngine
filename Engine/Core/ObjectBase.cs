@@ -4,6 +4,7 @@ using TheraEngine.Animation;
 using System;
 using TheraEngine.Input.Devices;
 using System.Runtime.CompilerServices;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine
 {
@@ -12,13 +13,27 @@ namespace TheraEngine
         string Name { get; set; }
         bool IsTicking { get; }
         object UserData { get; set; }
+        MonitoredList<AnimationContainer> Animations { get; }
 #if EDITOR
         EditorState EditorState { get; set; }
 #endif
-        void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways);
-        void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways);
-        void AddAnimation(AnimationContainer anim, bool startNow = false, ETickGroup group = ETickGroup.PostPhysics, ETickOrder order = ETickOrder.BoneAnimation, InputPauseType pausedBehavior = InputPauseType.TickAlways);
-        void RemoveAnimation(AnimationContainer anim);
+        void RegisterTick(
+            ETickGroup group,
+            ETickOrder order,
+            DelTick tickFunc,
+            InputPauseType pausedBehavior = InputPauseType.TickAlways);
+        void UnregisterTick(
+            ETickGroup group,
+            ETickOrder order,
+            DelTick tickFunc,
+            InputPauseType pausedBehavior = InputPauseType.TickAlways);
+        void AddAnimation(
+            AnimationContainer anim,
+            bool startNow = false,
+            bool removeOnEnd = true,
+            ETickGroup group = ETickGroup.PostPhysics,
+            ETickOrder order = ETickOrder.BoneAnimation,
+            InputPauseType pausedBehavior = InputPauseType.TickAlways);
     }
     public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
     {
@@ -55,11 +70,10 @@ namespace TheraEngine
         
         [TSerialize("Name", XmlNodeType = EXmlNodeType.Attribute)]
         protected string _name = null;
-        [TSerialize("UserData")]
         private object _userData = null;
         
         [TSerialize]
-        [Browsable(false)]
+        [BrowsableIf("_userData != null")]
         [Category("Object")]
         public object UserData
         {
@@ -106,9 +120,8 @@ namespace TheraEngine
 
         private EditorState _editorState = null;
 
-        [TSerialize]
+        [TSerialize(Condition = "_editorState != null")]
         [Browsable(false)]
-        [Category("Object")]
         public EditorState EditorState
         {
             get => _editorState ?? (_editorState = new EditorState());
@@ -135,42 +148,91 @@ namespace TheraEngine
 
         #region Animation
 
-        private List<AnimationContainer> _animations = null;
+        private MonitoredList<AnimationContainer> _animations = null;
 
         [TSerialize]
-        [Browsable(false)]
         [Category("Object")]
-        public List<AnimationContainer> Animations
+        public MonitoredList<AnimationContainer> Animations
         {
-            get => _animations;
-            set => _animations = value;
+            get
+            {
+                if (_animations == null)
+                {
+                    _animations = new MonitoredList<AnimationContainer>();
+                    _animations.PostAdded += _animations_PostAdded;
+                    _animations.PostInserted += _animations_PostInserted;
+                    _animations.PostAddedRange += _animations_PostAddedRange;
+                    _animations.PostInsertedRange += _animations_PostInsertedRange;
+                    _animations.PostRemoved += _animations_PostRemoved;
+                    _animations.PostRemovedRange += _animations_PostRemovedRange;
+                }
+                return _animations;
+            }
+        }
+
+        private void _animations_PostRemovedRange(IEnumerable<AnimationContainer> items)
+        {
+            foreach (AnimationContainer item in items)
+                _animations_PostRemoved(item);
+        }
+
+        private void _animations_PostRemoved(AnimationContainer item)
+        {
+            if (_animations.Count == 0)
+            {
+                _animations.PostAdded -= _animations_PostAdded;
+                _animations.PostInserted -= _animations_PostInserted;
+                _animations.PostAddedRange -= _animations_PostAddedRange;
+                _animations.PostInsertedRange -= _animations_PostInsertedRange;
+                _animations.PostRemoved -= _animations_PostRemoved;
+                _animations.PostRemovedRange -= _animations_PostRemovedRange;
+                _animations = null;
+            }
+            item._owners.Remove(this);
+        }
+
+        private void _animations_PostInsertedRange(IEnumerable<AnimationContainer> items, int index)
+        {
+            foreach (AnimationContainer item in items)
+                _animations_PostAdded(item);
+        }
+
+        private void _animations_PostAddedRange(IEnumerable<AnimationContainer> items)
+        {
+            foreach (AnimationContainer item in items)
+                _animations_PostAdded(item);
+        }
+
+        private void _animations_PostInserted(AnimationContainer item, int index)
+        {
+            _animations_PostAdded(item);
+        }
+
+        private void _animations_PostAdded(AnimationContainer item)
+        {
+            item._owners.Add(this);
         }
 
         public void AddAnimation(
             AnimationContainer anim,
             bool startNow = false,
+            bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
             ETickOrder order = ETickOrder.BoneAnimation,
             InputPauseType pausedBehavior = InputPauseType.TickOnlyWhenUnpaused)
         {
             if (anim == null)
                 return;
-            anim.AnimationEnded += RemoveAnimation;
-            if (_animations == null)
-                _animations = new List<AnimationContainer>();
-            _animations.Add(anim);
-            anim._owners.Add(this);
+            if (removeOnEnd)
+                anim.AnimationEnded += RemoveAnimationSelf;
+            Animations.Add(anim);
             if (startNow)
                 anim.Start(group, order, pausedBehavior);
         }
-        public void RemoveAnimation(AnimationContainer anim)
+        private void RemoveAnimationSelf(AnimationContainer anim)
         {
-            if (_animations == null || anim == null)
-                return;
-            _animations.Remove(anim);
-            if (_animations.Count == 0)
-                _animations = null;
-            anim._owners.Remove(this);
+            anim.AnimationEnded -= RemoveAnimationSelf;
+            Animations.Remove(anim);
         }
         #endregion
 

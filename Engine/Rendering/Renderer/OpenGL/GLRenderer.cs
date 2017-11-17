@@ -1096,6 +1096,7 @@ namespace TheraEngine.Rendering.OpenGL
                     return DepthFunction.Always;
             }
         }
+        #endregion
 
         public override void CheckFrameBufferErrors()
         {
@@ -1104,6 +1105,10 @@ namespace TheraEngine.Rendering.OpenGL
                 throw new Exception("Problem compiling framebuffer: " + c.ToString());
         }
 
-        #endregion
+        public override void ClearTexImage(int bindingId, ETexTarget textureTarget, ColorF4 clearColor)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

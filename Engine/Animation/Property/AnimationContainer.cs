@@ -146,6 +146,7 @@ namespace TheraEngine.Animation
 
         private int _totalAnimCount = 0;
         private AnimFolder _root;
+        internal MonitoredList<ObjectBase> _owners = new MonitoredList<ObjectBase>();
 
         [TSerialize("EndedAnimations")]
         private int _endedAnimations = 0;
@@ -167,8 +168,6 @@ namespace TheraEngine.Animation
                 Start(_group, _order, _pausedBehavior);
             }
         }
-
-        public MonitoredList<ObjectBase> _owners = new MonitoredList<ObjectBase>();
 
         //public AnimationContainer(Action<bool> func, PropAnimBool anim) : this()
         //{

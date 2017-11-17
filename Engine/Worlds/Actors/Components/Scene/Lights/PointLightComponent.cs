@@ -32,12 +32,12 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 
         public override void OnSpawned()
         {
-            if (_type == LightType.Dynamic)
+            if (Type == LightType.Dynamic)
                 Engine.Scene.Lights.Add(this);
         }
         public override void OnDespawned()
         {
-            if (_type == LightType.Dynamic)
+            if (Type == LightType.Dynamic)
                 Engine.Scene.Lights.Remove(this);
         }
 

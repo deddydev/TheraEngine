@@ -8,6 +8,7 @@ using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 using System.Drawing;
 using TheraEngine.Files;
+using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine.Rendering
 {
@@ -121,6 +122,7 @@ namespace TheraEngine.Rendering
         public void Voxelize()
         {
             Material m = _voxelizationMaterial.File;
+            Texture3D tex = m.TexRefs[0].GetTexture();
 
             glUseProgram(material->program);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -134,7 +136,7 @@ namespace TheraEngine.Rendering
 
             // Texture.
             voxelTexture->Activate(material->program, "texture3D", 0);
-            glBindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+            Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
             // Lighting.
             uploadLighting(renderingScene, material->program);

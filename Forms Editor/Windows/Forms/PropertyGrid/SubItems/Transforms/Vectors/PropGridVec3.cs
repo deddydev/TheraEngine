@@ -84,17 +84,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         }
         
-        private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
-            => UpdateValue(new Vec3(
-                numericInputBoxX.Value.Value,
-                numericInputBoxY.Value.Value,
-                numericInputBoxZ.Value.Value));
-        private void numericInputBoxY_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
-            => UpdateValue(new Vec3(
-                numericInputBoxX.Value.Value,
-                numericInputBoxY.Value.Value,
-                numericInputBoxZ.Value.Value));
-        private void numericInputBoxZ_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
+        private void numericInputBox_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
             => UpdateValue(new Vec3(
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,

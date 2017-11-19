@@ -165,6 +165,8 @@ namespace TheraEngine.Rendering
             }
             return null;
         }
+        
+        public abstract void GenerateMipmap(ETexTarget target);
 
         //public void CacheWireframePlane()
         //{

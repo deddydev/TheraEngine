@@ -4,7 +4,6 @@ using TheraEngine.Files;
 namespace TheraEngine.Rendering.Models.Materials
 {
     [FileClass("MTRP", "Material Rendering Parameters")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class RenderingParameters : FileObject
     {
         [Browsable(false)]

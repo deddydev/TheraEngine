@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace TheraEngine.Rendering.Textures
+namespace TheraEngine.Rendering.Models.Materials.Textures
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RGBXPixel
@@ -11,22 +11,6 @@ namespace TheraEngine.Rendering.Textures
 
         public static explicit operator RGBXPixel(ARGBPixel p) { return new RGBXPixel() { R = p.R, G = p.G, B = p.B, X = 0 }; }
         public static explicit operator ARGBPixel(RGBXPixel p) { return new ARGBPixel() { A = 0xFF, R = p.R, G = p.G, B = p.B }; }
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct RGBPixel
-    {
-        public byte R, G, B;
-
-        public static explicit operator RGBPixel(ARGBPixel p) { return new RGBPixel() { R = p.R, G = p.G, B = p.B }; }
-        public static explicit operator ARGBPixel(RGBPixel p) { return new ARGBPixel() { A = 0xFF, R = p.R, G = p.G, B = p.B }; }
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct RGBAPixel
-    {
-        public byte R, G, B, A;
-
-        public static explicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, R = p.R, G = p.G, B = p.B }; }
-        public static explicit operator ARGBPixel(RGBAPixel p) { return new ARGBPixel() { A = p.A, R = p.R, G = p.G, B = p.B }; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RGBA4Pixel
@@ -131,7 +115,7 @@ namespace TheraEngine.Rendering.Textures
             return Color.FromArgb(0xFF, r, g, b);
         }
         public static explicit operator RGB565Pixel(ARGBPixel p) { return new RGB565Pixel(p.R, p.G, p.B); }
-        public static explicit operator RGB565Pixel(System.RGBPixel p) { return new RGB565Pixel(p.R, p.G, p.B); }
+        public static explicit operator RGB565Pixel(RGBPixel p) { return new RGB565Pixel(p.R, p.G, p.B); }
         public static explicit operator RGB565Pixel(Color p) { return new RGB565Pixel(p.R, p.G, p.B); }
 
         public static explicit operator RGB565Pixel(Vec3 v)

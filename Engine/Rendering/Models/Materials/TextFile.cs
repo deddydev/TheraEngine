@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
@@ -8,22 +9,37 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileClass("", "", IsSpecialDeserialize = true)]
     public class TextFile : FileObject
     {
-        public string Text { get; set; }
+        private string _text;
+        public string Text
+        {
+            get => _text ?? Load();
+            set => _text = value;
+        }
 
         public TextFile()
         {
-
+            FilePath = null;
+            Text = null;
         }
         public TextFile(string path)
         {
-            string ext = Path.GetExtension(path).ToLowerInvariant().Substring(1);
-            switch (ext)
-            {
-                case "rtf":
-                    break;
-                case "txt":
-                    break;
-            }
+            FilePath = path;
+            Text = null;
+        }
+
+        public string Load()
+        {
+            Text = null;
+            if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
+                Text = File.ReadAllText(FilePath, GetEncoding(FilePath));
+            return Text;
+        }
+        public async Task<string> LoadAsync()
+        {
+            Text = null;
+            if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
+                Text = await Task.Run(() => File.ReadAllText(FilePath, GetEncoding(FilePath)));
+            return Text;
         }
 
         /// <summary>

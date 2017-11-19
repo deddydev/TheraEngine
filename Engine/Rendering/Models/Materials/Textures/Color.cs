@@ -4,8 +4,9 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Globalization;
+using System;
 
-namespace System
+namespace TheraEngine.Rendering.Models.Materials.Textures
 {
     public interface IByteColor
     {

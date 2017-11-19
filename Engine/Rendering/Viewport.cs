@@ -414,7 +414,10 @@ namespace TheraEngine.Rendering
                 //Render the last pass to the actual screen resolution
                 Engine.Renderer.PushRenderArea(Region);
                 Engine.Renderer.CropRenderArea(Region);
+
+                //Render final post process quad
                 _postProcessFrameBuffer.Render();
+
                 Engine.Renderer.PopRenderArea();
 
                 scene.PostRender();

@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Textures
     /// Wrapper class for a set of bitmaps, optionally (usually) stored in an external texture file such as a PNG or DDS.
     /// </summary>
     [FileClass("", "", IsSpecialDeserialize = true)]
-    public class TextureFile : FileObject
+    public class TextureFile2D : FileObject
     {
         private Bitmap[] _bitmaps;
         public Bitmap[] Bitmaps
@@ -17,10 +17,10 @@ namespace TheraEngine.Rendering.Textures
             get => _bitmaps;
             set => _bitmaps = value;
         }
-        public TextureFile() : this(1, 1) { }
-        public TextureFile(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb)
+        public TextureFile2D() : this(1, 1) { }
+        public TextureFile2D(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb)
             => _bitmaps = new Bitmap[] { new Bitmap(width, height, format) };
-        public TextureFile(string path)
+        public TextureFile2D(string path)
         {
             Engine.PrintLine("Loading texture from " + path);
             _bitmaps = TextureConverter.Decode(path);

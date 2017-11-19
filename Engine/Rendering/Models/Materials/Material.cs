@@ -259,16 +259,16 @@ namespace TheraEngine.Rendering.Models.Materials
             : this("NewMaterial", new ShaderVar[0], new TextureReference2D[0]) { }
 
         public Material(string name, params Shader[] shaders) 
-            : this(name, new ShaderVar[0], new TextureReference2D[0], shaders) { }
+            : this(name, new ShaderVar[0], new BaseTextureReference[0], shaders) { }
         public Material(string name, ShaderVar[] parameters, params Shader[] shaders)
-            : this(name, parameters, new TextureReference2D[0], shaders) { }
-        public Material(string name, TextureReference2D[] textures, params Shader[] shaders)
+            : this(name, parameters, new BaseTextureReference[0], shaders) { }
+        public Material(string name, BaseTextureReference[] textures, params Shader[] shaders)
             : this(name, new ShaderVar[0], textures, shaders) { }
-        public Material(string name, ShaderVar[] parameters, TextureReference2D[] textures, params Shader[] shaders)
+        public Material(string name, ShaderVar[] parameters, BaseTextureReference[] textures, params Shader[] shaders)
         {
             _name = name;
             _parameters = parameters ?? new ShaderVar[0];
-            TexRefs = textures ?? new TextureReference2D[0];
+            TexRefs = textures ?? new BaseTextureReference[0];
 
             _shaders = shaders;
             _fragmentShaders = new List<Shader>();

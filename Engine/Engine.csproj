@@ -338,7 +338,10 @@
     <Compile Include="Animation\Property\PropAnimVec4.cs" />
     <Compile Include="Rendering\Models\Materials\TextFile.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Bitmap3D.cs" />
-    <Compile Include="Rendering\Models\Materials\Textures\Texture3D.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\References\TexRef3D.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\References\BaseTexRef.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Rendering\BaseRenderTexture.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Rendering\Texture3D.cs" />
     <Compile Include="Tests\TestDefaults.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\Animation\AnimStateMachineComponent.cs" />
     <Compile Include="Animation\BaseAnimation.cs" />
@@ -422,7 +425,7 @@
     <Compile Include="Rendering\Shader Generator\ShaderGenerator.cs" />
     <Compile Include="Rendering\Shader Generator\VertexShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderHelpers.cs" />
-    <Compile Include="Rendering\Models\Materials\Textures\TextureReference.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\References\TexRef2D.cs" />
     <Compile Include="Rendering\Models\Materials\Uniform.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Vertex\VertexLineStrip.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Vertex\VertexLine.cs" />
@@ -497,7 +500,7 @@
     <Compile Include="Rendering\Text\Text.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\PixelTypes.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\TextureConverter.cs" />
-    <Compile Include="Rendering\Models\Materials\Textures\TextureFile.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\TextureFile2D.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Core\CommonDelegates.cs" />
     <Compile Include="Core\ComputerInfo.cs" />
@@ -726,7 +729,7 @@
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Skeleton.cs" />
-    <Compile Include="Rendering\Models\Materials\Textures\Texture2D.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Rendering\Texture2D.cs" />
     <Compile Include="Worlds\WorldDebugDrawer.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
     <Compile Include="Worlds\WorldState.cs" />

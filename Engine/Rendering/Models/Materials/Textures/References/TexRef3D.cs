@@ -6,21 +6,16 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileClass("TREF", "Texture Reference")]
-    public abstract class BaseTextureReference : FileObject
-    {
-        public abstract BaseRenderTexture GetTextureGeneric();
-        public abstract Task<BaseRenderTexture> GetTextureGenericAsync();
-    }
-
-    public class TextureReference2D : BaseTextureReference
+    [FileClass("TREF3D", "3D Texture Reference")]
+    public class TextureReference3D : BaseTextureReference
     {
         #region Constructors
-        public TextureReference2D() : this(null, 1, 1) { }
-        public TextureReference2D(string name, int width, int height)
+        public TextureReference3D() : this(null, 1, 1, 1) { }
+        public TextureReference3D(string name, int width, int height, int depth)
         {
             _mipmaps = null;
             _name = name;
@@ -30,17 +25,17 @@ namespace TheraEngine.Rendering.Models.Materials
             _pixelFormat = EPixelFormat.Bgra;
             _pixelType = EPixelType.UnsignedByte;
         }
-        public TextureReference2D(string name, int width, int height,
+        public TextureReference3D(string name, int width, int height, int depth,
             PixelFormat bitmapFormat = PixelFormat.Format32bppArgb, int mipCount = 1)
-            : this(name, width, height)
+            : this(name, width, height, depth)
         {
-            _mipmaps = new SingleFileRef<TextureFile>[mipCount];
+            _mipmaps = new SingleFileRef<TBitmap3D>[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
-                _mipmaps[i] = new TextureFile(width / scale, height / scale, bitmapFormat);
+                _mipmaps[i] = new TBitmap3D(width / scale, height / scale, depth / scale, bitmapFormat);
         }
-        public TextureReference2D(string name, int width, int height,
+        public TextureReference3D(string name, int width, int height, int depth,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
-            : this(name, width, height)
+            : this(name, width, height, depth)
         {
             _mipmaps = null;
             _internalFormat = internalFormat;
@@ -49,45 +44,47 @@ namespace TheraEngine.Rendering.Models.Materials
             _width = width;
             _height = height;
         }
-        public TextureReference2D(string name, int width, int height,
+        public TextureReference3D(string name, int width, int height, int depth,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, PixelFormat bitmapFormat)
-            : this(name, width, height, internalFormat, pixelFormat, pixelType)
+            : this(name, width, height, depth, internalFormat, pixelFormat, pixelType)
         {
-            _mipmaps = new SingleFileRef<TextureFile>[] { new TextureFile(width, height, bitmapFormat) };
+            _mipmaps = new SingleFileRef<TBitmap3D>[] { new TBitmap3D(width, height, depth, bitmapFormat) };
         }
-        public TextureReference2D(string name, params string[] mipMapPaths)
+        public TextureReference3D(string name, params string[] mipMapPaths)
         {
             _name = name;
-            _mipmaps = new SingleFileRef<TextureFile>[mipMapPaths.Length];
+            _mipmaps = new SingleFileRef<TBitmap3D>[mipMapPaths.Length];
             for (int i = 0; i < mipMapPaths.Length; ++i)
             {
                 string path = mipMapPaths[i];
                 if (path.StartsWith("file://"))
                     path = path.Substring(7);
-                _mipmaps = new SingleFileRef<TextureFile>[]
+                _mipmaps = new SingleFileRef<TBitmap3D>[]
                 {
-                    new SingleFileRef<TextureFile>(path)
+                    new SingleFileRef<TBitmap3D>(path)
                 };
             }
         }
         #endregion
 
         //Note: one TextureData object may contain all the mips
-        public SingleFileRef<TextureFile>[] _mipmaps;
+        public SingleFileRef<TBitmap3D>[] _mipmaps;
 
         [TSerialize]
-        public SingleFileRef<TextureFile>[] Mipmaps
+        public SingleFileRef<TBitmap3D>[] Mipmaps
         {
             get => _mipmaps;
             set => _mipmaps = value;
         }
         
-        private Texture2D _texture;
+        private Texture3D _texture;
 
         [TSerialize("Width")]
         private int _width;
         [TSerialize("Height")]
         private int _height;
+        [TSerialize("Depth")]
+        private int _depth;
 
         private int _index;
         private ETexWrapMode _uWrapMode = ETexWrapMode.Repeat;
@@ -98,14 +95,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private EPixelInternalFormat _internalFormat;
         private EPixelFormat _pixelFormat;
         private EPixelType _pixelType;
-        private EFramebufferAttachment? _frameBufferAttachment;
 
-        [TSerialize]
-        public EFramebufferAttachment? FrameBufferAttachment
-        {
-            get => _frameBufferAttachment;
-            set => _frameBufferAttachment = value;
-        }
         [TSerialize]
         public int Index
         {
@@ -142,25 +132,27 @@ namespace TheraEngine.Rendering.Models.Materials
             get => _lodBias;
             set => _lodBias = value;
         }
+
         public int Width => _width;
         public int Height => _height;
+        public int Depth => _depth;
 
         private void SetParameters()
         {
             if (_texture == null)
                 return;
             _texture.Bind();
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, _lodBias);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)_magFilter);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilter);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureLodBias, _lodBias);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMagFilter, (int)_magFilter);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMinFilter, (int)_minFilter);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapS, (int)_uWrapMode);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapT, (int)_vWrapMode);
             if (_frameBufferAttachment.HasValue && Material != null && Material.HasAttachment(_frameBufferAttachment.Value))
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, _frameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
         }
 
         private bool _isLoading = false;
-        public async Task<Texture2D> GetTextureAsync()
+        public async Task<Texture3D> GetTextureAsync()
         {
             if (_texture != null || _isLoading)
                 return _texture;
@@ -170,7 +162,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return _texture;
         }
-        public Texture2D GetTexture()
+        public Texture3D GetTexture()
         {
             if (_texture != null || _isLoading)
                 return _texture;
@@ -187,9 +179,9 @@ namespace TheraEngine.Rendering.Models.Materials
         private void FinalizeTextureLoaded()
         {
             if (_mipmaps != null && _mipmaps.Length > 0)
-                _texture = new Texture2D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
+                _texture = new Texture3D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
             else
-                _texture = new Texture2D(_width, _height, _internalFormat, _pixelFormat, _pixelType);
+                _texture = new Texture3D(_width, _height, _depth, _internalFormat, _pixelFormat, _pixelType);
 
             _texture.PostPushData += SetParameters;
         }
@@ -200,19 +192,20 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <summary>
         /// Resizes the textures stored in memory.
         /// </summary>
-        public async void Resize(int width, int height)
+        public void Resize(int width, int height, int depth)
         {
             if (DoNotResize)
                 return;
 
             _width = width;
             _height = height;
+            _depth = depth;
 
             if (_isLoading)
                 return;
 
-            Texture2D t = await GetTextureAsync();
-            t?.Resize(_width, _height);
+            Texture3D t = GetTexture();
+            t?.Resize(_width, _height, _depth);
         }
 
         /// <summary>

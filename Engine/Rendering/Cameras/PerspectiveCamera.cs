@@ -65,7 +65,6 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         [Category("Perspective Camera")]
-        [DisplayName("Vertical Field Of View")]
         //[Serialize("FovY", XmlNodeType = EXmlNodeType.Attribute, Order = 2)]
         public float VerticalFieldOfView
         {
@@ -78,7 +77,6 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         [Category("Perspective Camera")]
-        [DisplayName("Horizontal Field Of View")]
         [TSerialize("FovX", XmlNodeType = EXmlNodeType.Attribute, Order = 2)]
         public float HorizontalFieldOfView
         {

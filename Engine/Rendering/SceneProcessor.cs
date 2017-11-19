@@ -9,6 +9,8 @@ using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 using System.Drawing;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Textures;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering
 {
@@ -120,10 +122,25 @@ namespace TheraEngine.Rendering
 
         public SceneProcessor()
         {
-            Material m = new Material("VoxelizeMat");
+            Material m = new Material("VoxelizeMat",
+                new ShaderVar[] 
+                {
+
+                },
+                new BaseTextureReference[]
+                {
+                    new TextureReference3D("VoxelScene"),
+                }, 
+                new Shader[]
+                {
+
+                }
+            );
+
             m.RenderParams.CullMode = Models.Culling.None;
             m.RenderParams.DepthTest.Enabled = false;
             m.RenderParams.Blend.Enabled = false;
+
 
             _voxelizationMaterial = m;
         }
@@ -131,34 +148,29 @@ namespace TheraEngine.Rendering
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
         public void Voxelize()
         {
-            Material m = _voxelizationMaterial.File;
-            Texture3D tex = m.TexRefs[0].GetTextureGeneric() as Texture3D;
+            //Material m = _voxelizationMaterial.File;
+            //Texture3D tex = m.TexRefs[0].GetTextureGeneric() as Texture3D;
 
-            glUseProgram(material->program);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            //Engine.Renderer.UseProgram(material->program);
+            //Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+            
+            //Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, voxelTextureSize, voxelTextureSize, 0.0f, 0.0f));
+            
+            //// Texture.
+            //voxelTexture->Activate(material->program, "texture3D", 0);
+            //Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
-            // Settings.
-            Engine.Renderer.Viewport(0, 0, voxelTextureSize, voxelTextureSize);
-            Engine.Renderer.ColorMask(false, false, false, false);
-            Engine.Renderer.Disable(GL_CULL_FACE);
-            Engine.Renderer.Disable(GL_DEPTH_TEST);
-            Engine.Renderer.Disable(GL_BLEND);
+            //// Lighting.
+            //uploadLighting(renderingScene, material->program);
 
-            // Texture.
-            voxelTexture->Activate(material->program, "texture3D", 0);
-            Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
-            // Lighting.
-            uploadLighting(renderingScene, material->program);
-
-            // Render.
-            renderQueue(renderingScene.renderers, material->program, true);
-            if (automaticallyRegenerateMipmap || regenerateMipmapQueued)
-            {
-                glGenerateMipmap(GL_TEXTURE_3D);
-                regenerateMipmapQueued = false;
-            }
-            Engine.Renderer.ColorMask(true, true, true, true);
+            //// Render.
+            //renderQueue(renderingScene.renderers, material->program, true);
+            //if (automaticallyRegenerateMipmap || regenerateMipmapQueued)
+            //{
+            //    Engine.Renderer.GenerateMipmap(ETexTarget.Texture3D);
+            //    regenerateMipmapQueued = false;
+            //}
+            //Engine.Renderer.ColorMask(true, true, true, true);
         }
         
         /// <summary>

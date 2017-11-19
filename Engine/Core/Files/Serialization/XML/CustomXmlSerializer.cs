@@ -192,8 +192,8 @@ namespace TheraEngine.Files.Serialization
                 dic.Keys.CopyTo(dicKeys, 0);
                 dic.Values.CopyTo(dicVals, 0);
 
-                VarInfo vKeys = new VarInfo(keyType, "Key");
-                VarInfo vVals = new VarInfo(valueType, "Value");
+                VarInfo vKeys = new VarInfo(keyType, null, "Key");
+                VarInfo vVals = new VarInfo(valueType, null, "Value");
                 for (int i = 0; i < dic.Count; ++i)
                 {
                     writer.WriteStartElement("KeyValuePair");

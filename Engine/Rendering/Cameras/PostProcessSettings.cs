@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Files;
 using System;
 using System.ComponentModel;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Cameras
 {

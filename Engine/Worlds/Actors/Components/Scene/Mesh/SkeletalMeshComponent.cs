@@ -124,8 +124,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 if (_skeleton != null)
                 {
                     _skeleton.File.OwningComponent = this;
-                    if (IsSpawned && Engine.Settings.RenderSkeletons && _skeleton != null)
-                        Engine.Scene.Add(_skeleton.File);
+                    if (_skeleton != null)
+                        Engine.Scene.RegisterSkeleton(_skeleton.File);
                 }
                 if (_meshes != null)
                     foreach (RenderableMesh m in _meshes)
@@ -147,9 +147,9 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             if (_meshes != null)
                 foreach (RenderableMesh m in _meshes)
                     m.Visible = m.Mesh.VisibleByDefault;
-
-            if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Scene.Add(_skeleton.File);
+            
+            if (_skeleton != null)
+                Engine.Scene.RegisterSkeleton(_skeleton.File);
 
             //RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
 
@@ -163,8 +163,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 
             base.OnDespawned();
 
-            if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Scene.Remove(_skeleton.File);
+            if (_skeleton != null)
+                Engine.Scene.UnregisterSkeleton(_skeleton.File);
 
             //UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }

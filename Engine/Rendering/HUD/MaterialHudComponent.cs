@@ -5,6 +5,7 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Core.Shapes;
 using System.Threading.Tasks;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.HUD
 {
@@ -26,10 +27,10 @@ namespace TheraEngine.Rendering.HUD
             set => _quad.Material = value;
         }
         
-        public Texture2D Texture(int index)
+        public BaseRenderTexture Texture(int index)
         {
             if (_quad.Material.TexRefs.IndexInRange(index))
-                return _quad.Material.TexRefs[index].GetTexture();
+                return _quad.Material.TexRefs[index].GetTextureGeneric();
             return null;
         }
         /// <summary>

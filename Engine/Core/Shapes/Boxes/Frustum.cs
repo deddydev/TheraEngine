@@ -11,8 +11,10 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileClass("SHAPE", "Camera View Frustum")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
+    /// <summary>
+    /// Contains the points and planes at the edges and near/far of a camera's view.
+    /// </summary>
+    [FileClass("FRUSTUM", "Camera View Frustum")]
     public class Frustum : I3DRenderable, IEnumerable<Plane>
     {
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
@@ -150,7 +152,7 @@ namespace TheraEngine.Core.Shapes
         }
 
         [PostDeserialize]
-        public void PostDeserialize()
+        private void PostDeserialize()
         {
             UpdatePoints(FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight, NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
         }

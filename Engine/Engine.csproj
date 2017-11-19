@@ -307,6 +307,7 @@
     <Compile Include="Animation\Model\TransformKeyCollection.cs" />
     <Compile Include="Core\Extensions\Numbers\DecimalExtension.cs" />
     <Compile Include="Core\Extensions\MethodInfoExtension.cs" />
+    <Compile Include="Core\Extensions\TaskExtension.cs" />
     <Compile Include="Core\Reflection\Attributes\BrowsableIfAttribute.cs" />
     <Compile Include="Core\HelperMethods.cs" />
     <None Include="Core\Maths\Transforms\Class\Rotation\EventQuatRotator.cs" />
@@ -342,6 +343,8 @@
     <Compile Include="Rendering\Models\Materials\Textures\References\BaseTexRef.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\BaseRenderTexture.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\Texture3D.cs" />
+    <Compile Include="Rendering\Particles\EmitterComponent.cs" />
+    <Compile Include="Rendering\Particles\ParticleSystem.cs" />
     <Compile Include="Tests\TestDefaults.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\Animation\AnimStateMachineComponent.cs" />
     <Compile Include="Animation\BaseAnimation.cs" />
@@ -455,7 +458,6 @@
     <Compile Include="Input\Devices\DirectX\DXKeyboard.cs" />
     <Compile Include="Input\LocalPlayerController.cs" />
     <Compile Include="Rendering\Particles\Emitter.cs" />
-    <Compile Include="Rendering\Particles\ParticleState.cs" />
     <Compile Include="Rendering\Particles\Particle.cs" />
     <Compile Include="Rendering\Particles\ParticleManager.cs" />
     <Compile Include="Rendering\Cameras\Camera.cs" />

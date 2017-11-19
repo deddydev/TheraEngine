@@ -78,7 +78,6 @@ namespace TheraEngine.Rendering.Models
         }
     }
     [FileClass("PRIM", "Mesh Data")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class PrimitiveData : FileObject, IDisposable
     {
         public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;

@@ -6,6 +6,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering
 {
@@ -43,6 +44,7 @@ namespace TheraEngine.Rendering
         public abstract void SetActiveTexture(int unit);
 
         public abstract void ColorMask(bool r, bool g, bool b, bool a);
+        public abstract void GenerateTextureMipmap(int textureBindingId);
 
         #region Debug Primitives
 

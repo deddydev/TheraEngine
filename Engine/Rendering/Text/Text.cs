@@ -5,6 +5,7 @@ using TheraEngine.Rendering.Textures;
 using System.Drawing.Text;
 using System.Drawing.Drawing2D;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Text
 {

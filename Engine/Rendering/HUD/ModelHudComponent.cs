@@ -72,8 +72,8 @@ namespace TheraEngine.Rendering.HUD
                 foreach (RenderableMesh m in _meshes)
                     m.Visible = m.Mesh.VisibleByDefault;
 
-            if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Scene.Add(_skeleton);
+            if (_skeleton != null)
+                Engine.Scene.RegisterSkeleton(_skeleton);
 
             base.OnSpawned();
         }
@@ -85,8 +85,8 @@ namespace TheraEngine.Rendering.HUD
 
             base.OnDespawned();
 
-            if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Scene.Remove(_skeleton);
+            if (_skeleton != null)
+                Engine.Scene.UnregisterSkeleton(_skeleton);
         }
     }
 }

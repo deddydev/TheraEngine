@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials.Textures;
+using EnumsNET;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -1116,6 +1118,15 @@ namespace TheraEngine.Rendering.OpenGL
         public override void ColorMask(bool r, bool g, bool b, bool a)
         {
             GL.ColorMask(r, g, b, a);
+        }
+
+        public override void GenerateMipmap(ETexTarget target)
+        {
+            GL.GenerateMipmap((GenerateMipmapTarget)target.ConvertByName(typeof(GenerateMipmapTarget)));
+        }
+        public override void GenerateTextureMipmap(int textureBindingId)
+        {
+            GL.GenerateTextureMipmap(textureBindingId);
         }
     }
 }

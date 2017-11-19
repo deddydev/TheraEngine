@@ -394,9 +394,15 @@ namespace TheraEngine.Rendering
 
                         //Render forward opaque objects first
                         scene.Render(ERenderPass3D.OpaqueForward);
-                        scene.RenderTree.DebugRender(Camera.GetFrustum(), true);
 
-                        //Engine.World.PhysicsScene.DebugDrawWorld();
+                        if (Engine.Settings.RenderOctree)
+                            scene.RenderTree.DebugRender(Camera.Frustum, true);
+
+#if DEBUG
+                        if (Engine.Settings.RenderPhysicsWorld)
+                            Engine.World.PhysicsScene.DebugDrawWorld();
+#endif
+
                         //Render forward transparent objects next
                         scene.Render(ERenderPass3D.TransparentForward);
                         //Render forward on-top objects last

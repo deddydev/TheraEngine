@@ -45,6 +45,9 @@ namespace TheraEngine
         [Category("Debug")]
         [TSerialize]
         public bool RenderLights { get; set; }
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderPhysicsWorld { get; set; }
 
         /// <summary>
         /// Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).
@@ -102,13 +105,14 @@ namespace TheraEngine
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
 #if DEBUG
-            RenderOctree = true;
+            RenderPhysicsWorld = false;
+            RenderOctree = false;
             RenderQuadtree = true;
             RenderSkeletons = false;
-            RenderCameraFrustums = true;
-            RenderSplines = true;
-            RenderCullingVolumes = true;
-            RenderLights = true;
+            RenderCameraFrustums = false;
+            RenderSplines = false;
+            RenderCullingVolumes = false;
+            RenderLights = false;
 #else
             RenderOctree = false;
             RenderQuadtree = false;

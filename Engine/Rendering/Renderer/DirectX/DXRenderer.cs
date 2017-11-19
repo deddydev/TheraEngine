@@ -3,6 +3,7 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.DirectX
 {
@@ -525,7 +526,22 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void ClearTexImage(int bindingId, ETexTarget textureTarget, ColorF4 clearColor)
+        public override void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ColorMask(bool r, bool g, bool b, bool a)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GenerateMipmap(ETexTarget target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GenerateTextureMipmap(int textureBindingId)
         {
             throw new NotImplementedException();
         }

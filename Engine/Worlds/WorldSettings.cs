@@ -9,6 +9,7 @@ using TheraEngine.Rendering.HUD;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Worlds
 {

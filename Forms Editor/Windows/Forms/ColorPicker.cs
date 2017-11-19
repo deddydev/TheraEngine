@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Text;
 using System.Drawing.Drawing2D;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace System.Windows.Forms
 {

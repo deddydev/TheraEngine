@@ -5,6 +5,7 @@ using TheraEngine.Rendering;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {

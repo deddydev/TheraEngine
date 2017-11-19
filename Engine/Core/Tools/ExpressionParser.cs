@@ -155,8 +155,18 @@ namespace TheraEngine.Core.Tools
             }
 
             //Handle field/property names
-            FieldInfo[] fields = provider == null ? new FieldInfo[0] : provider.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            PropertyInfo[] properties = provider == null ? new PropertyInfo[0] : provider.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            List<FieldInfo> fields = new List<FieldInfo>();
+            List<PropertyInfo> properties = new List<PropertyInfo>();
+            if (provider != null)
+            {
+                Type t = provider.GetType();
+                while (t != null && t != typeof(object))
+                {
+                    fields.AddRange(t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+                    properties.AddRange(t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+                    t = t.BaseType;
+                }
+            }
 
             FieldInfo field = fields.FirstOrDefault(x => x.Name.Equals(token));
             if (field != null)

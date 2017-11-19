@@ -16,7 +16,7 @@ namespace TheraEngine.Files.Serialization
     internal class MemberTreeNode
     {
         public MemberTreeNode(object root)
-            : this(root, root == null ? null : new VarInfo(root.GetType())) { }
+            : this(root, root == null ? null : new VarInfo(root.GetType(), null)) { }
         public MemberTreeNode(object obj, VarInfo info)
         {
             Object = obj;
@@ -70,8 +70,9 @@ namespace TheraEngine.Files.Serialization
         private string _category = null;
         private MemberInfo _info;
         private TSerialize _attrib;
-        private Type _variableType;
+        private Type _variableType, _owningType;
 
+        public Type OwningType => _owningType;
         public Type VariableType => _variableType;
         public string Name => _name;
         public string Category => _category;
@@ -82,7 +83,13 @@ namespace TheraEngine.Files.Serialization
             if (_info.MemberType.HasFlag(MemberTypes.Field))
                 ((FieldInfo)_info).SetValue(obj, value);
             else if (_info.MemberType.HasFlag(MemberTypes.Property))
-                ((PropertyInfo)_info).SetValue(obj, value);
+            {
+                PropertyInfo p = (PropertyInfo)_info;
+                if (p.CanWrite)
+                    p.SetValue(obj, value);
+                else
+                    Engine.LogWarning("Can't set property '" + p.Name + "' in " + p.DeclaringType.GetFriendlyName());
+            }
         }
         public object GetValue(object obj)
         {
@@ -91,22 +98,25 @@ namespace TheraEngine.Files.Serialization
             if (_info.MemberType.HasFlag(MemberTypes.Field))
                 return ((FieldInfo)_info).GetValue(obj);
             if (_info.MemberType.HasFlag(MemberTypes.Property))
-                return ((PropertyInfo)_info).GetValue(obj);
+            {
+                PropertyInfo p = (PropertyInfo)_info;
+                if (p.CanRead)
+                    return p.GetValue(obj);
+                else
+                    Engine.LogWarning("Can't read property '" + p.Name + "' in " + p.DeclaringType.GetFriendlyName());
+            }
             return null;
         }
-        public VarInfo(Type type, string name)
+        public VarInfo(Type type, Type owningType, string name) : this(type, owningType)
         {
-            _info = null;
-            _attrib = null;
-            _variableType = type;
             _name = name;
-            _category = null;
         }
-        public VarInfo(Type type)
+        public VarInfo(Type type, Type owningType)
         {
             _info = null;
             _attrib = null;
             _variableType = type;
+            _owningType = owningType;
             _name = null;
             _category = null;
         }
@@ -118,6 +128,7 @@ namespace TheraEngine.Files.Serialization
                 _variableType = ((FieldInfo)_info).FieldType;
             else if (_info.MemberType.HasFlag(MemberTypes.Property))
                 _variableType = ((PropertyInfo)_info).PropertyType;
+            _owningType = _info.DeclaringType;
             if (_attrib.NameOverride != null)
                 _name = _attrib.NameOverride;
             else

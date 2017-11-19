@@ -168,6 +168,9 @@ namespace TheraEngine.Rendering.Cameras
             set => _postProcessSettings = value ?? new PostProcessSettings();
         }
 
+        [Browsable(false)]
+        public Frustum Frustum => _transformedFrustum;
+
         public abstract float Width { get; set; }
         public abstract float Height { get; set; }
         public abstract Vec2 Origin { get; }
@@ -499,12 +502,13 @@ uniform mat4 InvProjMatrix;";
             UpdateTransformedFrustum();
             ProjectionChanged?.Invoke();
         }
+
         //Child camera types must override this
         public virtual void Resize(float width, float height)
             => CalculateProjection();
+
         protected abstract Frustum CreateUntransformedFrustum();
-        public Frustum GetFrustum() 
-            => _transformedFrustum;
+
         private void BeginUpdate() 
             =>_updating = true;
         private void EndUpdate()

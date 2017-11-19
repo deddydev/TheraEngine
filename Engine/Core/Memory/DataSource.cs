@@ -40,17 +40,19 @@ namespace System
                 _external = true;
             }
         }
-        public DataSource(int length)
+        public DataSource(int length, bool zeroMemory)
         {
             if (length < 0)
                 throw new Exception("Cannot allocate a negative size.");
             _length = length;
             _address = Marshal.AllocHGlobal(_length);
+            if (zeroMemory)
+                Memory.Fill(_address, (uint)_length, 0);
             _external = false;
         }
 
-        public static DataSource Allocate(int size)
-            => new DataSource(size);
+        public static DataSource Allocate(int size, bool zeroMemory = false)
+            => new DataSource(size, zeroMemory);
  
         public void NotifyModified()
             => Modified?.Invoke();

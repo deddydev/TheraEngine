@@ -7,6 +7,7 @@ using TheraEngine.Files;
 using TheraEngine.Rendering.Textures;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 using System.Threading.Tasks;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -251,7 +252,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             Engine.Renderer.SetActiveTexture(textureUnit);
             Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
-            Texture2D tex = TexRefs[textureIndex].GetTexture();
+            BaseRenderTexture tex = TexRefs[textureIndex].GetTextureGeneric();
             tex.Bind();
         }
 

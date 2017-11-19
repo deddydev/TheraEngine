@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
+using TheraEngine.Rendering.Models.Materials.Textures;
+
 namespace System
 {
     public class Vec4StringConverter : TypeConverter

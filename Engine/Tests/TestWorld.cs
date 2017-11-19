@@ -12,6 +12,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Tests
 {

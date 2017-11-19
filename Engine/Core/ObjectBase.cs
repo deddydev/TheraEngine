@@ -5,6 +5,7 @@ using System;
 using TheraEngine.Input.Devices;
 using System.Runtime.CompilerServices;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine
 {
@@ -118,9 +119,9 @@ namespace TheraEngine
 
 #if EDITOR
 
+        [TSerialize("EditorState")]
         private EditorState _editorState = null;
 
-        [TSerialize(Condition = "_editorState != null")]
         [Browsable(false)]
         public EditorState EditorState
         {
@@ -148,9 +149,23 @@ namespace TheraEngine
 
         #region Animation
 
+        [TSerialize]
         private MonitoredList<AnimationContainer> _animations = null;
 
-        [TSerialize]
+        [PostDeserialize]
+        private void PostDeserialize()
+        {
+            if (_animations != null)
+            {
+                _animations.PostAdded += _animations_PostAdded;
+                _animations.PostInserted += _animations_PostInserted;
+                _animations.PostAddedRange += _animations_PostAddedRange;
+                _animations.PostInsertedRange += _animations_PostInsertedRange;
+                _animations.PostRemoved += _animations_PostRemoved;
+                _animations.PostRemovedRange += _animations_PostRemovedRange;
+            }
+        }
+
         [Category("Object")]
         public MonitoredList<AnimationContainer> Animations
         {

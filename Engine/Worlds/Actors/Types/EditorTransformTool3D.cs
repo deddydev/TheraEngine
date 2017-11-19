@@ -8,6 +8,7 @@ using TheraEngine.Core.Shapes;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

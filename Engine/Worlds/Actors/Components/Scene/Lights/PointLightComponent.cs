@@ -3,6 +3,7 @@ using TheraEngine.Rendering.Models.Materials;
 using System.ComponentModel;
 using TheraEngine.Rendering;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {

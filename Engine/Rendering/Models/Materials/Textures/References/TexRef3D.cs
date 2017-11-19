@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _pixelType = EPixelType.UnsignedByte;
         }
         public TextureReference3D(string name, int width, int height, int depth,
-            PixelFormat bitmapFormat = PixelFormat.Format32bppArgb, int mipCount = 1)
+            TPixelFormat bitmapFormat = TPixelFormat.Format32bppRGBAi, int mipCount = 1)
             : this(name, width, height, depth)
         {
             _mipmaps = new SingleFileRef<TBitmap3D>[mipCount];
@@ -45,7 +45,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _height = height;
         }
         public TextureReference3D(string name, int width, int height, int depth,
-            EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, PixelFormat bitmapFormat)
+            EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, TPixelFormat bitmapFormat)
             : this(name, width, height, depth, internalFormat, pixelFormat, pixelType)
         {
             _mipmaps = new SingleFileRef<TBitmap3D>[] { new TBitmap3D(width, height, depth, bitmapFormat) };
@@ -147,8 +147,6 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMinFilter, (int)_minFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapT, (int)_vWrapMode);
-            if (_frameBufferAttachment.HasValue && Material != null && Material.HasAttachment(_frameBufferAttachment.Value))
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, _frameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
         }
 
         private bool _isLoading = false;
@@ -178,10 +176,10 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private void FinalizeTextureLoaded()
         {
-            if (_mipmaps != null && _mipmaps.Length > 0)
-                _texture = new Texture3D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
-            else
-                _texture = new Texture3D(_width, _height, _depth, _internalFormat, _pixelFormat, _pixelType);
+            //if (_mipmaps != null && _mipmaps.Length > 0)
+            //    _texture = new Texture3D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
+            //else
+            //    _texture = new Texture3D(_width, _height, _depth, _internalFormat, _pixelFormat, _pixelType);
 
             _texture.PostPushData += SetParameters;
         }
@@ -224,33 +222,33 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (tref.File != null)
                 {
                     var t = tref.File;
-                    if (t.Bitmaps.Length > 0)
-                    {
-                        var b = t.Bitmaps[0];
-                        if (b != null)
-                        {
-                            switch (b.PixelFormat)
-                            {
-                                case PixelFormat.Format32bppArgb:
-                                case PixelFormat.Format32bppPArgb:
-                                    _internalFormat = EPixelInternalFormat.Rgba8;
-                                    _pixelFormat = EPixelFormat.Bgra;
-                                    _pixelType = EPixelType.UnsignedByte;
-                                    break;
-                                case PixelFormat.Format24bppRgb:
-                                    _internalFormat = EPixelInternalFormat.Rgb8;
-                                    _pixelFormat = EPixelFormat.Bgr;
-                                    _pixelType = EPixelType.UnsignedByte;
-                                    break;
-                                case PixelFormat.Format64bppArgb:
-                                case PixelFormat.Format64bppPArgb:
-                                    _internalFormat = EPixelInternalFormat.Rgba16;
-                                    _pixelFormat = EPixelFormat.Bgra;
-                                    _pixelType = EPixelType.UnsignedShort;
-                                    break;
-                            }
-                        }
-                    }
+                    //if (t.Bitmaps.Length > 0)
+                    //{
+                    //    var b = t.Bitmaps[0];
+                    //    if (b != null)
+                    //    {
+                    //        switch (b.PixelFormat)
+                    //        {
+                    //            case PixelFormat.Format32bppArgb:
+                    //            case PixelFormat.Format32bppPArgb:
+                    //                _internalFormat = EPixelInternalFormat.Rgba8;
+                    //                _pixelFormat = EPixelFormat.Bgra;
+                    //                _pixelType = EPixelType.UnsignedByte;
+                    //                break;
+                    //            case PixelFormat.Format24bppRgb:
+                    //                _internalFormat = EPixelInternalFormat.Rgb8;
+                    //                _pixelFormat = EPixelFormat.Bgr;
+                    //                _pixelType = EPixelType.UnsignedByte;
+                    //                break;
+                    //            case PixelFormat.Format64bppArgb:
+                    //            case PixelFormat.Format64bppPArgb:
+                    //                _internalFormat = EPixelInternalFormat.Rgba16;
+                    //                _pixelFormat = EPixelFormat.Bgra;
+                    //                _pixelType = EPixelType.UnsignedShort;
+                    //                break;
+                    //        }
+                    //    }
+                    //}
                 }
             }
             _isLoading = false;

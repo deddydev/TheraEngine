@@ -11,6 +11,7 @@ using TheraEngine.Files;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Rendering
 {
@@ -122,27 +123,27 @@ namespace TheraEngine.Rendering
 
         public SceneProcessor()
         {
-            Material m = new Material("VoxelizeMat",
-                new ShaderVar[] 
-                {
+            //Material m = new Material("VoxelizeMat",
+            //    new ShaderVar[] 
+            //    {
 
-                },
-                new BaseTextureReference[]
-                {
-                    new TextureReference3D("VoxelScene"),
-                }, 
-                new Shader[]
-                {
+            //    },
+            //    new BaseTextureReference[]
+            //    {
+            //        new TextureReference3D("VoxelScene"),
+            //    }, 
+            //    new Shader[]
+            //    {
 
-                }
-            );
+            //    }
+            //);
 
-            m.RenderParams.CullMode = Models.Culling.None;
-            m.RenderParams.DepthTest.Enabled = false;
-            m.RenderParams.Blend.Enabled = false;
+            //m.RenderParams.CullMode = Models.Culling.None;
+            //m.RenderParams.DepthTest.Enabled = false;
+            //m.RenderParams.Blend.Enabled = false;
 
 
-            _voxelizationMaterial = m;
+            //_voxelizationMaterial = m;
         }
 
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
@@ -172,7 +173,7 @@ namespace TheraEngine.Rendering
             //}
             //Engine.Renderer.ColorMask(true, true, true, true);
         }
-        
+
         /// <summary>
         /// Call this to only enable visibility for items visible from the given camera.
         /// </summary>
@@ -180,7 +181,7 @@ namespace TheraEngine.Rendering
         {
             AbstractRenderer.PushCurrentCamera(camera);
             //_renderTree.Cull(camera.GetFrustum(), resetVisibility, cullOffscreen, Engine.Settings.RenderOctree);
-            _renderTree.CollectVisible(camera.GetFrustum(), _passes, shadowPass);
+            _renderTree.CollectVisible(camera.Frustum, _passes, shadowPass);
             foreach (IPreRenderNeeded p in _preRenderList)
                 p.PreRender();
         }
@@ -270,6 +271,15 @@ namespace TheraEngine.Rendering
         public void UnregisterSpline(SplineComponent comp)
         {
             Remove(comp);
+        }
+        public void RegisterSkeleton(Skeleton skel)
+        {
+            if (Engine.Settings.RenderSkeletons)
+                Add(skel);
+        }
+        public void UnregisterSkeleton(Skeleton skel)
+        {
+            Remove(skel);
         }
     }
 }

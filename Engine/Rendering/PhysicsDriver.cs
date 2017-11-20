@@ -3,6 +3,7 @@ using TheraEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 
 namespace TheraEngine.Rendering
 {
@@ -146,6 +147,7 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         public ThreadSafeList<PhysicsDriver> Overlapping => _overlapping;
         [Browsable(false)]
+        [TSerialize]
         public RigidBody CollisionObject
         {
             get => _collision;
@@ -198,6 +200,11 @@ namespace TheraEngine.Rendering
                     }
                 }
             }
+        }
+        [CustomXMLDeserializeMethod("CollisionObject")]
+        private void CollisionObjectDeserialize(XMLReader reader)
+        {
+            
         }
         [Category("Physics Driver")]
         public bool SimulatingPhysics

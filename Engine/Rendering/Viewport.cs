@@ -16,7 +16,7 @@ using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelOnRender(SceneProcessor scene);
+    public delegate void DelOnRender(SceneProcessor scene, Camera camera, Frustum frustum);
     public class Viewport
     {
         public static Viewport CurrentlyRendering => _currentlyRendering;
@@ -343,7 +343,7 @@ namespace TheraEngine.Rendering
             if (Owners.Contains(controller))
                 Owners.Remove(controller);
         }
-        public void RenderDeferred(SceneProcessor scene)
+        public void RenderDeferred(SceneProcessor scene, Camera camera, Frustum frustum)
         {
             _currentlyRendering = this;
 
@@ -355,13 +355,13 @@ namespace TheraEngine.Rendering
             //_skyBoxBuffer.Unbind(EFramebufferTarget.Framebuffer);
             //_skyBoxBuffer.Render();
 
-            if (Camera != null)
+            if (camera != null)
             {
                 //AbstractRenderer.PushCurrentCamera(Camera);
                 //Engine.Scene?.RenderShadowMaps();
                 //AbstractRenderer.PopCurrentCamera();
 
-                scene.PreRender(Camera, false);
+                scene.PreRender(camera, frustum, false);
 
                 //Enable internal resolution
                 Engine.Renderer.PushRenderArea(_internalResolution);
@@ -396,7 +396,7 @@ namespace TheraEngine.Rendering
                         scene.Render(ERenderPass3D.OpaqueForward);
 
                         if (Engine.Settings.RenderOctree)
-                            scene.RenderTree.DebugRender(Camera.Frustum, true);
+                            scene.RenderTree.DebugRender(camera.Frustum, true);
 
 #if DEBUG
                         if (Engine.Settings.RenderPhysicsWorld)
@@ -442,13 +442,13 @@ namespace TheraEngine.Rendering
 
             _currentlyRendering = null;
         }
-        public void RenderForward(SceneProcessor scene)
+        public void RenderForward(SceneProcessor scene, Camera camera, Frustum frustum)
         {
             _currentlyRendering = this;
 
-            if (Camera != null)
+            if (camera != null)
             {
-                scene.PreRender(Camera, false);
+                scene.PreRender(camera, frustum, false);
                 Engine.Renderer.PushRenderArea(_internalResolution);
 
                 _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);

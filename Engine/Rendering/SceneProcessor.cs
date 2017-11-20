@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
-using TheraEngine.Particles;
+using TheraEngine.Rendering.Particles;
 using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 using System.Drawing;
@@ -177,11 +177,11 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Call this to only enable visibility for items visible from the given camera.
         /// </summary>
-        internal void PreRender(Camera camera, bool shadowPass)
+        internal void PreRender(Camera camera, Frustum frustum, bool shadowPass)
         {
             AbstractRenderer.PushCurrentCamera(camera);
             //_renderTree.Cull(camera.GetFrustum(), resetVisibility, cullOffscreen, Engine.Settings.RenderOctree);
-            _renderTree.CollectVisible(camera.Frustum, _passes, shadowPass);
+            _renderTree.CollectVisible(frustum, _passes, shadowPass);
             foreach (IPreRenderNeeded p in _preRenderList)
                 p.PreRender();
         }

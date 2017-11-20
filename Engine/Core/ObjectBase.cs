@@ -84,7 +84,7 @@ namespace TheraEngine
 
         #region Name
         [Category("Object")]
-        public string Name
+        public virtual string Name
         {
             get => string.IsNullOrEmpty(_name) ? GetType().GetFriendlyName().Replace("<", "[").Replace(">", "]") : _name;
             set

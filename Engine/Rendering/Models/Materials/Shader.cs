@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -20,10 +21,10 @@ namespace TheraEngine.Rendering.Models.Materials
         public ShaderMode ShaderType => _type;
 
         private bool _sourceChanged = false;
-        [TSerialize]
+        [TSerialize("Type", XmlNodeType = EXmlNodeType.Attribute)]
         private ShaderMode _type;
         [TSerialize("Sources")]
-        internal string[] _sources;
+        internal SingleFileRef<TextFile>[] _sources;
 
         public Shader(ShaderMode type)
         {
@@ -32,7 +33,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public Shader(ShaderMode type, string source)
         {
             _type = type;
-            _sources = new string[] { source };
+            _sources = new SingleFileRef<TextFile>[] { source };
             _sourceChanged = true;
         }
         public Shader(ShaderMode type, params string[] sources)

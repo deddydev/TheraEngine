@@ -37,8 +37,7 @@ namespace TheraEngine.Rendering.Models.Materials
         _mat3,
         _mat4,
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public abstract class ShaderVar : IShaderVarOwner
+    public abstract class ShaderVar : ObjectBase, IShaderVarOwner
     {
         internal static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
         {
@@ -93,21 +92,25 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public event Action<ShaderVar> ValueChanged;
 
+        [TSerialize("CanSwizzle", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _canSwizzle = true;
+
         protected IShaderVarOwner _owner;
-        protected string _name;
+
+        [TSerialize("Fields")]
         protected Dictionary<string, ShaderVar> _fields = new Dictionary<string, ShaderVar>();
 
         internal IShaderVarOwner Owner => _owner;
         public abstract ShaderVarType TypeName { get; }
 
-        public string Name
+        [Category("Object")]
+        public override string Name
         {
-            get => _name;
+            get => base.Name;
             set
             {
                 //Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value)
-                _name = (value ?? "").ReplaceWhitespace("");
+                base.Name = (value ?? "").ReplaceWhitespace("");
             }
         }
 

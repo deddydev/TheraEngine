@@ -40,7 +40,7 @@ namespace System
                 _external = true;
             }
         }
-        public DataSource(int length, bool zeroMemory)
+        public DataSource(int length, bool zeroMemory = false)
         {
             if (length < 0)
                 throw new Exception("Cannot allocate a negative size.");

@@ -405,7 +405,7 @@ namespace TheraEngine.Rendering.Models
             m = texRefs.Count > 0 ?
                 Material.GetLitTextureMaterial() :
                 Material.GetLitColorMaterial(Color.Magenta);
-            m.TexRefs = texRefs.ToArray();
+            m.Textures = texRefs.ToArray();
             m.Name = colladaMaterial.Name ?? (colladaMaterial.ID ?? "Unnamed Material");
 
             return m;

@@ -29,8 +29,8 @@ namespace TheraEngine.Rendering.HUD
         
         public BaseRenderTexture Texture(int index)
         {
-            if (_quad.Material.TexRefs.IndexInRange(index))
-                return _quad.Material.TexRefs[index].GetTextureGeneric();
+            if (_quad.Material.Textures.IndexInRange(index))
+                return _quad.Material.Textures[index].GetTextureGeneric();
             return null;
         }
         /// <summary>

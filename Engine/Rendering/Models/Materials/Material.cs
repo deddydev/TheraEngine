@@ -8,11 +8,11 @@ using TheraEngine.Rendering.Textures;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 using System.Threading.Tasks;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
     [FileClass("TMAT", "")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Material : FileObject
     {
         public event Action SettingUniforms;
@@ -21,8 +21,12 @@ namespace TheraEngine.Rendering.Models.Materials
         private List<Shader> _tessEvalShaders;
         private List<Shader> _tessCtrlShaders;
         private List<Shader> _fragmentShaders;
+        [TSerialize("Shaders")]
         private Shader[] _shaders;
+
+        [TSerialize("FBOAttachments")]
         private EDrawBuffersAttachment[] _fboAttachments;
+        [TSerialize("OverrideFBOAttachments")]
         private bool _overrideAttachments = false;
 
         private RenderProgram _program;
@@ -31,7 +35,6 @@ namespace TheraEngine.Rendering.Models.Materials
 
         [TSerialize("Parameters")]
         protected ShaderVar[] _parameters;
-        [TSerialize("Textures")]
         protected BaseTextureReference[] _textures;
 
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
@@ -62,7 +65,9 @@ namespace TheraEngine.Rendering.Models.Materials
             => Parameters.FirstOrDefault(x => x.Name == name) as T2;
         
         public ShaderVar[] Parameters => _parameters;
-        public BaseTextureReference[] TexRefs
+
+        [TSerialize]
+        public BaseTextureReference[] Textures
         {
             get => _textures;
             set
@@ -101,6 +106,7 @@ namespace TheraEngine.Rendering.Models.Materials
             NeedsLightsAndCamera,
         }
         
+        [TSerialize]
         public UniformRequirements Requirements
         {
             get => _requirements;
@@ -240,19 +246,19 @@ namespace TheraEngine.Rendering.Models.Materials
         public void ResizeTextures(int width, int height)
         {
             //Update each texture's dimensions
-            foreach (TextureReference2D t in TexRefs)
+            foreach (TextureReference2D t in Textures)
                 t.Resize(width, height);
         }
         private void SetTextureUniforms(int programBindingId)
         {
-            for (int i = 0; i < TexRefs.Length; ++i)
+            for (int i = 0; i < Textures.Length; ++i)
                 SetTextureUniform(i, i, "Texture" + i, programBindingId);
         }
         public void SetTextureUniform(int textureIndex, int textureUnit, string varName, int programBindingId)
         {
             Engine.Renderer.SetActiveTexture(textureUnit);
             Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
-            BaseRenderTexture tex = TexRefs[textureIndex].GetTextureGeneric();
+            BaseRenderTexture tex = Textures[textureIndex].GetTextureGeneric();
             tex.Bind();
         }
 
@@ -269,7 +275,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             _name = name;
             _parameters = parameters ?? new ShaderVar[0];
-            TexRefs = textures ?? new BaseTextureReference[0];
+            Textures = textures ?? new BaseTextureReference[0];
 
             _shaders = shaders;
             _fragmentShaders = new List<Shader>();
@@ -277,8 +283,14 @@ namespace TheraEngine.Rendering.Models.Materials
             _tessCtrlShaders = new List<Shader>();
             _tessEvalShaders = new List<Shader>();
 
-            if (shaders != null)
-                foreach (Shader s in shaders)
+            ShadersChanged();
+        }
+
+        [PostDeserialize]
+        private void ShadersChanged()
+        {
+            if (_shaders != null)
+                foreach (Shader s in _shaders)
                 {
                     switch (s.ShaderType)
                     {
@@ -299,7 +311,7 @@ namespace TheraEngine.Rendering.Models.Materials
                     }
                 }
 
-            if (Engine.Settings.AllowShaderPipelines)
+            if (Engine.Settings != null && Engine.Settings.AllowShaderPipelines)
             {
                 _program = new RenderProgram(_shaders);
                 _program.Generated += _program_Generated;

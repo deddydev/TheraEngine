@@ -214,7 +214,7 @@ namespace TheraEngine
 
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
-                v.Render(scene);
+                v.Render(scene, v.Camera, v.Camera.Frustum);
             _globalHud?.Render();
             _context.EndDraw();
         }

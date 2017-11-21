@@ -2,6 +2,7 @@
 using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
+using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 
 namespace Thera.Worlds.Actors.Components.Scene
 {
@@ -22,15 +23,7 @@ namespace Thera.Worlds.Actors.Components.Scene
         {
 
         }
-
-#if EDITOR
-        public override bool IsDirty
-        {
-            get { return base.IsDirty; }
-            set { base.IsDirty = value; }
-        }
-#endif
-
+        
         protected List<TheraCharacter> _overlapping;
         protected List<TheraCharacter> _viewers;
         protected List<TheraCharacter> _pendingInteraction;

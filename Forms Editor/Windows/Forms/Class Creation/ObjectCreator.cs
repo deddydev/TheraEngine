@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -27,6 +28,7 @@ namespace TheraEditor.Windows.Forms
         public bool Initialize(Type type, bool allowDerivedTypes)
         {
             ClassType = type;
+            ArrayMode = type.IsArray;
 
             if (allowDerivedTypes)
             {
@@ -34,7 +36,7 @@ namespace TheraEditor.Windows.Forms
                 if (types.Length == 1)
                 {
                     SetTargetType(types[0]);
-                    toolStripDropDownButton1.Visible = false;
+                    toolStripTypeSelection.Visible = false;
                 }
             }
             else if (type.IsAbstract || type.IsInterface)
@@ -101,17 +103,36 @@ namespace TheraEditor.Windows.Forms
             public int RowIndex { get; set; }
             public object Value { get; set; }
         }
-
+        
+        public object[] ArrayData { get; private set; }
         public int ConstructorIndex { get; private set; }
         public Type ClassType { get; private set; }
         public ConstructorInfo[] PublicInstanceConstructors { get; private set; }
         public object[][] FinalArguments;
         public object ConstructedObject { get; private set; } = null;
-        
+        private bool _arrayMode = false;
+        private bool ArrayMode
+        {
+            get => _arrayMode;
+            set
+            {
+                _arrayMode = value;
+                toolStripTypeSelection.Visible = !_arrayMode;
+                pnlArrayLength.Visible = _arrayMode;
+                toolStripDropDownButton1.Text = _arrayMode ? "Select an element type..." : "Select an object type...";
+            }
+        }
+
         private void btnOkay_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
-            ConstructedObject = FinalArguments[ConstructorIndex].Length == 0 ? Activator.CreateInstance(ClassType) : Activator.CreateInstance(ClassType, FinalArguments[ConstructorIndex]);
+            if (ArrayMode)
+            {
+                ConstructedObject = Array.CreateInstance(ClassType, ArrayData.Length);
+                ArrayData.CopyTo((Array)ConstructedObject, 0);
+            }
+            else
+                ConstructedObject = FinalArguments[ConstructorIndex].Length == 0 ? Activator.CreateInstance(ClassType) : Activator.CreateInstance(ClassType, FinalArguments[ConstructorIndex]);
             Close();
         }
 

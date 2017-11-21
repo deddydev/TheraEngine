@@ -2,6 +2,7 @@
 using System.Collections;
 using TheraEngine.Worlds.Actors;
 using Thera.Worlds.Actors.Items;
+using TheraEngine.Worlds.Actors.Components;
 
 namespace Thera.Worlds.Actors.Components.Logic
 {

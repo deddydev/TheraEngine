@@ -26,7 +26,18 @@ namespace TheraEngine.Rendering.Models.Materials
             FilePath = path;
             Text = null;
         }
-
+        public static TextFile FromText(string text)
+        {
+            return new TextFile() { Text = text };
+        }
+        public static implicit operator string(TextFile textFile)
+        {
+            return textFile?.Text;
+        }
+        public static implicit operator TextFile(string text)
+        {
+            return TextFile.FromText(text);
+        }
         public string Load()
         {
             Text = null;

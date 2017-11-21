@@ -439,7 +439,7 @@ namespace TheraEngine
             }
 
             if (loadWorldGameMode && Game != null)
-                Game.State.GameMode.File = World?.GetGameMode();
+                Game.State.GameMode = World?.GetGameMode();
 
             ActiveGameMode?.BeginGameplay();
 

@@ -314,14 +314,14 @@ namespace TheraEditor.Windows.Forms
                         }
                     }
 
-                    TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
-                    if (t != null)
-                    {
-                        if (t.TreeView.InvokeRequired)
-                            t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t));
-                        else
-                            t.TreeView.SelectedNode = t;
-                    }
+                    //TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
+                    //if (t != null)
+                    //{
+                    //    if (t.TreeView.InvokeRequired)
+                    //        t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t));
+                    //    else
+                    //        t.TreeView.SelectedNode = t;
+                    //}
                 }
             }
             else

@@ -5,7 +5,7 @@ using Thera.Worlds.Actors;
 
 namespace Thera.GameModes
 {
-    public class BaseTheraGameMode : GameMode<TheraCharacter, TheraCharacterController>
+    public abstract class BaseTheraGameMode : GameMode<TheraCharacter, TheraCharacterController>
     {
         public const int MaxPossibleTeams = 16;
         
@@ -73,12 +73,12 @@ namespace Thera.GameModes
 
         private InheritablePlayerTraits _basePlayerTraits;
         private StaticPlayerTraits _staticPlayerTraits;
-        private CharacterPawn _playableCharacter;
+        private TheraCharacter _playableCharacter;
         private int _maxTeams = MaxPossibleTeams;
         private int _maxPerTeam = MaxPossibleTeams;
         private TeamTraits[] _teams = null;
 
-        public CharacterPawn PlayableCharacter
+        public TheraCharacter PlayableCharacter
         {
             get => _playableCharacter;
             set => _playableCharacter = value;
@@ -116,24 +116,9 @@ namespace Thera.GameModes
 
         public TeamTraits[] Teams => _teams;
 
-        public virtual void OnCharacterDied(CharacterPawn character)
+        public virtual void OnCharacterDied(TheraCharacter character)
         {
 
-        }
-
-        public override void BeginGameplay()
-        {
-            base.BeginGameplay();
-        }
-
-        public override void EndGameplay()
-        {
-            base.EndGameplay();
-        }
-
-        public override void AbortGameplay()
-        {
-            base.AbortGameplay();
         }
     }
 }

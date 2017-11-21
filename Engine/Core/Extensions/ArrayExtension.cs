@@ -20,14 +20,6 @@ namespace System
         {
             return Array.IndexOf(a, value);
         }
-        /// <summary>
-        /// Returns true if index >= 0 && index < length.
-        /// Use this so you don't have to write that every time.
-        /// </summary>
-        //public static bool IndexInRange(this Array a, int value)
-        //{
-        //    return value >= 0 && value < a.Length;
-        //}
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {
             T[] result = new T[length];
@@ -44,6 +36,14 @@ namespace System
         public static void Resize<T>(this T[] data, int newSize)
         {
             Array.Resize(ref data, newSize);
+        }
+        public static T[] FilledWith<T>(this T[] array, T value)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = value;
+            }
+            return array;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
@@ -24,7 +25,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Type", XmlNodeType = EXmlNodeType.Attribute)]
         private ShaderMode _type;
         [TSerialize("Sources")]
-        internal SingleFileRef<TextFile>[] _sources;
+        private SingleFileRef<TextFile>[] _sources;
 
         public Shader(ShaderMode type)
         {
@@ -33,23 +34,35 @@ namespace TheraEngine.Rendering.Models.Materials
         public Shader(ShaderMode type, string source)
         {
             _type = type;
-            _sources = new SingleFileRef<TextFile>[] { source };
+            _sources = new SingleFileRef<TextFile>[] { TextFile.FromText(source) };
             _sourceChanged = true;
         }
         public Shader(ShaderMode type, params string[] sources)
         {
             _type = type;
-            _sources = sources;
+            _sources = sources.Select(x => new SingleFileRef<TextFile>(x)).ToArray();
+            _sourceChanged = true;
+        }
+        public Shader(ShaderMode type, params TextFile[] files)
+        {
+            _type = type;
+            _sources = files.Select(x => new SingleFileRef<TextFile>(x)).ToArray();
+            _sourceChanged = true;
+        }
+        public Shader(ShaderMode type, params SingleFileRef<TextFile>[] references)
+        {
+            _type = type;
+            _sources = references;
             _sourceChanged = true;
         }
         public void SetSource(string source)
         {
-            _sources = new string[] { source };
+            _sources = new SingleFileRef<TextFile>[] { TextFile.FromText(source) };
             _sourceChanged = true;
         }
         public void SetSources(string[] sources)
         {
-            _sources = sources;
+            _sources = sources.Select(x => new SingleFileRef<TextFile>(TextFile.FromText(x))).ToArray();
             _sourceChanged = true;
         }
         internal int Compile()
@@ -57,7 +70,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _sourceChanged = false;
 
             Engine.Renderer.SetShaderMode(_type);
-            int id = Engine.Renderer.GenerateShader(_sources);
+            int id = Engine.Renderer.GenerateShader(_sources.Select(x => x.File?.Text).ToArray());
 
             Compiled?.Invoke(this, null);
 

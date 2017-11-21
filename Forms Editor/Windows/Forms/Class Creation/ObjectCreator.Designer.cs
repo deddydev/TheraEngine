@@ -33,16 +33,20 @@ namespace TheraEditor.Windows.Forms
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ObjectCreator));
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOkay = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.pnlOkayCancel = new System.Windows.Forms.Panel();
+            this.toolStripTypeSelection = new System.Windows.Forms.ToolStrip();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.tblConstructors = new System.Windows.Forms.TableLayoutPanel();
+            this.pnlArrayLength = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.numericInputBoxSingle1 = new TheraEditor.Windows.Forms.NumericInputBoxInt32();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
             this.MiddlePanel.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.toolStrip1.SuspendLayout();
+            this.pnlOkayCancel.SuspendLayout();
+            this.toolStripTypeSelection.SuspendLayout();
+            this.pnlArrayLength.SuspendLayout();
             this.SuspendLayout();
             // 
             // BodyPanel
@@ -50,8 +54,9 @@ namespace TheraEditor.Windows.Forms
             this.BodyPanel.AutoSize = true;
             this.BodyPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BodyPanel.Controls.Add(this.tblConstructors);
-            this.BodyPanel.Controls.Add(this.toolStrip1);
-            this.BodyPanel.Controls.Add(this.panel1);
+            this.BodyPanel.Controls.Add(this.toolStripTypeSelection);
+            this.BodyPanel.Controls.Add(this.pnlArrayLength);
+            this.BodyPanel.Controls.Add(this.pnlOkayCancel);
             this.BodyPanel.Padding = new System.Windows.Forms.Padding(6);
             this.BodyPanel.Size = new System.Drawing.Size(369, 180);
             // 
@@ -113,31 +118,31 @@ namespace TheraEditor.Windows.Forms
             this.btnOkay.UseVisualStyleBackColor = false;
             this.btnOkay.Click += new System.EventHandler(this.btnOkay_Click);
             // 
-            // panel1
+            // pnlOkayCancel
             // 
-            this.panel1.AutoSize = true;
-            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel1.Controls.Add(this.btnCancel);
-            this.panel1.Controls.Add(this.btnOkay);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(6, 132);
-            this.panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(6, 6, 0, 0);
-            this.panel1.Size = new System.Drawing.Size(357, 42);
-            this.panel1.TabIndex = 3;
+            this.pnlOkayCancel.AutoSize = true;
+            this.pnlOkayCancel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.pnlOkayCancel.Controls.Add(this.btnCancel);
+            this.pnlOkayCancel.Controls.Add(this.btnOkay);
+            this.pnlOkayCancel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlOkayCancel.Location = new System.Drawing.Point(6, 132);
+            this.pnlOkayCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pnlOkayCancel.Name = "pnlOkayCancel";
+            this.pnlOkayCancel.Padding = new System.Windows.Forms.Padding(6, 6, 0, 0);
+            this.pnlOkayCancel.Size = new System.Drawing.Size(357, 42);
+            this.pnlOkayCancel.TabIndex = 3;
             // 
-            // toolStrip1
+            // toolStripTypeSelection
             // 
-            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripTypeSelection.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.toolStripTypeSelection.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripDropDownButton1});
-            this.toolStrip1.Location = new System.Drawing.Point(6, 6);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.toolStrip1.Size = new System.Drawing.Size(357, 32);
-            this.toolStrip1.TabIndex = 4;
-            this.toolStrip1.Text = "toolStrip1";
+            this.toolStripTypeSelection.Location = new System.Drawing.Point(6, 32);
+            this.toolStripTypeSelection.Name = "toolStripTypeSelection";
+            this.toolStripTypeSelection.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+            this.toolStripTypeSelection.Size = new System.Drawing.Size(357, 32);
+            this.toolStripTypeSelection.TabIndex = 4;
+            this.toolStripTypeSelection.Text = "toolStrip1";
             // 
             // toolStripDropDownButton1
             // 
@@ -155,7 +160,7 @@ namespace TheraEditor.Windows.Forms
             this.tblConstructors.ColumnCount = 1;
             this.tblConstructors.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblConstructors.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tblConstructors.Location = new System.Drawing.Point(6, 38);
+            this.tblConstructors.Location = new System.Drawing.Point(6, 64);
             this.tblConstructors.Margin = new System.Windows.Forms.Padding(0);
             this.tblConstructors.Name = "tblConstructors";
             this.tblConstructors.RowCount = 1;
@@ -163,6 +168,45 @@ namespace TheraEditor.Windows.Forms
             this.tblConstructors.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 1F));
             this.tblConstructors.Size = new System.Drawing.Size(357, 0);
             this.tblConstructors.TabIndex = 5;
+            // 
+            // pnlArrayLength
+            // 
+            this.pnlArrayLength.Controls.Add(this.numericInputBoxSingle1);
+            this.pnlArrayLength.Controls.Add(this.label1);
+            this.pnlArrayLength.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlArrayLength.Location = new System.Drawing.Point(6, 6);
+            this.pnlArrayLength.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlArrayLength.Name = "pnlArrayLength";
+            this.pnlArrayLength.Size = new System.Drawing.Size(357, 26);
+            this.pnlArrayLength.TabIndex = 6;
+            this.pnlArrayLength.Visible = false;
+            // 
+            // label1
+            // 
+            this.label1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(120, 26);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "Array length: ";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // numericInputBoxSingle1
+            // 
+            this.numericInputBoxSingle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(93)))), ((int)(((byte)(100)))));
+            this.numericInputBoxSingle1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numericInputBoxSingle1.DefaultValue = 0;
+            this.numericInputBoxSingle1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numericInputBoxSingle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.numericInputBoxSingle1.Location = new System.Drawing.Point(120, 0);
+            this.numericInputBoxSingle1.Margin = new System.Windows.Forms.Padding(0);
+            this.numericInputBoxSingle1.Name = "numericInputBoxSingle1";
+            this.numericInputBoxSingle1.Nullable = false;
+            this.numericInputBoxSingle1.NumberPrefix = "";
+            this.numericInputBoxSingle1.NumberSuffix = "";
+            this.numericInputBoxSingle1.Size = new System.Drawing.Size(237, 26);
+            this.numericInputBoxSingle1.TabIndex = 6;
             // 
             // ObjectCreator
             // 
@@ -183,9 +227,11 @@ namespace TheraEditor.Windows.Forms
             this.TitlePanel.ResumeLayout(false);
             this.MiddlePanel.ResumeLayout(false);
             this.MiddlePanel.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
+            this.pnlOkayCancel.ResumeLayout(false);
+            this.toolStripTypeSelection.ResumeLayout(false);
+            this.toolStripTypeSelection.PerformLayout();
+            this.pnlArrayLength.ResumeLayout(false);
+            this.pnlArrayLength.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -194,9 +240,12 @@ namespace TheraEditor.Windows.Forms
         #endregion
         private System.Windows.Forms.Button btnOkay;
         private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pnlOkayCancel;
         private System.Windows.Forms.TableLayoutPanel tblConstructors;
-        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStrip toolStripTypeSelection;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
+        private System.Windows.Forms.Panel pnlArrayLength;
+        private NumericInputBoxInt32 numericInputBoxSingle1;
+        private System.Windows.Forms.Label label1;
     }
 }

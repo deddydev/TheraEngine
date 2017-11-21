@@ -10,7 +10,6 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Animation
 {
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class AnimFolder
     {
         public AnimFolder(string propertyName, params AnimFolder[] children)

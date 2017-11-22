@@ -22,9 +22,9 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             {
                 _mesh = mesh;
                 _component = component;
-                _cullingVolume = _mesh.CullingVolume?.HardCopy();
+                _cullingVolume = _mesh.CullingVolume.File?.HardCopy();
                 _initialCullingVolumeMatrix = _cullingVolume == null ? Matrix4.Identity : _cullingVolume.GetTransformMatrix();
-                _manager = new PrimitiveManager(_mesh.Data, _mesh.Material);
+                _manager = new PrimitiveManager(_mesh.Primitives, _mesh.Material);
 //                if (_mesh.Data.BufferInfo.HasNormals && _mesh.Data.BufferInfo.HasTexCoords)
 //                    _manager._geometryShader = new Shader(ShaderMode.Geometry, @"
 //#version 450

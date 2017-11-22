@@ -9,7 +9,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
     public class DecalComponent : BoxComponent
     {
         private Texture2D _texture;
-        private StaticMesh _mesh;
+        private StaticModel _mesh;
         
         public DecalComponent() : base() { }
         public DecalComponent(Vec3 extents) : base(extents, null) { }

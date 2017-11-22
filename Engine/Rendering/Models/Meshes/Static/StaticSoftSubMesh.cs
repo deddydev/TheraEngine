@@ -5,49 +5,40 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("OBJ", "Static Soft Sub Mesh")]
+    [FileClass("STSMESH", "Static Soft Sub Mesh")]
     public class StaticSoftSubMesh : FileObject, IStaticSubMesh
     {
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
-
         public StaticSoftSubMesh()
         {
-            _name = "SoftSubMesh";
-            _cullingVolume = null;
-            _material = null;
-            _data = null;
+            _name = "StaticSoftSubMesh";
         }
-        public StaticSoftSubMesh(string name, PrimitiveData data, Material material, Shape cullingVolume)
+        public StaticSoftSubMesh(
+            string name,
+            PrimitiveData primitives,
+            Material material,
+            Shape cullingVolume,
+            bool visibleByDefault = true)
         {
-            _cullingVolume = cullingVolume;
-            _material = material;
-            _data = data;
+            _cullingVolume.File = cullingVolume;
+            _material.File = material;
+            _primitives.File = primitives;
             _name = name;
+            _visibleByDefault = visibleByDefault;
         }
 
-        protected PrimitiveData _data;
-        protected Material _material;
-        protected Shape _cullingVolume;
+        protected SingleFileRef<PrimitiveData> _primitives = new SingleFileRef<PrimitiveData>();
+        protected SingleFileRef<Material> _material = new SingleFileRef<Material>();
+        protected SingleFileRef<Shape> _cullingVolume = new SingleFileRef<Shape>();
         protected bool _visibleByDefault = true;
 
-        [TSerialize]
-        public PrimitiveData Data
-        {
-            get => _data;
-            set => _data = value;
-        }
-        [TSerialize]
-        public Shape CullingVolume
-        {
-            get => _cullingVolume;
-            set => _cullingVolume = value;
-        }
-        [TSerialize]
-        public Material Material
-        {
-            get => _material;
-            set => _material = value;
-        }
+        [TSerialize(Order = 0)]
+        public SingleFileRef<Shape> CullingVolume => _cullingVolume;
+        [TSerialize(Order = 1)]
+        public SingleFileRef<Material> Material => _material;
+        [TSerialize(Order = 2)]
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
+        [TSerialize(Order = 3)]
+        public SingleFileRef<PrimitiveData> Primitives => _primitives;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool VisibleByDefault
         {

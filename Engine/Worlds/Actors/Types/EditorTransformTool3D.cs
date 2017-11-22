@@ -81,8 +81,8 @@ namespace TheraEngine.Worlds.Actors.Types
             Skeleton skel = new Skeleton(root);
             
             _screenMat = Material.GetUnlitColorMaterialForward(Color.LightGray);
-            _screenMat.RenderParams.DepthTest.Enabled = false;
-            _screenMat.RenderParams.LineWidth = 2.0f;
+            _screenMat.RenderParams.File.DepthTest.Enabled = false;
+            _screenMat.RenderParams.File.LineWidth = 2.0f;
 
             for (int normalAxis = 0; normalAxis < 3; ++normalAxis)
             {
@@ -99,23 +99,23 @@ namespace TheraEngine.Worlds.Actors.Types
                 unit2[planeAxis2] = 1.0f;
 
                 Material axisMat = Material.GetUnlitColorMaterialForward(unit);
-                axisMat.RenderParams.DepthTest.Enabled = false;
-                axisMat.RenderParams.LineWidth = 2.0f;
+                axisMat.RenderParams.File.DepthTest.Enabled = false;
+                axisMat.RenderParams.File.LineWidth = 2.0f;
                 _axisMat[normalAxis] = axisMat;
 
                 Material planeMat1 = Material.GetUnlitColorMaterialForward(unit1);
-                planeMat1.RenderParams.DepthTest.Enabled = false;
-                planeMat1.RenderParams.LineWidth = 2.0f;
+                planeMat1.RenderParams.File.DepthTest.Enabled = false;
+                planeMat1.RenderParams.File.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 0] = planeMat1;
 
                 Material planeMat2 = Material.GetUnlitColorMaterialForward(unit2);
-                planeMat2.RenderParams.DepthTest.Enabled = false;
-                planeMat2.RenderParams.LineWidth = 2.0f;
+                planeMat2.RenderParams.File.DepthTest.Enabled = false;
+                planeMat2.RenderParams.File.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 1] = planeMat2;
                 
                 Material scalePlaneMat = Material.GetUnlitColorMaterialForward(unit);
-                scalePlaneMat.RenderParams.DepthTest.Enabled = false;
-                scalePlaneMat.RenderParams.LineWidth = 2.0f;
+                scalePlaneMat.RenderParams.File.DepthTest.Enabled = false;
+                scalePlaneMat.RenderParams.File.LineWidth = 2.0f;
                 _scalePlaneMat[normalAxis] = scalePlaneMat;
 
                 VertexLine axisLine = new VertexLine(Vec3.Zero, unit * _axisLength);

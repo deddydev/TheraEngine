@@ -21,7 +21,6 @@ namespace TheraEngine.Rendering.Models
         PerspectiveXYZ,
     }
     [FileClass("BONE", "Bone")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
         public Bone(Skeleton owner)
@@ -47,7 +46,7 @@ namespace TheraEngine.Rendering.Models
         private void Init(string name, Transform bindState, PhysicsConstructionInfo info)
         {
             _frameState = _bindState = bindState;
-            _frameState.MatrixChanged += _frameState_MatrixChanged;
+            _frameState.MatrixChanged += FrameStateMatrixChanged;
             _name = name;
 
             _childBones.PostAdded += ChildBoneAdded;
@@ -66,22 +65,18 @@ namespace TheraEngine.Rendering.Models
 
             _physicsDriver = info == null ? null : new PhysicsDriver(this, info, MatrixUpdate, SimulationUpdate);
         }
-        
-        private void _frameState_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        private void FrameStateMatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
             TriggerFrameMatrixUpdate();
         }
-
         public void MatrixUpdate(Matrix4 worldMatrix)
         {
 
         }
-
         public void SimulationUpdate(bool isSimulating)
         {
 
         }
-
         internal void CollectChildBones(Skeleton owner)
         {
             _skeleton = owner;

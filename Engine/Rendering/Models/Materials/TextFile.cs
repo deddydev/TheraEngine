@@ -9,7 +9,8 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileClass("", "", IsSpecialDeserialize = true)]
     public class TextFile : FileObject
     {
-        private string _text;
+        private string _text = null;
+        [TSerialize("Text", XmlNodeType = EXmlNodeType.ElementString)]
         public string Text
         {
             get => _text ?? Load();
@@ -36,7 +37,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public static implicit operator TextFile(string text)
         {
-            return TextFile.FromText(text);
+            return FromText(text);
         }
         public string Load()
         {

@@ -138,7 +138,7 @@ namespace TheraEngine.Tests
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
             //StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main1\\landtable.obj"*/"X:\\Repositories\\TheraEngine\\Build\\test\\test.obj", objOptions);
-            StaticMesh testModel = OBJ.Import(TestDefaults.DesktopPath + "sponza.obj", objOptions);
+            StaticModel testModel = OBJ.Import(TestDefaults.DesktopPath + "sponza.obj", objOptions);
             Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
 
             //ModelImportOptions options = new ModelImportOptions()
@@ -304,7 +304,7 @@ namespace TheraEngine.Tests
         
         private void PhysicsDriver_OnHit(IPhysicsDrivable me, IPhysicsDrivable other, BulletSharp.ManifoldPoint point)
         {
-            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.File.RigidChildren[0].Material.Parameters[0];
+            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.File.RigidChildren[0].Material.File.Parameters[0];
             color.Value = (ColorF4)Color.Green;
 
             //_collideSound.Play(_param);

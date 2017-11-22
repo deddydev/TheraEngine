@@ -12,7 +12,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileClass("TMAT", "")]
+    [FileClass("MAT", "Material")]
     public class Material : FileObject
     {
         public event Action SettingUniforms;
@@ -24,9 +24,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Shaders")]
         private Shader[] _shaders;
 
-        [TSerialize("FBOAttachments")]
+        [TSerialize("FBOAttachments", Condition = "OverrideFBOAttachments")]
         private EDrawBuffersAttachment[] _fboAttachments;
-        [TSerialize("OverrideFBOAttachments")]
+        [TSerialize("OverrideFBOAttachments", XmlNodeType = EXmlNodeType.Attribute)]
         private bool _overrideAttachments = false;
 
         private RenderProgram _program;
@@ -40,9 +40,9 @@ namespace TheraEngine.Rendering.Models.Materials
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
         private int _uniqueID = -1;
 
-        private RenderingParameters _renderParams = new RenderingParameters();
-
-        public RenderingParameters RenderParams
+        private SingleFileRef<RenderingParameters> _renderParams = new RenderingParameters();
+        [TSerialize]
+        public SingleFileRef<RenderingParameters> RenderParams
         {
             get => _renderParams;
             set => _renderParams = value;
@@ -106,14 +106,14 @@ namespace TheraEngine.Rendering.Models.Materials
             NeedsLightsAndCamera,
         }
         
-        [TSerialize]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public UniformRequirements Requirements
         {
             get => _requirements;
             set => _requirements = value;
         }
 
-        public EDrawBuffersAttachment[] FboAttachments
+        public EDrawBuffersAttachment[] FBOAttachments
         {
             get => _fboAttachments;
             set
@@ -123,7 +123,7 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        public bool OverrideAttachments
+        public bool OverrideFBOAttachments
         {
             get => _overrideAttachments;
             set
@@ -136,9 +136,9 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        internal void CollectFBOAttachments()
+        private void CollectFBOAttachments()
         {
-            if (_frameBuffer != null && _textures != null && _textures.Length > 0)
+            if (_textures != null && _textures.Length > 0)
             {
                 List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
                 foreach (TextureReference2D tref in _textures)
@@ -228,8 +228,8 @@ namespace TheraEngine.Rendering.Models.Materials
             else if (Requirements == UniformRequirements.NeedsCamera)
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
             
-            if (RenderParams != null)
-                Engine.Renderer.ApplyRenderParams(RenderParams);
+            if (RenderParams.File != null)
+                Engine.Renderer.ApplyRenderParams(RenderParams.File);
 
             foreach (ShaderVar v in _parameters)
                 v.SetProgramUniform(_program.BindingId);
@@ -243,11 +243,12 @@ namespace TheraEngine.Rendering.Models.Materials
         /// Note that they will still fully cover the screen regardless of 
         /// if their dimensions match or not.
         /// </summary>
-        public void ResizeTextures(int width, int height)
+        public void Resize2DTextures(int width, int height)
         {
             //Update each texture's dimensions
-            foreach (TextureReference2D t in Textures)
-                t.Resize(width, height);
+            foreach (BaseTextureReference t in Textures)
+                if (t is TextureReference2D t2d)
+                    t2d.Resize(width, height);
         }
         private void SetTextureUniforms(int programBindingId)
         {
@@ -263,7 +264,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         public Material()
-            : this("NewMaterial", new ShaderVar[0], new TextureReference2D[0]) { }
+            : this("NewMaterial", new ShaderVar[0], new BaseTextureReference[0]) { }
 
         public Material(string name, params Shader[] shaders) 
             : this(name, new ShaderVar[0], new BaseTextureReference[0], shaders) { }
@@ -338,7 +339,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public static Material GetUnlitTextureMaterialForward(TextureReference2D texture)
         {
             return new Material("UnlitTextureMaterial",
-                new TextureReference2D[] { texture },
+                new BaseTextureReference[] { texture },
                 ShaderHelpers.UnlitTextureFragForward())
             {
                 Requirements = UniformRequirements.None,

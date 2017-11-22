@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace System
@@ -52,6 +53,21 @@ namespace System
         public static ThreadSafeList<T> AsThreadSafeList<T>(this IEnumerable<T> enumerable)
         {
             return new ThreadSafeList<T>(enumerable);
+        }
+        public static IEnumerable<TResult> SelectEvery<TElement, TResult>(
+            this IEnumerable<TElement> source,
+            int count,
+            Func<List<TElement>, TResult> formatter)
+        {
+            return source.Split(count).Select(arg => formatter(arg.ToList()));
+        }
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int size)
+        {
+            var i = 0;
+            return
+                from element in source
+                group element by i++ / size into splitGroups
+                select splitGroups.AsEnumerable();
         }
     }
 }

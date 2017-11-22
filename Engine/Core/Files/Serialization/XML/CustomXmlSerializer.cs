@@ -48,9 +48,7 @@ namespace TheraEngine.Files.Serialization
                 return;
 
             Type objType = obj.GetType();
-
-            #region Methods
-
+            
             //Get custom serialize methods
             var customMethods = objType.GetMethods(
                 BindingFlags.NonPublic |
@@ -58,11 +56,7 @@ namespace TheraEngine.Files.Serialization
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy).
                 Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null);
-
-            #endregion
-
-            #region Categories
-
+            
             //Get members categorized together
             var categorized = members.
                 Where(x => x.Category != null).
@@ -71,9 +65,7 @@ namespace TheraEngine.Files.Serialization
             foreach (var grouping in categorized)
                 foreach (VarInfo p in grouping)
                     members.Remove(p);
-
-            #endregion
-
+            
             //Write the element for this object
             writer.WriteStartElement(string.IsNullOrEmpty(name) ? SerializationCommon.GetTypeName(objType) : name);
             {
@@ -81,7 +73,7 @@ namespace TheraEngine.Files.Serialization
                     writer.WriteAttributeString("Type", objType.AssemblyQualifiedName);
                 
                 //Attributes are already sorted to come first, then elements
-                WriteMembers(obj, members, customMethods, writer);
+                WriteMembers(obj, members, categorized.Count, customMethods, writer);
 
                 //Write categorized elements
                 foreach (var grouping in categorized)
@@ -90,15 +82,17 @@ namespace TheraEngine.Files.Serialization
                     writer.WriteStartElement(grouping.Key);
                     {
                         //Write members for this category
-                        WriteMembers(obj, grouping.OrderBy(x => !x.Attrib.IsXmlAttribute), customMethods, writer);
+                        WriteMembers(obj, grouping.OrderBy(x => !x.Attrib.IsXmlAttribute).ToList(), 0, customMethods, writer);
                     }
                     writer.WriteEndElement();
                 }
             }
             writer.WriteEndElement();
         }
-        private static void WriteMembers(object obj, IEnumerable<VarInfo> members, IEnumerable<MethodInfo> customMethods, XmlWriter writer)
+        private static void WriteMembers(object obj, List<VarInfo> members, int categorizedCount, IEnumerable<MethodInfo> customMethods, XmlWriter writer)
         {
+            //TODO: don't include nulls
+            int nonAttribCount = members.Where(x => !x.Attrib.IsXmlAttribute).Count() + categorizedCount;
             foreach (VarInfo member in members)
             {
                 MethodInfo customMethod = customMethods.FirstOrDefault(
@@ -106,30 +100,60 @@ namespace TheraEngine.Files.Serialization
                 if (customMethod != null)
                     customMethod.Invoke(obj, new object[] { writer });
                 else
-                    WriteMember(obj, member, writer);
+                    WriteMember(obj, member, writer, nonAttribCount);
             }
         }
-        private static void WriteMember(object obj, VarInfo member, XmlWriter writer)
+        private static void WriteMember(object obj, VarInfo member, XmlWriter writer, int nonAttributeCount)
         {
             if (member.Attrib.Condition != null && !ExpressionParser.Evaluate<bool>(member.Attrib.Condition, obj))
                 return;
-            
+
             object value = member.GetValue(obj);
             if (value != null)
-                if (member.Attrib.IsXmlAttribute)
-                    writer.WriteAttributeString(member.Name, GetString(value, member.VariableType));
+            {
+                if (member.Attrib.IsXmlElementString)
+                {
+                    if (GetString(value, member.VariableType, out string result))
+                    {
+                        if (nonAttributeCount == 1)
+                            writer.WriteElementString(member.Name, result);
+                        else
+                            writer.WriteAttributeString(member.Name, result);
+                    }
+                    else
+                        WriteElement(value, member, writer);
+                }
+                else if (member.Attrib.IsXmlAttribute)
+                {
+                    if (GetString(value, member.VariableType, out string result))
+                        writer.WriteAttributeString(member.Name, result);
+                    else
+                        WriteElement(value, member, writer);
+                }
                 else
                     WriteElement(value, member, writer);
+            }
         }
-        private static string GetString(object value, Type t)
+        private static bool GetString(object value, Type t, out string result)
         {
             if (t.GetInterface("IParsable") != null)
-                return ((IParsable)value).WriteToString();
+            {
+                result = ((IParsable)value).WriteToString();
+                return true;
+            }
             else if (SerializationCommon.IsPrimitiveType(t))
-                return value.ToString();
+            {
+                result = value.ToString();
+                return true;
+            }
             else if (SerializationCommon.IsEnum(t))
-                return value.ToString().Replace(", ", "|");
-            throw new InvalidOperationException(t.Name + " cannot be written as a string.");
+            {
+                result = value.ToString().Replace(", ", "|");
+                return true;
+            }
+            result = null;
+            return false;
+            //throw new InvalidOperationException(t.Name + " cannot be written as a string.");
         }
         private static void WriteElement(object value, VarInfo member, XmlWriter writer)
         {

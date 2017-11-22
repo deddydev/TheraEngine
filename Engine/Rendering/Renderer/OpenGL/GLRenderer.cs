@@ -240,7 +240,7 @@ namespace TheraEngine.Rendering.OpenGL
             int handle = GL.CreateShader(_currentShaderMode);
             if (handle == 0)
             {
-                Engine.PrintLine("GL.CreateShader did not return a valid binding id.");
+                Engine.LogWarning("GL.CreateShader did not return a valid binding id.");
                 return 0;
             }
 

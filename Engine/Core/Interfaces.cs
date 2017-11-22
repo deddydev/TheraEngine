@@ -26,18 +26,18 @@ namespace TheraEngine
     }
     public interface IStaticSubMesh
     {
-        bool VisibleByDefault { get; }
-        Shape CullingVolume { get; }
-        PrimitiveData Data { get; }
-        Material Material { get; set; }
-        RenderInfo3D RenderInfo { get; }
+        bool VisibleByDefault { get; set; }
+        SingleFileRef<Shape> CullingVolume { get; }
+        SingleFileRef<PrimitiveData> Primitives { get; }
+        SingleFileRef<Material> Material { get; }
+        RenderInfo3D RenderInfo { get; set; }
     }
     public interface ISkeletalSubMesh
     {
-        bool VisibleByDefault { get; }
-        SingleFileRef<PrimitiveData> Data { get; }
-        Material Material { get; set; }
-        RenderInfo3D RenderInfo { get; }
+        bool VisibleByDefault { get; set; }
+        SingleFileRef<PrimitiveData> Primitives { get; }
+        SingleFileRef<Material> Material { get; }
+        RenderInfo3D RenderInfo { get; set; }
     }
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class RenderInfo2D
@@ -69,8 +69,11 @@ namespace TheraEngine
         /// </summary>
         [Browsable(false)]
         public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
+        [TSerialize]
         public bool ReceivesShadows { get; set; } = true;
+        [TSerialize]
         public bool CastsShadows { get; set; } = true;
+        [TSerialize]
         public ERenderPass3D RenderPass { get; set; } = ERenderPass3D.OpaqueDeferredLit;
 
         public Func<float> RenderOrderFunc;

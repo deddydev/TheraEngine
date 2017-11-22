@@ -99,7 +99,7 @@ namespace TheraEngine.Rendering.Models
                                 //Create meshes after all bones have been created
                                 if (rootBones.Count == 0)
                                 {
-                                    modelScene.StaticModel = new StaticMesh()
+                                    modelScene.StaticModel = new StaticModel()
                                     {
                                         Name = Path.GetFileNameWithoutExtension(filePath)
                                     };
@@ -307,7 +307,7 @@ namespace TheraEngine.Rendering.Models
 
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, m, true));
             }
-            public void Initialize(StaticMesh model, VisualScene scene)
+            public void Initialize(StaticModel model, VisualScene scene)
             {
                 PrimitiveData data;
                 if (_rig != null)

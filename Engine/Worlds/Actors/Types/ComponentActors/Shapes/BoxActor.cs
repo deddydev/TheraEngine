@@ -15,7 +15,7 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
         {
             _name = name;
             BoundingBox box = new BoundingBox(halfExtents, Vec3.Zero);
-            StaticMesh model = new StaticMesh(_name + "_Model")
+            StaticModel model = new StaticModel(_name + "_Model")
             {
                 Collision = new BoxShape(halfExtents)
             };

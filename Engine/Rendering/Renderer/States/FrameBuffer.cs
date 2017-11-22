@@ -88,10 +88,10 @@ namespace TheraEngine.Rendering
             }
         }
         public BaseTextureReference[] Textures => Material?.Textures;
-        public void ResizeTextures(int width, int height) => Material?.ResizeTextures(width, height);
+        public void ResizeTextures(int width, int height) => Material?.Resize2DTextures(width, height);
         public void Compile()
         {
-            Compile(Material.FboAttachments);
+            Compile(Material.FBOAttachments);
         }
         public void Compile(EDrawBuffersAttachment[] attachments)
         {

@@ -11,9 +11,9 @@ namespace TheraEngine.Rendering.Models
 {
     public static class OBJ
     {
-        public static StaticMesh Import(string path, ModelImportOptions options)
+        public static StaticModel Import(string path, ModelImportOptions options)
         {
-            StaticMesh m = new StaticMesh();
+            StaticModel m = new StaticModel();
             LoadResult result = new ObjLoaderFactory().Create().Load(path);
             Matrix4 modelMatrix = options.InitialTransform.Matrix;
             Matrix4 normalMatrix = options.InitialTransform.InverseMatrix.Transposed().GetRotationMatrix4();

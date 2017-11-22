@@ -1,29 +1,43 @@
 ﻿using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
+    [FileClass("SKSMESH", "Skeletal Rigid Sub Mesh")]
     public class SkeletalSoftSubMesh : FileObject, ISkeletalSubMesh
     {
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
-
-        public SkeletalSoftSubMesh() { }
-        public SkeletalSoftSubMesh(PrimitiveData data, string name)
+        public SkeletalSoftSubMesh()
         {
-            _data = data;
+            _name = "SkeletalSoftSubMesh";
+        }
+        public SkeletalSoftSubMesh(
+            string name,
+            PrimitiveData primitives,
+            Material material,
+            bool visibleByDefault = true)
+        {
+            _primitives.File = primitives;
             _name = name;
+            _material.File = material;
+            _visibleByDefault = visibleByDefault;
         }
         
-        protected PrimitiveData _data;
-        protected Material _material;
-        protected bool _visible;
-
-        public bool VisibleByDefault => _visible;
-        public Material Material
+        protected SingleFileRef<PrimitiveData> _primitives = new SingleFileRef<PrimitiveData>();
+        protected SingleFileRef<Material> _material = new SingleFileRef<Material>();
+        protected bool _visibleByDefault = true;
+        
+        [TSerialize(Order = 0)]
+        public SingleFileRef<Material> Material  => _material;
+        [TSerialize(Order = 1)]
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
+        [TSerialize(Order = 2)]
+        public SingleFileRef<PrimitiveData> Primitives => _primitives;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public bool VisibleByDefault
         {
-            get => _material;
-            set => _material = value;
+            get => _visibleByDefault;
+            set => _visibleByDefault = value;
         }
-        public SingleFileRef<PrimitiveData> Data => _data;
     }
 }

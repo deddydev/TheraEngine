@@ -32,12 +32,15 @@ namespace TheraEngine.Rendering.Models
 
         public SkeletalMesh() : base() { }
         public SkeletalMesh(string name) : this() { _name = name; }
-
+        
+        [TSerialize("Skeleton")]
+        protected SingleFileRef<Skeleton> _skeleton = new SingleFileRef<Skeleton>();
         [TSerialize("RigidChildren")]
         protected List<SkeletalRigidSubMesh> _rigidChildren = new List<SkeletalRigidSubMesh>();
         [TSerialize("SoftChildren")]
         protected List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
-        
+
+        public SingleFileRef<Skeleton> Skeleton => _skeleton;
         public List<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
         public List<SkeletalSoftSubMesh> SoftChildren => _softChildren;
     }

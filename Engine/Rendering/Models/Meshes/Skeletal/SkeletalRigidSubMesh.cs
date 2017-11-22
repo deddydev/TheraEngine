@@ -4,43 +4,40 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("OBJ", "Skeletal Rigid Sub Mesh")]
+    [FileClass("SKRMESH", "Skeletal Rigid Sub Mesh")]
     public class SkeletalRigidSubMesh : FileObject, ISkeletalSubMesh
     {
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
-
         public SkeletalRigidSubMesh()
         {
-            _name = "RigidSubMesh";
-            _material = null;
-            _data = null;
+            _name = "SkeletalRigidSubMesh";
         }
-        public SkeletalRigidSubMesh(string name, PrimitiveData data, Material material, bool visibleByDefault = true)
+        public SkeletalRigidSubMesh(
+            string name,
+            PrimitiveData primitives,
+            Material material,
+            bool visibleByDefault = true)
         {
-            _data = data;
-            _material = material;
+            _primitives.File = primitives;
+            _material.File = material;
             _name = name;
             _visibleByDefault = visibleByDefault;
         }
         
-        [TSerialize("Primitives")]
-        protected SingleFileRef<PrimitiveData> _data;
-        protected SingleFileRef<Material> _material;
-     
-        protected bool _visibleByDefault;
+        protected SingleFileRef<PrimitiveData> _primitives = new SingleFileRef<PrimitiveData>();
+        protected SingleFileRef<Material> _material = new SingleFileRef<Material>();
+        protected bool _visibleByDefault = true;
 
+        [TSerialize(Order = 0)]
+        public SingleFileRef<Material> Material => _material;
+        [TSerialize(Order = 1)]
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
+        [TSerialize(Order = 2)]
+        public SingleFileRef<PrimitiveData> Primitives => _primitives;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool VisibleByDefault
         {
             get => _visibleByDefault;
             set => _visibleByDefault = value;
         }
-        [TSerialize]
-        public Material Material
-        {
-            get => _material;
-            set => _material = value;
-        }
-        public SingleFileRef<PrimitiveData> Data => _data;
     }
 }

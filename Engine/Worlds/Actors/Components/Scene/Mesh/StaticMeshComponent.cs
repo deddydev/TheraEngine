@@ -12,10 +12,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable, IMeshSocketOwner
     {
-        public StaticMeshComponent(StaticMesh m, PhysicsConstructionInfo info) 
+        public StaticMeshComponent(StaticModel m, PhysicsConstructionInfo info) 
             : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info) { }
         public StaticMeshComponent(
-            StaticMesh m,
+            StaticModel m,
             Vec3 translation,
             Rotator rotation,
             Vec3 scale,
@@ -92,7 +92,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         //For internal runtime use
         private RenderableMesh[] _meshes;
 
-        private SingleFileRef<StaticMesh> _model;
+        private SingleFileRef<StaticModel> _model;
 
         [TSerialize("PhysicsDriver")]
         private PhysicsDriver _physicsDriver;
@@ -101,7 +101,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 
         [Category("Static Mesh Component")]
         [TSerialize]
-        public SingleFileRef<StaticMesh> Model
+        public SingleFileRef<StaticModel> Model
         {
             get => _model;
             set
@@ -113,7 +113,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 {
                     if (_model.IsLoaded || IsSpawned)
                     {
-                        StaticMesh model = _model.GetInstance();
+                        StaticModel model = _model.GetInstance();
 
                         _meshes = new RenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
                         for (int i = 0; i < model.RigidChildren.Count; ++i)

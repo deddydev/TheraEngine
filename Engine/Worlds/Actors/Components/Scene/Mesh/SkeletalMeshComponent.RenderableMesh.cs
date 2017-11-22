@@ -17,7 +17,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             public RenderableMesh(ISkeletalSubMesh mesh, Skeleton skeleton, SceneComponent component)
             {
                 _mesh = mesh;
-                _manager = new PrimitiveManager(mesh.Data, mesh.Material);
+                _manager = new PrimitiveManager(mesh.Primitives, mesh.Material);
                 _component = component;
                 Skeleton = skeleton;
                 Visible = false;

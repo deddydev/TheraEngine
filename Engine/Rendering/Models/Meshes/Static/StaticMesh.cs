@@ -7,8 +7,8 @@ using System.Xml;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("STMDL", "Static Mesh", ImportableExtensions = new string[] { "DAE", "OBJ" })]
-    public class StaticMesh : FileObject, IModelFile
+    [FileClass("STMDL", "Static Model", ImportableExtensions = new string[] { "DAE", "OBJ" })]
+    public class StaticModel : FileObject, IModelFile
     {
         [ThirdPartyLoader("DAE")]
         public static FileObject LoadDAE(string path)
@@ -33,11 +33,11 @@ namespace TheraEngine.Rendering.Models
             return OBJ.Import(path, o);
         }
 
-        public StaticMesh() : base()
+        public StaticModel() : base()
         {
 
         }
-        public StaticMesh(string name)
+        public StaticModel(string name)
         {
             _name = name;
         }

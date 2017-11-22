@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Drawing;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -104,7 +105,6 @@ namespace TheraEditor.Windows.Forms
             public object Value { get; set; }
         }
         
-        public object[] ArrayData { get; private set; }
         public int ConstructorIndex { get; private set; }
         public Type ClassType { get; private set; }
         public ConstructorInfo[] PublicInstanceConstructors { get; private set; }
@@ -128,8 +128,8 @@ namespace TheraEditor.Windows.Forms
             DialogResult = DialogResult.OK;
             if (ArrayMode)
             {
-                ConstructedObject = Array.CreateInstance(ClassType, ArrayData.Length);
-                ArrayData.CopyTo((Array)ConstructedObject, 0);
+                ConstructedObject = Array.CreateInstance(ClassType, FinalArguments.GetLength(0));
+                FinalArguments.Select(x => x[0]).ToArray().CopyTo((Array)ConstructedObject, 0);
             }
             else
                 ConstructedObject = FinalArguments[ConstructorIndex].Length == 0 ? Activator.CreateInstance(ClassType) : Activator.CreateInstance(ClassType, FinalArguments[ConstructorIndex]);
@@ -152,114 +152,122 @@ namespace TheraEditor.Windows.Forms
 
             toolStripDropDownButton1.Text = type.GetFriendlyName();
 
-            PublicInstanceConstructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-            //if (PublicInstanceConstructors.Length == 1)
-            //{
-            //    var parameters = PublicInstanceConstructors[0].GetParameters();
-            //    if (parameters.Length == 0)
-            //    {
-            //        FinalArguments = new object[0][];
-            //        return;
-            //    }
-            //}
-
-            FinalArguments = new object[PublicInstanceConstructors.Length][];
-
-            for (int constructorIndex = 0; constructorIndex < PublicInstanceConstructors.Length; ++constructorIndex)
+            if (ArrayMode)
             {
-                ConstructorInfo c = PublicInstanceConstructors[constructorIndex];
-
-                //First row: text representation
-                tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                tblConstructors.RowCount = tblConstructors.RowStyles.Count;
-                //Second row: input object editors
-                tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                tblConstructors.RowCount = tblConstructors.RowStyles.Count;
-
-                ParameterInfo[] parameters = c.GetParameters();
-                FinalArguments[constructorIndex] = new object[parameters.Length];
-
-                //Update column count if the number of parameters exceeds current count
-                int columns = Math.Max(parameters.Length + 1, tblConstructors.ColumnCount);
-                if (columns > tblConstructors.ColumnCount)
-                {
-                    int total = columns - tblConstructors.ColumnCount;
-                    for (int i = 0; i < total; ++i)
-                    {
-                        tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-                        tblConstructors.ColumnCount = tblConstructors.ColumnStyles.Count;
-                    }
-                }
-
-                CheckBox constructorSelector = new CheckBox()
-                {
-                    Text = ClassType.Name.Split('`')[0],
-                    Dock = DockStyle.Left,
-                    AutoSize = true,
-                    Tag = constructorIndex,
-                    Checked = constructorIndex == 0,
-                };
-
-                ConstructorIndex = 0;
-                
-                constructorSelector.CheckedChanged += ConstructorSelector_CheckedChanged;
-                tblConstructors.Controls.Add(constructorSelector, 0, tblConstructors.RowCount - 2);
-
-                //Label constructorLabel = new Label()
+                FinalArguments = new object[numericInputBoxSingle1.Value.Value][];
+            }
+            else
+            {
+                PublicInstanceConstructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+                //if (PublicInstanceConstructors.Length == 1)
                 //{
-                //    Text = ClassType.Name.Split('`')[0],
-                //    Dock = DockStyle.Left,
-                //    AutoSize = true,
-                //    BackColor = Color.FromArgb(50, 55, 70),
-                //    ForeColor = Color.FromArgb(200, 200, 220),
-                //    Padding = new Padding(0),
-                //    Margin = new Padding(0),
-                //};
-                //tblConstructors.Controls.Add(constructorLabel, 1, tblConstructors.RowCount - 2);
+                //    var parameters = PublicInstanceConstructors[0].GetParameters();
+                //    if (parameters.Length == 0)
+                //    {
+                //        FinalArguments = new object[0][];
+                //        return;
+                //    }
+                //}
 
-                for (int paramIndex = 0; paramIndex < parameters.Length; ++paramIndex)
+                FinalArguments = new object[PublicInstanceConstructors.Length][];
+
+                for (int constructorIndex = 0; constructorIndex < PublicInstanceConstructors.Length; ++constructorIndex)
                 {
-                    ParameterInfo p = parameters[paramIndex];
-                    Type t = p.ParameterType;
+                    ConstructorInfo c = PublicInstanceConstructors[constructorIndex];
 
-                    FinalArguments[constructorIndex][paramIndex] = t.GetDefaultValue();
+                    //First row: text representation
+                    tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    tblConstructors.RowCount = tblConstructors.RowStyles.Count;
+                    //Second row: input object editors
+                    tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    tblConstructors.RowCount = tblConstructors.RowStyles.Count;
 
-                    string typeName = t.GetFriendlyName();
-                    string varName = p.Name;
-                    string finalText = typeName + " " + varName;
-                    if (paramIndex != parameters.Length - 1)
-                        finalText += ", ";
+                    ParameterInfo[] parameters = c.GetParameters();
+                    FinalArguments[constructorIndex] = new object[parameters.Length];
 
-                    Label paramLabel = new Label()
+                    //Update column count if the number of parameters exceeds current count
+                    int columns = Math.Max(parameters.Length + 1, tblConstructors.ColumnCount);
+                    if (columns > tblConstructors.ColumnCount)
                     {
-                        Text = finalText,
+                        int total = columns - tblConstructors.ColumnCount;
+                        for (int i = 0; i < total; ++i)
+                        {
+                            tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+                            tblConstructors.ColumnCount = tblConstructors.ColumnStyles.Count;
+                        }
+                    }
+
+                    CheckBox constructorSelector = new CheckBox()
+                    {
+                        Text = ClassType.Name.Split('`')[0],
                         Dock = DockStyle.Left,
                         AutoSize = true,
-                        Padding = new Padding(0),
-                        Margin = new Padding(0),
-                        BackColor = Color.FromArgb(50, 55, 70),
-                        ForeColor = Color.FromArgb(200, 200, 220),
+                        Tag = constructorIndex,
+                        Checked = constructorIndex == 0,
                     };
-                    tblConstructors.Controls.Add(paramLabel, paramIndex + 1, tblConstructors.RowCount - 2);
 
-                    Control paramTool = CreateControl(t, p, constructorIndex, FinalArguments);
-                    if (paramTool != null)
-                        tblConstructors.Controls.Add(paramTool, paramIndex + 1, tblConstructors.RowCount - 1);
+                    ConstructorIndex = 0;
+
+                    constructorSelector.CheckedChanged += ConstructorSelector_CheckedChanged;
+                    tblConstructors.Controls.Add(constructorSelector, 0, tblConstructors.RowCount - 2);
+
+                    //Label constructorLabel = new Label()
+                    //{
+                    //    Text = ClassType.Name.Split('`')[0],
+                    //    Dock = DockStyle.Left,
+                    //    AutoSize = true,
+                    //    BackColor = Color.FromArgb(50, 55, 70),
+                    //    ForeColor = Color.FromArgb(200, 200, 220),
+                    //    Padding = new Padding(0),
+                    //    Margin = new Padding(0),
+                    //};
+                    //tblConstructors.Controls.Add(constructorLabel, 1, tblConstructors.RowCount - 2);
+
+                    for (int paramIndex = 0; paramIndex < parameters.Length; ++paramIndex)
+                    {
+                        ParameterInfo p = parameters[paramIndex];
+                        Type t = p.ParameterType;
+
+                        FinalArguments[constructorIndex][paramIndex] = t.GetDefaultValue();
+
+                        string typeName = t.GetFriendlyName();
+                        string varName = p.Name;
+                        string finalText = typeName + " " + varName;
+                        if (paramIndex != parameters.Length - 1)
+                            finalText += ", ";
+
+                        Label paramLabel = new Label()
+                        {
+                            Text = finalText,
+                            Dock = DockStyle.Left,
+                            AutoSize = true,
+                            Padding = new Padding(0),
+                            Margin = new Padding(0),
+                            BackColor = Color.FromArgb(50, 55, 70),
+                            ForeColor = Color.FromArgb(200, 200, 220),
+                        };
+                        tblConstructors.Controls.Add(paramLabel, paramIndex + 1, tblConstructors.RowCount - 2);
+
+                        Control paramTool = CreateControl(t, p.Position, constructorIndex, FinalArguments);
+                        if (paramTool != null)
+                            tblConstructors.Controls.Add(paramTool, paramIndex + 1, tblConstructors.RowCount - 1);
+                    }
                 }
             }
         }
-        public static Control CreateControl(Type t, ParameterInfo p, int rowIndex, object[][] finalArguments)
+        public static Control CreateControl(Type t, int parameterIndex, int rowIndex, object[][] finalArguments)
         {
             Control paramTool = null;
+            bool nullable = false;
             ArgumentInfo arg = new ArgumentInfo()
             {
                 Type = t,
-                Index = p.Position,
+                Index = parameterIndex,
                 RowIndex = rowIndex,
                 Value = t.GetDefaultValue(),
             };
             Type temp = Nullable.GetUnderlyingType(t);
-            if (temp != null)
+            if (nullable = temp != null)
                 t = temp;
             switch (t.Name)
             {
@@ -268,13 +276,15 @@ namespace TheraEditor.Windows.Forms
                         CheckBox box = new CheckBox()
                         {
                             Tag = arg,
+                            ThreeState = nullable,
                         };
                         box.CheckedChanged += (sender, e) =>
                         {
                             CheckBox checkBox = (CheckBox)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)checkBox.Tag;
-                            argInfo.Value = checkBox.Checked;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = checkBox.Checked;
+
+                            finalArguments[argInfo.RowIndex][argInfo.Index] = 
+                            argInfo.Value = (checkBox.CheckState == CheckState.Checked ? true : (checkBox.CheckState == CheckState.Indeterminate ? (bool?)null : false));
                         };
                         paramTool = box;
                     }
@@ -283,7 +293,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxSByte box = new NumericInputBoxSByte()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -299,7 +309,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxByte box = new NumericInputBoxByte()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -312,16 +322,19 @@ namespace TheraEditor.Windows.Forms
                     }
                     break;
                 case "Char":
-                    paramTool = new TextBox()
                     {
-                        Tag = arg
-                    };
+                        TextBox box = new TextBox()
+                        {
+                            Tag = arg
+                        };
+                        paramTool = box;
+                    }
                     break;
                 case "Int16":
                     {
                         NumericInputBoxInt16 box = new NumericInputBoxInt16()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -337,7 +350,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxUInt16 box = new NumericInputBoxUInt16()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -353,7 +366,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxInt32 box = new NumericInputBoxInt32()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -369,7 +382,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxUInt32 box = new NumericInputBoxUInt32()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -385,7 +398,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxInt64 box = new NumericInputBoxInt64()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -401,7 +414,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxUInt64 box = new NumericInputBoxUInt64()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -417,7 +430,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxSingle box = new NumericInputBoxSingle()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -433,7 +446,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxDouble box = new NumericInputBoxDouble()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -449,7 +462,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         NumericInputBoxDecimal box = new NumericInputBoxDecimal()
                         {
-                            Nullable = temp != null,
+                            Nullable = nullable,
                             Tag = arg
                         };
                         box.ValueChanged += (b, prev, current) =>
@@ -463,6 +476,7 @@ namespace TheraEditor.Windows.Forms
                     break;
                 case "String":
                     {
+                        //TODO: make nullable
                         TextBox box = new TextBox()
                         {
                             Tag = arg,
@@ -482,7 +496,8 @@ namespace TheraEditor.Windows.Forms
                         Label defaultLabel = new Label()
                         {
                             Text = arg.Value == null ? "null" : arg.Value.ToString(),
-                            Tag = arg
+                            Tag = arg,
+                            BackColor = Color.FromArgb(70, 75, 90),
                         };
                         defaultLabel.MouseEnter += (sender, e) =>
                         {
@@ -522,6 +537,39 @@ namespace TheraEditor.Windows.Forms
                 paramTool.ForeColor = Color.FromArgb(200, 200, 220);
             }
             return paramTool;
+        }
+
+        private void numericInputBoxSingle1_ValueChanged(NumericInputBoxBase<int> box, int? previous, int? current)
+        {
+            object[] array = ArrayData;
+            int countBefore;
+            if (array == null)
+            {
+                countBefore = 0;
+                array = new object[current.Value];
+            }
+            else
+            {
+                countBefore = array.Length;
+                if (current.Value == array.Length)
+                    return;
+                Array.Resize(ref array, current.Value);
+            }
+            ArrayData = array;
+            if (countBefore < array.Length)
+            {
+                for (int i = countBefore; i < array.Length; ++i)
+                {
+
+                }
+            }
+            else
+            {
+                for (int i = array.Length; i < countBefore; ++i)
+                {
+
+                }
+            }
         }
     }
 }

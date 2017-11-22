@@ -38,8 +38,8 @@ namespace TheraEditor.Windows.Forms
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.tblConstructors = new System.Windows.Forms.TableLayoutPanel();
             this.pnlArrayLength = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
             this.numericInputBoxSingle1 = new TheraEditor.Windows.Forms.NumericInputBoxInt32();
+            this.label1 = new System.Windows.Forms.Label();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -181,6 +181,28 @@ namespace TheraEditor.Windows.Forms
             this.pnlArrayLength.TabIndex = 6;
             this.pnlArrayLength.Visible = false;
             // 
+            // numericInputBoxSingle1
+            // 
+            this.numericInputBoxSingle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(93)))), ((int)(((byte)(100)))));
+            this.numericInputBoxSingle1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numericInputBoxSingle1.DefaultValue = 0;
+            this.numericInputBoxSingle1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numericInputBoxSingle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.numericInputBoxSingle1.LargeIncrement = 10;
+            this.numericInputBoxSingle1.LargerIncrement = 100;
+            this.numericInputBoxSingle1.Location = new System.Drawing.Point(120, 0);
+            this.numericInputBoxSingle1.Margin = new System.Windows.Forms.Padding(0);
+            this.numericInputBoxSingle1.Name = "numericInputBoxSingle1";
+            this.numericInputBoxSingle1.Nullable = false;
+            this.numericInputBoxSingle1.NumberPrefix = "";
+            this.numericInputBoxSingle1.NumberSuffix = "";
+            this.numericInputBoxSingle1.Size = new System.Drawing.Size(237, 26);
+            this.numericInputBoxSingle1.SmallerIncrement = 1;
+            this.numericInputBoxSingle1.SmallIncrement = 5;
+            this.numericInputBoxSingle1.TabIndex = 6;
+            this.numericInputBoxSingle1.Text = "0";
+            this.numericInputBoxSingle1.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<int>.BoxValueChanged(this.numericInputBoxSingle1_ValueChanged);
+            // 
             // label1
             // 
             this.label1.Dock = System.Windows.Forms.DockStyle.Left;
@@ -191,22 +213,6 @@ namespace TheraEditor.Windows.Forms
             this.label1.TabIndex = 5;
             this.label1.Text = "Array length: ";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // numericInputBoxSingle1
-            // 
-            this.numericInputBoxSingle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(93)))), ((int)(((byte)(100)))));
-            this.numericInputBoxSingle1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numericInputBoxSingle1.DefaultValue = 0;
-            this.numericInputBoxSingle1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericInputBoxSingle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.numericInputBoxSingle1.Location = new System.Drawing.Point(120, 0);
-            this.numericInputBoxSingle1.Margin = new System.Windows.Forms.Padding(0);
-            this.numericInputBoxSingle1.Name = "numericInputBoxSingle1";
-            this.numericInputBoxSingle1.Nullable = false;
-            this.numericInputBoxSingle1.NumberPrefix = "";
-            this.numericInputBoxSingle1.NumberSuffix = "";
-            this.numericInputBoxSingle1.Size = new System.Drawing.Size(237, 26);
-            this.numericInputBoxSingle1.TabIndex = 6;
             // 
             // ObjectCreator
             // 

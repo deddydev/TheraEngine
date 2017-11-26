@@ -68,13 +68,13 @@ namespace TheraEngine.Rendering
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
     /// </summary>
-    public class SceneProcessor2D : SceneProcessor
+    public class Scene2D : Scene
     {
         public Quadtree RenderTree { get; private set; }
         private RenderPasses2D _passes = new RenderPasses2D();
         private bool _preRenderFrustumType;
         
-        public SceneProcessor2D() => Clear(Vec2.Zero);
+        public Scene2D() => Clear(Vec2.Zero);
         
         public void PreRender(Camera camera, Frustum frustum)
         {

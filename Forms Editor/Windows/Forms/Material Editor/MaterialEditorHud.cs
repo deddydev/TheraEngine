@@ -3,12 +3,26 @@ using TheraEngine.Rendering.Models.Materials;
 using System;
 using TheraEngine.Worlds.Actors.Types.Pawns;
 using TheraEngine.Worlds;
+using TheraEngine.Input.Devices;
+using TheraEngine;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class MaterialEditorHud : UIManager
+    public class UIMaterialEditor : UIManager
     {
-        public MaterialEditorHud(Vec2 bounds) : base(bounds) { }
+        public UIMaterialEditor(Vec2 bounds) : base(bounds) { }
+
+        public override void RegisterInput(InputInterface input)
+        {
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, MouseDown, InputPauseType.TickAlways);
+            input.RegisterMouseScroll(OnScrolledInput, InputPauseType.TickAlways);
+            input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
+        }
+
+        private void MouseDown()
+        {
+            Engine.PrintLine("Material editor mouse down");
+        }
 
         private ResultBasicFunc _endFunc;
         private ResultBasicFunc EndFunc

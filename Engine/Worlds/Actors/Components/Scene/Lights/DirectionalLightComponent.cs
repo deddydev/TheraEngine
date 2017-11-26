@@ -158,7 +158,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             };
             return m;
         }
-        public override void RenderShadowMap(SceneProcessor3D scene)
+        public override void RenderShadowMap(Scene3D scene)
         {
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
             

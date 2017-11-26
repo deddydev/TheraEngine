@@ -9,9 +9,8 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine
 {
-    public class MaterialGraphRenderPanel : RenderPanel<SceneProcessor2D>
+    public class EditorWorldRenderPanel : WorldRenderPanel
     {
-        public SceneProcessor2D Scene { get; } = new SceneProcessor2D();
-        protected override SceneProcessor2D GetScene() => Scene;
+
     }
 }

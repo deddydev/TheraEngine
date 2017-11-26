@@ -89,7 +89,7 @@ namespace TheraEngine
                 ControlStyles.Opaque,
                 true);
 
-            _globalHud = new UIManager();
+            //_globalHud = new UIManager();
             PointToClientDelegate = new DelPointConvert(PointToClient);
             PointToScreenDelegate = new DelPointConvert(PointToScreen);
 
@@ -107,17 +107,17 @@ namespace TheraEngine
         protected bool _resizing = false;
         protected VSyncMode _vsyncMode = VSyncMode.Disabled;
         internal RenderContext _context;
-        protected UIManager _globalHud;
+        //protected UIManager _globalHud;
         protected List<Viewport> _viewports = new List<Viewport>(MaxViewports);
 
         public List<Viewport> Viewports => _viewports;
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public UIManager GlobalHud
-        {
-            get => _globalHud;
-            set => _globalHud = value;
-        }
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        //public UIManager GlobalHud
+        //{
+        //    get => _globalHud;
+        //    set => _globalHud = value;
+        //}
 
         /// <summary>
         /// Calls the method. Invokes the render panel if necessary.
@@ -177,9 +177,17 @@ namespace TheraEngine
         }
 
         #region Rendering
-        protected abstract void OnRender(PaintEventArgs e);
+
+        /// <summary>
+        /// Tells the engine to render this panel at whatever rate the engine is running at.
+        /// This panel can also be manually rendered with a custom loop by calling RenderTick(object sender, FrameEventArgs e)
+        /// </summary>
         public void RegisterTick() => Engine.RegisterRenderTick(RenderTick);
+        /// <summary>
+        /// Tells the engine to stop rendering this panel.
+        /// </summary>
         public void UnregisterTick() => Engine.UnregisterRenderTick(RenderTick);
+
         private void RenderTick(object sender, FrameEventArgs e)
         {
             Invalidate();
@@ -196,13 +204,18 @@ namespace TheraEngine
                 try
                 {
                     _context.Capture();
-                    OnRender(e);
+                    OnRender();
                     _context.Swap();
                     _context.ErrorCheck();
                 }
                 finally { Monitor.Exit(_context); }
             }
         }
+        /// <summary>
+        /// Overridden by the non-generic derived render panel to render the scene(s).
+        /// </summary>
+        protected abstract void OnRender();
+
         #endregion
 
         #region Resizing
@@ -377,11 +390,12 @@ namespace TheraEngine
 
             if (controller.Viewport != null && _viewports.Contains(controller.Viewport))
             {
-                controller.Viewport.UnregisterController(controller);
+                Viewport v = controller.Viewport;
+                v.UnregisterController(controller);
 
-                if (controller.Viewport.Owners.Count == 0)
+                if (v.Owners.Count == 0)
                 {
-                    _viewports.Remove(controller.Viewport);
+                    _viewports.Remove(v);
                     for (int i = 0; i < _viewports.Count; ++i)
                     {
                         Viewport p = _viewports[i];
@@ -408,14 +422,16 @@ namespace TheraEngine
     }
     /// <summary>
     /// Used for rendering using any rasterizer that inherits from AbstractRenderer.
+    /// Supports a 2D or 3D scene processor.
     /// </summary>
-    public abstract class RenderPanel<T> : BaseRenderPanel where T : SceneProcessor
+    public abstract class RenderPanel<T> : BaseRenderPanel where T : Scene
     {
         /// <summary>
         /// Returns the scene to render. A scene contains renderable objects and a management tree.
         /// </summary>
+        /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The scene to render.</returns>
-        protected abstract T GetScene();
+        protected abstract T GetScene(Viewport v);
         /// <summary>
         /// Returns the camera to render the scene from for this frame.
         /// By default, returns the viewport's camera.
@@ -430,18 +446,17 @@ namespace TheraEngine
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The frustum to cull the scene with.</returns>
         protected virtual Frustum GetFrustum(Viewport v) => GetCamera(v).Frustum;
-        protected virtual void PreRender(T scene) { }
-        protected virtual void PostRender(T scene) { }
-        protected override void OnRender(PaintEventArgs e)
+        protected virtual void PreRender() { }
+        protected virtual void PostRender() { }
+        protected override void OnRender()
         {
-            T scene = GetScene();
-            PreRender(scene);
+            PreRender();
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
-                scene.Render(GetCamera(v), GetFrustum(v), v, false);
+                v.Render(GetScene(v), GetCamera(v), GetFrustum(v));
             //_globalHud?.Render();
             _context.EndDraw();
-            PostRender(scene);
+            PostRender();
         }
     }
 }

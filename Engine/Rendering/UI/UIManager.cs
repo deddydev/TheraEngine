@@ -14,9 +14,9 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
     /// Each viewport has a hud manager. 
     /// The main form also has a hud manager to overlay over everything if necessary.
     /// </summary>
-    public partial class UIManager : Pawn<UIDockableComponent>, I3DRenderable
+    public partial class UIManager : Pawn<UIDockableComponent>//, I3DRenderable
     {
-        internal SceneProcessor2D _scene;
+        internal Scene2D _scene;
         private OrthographicCamera _camera;
         private bool _visible = true;
         private Vec2 _bounds;
@@ -74,11 +74,12 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
 
         public Shape CullingVolume => null;
         public IOctreeNode OctreeNode { get; set; }
+        public Scene2D Scene => _scene;
 
         public UIManager() : base()
         {
             _camera = new OrthographicCamera();
-            _scene = new SceneProcessor2D();
+            _scene = new Scene2D();
         }
         public UIManager(Vec2 bounds) : this()
         {
@@ -100,14 +101,14 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             if (_bounds != Vec2.Zero)
                 RootComponent?.Resize(new BoundingRectangle(Vec2.Zero, _bounds));
         }
-        public void Render()
-        {
-            if (!Visible)
-                return;
-            AbstractRenderer.PushCurrentCamera(_camera);
-            _scene.Render(_camera, _camera.Frustum, null, false);
-            AbstractRenderer.PopCurrentCamera();
-        }
+        //public void Render()
+        //{
+        //    if (!Visible)
+        //        return;
+        //    //AbstractRenderer.PushCurrentCamera(_camera);
+        //    _scene.Render(AbstractRenderer.CurrentCamera, AbstractRenderer.CurrentCamera.Frustum, null, false);
+        //    //AbstractRenderer.PopCurrentCamera();
+        //}
         protected void OnChildAdded(UIComponent child)
         {
             child.OwningActor = this;

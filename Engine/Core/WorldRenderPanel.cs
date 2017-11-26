@@ -9,16 +9,16 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine
 {
-    public class WorldRenderPanel : RenderPanel<SceneProcessor3D>
+    /// <summary>
+    /// Renders the engine's scene that the current world spawns in.
+    /// </summary>
+    public class WorldRenderPanel : RenderPanel<Scene3D>
     {
-        protected override SceneProcessor3D GetScene()
+        protected override Scene3D GetScene(Viewport v) => Engine.Scene;
+        protected override void PreRender()
         {
-            return Engine.Scene;
-        }
-        protected override void PreRender(SceneProcessor3D scene)
-        {
-            scene.Voxelize();
-            scene.RenderShadowMaps();
+            Engine.Scene.Voxelize();
+            Engine.Scene.RenderShadowMaps();
         }
     }
 }

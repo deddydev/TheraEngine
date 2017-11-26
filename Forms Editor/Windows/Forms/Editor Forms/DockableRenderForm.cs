@@ -12,7 +12,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableRenderForm : DockContent
+    public partial class DockableRenderForm : DockContent, IEditorControl
     {
         public DockableRenderForm(LocalPlayerIndex playerIndex, int formIndex)
         {
@@ -21,40 +21,24 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             RenderPanel.AllowDrop = true;
         }
-
-        private static DockableRenderForm _activeRenderForm = null;
-        public static DockableRenderForm ActiveRenderForm
-        {
-            get => _activeRenderForm;
-            set
-            {
-                if (_activeRenderForm != null)
-                {
-                    int index = (int)_activeRenderForm.PlayerIndex;
-                    if (index < Engine.ActivePlayers.Count)
-                    {
-                        LocalPlayerController c = Engine.ActivePlayers[index];
-                        _activeRenderForm.RenderPanel.UnregisterController(c);
-                        c.ControlledPawn = null;
-                    }
-                }
-                _activeRenderForm = value;
-                if (_activeRenderForm != null)
-                {
-                    int index = (int)_activeRenderForm.PlayerIndex;
-                    if (index < Engine.ActivePlayers.Count)
-                    {
-                        LocalPlayerController c = Engine.ActivePlayers[index];
-                        _activeRenderForm.RenderPanel?.GetViewport(0)?.RegisterController(c);
-                        c.ControlledPawn = _activeRenderForm.EditorPawn;
-                    }
-                }
-            }
-        }
+        
         public int FormIndex { get; private set; }
         public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
         public FlyingCameraPawn EditorPawn { get; private set; }
 
+        LocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
+        BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
+        IPawn IEditorControl.EditorPawn => EditorPawn;
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            base.OnHandleDestroyed(e);
+            if (Editor.ActiveRenderForm == this)
+            {
+                Engine.SetGamePanel(null, false);
+                Editor.SetActiveEditorControl(null);
+            }
+        }
         protected override void OnShown(EventArgs e)
         {
             EditorPawn = new FlyingCameraPawn(PlayerIndex)
@@ -62,9 +46,6 @@ namespace TheraEditor.Windows.Forms
                 HUD = new EditorHud(RenderPanel.ClientSize)
             };
             Engine.World.SpawnActor(EditorPawn);
-            
-            if (Engine.ActivePlayers.Count > 0)
-                RenderPanel.GetOrAddViewport(0).RegisterController(Engine.ActivePlayers[0]);
 
             base.OnShown(e);
         }
@@ -82,7 +63,8 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnGotFocus(EventArgs e)
         {
-            ActiveRenderForm = this;
+            Engine.SetGamePanel(RenderPanel, false);
+            Editor.SetActiveEditorControl(this);
             base.OnGotFocus(e);
         }
         protected override void OnLostFocus(EventArgs e)

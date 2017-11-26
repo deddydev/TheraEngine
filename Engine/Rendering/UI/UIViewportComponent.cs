@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.UI
         public UIViewportComponent() : base(Material.GetUnlitTextureMaterialForward()) { }
 
         public SingleFileRef<Camera> Camera { get; } = new SingleFileRef<Camera>();
-        public virtual SceneProcessor GetScene() => Engine.Scene;
+        public virtual Scene GetScene() => Engine.Scene;
         private Viewport _viewport = new Viewport(0.0f, 0.0f);
 
         public override void OnSpawned()

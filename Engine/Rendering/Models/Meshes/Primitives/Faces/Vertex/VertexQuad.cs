@@ -155,8 +155,8 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosZQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false)
-            => PosZQuad(uniformScale, uniformScale, bottomLeftOrigin);
+        public static VertexQuad PosZQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false, float z = 0.0f)
+            => PosZQuad(uniformScale, uniformScale, z, bottomLeftOrigin);
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>

@@ -260,7 +260,7 @@ namespace TheraEngine.Rendering.OpenGL
                     Engine.LogWarning(info);
                     for (int i = 0; i < source.Length; ++i)
                     {
-                        Engine.PrintLine("\n\nSource{0}\n", i.ToString());
+                        Engine.PrintLine("\n\nSource {0}\n", i.ToString());
 
                         //Split the source by new lines
                         string[] s = source[i].Split(new string[] { Environment.NewLine }, StringSplitOptions.None);

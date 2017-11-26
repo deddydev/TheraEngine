@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Files;
+using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Tests;
 using TheraEngine.Timers;
@@ -17,8 +18,55 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
+    public interface IEditorControl
+    {
+        /// <summary>
+        /// The player index this control allows input from.
+        /// </summary>
+        LocalPlayerIndex PlayerIndex { get; }
+        /// <summary>
+        /// The render panel with the viewport that will be possessed by the desired player.
+        /// </summary>
+        BaseRenderPanel RenderPanel { get; }
+        /// <summary>
+        /// The pawn the player will possess for editing purposes.
+        /// </summary>
+        IPawn EditorPawn { get; }
+    }
     public partial class Editor : TheraForm
     {
+        public static IEditorControl ActiveRenderForm { get; private set; } = null;
+        /// <summary>
+        /// This will possess and unpossess the necessary viewports and pawns corresponding to the given editor control.
+        /// </summary>
+        /// <param name="control">The editor control that the user is focused on.</param>
+        public static void SetActiveEditorControl(IEditorControl control)
+        {
+            //TODO: change game mode back to editor game mode if editing detached from active gameplay
+
+            if (ActiveRenderForm != null)
+            {
+                int index = (int)ActiveRenderForm.PlayerIndex;
+                if (index < Engine.ActivePlayers.Count)
+                {
+                    LocalPlayerController c = Engine.ActivePlayers[index];
+                    ActiveRenderForm.RenderPanel.UnregisterController(c);
+                    c.ControlledPawn = null;
+                }
+            }
+            ActiveRenderForm = control;
+            if (ActiveRenderForm != null)
+            {
+                int index = (int)control.PlayerIndex;
+                if (index < Engine.ActivePlayers.Count)
+                {
+                    LocalPlayerController c = Engine.ActivePlayers[index];
+                    ActiveRenderForm.RenderPanel?.GetOrAddViewport(0)?.RegisterController(c);
+                    c.ControlledPawn = ActiveRenderForm.EditorPawn;
+                }
+            }
+        }
+
         public static Color BackgroundColor => Color.FromArgb(92, 93, 100);
         public static Color TitleBarColor => Color.FromArgb(92, 93, 100);
         public static Color TurquoiseColor => Color.FromArgb(150, 192, 192);
@@ -438,7 +486,7 @@ namespace TheraEditor.Windows.Forms
         
         private void BtPlay_Click(object sender, EventArgs e)
         {
-            BaseRenderPanel p = DockableRenderForm.ActiveRenderForm.RenderPanel;
+            BaseRenderPanel p = (ActiveRenderForm as DockableRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
             //p.Focus();
             //p.Capture = true;
             //Cursor.Hide();
@@ -447,6 +495,24 @@ namespace TheraEditor.Windows.Forms
             Engine.SetGameMode(Engine.GetGameMode());
             Engine.SetPaused(false, LocalPlayerIndex.One, true);
             Engine.World.BeginPlay();
+        }
+
+        private DockableRenderForm FocusViewport(int index)
+        {
+            DockableRenderForm form = null;
+            switch (index)
+            {
+                case 0: form = RenderForm1 ?? (RenderForm1 = new DockableRenderForm(LocalPlayerIndex.One, 0)); break;
+                case 1: form = RenderForm2 ?? (RenderForm2 = new DockableRenderForm(LocalPlayerIndex.Two, 1)); break;
+                case 2: form = RenderForm3 ?? (RenderForm3 = new DockableRenderForm(LocalPlayerIndex.Three, 2)); break;
+                case 3: form = RenderForm4 ?? (RenderForm4 = new DockableRenderForm(LocalPlayerIndex.Four, 3)); break;
+            }
+            if (form != null)
+            {
+                form.Show(DockPanel, DockState.Document);
+                form.Focus();
+            }
+            return form;
         }
 
         private void RegisterInput(InputInterface input)

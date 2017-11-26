@@ -352,8 +352,8 @@
     <Compile Include="Rendering\Models\Meshes\Primitives\VertexShaderDesc.cs" />
     <Compile Include="Rendering\Particles\EmitterComponent.cs" />
     <Compile Include="Rendering\Particles\ParticleSystem.cs" />
-    <Compile Include="Rendering\SceneProcessor.cs" />
-    <Compile Include="Rendering\SceneProcessor2D.cs" />
+    <Compile Include="Rendering\Scene.cs" />
+    <Compile Include="Rendering\Scene2D.cs" />
     <Compile Include="Rendering\UI\UIViewportComponent.cs" />
     <Compile Include="Tests\TestDefaults.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\Animation\AnimStateMachineComponent.cs" />
@@ -499,7 +499,7 @@
     <Compile Include="Rendering\Renderer\States\RenderBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\RenderProgram.cs" />
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
-    <Compile Include="Rendering\SceneProcessor3D.cs" />
+    <Compile Include="Rendering\Scene3D.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />

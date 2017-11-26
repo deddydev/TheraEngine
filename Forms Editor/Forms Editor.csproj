@@ -135,7 +135,7 @@
       <DependentUpon>ObjectCreator.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\EditorForAttribute.cs" />
-    <Compile Include="Windows\Forms\MaterialGraphRenderPanel.cs">
+    <Compile Include="Windows\Forms\Material Editor\MaterialGraphRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxDecimal.cs">
@@ -425,19 +425,19 @@
     <Compile Include="Windows\Forms\Class Creation\GenericSelector.Designer.cs">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\MaterialEditor.cs">
+    <Compile Include="Windows\Forms\Material Editor\MaterialEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\MaterialEditor.Designer.cs">
+    <Compile Include="Windows\Forms\Material Editor\MaterialEditor.Designer.cs">
       <DependentUpon>MaterialEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\MaterialEditorForm.cs">
+    <Compile Include="Windows\Forms\Material Editor\MaterialEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\MaterialEditorForm.Designer.cs">
+    <Compile Include="Windows\Forms\Material Editor\MaterialEditorForm.Designer.cs">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\MaterialEditorHud.cs" />
+    <Compile Include="Windows\Forms\Material Editor\MaterialEditorHud.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectState.cs" />
@@ -445,7 +445,7 @@
     <Compile Include="Windows\Forms\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\EditorWorldRenderPanel.cs">
+    <Compile Include="Windows\Forms\Editor Forms\EditorWorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
@@ -480,10 +480,10 @@
     <EmbeddedResource Include="Windows\Forms\Class Creation\GenericSelector.resx">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\MaterialEditor.resx">
+    <EmbeddedResource Include="Windows\Forms\Material Editor\MaterialEditor.resx">
       <DependentUpon>MaterialEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\MaterialEditorForm.resx">
+    <EmbeddedResource Include="Windows\Forms\Material Editor\MaterialEditorForm.resx">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -35,12 +35,10 @@ namespace TheraEditor.Windows.Forms
 
             if (allowDerivedTypes)
             {
+                toolStripTypeSelection.Visible = false;
                 Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => !x.IsAbstract && type.IsAssignableFrom(x));
                 if (types.Length == 1)
-                {
                     SetTargetType(types[0]);
-                    toolStripTypeSelection.Visible = false;
-                }
             }
             else if (type.IsAbstract || type.IsInterface)
                 return false;
@@ -165,6 +163,7 @@ namespace TheraEditor.Windows.Forms
 
             if (ArrayMode)
             {
+                toolStripTypeSelection.Visible = true;
                 FinalArguments = new object[numericInputBoxSingle1.Value.Value][].FilledWith(new object[1] { type.GetDefaultValue() });
                 for (int i = 0; i < numericInputBoxSingle1.Value.Value; ++i)
                     tblConstructors.Controls.Add(CreateControl(type, 0, i, FinalArguments));

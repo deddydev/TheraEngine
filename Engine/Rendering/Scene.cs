@@ -15,7 +15,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelRender(Camera camera, Frustum frustum, Viewport v, bool shadowPass);
+    public delegate void DelRender(Camera camera, Frustum frustum, Viewport viewport, bool shadowPass);
     /// <summary>
     /// Use for calculating something right before *anything* in the scene is rendered.
     /// Generally used for setting up data for a collection of sub-renderables just before they are rendered separately.
@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering
     {
         void PreRender();
     }
-    public abstract class SceneProcessor
+    public abstract class Scene
     {
         private static List<Material> _activeMaterials = new List<Material>();
         private static Queue<int> _removedIds = new Queue<int>();
@@ -32,7 +32,7 @@ namespace TheraEngine.Rendering
 
         public DelRender Render { get; protected set; }
         
-        public SceneProcessor()
+        public Scene()
         {
 
         }

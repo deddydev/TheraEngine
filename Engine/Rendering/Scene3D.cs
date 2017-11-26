@@ -91,7 +91,7 @@ namespace TheraEngine.Rendering
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
     /// </summary>
-    public class SceneProcessor3D : SceneProcessor
+    public class Scene3D : Scene
     {
         private Octree _renderTree;
         private LightManager _lightManager;
@@ -104,7 +104,7 @@ namespace TheraEngine.Rendering
 
         private SingleFileRef<Material> _voxelizationMaterial;
 
-        public SceneProcessor3D()
+        public Scene3D()
         {
             Render = RenderDeferred;
             //Material m = new Material("VoxelizeMat",
@@ -283,13 +283,13 @@ namespace TheraEngine.Rendering
                         v._postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
                         //Render hud to hud framebuffer.
-                        v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                        {
-                            Engine.Renderer.AllowDepthWrite(true);
-                            Engine.Renderer.DepthFunc(EComparison.Lequal);
-                            v.HUD?.Render();
-                        }
-                        v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                        //v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                        //{
+                        //    Engine.Renderer.AllowDepthWrite(true);
+                        //    Engine.Renderer.DepthFunc(EComparison.Lequal);
+                        //    v.HUD?.Render();
+                        //}
+                        //v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
                     }
                     //Disable internal resolution
                     Engine.Renderer.PopRenderArea();
@@ -300,7 +300,7 @@ namespace TheraEngine.Rendering
                         Engine.Renderer.CropRenderArea(v.Region);
 
                         v._postProcessFrameBuffer.Render();
-                        v._hudFrameBuffer.Render();
+                        ////v._hudFrameBuffer.Render();
                     }
                     Engine.Renderer.PopRenderArea();
                 }

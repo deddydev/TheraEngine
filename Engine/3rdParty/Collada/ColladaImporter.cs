@@ -69,11 +69,11 @@ namespace TheraEngine.Rendering.Models
                         }
                     }
 
-                    Scene scene = root.GetChild<Scene>();
+                    COLLADA.Scene scene = root.GetChild<COLLADA.Scene>();
                     if (scene != null)
                     {
                         data.Models = new List<ModelScene>();
-                        var visualScenes = scene.GetChildren<Scene.InstanceVisualScene>();
+                        var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
                         foreach (var visualSceneRef in visualScenes)
                         {
                             var visualScene = visualSceneRef.GetUrlInstance();

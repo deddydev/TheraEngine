@@ -41,17 +41,17 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public string Load()
         {
-            Text = null;
+            _text = null;
             if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
-                Text = File.ReadAllText(FilePath, GetEncoding(FilePath));
-            return Text;
+                _text = File.ReadAllText(FilePath, GetEncoding(FilePath));
+            return _text;
         }
         public async Task<string> LoadAsync()
         {
-            Text = null;
+            _text = null;
             if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
-                Text = await Task.Run(() => File.ReadAllText(FilePath, GetEncoding(FilePath)));
-            return Text;
+                _text = await Task.Run(() => File.ReadAllText(FilePath, GetEncoding(FilePath)));
+            return _text;
         }
 
         /// <summary>

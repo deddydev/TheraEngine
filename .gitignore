@@ -18,5 +18,6 @@ Forms Editor/obj/
 WPF Editor/obj/
 Releases/
 Thera/bin/
-Build/
+Build/Debug/
+Build/Release/
 ChromaCrossfire/obj/

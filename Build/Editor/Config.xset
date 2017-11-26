@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EditorSettings Type="TheraEditor.EditorSettings, Forms Editor, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null">
+	<Engine StoreInternally="True">
+		<EditorState />
+		<File>
+			<ShadingStyle>Deferred</ShadingStyle>
+			<SkinOnGPU>False</SkinOnGPU>
+			<UseIntegerWeightingIds>True</UseIntegerWeightingIds>
+			<AllowShaderPipelines>True</AllowShaderPipelines>
+			<RenderCameraFrustums>False</RenderCameraFrustums>
+			<RenderSkeletons>True</RenderSkeletons>
+			<RenderQuadtree>True</RenderQuadtree>
+			<RenderOctree>False</RenderOctree>
+			<RenderSplines>True</RenderSplines>
+			<RenderCullingVolumes>False</RenderCullingVolumes>
+			<RenderLights>False</RenderLights>
+			<Capped>True</Capped>
+			<Target>15</Target>
+			<Capped>False</Capped>
+			<HoldInputDelay>0</HoldInputDelay>
+			<DoubleClickInputDelay>0</DoubleClickInputDelay>
+			<EditorState />
+		</File>
+	</Engine>
+	<PropertyGrid StoreInternally="True">
+		<EditorState />
+		<File>
+			<SplitCamelCase>True</SplitCamelCase>
+			<UpdateRateInSeconds>0.2</UpdateRateInSeconds>
+			<IgnoreLoneSubCategories>True</IgnoreLoneSubCategories>
+			<EditorState />
+		</File>
+	</PropertyGrid>
+	<Controls StoreInternally="True">
+		<EditorState />
+		<File>
+			<EditorState />
+		</File>
+	</Controls>
+	<EditorState />
+</EditorSettings>

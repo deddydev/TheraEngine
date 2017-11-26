@@ -1,4 +1,5 @@
-﻿using TheraEngine.Rendering.Models.Materials;
+﻿using System;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -18,6 +19,11 @@ namespace TheraEditor.Windows.Forms
         {
             get => materialEditor1.Material;
             set => materialEditor1.Material = value;
+        }
+        protected override void OnGotFocus(EventArgs e)
+        {
+            Editor.SetActiveEditorControl(materialEditor1);
+            base.OnGotFocus(e);
         }
     }
 }

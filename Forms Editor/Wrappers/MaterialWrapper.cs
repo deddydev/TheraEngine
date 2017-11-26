@@ -32,7 +32,7 @@ namespace TheraEditor.Wrappers
         {
             MaterialEditorForm m = new MaterialEditorForm();
             m.Material = Resource;
-            m.ShowDialog();
+            m.Show();
         }
     }
 }

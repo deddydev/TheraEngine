@@ -91,8 +91,8 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
 
         protected override void PostConstruct()
         {
-            RootComponent.Camera.File.TranslateAbsolute(new Vec3(0.0f, 20.0f, -40.0f));
-            RootComponent.Camera.File.LocalRotation.Pitch = -10.0f;
+            RootComponent.CameraRef.File.TranslateAbsolute(new Vec3(0.0f, 20.0f, -40.0f));
+            RootComponent.CameraRef.File.LocalRotation.Pitch = -10.0f;
             Camera_TransformChanged();
             base.PostConstruct();
         }
@@ -179,7 +179,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
                 Engine.TimeDilation *= up ? 0.8 : 1.2;
             else
             {
-                RootComponent.Camera.File.Zoom(up ? ScrollSpeed : -ScrollSpeed);
+                RootComponent.CameraRef.File.Zoom(up ? ScrollSpeed : -ScrollSpeed);
                 Camera_TransformChanged();
             }
         }
@@ -200,23 +200,23 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                RootComponent.Camera.File.AddRotation(-y * MouseRotateSpeed, -x * MouseRotateSpeed);
+                RootComponent.CameraRef.File.AddRotation(-y * MouseRotateSpeed, -x * MouseRotateSpeed);
                 Camera_TransformChanged();
             }
             else if (Translating)
             {
                 if (_hitPoint != null)
                 {
-                    PerspectiveCamera c = RootComponent.Camera.File as PerspectiveCamera;
+                    PerspectiveCamera c = RootComponent.CameraRef.File as PerspectiveCamera;
                     Vec3 v = c._projectionRange * (((_hitPoint.Value * (c.ProjectionMatrix * c.WorldToCameraSpaceMatrix)) + 1.0f) / 2.0f);
                     v.X += -x;
                     v.Y += y;
                     Vec3 newPoint = ((v / c._projectionRange) * 2.0f - 1.0f) * (c.CameraToWorldSpaceMatrix * c.InverseProjectionMatrix);
                     Vec3 diff = newPoint - _hitPoint.Value;
-                    RootComponent.Camera.File.TranslateAbsolute(diff);
+                    RootComponent.CameraRef.File.TranslateAbsolute(diff);
                 }
                 else
-                    RootComponent.Camera.File.TranslateRelative(new Vec3(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f));
+                    RootComponent.CameraRef.File.TranslateRelative(new Vec3(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f));
                 Camera_TransformChanged();
             }
         }
@@ -239,9 +239,9 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
             if (translate)
-                RootComponent.Camera.File.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+                RootComponent.CameraRef.File.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                RootComponent.Camera.File.AddRotation(_pitch * delta, _yaw * delta);
+                RootComponent.CameraRef.File.AddRotation(_pitch * delta, _yaw * delta);
             if (translate || rotate)
                 Camera_TransformChanged();
         }

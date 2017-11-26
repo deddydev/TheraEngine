@@ -117,6 +117,10 @@ namespace TheraEngine
     public enum ERenderPass2D
     {
         /// <summary>
+        /// Use for background objects that don't write to depth.
+        /// </summary>
+        Background,
+        /// <summary>
         /// Use for any fully opaque objects.
         /// </summary>
         Opaque,

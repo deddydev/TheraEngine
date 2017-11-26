@@ -29,11 +29,5 @@ namespace TheraEditor.Windows.Forms
         LocalPlayerIndex IEditorControl.PlayerIndex => LocalPlayerIndex.One;
         BaseRenderPanel IEditorControl.RenderPanel => renderPanel1;
         IPawn IEditorControl.EditorPawn => _hud;
-
-        protected override void OnGotFocus(EventArgs e)
-        {
-            Editor.SetActiveEditorControl(this);
-            base.OnGotFocus(e);
-        }
     }
 }

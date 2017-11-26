@@ -79,7 +79,7 @@ namespace TheraEngine.Worlds.Actors
                 _currentCameraComponent = value;
                 LocalPlayerController controller = LocalPlayerController;
                 if (controller != null)
-                    controller.CurrentCamera = value.Camera;
+                    controller.CurrentCamera = value.CameraRef;
             }
         }
 

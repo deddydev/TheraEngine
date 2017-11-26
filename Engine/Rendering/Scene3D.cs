@@ -93,12 +93,11 @@ namespace TheraEngine.Rendering
     /// </summary>
     public class Scene3D : Scene
     {
-        private Octree _renderTree;
         private LightManager _lightManager;
         private ParticleManager _particles;
         private RenderPasses3D _passes = new RenderPasses3D();
         
-        public Octree RenderTree => _renderTree;
+        public Octree RenderTree { get; private set; }
         public LightManager Lights => _lightManager;
         public ParticleManager Particles => _particles;
 
@@ -169,7 +168,7 @@ namespace TheraEngine.Rendering
 
             AbstractRenderer.PushCurrentCamera(camera);
             {
-                _renderTree.CollectVisible(frustum, _passes, shadowPass);
+                RenderTree.CollectVisible(frustum, _passes, shadowPass);
                 foreach (IPreRenderNeeded p in _preRenderList)
                     p.PreRender();
 
@@ -210,8 +209,6 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.PopRenderArea();
             }
             AbstractRenderer.PopCurrentCamera();
-            
-            AbstractRenderer.PopCurrentCamera();
         }
 
         /// <summary>
@@ -232,14 +229,14 @@ namespace TheraEngine.Rendering
             if (camera == null)
                 return;
 
-            if (v != null)
+            AbstractRenderer.PushCurrentCamera(camera);
             {
-                AbstractRenderer.PushCurrentCamera(camera);
-                {
-                    _renderTree.CollectVisible(frustum, _passes, shadowPass);
-                    foreach (IPreRenderNeeded p in _preRenderList)
-                        p.PreRender();
+                RenderTree.CollectVisible(frustum, _passes, shadowPass);
+                foreach (IPreRenderNeeded p in _preRenderList)
+                    p.PreRender();
 
+                if (v != null)
+                {
                     //Enable internal resolution
                     Engine.Renderer.PushRenderArea(v.InternalResolution);
                     {
@@ -304,16 +301,8 @@ namespace TheraEngine.Rendering
                     }
                     Engine.Renderer.PopRenderArea();
                 }
-                AbstractRenderer.PopCurrentCamera();
-            }
-            else
-            {
-                AbstractRenderer.PushCurrentCamera(camera);
+                else
                 {
-                    _renderTree.CollectVisible(frustum, _passes, shadowPass);
-                    foreach (IPreRenderNeeded p in _preRenderList)
-                        p.PreRender();
-                    
                     Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
                     Engine.Renderer.AllowDepthWrite(false);
@@ -321,7 +310,7 @@ namespace TheraEngine.Rendering
 
                     Engine.Renderer.AllowDepthWrite(true);
                     _passes.Render(ERenderPass3D.OpaqueDeferredLit);
-          
+
                     //No need to clear anything, 
                     //color will be fully overwritten by the previous pass, 
                     //and we need depth from the previous pass
@@ -339,16 +328,15 @@ namespace TheraEngine.Rendering
                     //Render forward on-top objects last
                     _passes.Render(ERenderPass3D.OnTopForward);
                 }
-                AbstractRenderer.PopCurrentCamera();
             }
         }
         public void Add(I3DBoundable obj)
         {
-            _renderTree?.Add(obj);
+            RenderTree?.Add(obj);
         }
         public void Remove(I3DBoundable obj)
         {
-            _renderTree?.Remove(obj);
+            RenderTree?.Remove(obj);
         }
         /// <summary>
         /// Clears all items from the scene and sets the bounds.
@@ -356,7 +344,7 @@ namespace TheraEngine.Rendering
         /// <param name="sceneBounds">The total extent of the items in the scene.</param>
         public void Clear(BoundingBox sceneBounds)
         {
-            _renderTree = new Octree(sceneBounds);
+            RenderTree = new Octree(sceneBounds);
             _lightManager = new LightManager();
             _passes = new RenderPasses3D();
         }

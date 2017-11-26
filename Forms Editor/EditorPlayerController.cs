@@ -50,12 +50,12 @@ namespace TheraEditor
             TestCharacter t = Engine.World.State.File.GetSpawnedActorsOfType<TestCharacter>().ToArray()[0];
             CameraComponent c = t.RootComponent.ChildComponents[1].ChildComponents[0].ChildComponents[0] as CameraComponent;
 
-            if (c.Camera.IsLoaded)
+            if (c.CameraRef.IsLoaded)
             {
                 if (Engine.Settings.RenderCameraFrustums)
-                    Engine.Scene.Add(c.Camera.File);
+                    Engine.Scene.Add(c.CameraRef.File);
                 else
-                    Engine.Scene.Remove(c.Camera.File);
+                    Engine.Scene.Remove(c.CameraRef.File);
             }
         }
     }

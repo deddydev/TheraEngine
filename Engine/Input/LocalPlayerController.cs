@@ -130,7 +130,7 @@ namespace TheraEngine.Input
         {
             //_viewport.PawnHUD = _controlledPawn.Hud;
             if (_controlledPawn.CurrentCameraComponent != null)
-                _viewport.Camera = _controlledPawn.CurrentCameraComponent.Camera;
+                _viewport.Camera = _controlledPawn.CurrentCameraComponent.CameraRef;
         }
         protected virtual void RegisterInput(InputInterface input)
         {

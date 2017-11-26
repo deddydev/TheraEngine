@@ -12,34 +12,36 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
     public class CameraComponent : SceneComponent
     {
         #region Constructors
-        public CameraComponent()
-        {
-            Camera = new PerspectiveCamera();
-        }
-        public CameraComponent(bool orthographic)
-        {
-            Camera = orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera();
-        }
+        public CameraComponent() : this(null) { }
+        public CameraComponent(bool orthographic) : this(orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera()) { }
         public CameraComponent(Camera camera)
         {
-            Camera = camera;
+            _cameraRef = new SingleFileRef<Camera>(camera);
+            _cameraRef.RegisterLoadEvent(CameraLoaded);
+            _cameraRef.RegisterUnloadEvent(CameraUnloaded);
         }
         #endregion
         
-        private SingleFileRef<Camera> _camera;
+        private SingleFileRef<Camera> _cameraRef;
+
+        public Camera Camera
+        {
+            get => CameraRef.File;
+            set => CameraRef.File = value;
+        }
 
         [TSerialize]
-        public SingleFileRef<Camera> Camera
+        public SingleFileRef<Camera> CameraRef
         {
-            get => _camera;
+            get => _cameraRef;
             set
             {
-                if (_camera != null)
+                if (_cameraRef != null)
                 {
-                    _camera.UnregisterLoadEvent(CameraLoaded);
-                    if (_camera.IsLoaded && _camera.File != null)
+                    _cameraRef.UnregisterLoadEvent(CameraLoaded);
+                    if (_cameraRef.IsLoaded && _cameraRef.File != null)
                     {
-                        Camera camera = _camera.File;
+                        Camera camera = _cameraRef.File;
 
                         if (IsSpawned && Engine.Settings.RenderCameraFrustums)
                             Engine.Scene.Remove(camera);
@@ -48,20 +50,25 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
                         camera.TransformChanged -= RecalcLocalTransform;
                     }
                 }
-                _camera = value;
-                _camera.RegisterLoadEvent(CameraLoaded);
+                _cameraRef = value;
             }
         }
 
         private void CameraLoaded()
         {
-            Camera camera = _camera.File;
-            
+            Camera camera = _cameraRef.File;
             if (IsSpawned && Engine.Settings.RenderCameraFrustums)
                 Engine.Scene.Add(camera);
-
             camera.OwningComponent = this;
             camera.TransformChanged += RecalcLocalTransform;
+        }
+        private void CameraUnloaded()
+        {
+            Camera camera = _cameraRef.File;
+            if (IsSpawned && Engine.Settings.RenderCameraFrustums)
+                Engine.Scene.Remove(camera);
+            camera.OwningComponent = null;
+            camera.TransformChanged -= RecalcLocalTransform;
         }
 
         /// <summary>
@@ -72,16 +79,16 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         {
             int index = (int)playerIndex;
             if (index >= 0 && index < Engine.ActivePlayers.Count)
-                Engine.ActivePlayers[index].CurrentCamera = _camera;
+                Engine.ActivePlayers[index].CurrentCamera = _cameraRef;
             else
             {
                 Dictionary<int, ConcurrentQueue<Camera>> v = LocalPlayerController.CameraPossessionQueue;
                 if (v.ContainsKey(index))
-                    v[index].Enqueue(_camera);
+                    v[index].Enqueue(_cameraRef);
                 else
                 {
                     ConcurrentQueue<Camera> queue = new ConcurrentQueue<Camera>();
-                    queue.Enqueue(_camera);
+                    queue.Enqueue(_cameraRef);
                     v.Add(index, queue);
                 }
             }
@@ -92,7 +99,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         public void SetCurrentForController(LocalPlayerController controller)
         {
             if (controller != null)
-                controller.CurrentCamera = _camera;
+                controller.CurrentCamera = _cameraRef;
         }
         /// <summary>
         /// The local player controller of the pawn actor that contains this camera in its scene component tree will see through this camera.
@@ -100,7 +107,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         public void SetCurrentForOwner()
         {
             if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
-                controller.CurrentCamera = _camera;
+                controller.CurrentCamera = _cameraRef;
         }
         /// <summary>
         /// The local player controller of the provided pawn will see through this camera.
@@ -120,24 +127,24 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         }
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
-            _camera.File.TranslateAbsolute(-newOrigin);
+            _cameraRef.File.TranslateAbsolute(-newOrigin);
         }
         public override void OnSpawned()
         {
             if (Engine.Settings.RenderCameraFrustums)
-                Engine.Scene.Add(_camera.File);
+                Engine.Scene.Add(_cameraRef.File);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (Engine.Settings.RenderCameraFrustums)
-                Engine.Scene.Remove(_camera.File);
+                Engine.Scene.Remove(_cameraRef.File);
             base.OnDespawned();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Camera.File.CameraToComponentSpaceMatrix;
-            inverseLocalTransform = Camera.File.ComponentToCameraSpaceMatrix;
+            localTransform = CameraRef.File.CameraToComponentSpaceMatrix;
+            inverseLocalTransform = CameraRef.File.ComponentToCameraSpaceMatrix;
         }
         internal override void RecalcGlobalTransform()
         {

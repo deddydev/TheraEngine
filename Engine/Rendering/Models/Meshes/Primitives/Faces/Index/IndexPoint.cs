@@ -16,9 +16,7 @@ namespace TheraEngine.Rendering.Models
             => _connectedEdges.AsReadOnly();
 
         public override string ToString()
-        {
-            return _vertexIndex.ToString();
-        }
+            => _vertexIndex.ToString();
 
         [TSerialize("Index", XmlNodeType = EXmlNodeType.Attribute)]
         private int _vertexIndex;

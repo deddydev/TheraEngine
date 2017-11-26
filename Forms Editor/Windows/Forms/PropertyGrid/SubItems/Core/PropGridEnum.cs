@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(Enum))]
+    [PropGridControlFor(typeof(Enum))]
     public partial class PropGridEnum : PropGridItem
     {
         public PropGridEnum()

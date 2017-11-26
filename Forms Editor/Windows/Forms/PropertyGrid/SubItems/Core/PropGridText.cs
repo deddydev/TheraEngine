@@ -5,7 +5,7 @@ using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(string))]
+    [PropGridControlFor(typeof(string))]
     public partial class PropGridText : PropGridItem
     {
         public PropGridText()

@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -116,7 +117,7 @@ namespace TheraEngine.Rendering.OpenGL
             return new GLThreadSubContext(handle, thread);
         }
 
-        public GLWindowContext(RenderPanel c) : base(c)
+        public GLWindowContext(BaseRenderPanel c) : base(c)
         {
 
         }

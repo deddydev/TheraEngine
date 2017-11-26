@@ -8,6 +8,6 @@
         public IndexLineStrip(bool closed, params IndexPoint[] points) 
             : base(points) { _closed = closed; }
 
-        public override FaceType Type { get { return _closed ? FaceType.LineLoop : FaceType.LineStrip; } }
+        public override FaceType Type => _closed ? FaceType.LineLoop : FaceType.LineStrip;
     }
 }

@@ -34,8 +34,8 @@ namespace TheraEditor.Windows.Forms
         }
         protected override bool TryParse(string text, out SByte value)
             => SByte.TryParse(text, out value);
-        public override SByte MinimumValue => SByte.MinValue;
-        public override SByte MaximumValue => SByte.MaxValue;
+        public override SByte MinimumValue { get; set; } = SByte.MinValue;
+        public override SByte MaximumValue { get; set; } = SByte.MaxValue;
         public override bool Integral => true;
         public override bool Signed => true;
     }

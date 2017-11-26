@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(Single))]
+    [PropGridControlFor(typeof(Single))]
     public partial class PropGridSingle : PropGridItem
     {
         public PropGridSingle()

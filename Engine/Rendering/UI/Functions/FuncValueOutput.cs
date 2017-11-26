@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TheraEngine.Rendering.HUD.Functions
+namespace TheraEngine.Rendering.UI.Functions
 {
     public interface IFuncValueOutput : IBaseFuncValue
     {

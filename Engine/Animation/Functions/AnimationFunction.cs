@@ -1,5 +1,5 @@
 ﻿using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.HUD.Functions;
+using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Animation
 {

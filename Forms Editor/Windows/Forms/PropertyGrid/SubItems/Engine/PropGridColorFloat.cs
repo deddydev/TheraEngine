@@ -5,7 +5,7 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(
+    [PropGridControlFor(
         typeof(ColorF4),
         typeof(EventColorF4),
         typeof(ColorF3),

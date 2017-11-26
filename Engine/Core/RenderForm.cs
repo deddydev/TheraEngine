@@ -31,10 +31,11 @@ namespace TheraEngine
                     break;
             }
 
+            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
+
             if (game.UserSettings.File.FullScreen)
                 WindowState = FormWindowState.Maximized;
 
-            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
             Cursor.Hide();
 
             Application.ApplicationExit += Application_ApplicationExit;
@@ -42,6 +43,11 @@ namespace TheraEngine
         private void Application_ApplicationExit(object sender, EventArgs e)
         {
             Engine.ShutDown();
+        }
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
+            base.OnSizeChanged(e);
         }
         protected override void OnLoad(EventArgs e)
         {

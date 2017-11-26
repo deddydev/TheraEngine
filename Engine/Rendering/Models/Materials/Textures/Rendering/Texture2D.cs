@@ -62,7 +62,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
         public override void PushData()
         {
-            if (RenderPanel.NeedsInvoke(PushData, RenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.NeedsInvoke(PushData, BaseRenderPanel.PanelType.Rendering))
                 return;
 
             Bind();

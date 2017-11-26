@@ -91,8 +91,7 @@ namespace TheraEngine.Files.Serialization
         }
         private static void WriteMembers(object obj, List<VarInfo> members, int categorizedCount, IEnumerable<MethodInfo> customMethods, XmlWriter writer)
         {
-            //TODO: don't include nulls
-            int nonAttribCount = members.Where(x => !x.Attrib.IsXmlAttribute).Count() + categorizedCount;
+            int nonAttribCount = members.Where(x => !x.Attrib.IsXmlAttribute && x.GetValue(obj) != null).Count() + categorizedCount;
             foreach (VarInfo member in members)
             {
                 MethodInfo customMethod = customMethods.FirstOrDefault(

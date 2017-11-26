@@ -45,7 +45,7 @@ namespace TheraEngine
         /// <summary>
         /// Used by the engine for proper order of rendering.
         /// </summary> 
-        public RenderPassType2D RenderPass;
+        public ERenderPass2D RenderPass;
         /// <summary>
         /// Used to render objects in the same pass in a certain order.
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
@@ -53,7 +53,7 @@ namespace TheraEngine
         public int LayerIndex;
         public int OrderInLayer;
         
-        public RenderInfo2D(RenderPassType2D pass, int layerIndex, int orderInLayer)
+        public RenderInfo2D(ERenderPass2D pass, int layerIndex, int orderInLayer)
         {
             RenderPass = pass;
             LayerIndex = layerIndex;
@@ -114,7 +114,7 @@ namespace TheraEngine
         /// </summary>
         IOctreeNode OctreeNode { get; set; }
     }
-    public enum RenderPassType2D
+    public enum ERenderPass2D
     {
         /// <summary>
         /// Use for any fully opaque objects.

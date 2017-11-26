@@ -12,30 +12,70 @@ namespace TheraEngine.Animation
 {
     public class AnimFolder
     {
-        public AnimFolder(string propertyName, params AnimFolder[] children)
+        public AnimFolder()
         {
-            _propertyName = propertyName;
-            _animation = null;
-            if (children != null)
-                _children = children.ToList();
-            _tick = PropertyTick;
-        }
-        public AnimFolder(string propertyName, bool method, BasePropertyAnimation animation)
-        {
-            _propertyName = propertyName;
-            _animation = animation;
-            _tick = method ? (Action<object, float>)MethodTick : PropertyTick;
+
         }
 
+        /// <summary>
+        /// Constructor to create a subtree without an animation at this level.
+        /// </summary>
+        /// <param name="propertyName">The name of this property and optionally sub-properties separated by a period.</param>
+        /// <param name="children">Any sub-properties this property owns and you want to animate.</param>
+        public AnimFolder(string propertyName, params AnimFolder[] children) : this()
+        {
+            int splitIndex = propertyName.IndexOf('.');
+            if (splitIndex >= 0)
+            {
+                string remainingPath = propertyName.Substring(splitIndex + 1, propertyName.Length - splitIndex - 1);
+                _children.Add(new AnimFolder(remainingPath));
+                propertyName = propertyName.Substring(0, splitIndex);
+            }
+            if (children != null)
+                _children.AddRange(children);
+            _propertyName = propertyName;
+            SetAnimation(null, false);
+        }
+        /// <summary>
+        /// Constructor to create a subtree with an animation attached at this level.
+        /// </summary>
+        /// <param name="propertyOrMethodName">The name of the property or method to animate.</param>
+        /// <param name="isMethod"></param>
+        /// <param name="animation"></param>
+        public AnimFolder(string propertyOrMethodName, bool isMethod, BasePropertyAnimation animation) : this()
+        {
+            if (!isMethod)
+            {
+                int splitIndex = propertyOrMethodName.IndexOf('.');
+                if (splitIndex >= 0)
+                {
+                    string remainingPath = propertyOrMethodName.Substring(splitIndex + 1, propertyOrMethodName.Length - splitIndex - 1);
+                    _children.Add(new AnimFolder(remainingPath));
+                    propertyOrMethodName = propertyOrMethodName.Substring(0, splitIndex);
+                }
+            }
+            _propertyName = propertyOrMethodName;
+            SetAnimation(animation, isMethod);
+        }
+
+        //Cached at runtime
         private PropertyInfo _propertyCache;
         private MethodInfo _methodCache;
-
-        //TODO: need object, bool dictionary because multiple objs might tick in this anim
+        //TODO: need <object, bool> dictionary because multiple objs might tick in this anim
         private bool _propertyNotFound = false;
+        internal Action<object, float> _tick = null;
+        
+        [TSerialize("IsMethodAnimation")]
+        private bool _isMethodAnimation = false;
+        [TSerialize("PropertyName")]
+        private string _propertyName = null;
+        [TSerialize("Animation")]
+        private SingleFileRef<BasePropertyAnimation> _animation = new SingleFileRef<BasePropertyAnimation>();
+        [TSerialize("Children")]
+        private MonitoredList<AnimFolder> _children = new MonitoredList<AnimFolder>();
 
-        public string _propertyName;
-        private List<AnimFolder> _children = new List<AnimFolder>();
-        public BasePropertyAnimation _animation;
+        [Category("Animation Folder")]
+        public SingleFileRef<BasePropertyAnimation> Animation => _animation;
 
         public void CollectAnimations(string path, Dictionary<string, BasePropertyAnimation> animations)
         {
@@ -44,15 +84,37 @@ namespace TheraEngine.Animation
 
             path += _propertyName;
 
-            if (_animation != null)
-                animations.Add(path, _animation);
+            if (Animation != null)
+                animations.Add(path, Animation);
             foreach (AnimFolder p in _children)
                 p.CollectAnimations(path, animations);
         }
+        
+        [Category("Animation Folder")]
+        public MonitoredList<AnimFolder> Children => _children;
+        [Category("Animation Folder")]
+        public string PropertyName
+        {
+            get => _propertyName;
+            set => _propertyName = value;
+        }
+        [Category("Animation Folder")]
+        public bool IsMethodAnimation
+        {
+            get => _isMethodAnimation;
+            set => SetAnimationType(value);
+        }
 
-        internal Action<object, float> _tick = null;
-
-        public List<AnimFolder> Children => _children;
+        public void SetAnimation(BasePropertyAnimation anim, bool method)
+        {
+            Animation.File = anim;
+            SetAnimationType(method);
+        }
+        public void SetAnimationType(bool method)
+        {
+            _isMethodAnimation = method;
+            _tick = method ? (Action<object, float>)MethodTick : PropertyTick;
+        }
 
         internal void MethodTick(object obj, float delta)
         {
@@ -76,7 +138,7 @@ namespace TheraEngine.Animation
                     return;
             }
 
-            _animation?.Tick(obj, _methodCache, delta);
+            Animation.File?.Tick(obj, _methodCache, delta);
         }
         internal void PropertyTick(object obj, float delta)
         {
@@ -100,8 +162,8 @@ namespace TheraEngine.Animation
                     return;
             }
 
-            if (_animation != null)
-                _animation?.Tick(obj, _propertyCache, delta);
+            if (Animation != null)
+                Animation.File?.Tick(obj, _propertyCache, delta);
             else
             {
                 object value = _propertyCache.GetValue(obj);
@@ -110,38 +172,37 @@ namespace TheraEngine.Animation
             }
         }
 
-        public int Register(AnimationContainer container)
+        internal int Register(AnimationContainer container)
         {
-            bool animExists = _animation != null;
+            bool animExists = Animation.File != null;
             int count = (animExists ? 1 : 0);
             if (animExists)
-                _animation.AnimationEnded += container.AnimationHasEnded;
+                Animation.File.AnimationEnded += container.AnimationHasEnded;
             foreach (AnimFolder folder in _children)
                 count += folder.Register(container);
             return count;
         }
-        public void StartAnimations()
+        internal void StartAnimations()
         {
             _propertyNotFound = false;
             _propertyCache = null;
 
-            _animation?.Start();
+            Animation.File?.Start();
             foreach (AnimFolder folder in _children)
                 folder.StartAnimations();
         }
-        public void StopAnimations()
+        internal void StopAnimations()
         {
-            _animation?.Stop();
+            Animation.File?.Stop();
             foreach (AnimFolder folder in _children)
                 folder.StopAnimations();
         }
     }
     [FileClass("TANIM", "Property Animation Tree")]
-    public class AnimationContainer : FileObject, IComponent
+    public class AnimationContainer : FileObject
     {
         public event Action<AnimationContainer> AnimationStarted;
         public event Action<AnimationContainer> AnimationEnded;
-        public event EventHandler Disposed;
 
         private int _totalAnimCount = 0;
         private AnimFolder _root;
@@ -210,10 +271,7 @@ namespace TheraEngine.Animation
                 }
             }
             if (last != null)
-            {
-                last._animation = anim;
-                last._tick = method ? (Action<object, float>)last.MethodTick : last.PropertyTick;
-            }
+                last.SetAnimation(anim, method);
         }
         private void OwnersModified()
         {
@@ -233,10 +291,7 @@ namespace TheraEngine.Animation
                 _totalAnimCount = _root != null ? _root.Register(this) : 0;
             }
         }
-
-        [Browsable(false)]
-        public ISite Site { get => new DesignerVerbSite(this); set => throw new NotImplementedException(); }
-
+        
         internal void AnimationHasEnded()
         {
             if (++_endedAnimations >= _totalAnimCount)
@@ -309,158 +364,6 @@ namespace TheraEngine.Animation
         {
             foreach (ObjectBase b in _owners)
                 _root?._tick(b, delta);
-        }
-
-        public void Dispose()
-        {
-
-        }
-
-        public class DesignerVerbSite : IMenuCommandService, ISite
-        {
-            // our target object
-            protected object _Component;
-
-            public DesignerVerbSite(object component)
-            {
-                _Component = component;
-            }
-
-            #region IMenuCommandService Members
-            // IMenuCommandService provides DesignerVerbs, seen as commands in the PropertyGrid control
-
-            public void AddCommand(MenuCommand command)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void AddVerb(DesignerVerb verb)
-            {
-                throw new NotImplementedException();
-            }
-
-            public MenuCommand FindCommand(CommandID commandID)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool GlobalInvoke(CommandID commandID)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void RemoveCommand(MenuCommand command)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void RemoveVerb(DesignerVerb verb)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void ShowContextMenu(CommandID menuID, int x, int y)
-            {
-                throw new NotImplementedException();
-            }
-
-            // ** Item of interest ** Return the DesignerVerbs collection
-            public DesignerVerbCollection Verbs
-            {
-                get
-                {
-                    DesignerVerbCollection Verbs = new DesignerVerbCollection();
-                    // Use reflection to enumerate all the public methods on the object
-                    MethodInfo[] mia = _Component.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
-                    foreach (MethodInfo mi in mia)
-                    {
-                        // Ignore any methods without a [Browsable(true)] attribute
-                        object[] attrs = mi.GetCustomAttributes(typeof(BrowsableAttribute), true);
-                        if (attrs == null || attrs.Length == 0)
-                            continue;
-                        if (!((BrowsableAttribute)attrs[0]).Browsable)
-                            continue;
-                        // Add a DesignerVerb with our VerbEventHandler
-                        // The method name will appear in the command pane
-                        Verbs.Add(new DesignerVerb(mi.Name, new EventHandler(VerbEventHandler)));
-                    }
-                    return Verbs;
-                }
-            }
-
-            // ** Item of interest ** Handle invokaction of the DesignerVerbs
-            private void VerbEventHandler(object sender, EventArgs e)
-            {
-                // The verb is the sender
-                DesignerVerb verb = sender as DesignerVerb;
-                // Enumerate the methods again to find the one named by the verb
-                MethodInfo[] mia = _Component.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
-                foreach (MethodInfo mi in mia)
-                {
-                    object[] attrs = mi.GetCustomAttributes(typeof(BrowsableAttribute), true);
-                    if (attrs == null || attrs.Length == 0)
-                        continue;
-                    if (!((BrowsableAttribute)attrs[0]).Browsable)
-                        continue;
-                    if (verb.Text == mi.Name)
-                    {
-                        // Invoke the method on our object (no parameters)
-                        mi.Invoke(_Component, null);
-                        return;
-                    }
-                }
-            }
-
-            #endregion
-
-            #region ISite Members
-            // ISite required to represent this object directly to the PropertyGrid
-
-            public IComponent Component
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            // ** Item of interest ** Implement the Container property
-            public IContainer Container
-            {
-                // Returning a null Container works fine in this context
-                get { return null; }
-            }
-
-            // ** Item of interest ** Implement the DesignMode property
-            public bool DesignMode
-            {
-                // While this *is* called, it doesn't seem to matter whether we return true or false
-                get { return true; }
-            }
-
-            public string Name
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-                set
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            #endregion
-
-            #region IServiceProvider Members
-            // IServiceProvider is the mechanism used by the PropertyGrid to discover our IMenuCommandService support
-
-            // ** Item of interest ** Respond to requests for IMenuCommandService
-            public object GetService(Type serviceType)
-            {
-                if (serviceType == typeof(IMenuCommandService))
-                    return this;
-                return null;
-            }
-
-            #endregion
         }
     }
 }

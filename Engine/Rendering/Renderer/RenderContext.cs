@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace TheraEngine.Rendering
 {
@@ -39,8 +40,8 @@ namespace TheraEngine.Rendering
                 }
             }
         }
-
-        public RenderPanel Control => _control;
+        
+        public BaseRenderPanel Control => _control;
         internal List<BaseRenderState.ContextBind> States => _states;
         public VSyncMode VSyncMode
         {
@@ -53,7 +54,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        protected RenderPanel _control;
+        protected BaseRenderPanel _control;
         protected bool _resetting = false;
         
         protected abstract class ThreadSubContext
@@ -80,7 +81,7 @@ namespace TheraEngine.Rendering
         protected Dictionary<int, ThreadSubContext> _subContexts = new Dictionary<int, ThreadSubContext>();
         protected ThreadSubContext _currentSubContext;
 
-        public RenderContext(RenderPanel c)
+        public RenderContext(BaseRenderPanel c)
         {
             _control = c;
             if (_control != null)

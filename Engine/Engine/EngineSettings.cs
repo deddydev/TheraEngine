@@ -1,5 +1,7 @@
 ﻿using TheraEngine.Files;
 using System.ComponentModel;
+using System.Windows.Forms;
+using System.IO;
 
 namespace TheraEngine
 {
@@ -13,7 +15,7 @@ namespace TheraEngine
     {
         [Category("Performance")]
         [TSerialize]
-        public ShadingStyle ShadingStyle { get; set; }
+        public ShadingStyle ShadingStyle3D { get; set; }
         [Category("Performance")]
         [TSerialize]
         public bool SkinOnGPU { get; set; }
@@ -98,9 +100,17 @@ namespace TheraEngine
         [TSerialize]
         public float DoubleClickInputDelay { get; set; }
 
+        /// <summary>
+        /// The path to the folder containing premade engine shaders.
+        /// </summary>
+        [Description("The path to the folder containing premade engine shaders.")]
+        [Category("Paths")]
+        [TSerialize]
+        public string ShadersFolder { get; set; }
+
         public EngineSettings()
         {
-            ShadingStyle = ShadingStyle.Deferred;
+            ShadingStyle3D = ShadingStyle.Deferred;
             SkinOnGPU = false;
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
@@ -125,6 +135,8 @@ namespace TheraEngine
             TargetFPS = 60.0f;
             CapUPS = false;
             TargetUPS = 30.0f;
+
+            ShadersFolder = Path.Combine(Application.StartupPath, "..\\..\\..\\Engine\\Shaders");
         }
     }
 }

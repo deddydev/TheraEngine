@@ -1,5 +1,5 @@
 ﻿using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.UI;
 using System;
 using System.Collections.Generic;
 using TheraEngine.Core.Shapes;
@@ -8,9 +8,9 @@ using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
-    public class EditorTransformTool2D : HudComponent
+    public class EditorTransformTool2D : UIComponent
     {
-        public EditorTransformTool2D(HudComponent modified)
+        public EditorTransformTool2D(UIComponent modified)
         {
             _modified = modified;
         }

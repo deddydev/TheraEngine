@@ -1,4 +1,6 @@
-﻿namespace TheraEditor.Windows.Forms
+﻿using TheraEngine;
+
+namespace TheraEditor.Windows.Forms
 {
     partial class MaterialEditor
     {
@@ -32,7 +34,7 @@
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
-            this.renderPanel1 = new TheraEngine.RenderPanel();
+            this.renderPanel1 = new MaterialGraphRenderPanel();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -108,6 +110,6 @@
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label2;
-        private TheraEngine.RenderPanel renderPanel1;
+        private MaterialGraphRenderPanel renderPanel1;
     }
 }

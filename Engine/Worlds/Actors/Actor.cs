@@ -132,6 +132,7 @@ namespace TheraEngine.Worlds.Actors
         [Browsable(false)]
         SceneComponent IActor.RootComponent => RootComponent;
 
+        [Description(@"The root component is the main scene component that controls this actor's transform in the world and acts as the main ancestor for all scene components in the actor's tree.")]
         [TSerialize]
         [Category("Actor")]
         public T RootComponent
@@ -152,7 +153,9 @@ namespace TheraEngine.Worlds.Actors
                 GenerateSceneComponentCache();
             }
         }
-        
+
+        [Description(@"Logic components handle plug-n-play code for certain features.
+For example, a logic component could give any actor health and/or allow it to take damage.")]
         [Category("Actor")]
         public MonitoredList<LogicComponent> LogicComponents => _logicComponents;
         [Browsable(false)]

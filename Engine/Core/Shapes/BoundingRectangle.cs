@@ -199,6 +199,9 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
             get => _translation;
             set => _translation = value;
         }
+        /// <summary>
+        /// Bottom left point in world space regardless of width or height being negative.
+        /// </summary>
         public Vec2 BottomLeft
         {
             get => new Vec2(MinX, MinY);
@@ -210,6 +213,9 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
                 _bounds = TopRight - _translation;
             }
         }
+        /// <summary>
+        /// Top right point in world space regardless of width or height being negative.
+        /// </summary>
         public Vec2 TopRight
         {
             get => new Vec2(MaxX, MaxY);
@@ -219,6 +225,9 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
                 _bounds = value - _translation;
             }
         }
+        /// <summary>
+        /// Bottom right point in world space regardless of width or height being negative.
+        /// </summary>
         public Vec2 BottomRight
         {
             get => new Vec2(MaxX, MinY);
@@ -231,6 +240,9 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
                 _bounds.Y = upperY - value.Y;
             }
         }
+        /// <summary>
+        /// Top left point in world space regardless of width or height being negative.
+        /// </summary>
         public Vec2 TopLeft
         {
             get => new Vec2(MinX, MaxY);

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace TheraEngine.Rendering.HUD.Functions
+namespace TheraEngine.Rendering.UI.Functions
 {
     public interface IFuncValueInput : IBaseFuncValue
     {
@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.HUD.Functions
         void ClearConnection();
     }
     public class FuncValueInput<TOutput, TParent> : BaseFuncValue<TOutput>, IFuncValueInput
-        where TOutput : HudComponent, IFuncValueOutput where TParent : HudComponent, IFunction
+        where TOutput : UIComponent, IFuncValueOutput where TParent : UIComponent, IFunction
     {
         public override bool IsOutput => false;
         public TOutput ConnectedTo

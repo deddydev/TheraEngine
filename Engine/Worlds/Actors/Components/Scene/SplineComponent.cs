@@ -75,12 +75,12 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         }
         public override void OnSpawned()
         {
-            Engine.Scene.RegisterSpline(this);
+            Engine.RegisterSpline(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            Engine.Scene.UnregisterSpline(this);
+            Engine.UnregisterSpline(this);
             base.OnDespawned();
         }
 

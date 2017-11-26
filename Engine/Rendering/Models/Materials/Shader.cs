@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.Models.Materials
         TessControl,        // https://www.opengl.org/wiki/Tessellation_Control_Shader
         Compute             // https://www.opengl.org/wiki/Compute_Shader
     }
-    public class Shader
+    public class Shader : FileObject
     {
         public event EventHandler Compiled;
 

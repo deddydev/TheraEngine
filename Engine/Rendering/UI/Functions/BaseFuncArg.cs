@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace TheraEngine.Rendering.HUD.Functions
+namespace TheraEngine.Rendering.UI.Functions
 {
-    public abstract class BaseFuncArg : HudComponent
+    public abstract class BaseFuncArg : UIComponent
     {
         public BaseFuncArg(string name)
         {
@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering.HUD.Functions
         public BaseFuncArg(string name, IFunction parent)
         {
             _name = name;
-            _parent = (HudComponent)parent;
+            _parent = (UIComponent)parent;
         }
         public abstract bool IsOutput { get; }
         public override string ToString() => Name;

@@ -95,8 +95,11 @@ namespace System
             }
         }
         
-        public bool Contains(Vec2 point)
-            => point.X <= X && point.Y <= Y;
+        public bool Contains(Vec2 point) => 
+            point.X <= X &&
+            point.Y <= Y && 
+            point.X >= 0.0f && 
+            point.Y >= 0.0f;
 
         public float DistanceToFast(Vec2 otherPoint)
             => (otherPoint - this).LengthFast;

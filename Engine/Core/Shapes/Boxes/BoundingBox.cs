@@ -11,7 +11,6 @@ namespace TheraEngine.Core.Shapes
     /// Axis Aligned Bounding Box (AABB)
     /// </summary>
     [FileClass("SHAPE", "Axis-Aligned Bounding Box")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class BoundingBox : Shape
     {
         //public static List<BoundingBox> Active = new List<BoundingBox>();
@@ -21,8 +20,7 @@ namespace TheraEngine.Core.Shapes
         protected EventVec3 _halfExtents = Vec3.Half;
         [TSerialize("Translation")]
         protected EventVec3 _translation = Vec3.Zero;
-
-        //[TypeConverter(typeof(Vec3StringConverter))]
+        
         public Vec3 Minimum
         {
             get => _translation - _halfExtents;
@@ -32,8 +30,6 @@ namespace TheraEngine.Core.Shapes
                 _halfExtents.Raw = (Maximum - value) / 2.0f;
             }
         }
-
-        //[TypeConverter(typeof(Vec3StringConverter))]
         public Vec3 Maximum
         {
             get => _translation + _halfExtents;
@@ -43,13 +39,11 @@ namespace TheraEngine.Core.Shapes
                 _halfExtents.Raw = (value - Minimum) / 2.0f;
             }
         }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public EventVec3 HalfExtents
         {
             get => _halfExtents;
             set => _halfExtents = value;
         }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public EventVec3 Translation
         {
             get => _translation;

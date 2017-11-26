@@ -7,7 +7,7 @@ using TheraEngine.Animation;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(Vec2))]
+    [PropGridControlFor(typeof(Vec2))]
     public partial class PropGridVec2 : PropGridItem
     {
         public PropGridVec2() => InitializeComponent();
@@ -32,7 +32,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (PropertyOwner is ObjectBase obj)
             {
                 var anims = obj.Animations?.
-                    Where(x => x.RootFolder?._propertyName == Property.Name && x.RootFolder?._animation != null).
+                    Where(x => x.RootFolder?.PropertyName == Property.Name && x.RootFolder?.Animation.File != null).
                     Select(x => new MenuItem(x.Name, EditAnimation) { Tag = x }).
                     ToArray();
 

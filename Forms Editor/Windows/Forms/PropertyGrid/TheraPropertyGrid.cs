@@ -19,22 +19,34 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class TheraPropertyGrid : UserControl
     {
-        public static Dictionary<Type, Type> SubItemControlTypes = new Dictionary<Type, Type>();
+        public static Dictionary<Type, Type> InPlaceEditorTypes = new Dictionary<Type, Type>();
+        public static Dictionary<Type, Type> FullEditorTypes = new Dictionary<Type, Type>();
         static TheraPropertyGrid()
         {
             var propControls = Program.FindPublicTypes(x => x.IsSubclassOf(typeof(PropGridItem)));
             foreach (var propControlType in propControls)
             {
-                var attribs = propControlType.GetCustomAttributesExt<PropGridItemAttribute>();
+                var attribs = propControlType.GetCustomAttributesExt<PropGridControlForAttribute>();
                 if (attribs.Length > 0)
                 {
-                    PropGridItemAttribute a = attribs[0];
+                    PropGridControlForAttribute a = attribs[0];
                     foreach (Type varType in a.Types)
                     {
-                        if (SubItemControlTypes.ContainsKey(varType))
+                        if (InPlaceEditorTypes.ContainsKey(varType))
                             throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
-                        SubItemControlTypes.Add(varType, propControlType);
+                        InPlaceEditorTypes.Add(varType, propControlType);
                     }
+                }
+            }
+            var fullEditors = Program.FindPublicTypes(x => x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null);
+            foreach (var editorType in fullEditors)
+            {
+                var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
+                foreach (Type varType in attrib.DataTypes)
+                {
+                    if (FullEditorTypes.ContainsKey(varType))
+                        throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
+                    FullEditorTypes.Add(varType, editorType);
                 }
             }
         }
@@ -77,7 +89,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //If scene component, select it in the scene
                 if (_subObject is SceneComponent s)
                 {
-                    EditorHud hud = (EditorHud)Engine.ActivePlayers[0].ControlledPawn.Hud;
+                    EditorHud hud = (EditorHud)Engine.ActivePlayers[0].ControlledPawn.HUD;
                     hud.SelectedComponent = s;
                 }
 
@@ -161,7 +173,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             public bool ReadOnly { get; set; }
         }
         
-        private async void LoadProperties(object obj)
+        private void LoadProperties(object obj)
         {
             pnlProps.SuspendLayout();
 
@@ -175,63 +187,70 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 pnlProps.ResumeLayout(true);
                 return;
             }
-
-            Type targetObjectType = obj.GetType();
-            PropertyInfo[] props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            MethodInfo[] methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-            
+            PropertyInfo[] props = null;
+            MethodInfo[] methods = null;
             ConcurrentDictionary<int, PropertyData> info = new ConcurrentDictionary<int, PropertyData>();
-            await Task.Run(() => Parallel.For(0, props.Length, i =>
+            Task.Run(() =>
             {
-                PropertyInfo prop = props[i];
-                var indexParams = prop.GetIndexParameters();
-                if (indexParams != null && indexParams.Length > 0)
-                    return;
-
-                object propObj = prop.GetValue(obj);
-                Type subType = propObj?.GetType() ?? prop.PropertyType;
-                var attribs = prop.GetCustomAttributes(true);
-                bool readOnly = false;
-
-                foreach (var attrib in attribs)
+                Type targetObjectType = obj.GetType();
+                props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+                Parallel.For(0, props.Length, i =>
                 {
-                    if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
+                    PropertyInfo prop = props[i];
+                    var indexParams = prop.GetIndexParameters();
+                    if (indexParams != null && indexParams.Length > 0)
                         return;
-                    if (attrib is BrowsableIfAttribute browsableIf && !browsableIf.Evaluate(obj))
-                        return;
-                    if (attrib is ReadOnlyAttribute readOnlyAttrib)
-                        readOnly = readOnlyAttrib.IsReadOnly;
-                }
 
-                PropertyData p = new PropertyData()
+                    object propObj = prop.GetValue(obj);
+                    Type subType = propObj?.GetType() ?? prop.PropertyType;
+                    var attribs = prop.GetCustomAttributes(true);
+                    bool readOnly = false;
+
+                    foreach (var attrib in attribs)
+                    {
+                        if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
+                            return;
+                        if (attrib is BrowsableIfAttribute browsableIf && !browsableIf.Evaluate(obj))
+                            return;
+                        if (attrib is ReadOnlyAttribute readOnlyAttrib)
+                            readOnly = readOnlyAttrib.IsReadOnly;
+                    }
+
+                    PropertyData p = new PropertyData()
+                    {
+                        ControlTypes = GetControlTypes(subType),
+                        Property = prop,
+                        Attribs = attribs,
+                        ReadOnly = readOnly,
+                    };
+
+                    info.TryAdd(i, p);
+                });
+            }).ContinueWith(t =>
+            {
+                Invoke((Action)(() =>
                 {
-                    ControlTypes = GetControlTypes(subType),
-                    Property = prop,
-                    Attribs = attribs,
-                    ReadOnly = readOnly,
-                };
-                
-                info.TryAdd(i, p);
-            }));
+                    for (int i = 0; i < props.Length; ++i)
+                    {
+                        if (!info.ContainsKey(i))
+                            continue;
+                        PropertyData p = info[i];
+                        CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly);
+                    }
 
-            for (int i = 0; i < props.Length; ++i)
-            {
-                if (!info.ContainsKey(i))
-                    continue;
-                PropertyData p = info[i];
-                CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly);
-            }
+                    for (int i = 0; i < methods.Length; ++i)
+                    {
+                        MethodInfo p = methods[i];
+                        //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
+                    }
 
-            for (int i = 0; i < methods.Length; ++i)
-            {
-                MethodInfo p = methods[i];
-                //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
-            }
+                    if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                        _categories.Values.ToArray()[0].CategoryName = null;
 
-            if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
-                _categories.Values.ToArray()[0].CategoryName = null;
-
-            pnlProps.ResumeLayout(true);
+                    pnlProps.ResumeLayout(true);
+                }));
+            });
         }
 
         public static Deque<Type> GetControlTypes(Type propertyType)
@@ -241,17 +260,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Deque<Type> controlTypes = new Deque<Type>();
             while (subType != null)
             {
-                if (mainControlType == null && SubItemControlTypes.ContainsKey(subType))
+                if (mainControlType == null && InPlaceEditorTypes.ContainsKey(subType))
                 {
-                    mainControlType = SubItemControlTypes[subType];
+                    mainControlType = InPlaceEditorTypes[subType];
                     if (!controlTypes.Contains(mainControlType))
                         controlTypes.PushFront(mainControlType);
                 }
                 Type[] interfaces = subType.GetInterfaces();
                 foreach (Type i in interfaces)
-                    if (SubItemControlTypes.ContainsKey(i))
+                    if (InPlaceEditorTypes.ContainsKey(i))
                     {
-                        Type controlType = SubItemControlTypes[i];
+                        Type controlType = InPlaceEditorTypes[i];
                         if (!controlTypes.Contains(controlType))
                             controlTypes.PushBack(controlType);
                     }

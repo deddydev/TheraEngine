@@ -40,8 +40,8 @@ namespace TheraEditor.Windows.Forms
         }
         protected override bool TryParse(string text, out Double value)
             => Double.TryParse(text, out value);
-        public override Double MinimumValue => Double.MinValue;
-        public override Double MaximumValue => Double.MaxValue;
+        public override Double MinimumValue { get; set; } = Double.MinValue;
+        public override Double MaximumValue { get; set; } = Double.MaxValue;
         public override bool Integral => false;
         public override bool Signed => true;
         private int _enforcedDecimals = -1;

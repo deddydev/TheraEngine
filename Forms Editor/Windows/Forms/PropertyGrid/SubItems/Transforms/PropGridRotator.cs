@@ -3,7 +3,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(Rotator))]
+    [PropGridControlFor(typeof(Rotator))]
     public partial class PropGridRotator : PropGridItem
     {
         public PropGridRotator()

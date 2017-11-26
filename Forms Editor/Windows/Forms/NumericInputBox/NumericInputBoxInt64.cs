@@ -26,8 +26,8 @@ namespace TheraEditor.Windows.Forms
         }
         protected override bool TryParse(string text, out Int64 value)
             => Int64.TryParse(text, out value);
-        public override Int64 MinimumValue => Int64.MinValue;
-        public override Int64 MaximumValue => Int64.MaxValue;
+        public override Int64 MinimumValue { get; set; } = Int64.MinValue;
+        public override Int64 MaximumValue { get; set; } = Int64.MaxValue;
         public override bool Integral => true;
         public override bool Signed => true;
     }

@@ -160,24 +160,24 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosZQuad(float xScale, float yScale, bool bottomLeftOrigin)
+        public static VertexQuad PosZQuad(float xScale, float yScale, float z, bool bottomLeftOrigin)
         {
             if (bottomLeftOrigin)
             {
-                Vec3 v1 = new Vec3(0.0f, 0.0f, 0.0f);
-                Vec3 v2 = new Vec3(xScale, 0.0f, 0.0f);
-                Vec3 v3 = new Vec3(xScale, yScale, 0.0f);
-                Vec3 v4 = new Vec3(0.0f, yScale, 0.0f);
+                Vec3 v1 = new Vec3(0.0f, 0.0f, z);
+                Vec3 v2 = new Vec3(xScale, 0.0f, z);
+                Vec3 v3 = new Vec3(xScale, yScale, z);
+                Vec3 v4 = new Vec3(0.0f, yScale, z);
                 return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ);
             }
             else
             {
                 float xHalf = xScale / 2.0f;
                 float yHalf = yScale / 2.0f;
-                Vec3 v1 = new Vec3(-xHalf, -yHalf, 0.0f);
-                Vec3 v2 = new Vec3(xHalf, -yHalf, 0.0f);
-                Vec3 v3 = new Vec3(xHalf, yHalf, 0.0f);
-                Vec3 v4 = new Vec3(-xHalf, yHalf, 0.0f);
+                Vec3 v1 = new Vec3(-xHalf, -yHalf, z);
+                Vec3 v2 = new Vec3(xHalf, -yHalf, z);
+                Vec3 v3 = new Vec3(xHalf, yHalf, z);
+                Vec3 v4 = new Vec3(-xHalf, yHalf, z);
                 return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ);
             }
         }

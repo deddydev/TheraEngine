@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using TheraEngine.Rendering.HUD.Functions;
+using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

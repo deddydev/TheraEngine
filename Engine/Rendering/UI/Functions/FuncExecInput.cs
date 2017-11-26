@@ -1,11 +1,11 @@
-﻿namespace TheraEngine.Rendering.HUD.Functions
+﻿namespace TheraEngine.Rendering.UI.Functions
 {
     public interface IFuncExecInput : IBaseFuncExec
     {
         void SetConnection(IFuncExecOutput other);
     }
     public class FuncExecInput<TOutput, TParent> : BaseFuncExec<TOutput>, IFuncExecInput
-        where TOutput : HudComponent, IFuncExecOutput where TParent : HudComponent, IFunction
+        where TOutput : UIComponent, IFuncExecOutput where TParent : UIComponent, IFunction
     {
         public override bool IsOutput => false;
 

@@ -11,7 +11,6 @@ using System;
 namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Sphere")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Sphere : Shape
     {
         [TSerialize("Radius")]

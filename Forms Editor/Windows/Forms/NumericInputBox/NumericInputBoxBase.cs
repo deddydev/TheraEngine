@@ -41,8 +41,8 @@ namespace TheraEditor.Windows.Forms
         protected abstract bool NumbersAreEqual(T? value1, T? value2);
         protected abstract bool TryParse(string text, out T value);
 
-        public abstract T MinimumValue { get; }
-        public abstract T MaximumValue { get; }
+        public abstract T MinimumValue { get; set; }
+        public abstract T MaximumValue { get; set; }
         public abstract bool Integral { get; }
         public abstract bool Signed { get; }
 

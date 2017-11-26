@@ -28,8 +28,10 @@ namespace TheraEditor.Windows.Forms
         /// <returns></returns>
         public bool Initialize(Type type, bool allowDerivedTypes)
         {
-            ClassType = type;
             ArrayMode = type.IsArray;
+
+            if (ArrayMode)
+                type = type.GetElementType();
 
             if (allowDerivedTypes)
             {
@@ -44,19 +46,22 @@ namespace TheraEditor.Windows.Forms
                 return false;
             else
             {
-                string typeName = type.GetFriendlyName();
-                ToolStripDropDownButton btn = new ToolStripDropDownButton(typeName)
-                {
-                    AutoSize = false,
-                    ShowDropDownArrow = false,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    Tag = type,
-                };
-                Size s = TextRenderer.MeasureText(typeName, btn.Font);
-                btn.Width = s.Width;
-                btn.Height = s.Height + 10;
-                btn.Click += OnTypeSelected;
-                toolStripDropDownButton1.DropDownItems.Add(btn);
+                SetTargetType(type);
+                toolStripTypeSelection.Visible = false;
+
+                //string typeName = type.GetFriendlyName();
+                //ToolStripDropDownButton btn = new ToolStripDropDownButton(typeName)
+                //{
+                //    AutoSize = false,
+                //    ShowDropDownArrow = false,
+                //    TextAlign = ContentAlignment.MiddleLeft,
+                //    Tag = type,
+                //};
+                //Size s = TextRenderer.MeasureText(typeName, btn.Font);
+                //btn.Width = s.Width;
+                //btn.Height = s.Height + 10;
+                //btn.Click += OnTypeSelected;
+                //toolStripDropDownButton1.DropDownItems.Add(btn);
             }
             
             return true;
@@ -71,6 +76,7 @@ namespace TheraEditor.Windows.Forms
         public ObjectCreator() : base()
         {
             InitializeComponent();
+            numericInputBoxSingle1.MinimumValue = 0;
         }
 
         private bool _updating = false;
@@ -100,7 +106,7 @@ namespace TheraEditor.Windows.Forms
         private class ArgumentInfo
         {
             public Type Type { get; set; }
-            public int Index { get; set; }
+            public int ColumnIndex { get; set; }
             public int RowIndex { get; set; }
             public object Value { get; set; }
         }
@@ -120,6 +126,15 @@ namespace TheraEditor.Windows.Forms
                 toolStripTypeSelection.Visible = !_arrayMode;
                 pnlArrayLength.Visible = _arrayMode;
                 toolStripDropDownButton1.Text = _arrayMode ? "Select an element type..." : "Select an object type...";
+
+                tblConstructors.ColumnStyles.Clear();
+                tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+                tblConstructors.ColumnCount = 1;
+
+                tblConstructors.RowStyles.Clear();
+                tblConstructors.RowCount = numericInputBoxSingle1.Value.Value;
+                for (int i = 0; i < tblConstructors.RowCount; ++i)
+                    tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             }
         }
 
@@ -143,10 +158,6 @@ namespace TheraEditor.Windows.Forms
         }
         private void SetTargetType(Type type)
         {
-            tblConstructors.RowStyles.Clear();
-            tblConstructors.RowCount = 0;
-            tblConstructors.ColumnStyles.Clear();
-            tblConstructors.ColumnCount = 0;
             tblConstructors.Controls.Clear();
             ClassType = type;
 
@@ -154,10 +165,17 @@ namespace TheraEditor.Windows.Forms
 
             if (ArrayMode)
             {
-                FinalArguments = new object[numericInputBoxSingle1.Value.Value][];
+                FinalArguments = new object[numericInputBoxSingle1.Value.Value][].FilledWith(new object[1] { type.GetDefaultValue() });
+                for (int i = 0; i < numericInputBoxSingle1.Value.Value; ++i)
+                    tblConstructors.Controls.Add(CreateControl(type, 0, i, FinalArguments));
             }
             else
             {
+                tblConstructors.RowStyles.Clear();
+                tblConstructors.RowCount = 0;
+                tblConstructors.ColumnStyles.Clear();
+                tblConstructors.ColumnCount = 0;
+
                 PublicInstanceConstructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
                 //if (PublicInstanceConstructors.Length == 1)
                 //{
@@ -255,21 +273,60 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        public static Control CreateControl(Type t, int parameterIndex, int rowIndex, object[][] finalArguments)
+        private void numericInputBoxSingle1_ValueChanged(NumericInputBoxBase<int> box, int? previous, int? current)
+        {
+            object[][] array = FinalArguments;
+            int countBefore;
+            if (array == null)
+            {
+                array = new object[current.Value][];
+                if (current.Value == 0)
+                    return;
+                countBefore = 0;
+            }
+            else
+            {
+                if (current.Value == array.Length || current.Value < 0)
+                    return;
+                countBefore = array.Length;
+                Array.Resize(ref array, current.Value);
+            }
+            FinalArguments = array;
+            tblConstructors.RowCount = array.Length;
+            if (countBefore < array.Length)
+            {
+                object def = ClassType.GetDefaultValue();
+                for (int i = countBefore; i < array.Length; ++i)
+                {
+                    tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    FinalArguments[i] = new object[1] { def };
+                    tblConstructors.Controls.Add(CreateControl(ClassType, 0, i, FinalArguments), 0, i);
+                }
+            }
+            else
+            {
+                for (int i = array.Length; i < countBefore; ++i)
+                {
+                    tblConstructors.RowStyles.RemoveAt(array.Length);
+                    tblConstructors.Controls.Remove(tblConstructors.GetControlFromPosition(0, i));
+                }
+            }
+        }
+        public static Control CreateControl(Type type, int columnIndex, int rowIndex, object[][] finalArguments)
         {
             Control paramTool = null;
             bool nullable = false;
             ArgumentInfo arg = new ArgumentInfo()
             {
-                Type = t,
-                Index = parameterIndex,
+                Type = type,
+                ColumnIndex = columnIndex,
                 RowIndex = rowIndex,
-                Value = t.GetDefaultValue(),
+                Value = finalArguments[rowIndex][columnIndex],
             };
-            Type temp = Nullable.GetUnderlyingType(t);
+            Type temp = Nullable.GetUnderlyingType(type);
             if (nullable = temp != null)
-                t = temp;
-            switch (t.Name)
+                type = temp;
+            switch (type.Name)
             {
                 case "Boolean":
                     {
@@ -277,13 +334,14 @@ namespace TheraEditor.Windows.Forms
                         {
                             Tag = arg,
                             ThreeState = nullable,
+                            CheckState = (arg.Value == null ? CheckState.Indeterminate : ((bool)arg.Value == true ? CheckState.Checked : CheckState.Unchecked)),
                         };
                         box.CheckedChanged += (sender, e) =>
                         {
                             CheckBox checkBox = (CheckBox)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)checkBox.Tag;
 
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = 
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = 
                             argInfo.Value = (checkBox.CheckState == CheckState.Checked ? true : (checkBox.CheckState == CheckState.Indeterminate ? (bool?)null : false));
                         };
                         paramTool = box;
@@ -294,13 +352,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxSByte box = new NumericInputBoxSByte()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (sbyte?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -310,22 +369,25 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxByte box = new NumericInputBoxByte()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (byte?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
                     break;
                 case "Char":
                     {
+                        //TODO
                         TextBox box = new TextBox()
                         {
-                            Tag = arg
+                            Tag = arg,
+                            Text = ((char)arg.Value).ToString(),
                         };
                         paramTool = box;
                     }
@@ -335,13 +397,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxInt16 box = new NumericInputBoxInt16()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (short?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -351,13 +414,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxUInt16 box = new NumericInputBoxUInt16()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (ushort?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -367,13 +431,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxInt32 box = new NumericInputBoxInt32()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (int?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -383,13 +448,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxUInt32 box = new NumericInputBoxUInt32()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (uint?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -399,13 +465,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxInt64 box = new NumericInputBoxInt64()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (long?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -415,13 +482,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxUInt64 box = new NumericInputBoxUInt64()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (ulong?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -431,13 +499,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxSingle box = new NumericInputBoxSingle()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (float?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -447,13 +516,14 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxDouble box = new NumericInputBoxDouble()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (double?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -463,53 +533,54 @@ namespace TheraEditor.Windows.Forms
                         NumericInputBoxDecimal box = new NumericInputBoxDecimal()
                         {
                             Nullable = nullable,
-                            Tag = arg
+                            Tag = arg,
+                            Value = (decimal?)arg.Value,
                         };
                         box.ValueChanged += (b, prev, current) =>
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = current;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
                     break;
                 case "String":
                     {
-                        //TODO: make nullable
                         TextBox box = new TextBox()
                         {
                             Tag = arg,
+                            Text = arg.Value as string,
                         };
                         box.TextChanged += (sender, e) =>
                         {
                             TextBox s = (TextBox)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
                             argInfo.Value = s.Text;
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = s.Text;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = s.Text;
                         };
                         paramTool = box;
                     }
                     break;
                 default:
                     {
-                        Label defaultLabel = new Label()
+                        Label objectSelectionLabel = new Label()
                         {
                             Text = arg.Value == null ? "null" : arg.Value.ToString(),
                             Tag = arg,
                             BackColor = Color.FromArgb(70, 75, 90),
                         };
-                        defaultLabel.MouseEnter += (sender, e) =>
+                        objectSelectionLabel.MouseEnter += (sender, e) =>
                         {
                             Label s = (Label)sender;
                             s.BackColor = Color.FromArgb(50, 55, 70);
                         };
-                        defaultLabel.MouseLeave += (sender, e) =>
+                        objectSelectionLabel.MouseLeave += (sender, e) =>
                         {
                             Label s = (Label)sender;
                             s.BackColor = Color.FromArgb(70, 75, 90);
                         };
-                        defaultLabel.MouseClick += (sender, e) =>
+                        objectSelectionLabel.MouseClick += (sender, e) =>
                         {
                             Label s = (Label)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
@@ -521,9 +592,9 @@ namespace TheraEditor.Windows.Forms
 
                             argInfo.Value = o;
                             s.Text = o == null ? "null" : o.ToString();
-                            finalArguments[argInfo.RowIndex][argInfo.Index] = o;
+                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = o;
                         };
-                        paramTool = defaultLabel;
+                        paramTool = objectSelectionLabel;
                     }
                     break;
             }
@@ -537,39 +608,6 @@ namespace TheraEditor.Windows.Forms
                 paramTool.ForeColor = Color.FromArgb(200, 200, 220);
             }
             return paramTool;
-        }
-
-        private void numericInputBoxSingle1_ValueChanged(NumericInputBoxBase<int> box, int? previous, int? current)
-        {
-            object[] array = ArrayData;
-            int countBefore;
-            if (array == null)
-            {
-                countBefore = 0;
-                array = new object[current.Value];
-            }
-            else
-            {
-                countBefore = array.Length;
-                if (current.Value == array.Length)
-                    return;
-                Array.Resize(ref array, current.Value);
-            }
-            ArrayData = array;
-            if (countBefore < array.Length)
-            {
-                for (int i = countBefore; i < array.Length; ++i)
-                {
-
-                }
-            }
-            else
-            {
-                for (int i = array.Length; i < countBefore; ++i)
-                {
-
-                }
-            }
         }
     }
 }

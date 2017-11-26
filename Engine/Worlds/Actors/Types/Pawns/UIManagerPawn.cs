@@ -5,29 +5,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
 using System.Windows.Forms;
-using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Worlds.Actors.Types.Pawns
 {
-    public partial class HudManager : Pawn<DockableHudComponent>
+    public partial class UIManager : Pawn<UIDockableComponent>
     {
         private Vec2 _cursorPos = Vec2.Zero;
-        private HudComponent _focusedComponent;
+        private UIComponent _focusedComponent;
 
         public Vec2 CursorPosition //=> _cursorPos;
         {
             get
             {
                 Point absolute = Cursor.Position;
-                if (RenderPanel.HoveredPanel != null)
-                    absolute = (Point)RenderPanel.HoveredPanel.Invoke(RenderPanel.HoveredPanel.PointToClientDelegate, absolute);
+                if (BaseRenderPanel.HoveredPanel != null)
+                    absolute = (Point)BaseRenderPanel.HoveredPanel.Invoke(BaseRenderPanel.HoveredPanel.PointToClientDelegate, absolute);
                 return new Vec2(absolute.X, absolute.Y);
             }
         }
 
-        protected override DockableHudComponent OnConstruct()
+        protected override UIDockableComponent OnConstruct()
         {
-            return new DockableHudComponent();
+            return new UIDockableComponent();
         }
         public override void RegisterInput(InputInterface input)
         {
@@ -72,20 +72,20 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             _cursorPos.Y = y;
         }
 
-        public List<HudComponent> FindAllComponents(Vec2 viewportPoint)
+        public List<UIComponent> FindAllComponents(Vec2 viewportPoint)
         {
-            List<I2DBoundable> results = _childComponentTree.FindClosest(viewportPoint);
-            return results?.Select(x => (HudComponent)x).ToList();
+            List<I2DBoundable> results = _scene.RenderTree.FindClosest(viewportPoint);
+            return results?.Select(x => (UIComponent)x).ToList();
             //return RootComponent.FindComponent(viewportPoint);
         }
-        public HudComponent FindClosestComponent(Vec2 viewportPoint)
+        public UIComponent FindClosestComponent(Vec2 viewportPoint)
         {
-            List<HudComponent> results = FindAllComponents(viewportPoint);
+            List<UIComponent> results = FindAllComponents(viewportPoint);
             if (results == null)
                 return null;
-            HudComponent current = null;
+            UIComponent current = null;
             //Larger z-indices means the component is closer
-            foreach (HudComponent comp in results)
+            foreach (UIComponent comp in results)
                 if (current == null || comp.LayerIndex >= current.LayerIndex)
                     current = comp;
             return current;

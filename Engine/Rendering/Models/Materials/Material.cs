@@ -17,6 +17,15 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public event Action SettingUniforms;
 
+#if EDITOR
+        public ResultBasicFunc EditorMaterialEnd
+        {
+            get => _editorMaterialEnd;
+            set => _editorMaterialEnd = value;
+        }
+        private ResultBasicFunc _editorMaterialEnd;
+#endif
+
         private List<Shader> _geometryShaders;
         private List<Shader> _tessEvalShaders;
         private List<Shader> _tessCtrlShaders;
@@ -352,7 +361,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 Requirements = UniformRequirements.None,
             };
         }
-        public static Material GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static Material GetLitTextureMaterial(bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
@@ -361,7 +370,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-        public static Material GetLitTextureMaterial(TextureReference2D texture) => GetLitTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitTextureMaterial(TextureReference2D texture) => GetLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static Material GetLitTextureMaterial(TextureReference2D texture, bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
@@ -383,9 +392,9 @@ namespace TheraEngine.Rendering.Models.Materials
                 Requirements = UniformRequirements.None
             };
         }
-        public static Material GetLitColorMaterial() => GetLitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitColorMaterial() => GetLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static Material GetLitColorMaterial(bool deferred) => GetLitColorMaterial(Color.DarkTurquoise, deferred);
-        public static Material GetLitColorMaterial(ColorF4 color) => GetLitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitColorMaterial(ColorF4 color) => GetLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static Material GetLitColorMaterial(ColorF4 color, bool deferred)
         {
             ShaderVar[] parameters = new ShaderVar[]

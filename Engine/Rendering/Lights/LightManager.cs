@@ -91,7 +91,7 @@ namespace TheraEngine.Rendering
             if (Engine.Settings.RenderLights)
                 Engine.Scene.Remove(light._cullingVolume);
         }
-        internal void RenderShadowMaps(SceneProcessor scene)
+        internal void RenderShadowMaps(SceneProcessor3D scene)
         {
             foreach (DirectionalLightComponent l in _directionalLights)
                 l.RenderShadowMap(scene);

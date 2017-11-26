@@ -179,33 +179,28 @@ namespace TheraEngine.GameModes
         
         protected internal virtual void HandleLocalPlayerLeft(ControllerType item)
         {
-            RenderPanel.GamePanel?.UnregisterController(item);
+            item.Viewport.HUD = null;
+            BaseRenderPanel.WorldPanel?.UnregisterController(item);
         }
         protected internal virtual void HandleLocalPlayerJoined(ControllerType item)
         {
-            RenderPanel p = RenderPanel.GamePanel;
-            if (p != null)
-            {
-                Viewport v = p.GetViewport((int)item.LocalPlayerIndex) ?? p.AddViewport();
-                if (v != null)
-                    v.RegisterController(item);
-            }
+            BaseRenderPanel.WorldPanel?.GetOrAddViewport((int)item.LocalPlayerIndex)?.RegisterController(item);
+            
             PawnType pawn = _pawnClass.CreateNew();
-            if (item.ControlledPawn == null)
-                item.ControlledPawn = pawn;
-            else
-                item.EnqueuePosession(pawn);
+            item.Viewport.HUD = pawn.HUD;
+            item.EnqueuePosession(pawn);
             Engine.World.SpawnActor(pawn);
         }
         protected internal override void CreateLocalController(LocalPlayerIndex index, Queue<IPawn> queue)
         {
-            ControllerType t = ControllerClass.CreateNew(index, queue);
-            Engine.ActivePlayers.Add(t);
-            HandleLocalPlayerJoined(t);
+            InitController(ControllerClass.CreateNew(index, queue));
         }
         protected internal override void CreateLocalController(LocalPlayerIndex index)
         {
-            ControllerType t = ControllerClass.CreateNew(index);
+            InitController(ControllerClass.CreateNew(index));
+        }
+        private void InitController(ControllerType t)
+        {
             Engine.ActivePlayers.Add(t);
             HandleLocalPlayerJoined(t);
         }

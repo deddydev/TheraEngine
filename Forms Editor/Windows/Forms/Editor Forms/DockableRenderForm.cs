@@ -22,7 +22,35 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.AllowDrop = true;
         }
 
-        public static DockableRenderForm ActiveRenderForm { get; set; } = null;
+        private static DockableRenderForm _activeRenderForm = null;
+        public static DockableRenderForm ActiveRenderForm
+        {
+            get => _activeRenderForm;
+            set
+            {
+                if (_activeRenderForm != null)
+                {
+                    int index = (int)_activeRenderForm.PlayerIndex;
+                    if (index < Engine.ActivePlayers.Count)
+                    {
+                        LocalPlayerController c = Engine.ActivePlayers[index];
+                        _activeRenderForm.RenderPanel.UnregisterController(c);
+                        c.ControlledPawn = null;
+                    }
+                }
+                _activeRenderForm = value;
+                if (_activeRenderForm != null)
+                {
+                    int index = (int)_activeRenderForm.PlayerIndex;
+                    if (index < Engine.ActivePlayers.Count)
+                    {
+                        LocalPlayerController c = Engine.ActivePlayers[index];
+                        _activeRenderForm.RenderPanel?.GetViewport(0)?.RegisterController(c);
+                        c.ControlledPawn = _activeRenderForm.EditorPawn;
+                    }
+                }
+            }
+        }
         public int FormIndex { get; private set; }
         public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
         public FlyingCameraPawn EditorPawn { get; private set; }
@@ -31,13 +59,13 @@ namespace TheraEditor.Windows.Forms
         {
             EditorPawn = new FlyingCameraPawn(PlayerIndex)
             {
-                Hud = new EditorHud(RenderPanel.ClientSize)
+                HUD = new EditorHud(RenderPanel.ClientSize)
             };
             Engine.World.SpawnActor(EditorPawn);
-
-            Viewport v = RenderPanel.GetViewport(0) ?? RenderPanel.AddViewport();
+            
             if (Engine.ActivePlayers.Count > 0)
-                v.RegisterController(Engine.ActivePlayers[0]);
+                RenderPanel.GetOrAddViewport(0).RegisterController(Engine.ActivePlayers[0]);
+
             base.OnShown(e);
         }
         protected override void OnClosed(EventArgs e)
@@ -55,14 +83,6 @@ namespace TheraEditor.Windows.Forms
         protected override void OnGotFocus(EventArgs e)
         {
             ActiveRenderForm = this;
-            int index = (int)PlayerIndex;
-            if (index >= Engine.ActivePlayers.Count)
-                return;
-            LocalPlayerController c = Engine.ActivePlayers[index];
-            Viewport v = RenderPanel?.GetViewport(0);
-            if (v != null)
-                v.RegisterController(c);
-            c.ControlledPawn = EditorPawn;
             base.OnGotFocus(e);
         }
         protected override void OnLostFocus(EventArgs e)
@@ -104,7 +124,7 @@ namespace TheraEditor.Windows.Forms
             if (instance is IActor actor)
             {
                 Engine.World.SpawnActor(actor);
-                EditorHud hud = EditorPawn.Hud as EditorHud;
+                EditorHud hud = EditorPawn.HUD as EditorHud;
                 hud.HighlightedComponent = actor.RootComponent;
                 hud.MouseDown();
             }
@@ -112,7 +132,7 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_DragLeave(object sender, EventArgs e)
         {
-            EditorHud hud = EditorPawn.Hud as EditorHud;
+            EditorHud hud = EditorPawn.HUD as EditorHud;
             if (hud.DragComponent != null)
             {
                 Engine.World.DespawnActor(hud.DragComponent.OwningActor);

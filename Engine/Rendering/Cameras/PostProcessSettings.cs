@@ -12,7 +12,6 @@ namespace TheraEngine.Rendering.Cameras
         //public bool Enabled { get => _enabled; set => _enabled = value; }
     }
     [FileClass("POSTP", "Camera Post-Processing Settings")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class PostProcessSettings : FileObject
     {
         public PostProcessSettings()
@@ -43,31 +42,18 @@ namespace TheraEngine.Rendering.Cameras
 
         [DisplayName("Anti-Aliasing")]
         [Category("Post-Process Settings")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public AntiAliasSettings AntiAliasing { get => _antiAliasSettings; set => _antiAliasSettings = value; }
-        [DisplayName("Lens Flare")]
         [Category("Post-Process Settings")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public LensFlareSettings LensFlare { get => _lensFlareSettings; set => _lensFlareSettings = value; }
-        [DisplayName("Bloom")]
         [Category("Post-Process Settings")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public BloomSettings Bloom { get => _bloomSettings; set => _bloomSettings = value; }
-        [DisplayName("Color Grading")]
         [Category("Post-Process Settings")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public ColorGradeSettings ColorGrading { get => _colorGradeSettings; set => _colorGradeSettings = value; }
-        [DisplayName("Depth Of Field")]
         [Category("Post-Process Settings")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public DepthOfFieldSettings DepthOfField { get => _depthOfFieldSettings; set => _depthOfFieldSettings = value; }
-        [DisplayName("Vignette")]
         [Category("Post-Process Settings")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public VignetteSettings Vignette { get => _vignetteSettings; set => _vignetteSettings = value; }
-        [DisplayName("Ambient Occlusion")]
         [Category("Post-Process Settings")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public AmbientOcclusionSettings AmbientOcclusion { get => _ambientOcclusionSettings; set => _ambientOcclusionSettings = value; }
         
         internal void SetUniforms(int programBindingId)
@@ -102,12 +88,20 @@ namespace TheraEngine.Rendering.Cameras
         //[DragRange(0.0f, 100.0f)]
         //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Ambient Occlusion Settings")]
-        public float Radius { get => _radius; set => _radius = value; }
+        public float Radius
+        {
+            get => _radius;
+            set => _radius = value;
+        }
 
         //[DragRange(0.0f, 100.0f)]
         //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Ambient Occlusion Settings")]
-        public float Power { get => _power; set => _power = value; }
+        public float Power
+        {
+            get => _power;
+            set => _power = value;
+        }
 
         internal void SetUniforms(int programBindingId)
         {

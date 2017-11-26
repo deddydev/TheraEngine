@@ -243,9 +243,8 @@ namespace TheraEngine.Rendering.OpenGL
                 Engine.LogWarning("GL.CreateShader did not return a valid binding id.");
                 return 0;
             }
-
-            foreach (string s in source)
-                GL.ShaderSource(handle, s);
+            
+            GL.ShaderSource(handle, source.Length, source, source.Select(x => x.Length).ToArray());
             GL.CompileShader(handle);
 
 #if DEBUG
@@ -305,9 +304,9 @@ namespace TheraEngine.Rendering.OpenGL
             {
                 GL.GetProgramInfoLog(handle, out string info);
                 if (string.IsNullOrEmpty(info))
-                    Engine.PrintLine("Unable to link program, but no error was returned.");
+                    Engine.LogWarning("Unable to link program, but no error was returned.");
                 else
-                    Engine.PrintLine(info);
+                    Engine.LogWarning(info);
             }
 
             //We don't need these anymore now that they're part of the program
@@ -345,11 +344,11 @@ namespace TheraEngine.Rendering.OpenGL
             else
                 GL.Disable(EnableCap.DepthTest);
 
-            if (r.Blend.Enabled)
+            if (r.BlendMode.Enabled)
             {
                 GL.Enable(EnableCap.Blend);
-                BlendEquation(r.Blend.RgbEquation, r.Blend.AlphaEquation);
-                BlendFuncSeparate(r.Blend.RgbSrcFactor, r.Blend.RgbDstFactor, r.Blend.AlphaSrcFactor, r.Blend.AlphaDstFactor);
+                BlendEquation(r.BlendMode.RgbEquation, r.BlendMode.AlphaEquation);
+                BlendFuncSeparate(r.BlendMode.RgbSrcFactor, r.BlendMode.RgbDstFactor, r.BlendMode.AlphaSrcFactor, r.BlendMode.AlphaDstFactor);
             }
             else
                 GL.Disable(EnableCap.Blend);
@@ -762,7 +761,7 @@ namespace TheraEngine.Rendering.OpenGL
         public override int GetStencilIndex(float x, float y)
         {
             int val = 0;
-            GL.ReadPixels((int)x, (int)(RenderPanel.RenderingPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
+            GL.ReadPixels((int)x, (int)(BaseRenderPanel.RenderingPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
             return val & 0xFF;
         }
         public override float GetDepth(float x, float y)

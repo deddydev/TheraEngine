@@ -66,16 +66,16 @@ namespace TheraEngine.Input
             get => _viewport;
             set
             {
-                if (_viewport != null && _viewport.OwningPanel.GlobalHud != null)
-                    _input.WantsInputsRegistered -= _viewport.OwningPanel.GlobalHud.RegisterInput;
+                //if (_viewport != null && _viewport.OwningPanel.GlobalHud != null)
+                //    _input.WantsInputsRegistered -= _viewport.OwningPanel.GlobalHud.RegisterInput;
                 _viewport = value;
                 if (_viewport != null)
                 {
                     if (_controlledPawn != null)
                         UpdateViewport();
 
-                    if (_viewport.OwningPanel.GlobalHud != null)
-                        _input.WantsInputsRegistered += _viewport.OwningPanel.GlobalHud.RegisterInput;
+                    //if (_viewport.OwningPanel.GlobalHud != null)
+                    //    _input.WantsInputsRegistered += _viewport.OwningPanel.GlobalHud.RegisterInput;
                 }
             }
         }
@@ -103,8 +103,8 @@ namespace TheraEngine.Input
                     _input.TryUnregisterInput();
 
                     _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
-                    if (_controlledPawn.Hud != null && _controlledPawn != _controlledPawn.Hud)
-                        _input.WantsInputsRegistered -= _controlledPawn.Hud.RegisterInput;
+                    if (_controlledPawn.HUD != null && _controlledPawn != _controlledPawn.HUD)
+                        _input.WantsInputsRegistered -= _controlledPawn.HUD.RegisterInput;
                 }
 
                 _controlledPawn = value;
@@ -118,8 +118,8 @@ namespace TheraEngine.Input
                         UpdateViewport();
 
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
-                    if (_controlledPawn.Hud != null && _controlledPawn != _controlledPawn.Hud)
-                        _input.WantsInputsRegistered += _controlledPawn.Hud.RegisterInput;
+                    if (_controlledPawn.HUD != null && _controlledPawn != _controlledPawn.HUD)
+                        _input.WantsInputsRegistered += _controlledPawn.HUD.RegisterInput;
 
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
@@ -128,7 +128,7 @@ namespace TheraEngine.Input
         }
         private void UpdateViewport()
         {
-            _viewport.PawnHUD = _controlledPawn.Hud;
+            //_viewport.PawnHUD = _controlledPawn.Hud;
             if (_controlledPawn.CurrentCameraComponent != null)
                 _viewport.Camera = _controlledPawn.CurrentCameraComponent.Camera;
         }

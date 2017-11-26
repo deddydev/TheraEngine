@@ -158,7 +158,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             };
             return m;
         }
-        public override void RenderShadowMap(SceneProcessor scene)
+        public override void RenderShadowMap(SceneProcessor3D scene)
         {
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
             
@@ -167,13 +167,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 
             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
             Engine.Renderer.AllowDepthWrite(true);
-            
-            scene.PreRender(_shadowCamera, _shadowCamera.Frustum, true);
-            scene.Render(ERenderPass3D.OpaqueDeferredLit);
-            scene.Render(ERenderPass3D.OpaqueForward);
-            scene.Render(ERenderPass3D.TransparentForward);
-            scene.Render(ERenderPass3D.OnTopForward);
-            scene.PostRender();
+
+            scene.Render(_shadowCamera, _shadowCamera.Frustum, null, true);
 
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.Framebuffer);

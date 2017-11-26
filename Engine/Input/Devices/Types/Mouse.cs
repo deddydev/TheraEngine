@@ -61,8 +61,8 @@ namespace TheraEngine.Input.Devices
         internal void Tick(float xPos, float yPos, float delta)
         {
             Point absolute = Cursor.Position;
-            if (RenderPanel.HoveredPanel != null)
-                absolute = (Point)RenderPanel.HoveredPanel.Invoke(RenderPanel.HoveredPanel.PointToClientDelegate, absolute);
+            if (BaseRenderPanel.HoveredPanel != null)
+                absolute = (Point)BaseRenderPanel.HoveredPanel.Invoke(BaseRenderPanel.HoveredPanel.PointToClientDelegate, absolute);
             OnAbsolute(absolute.X, absolute.Y);
             OnRelative(xPos - _lastX, yPos - _lastY);
             _lastX = xPos;

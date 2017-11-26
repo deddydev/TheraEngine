@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(EventVec2))]
+    [PropGridControlFor(typeof(EventVec2))]
     public partial class PropGridEventVec2 : PropGridItem
     {
         public PropGridEventVec2() => InitializeComponent();

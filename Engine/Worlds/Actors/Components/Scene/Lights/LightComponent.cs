@@ -64,7 +64,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         public override int GetHashCode()
             => LightIndex;
         
-        public abstract void RenderShadowMap(SceneProcessor scene);
+        public abstract void RenderShadowMap(SceneProcessor3D scene);
         public abstract void BakeShadowMaps();
         public abstract void SetUniforms(int programBindingId);
     }

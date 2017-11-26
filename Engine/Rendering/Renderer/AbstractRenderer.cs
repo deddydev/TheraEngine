@@ -236,10 +236,11 @@ namespace TheraEngine.Rendering
                 m.Render(modelMatrix, Matrix3.Identity);
             //}
         }
-        public virtual void RenderQuad(Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, float lineWidth = DefaultLineSize)
+        public virtual void RenderQuad(Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
+            m.Parameter<ShaderVec4>(0).Value = color;
             Quat lookat = Quat.BetweenVectors(Vec3.Up, normal);
             Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateFromQuaternion(lookat) * Matrix4.CreateScale(halfExtents.X, 1.0f, halfExtents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
@@ -482,6 +483,10 @@ namespace TheraEngine.Rendering
         //public abstract void Uniform(int location, params Matrix4[] p);
         //public abstract void Uniform(int location, Matrix3 p);
         //public abstract void Uniform(int location, params Matrix3[] p);
+
+        //TODO: cache GetUniformLocation results and don't call again.
+        //Only call GetUniformLocation after a program is compiled
+        //or after a shader variable name changes 
 
         public void Uniform(int programBindingId, string name, params IUniformable4Int[] p)
             => Uniform(programBindingId, GetUniformLocation(programBindingId, name), p);

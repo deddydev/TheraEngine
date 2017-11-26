@@ -1,6 +1,6 @@
 ﻿using TheraEngine.Input;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.UI;
 using TheraEngine.Worlds.Actors;
 using System;
 using BulletSharp;
@@ -13,27 +13,28 @@ using System.Collections.Generic;
 using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Worlds.Actors.Components;
 using TheraEngine.Worlds.Actors.Types.Pawns;
+using System.Windows.Forms;
+using System.IO;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelOnRender(SceneProcessor scene, Camera camera, Frustum frustum);
     public class Viewport
     {
-        public static Viewport CurrentlyRendering => _currentlyRendering;
-        private static Viewport _currentlyRendering = null;
+        public const int GBufferTextureCount = 4;
 
-        public DelOnRender Render;
-
-        private SSAOInfo _ssaoInfo = new SSAOInfo();
+        public static Viewport CurrentlyRendering { get; private set; }
+        
         private List<LocalPlayerController> _owners = new List<LocalPlayerController>();
-        private HudManager _pawnHUD;
         private int _index;
         private BoundingRectangle _region;
         private Camera _worldCamera;
-        private RenderPanel _owningPanel;
-        private QuadFrameBuffer _skyBoxBuffer;
-        private QuadFrameBuffer _deferredGBuffer;
-        private QuadFrameBuffer _postProcessFrameBuffer;
+        //private BaseRenderPanel _owningPanel;
+
+        private SSAOInfo _ssaoInfo = new SSAOInfo();
+        internal QuadFrameBuffer _skyBoxBuffer;
+        internal QuadFrameBuffer _deferredGBuffer;
+        internal QuadFrameBuffer _postProcessFrameBuffer;
+        internal QuadFrameBuffer _hudFrameBuffer;
 
         private BoundingRectangle _internalResolution = new BoundingRectangle();
 
@@ -103,23 +104,13 @@ namespace TheraEngine.Rendering
             Engine.Audio.UpdateListener(_worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
         }
 
-        public RenderPanel OwningPanel => _owningPanel;
-        public HudManager PawnHUD
-        {
-            get => _pawnHUD;
-            set
-            {
-                _pawnHUD = value ?? new HudManager();
-                _pawnHUD.Resize(Region.Bounds);
-            }
-        }
+        //public BaseRenderPanel OwningPanel => _owningPanel;
         public BoundingRectangle Region => _region;
         public float Height => _region.Height;
         public float Width => _region.Width;
         public float X => _region.X;
         public float Y => _region.Y;
         public int Index => _index;
-        public Vec2 Center => new Vec2(Width / 2.0f, Height / 2.0f);
 
         public List<LocalPlayerController> Owners => _owners;
         //{
@@ -141,9 +132,16 @@ namespace TheraEngine.Rendering
 
         public BoundingRectangle InternalResolution => _internalResolution;
 
-        public const int GBufferTextureCount = 4;
-
-        public Viewport(RenderPanel panel, int index)
+        private UIManager _hud;
+        public UIManager HUD
+        {
+            get => _hud;
+            set
+            {
+                _hud = value;
+            }
+        }
+        public Viewport(BaseRenderPanel panel, int index)
         {
             if (index == 0)
             {
@@ -151,15 +149,21 @@ namespace TheraEngine.Rendering
                 SetFullScreen();
             }
             else
-                ViewportCountChanged(index, panel._viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
-
-            _owningPanel = panel;
-            _pawnHUD = new HudManager();
+                ViewportCountChanged(index, panel.Viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+            
             _index = index;
             Resize(panel.Width, panel.Height);
             UpdateRender();
         }
-        
+        public Viewport(float width, float height)
+        {
+            _index = 0;
+            SetFullScreen();
+            
+            Resize(width, height);
+            UpdateRender();
+        }
+
         internal unsafe void UpdateRender()
         {
             int width = InternalResolution.IntWidth;
@@ -176,52 +180,7 @@ namespace TheraEngine.Rendering
                 VWrap = ETexWrapMode.Clamp,
                 FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
             };
-            TextureReference2D ssaoNoise = new TextureReference2D("SSAONoise",
-                _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
-                EPixelInternalFormat.Rgba16, EPixelFormat.Bgra, EPixelType.UnsignedShort,
-                PixelFormat.Format64bppArgb)
-            {
-                MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest,
-                UWrap = ETexWrapMode.Repeat,
-                VWrap = ETexWrapMode.Repeat,
-                DoNotResize = true,
-            };
-            Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
-            BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
-            ushort* values = (ushort*)data.Scan0;
-            Vec3[] noise = _ssaoInfo.Noise;
-            foreach (Vec3 v in noise)
-            {
-                *values++ = (ushort)(v.X * ushort.MaxValue);
-                *values++ = (ushort)(v.Y * ushort.MaxValue);
-                *values++ = (ushort)(v.Z * ushort.MaxValue);
-                *values++ = 0;
-            }
-            bmp.UnlockBits(data);
-            TextureReference2D[] deferredRefs = new TextureReference2D[]
-            {
-                new TextureReference2D("AlbedoSpec", width, height,
-                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Clamp,
-                    VWrap = ETexWrapMode.Clamp,
-                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                },
-                new TextureReference2D("Normal", width, height,
-                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Clamp,
-                    VWrap = ETexWrapMode.Clamp,
-                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
-                },
-                ssaoNoise,
-                depthTexture,
-            };
+            
             TextureReference2D[] postProcessRefs = new TextureReference2D[]
             {
                 new TextureReference2D("OutputColor", width, height,
@@ -240,27 +199,14 @@ namespace TheraEngine.Rendering
             {
 
             };
-            ShaderVar[] deferredParameters = new ShaderVar[]
-            {
-
-            };
 
             //Engine.DebugPrint(shader._source);
-            Material postProcessMat =  new Material("GBufferPostProcessMaterial", postProcessParameters, postProcessRefs, GBufferShaderPostProcess())
+            Material postProcessMat =  new Material("GBufferPostProcessMaterial", 
+                postProcessParameters, postProcessRefs, 
+                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcessDeferred.frag"))) /*GBufferShaderPostProcess()*/)
             {
                 Requirements = Material.UniformRequirements.None
             };
-            Material deferredMat = new Material("GBufferDeferredMaterial", deferredParameters, deferredRefs, GBufferShaderDeferred())
-            {
-                Requirements = Material.UniformRequirements.NeedsLightsAndCamera,
-            };
-
-            //Don't overwrite the depth texture generated by the deferred pass (and used by the forward pass)
-            //when rendering the screen-space quad that shows the deferred pass
-
-            deferredMat.RenderParams.File.DepthTest.Enabled = true;
-            deferredMat.RenderParams.File.DepthTest.UpdateDepth = false;
-            deferredMat.RenderParams.File.DepthTest.Function = EComparison.Always;
 
             //postProcessMat.RenderParams.DepthTest.Enabled = true;
             //postProcessMat.RenderParams.DepthTest.UpdateDepth = false;
@@ -269,16 +215,78 @@ namespace TheraEngine.Rendering
             _postProcessFrameBuffer = new QuadFrameBuffer(postProcessMat);
             _postProcessFrameBuffer.SettingUniforms += _postProcessGBuffer_SettingUniforms;
 
-            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+            if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
             {
+                TextureReference2D ssaoNoise = new TextureReference2D("SSAONoise",
+                _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
+                EPixelInternalFormat.Rgb16, EPixelFormat.Bgr, EPixelType.UnsignedShort,
+                PixelFormat.Format64bppArgb)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.Repeat,
+                    VWrap = ETexWrapMode.Repeat,
+                    DoNotResize = true,
+                };
+                Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
+                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
+                ushort* values = (ushort*)data.Scan0;
+                Vec3[] noise = _ssaoInfo.Noise;
+                foreach (Vec3 v in noise)
+                {
+                    *values++ = (ushort)(v.X * ushort.MaxValue);
+                    *values++ = (ushort)(v.Y * ushort.MaxValue);
+                    *values++ = (ushort)(v.Z * ushort.MaxValue);
+                    //*values++ = 0;
+                }
+                bmp.UnlockBits(data);
+                TextureReference2D[] deferredRefs = new TextureReference2D[]
+                {
+                    new TextureReference2D("AlbedoSpec", width, height,
+                        EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
+                        {
+                            MinFilter = ETexMinFilter.Nearest,
+                            MagFilter = ETexMagFilter.Nearest,
+                            UWrap = ETexWrapMode.Clamp,
+                            VWrap = ETexWrapMode.Clamp,
+                            FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                        },
+                    new TextureReference2D("Normal", width, height,
+                        EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
+                        {
+                            MinFilter = ETexMinFilter.Nearest,
+                            MagFilter = ETexMagFilter.Nearest,
+                            UWrap = ETexWrapMode.Clamp,
+                            VWrap = ETexWrapMode.Clamp,
+                            FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
+                        },
+                    ssaoNoise,
+                    depthTexture,
+                };
+
+                ShaderVar[] deferredParameters = new ShaderVar[]
+                {
+
+                };
+
+                Material deferredMat = new Material("GBufferDeferredMaterial",
+                deferredParameters,
+                deferredRefs,
+                new Shader(ShaderMode.Fragment, 
+                new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "GBufferQuad.frag")))  /*GBufferShaderDeferred()*/)
+                {
+                    Requirements = Material.UniformRequirements.NeedsLightsAndCamera,
+                };
+
+                //Don't overwrite the depth texture generated by the deferred pass (and used by the forward pass)
+                //when rendering the screen-space quad that shows the deferred pass
+
+                deferredMat.RenderParams.File.DepthTest.Enabled = true;
+                deferredMat.RenderParams.File.DepthTest.UpdateDepth = false;
+                deferredMat.RenderParams.File.DepthTest.Function = EComparison.Always;
+
                 _deferredGBuffer = new QuadFrameBuffer(deferredMat);
                 _deferredGBuffer.SettingUniforms += _deferredGBuffer_SettingUniforms;
-
-                Render = RenderDeferred;
-            }
-            else
-            {
-                Render = RenderForward;
             }
         }
 
@@ -302,25 +310,26 @@ namespace TheraEngine.Rendering
             _internalResolution.Height = height;
 
             _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
-
-            _pawnHUD.Resize(_internalResolution.Bounds);
             _deferredGBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
             _postProcessFrameBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
         }
-        internal void Resize(float parentWidth, float parentHeight, bool setInternalResolution = true)
+        internal void Resize(
+            float parentWidth,
+            float parentHeight,
+            bool setInternalResolution = true,
+            float internalResolutionScale = 1.0f)
         {
             _region.X = _leftPercentage * parentWidth;
             _region.Y = _bottomPercentage * parentHeight;
             _region.Width = _rightPercentage * parentWidth - _region.X;
             _region.Height =  _topPercentage * parentHeight - _region.Y;
             
-            if (setInternalResolution)
-                //SetInternalResolution(1920, 1080);
-                SetInternalResolution(parentWidth, parentHeight); 
+            if (setInternalResolution) SetInternalResolution(
+                _region.Width * internalResolutionScale, 
+                _region.Height * internalResolutionScale); 
 
             if (_worldCamera is PerspectiveCamera p)
                 p.Aspect = Width / Height;
-
         }
 
         /// <summary>
@@ -343,147 +352,11 @@ namespace TheraEngine.Rendering
             if (Owners.Contains(controller))
                 Owners.Remove(controller);
         }
-        public void RenderDeferred(SceneProcessor scene, Camera camera, Frustum frustum)
+        public void Render(SceneProcessor scene, Camera camera, Frustum frustum)
         {
-            _currentlyRendering = this;
-
-            //_skyBoxBuffer.Bind(EFramebufferTarget.Framebuffer);
-            //{
-            //    //Render skybox objects
-            //    scene.Render(ERenderPassType3D.Skybox);
-            //}
-            //_skyBoxBuffer.Unbind(EFramebufferTarget.Framebuffer);
-            //_skyBoxBuffer.Render();
-
-            if (camera != null)
-            {
-                //AbstractRenderer.PushCurrentCamera(Camera);
-                //Engine.Scene?.RenderShadowMaps();
-                //AbstractRenderer.PopCurrentCamera();
-
-                scene.PreRender(camera, frustum, false);
-
-                //Enable internal resolution
-                Engine.Renderer.PushRenderArea(_internalResolution);
-                {
-                    //Render to deferred framebuffer.
-                    _deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
-                    {
-                        //Initial scene setup
-                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                        Engine.Renderer.AllowDepthWrite(true);
-                        
-                        //Render deferred objects
-                        scene.Render(ERenderPass3D.OpaqueDeferredLit);
-                    }
-                    _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
-
-                    //Now render to final post process framebuffer.
-                    _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                    {
-                        //No need to clear anything, 
-                        //color will be fully overwritten by the previous pass, 
-                        //and we need depth from the previous pass
-                        //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                        Engine.Renderer.AllowDepthWrite(false);
-
-                        //Render the deferred pass result
-                        _deferredGBuffer.Render();
-
-                        Engine.Renderer.AllowDepthWrite(true);
-
-                        //Render forward opaque objects first
-                        scene.Render(ERenderPass3D.OpaqueForward);
-
-                        if (Engine.Settings.RenderOctree)
-                            scene.RenderTree.DebugRender(camera.Frustum, true);
-
-#if DEBUG
-                        if (Engine.Settings.RenderPhysicsWorld)
-                            Engine.World.PhysicsScene.DebugDrawWorld();
-#endif
-
-                        //Render forward transparent objects next
-                        scene.Render(ERenderPass3D.TransparentForward);
-                        //Render forward on-top objects last
-                        scene.Render(ERenderPass3D.OnTopForward);
-
-                        //Now render the hud over everything
-                        _pawnHUD.Render();
-                    }
-                    _postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
-                }
-
-                //Disable internal resolution
-                Engine.Renderer.PopRenderArea();
-
-                //Render the last pass to the actual screen resolution
-                Engine.Renderer.PushRenderArea(Region);
-                Engine.Renderer.CropRenderArea(Region);
-
-                //Render final post process quad
-                _postProcessFrameBuffer.Render();
-
-                Engine.Renderer.PopRenderArea();
-
-                scene.PostRender();
-            }
-            else
-            {
-                Engine.Renderer.PushRenderArea(_internalResolution);
-                _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                Engine.Renderer.AllowDepthWrite(true);
-                _pawnHUD.Render();
-                _postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
-                Engine.Renderer.PopRenderArea();
-                _postProcessFrameBuffer.Render();
-            }
-
-            _currentlyRendering = null;
-        }
-        public void RenderForward(SceneProcessor scene, Camera camera, Frustum frustum)
-        {
-            _currentlyRendering = this;
-
-            if (camera != null)
-            {
-                scene.PreRender(camera, frustum, false);
-                Engine.Renderer.PushRenderArea(_internalResolution);
-
-                _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                {
-                    //Initial scene setup
-                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                    Engine.Renderer.AllowDepthWrite(true);
-
-                    //Render forward opaque objects first
-                    scene.Render(ERenderPass3D.OpaqueForward);
-                    //Render forward transparent objects next
-                    scene.Render(ERenderPass3D.TransparentForward);
-
-                    //Disable depth fail for objects on top
-                    Engine.Renderer.DepthFunc(EComparison.Always);
-
-                    //Render forward on-top objects last
-                    scene.Render(ERenderPass3D.OnTopForward);
-
-                    _pawnHUD.Render();
-                }
-                _postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
-
-                Engine.Renderer.PopRenderArea();
-
-                //Render quad
-                Engine.Renderer.PushRenderArea(Region);
-                Engine.Renderer.CropRenderArea(Region);
-                _postProcessFrameBuffer.Render();
-                Engine.Renderer.PopRenderArea();
-
-                scene.PostRender();
-            }
-            
-            _currentlyRendering = null;
+            CurrentlyRendering = this;
+            scene.Render(camera, frustum, this, false);
+            CurrentlyRendering = null;
         }
         public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
             => _worldCamera.ScreenToWorld(viewportPoint, depth);
@@ -546,7 +419,7 @@ namespace TheraEngine.Rendering
         {
             if (testHud)
             {
-                HudComponent hudComp = _pawnHUD.FindClosestComponent(viewportPoint);
+                UIComponent hudComp = HUD?.FindClosestComponent(viewportPoint);
                 if (hudComp != null)
                 {
                     hitNormal = Vec3.Backward;

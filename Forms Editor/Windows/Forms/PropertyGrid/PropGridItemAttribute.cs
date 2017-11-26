@@ -2,10 +2,10 @@
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public class PropGridItemAttribute : Attribute
+    public class PropGridControlForAttribute : Attribute
     {
         public Type[] Types { get; set; }
-        public PropGridItemAttribute(params Type[] types)
+        public PropGridControlForAttribute(params Type[] types)
         {
             Types = types;
         }

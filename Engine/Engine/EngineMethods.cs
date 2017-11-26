@@ -18,6 +18,8 @@ using System.Drawing;
 using TheraEngine.GameModes;
 using TheraEngine.Core.Shapes;
 using System.Runtime.CompilerServices;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds.Actors.Components.Scene;
 
 namespace TheraEngine
 {
@@ -65,12 +67,34 @@ namespace TheraEngine
             //drivers._driver0.ContactEnded(drivers._driver1);
             //drivers._driver1.ContactEnded(drivers._driver0);
         }
+
         private static void ManifoldPoint_ContactAdded(ManifoldPoint cp, CollisionObjectWrapper colObj0Wrap, int partId0, int index0, CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
         {
             PhysicsDriver driver0 = (PhysicsDriver)colObj0Wrap.CollisionObject.UserObject;
             PhysicsDriver driver1 = (PhysicsDriver)colObj1Wrap.CollisionObject.UserObject;
             driver0.ContactStarted(driver1, cp);
         }
+
+        internal static void RegisterSkeleton(Skeleton skeleton)
+        {
+
+        }
+
+        internal static void UnregisterSkeleton(Skeleton skeleton)
+        {
+
+        }
+
+        internal static void RegisterSpline(SplineComponent splineComponent)
+        {
+
+        }
+
+        internal static void UnregisterSpline(SplineComponent splineComponent)
+        {
+
+        }
+
         #endregion
 
         #region Startup/Shutdown
@@ -102,9 +126,9 @@ namespace TheraEngine
             MainThreadID = Thread.CurrentThread.ManagedThreadId;
             _game = game;
         }
-        public static void SetGamePanel(RenderPanel panel, bool registerTickNow = true)
+        public static void SetGamePanel(BaseRenderPanel panel, bool registerTickNow = true)
         {
-            RenderPanel.GamePanel = panel;
+            BaseRenderPanel.WorldPanel = panel;
             if (registerTickNow)
                 panel?.RegisterTick();
         }
@@ -356,7 +380,7 @@ namespace TheraEngine
         /// Retrieves the viewport with the same index.
         /// </summary>
         public static Viewport GetViewport(int index)
-            => RenderPanel.GamePanel?.GetViewport(index);
+            => BaseRenderPanel.WorldPanel?.GetViewport(index);
         
 //        public static void LogError(string message, params string[] args)
 //        {
@@ -430,13 +454,15 @@ namespace TheraEngine
             //Stop();
             
             _currentWorld = world;
-            Scene.WorldChanged();
             if (World != null)
             {
+                Scene.Clear(World.Settings.File.Bounds);
                 World.Initialize();
                 if (!deferBeginPlay)
                     World.BeginPlay();
             }
+            else
+                Scene.Clear(new BoundingBox(0.5f, Vec3.Zero));
 
             if (loadWorldGameMode && Game != null)
                 Game.State.GameMode = World?.GetGameMode();

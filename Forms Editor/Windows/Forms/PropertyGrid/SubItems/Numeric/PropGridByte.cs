@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(Byte))]
+    [PropGridControlFor(typeof(Byte))]
     public partial class PropGridByte : PropGridItem
     {
         public PropGridByte()

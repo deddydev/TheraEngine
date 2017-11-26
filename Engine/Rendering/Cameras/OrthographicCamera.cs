@@ -5,7 +5,6 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Cameras
 {
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class OrthographicCamera : Camera
     {
         public OrthographicCamera() : base()

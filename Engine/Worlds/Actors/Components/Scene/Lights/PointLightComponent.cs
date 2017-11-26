@@ -52,7 +52,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", Radius);
         }
 
-        public override void RenderShadowMap(SceneProcessor scene)
+        public override void RenderShadowMap(SceneProcessor3D scene)
         {
 
         }

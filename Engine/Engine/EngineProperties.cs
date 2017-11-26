@@ -37,7 +37,7 @@ namespace TheraEngine
         public static List<AIController> ActiveAI = new List<AIController>();
         public static List<World> LoadedWorlds = new List<World>();
 
-        public static SceneProcessor Scene { get; } = new SceneProcessor();
+        public static SceneProcessor3D Scene { get; } = new SceneProcessor3D();
 
         private static World _currentWorld = null;
         

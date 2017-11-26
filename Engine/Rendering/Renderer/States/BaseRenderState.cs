@@ -132,7 +132,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public int Generate()
         {
-            if (RenderPanel.NeedsInvoke(Generate, out int value, RenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.NeedsInvoke(Generate, out int value, BaseRenderPanel.PanelType.Rendering))
                 return value;
 
             //Make sure current bind is up to date
@@ -159,7 +159,7 @@ namespace TheraEngine.Rendering
             if (RenderContext.Current == null)
                 return;
 
-            if (RenderPanel.NeedsInvoke(Delete, RenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.NeedsInvoke(Delete, BaseRenderPanel.PanelType.Rendering))
                 return;
 
             //Remove current bind from owners list

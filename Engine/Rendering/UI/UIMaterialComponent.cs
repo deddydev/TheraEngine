@@ -7,16 +7,17 @@ using TheraEngine.Core.Shapes;
 using System.Threading.Tasks;
 using TheraEngine.Rendering.Models.Materials.Textures;
 
-namespace TheraEngine.Rendering.HUD
+namespace TheraEngine.Rendering.UI
 {
-    public class MaterialHudComponent : DockableHudComponent, I2DRenderable
+    public class UIMaterialComponent : UIDockableComponent, I2DRenderable
     {
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(RenderPassType2D.OnTop, 0, 0);
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 0, 0);
 
-        public MaterialHudComponent(Material m)
+        public UIMaterialComponent(Material m)
         {
-            PrimitiveData quad = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), VertexQuad.PosZQuad(_region.Width, _region.Height, true));
-            _quad = new PrimitiveManager(quad, m);
+            VertexQuad quad = VertexQuad.PosZQuad(_region.Width, _region.Height, -2.0f, true);
+            PrimitiveData quadData = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), quad);
+            _quad = new PrimitiveManager(quadData, m);
         }
 
         private PrimitiveManager _quad;
@@ -57,7 +58,7 @@ namespace TheraEngine.Rendering.HUD
             data[3] = new Vec3(Region.TopRight, -2.0f);
             return r;
         }
-        public void Render()
+        public virtual void Render()
             => _quad.Render(WorldMatrix, Matrix3.Identity);
     }
 }

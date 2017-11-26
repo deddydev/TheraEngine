@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(bool))]
+    [PropGridControlFor(typeof(bool))]
     public partial class PropGridBool : PropGridItem
     {
         public PropGridBool() => InitializeComponent();

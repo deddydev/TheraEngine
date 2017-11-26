@@ -22,7 +22,7 @@ namespace System
         void DebugRender(Color color, float lineWidth);
     }
     /// <summary>
-    /// 
+    /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
     /// </summary>
     public class Octree : Octree<I3DBoundable>
     {
@@ -30,47 +30,24 @@ namespace System
         public Octree(BoundingBox bounds, List<I3DBoundable> items) : base(bounds, items) { }
     }
     /// <summary>
-    /// 
+    /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
     /// </summary>
-    /// <typeparam name="T">The item type to use.</typeparam>
+    /// <typeparam name="T">The item type to use. Must be a class deriving from I3DBoundable.</typeparam>
     public class Octree<T> where T : class, I3DBoundable
     {
-        Node _head;
+        public const int MaxChildNodeCount = 8;
 
-        public Octree(BoundingBox bounds)
-        {
-            _head = new Node(bounds)
-            {
-                SubDivIndex = 0,
-                SubDivLevel = 0,
-                ParentNode = null,
-                Owner = this
-            };
-        }
-        public Octree(BoundingBox bounds, List<T> items)
-        {
-            _head = new Node(bounds)
-            {
-                SubDivIndex = 0,
-                SubDivLevel = 0,
-                ParentNode = null,
-                Owner = this
-            };
-            _head.Add(items, true);
-        }
+        private Node _head;
 
-        /// <summary>
-        /// Finds all items contained within the given radius of a given point.
-        /// </summary>
-        /// <param name="radius">The distance from the point that returned items must be contained within.</param>
-        /// <param name="point">The center point of the sphere.</param>
-        /// <param name="list">The list of items that are contained within the shape.</param>
-        /// <param name="allowPartialContains">If true, adds items if they're even partially contained within the shape.</param>
-        /// <param name="testVisibleOnly">If true, only tests for containment of visible items.</param>
+        public Octree(BoundingBox bounds) => _head = new Node(bounds, 0, 0, null, this);
+        public Octree(BoundingBox bounds, List<T> items) : this(bounds) => _head.Add(items);
+
+        public void Add(T value) => _head.Add(value, -1);
+        public void Add(List<T> value) => _head.Add(value);
+        public void Remove(T value) => _head.Remove(value);
+
         public ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment)
             => FindAll(new Sphere(radius, point), containment);
-        
-        //public ThreadSafeList<T> FindClosest(Vec3 point) { return _head?.FindClosest(point); }
         public ThreadSafeList<T> FindAll(Shape shape, EContainment containment)
         {
             ThreadSafeList<T> list = new ThreadSafeList<T>();
@@ -78,43 +55,35 @@ namespace System
             return list;
         }
 
-        public void CollectVisible(Frustum frustum, RenderPasses passes, bool shadowPass)
+        public void CollectVisible(Frustum frustum, RenderPasses3D passes, bool shadowPass)
             => _head.CollectVisible(frustum, passes, shadowPass);
-        
         public void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f)
             => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
 
-        public void Add(T value)
-            => _head.Add(value, -1, true);
-        
-        public void Add(List<T> value)
-            => _head.Add(value, true);
-        
-        public void Remove(T value)
-            => _head.Remove(value);
-        
         private class Node : IOctreeNode
         {
-            public Node(BoundingBox bounds)
+            public Node(BoundingBox bounds, int subDivIndex, int subDivLevel, Node parent, Octree<T> owner)
             {
                 _bounds = bounds;
                 _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
                 _items = new ThreadSafeList<T>(_lock);
-                _subNodes = new Node[8];
-                _subDivIndex = 0;
-                _subDivLevel = 0;
+                _subNodes = new Node[MaxChildNodeCount];
+                _subDivIndex = subDivIndex;
+                _subDivLevel = subDivLevel;
+                _parentNode = parent;
+                _owner = owner;
             }
 
             protected int _subDivIndex, _subDivLevel;
             protected BoundingBox _bounds;
             protected ThreadSafeList<T> _items;
             protected Node[] _subNodes;
-            protected Node parentNode;
+            protected Node _parentNode;
             private Octree<T> _owner;
             private ReaderWriterLockSlim _lock;
 
             public Octree<T> Owner { get => _owner; set => _owner = value; }
-            public Node ParentNode { get => parentNode; set => parentNode = value; }
+            public Node ParentNode { get => _parentNode; set => _parentNode = value; }
             public int SubDivIndex { get => _subDivIndex; set => _subDivIndex = value; }
             public int SubDivLevel { get => _subDivLevel; set => _subDivLevel = value; }
             public ThreadSafeList<T> Items => _items;
@@ -144,6 +113,7 @@ namespace System
                 return null;
             }
 
+            #region Child movement
             public void ItemMoved(I3DBoundable item) => ItemMoved(item as T);
             public void ItemMoved(T item)
             {
@@ -158,7 +128,7 @@ namespace System
                 if (item.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
                 {
                     //Try subdividing
-                    for (int i = 0; i < 8; ++i)
+                    for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         BoundingBox bounds = GetSubdivision(i);
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
@@ -199,6 +169,9 @@ namespace System
                 
                 return false;
             }
+            #endregion
+
+            #region Debug
             public void DebugRender(bool recurse, bool onlyContainingItems, Frustum f, float lineWidth)
             {
                 Color color = Color.Red;
@@ -215,7 +188,10 @@ namespace System
             }
             public void DebugRender(Color color, float lineWidth)
                 => Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, color, 1.0f);
-            public void CollectVisible(Frustum frustum, RenderPasses passes, bool shadowPass)
+            #endregion
+
+            #region Visible collection
+            public void CollectVisible(Frustum frustum, RenderPasses3D passes, bool shadowPass)
             {
                 EContainment c = frustum.Contains(_bounds);
                 if (c != EContainment.Disjoint)
@@ -235,13 +211,13 @@ namespace System
                         IsLoopingItems = false;
 
                         IsLoopingSubNodes = true;
-                        for (int i = 0; i < 8; ++i)
+                        for (int i = 0; i < MaxChildNodeCount; ++i)
                             _subNodes[i]?.CollectVisible(frustum, passes, shadowPass);
                         IsLoopingSubNodes = false;
                     }
                 }
             }
-            private void CollectAll(RenderPasses passes, bool shadowPass)
+            private void CollectAll(RenderPasses3D passes, bool shadowPass)
             {
                 IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
@@ -254,16 +230,23 @@ namespace System
                 IsLoopingItems = false;
 
                 IsLoopingSubNodes = true;
-                for (int i = 0; i < 8; ++i)
+                for (int i = 0; i < MaxChildNodeCount; ++i)
                     _subNodes[i]?.CollectAll(passes, shadowPass);
                 IsLoopingSubNodes = false;
             }
+            #endregion
+
+            #region Add/Remove
+            /// <summary>
+            /// Returns true if this node no longer contains anything.
+            /// </summary>
+            /// <param name="item">The item to remove.</param>
             internal bool Remove(T item)
             {
                 if (_items.Contains(item))
                     QueueRemove(item);
                 else
-                    for (int i = 0; i < 8; ++i)
+                    for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         Node node = _subNodes[i];
                         if (node != null)
@@ -281,41 +264,30 @@ namespace System
             /// Adds a list of items to this node. May subdivide.
             /// </summary>
             /// <param name="items">The items to add.</param>
-            /// <param name="force">If true, will add each item regardless of if its culling volume fits within the node's bounds.</param>
+            /// <param name="forceAddToThisNode">If true, will add each item regardless of if its culling volume fits within this node's bounds.</param>
             /// <returns>True if ANY node was added.</returns>
-            internal bool Add(List<T> items, bool force = false)
+            internal void Add(List<T> items)
             {
-                bool addedAny = false;
                 foreach (T item in items)
-                    addedAny = addedAny || Add(item, -1, force);
-                return addedAny;
+                    Add(item, -1);
             }
             /// <summary>
             /// Adds an item to this node. May subdivide.
             /// </summary>
             /// <param name="items">The item to add.</param>
-            /// <param name="force">If true, will add the item regardless of if its culling volume fits within the node's bounds.</param>
+            /// <param name="forceAddToThisNode">If true, will add the item regardless of if its culling volume fits within the node's bounds.</param>
             /// <returns>True if the node was added.</returns>
-            internal bool Add(T item, int ignoreSubNode = -1, bool force = false)
+            internal bool Add(T item, int ignoreSubNode = -1)
             {
                 if (item == null)
                     return false;
-                
+
                 if (item.CullingVolume != null)
                 {
-                    if (item.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
-                    {
-                        if (force)
-                        {
-                            if (QueueAdd(item))
-                            {
-                                item.OctreeNode = this;
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                    for (int i = 0; i < 8; ++i)
+                    //if (item.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
+                    //    return false;
+                    
+                    for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         if (i == ignoreSubNode)
                             continue;
@@ -337,6 +309,7 @@ namespace System
 
                 return false;
             }
+            #endregion
 
             #region Loop Threading Backlog
 
@@ -356,7 +329,7 @@ namespace System
                     while (!_isLoopingItems && !_itemQueue.IsEmpty && _itemQueue.TryDequeue(out Tuple<bool, T> result))
                     {
                         if (result.Item1)
-                            Add(result.Item2, -1, true);
+                            Add(result.Item2, -1);
                         else
                             Remove(result.Item2);
                     }
@@ -373,9 +346,36 @@ namespace System
                 }
             }
 
+            private bool QueueAdd(T item)
+            {
+                if (IsLoopingItems)
+                {
+                    _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
+                    return false;
+                }
+                else
+                {
+                    _items.Add(item);
+                    return true;
+                }
+            }
+            private bool QueueRemove(T item)
+            {
+                if (IsLoopingItems)
+                {
+                    _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
+                    return false;
+                }
+                else
+                {
+                    _items.Remove(item);
+                    return true;
+                }
+            }
+
             #endregion
 
-            #region Misc Data Methods
+            #region Convenience methods
             public T FindClosest(Vec3 point, ref float closestDistance)
             {
                 if (!_bounds.Contains(point))
@@ -456,32 +456,6 @@ namespace System
             #endregion
 
             #region Private Helper Methods
-            private bool QueueAdd(T item)
-            {
-                if (IsLoopingItems)
-                {
-                    _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
-                    return false;
-                }
-                else
-                {
-                    _items.Add(item);
-                    return true;
-                }
-            }
-            private bool QueueRemove(T item)
-            {
-                if (IsLoopingItems)
-                {
-                    _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
-                    return false;
-                }
-                else
-                {
-                    _items.Remove(item);
-                    return true;
-                }
-            }
             private void ClearSubNode(int index)
             {
                 if (index >= 0)
@@ -489,7 +463,7 @@ namespace System
             }
             private bool HasNoSubNodesExcept(int index)
             {
-                for (int i = 0; i < 8; ++i)
+                for (int i = 0; i < MaxChildNodeCount; ++i)
                     if (i != index && _subNodes[i] != null)
                         return false;
                 return true;
@@ -502,20 +476,14 @@ namespace System
                     if (_subNodes[index] != null)
                         return _subNodes[index];
 
-                    return _subNodes[index] = new Node(bounds)
-                    {
-                        SubDivIndex = index,
-                        SubDivLevel = _subDivLevel + 1,
-                        ParentNode = this,
-                        Owner = Owner
-                    };
+                    return _subNodes[index] = new Node(bounds, index, _subDivLevel + 1, this, Owner);
                 }
                 finally
                 {
                     IsLoopingSubNodes = false;
                 }
             }
+            #endregion
         }
-        #endregion
     }
 }

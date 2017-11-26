@@ -7,27 +7,28 @@ using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
 using System.Reflection;
+using System.Collections;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(object))]
+    [PropGridControlFor(typeof(object))]
     public partial class PropGridObject : PropGridItem
     {
         public PropGridObject() => InitializeComponent();
         
         private const string MiscName = "Miscellaneous";
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
+        private object _object;
 
-        object _object;
         protected override void UpdateDisplayInternal()
         {
             _object = GetValue();
 
-            if (checkBox1.Checked = _object == null && pnlProps.Visible == true)
+            if ((checkBox1.Checked = _object == null) && pnlProps.Visible == true)
                 pnlProps.Visible = false;
             
             string typeName = DataType.GetFriendlyName();
-            lblObjectTypeName.Text = IListOwner != null ? _object.ToString() + " [" + typeName + "]" : typeName;
+            lblObjectTypeName.Text = IListOwner != null ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
         }
 
         protected override void DestroyHandle()
@@ -71,17 +72,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Deque<Type> controlTypes = new Deque<Type>();
                     while (subType != null)
                     {
-                        if (mainControlType == null && TheraPropertyGrid.SubItemControlTypes.ContainsKey(subType))
+                        if (mainControlType == null && TheraPropertyGrid.InPlaceEditorTypes.ContainsKey(subType))
                         {
-                            mainControlType = TheraPropertyGrid.SubItemControlTypes[subType];
+                            mainControlType = TheraPropertyGrid.InPlaceEditorTypes[subType];
                             if (!controlTypes.Contains(mainControlType))
                                 controlTypes.PushFront(mainControlType);
                         }
                         Type[] interfaces = subType.GetInterfaces();
                         foreach (Type i in interfaces)
-                            if (TheraPropertyGrid.SubItemControlTypes.ContainsKey(i))
+                            if (TheraPropertyGrid.InPlaceEditorTypes.ContainsKey(i))
                             {
-                                Type controlType = TheraPropertyGrid.SubItemControlTypes[i];
+                                Type controlType = TheraPropertyGrid.InPlaceEditorTypes[i];
                                 if (!controlTypes.Contains(controlType))
                                     controlTypes.PushBack(controlType);
                             }
@@ -146,12 +147,59 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             lblObjectTypeName.BackColor = Color.Transparent;
         }
 
-        private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
+        protected internal override void SetIListOwner(IList list, Type elementType, int index)
+        {
+            base.SetIListOwner(list, elementType, index);
+            UpdateMouseDown();
+        }
+        protected internal override void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
+        {
+            base.SetProperty(propertyInfo, propertyOwner);
+            UpdateMouseDown();
+        }
+
+        private void UpdateMouseDown()
+        {
+            _mouseDown = MouseDownProperties;
+            if (!DataType.IsValueType)
+            {
+                Type t = DataType;
+                while (t != null && t != typeof(object))
+                {
+                    if (TheraPropertyGrid.FullEditorTypes.ContainsKey(t))
+                    {
+                        _editorType = TheraPropertyGrid.FullEditorTypes[t];
+                        _mouseDown = MouseDownEditor;
+                        return;
+                    }
+                    foreach (Type intfType in t.GetInterfaces())
+                    {
+                        if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
+                        {
+                            _editorType = TheraPropertyGrid.FullEditorTypes[intfType];
+                            _mouseDown = MouseDownEditor;
+                            return;
+                        }
+                    }
+                    t = t.BaseType;
+                }
+            }
+        }
+
+        private Type _editorType;
+        private Action _mouseDown;
+        private void MouseDownEditor()
+        {
+            Form f = Activator.CreateInstance(_editorType, GetValue()) as Form;
+            f?.ShowDialog();
+        }
+        private void MouseDownProperties()
         {
             pnlProps.Visible = !pnlProps.Visible;
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(pnlProps);
         }
-
+        private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e) => _mouseDown();
+        
         private void pnlProps_VisibleChanged(object sender, EventArgs e)
         {
             if (pnlProps.Visible)

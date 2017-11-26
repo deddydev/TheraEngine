@@ -1,11 +1,12 @@
-﻿using TheraEngine.Rendering.HUD;
+﻿using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering.Models.Materials;
 using System;
 using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class MaterialEditorHud : HudManager
+    public class MaterialEditorHud : UIManager
     {
         public MaterialEditorHud(Vec2 bounds) : base(bounds) { }
 
@@ -23,19 +24,23 @@ namespace TheraEditor.Windows.Forms
                 if (_endFunc != null)
                 {
                     RootComponent.ChildComponents.Add(_endFunc);
-                    _endFunc.Material = _targetMaterial;
                 }
             }
         }
 
-        protected override DockableHudComponent OnConstruct()
+        protected override UIDockableComponent OnConstruct()
         {
-            DockableHudComponent root = new DockableHudComponent()
+            UIDockableComponent root = new UIDockableComponent()
             {
                 DockStyle = HudDockStyle.Fill,
                 SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
             };
             return root;
+        }
+
+        public override void OnSpawnedPostComponentSetup(World world)
+        {
+            base.OnSpawnedPostComponentSetup(world);
         }
 
         private Material _targetMaterial;
@@ -44,9 +49,17 @@ namespace TheraEditor.Windows.Forms
             get => _targetMaterial;
             set
             {
+                if (_targetMaterial == value)
+                    return;
                 _targetMaterial = value;
-                if (EndFunc != null)
-                    EndFunc.Material = _targetMaterial;
+                if (_targetMaterial != null)
+                {
+                    if (_targetMaterial.EditorMaterialEnd == null)
+                        _targetMaterial.EditorMaterialEnd = new ResultBasicFunc() { Material = _targetMaterial };
+                    EndFunc = _targetMaterial.EditorMaterialEnd;
+                }
+                else
+                    EndFunc = null;
             }
         }
     }

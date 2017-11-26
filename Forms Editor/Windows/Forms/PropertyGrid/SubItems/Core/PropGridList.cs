@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridItem(typeof(IList))]
+    [PropGridControlFor(typeof(IList))]
     public partial class PropGridList : PropGridItem
     {
         public PropGridList() => InitializeComponent();

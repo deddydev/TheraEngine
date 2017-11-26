@@ -1,12 +1,13 @@
 ﻿using BulletSharp;
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
@@ -17,7 +18,7 @@ using TheraEngine.Worlds.Actors.Types.Pawns;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class EditorHud : HudManager
+    public class EditorHud : UIManager
     {
         public EditorHud(Vec2 bounds) : base(bounds)
         {
@@ -59,26 +60,26 @@ namespace TheraEditor.Windows.Forms
                 if (value == null && HighlightedComponent != null)
                 {
                     Engine.Scene.Remove(_highlightPoint);
-                    RenderPanel.CheckedInvoke(new Action(() => 
+                    BaseRenderPanel.CheckedInvoke(new Action(() => 
                     {
-                        if (RenderPanel.CapturedPanel != null)
+                        if (BaseRenderPanel.CapturedPanel != null)
                         {
-                            RenderPanel.CapturedPanel.Cursor = Cursors.Default;
+                            BaseRenderPanel.CapturedPanel.Cursor = Cursors.Default;
                         }
                     }),
-                    RenderPanel.PanelType.Captured);
+                    BaseRenderPanel.PanelType.Captured);
                 }
                 else if (value != null && HighlightedComponent == null)
                 {
                     Engine.Scene.Add(_highlightPoint);
-                    RenderPanel.CheckedInvoke(new Action(() =>
+                    BaseRenderPanel.CheckedInvoke(new Action(() =>
                     {
-                        if (RenderPanel.CapturedPanel != null)
+                        if (BaseRenderPanel.CapturedPanel != null)
                         {
-                            RenderPanel.CapturedPanel.Cursor = Cursors.Hand;
+                            BaseRenderPanel.CapturedPanel.Cursor = Cursors.Hand;
                         }
                     }),
-                    RenderPanel.PanelType.Captured);
+                    BaseRenderPanel.PanelType.Captured);
                 }
 
                 if (HighlightedComponent != null)
@@ -177,7 +178,7 @@ namespace TheraEditor.Windows.Forms
         private void MouseMove(bool gamepad)
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
-            if (v != null && RenderPanel.HoveredPanel != null)
+            if (v != null && BaseRenderPanel.HoveredPanel != null)
             {
                 Vec2 viewportPoint = /*gamepad ? v.Center : */v.AbsoluteToRelative(CursorPosition);
                 MouseMove(v, viewportPoint);
@@ -280,7 +281,7 @@ namespace TheraEditor.Windows.Forms
                 {
 
                 }
-                else if (_selectedComponent is HudComponent hudComp)
+                else if (_selectedComponent is UIComponent hudComp)
                 {
 
                 }
@@ -314,14 +315,14 @@ namespace TheraEditor.Windows.Forms
                         }
                     }
 
-                    //TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
-                    //if (t != null)
-                    //{
-                    //    if (t.TreeView.InvokeRequired)
-                    //        t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t));
-                    //    else
-                    //        t.TreeView.SelectedNode = t;
-                    //}
+                    TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
+                    if (t != null)
+                    {
+                        if (t.TreeView.InvokeRequired)
+                            t.TreeView.Invoke((Action)(() => t.TreeView.SelectedNode = t));
+                        else
+                            t.TreeView.SelectedNode = t;
+                    }
                 }
             }
             else

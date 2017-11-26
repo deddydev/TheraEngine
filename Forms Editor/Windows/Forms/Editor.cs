@@ -438,7 +438,7 @@ namespace TheraEditor.Windows.Forms
         
         private void BtPlay_Click(object sender, EventArgs e)
         {
-            RenderPanel p = DockableRenderForm.ActiveRenderForm.RenderPanel;
+            BaseRenderPanel p = DockableRenderForm.ActiveRenderForm.RenderPanel;
             //p.Focus();
             //p.Capture = true;
             //Cursor.Hide();

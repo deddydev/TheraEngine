@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace TheraEngine.Rendering.HUD
+namespace TheraEngine.Rendering.UI
 {
-    public class RotatableHudComponent : HudComponent
+    public class UIRotatableComponent : UIComponent
     {
         private float _rotationAngle = 0.0f;
         private Vec2 _rotationLocalOrigin = new Vec2(0.5f);

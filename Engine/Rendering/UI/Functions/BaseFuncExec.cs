@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TheraEngine.Rendering.HUD.Functions
+namespace TheraEngine.Rendering.UI.Functions
 {
     public interface IBaseFuncExec
     {
@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.HUD.Functions
         void Arrange(int argumentIndex);
         void ClearConnection();
     }
-    public abstract class BaseFuncExec<T> : BaseFuncArg where T : HudComponent, IBaseFuncExec
+    public abstract class BaseFuncExec<T> : BaseFuncArg where T : UIComponent, IBaseFuncExec
     {
         public T ConnectedTo => _connectedTo;
 

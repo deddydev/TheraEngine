@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TheraEngine.Rendering.HUD.Functions
+namespace TheraEngine.Rendering.UI.Functions
 {
     public interface IBaseFuncValue
     {
@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.HUD.Functions
         internal const float ConnectionBoxDims = 6.0f;
         internal const float ConnectionBoxMargin = 1.0f;
     }
-    public abstract class BaseFuncValue<T> : HudComponent where T : IBaseFuncValue
+    public abstract class BaseFuncValue<T> : UIComponent where T : IBaseFuncValue
     {
         public BaseFuncValue(string name)
         {
@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.HUD.Functions
         public BaseFuncValue(string name, IFunction parent)
         {
             _name = name;
-            _parent = (HudComponent)parent;
+            _parent = (UIComponent)parent;
         }
         
         public abstract bool IsOutput { get; }

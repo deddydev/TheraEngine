@@ -26,7 +26,7 @@ namespace TheraEngine.Files
     [FileClass("SREF", "Single File Reference")]
     public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
     {
-        private event Action Loaded;
+        public event Action Loaded;
 
         [TSerialize("File", Condition = "StoredInternally")]
         private T _file;
@@ -42,7 +42,7 @@ namespace TheraEngine.Files
                 StoredInternally = string.IsNullOrWhiteSpace(base.ReferencePath);
             }
         }
-
+        
         [Category("Single File Reference")]
         public bool IsLoaded
         {
@@ -163,9 +163,14 @@ namespace TheraEngine.Files
                     {
                         ReferencePath = path;
 
-                        if (!(Engine.LoadedFiles.ContainsKey(path) && Engine.LoadedFiles[path].Contains(_file)))
+                        if (!(Engine.LoadedFiles.ContainsKey(path) && 
+                            Engine.LoadedFiles[path].Contains(_file)))
                             Engine.AddLoadedFile(path, _file);
+                        else
+                            Loaded?.Invoke();
                     }
+                    else
+                        Loaded?.Invoke();
 
                     if (!_file.References.Contains(this))
                         _file.References.Add(this);
@@ -200,7 +205,6 @@ namespace TheraEngine.Files
             }
 
             File = LoadNewInstance();
-            Loaded?.Invoke();
             
             return _file;
         }

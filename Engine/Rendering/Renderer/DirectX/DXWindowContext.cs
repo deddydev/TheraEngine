@@ -4,6 +4,7 @@
 //using SlimDX;
 //using Device = SlimDX.Direct3D11.Device;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace TheraEngine.Rendering.DirectX
 {
@@ -16,7 +17,7 @@ namespace TheraEngine.Rendering.DirectX
         //private static Texture2D _resource;
         //private static DepthStencilView _depthStencil;
 
-        public DXWindowContext(RenderPanel c) : base(c)
+        public DXWindowContext(BaseRenderPanel c) : base(c)
         {
 
         }

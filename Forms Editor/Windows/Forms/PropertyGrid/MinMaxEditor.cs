@@ -53,7 +53,7 @@ namespace System.Windows.Forms
         private void Control_ValueChanged(float value)
         {
             _property.SetValue(_owner, value);
-            RenderPanel.GamePanel.Invalidate();
+            BaseRenderPanel.WorldPanel.Invalidate();
         }
 
         void ControlClosed(object sender, EventArgs e)

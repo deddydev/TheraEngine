@@ -2,11 +2,16 @@
 
 namespace TheraEditor.Windows.Forms
 {
+    [EditorFor(typeof(Material))]
     public partial class MaterialEditorForm : TheraForm
     {
         public MaterialEditorForm()
         {
             InitializeComponent();
+        }
+        public MaterialEditorForm(Material m) : this()
+        {
+            Material = m;
         }
         
         public Material Material

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 
-namespace TheraEngine.Rendering.HUD.Functions
+namespace TheraEngine.Rendering.UI.Functions
 {
     public class FunctionDefinition : Attribute
     {
@@ -69,9 +69,9 @@ namespace TheraEngine.Rendering.HUD.Functions
     /// <typeparam name="TVOut">The output value class to use.</typeparam>
     /// <typeparam name="TEIn">The input execution argument class to use.</typeparam>
     /// <typeparam name="TEOut">The output execution class to use.</typeparam>
-    public abstract class Function<TVIn, TVOut, TEIn, TEOut> : HudComponent, IShaderVarOwner, IFunction
-        where TVIn : HudComponent, IFuncValueInput where TVOut : HudComponent, IFuncValueOutput
-        where TEIn : HudComponent, IFuncExecInput where TEOut : HudComponent, IFuncExecOutput
+    public abstract class Function<TVIn, TVOut, TEIn, TEOut> : UIComponent, IShaderVarOwner, IFunction
+        where TVIn : UIComponent, IFuncValueInput where TVOut : UIComponent, IFuncValueOutput
+        where TEIn : UIComponent, IFuncExecInput where TEOut : UIComponent, IFuncExecOutput
     {
         protected List<TVIn> _inputs = new List<TVIn>();
         protected List<TVOut> _outputs = new List<TVOut>();

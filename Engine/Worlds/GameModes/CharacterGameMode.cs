@@ -32,19 +32,12 @@ namespace TheraEngine.GameModes
         
         protected internal override void HandleLocalPlayerJoined(ControllerType item)
         {
-            RenderPanel p = RenderPanel.GamePanel;
-            if (p != null)
-            {
-                Viewport v = p.GetViewport((int)item.LocalPlayerIndex) ?? p.AddViewport();
-                if (v != null)
-                    v.RegisterController(item);
-            }
+            BaseRenderPanel.WorldPanel?.
+                GetOrAddViewport((int)item.LocalPlayerIndex)?.
+                RegisterController(item);
             
             PawnType pawn = _pawnClass.CreateNew();
-            if (item.ControlledPawn == null)
-                item.ControlledPawn = pawn;
-            else
-                item.EnqueuePosession(pawn);
+            item.EnqueuePosession(pawn);
             pawn.QueueRespawn();
         }
         public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)

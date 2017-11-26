@@ -7,11 +7,11 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Components;
 using TheraEngine.Worlds.Actors.Types.Pawns;
 
-namespace TheraEngine.Rendering.HUD
+namespace TheraEngine.Rendering.UI
 {
-    public class HudComponent : SceneComponent, IPanel, I2DBoundable, IEnumerable<HudComponent>
+    public class UIComponent : SceneComponent, IPanel, I2DBoundable, IEnumerable<UIComponent>
     {
-        public HudComponent() : base()
+        public UIComponent() : base()
         {
 
         }
@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.HUD
         public IQuadtreeNode QuadtreeNode { get; set; }
 
         //Used to select a new component when the user moves the gamepad stick.
-        protected HudComponent _left, _right, _down, _up;
+        protected UIComponent _left, _right, _down, _up;
 
         protected IQuadtreeNode _renderNode;
         protected bool _highlightable, _selectable, _scrollable;
@@ -162,12 +162,10 @@ namespace TheraEngine.Rendering.HUD
             }
         }
 
-        public BoundingRectangle AxisAlignedBounds
-            => _axisAlignedBounds;
-
-        public new HudManager OwningActor
+        public BoundingRectangle AxisAlignedBounds => _axisAlignedBounds;
+        public new UIManager OwningActor
         {
-            get => (HudManager)base.OwningActor;
+            get => (UIManager)base.OwningActor;
             set
             {
                 if (IsSpawned && this is I2DRenderable r)
@@ -185,9 +183,28 @@ namespace TheraEngine.Rendering.HUD
         }
         public ushort LayerIndex => _layerIndex;
         public ushort SameLayerIndex => _sameLayerIndex;
-        
+
+        /// <summary>
+        /// Returns true if the given point, relative to the owning HudManager pawn's transform, is contained within this component.
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
         public bool Contains(Vec2 point)
-            => _region.Contains(point);
+        {
+            Vec3 transformedPoint = new Vec3(point, 0.0f) * OwningActor.RootComponent.InverseWorldMatrix;
+            return Contains(transformedPoint);
+        }
+        /// <summary>
+        /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
+        /// </summary>
+        /// <param name="worldPoint"></param>
+        /// <param name="depthMargin">How far away the point can be on either side of the HUD for it to be considered close enough.</param>
+        /// <returns></returns>
+        public bool Contains(Vec3 worldPoint, float depthMargin = 0.5f)
+        {
+            Vec3 localPoint = worldPoint * _inverseWorldTransform;
+            return Math.Abs(localPoint.Z) < depthMargin && Region.Contains(localPoint.Xy);
+        }
 
         public override void OnSpawned()
         {
@@ -225,14 +242,14 @@ namespace TheraEngine.Rendering.HUD
 
             _renderNode?.ItemMoved(this);
 
-            foreach (HudComponent c in _children)
+            foreach (UIComponent c in _children)
                 c.RecalcGlobalTransform();
         }
-        protected virtual void OnChildAdded(HudComponent child)
+        protected virtual void OnChildAdded(UIComponent child)
         {
             child.OwningActor = OwningActor;
         }
-        public void Add(HudComponent child)
+        public void Add(UIComponent child)
         {
             if (child == null)
                 return;
@@ -242,11 +259,11 @@ namespace TheraEngine.Rendering.HUD
             child._layerIndex = (ushort)(_layerIndex + 1);
             OnChildAdded(child);
         }
-        protected virtual void OnChildRemoved(HudComponent child)
+        protected virtual void OnChildRemoved(UIComponent child)
         {
 
         }
-        public void Remove(HudComponent child)
+        public void Remove(UIComponent child)
         {
             if (child == null)
                 return;
@@ -266,35 +283,30 @@ namespace TheraEngine.Rendering.HUD
         public virtual BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             BoundingRectangle region = Region;
-            foreach (HudComponent c in _children)
+            foreach (UIComponent c in _children)
                 region = c.Resize(region);
             return parentRegion;
         }
-        public HudComponent FindComponent(Vec2 viewportPoint)
+        public UIComponent FindComponent(Vec2 viewportPoint)
         {
-            if (!ContainsPoint(viewportPoint))
+            if (!Contains(viewportPoint))
                 return null;
 
             //TODO: create 2D quadtree for hud component searching
-            foreach (HudComponent c in _children)
+            foreach (UIComponent c in _children)
             {
-                HudComponent comp = c.FindComponent(viewportPoint);
+                UIComponent comp = c.FindComponent(viewportPoint);
                 if (comp != null)
-                    return comp.FindComponent(viewportPoint);
+                    return comp;
             }
 
             return this;
         }
-        public bool ContainsPoint(Vec2 viewportPoint)
-        {
-            Vec2 localPoint = (Vec2)(new Vec3(viewportPoint, 0.0f) * _inverseWorldTransform);
-            return Region.Bounds.Contains(viewportPoint);
-        }
-        
+
         protected internal override void OriginRebased(Vec3 newOrigin) { }
 
-        public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
+        public IEnumerator<UIComponent> GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
 
         public override void HandleLocalTranslation(Vec3 delta)
         {

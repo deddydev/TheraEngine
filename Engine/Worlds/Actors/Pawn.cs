@@ -2,7 +2,7 @@
 using TheraEngine.Input.Devices;
 using System;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.UI;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Components.Scene;
@@ -28,7 +28,7 @@ namespace TheraEngine.Worlds.Actors
         AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
         CameraComponent CurrentCameraComponent { get; set; }
-        HudManager Hud { get; set; }
+        UIManager HUD { get; set; }
 
         void QueuePossession(LocalPlayerIndex possessor);
         void OnUnPossessed();
@@ -52,7 +52,7 @@ namespace TheraEngine.Worlds.Actors
     {
         private PawnController _controller;
         private CameraComponent _currentCameraComponent;
-        private HudManager _hud = null;
+        private UIManager _hud = null;
         
         [Category("Pawn")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -84,7 +84,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         [Category("Pawn")]
-        public HudManager Hud
+        public UIManager HUD
         {
             get => _hud;
             set
@@ -103,13 +103,13 @@ namespace TheraEngine.Worlds.Actors
 
         public override void OnSpawnedPreComponentSetup(World world)
         {
-            Hud?.Spawned(world);
+            HUD?.Spawned(world);
             base.OnSpawnedPreComponentSetup(world);
         }
 
         public override void OnDespawned()
         {
-            Hud?.Despawned();
+            HUD?.Despawned();
             base.OnDespawned();
         }
 

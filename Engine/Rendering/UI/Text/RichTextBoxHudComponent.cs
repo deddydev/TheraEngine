@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace TheraEngine.Rendering.HUD.Text
+namespace TheraEngine.Rendering.UI.Text
 {
     public class RichTextBoxHudComponent : TextHudComponent
     {

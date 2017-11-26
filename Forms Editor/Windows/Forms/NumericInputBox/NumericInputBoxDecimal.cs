@@ -32,8 +32,8 @@ namespace TheraEditor.Windows.Forms
         }
         protected override bool TryParse(string text, out Decimal value)
             => Decimal.TryParse(text, out value);
-        public override Decimal MinimumValue => Decimal.MinValue;
-        public override Decimal MaximumValue => Decimal.MaxValue;
+        public override Decimal MinimumValue { get; set; } = Decimal.MinValue;
+        public override Decimal MaximumValue { get; set; } = Decimal.MaxValue;
         public override bool Integral => false;
         public override bool Signed => true;
         private int _enforcedDecimals = -1;

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace TheraEngine.Rendering.HUD
+namespace TheraEngine.Rendering.UI
 {
     public class DebugPrintHudComponent : TextHudComponent
     {

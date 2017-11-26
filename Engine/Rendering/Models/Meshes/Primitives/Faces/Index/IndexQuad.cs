@@ -4,14 +4,14 @@ namespace TheraEngine.Rendering.Models
 {
     public class IndexQuad : IndexPolygon
     {
-        public override FaceType Type { get { return FaceType.Quads; } }
+        public override FaceType Type => FaceType.Quads;
 
         bool _forwardSlash = false;
 
-        public IndexPoint Point0 { get { return _points[0]; } }
-        public IndexPoint Point1 { get { return _points[1]; } }
-        public IndexPoint Point2 { get { return _points[2]; } }
-        public IndexPoint Point3 { get { return _points[3]; } }
+        public IndexPoint Point0 => _points[0];
+        public IndexPoint Point1 => _points[1];
+        public IndexPoint Point2 => _points[2];
+        public IndexPoint Point3 => _points[3];
 
         public IndexQuad() { }
         /// <summary>

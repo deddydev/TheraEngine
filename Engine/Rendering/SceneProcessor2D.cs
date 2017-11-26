@@ -1,0 +1,132 @@
+﻿using TheraEngine.Rendering.Cameras;
+using System;
+using System.Collections.Generic;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.Rendering.Particles;
+using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Worlds.Actors.Components.Scene.Lights;
+using System.Drawing;
+using TheraEngine.Files;
+using TheraEngine.Rendering.Textures;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Rendering.Models;
+
+namespace TheraEngine.Rendering
+{
+    public class RenderPasses2D
+    {
+        public RenderPasses2D()
+        {
+            _sorter = new RenderSort();
+            _passes = new List<I2DRenderable>[]
+            {
+                new List<I2DRenderable>(),
+                new List<I2DRenderable>(),
+                new List<I2DRenderable>(),
+            };
+        }
+
+        private RenderSort _sorter;
+        private List<I2DRenderable>[] _passes;
+        
+        public List<I2DRenderable> Opaque => _passes[0];
+        public List<I2DRenderable> Transparent => _passes[1];
+        public List<I2DRenderable> OnTop => _passes[2];
+        
+        private class RenderSort : IComparer<I2DRenderable>
+        {
+            int IComparer<I2DRenderable>.Compare(I2DRenderable x, I2DRenderable y)
+            {
+                if (x.RenderInfo.LayerIndex < y.RenderInfo.LayerIndex)
+                    return -1;
+                if (x.RenderInfo.LayerIndex > y.RenderInfo.LayerIndex)
+                    return 1;
+                if (x.RenderInfo.OrderInLayer < y.RenderInfo.OrderInLayer)
+                    return -1;
+                if (x.RenderInfo.OrderInLayer > y.RenderInfo.OrderInLayer)
+                    return 1;
+                return 0;
+            }
+        }
+
+        public void Render(ERenderPass2D pass)
+        {
+            var list = _passes[(int)pass];
+            foreach (I2DRenderable r in list/*.OrderBy(x => x, _sorter)*/)
+                r.Render();
+            list.Clear();
+        }
+
+        public void Add(I2DRenderable item)
+        {
+            List<I2DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
+            r.Add(item);
+        }
+    }
+    /// <summary>
+    /// Processes all scene information that will be sent to the renderer.
+    /// </summary>
+    public class SceneProcessor2D : SceneProcessor
+    {
+        public Quadtree RenderTree { get; private set; }
+        private RenderPasses2D _passes = new RenderPasses2D();
+        private bool _preRenderFrustumType;
+        
+        public SceneProcessor2D() => Clear(Vec2.Zero);
+        
+        public void PreRender(Camera camera, Frustum frustum)
+        {
+            _preRenderFrustumType = true;
+
+            bool hasTopLeft = Collision.RayIntersectsPlane(frustum.NearTopLeft, frustum.FarTopLeft - frustum.NearTopLeft, Vec3.Zero, Vec3.Backward, out Vec3 topLeft);
+            bool hasTopRight = Collision.RayIntersectsPlane(frustum.NearTopRight, frustum.FarTopRight - frustum.NearTopRight, Vec3.Zero, Vec3.Backward, out Vec3 topRight);
+            bool hasBottomLeft = Collision.RayIntersectsPlane(frustum.NearBottomLeft, frustum.FarBottomLeft - frustum.NearBottomLeft, Vec3.Zero, Vec3.Backward, out Vec3 bottomLeft);
+            bool hasBottomRight = Collision.RayIntersectsPlane(frustum.NearBottomRight, frustum.FarBottomRight - frustum.NearBottomRight, Vec3.Zero, Vec3.Backward, out Vec3 bottomRight);
+            
+            float minX = CustomMath.Min(topLeft.X, topRight.X, bottomLeft.X, bottomRight.X);
+            float maxX = CustomMath.Max(topLeft.X, topRight.X, bottomLeft.X, bottomRight.X);
+            float minY = CustomMath.Min(topLeft.Y, topRight.Y, bottomLeft.Y, bottomRight.Y);
+            float maxY = CustomMath.Max(topLeft.Y, topRight.Y, bottomLeft.Y, bottomRight.Y);
+
+            BoundingRectangle bounds = BoundingRectangle.FromMinMaxSides(minX, maxX, minY, maxY, 0.0f, 0.0f);
+
+            AbstractRenderer.PushCurrentCamera(camera);
+            RenderTree.CollectVisible(bounds, _passes);
+            foreach (IPreRenderNeeded p in _preRenderList)
+                p.PreRender();
+        }
+        public void PreRender(BoundingRectangle bounds)
+        {
+            _preRenderFrustumType = false;
+            RenderTree.CollectVisible(bounds, _passes);
+            foreach (IPreRenderNeeded p in _preRenderList)
+                p.PreRender();
+        }
+
+        public void Resize(Vec2 bounds)
+        {
+            RenderTree?.Resize(bounds);
+        }
+
+        public void PostRender()
+        {
+            if (_preRenderFrustumType)
+                AbstractRenderer.PopCurrentCamera();
+        }
+        public void Add(I2DBoundable obj)
+        {
+            RenderTree?.Add(obj);
+        }
+        public void Remove(I2DBoundable obj)
+        {
+            RenderTree?.Remove(obj);
+        }
+        public void Clear(Vec2 bounds)
+        {
+            RenderTree = new Quadtree(new BoundingRectangle(new Vec2(0.0f), bounds));
+            _passes = new RenderPasses2D();
+        }
+    }
+}

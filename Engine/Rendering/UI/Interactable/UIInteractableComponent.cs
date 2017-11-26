@@ -2,12 +2,12 @@
 using System.ComponentModel;
 using TheraEngine.Input.Devices;
 
-namespace TheraEngine.Rendering.HUD
+namespace TheraEngine.Rendering.UI
 {
     /// <summary>
     /// Hud component that can be interacted with by the player.
     /// </summary>
-    public class InteractableHudComponent : DockableHudComponent
+    public class InteractableHudComponent : UIDockableComponent
     {
         [Category("Events")]
         public event Action Highlighted;

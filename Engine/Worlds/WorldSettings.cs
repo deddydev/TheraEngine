@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Audio;
-using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.UI;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Types.Pawns;
@@ -97,7 +97,7 @@ namespace TheraEngine.Worlds
             set => _ambientParams = value;
         }
         [Browsable(false)]
-        public HudManager DefaultHud
+        public UIManager DefaultHud
         {
             get => _defaultHud;
             set => _defaultHud = value;
@@ -111,7 +111,7 @@ namespace TheraEngine.Worlds
         [TSerialize("GlobalAmbient")]
         private ColorF3 _globalAmbient;
         [TSerialize("DefaultHud")]
-        private HudManager _defaultHud;
+        private UIManager _defaultHud;
         [TSerialize("Bounds")]
         private BoundingBox _bounds = BoundingBox.FromMinMax(-70.0f, 70.0f);
         [TSerialize("OriginRebaseBounds")]

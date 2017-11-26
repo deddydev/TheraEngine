@@ -3,9 +3,9 @@ using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Text;
 using TheraEngine.Core.Shapes;
 
-namespace TheraEngine.Rendering.HUD
+namespace TheraEngine.Rendering.UI
 {
-    public class TextHudComponent : MaterialHudComponent
+    public class TextHudComponent : UIMaterialComponent
     {
         public TextHudComponent() : base(Material.GetUnlitTextureMaterialForward(new TextureReference2D()))
         {

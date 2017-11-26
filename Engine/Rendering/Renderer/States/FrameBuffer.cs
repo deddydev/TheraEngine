@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering
     /// <summary>
     /// Represents a framebuffer, material, quad (actually a giant triangle), and camera to render with.
     /// </summary>
-    internal class QuadFrameBuffer : MaterialFrameBuffer
+    public class QuadFrameBuffer : MaterialFrameBuffer
     {
         /// <summary>
         /// Use to set uniforms to the program containing the fragment shader.
@@ -97,7 +97,7 @@ namespace TheraEngine.Rendering
         {
             if (Material == null)
                 return;
-            if (RenderPanel.NeedsInvoke(Compile, RenderPanel.PanelType.Game))
+            if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.Game))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             Material.GenerateTextures();

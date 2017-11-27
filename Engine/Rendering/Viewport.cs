@@ -185,6 +185,7 @@ namespace TheraEngine.Rendering
             _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
             _deferredGBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
             _postProcessFrameBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+            _hudFrameBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
         }
         internal void Resize(
             float parentWidth,
@@ -741,6 +742,44 @@ void main()
                 FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
             };
 
+            InitPostFBO(width, height, depthTexture);
+            InitUiFBO(width, height, depthTexture);
+
+            //If forward, we can render directly to the post process FBO.
+            //If deferred, we have to render to a quad first, then render that to post process
+            if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
+                InitDeferFBO(width, height, depthTexture);
+        }
+
+        #region FBOs
+        private void InitUiFBO(int width, int height, TextureReference2D depthTexture)
+        {
+            TextureReference2D[] hudRefs = new TextureReference2D[]
+            {
+                new TextureReference2D("OutputColor", width, height,
+                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.Clamp,
+                    VWrap = ETexWrapMode.Clamp,
+                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                },
+                depthTexture,
+            };
+
+            Material hudMat = new Material("HUDMaterial",
+                new ShaderVar[0], hudRefs,
+                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "HUD.frag"))))
+            {
+                Requirements = Material.UniformRequirements.None
+            };
+            _hudFrameBuffer = new QuadFrameBuffer(hudMat);
+
+        }
+
+        private void InitPostFBO(int width, int height, TextureReference2D depthTexture)
+        {
             TextureReference2D[] postProcessRefs = new TextureReference2D[]
             {
                 new TextureReference2D("OutputColor", width, height,
@@ -773,56 +812,35 @@ void main()
 
             _postProcessFrameBuffer = new QuadFrameBuffer(postProcessMat);
             _postProcessFrameBuffer.SettingUniforms += _postProcessGBuffer_SettingUniforms;
+        }
 
-            //TextureReference2D[] hudRefs = new TextureReference2D[]
-            //{
-            //    new TextureReference2D("OutputColor", width, height,
-            //        EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
-            //    {
-            //        MinFilter = ETexMinFilter.Nearest,
-            //        MagFilter = ETexMagFilter.Nearest,
-            //        UWrap = ETexWrapMode.Clamp,
-            //        VWrap = ETexWrapMode.Clamp,
-            //        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-            //    },
-            //    depthTexture,
-            //};
-
-            //Material hudMat = new Material("HUDMaterial",
-            //    new ShaderVar[0], hudRefs,
-            //    new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "HUD.frag"))))
-            //{
-            //    Requirements = Material.UniformRequirements.None
-            //};
-            //_hudFrameBuffer = new QuadFrameBuffer(hudMat);
-
-            if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
-            {
-                TextureReference2D ssaoNoise = new TextureReference2D("SSAONoise",
+        private unsafe void InitDeferFBO(int width, int height, TextureReference2D depthTexture)
+        {
+            TextureReference2D ssaoNoise = new TextureReference2D("SSAONoise",
                 _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
                 EPixelInternalFormat.Rgb16, EPixelFormat.Bgr, EPixelType.UnsignedShort,
                 PixelFormat.Format64bppArgb)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Repeat,
-                    VWrap = ETexWrapMode.Repeat,
-                    DoNotResize = true,
-                };
-                Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
-                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
-                ushort* values = (ushort*)data.Scan0;
-                Vec3[] noise = _ssaoInfo.Noise;
-                foreach (Vec3 v in noise)
-                {
-                    *values++ = (ushort)(v.X * ushort.MaxValue);
-                    *values++ = (ushort)(v.Y * ushort.MaxValue);
-                    *values++ = (ushort)(v.Z * ushort.MaxValue);
-                    //*values++ = 0;
-                }
-                bmp.UnlockBits(data);
-                TextureReference2D[] deferredRefs = new TextureReference2D[]
-                {
+            {
+                MinFilter = ETexMinFilter.Nearest,
+                MagFilter = ETexMagFilter.Nearest,
+                UWrap = ETexWrapMode.Repeat,
+                VWrap = ETexWrapMode.Repeat,
+                DoNotResize = true,
+            };
+            Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
+            ushort* values = (ushort*)data.Scan0;
+            Vec3[] noise = _ssaoInfo.Noise;
+            foreach (Vec3 v in noise)
+            {
+                *values++ = (ushort)(v.X * ushort.MaxValue);
+                *values++ = (ushort)(v.Y * ushort.MaxValue);
+                *values++ = (ushort)(v.Z * ushort.MaxValue);
+                //*values++ = 0;
+            }
+            bmp.UnlockBits(data);
+            TextureReference2D[] deferredRefs = new TextureReference2D[]
+            {
                     new TextureReference2D("AlbedoSpec", width, height,
                         EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
                         {
@@ -843,32 +861,32 @@ void main()
                         },
                     ssaoNoise,
                     depthTexture,
-                };
+            };
 
-                ShaderVar[] deferredParameters = new ShaderVar[]
-                {
+            ShaderVar[] deferredParameters = new ShaderVar[]
+            {
 
-                };
+            };
 
-                Material deferredMat = new Material("GBufferDeferredMaterial",
-                deferredParameters,
-                deferredRefs,
-                new Shader(ShaderMode.Fragment,
-                new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "GBufferQuad.frag"))))
-                {
-                    Requirements = Material.UniformRequirements.NeedsLightsAndCamera,
-                };
+            Material deferredMat = new Material("GBufferDeferredMaterial",
+            deferredParameters,
+            deferredRefs,
+            new Shader(ShaderMode.Fragment,
+            new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "GBufferQuad.frag"))))
+            {
+                Requirements = Material.UniformRequirements.NeedsLightsAndCamera,
+            };
 
-                //Don't overwrite the depth texture generated by the deferred pass (and used by the forward pass)
-                //when rendering the screen-space quad that shows the deferred pass
+            //Don't overwrite the depth texture generated by the deferred pass (and used by the forward pass)
+            //when rendering the screen-space quad that shows the deferred pass
 
-                deferredMat.RenderParams.File.DepthTest.Enabled = true;
-                deferredMat.RenderParams.File.DepthTest.UpdateDepth = false;
-                deferredMat.RenderParams.File.DepthTest.Function = EComparison.Always;
+            deferredMat.RenderParams.File.DepthTest.Enabled = true;
+            deferredMat.RenderParams.File.DepthTest.UpdateDepth = false;
+            deferredMat.RenderParams.File.DepthTest.Function = EComparison.Always;
 
-                _deferredGBuffer = new QuadFrameBuffer(deferredMat);
-                _deferredGBuffer.SettingUniforms += _deferredGBuffer_SettingUniforms;
-            }
+            _deferredGBuffer = new QuadFrameBuffer(deferredMat);
+            _deferredGBuffer.SettingUniforms += _deferredGBuffer_SettingUniforms;
         }
+        #endregion
     }
 }

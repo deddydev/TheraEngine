@@ -23,8 +23,44 @@ namespace TheraEngine.Worlds.Actors.Types.BSP
         {
             _manager.Render(WorldMatrix, InverseWorldMatrix.Transposed().GetRotationMatrix3());
         }
+
+        public PrimitiveManager Merge(PrimitiveManager right, IntersectionType intersection)
+        {
+            PrimitiveManager m = new PrimitiveManager();
+            switch (intersection)
+            {
+                case IntersectionType.Union:
+
+                    break;
+                case IntersectionType.Intersection:
+
+                    break;
+                case IntersectionType.Subtraction:
+
+                    break;
+                case IntersectionType.Merge:
+
+                    break;
+                case IntersectionType.Attach:
+
+                    break;
+                case IntersectionType.Insert:
+
+                    break;
+            }
+            return m;
+        }
     }
-    public abstract class BSPShapeActor : Actor<StaticMeshComponent>
+    public enum IntersectionType
+    {
+        Union,
+        Intersection,
+        Subtraction,
+        Merge,
+        Attach,
+        Insert,
+    }
+    public abstract class BSPShapeActor : Actor<BSPMeshComponent>
     {
 
     }

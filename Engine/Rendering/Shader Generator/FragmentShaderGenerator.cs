@@ -1,4 +1,5 @@
 ﻿using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEngine.Rendering
 {

@@ -1,6 +1,6 @@
 ﻿using TheraEngine.Rendering.UI.Functions;
 
-namespace TheraEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public class MatFuncExecOutput : FuncExecOutput<MatFuncExecInput, MaterialFunction>
     {

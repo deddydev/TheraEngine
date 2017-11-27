@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TheraEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class ComparableFunc : MaterialFunction
     {
@@ -20,9 +20,7 @@ namespace TheraEngine.Rendering.Models.Materials
             return new List<MatFuncValueOutput>() { Result };
         }
         protected override string GetOperation()
-        {
-            return "{0} " + GetOperator() + " {1}";
-        }
+            => "{0} " + GetOperator() + " {1}";
         protected abstract string GetOperator();
     }
 }

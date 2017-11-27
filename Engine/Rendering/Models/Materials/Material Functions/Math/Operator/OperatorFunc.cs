@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TheraEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class OperatorFunc : MaterialFunction
     {

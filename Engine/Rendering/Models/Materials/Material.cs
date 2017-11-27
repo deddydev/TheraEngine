@@ -9,6 +9,7 @@ using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.
 using System.Threading.Tasks;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

@@ -1,6 +1,6 @@
 ﻿using TheraEngine.Rendering.UI.Functions;
 
-namespace TheraEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
                 "Math",
@@ -10,6 +10,6 @@ namespace TheraEngine.Rendering.Models.Materials
     public class LessFunc : ComparableFunc
     {
         public LessFunc() : base() { }
-        protected override string GetOperator() { return "<"; }
+        protected override string GetOperator() => "<";
     }
 }

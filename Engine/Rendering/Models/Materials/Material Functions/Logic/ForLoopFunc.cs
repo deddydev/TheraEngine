@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using TheraEngine.Rendering.UI.Functions;
 
-namespace TheraEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         "Logic",
@@ -11,10 +11,8 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ForLoopFunc : MaterialFunction
     {
         public ForLoopFunc() : base(true) { }
-        protected override string GetOperation()
-        {
-            return "for (int i = {0}; {1}, ";
-        }
+        protected override string GetOperation() => "for (int i = {0}; {1}, ";
+        
         protected override List<MatFuncValueInput> GetValueInputs()
         {
             return new List<MatFuncValueInput>()

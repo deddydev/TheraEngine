@@ -478,41 +478,5 @@ namespace TheraEngine.Rendering.Models
             _vertexFragProgram?.Destroy();
             _vertexFragProgram = null;
         }
-
-        public PrimitiveManager Merge(PrimitiveManager right, IntersectionType intersection)
-        {
-            PrimitiveManager m = new PrimitiveManager();
-            switch (intersection)
-            {
-                case IntersectionType.Union:
-
-                    break;
-                case IntersectionType.Intersection:
-
-                    break;
-                case IntersectionType.Subtraction:
-
-                    break;
-                case IntersectionType.Merge:
-
-                    break;
-                case IntersectionType.Attach:
-
-                    break;
-                case IntersectionType.Insert:
-
-                    break;
-            }
-            return m;
-        }
-    }
-    public enum IntersectionType
-    {
-        Union,
-        Intersection,
-        Subtraction,
-        Merge,
-        Attach,
-        Insert,
     }
 }

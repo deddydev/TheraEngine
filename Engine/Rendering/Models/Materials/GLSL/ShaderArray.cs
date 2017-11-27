@@ -3,7 +3,6 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderArray<T> : ShaderVar where T : ShaderVar
     {
         [Browsable(false)]

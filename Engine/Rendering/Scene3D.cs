@@ -280,13 +280,13 @@ namespace TheraEngine.Rendering
                         v._postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
                         //Render hud to hud framebuffer.
-                        //v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                        //{
-                        //    Engine.Renderer.AllowDepthWrite(true);
-                        //    Engine.Renderer.DepthFunc(EComparison.Lequal);
-                        //    v.HUD?.Render();
-                        //}
-                        //v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                        v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                        {
+                            Engine.Renderer.AllowDepthWrite(true);
+                            Engine.Renderer.DepthFunc(EComparison.Lequal);
+                            v.HUD?.Scene.Render(camera, frustum, v, false);
+                        }
+                        v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
                     }
                     //Disable internal resolution
                     Engine.Renderer.PopRenderArea();
@@ -296,8 +296,8 @@ namespace TheraEngine.Rendering
                     {
                         Engine.Renderer.CropRenderArea(v.Region);
 
+                        v._hudFrameBuffer.Render();
                         v._postProcessFrameBuffer.Render();
-                        ////v._hudFrameBuffer.Render();
                     }
                     Engine.Renderer.PopRenderArea();
                 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using TheraEngine.Rendering.UI.Functions;
 
-namespace TheraEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class MaterialFunction
         : Function<MatFuncValueInput, MatFuncValueOutput, MatFuncExecInput, MatFuncExecOutput>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using TheraEngine.Rendering.UI.Functions;
 
-namespace TheraEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     /// <summary>
     /// 1.0f - input

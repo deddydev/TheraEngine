@@ -139,6 +139,7 @@ namespace TheraEngine.Rendering
             set
             {
                 _hud = value;
+                _hud?.Resize(_internalResolution.Bounds);
             }
         }
         public Viewport(BaseRenderPanel panel, int index)
@@ -186,6 +187,7 @@ namespace TheraEngine.Rendering
             _deferredGBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
             _postProcessFrameBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
             _hudFrameBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+            HUD?.Resize(_internalResolution.Bounds);
         }
         internal void Resize(
             float parentWidth,
@@ -202,7 +204,7 @@ namespace TheraEngine.Rendering
                 _region.Width * internalResolutionScale, 
                 _region.Height * internalResolutionScale); 
 
-            if (_worldCamera is PerspectiveCamera p)
+            if (Camera is PerspectiveCamera p)
                 p.Aspect = Width / Height;
         }
 
@@ -527,6 +529,7 @@ namespace TheraEngine.Rendering
         }
         #endregion
 
+        #region SSAO
         private class SSAOInfo
         {
             Vec3[] _noise, _kernel;
@@ -589,6 +592,8 @@ namespace TheraEngine.Rendering
                 }
             }
         }
+        #endregion
+
         public enum DepthStencilUse
         {
             None,
@@ -599,132 +604,7 @@ namespace TheraEngine.Rendering
             Depth24Stencil8,
             Depth32Stencil8,
         }
-        internal static Shader GBufferShaderDeferred()
-        {
-            string source = @"
-#version 450
-//GBUFFER FRAG SHADER
 
-layout (location = 0) out vec4 OutColor;
-in vec3 FragPos;
-
-uniform sampler2D Texture0; //AlbedoSpec
-uniform sampler2D Texture1; //Normal
-uniform sampler2D Texture2; //SSAO Noise
-uniform sampler2D Texture3; //Depth
-
-uniform vec3 SSAOSamples[64];
-uniform float SSAORadius = 0.75;
-uniform float SSAOPower = 4.0;
-
-" + Camera.ShaderDecl() + @"
-" + ShaderHelpers.LightingDeclBasic() + @"
-" + ShaderHelpers.Func_ViewPosFromDepth + @"
-
-void main()
-{
-    vec2 uv = FragPos.xy;
-    if (uv.x > 1.0 || uv.y > 1.0)
-        discard;
-
-    vec4 AlbedoSpec = texture(Texture0, uv);
-    vec3 Normal = texture(Texture1, uv).rgb;
-    float Depth = texture(Texture3, uv).r;
-
-    vec3 FragPosVS = ViewPosFromDepth(Depth, uv);
-    vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0)).xyz;
-
-    ivec2 res = textureSize(Texture0, 0);
-    vec2 noiseScale = vec2(res.x * 0.25f, res.y * 0.25f);
-
-    vec3 randomVec = vec3(texture(Texture2, uv * noiseScale).rg * 2.0f - 1.0f, 0.0f);
-    vec3 n = normalize(vec3(WorldToCameraSpaceMatrix * vec4(Normal, 0.0)));
-    vec3 tangent = normalize(randomVec - n * dot(randomVec, n));
-    vec3 bitangent = cross(n, tangent);
-    mat3 TBN = mat3(tangent, bitangent, n); 
-
-    int kernelSize = 64;
-    float bias = 0.025;
-
-    float occlusion = 0.0f;
-    for (int i = 0; i < kernelSize; ++i)
-    {
-        vec3 noiseSample = TBN * SSAOSamples[i];
-        noiseSample = FragPosVS + noiseSample * SSAORadius;
-
-        vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
-        offset.xyz /= offset.w;
-        offset.xyz = offset.xyz * 0.5f + 0.5f;
-
-        float sampleDepth = ViewPosFromDepth(texture(Texture3, offset.xy).r, offset.xy).z;
-
-        float rangeCheck = smoothstep(0.0, 1.0, SSAORadius / abs(FragPosVS.z - sampleDepth));
-        occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0 : 0.0) * rangeCheck;  
-    } 
-
-    occlusion = pow(1.0 - (occlusion / kernelSize), SSAOPower);
-
-    " + ShaderHelpers.LightingCalcBasic("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "occlusion") + @"
-
-    OutColor = vec4(AlbedoSpec.rgb * totalLight, 1.0);
-}";
-
-            return new Shader(ShaderMode.Fragment, source);
-        }
-        internal static Shader GBufferShaderPostProcess()
-        {
-            string source = @"
-#version 450
-//POST PROCESSING FRAG SHADER
-
-out vec4 OutColor;
-in vec3 FragPos;
-
-uniform sampler2D Texture0; //HDR Scene Color
-uniform sampler2D Texture1; //Depth
-
-" + PostProcessSettings.ShaderSetup() + @"
-" + ShaderHelpers.Func_RGBtoHSV + @"
-" + ShaderHelpers.Func_HSVtoRGB + @"
-
-float rand(vec2 co)
-{
-    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
-}
-
-void main()
-{
-    vec2 uv = FragPos.xy;
-    vec3 hdrSceneColor = texture(Texture0, uv).rgb;
-    float Depth = texture(Texture1, uv).r;
-
-    //Color grading
-    hdrSceneColor *= ColorGrade.Tint;
-    vec3 hsv = RGBtoHSV(hdrSceneColor);
-    hsv.x *= ColorGrade.Hue;
-    hsv.y *= ColorGrade.Saturation;
-    hsv.z *= ColorGrade.Brightness;
-    hdrSceneColor = HSVtoRGB(hsv);
-    hdrSceneColor = (hdrSceneColor - 0.5) * ColorGrade.Contrast + 0.5;
-
-    //Tone mapping
-    vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
-    
-    //Vignette
-    uv *= 1.0 - uv.yx;
-    float vig = clamp(pow(uv.x * uv.y * Vignette.Intensity, Vignette.Power), 0.0, 1.0);
-    ldrSceneColor = mix(Vignette.Color, ldrSceneColor, vig);
-
-    //Gamma-correct
-    vec3 gammaCorrected = pow(ldrSceneColor, vec3(1.0 / ColorGrade.Gamma));
-
-    //Fix subtle banding by applying fine noise
-    gammaCorrected += mix(-0.5/255.0, 0.5/255.0, rand(uv));
-
-    OutColor = vec4(gammaCorrected, 1.0);
-}";
-            return new Shader(ShaderMode.Fragment, source);
-        }
         internal unsafe void UpdateRender()
         {
             int width = InternalResolution.IntWidth;
@@ -892,5 +772,133 @@ void main()
             _deferredGBuffer.SettingUniforms += _deferredGBuffer_SettingUniforms;
         }
         #endregion
+
+
+        //        internal static Shader GBufferShaderDeferred()
+        //        {
+        //            string source = @"
+        //#version 450
+        ////GBUFFER FRAG SHADER
+
+        //layout (location = 0) out vec4 OutColor;
+        //in vec3 FragPos;
+
+        //uniform sampler2D Texture0; //AlbedoSpec
+        //uniform sampler2D Texture1; //Normal
+        //uniform sampler2D Texture2; //SSAO Noise
+        //uniform sampler2D Texture3; //Depth
+
+        //uniform vec3 SSAOSamples[64];
+        //uniform float SSAORadius = 0.75;
+        //uniform float SSAOPower = 4.0;
+
+        //" + Camera.ShaderDecl() + @"
+        //" + ShaderHelpers.LightingDeclBasic() + @"
+        //" + ShaderHelpers.Func_ViewPosFromDepth + @"
+
+        //void main()
+        //{
+        //    vec2 uv = FragPos.xy;
+        //    if (uv.x > 1.0 || uv.y > 1.0)
+        //        discard;
+
+        //    vec4 AlbedoSpec = texture(Texture0, uv);
+        //    vec3 Normal = texture(Texture1, uv).rgb;
+        //    float Depth = texture(Texture3, uv).r;
+
+        //    vec3 FragPosVS = ViewPosFromDepth(Depth, uv);
+        //    vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0)).xyz;
+
+        //    ivec2 res = textureSize(Texture0, 0);
+        //    vec2 noiseScale = vec2(res.x * 0.25f, res.y * 0.25f);
+
+        //    vec3 randomVec = vec3(texture(Texture2, uv * noiseScale).rg * 2.0f - 1.0f, 0.0f);
+        //    vec3 n = normalize(vec3(WorldToCameraSpaceMatrix * vec4(Normal, 0.0)));
+        //    vec3 tangent = normalize(randomVec - n * dot(randomVec, n));
+        //    vec3 bitangent = cross(n, tangent);
+        //    mat3 TBN = mat3(tangent, bitangent, n); 
+
+        //    int kernelSize = 64;
+        //    float bias = 0.025;
+
+        //    float occlusion = 0.0f;
+        //    for (int i = 0; i < kernelSize; ++i)
+        //    {
+        //        vec3 noiseSample = TBN * SSAOSamples[i];
+        //        noiseSample = FragPosVS + noiseSample * SSAORadius;
+
+        //        vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
+        //        offset.xyz /= offset.w;
+        //        offset.xyz = offset.xyz * 0.5f + 0.5f;
+
+        //        float sampleDepth = ViewPosFromDepth(texture(Texture3, offset.xy).r, offset.xy).z;
+
+        //        float rangeCheck = smoothstep(0.0, 1.0, SSAORadius / abs(FragPosVS.z - sampleDepth));
+        //        occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0 : 0.0) * rangeCheck;  
+        //    } 
+
+        //    occlusion = pow(1.0 - (occlusion / kernelSize), SSAOPower);
+
+        //    " + ShaderHelpers.LightingCalcBasic("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "occlusion") + @"
+
+        //    OutColor = vec4(AlbedoSpec.rgb * totalLight, 1.0);
+        //}";
+
+        //            return new Shader(ShaderMode.Fragment, source);
+        //        }
+        //        internal static Shader GBufferShaderPostProcess()
+        //        {
+        //            string source = @"
+        //#version 450
+        ////POST PROCESSING FRAG SHADER
+
+        //out vec4 OutColor;
+        //in vec3 FragPos;
+
+        //uniform sampler2D Texture0; //HDR Scene Color
+        //uniform sampler2D Texture1; //Depth
+
+        //" + PostProcessSettings.ShaderSetup() + @"
+        //" + ShaderHelpers.Func_RGBtoHSV + @"
+        //" + ShaderHelpers.Func_HSVtoRGB + @"
+
+        //float rand(vec2 co)
+        //{
+        //    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
+        //}
+
+        //void main()
+        //{
+        //    vec2 uv = FragPos.xy;
+        //    vec3 hdrSceneColor = texture(Texture0, uv).rgb;
+        //    float Depth = texture(Texture1, uv).r;
+
+        //    //Color grading
+        //    hdrSceneColor *= ColorGrade.Tint;
+        //    vec3 hsv = RGBtoHSV(hdrSceneColor);
+        //    hsv.x *= ColorGrade.Hue;
+        //    hsv.y *= ColorGrade.Saturation;
+        //    hsv.z *= ColorGrade.Brightness;
+        //    hdrSceneColor = HSVtoRGB(hsv);
+        //    hdrSceneColor = (hdrSceneColor - 0.5) * ColorGrade.Contrast + 0.5;
+
+        //    //Tone mapping
+        //    vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
+
+        //    //Vignette
+        //    uv *= 1.0 - uv.yx;
+        //    float vig = clamp(pow(uv.x * uv.y * Vignette.Intensity, Vignette.Power), 0.0, 1.0);
+        //    ldrSceneColor = mix(Vignette.Color, ldrSceneColor, vig);
+
+        //    //Gamma-correct
+        //    vec3 gammaCorrected = pow(ldrSceneColor, vec3(1.0 / ColorGrade.Gamma));
+
+        //    //Fix subtle banding by applying fine noise
+        //    gammaCorrected += mix(-0.5/255.0, 0.5/255.0, rand(uv));
+
+        //    OutColor = vec4(gammaCorrected, 1.0);
+        //}";
+        //            return new Shader(ShaderMode.Fragment, source);
+        //        }
     }
 }

@@ -27,7 +27,10 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
 
         protected override UIDockableComponent OnConstruct()
         {
-            return new UIDockableComponent();
+            return new UIDockableComponent()
+            {
+                DockStyle = HudDockStyle.Fill,
+            };
         }
         public override void RegisterInput(InputInterface input)
         {

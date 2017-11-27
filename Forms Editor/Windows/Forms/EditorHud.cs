@@ -96,7 +96,10 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-
+        protected override UIDockableComponent OnConstruct()
+        {
+            return base.OnConstruct();
+        }
         protected override void PreConstruct()
         {
             _highlightPoint = new HighlightPoint();

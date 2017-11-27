@@ -184,9 +184,15 @@ namespace TheraEngine.GameModes
         }
         protected internal virtual void HandleLocalPlayerJoined(ControllerType item)
         {
-            BaseRenderPanel.WorldPanel?.GetOrAddViewport((int)item.LocalPlayerIndex)?.RegisterController(item);
-            
             PawnType pawn = _pawnClass.CreateNew();
+
+            Viewport v = BaseRenderPanel.WorldPanel?.GetOrAddViewport((int)item.LocalPlayerIndex);
+            if (v != null)
+            {
+                v.RegisterController(item);
+                v.HUD = pawn.HUD;
+            }
+            
             item.Viewport.HUD = pawn.HUD;
             item.EnqueuePosession(pawn);
             Engine.World.SpawnActor(pawn);

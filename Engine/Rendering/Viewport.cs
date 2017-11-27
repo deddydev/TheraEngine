@@ -768,14 +768,18 @@ void main()
                 depthTexture,
             };
 
-            Material hudMat = new Material("HUDMaterial",
+            ShaderVar[] postProcessParameters = new ShaderVar[]
+            {
+
+            };
+
+            Material hudMat = new Material("HUDMat",
                 new ShaderVar[0], hudRefs,
                 new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "HUD.frag"))))
             {
                 Requirements = Material.UniformRequirements.None
             };
             _hudFrameBuffer = new QuadFrameBuffer(hudMat);
-
         }
 
         private void InitPostFBO(int width, int height, TextureReference2D depthTexture)
@@ -799,9 +803,9 @@ void main()
 
             };
 
-            Material postProcessMat = new Material("GBufferPostProcessMaterial",
+            Material postProcessMat = new Material("PostProcessMat",
                 postProcessParameters, postProcessRefs,
-                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcessDeferred.frag"))))
+                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcess.frag"))))
             {
                 Requirements = Material.UniformRequirements.None
             };

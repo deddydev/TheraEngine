@@ -221,12 +221,12 @@ namespace TheraEngine
         #region Resizing
         public void BeginResize()
         {
-            Visible = false;
+            //Visible = false;
             _resizing = true;
         }
         public void EndResize()
         {
-            Visible = true;
+            //Visible = true;
             _resizing = false;
             foreach (Viewport v in _viewports)
                 v.SetInternalResolution(v.Width, v.Height);
@@ -237,7 +237,7 @@ namespace TheraEngine
             int h = Height.ClampMin(1);
             //_globalHud?.Resize(new Vec2(w, h));
             foreach (Viewport v in _viewports)
-                v.Resize(w, h, !_resizing);
+                v.Resize(w, h, false);
             base.OnResize(e);
             //_context?.Update();
         }

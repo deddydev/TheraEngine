@@ -25,15 +25,17 @@ namespace TheraEngine.Rendering
                 new List<I2DRenderable>(),
                 new List<I2DRenderable>(),
                 new List<I2DRenderable>(),
+                new List<I2DRenderable>(),
             };
         }
 
         private RenderSort _sorter;
         private List<I2DRenderable>[] _passes;
-        
-        public List<I2DRenderable> Opaque => _passes[0];
-        public List<I2DRenderable> Transparent => _passes[1];
-        public List<I2DRenderable> OnTop => _passes[2];
+
+        public List<I2DRenderable> Background => _passes[0];
+        public List<I2DRenderable> Opaque => _passes[1];
+        public List<I2DRenderable> Transparent => _passes[2];
+        public List<I2DRenderable> OnTop => _passes[3];
         
         private class RenderSort : IComparer<I2DRenderable>
         {
@@ -77,6 +79,7 @@ namespace TheraEngine.Rendering
         public Scene2D()
         {
             Render = RenderForward;
+            Clear(Vec2.Zero);
         }
         
         public void PreRender(Camera camera, Frustum frustum)

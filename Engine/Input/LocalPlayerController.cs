@@ -4,6 +4,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 
 namespace TheraEngine.Input
 {
@@ -59,8 +60,13 @@ namespace TheraEngine.Input
         private LocalPlayerIndex _index;
         protected InputInterface _input;
 
+        [Category("Local Player Controller")]
         public InputInterface Input => _input;
+
+        [Category("Local Player Controller")]
         public LocalPlayerIndex LocalPlayerIndex => _index;
+
+        [Category("Local Player Controller")]
         public Viewport Viewport
         {
             get => _viewport;
@@ -68,17 +74,18 @@ namespace TheraEngine.Input
             {
                 //if (_viewport != null && _viewport.OwningPanel.GlobalHud != null)
                 //    _input.WantsInputsRegistered -= _viewport.OwningPanel.GlobalHud.RegisterInput;
-                _viewport = value;
-                if (_viewport != null)
-                {
-                    if (_controlledPawn != null)
-                        UpdateViewport();
 
-                    //if (_viewport.OwningPanel.GlobalHud != null)
-                    //    _input.WantsInputsRegistered += _viewport.OwningPanel.GlobalHud.RegisterInput;
-                }
+                _viewport = value;
+
+                UpdateViewport(SetViewportHUD, SetViewportCamera);
+
+                //if (_viewport.OwningPanel.GlobalHud != null)
+                //    _input.WantsInputsRegistered += _viewport.OwningPanel.GlobalHud.RegisterInput;
+
             }
         }
+
+        [Category("Local Player Controller")]
         public Camera CurrentCamera
         {
             get => _viewport?.Camera;
@@ -89,6 +96,7 @@ namespace TheraEngine.Input
             }
         }
 
+        [Category("Pawn Controller")]
         public override IPawn ControlledPawn
         {
             get => base.ControlledPawn;
@@ -115,7 +123,7 @@ namespace TheraEngine.Input
                 if (_controlledPawn != null)
                 {
                     if (_viewport != null)
-                        UpdateViewport();
+                        UpdateViewport(SetViewportHUD, SetViewportCamera);
 
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
                     if (_controlledPawn.HUD != null && _controlledPawn != _controlledPawn.HUD)
@@ -126,11 +134,43 @@ namespace TheraEngine.Input
                 }
             }
         }
-        private void UpdateViewport()
+
+        private bool _setViewportHUD = true, _setViewportCamera = true;
+
+        [Category("Local Player Controller")]
+        public bool SetViewportHUD
         {
-            //_viewport.PawnHUD = _controlledPawn.Hud;
-            if (_controlledPawn.CurrentCameraComponent != null)
-                _viewport.Camera = _controlledPawn.CurrentCameraComponent.CameraRef;
+            get => _setViewportHUD;
+            set
+            {
+                _setViewportHUD = value;
+                UpdateViewport(_setViewportHUD, _setViewportCamera);
+            }
+        }
+        [Category("Local Player Controller")]
+        public bool SetViewportCamera
+        {
+            get => _setViewportCamera;
+            set
+            {
+                _setViewportCamera = value;
+                UpdateViewport(_setViewportHUD, _setViewportCamera);
+            }
+        }
+
+        /// <summary>
+        /// Updates the viewport with the HUD and/or camera from the controlled pawn.
+        /// </summary>
+        public void UpdateViewport(bool setHUD, bool setCamera)
+        {
+            if (_viewport == null || _controlledPawn == null)
+                return;
+
+            if (setHUD)
+                _viewport.HUD = _controlledPawn.HUD;
+
+            if (setCamera)
+                _viewport.Camera = _controlledPawn.CurrentCameraComponent?.Camera;
         }
         protected virtual void RegisterInput(InputInterface input)
         {

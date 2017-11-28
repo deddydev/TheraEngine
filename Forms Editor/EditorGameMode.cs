@@ -14,7 +14,7 @@ namespace TheraEditor
                 if (item.LocalPlayerIndex != form.PlayerIndex)
                     return;
 
-                form.RenderPanel.GetViewport(0)?.RegisterController(item);
+                form.RenderPanel.GetOrAddViewport(0).RegisterController(item);
                 item.ControlledPawn = form.EditorPawn;
             }
         }

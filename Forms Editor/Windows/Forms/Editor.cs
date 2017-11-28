@@ -61,7 +61,7 @@ namespace TheraEditor.Windows.Forms
                 if (index < Engine.ActivePlayers.Count)
                 {
                     LocalPlayerController c = Engine.ActivePlayers[index];
-                    ActiveRenderForm.RenderPanel?.GetOrAddViewport(0)?.RegisterController(c);
+                    ActiveRenderForm.RenderPanel.GetOrAddViewport(0).RegisterController(c);
                     c.ControlledPawn = ActiveRenderForm.EditorPawn;
                 }
             }

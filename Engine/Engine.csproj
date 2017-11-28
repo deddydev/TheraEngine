@@ -773,7 +773,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AI\" />
-    <Folder Include="Core\Files\Serialization\JSON\" />
     <Folder Include="Core\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\ZAligned\" />

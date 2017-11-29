@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering
             if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.Game))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            Material.GenerateTextures();
+            Material.GenerateTextures(true);
             Engine.Renderer.SetDrawBuffers(attachments);
             CheckErrors();
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);

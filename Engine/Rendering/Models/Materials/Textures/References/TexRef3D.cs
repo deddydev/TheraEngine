@@ -160,7 +160,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return _texture;
         }
-        public Texture3D GetTexture()
+        public Texture3D GetTexture(bool loadSynchronously = false)
         {
             if (_texture != null || _isLoading)
                 return _texture;
@@ -171,7 +171,7 @@ namespace TheraEngine.Rendering.Models.Materials
             return _texture;
         }
 
-        public override BaseRenderTexture GetTextureGeneric() => GetTexture();
+        public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
         private void FinalizeTextureLoaded()

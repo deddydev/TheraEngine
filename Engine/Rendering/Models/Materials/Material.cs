@@ -188,26 +188,16 @@ namespace TheraEngine.Rendering.Models.Materials
             }
             return _fboAttachments.Contains((EDrawBuffersAttachment)(int)value);
         }
-        public void GenerateTextures()
+        public void GenerateTextures(bool loadSynchronously = false)
         {
             if (_textures != null)
             {
                 foreach (var t in _textures)
+                //await Task.Run(() => Parallel.ForEach(_textures, t =>
                 {
-                    BaseRenderTexture texture = t.GetTextureGeneric();
-                    if (texture.IsActive)
-                        texture.PushData();
-                    else
-                        texture.Generate();
+                    t.GetTextureGeneric(loadSynchronously).PushData();
                 }
-                //Parallel.ForEach(_textures, t => 
-                //{
-                //    Texture2D texture = t.GetTexture().Result;
-                //    if (texture.IsActive)
-                //        texture.PushData();
-                //    else
-                //        texture.Generate();
-                //});
+                //));
             }
         }
         internal void AddReference(PrimitiveManager user)

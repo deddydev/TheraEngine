@@ -121,7 +121,7 @@ namespace TheraEngine.Input
                 if (_controlledPawn == null && _possessionQueue.Count != 0)
                     _controlledPawn = _possessionQueue.Dequeue();
 
-                Engine.PrintLine("Assigned new controlled pawn to Player " + _index + ": " + _controlledPawn.GetType().GetFriendlyName());
+                Engine.PrintLine("Assigned new controlled pawn to Player " + _index + ": " + (_controlledPawn == null ? "null" : _controlledPawn.GetType().GetFriendlyName()));
 
                 if (_controlledPawn != null)
                 {

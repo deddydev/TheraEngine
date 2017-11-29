@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering.UI
         public BaseRenderTexture Texture(int index)
         {
             if (_quad.Material.Textures.IndexInRange(index))
-                return _quad.Material.Textures[index].GetTextureGeneric();
+                return _quad.Material.Textures[index].GetTextureGeneric(true);
             return null;
         }
         /// <summary>

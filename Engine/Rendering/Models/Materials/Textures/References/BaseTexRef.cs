@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Models.Materials
 {
     public abstract class BaseTextureReference : FileObject
     {
-        public abstract BaseRenderTexture GetTextureGeneric();
+        public abstract BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false);
         public abstract Task<BaseRenderTexture> GetTextureGenericAsync();
     }
 }

@@ -158,24 +158,38 @@ namespace TheraEngine.Rendering.Models.Materials
         private bool _isLoading = false;
         public async Task<Texture2D> GetTextureAsync()
         {
-            if (_texture != null || _isLoading)
+            if (_texture != null)
                 return _texture;
 
-            await Task.Run((Action)LoadMipmaps);
-            FinalizeTextureLoaded();
+            if (!_isLoading)
+                await Task.Run((Action)LoadMipmaps);
 
             return _texture;
         }
-        public Texture2D GetTexture()
+        public Texture2D GetTexture(bool loadSynchronously = false)
         {
-            if (_texture != null || _isLoading)
+            if (_texture != null)
                 return _texture;
 
-            //Texture is null. Load it asynchronously
-            GetTextureAsync().ContinueWith(task => TextureLoaded(task));
-            
-            //Return filler texture
+            if (!_isLoading)
+            {
+                if (loadSynchronously)
+                {
+                    _isLoading = true;
+                    LoadMipmaps();
+                    _isLoading = false;
+                    return _texture;
+                }
+                else
+                    GetTextureAsync().ContinueWith(task => TextureLoaded(task));
+            }
+
             return GetFillerTexture();
+        }
+
+        static TextureReference2D()
+        {
+            //GetFillerTexture();
         }
 
         private static Texture2D _fillerTexture;
@@ -219,18 +233,8 @@ namespace TheraEngine.Rendering.Models.Materials
             _texture = task.Result;
         }
 
-        public override BaseRenderTexture GetTextureGeneric() => GetTexture();
+        public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
-
-        private void FinalizeTextureLoaded()
-        {
-            if (_mipmaps != null && _mipmaps.Length > 0)
-                _texture = new Texture2D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
-            else
-                _texture = new Texture2D(_width, _height, _internalFormat, _pixelFormat, _pixelType);
-
-            _texture.PostPushData += SetParameters;
-        }
 
         public Material Material { get; internal set; }
         public bool DoNotResize { get; internal set; }
@@ -238,7 +242,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <summary>
         /// Resizes the textures stored in memory.
         /// </summary>
-        public async void Resize(int width, int height)
+        public void Resize(int width, int height)
         {
             if (DoNotResize)
                 return;
@@ -248,53 +252,70 @@ namespace TheraEngine.Rendering.Models.Materials
 
             if (_isLoading)
                 return;
-
-            Texture2D t = await GetTextureAsync();
-            t?.Resize(_width, _height);
+            
+            GetTexture(true)?.Resize(_width, _height);
         }
+
+        public bool IsLoaded => _texture != null;
 
         /// <summary>
         /// Call if you want to load all mipmap texture files, in a background thread for example.
         /// </summary>
         public void LoadMipmaps()
         {
-            if (_mipmaps == null)
-                return;
             _isLoading = true;
-            if (_mipmaps.Length > 0)
+            if (_mipmaps != null)
             {
-                var tref = _mipmaps[0];
-                var t = tref.File;
-                if (t != null && t.Bitmaps.Length > 0)
+                if (_mipmaps.Length > 0)
                 {
-                    var b = t.Bitmaps[0];
-                    if (b != null)
+                    var tref = _mipmaps[0];
+                    var t = tref.File;
+                    if (t != null && t.Bitmaps.Length > 0)
                     {
-                        switch (b.PixelFormat)
+                        var b = t.Bitmaps[0];
+                        if (b != null)
                         {
-                            case PixelFormat.Format32bppArgb:
-                            case PixelFormat.Format32bppPArgb:
-                                _internalFormat = EPixelInternalFormat.Rgba8;
-                                _pixelFormat = EPixelFormat.Bgra;
-                                _pixelType = EPixelType.UnsignedByte;
-                                break;
-                            case PixelFormat.Format24bppRgb:
-                                _internalFormat = EPixelInternalFormat.Rgb8;
-                                _pixelFormat = EPixelFormat.Bgr;
-                                _pixelType = EPixelType.UnsignedByte;
-                                break;
-                            case PixelFormat.Format64bppArgb:
-                            case PixelFormat.Format64bppPArgb:
-                                _internalFormat = EPixelInternalFormat.Rgba16;
-                                _pixelFormat = EPixelFormat.Bgra;
-                                _pixelType = EPixelType.UnsignedShort;
-                                break;
+                            switch (b.PixelFormat)
+                            {
+                                case PixelFormat.Format32bppArgb:
+                                case PixelFormat.Format32bppPArgb:
+                                    _internalFormat = EPixelInternalFormat.Rgba8;
+                                    _pixelFormat = EPixelFormat.Bgra;
+                                    _pixelType = EPixelType.UnsignedByte;
+                                    break;
+                                case PixelFormat.Format24bppRgb:
+                                    _internalFormat = EPixelInternalFormat.Rgb8;
+                                    _pixelFormat = EPixelFormat.Bgr;
+                                    _pixelType = EPixelType.UnsignedByte;
+                                    break;
+                                case PixelFormat.Format64bppArgb:
+                                case PixelFormat.Format64bppPArgb:
+                                    _internalFormat = EPixelInternalFormat.Rgba16;
+                                    _pixelFormat = EPixelFormat.Bgra;
+                                    _pixelType = EPixelType.UnsignedShort;
+                                    break;
+                            }
                         }
                     }
+
                 }
-                
             }
+            CreateRenderTexture();
             _isLoading = false;
+        }
+        private void CreateRenderTexture()
+        {
+            if (_texture != null)
+            {
+                _texture.PostPushData -= SetParameters;
+            }
+
+            if (_mipmaps != null && _mipmaps.Length > 0)
+                _texture = new Texture2D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
+            else
+                _texture = new Texture2D(_width, _height, _internalFormat, _pixelFormat, _pixelType);
+
+            _texture.PostPushData += SetParameters;
         }
     }
 }

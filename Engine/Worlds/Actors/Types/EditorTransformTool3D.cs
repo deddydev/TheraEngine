@@ -341,7 +341,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 case ESpace.Screen:
 
                     Vec3 point = _targetSocket.WorldMatrix.GetPoint();
-                    Camera c = Engine.ActivePlayers[0].CurrentCamera;
+                    Camera c = Engine.ActivePlayers[0].ViewportCamera;
                     Rotator angles = (c.WorldPoint - point).LookatAngles();
                     Matrix4 angleMatrix = angles.GetMatrix();
                     //float dot = c.GetRightVector().Dot(Vec3.TransformVector(Vec3.Right, angleMatrix));
@@ -374,7 +374,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
                 case ESpace.Screen:
 
-                    Camera c = Engine.ActivePlayers[0].CurrentCamera;
+                    Camera c = Engine.ActivePlayers[0].ViewportCamera;
                     Vec3 f = c.GetForwardVector();
                     Vec3 u = c.GetUpVector();
                     Vec3 r = c.GetRightVector();

@@ -60,6 +60,9 @@ namespace TheraEngine.Rendering
                     _worldCamera.Viewports.Remove(this);
                 }
                 _worldCamera = value;
+
+                Engine.PrintLine("Updated viewport " + _index + " Camera: " + (_worldCamera == null ? "null" : _worldCamera.GetType().GetFriendlyName()));
+
                 if (_worldCamera != null)
                 {
                     _worldCamera.Viewports.Add(this);
@@ -139,6 +142,9 @@ namespace TheraEngine.Rendering
             set
             {
                 _hud = value;
+
+                Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud == null ? "null" : _hud.GetType().GetFriendlyName()));
+
                 _hud?.Resize(_internalResolution.Bounds);
             }
         }

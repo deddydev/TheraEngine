@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.IO;
+using System;
 
 namespace TheraEngine
 {
@@ -108,6 +109,14 @@ namespace TheraEngine
         [TSerialize]
         public string ShadersFolder { get; set; }
 
+        /// <summary>
+        /// The path to the folder containing premade engine textures.
+        /// </summary>
+        [Description("The path to the folder containing premade engine textures.")]
+        [Category("Paths")]
+        [TSerialize]
+        public string TexturesFolder { get; set; }
+
         public EngineSettings()
         {
             ShadingStyle3D = ShadingStyle.Deferred;
@@ -136,7 +145,9 @@ namespace TheraEngine
             CapUPS = false;
             TargetUPS = 30.0f;
 
-            ShadersFolder = Path.Combine(Application.StartupPath, "..\\..\\..\\Engine\\Shaders");
+            string engineFolder = Application.StartupPath + string.Format("{0}..{0}..{0}..{0}Engine{0}", Path.DirectorySeparatorChar);
+            ShadersFolder = engineFolder + "Shaders";
+            TexturesFolder = engineFolder + "Textures";
         }
     }
 }

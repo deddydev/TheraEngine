@@ -123,7 +123,13 @@ namespace System.ComponentModel
 
         private static Dictionary<string, string> ExtensionNames3rdParty = new Dictionary<string, string>()
         {
-            { "dae", "Collada Scene" }
+            { "dae", "Khronos Group Collada Scene" },
+            { "png", "Portable Network Graphics Image" },
+            { "jpg", "Joint Photographic Group Image" },
+            { "jpeg", "Joint Photographic Experts Group Image" },
+            { "tiff", "Tagged Image File Format" },
+            { "tga", "Truevision Graphics Adapter Image" },
+            { "dds", "Microsoft DirectDraw Surface Image" },
         };
 
         public static void Register3rdPartyExtension(string extension, string userFriendlyName)

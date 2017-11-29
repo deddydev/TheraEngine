@@ -79,7 +79,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         {
             int index = (int)playerIndex;
             if (index >= 0 && index < Engine.ActivePlayers.Count)
-                Engine.ActivePlayers[index].CurrentCamera = _cameraRef;
+                Engine.ActivePlayers[index].ViewportCamera = _cameraRef;
             else
             {
                 Dictionary<int, ConcurrentQueue<Camera>> v = LocalPlayerController.CameraPossessionQueue;
@@ -99,7 +99,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         public void SetCurrentForController(LocalPlayerController controller)
         {
             if (controller != null)
-                controller.CurrentCamera = _cameraRef;
+                controller.ViewportCamera = _cameraRef;
         }
         /// <summary>
         /// The local player controller of the pawn actor that contains this camera in its scene component tree will see through this camera.
@@ -107,7 +107,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         public void SetCurrentForOwner()
         {
             if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
-                controller.CurrentCamera = _cameraRef;
+                controller.ViewportCamera = _cameraRef;
         }
         /// <summary>
         /// The local player controller of the provided pawn will see through this camera.

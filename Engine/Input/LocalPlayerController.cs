@@ -5,6 +5,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System;
 
 namespace TheraEngine.Input
 {
@@ -28,7 +29,7 @@ namespace TheraEngine.Input
             {
                 Camera camera;
                 while (!CameraPossessionQueue[i].TryDequeue(out camera)) ;
-                CurrentCamera = camera;
+                ViewportCamera = camera;
             }
         }
         public LocalPlayerController(LocalPlayerIndex index) : base()
@@ -45,7 +46,7 @@ namespace TheraEngine.Input
             {
                 Camera camera;
                 while (!CameraPossessionQueue[i].TryDequeue(out camera)) ;
-                CurrentCamera = camera;
+                ViewportCamera = camera;
             }
         }
         ~LocalPlayerController()
@@ -86,7 +87,7 @@ namespace TheraEngine.Input
         }
 
         [Category("Local Player Controller")]
-        public Camera CurrentCamera
+        public Camera ViewportCamera
         {
             get => _viewport?.Camera;
             set
@@ -120,10 +121,11 @@ namespace TheraEngine.Input
                 if (_controlledPawn == null && _possessionQueue.Count != 0)
                     _controlledPawn = _possessionQueue.Dequeue();
 
+                Engine.PrintLine("Assigned new controlled pawn to Player " + _index + ": " + _controlledPawn.GetType().GetFriendlyName());
+
                 if (_controlledPawn != null)
                 {
-                    if (_viewport != null)
-                        UpdateViewport(SetViewportHUD, SetViewportCamera);
+                    UpdateViewport(SetViewportHUD, SetViewportCamera);
 
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
                     if (_controlledPawn.HUD != null && _controlledPawn != _controlledPawn.HUD)

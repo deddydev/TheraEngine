@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using System.IO;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -170,10 +171,52 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_texture != null || _isLoading)
                 return _texture;
 
-            LoadMipmaps();
-            FinalizeTextureLoaded();
+            //Texture is null. Load it asynchronously
+            GetTextureAsync().ContinueWith(task => TextureLoaded(task));
+            
+            //Return filler texture
+            return GetFillerTexture();
+        }
 
-            return _texture;
+        private static Texture2D _fillerTexture;
+        private static Texture2D GetFillerTexture()
+        {
+            if (_fillerTexture == null)
+            {
+                TextureFile2D tex = new TextureFile2D(Path.Combine(Engine.Settings.TexturesFolder, "Filler.png"));
+                Bitmap b = tex.Bitmaps[0];
+                EPixelInternalFormat internalFormat = EPixelInternalFormat.Rgb8;
+                EPixelFormat format = EPixelFormat.Rgb;
+                EPixelType type = EPixelType.Byte;
+                switch (b.PixelFormat)
+                {
+                    case PixelFormat.Format32bppArgb:
+                    case PixelFormat.Format32bppPArgb:
+                        internalFormat = EPixelInternalFormat.Rgba8;
+                        format = EPixelFormat.Bgra;
+                        type = EPixelType.UnsignedByte;
+                        break;
+                    case PixelFormat.Format24bppRgb:
+                        internalFormat = EPixelInternalFormat.Rgb8;
+                        format = EPixelFormat.Bgr;
+                        type = EPixelType.UnsignedByte;
+                        break;
+                    case PixelFormat.Format64bppArgb:
+                    case PixelFormat.Format64bppPArgb:
+                        internalFormat = EPixelInternalFormat.Rgba16;
+                        format = EPixelFormat.Bgra;
+                        type = EPixelType.UnsignedShort;
+                        break;
+                }
+                _fillerTexture = new Texture2D(b.Width, b.Height, internalFormat, format, type);
+            }
+            return _fillerTexture;
+
+        }
+
+        private void TextureLoaded(Task<Texture2D> task)
+        {
+            _texture = task.Result;
         }
 
         public override BaseRenderTexture GetTextureGeneric() => GetTexture();
@@ -218,42 +261,38 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_mipmaps == null)
                 return;
             _isLoading = true;
-            foreach (var tref in _mipmaps)
-                tref.GetInstance();
             if (_mipmaps.Length > 0)
             {
                 var tref = _mipmaps[0];
-                if (tref.File != null)
+                var t = tref.File;
+                if (t != null && t.Bitmaps.Length > 0)
                 {
-                    var t = tref.File;
-                    if (t.Bitmaps.Length > 0)
+                    var b = t.Bitmaps[0];
+                    if (b != null)
                     {
-                        var b = t.Bitmaps[0];
-                        if (b != null)
+                        switch (b.PixelFormat)
                         {
-                            switch (b.PixelFormat)
-                            {
-                                case PixelFormat.Format32bppArgb:
-                                case PixelFormat.Format32bppPArgb:
-                                    _internalFormat = EPixelInternalFormat.Rgba8;
-                                    _pixelFormat = EPixelFormat.Bgra;
-                                    _pixelType = EPixelType.UnsignedByte;
-                                    break;
-                                case PixelFormat.Format24bppRgb:
-                                    _internalFormat = EPixelInternalFormat.Rgb8;
-                                    _pixelFormat = EPixelFormat.Bgr;
-                                    _pixelType = EPixelType.UnsignedByte;
-                                    break;
-                                case PixelFormat.Format64bppArgb:
-                                case PixelFormat.Format64bppPArgb:
-                                    _internalFormat = EPixelInternalFormat.Rgba16;
-                                    _pixelFormat = EPixelFormat.Bgra;
-                                    _pixelType = EPixelType.UnsignedShort;
-                                    break;
-                            }
+                            case PixelFormat.Format32bppArgb:
+                            case PixelFormat.Format32bppPArgb:
+                                _internalFormat = EPixelInternalFormat.Rgba8;
+                                _pixelFormat = EPixelFormat.Bgra;
+                                _pixelType = EPixelType.UnsignedByte;
+                                break;
+                            case PixelFormat.Format24bppRgb:
+                                _internalFormat = EPixelInternalFormat.Rgb8;
+                                _pixelFormat = EPixelFormat.Bgr;
+                                _pixelType = EPixelType.UnsignedByte;
+                                break;
+                            case PixelFormat.Format64bppArgb:
+                            case PixelFormat.Format64bppPArgb:
+                                _internalFormat = EPixelInternalFormat.Rgba16;
+                                _pixelFormat = EPixelFormat.Bgra;
+                                _pixelType = EPixelType.UnsignedShort;
+                                break;
                         }
                     }
                 }
+                
             }
             _isLoading = false;
         }

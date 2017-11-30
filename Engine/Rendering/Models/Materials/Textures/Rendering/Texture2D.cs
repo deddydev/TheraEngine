@@ -10,8 +10,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             => Engine.Renderer.CreateObjects<Texture2D>(EObjectType.Texture, count);
 
         public Texture2D() : this(null) { }
-        public Texture2D(int bindingId) : base(bindingId) => Init(null);
-        public Texture2D(params Bitmap[] mipmaps) : base() => Init(mipmaps);
+        public Texture2D(int bindingId) : base(bindingId) => Mipmaps = null;
+        public Texture2D(params Bitmap[] mipmaps) : base() => Mipmaps = mipmaps;
         public Texture2D(
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             PixelFormat = pixelFormat;
             PixelType = pixelType;
         }
-        public Texture2D(int bindingId, params Bitmap[] mipmaps) : base(bindingId) => Init(mipmaps);
+        public Texture2D(int bindingId, params Bitmap[] mipmaps) : base(bindingId) => Mipmaps = mipmaps;
         /// <summary>
         /// Initializes the texture as an unallocated texture to be filled by a framebuffer.
         /// </summary>
@@ -36,13 +36,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             PixelType = pixelType;
             _mipmaps = null;
         }
-        private void Init(params Bitmap[] mipmaps)
-        {
-            _mipmaps = mipmaps;
-            _width = mipmaps != null && mipmaps.Length > 0 ? mipmaps[0].Width : 1;
-            _height = mipmaps != null && mipmaps.Length > 0 ? mipmaps[0].Height : 1;
-        }
-        
+
         private int _width, _height;
         private Bitmap[] _mipmaps;
 
@@ -55,8 +49,17 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             set
             {
                 _mipmaps = value;
-                _width = _mipmaps != null && _mipmaps.Length > 0 ? _mipmaps[0].Width : 1;
-                _height = _mipmaps != null && _mipmaps.Length > 0 ? _mipmaps[0].Height : 1;
+                if (_mipmaps != null && _mipmaps.Length > 0)
+                {
+                    Bitmap b = _mipmaps[0];
+                    _width = b.Width;
+                    _height = b.Height;
+                }
+                else
+                {
+                    _width = 0;
+                    _height = 0;
+                }
             }
         }
 
@@ -76,8 +79,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                     Bitmap bmp = _mipmaps[i];
                     if (bmp != null)
                     {
-                        BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                        Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, data.Scan0);
+                        BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                        Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
                         bmp.UnlockBits(data);
                     }
                     else

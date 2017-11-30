@@ -64,13 +64,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         {
             if (BaseRenderPanel.NeedsInvoke(PushData, BaseRenderPanel.PanelType.Rendering))
                 return;
-
-            if (!IsActive)
-            {
-                Generate();
-                return;
-            }
-
+            
             Bind();
             OnPrePushData();
 

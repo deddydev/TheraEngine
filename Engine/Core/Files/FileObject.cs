@@ -107,7 +107,7 @@ namespace TheraEngine.Files
         public string FilePath
         {
             get => _filePath;
-            set => _filePath = value;
+            set => _filePath = Engine.ModifyPath(value);
         }
         [Browsable(false)]
         public int CalculatedSize => _calculatedSize;
@@ -117,7 +117,10 @@ namespace TheraEngine.Files
         public void Unload()
         {
             if (!string.IsNullOrEmpty(_filePath) && Engine.LoadedFiles.ContainsKey(_filePath))
-                Engine.LoadedFiles.Remove(_filePath);
+            {
+                Engine.LoadedFiles.TryRemove(_filePath, out List<FileObject> value);
+            }
+
             List<IFileRef> oldRefs = new List<IFileRef>(_references);
             foreach (IFileRef r in oldRefs)
                 if (r is ISingleFileRef)
@@ -254,7 +257,7 @@ namespace TheraEngine.Files
             if (file != null)
             {
                 file.FilePath = filePath;
-                Engine.AddLoadedFile(file._filePath, file);
+                Engine.AddLoadedFile(file._filePath, file, false);
             }
             return file;
         }
@@ -272,10 +275,10 @@ namespace TheraEngine.Files
 
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
 
-            if (!directory.EndsWith("\\"))
-                directory += "\\";
+            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                directory += Path.DirectorySeparatorChar;
 
-            _filePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.XML);
+            FilePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.XML);
 
             if (FileHeader.ManualXmlConfigSerialize)
             {
@@ -321,7 +324,7 @@ namespace TheraEngine.Files
             if (obj != null)
             {
                 obj.FilePath = filePath;
-                Engine.AddLoadedFile(obj._filePath, obj);
+                Engine.AddLoadedFile(obj._filePath, obj, false);
             }
             return obj;
         }
@@ -334,10 +337,10 @@ namespace TheraEngine.Files
 
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
 
-            if (!directory.EndsWith("\\"))
-                directory += "\\";
+            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                directory += Path.DirectorySeparatorChar;
 
-            _filePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.Binary);
+            FilePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.Binary);
 
             if (FileHeader.ManualBinConfigSerialize)
             {

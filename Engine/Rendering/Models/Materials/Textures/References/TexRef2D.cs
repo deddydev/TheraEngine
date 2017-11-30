@@ -175,13 +175,11 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 if (loadSynchronously)
                 {
-                    _isLoading = true;
                     LoadMipmaps();
-                    _isLoading = false;
                     return _texture;
                 }
                 else
-                    GetTextureAsync().ContinueWith(task => TextureLoaded(task));
+                    GetTextureAsync().ContinueWith(task => _texture = task.Result);
             }
 
             return GetFillerTexture();
@@ -225,14 +223,8 @@ namespace TheraEngine.Rendering.Models.Materials
                 _fillerTexture = new Texture2D(b.Width, b.Height, internalFormat, format, type);
             }
             return _fillerTexture;
-
         }
-
-        private void TextureLoaded(Task<Texture2D> task)
-        {
-            _texture = task.Result;
-        }
-
+        
         public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 

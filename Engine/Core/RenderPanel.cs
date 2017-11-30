@@ -16,6 +16,7 @@ using System.ComponentModel;
 using TheraEngine.Worlds.Actors.Types.Pawns;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine
 {
@@ -237,7 +238,7 @@ namespace TheraEngine
             int h = Height.ClampMin(1);
             //_globalHud?.Resize(new Vec2(w, h));
             foreach (Viewport v in _viewports)
-                v.Resize(w, h, false);
+                v.Resize(w, h, true);
             base.OnResize(e);
             //_context?.Update();
         }
@@ -362,9 +363,13 @@ namespace TheraEngine
         #endregion
 
         #region Viewports
-        public Viewport GetOrAddViewport(int index)
+        public Viewport GetOrAddViewport(LocalPlayerIndex index)
             => GetViewport(index) ?? AddViewport();
-        public Viewport GetViewport(int index) => index >= 0 && index < _viewports.Count ? _viewports[index] : null;
+        public Viewport GetViewport(LocalPlayerIndex index)
+        {
+            int i = (int)index;
+            return _viewports.IndexInRange(i) ? _viewports[i] : null;
+        }
         public Viewport AddViewport()
         {
             if (_viewports.Count == MaxViewports)
@@ -395,16 +400,16 @@ namespace TheraEngine
                 Viewport v = controller.Viewport;
                 v.UnregisterController(controller);
 
-                if (v.Owners.Count == 0)
-                {
-                    _viewports.Remove(v);
-                    for (int i = 0; i < _viewports.Count; ++i)
-                    {
-                        Viewport p = _viewports[i];
-                        p.ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
-                        p.Resize(Width, Height);
-                    }
-                }
+                //if (v.Owners.Count == 0)
+                //{
+                //    _viewports.Remove(v);
+                //    for (int i = 0; i < _viewports.Count; ++i)
+                //    {
+                //        Viewport p = _viewports[i];
+                //        p.ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+                //        p.Resize(Width, Height);
+                //    }
+                //}
             }
         }
         #endregion
@@ -447,7 +452,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The frustum to cull the scene with.</returns>
-        protected virtual Frustum GetFrustum(Viewport v) => GetCamera(v).Frustum;
+        protected virtual Frustum GetFrustum(Viewport v) => GetCamera(v)?.Frustum;
         protected virtual void PreRender() { }
         protected virtual void PostRender() { }
         protected override void OnRender()

@@ -14,11 +14,13 @@ namespace TheraEditor
     {
         public EditorPlayerController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base(index, possessionQueue)
         {
-
+            SetViewportCamera = false;
+            SetViewportHUD = false;
         }
         public EditorPlayerController(LocalPlayerIndex index) : base(index)
         {
-            
+            SetViewportCamera = false;
+            SetViewportHUD = false;
         }
 
         protected override void RegisterInput(InputInterface input)

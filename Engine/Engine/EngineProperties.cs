@@ -32,7 +32,7 @@ namespace TheraEngine
         public static event Action<bool, LocalPlayerIndex> Paused;
         public static event Action<string> DebugOutput;
 
-        public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
+        public static ConcurrentDictionary<string, List<FileObject>> LoadedFiles = new ConcurrentDictionary<string, List<FileObject>>();
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
         public static List<AIController> ActiveAI = new List<AIController>();
         public static List<World> LoadedWorlds = new List<World>();
@@ -96,6 +96,7 @@ namespace TheraEngine
             }
             internal set => _renderer = value;
         }
+
         public static AbstractAudioManager Audio
         {
             get => _audioManager;

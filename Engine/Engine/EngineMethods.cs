@@ -379,7 +379,7 @@ namespace TheraEngine
         /// <summary>
         /// Retrieves the viewport with the same index.
         /// </summary>
-        public static Viewport GetViewport(int index)
+        public static Viewport GetViewport(LocalPlayerIndex index)
             => BaseRenderPanel.WorldPanel?.GetViewport(index);
         
 //        public static void LogError(string message, params string[] args)
@@ -522,17 +522,28 @@ namespace TheraEngine
                 _possessionQueues.Add(possessor, queue);
             }
         }
-        internal static void AddLoadedFile<T>(string path, T file) where T : FileObject
+
+        public static string ModifyPath(string path)
+        {
+            string startupPath = Application.StartupPath;
+            return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
+        }
+
+        internal static bool AddLoadedFile<T>(string path, T file, bool set) where T : FileObject
         {
             if (string.IsNullOrEmpty(path) || file == null)
-                return;
+                return false;
 
-            if (LoadedFiles.ContainsKey(path))
-                LoadedFiles[path].Add(file);
-            else
-                LoadedFiles.Add(path, new List<FileObject>() { file });
+
+            LoadedFiles.AddOrUpdate(path, new List<FileObject>() { file }, (key, oldValue) =>
+            {
+                if (set) oldValue.Clear();
+                oldValue.Add(file);
+                return oldValue;
+            });
 
             file.OnLoaded();
+            return true;
         }
 
         /// <summary>

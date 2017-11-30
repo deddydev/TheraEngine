@@ -46,17 +46,19 @@ namespace TheraEditor.Windows.Forms
                 HUD = new EditorHud(RenderPanel.ClientSize),
             };
             Engine.World.SpawnActor(EditorPawn);
-            
-            //Viewport v = RenderPanel.GetOrAddViewport(0);
-            //v.HUD = EditorPawn.HUD;
-            //v.Camera = EditorPawn.CurrentCameraComponent.Camera;
+
+            Viewport v = RenderPanel.GetOrAddViewport(PlayerIndex);
+            v.HUD = EditorPawn.HUD;
+            v.Camera = EditorPawn.CurrentCameraComponent.Camera;
 
             base.OnShown(e);
         }
         protected override void OnClosed(EventArgs e)
         {
+            Engine.World.DespawnActor(EditorPawn);
             base.OnClosed(e);
         }
+        
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);

@@ -186,14 +186,8 @@ namespace TheraEngine.GameModes
         {
             PawnType pawn = _pawnClass.CreateNew();
 
-            Viewport v = BaseRenderPanel.WorldPanel?.GetOrAddViewport((int)item.LocalPlayerIndex);
-            if (v != null)
-            {
-                v.RegisterController(item);
-                v.HUD = pawn.HUD;
-            }
+            BaseRenderPanel.WorldPanel?.GetOrAddViewport(item.LocalPlayerIndex)?.RegisterController(item);
             
-            item.Viewport.HUD = pawn.HUD;
             item.EnqueuePosession(pawn);
             Engine.World.SpawnActor(pawn);
         }

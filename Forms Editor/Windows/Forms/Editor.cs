@@ -44,6 +44,9 @@ namespace TheraEditor.Windows.Forms
         {
             //TODO: change game mode back to editor game mode if editing detached from active gameplay
 
+            if (ActiveRenderForm == control)
+                return;
+
             if (ActiveRenderForm != null)
             {
                 int index = (int)ActiveRenderForm.PlayerIndex;

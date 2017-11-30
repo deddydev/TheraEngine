@@ -176,10 +176,7 @@ namespace TheraEngine.Files
                     if (!string.IsNullOrEmpty(path))
                     {
                         ReferencePath = path;
-
-                        if (!(Engine.LoadedFiles.ContainsKey(path) && Engine.LoadedFiles[path].Contains(_file)))
-                            Engine.AddLoadedFile(path, _file);
-                        else
+                        if (!Engine.AddLoadedFile(path, _file, true))
                             Loaded?.Invoke();
                     }
                     else
@@ -210,10 +207,9 @@ namespace TheraEngine.Files
                 return _file;
 
             string absolutePath = ReferencePath;
-            if (absolutePath != null && Engine.LoadedFiles.ContainsKey(absolutePath))
+            if (absolutePath != null)
             {
-                List<FileObject> files = Engine.LoadedFiles[absolutePath];
-                if (files.Count > 0)
+                if (Engine.LoadedFiles.TryGetValue(absolutePath, out List<FileObject> files) && files.Count > 0)
                     return _file = files[0] as T;
             }
 

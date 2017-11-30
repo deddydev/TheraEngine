@@ -379,7 +379,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         public static SingleFileRef<EditorSettings> Settings { get; }
-            = new SingleFileRef<EditorSettings>(Path.GetFullPath(Path.Combine(Application.StartupPath, "..\\..\\..\\Editor", "Config.xset")), () => new EditorSettings());
+            = new SingleFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
 
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {

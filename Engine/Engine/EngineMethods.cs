@@ -523,8 +523,13 @@ namespace TheraEngine
             }
         }
 
+        /// <summary>
+        /// Makes path relative to the application exe and returns only the relative part of the path.
+        /// </summary>
         public static string ModifyPath(string path)
         {
+            if (string.IsNullOrEmpty(path))
+                return path;
             string startupPath = Application.StartupPath;
             return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
         }
@@ -533,7 +538,6 @@ namespace TheraEngine
         {
             if (string.IsNullOrEmpty(path) || file == null)
                 return false;
-
 
             LoadedFiles.AddOrUpdate(path, new List<FileObject>() { file }, (key, oldValue) =>
             {

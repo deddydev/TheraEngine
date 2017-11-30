@@ -207,15 +207,12 @@ namespace TheraEngine.Files
                 return _file;
 
             string absolutePath = ReferencePath;
-            if (absolutePath != null)
-            {
-                if (Engine.LoadedFiles.TryGetValue(absolutePath, out List<FileObject> files) && files.Count > 0)
-                    return _file = files[0] as T;
-            }
-
-            File = LoadNewInstance();
+            if (absolutePath != null &&
+                Engine.LoadedFiles.TryGetValue(absolutePath, out List<FileObject> files) && 
+                files.Count > 0)
+                return File = files[0] as T;
             
-            return _file;
+            return File = LoadNewInstance();
         }
 
         public void UnloadReference()

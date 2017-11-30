@@ -107,7 +107,7 @@ namespace TheraEngine.Files
         public string FilePath
         {
             get => _filePath;
-            set => _filePath = Engine.ModifyPath(value);
+            set => _filePath = value;
         }
         [Browsable(false)]
         public int CalculatedSize => _calculatedSize;
@@ -265,7 +265,7 @@ namespace TheraEngine.Files
         {
             Indent = true,
             IndentChars = "\t",
-            NewLineChars = "\r\n",
+            NewLineChars = Environment.NewLine,
             NewLineHandling = NewLineHandling.Replace
         };
         internal void ToXML(string directory, string fileName)

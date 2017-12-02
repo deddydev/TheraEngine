@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
+using System;
 
 namespace TheraEngine.Rendering.Textures
 {
@@ -11,7 +13,7 @@ namespace TheraEngine.Rendering.Textures
     [FileClass("", "", IsSpecialDeserialize = true)]
     public class TextureFile2D : FileObject
     {
-        private Bitmap[] _bitmaps;
+        private Bitmap[] _bitmaps = null;
         public Bitmap[] Bitmaps
         {
             get => _bitmaps;
@@ -23,7 +25,12 @@ namespace TheraEngine.Rendering.Textures
         public TextureFile2D(string path)
         {
             Engine.PrintLine("Loading texture from " + path);
-            _bitmaps = TextureConverter.Decode(path);
+            _bitmaps = /*Task.Run(() => */TextureConverter.Decode(path)/*).ContinueWith(t => _bitmaps = t.Result)*/;
+        }
+        public TextureFile2D(string path, Action<TextureFile2D> onFinishedAsync)
+        {
+            Engine.PrintLine("Loading texture async from " + path);
+            Task.Run(() => TextureConverter.Decode(path)).ContinueWith(t => { _bitmaps = t.Result; onFinishedAsync?.Invoke(this); });
         }
     }
 }

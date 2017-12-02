@@ -98,6 +98,7 @@ namespace TheraEngine.Rendering
         private RenderPasses3D _passes = new RenderPasses3D();
         
         public Octree RenderTree { get; private set; }
+        public override int Count => RenderTree.Count;
         public LightManager Lights => _lightManager;
         public ParticleManager Particles => _particles;
 
@@ -105,6 +106,7 @@ namespace TheraEngine.Rendering
 
         public Scene3D()
         {
+            Clear(new BoundingBox(0.5f, Vec3.Zero));
             Render = RenderDeferred;
             //Material m = new Material("VoxelizeMat",
             //    new ShaderVar[] 

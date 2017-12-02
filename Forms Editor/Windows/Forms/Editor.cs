@@ -142,7 +142,7 @@ namespace TheraEditor.Windows.Forms
             {
                 p = new Project()
                 {
-                    OpeningWorld = typeof(TestWorld),
+                    //OpeningWorld = typeof(TestWorld),
                     UserSettings = new UserSettings(),
                     EngineSettings = new EngineSettings(),
                 };

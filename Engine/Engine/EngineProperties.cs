@@ -29,20 +29,49 @@ namespace TheraEngine
         public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
+        /// <summary>
+        /// Event for when the engine is paused or unpaused and by which player.
+        /// </summary>
         public static event Action<bool, LocalPlayerIndex> Paused;
+        /// <summary>
+        /// Event for sending debug console output text.
+        /// </summary>
         public static event Action<string> DebugOutput;
+        /// <summary>
+        /// Event fired before the current world is changed.
+        /// </summary>
+        public static event Action PreWorldChanged;
+        /// <summary>
+        /// Event fired after the current world is changed.
+        /// </summary>
+        public static event Action PostWorldChanged;
 
-        public static ConcurrentDictionary<string, List<FileObject>> LoadedFiles = new ConcurrentDictionary<string, List<FileObject>>();
-        public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
-        public static List<AIController> ActiveAI = new List<AIController>();
-        public static List<World> LoadedWorlds = new List<World>();
+        public static BaseGameMode ActiveGameMode => Game?.State.GameMode?.File;
 
+        public static ConcurrentDictionary<string, List<FileObject>> LoadedFiles 
+            = new ConcurrentDictionary<string, List<FileObject>>();
+
+        public static MonitoredList<LocalPlayerController> ActivePlayers
+            = new MonitoredList<LocalPlayerController>();
+
+        public static List<AIController> ActiveAI
+            = new List<AIController>();
+
+        /// <summary>
+        /// The scene containing actors of the world the engine is currently hosting.
+        /// </summary>
         public static Scene3D Scene { get; } = new Scene3D();
-
-        private static World _currentWorld = null;
-        
+        /// <summary>
+        /// Information necessary to run a game.
+        /// </summary>
         public static Game Game => _game;
+        /// <summary>
+        /// The settings for the engine, specified by the game.
+        /// </summary>
         public static EngineSettings Settings => Game?.EngineSettings;
+        /// <summary>
+        /// The settings for the engine, specified by the user.
+        /// </summary>
         public static UserSettings UserSettings => Game?.UserSettings;
         
         /// <summary>
@@ -59,6 +88,7 @@ namespace TheraEngine
         private static RenderLibrary _renderLibrary;
         private static AudioLibrary _audioLibrary;
         private static InputLibrary _inputLibrary;
+        private static World _currentWorld = null;
 
         private static bool _isPaused = false;
         private static EngineTimer _timer = new EngineTimer();
@@ -138,12 +168,7 @@ namespace TheraEngine
         /// <summary>
         /// The world that is currently being rendered and played in.
         /// </summary>
-        public static World World
-        {
-            get => _currentWorld;
-            //set => SetCurrentWorld(value, true);
-        }
-
+        public static World World => _currentWorld;
         public static bool IsPaused => _isPaused;
 
         /// <summary>

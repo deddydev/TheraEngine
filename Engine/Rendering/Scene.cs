@@ -31,7 +31,8 @@ namespace TheraEngine.Rendering
         protected List<IPreRenderNeeded> _preRenderList = new List<IPreRenderNeeded>();
 
         public DelRender Render { get; protected set; }
-        
+        public abstract int Count { get; }
+
         public Scene()
         {
 

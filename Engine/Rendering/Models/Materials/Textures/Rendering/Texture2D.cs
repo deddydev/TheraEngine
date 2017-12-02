@@ -41,25 +41,27 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         private Bitmap[] _mipmaps;
 
         public override ETexTarget TextureTarget => ETexTarget.Texture2D;
-        public int Width => _width;
-        public int Height => _height;
+        public int Width => _mipmaps.Length > 0 ? _mipmaps[0].Width : _width;
+        public int Height => _mipmaps.Length > 0 ? _mipmaps[0].Height : _height;
         public Bitmap[] Mipmaps
         {
             get => _mipmaps;
             set
             {
                 _mipmaps = value;
-                if (_mipmaps != null && _mipmaps.Length > 0)
-                {
-                    Bitmap b = _mipmaps[0];
-                    _width = b.Width;
-                    _height = b.Height;
-                }
-                else
-                {
-                    _width = 0;
-                    _height = 0;
-                }
+                //if (_mipmaps != null && _mipmaps.Length > 0)
+                //{
+                //    Bitmap b = _mipmaps[0];
+
+                //        _width = b.Width;
+                //        _height = b.Height;
+                    
+                //}
+                //else
+                //{
+                //    _width = 0;
+                //    _height = 0;
+                //}
             }
         }
 

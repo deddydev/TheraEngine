@@ -38,13 +38,27 @@ namespace System
         public const int MaxChildNodeCount = 8;
 
         private Node _head;
+        internal HashSet<T> AllItems { get; } = new HashSet<T>();
+        public int Count => AllItems.Count;
 
         public Octree(BoundingBox bounds) => _head = new Node(bounds, 0, 0, null, this);
         public Octree(BoundingBox bounds, List<T> items) : this(bounds) => _head.Add(items);
 
-        public void Add(T value) => _head.Add(value, -1);
-        public void Add(List<T> value) => _head.Add(value);
-        public void Remove(T value) => _head.Remove(value);
+        public void Add(T value)
+        {
+            if (!AllItems.Contains(value))
+                _head.Add(value, -1);
+        }
+        public void Add(List<T> value)
+        {
+            foreach (T item in value)
+                Add(item);
+        }
+        public void Remove(T value)
+        {
+            if (AllItems.Contains(value))
+                _head.Remove(value);
+        }
 
         public ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment)
             => FindAll(new Sphere(radius, point), containment);
@@ -241,7 +255,7 @@ namespace System
             /// Returns true if this node no longer contains anything.
             /// </summary>
             /// <param name="item">The item to remove.</param>
-            internal bool Remove(T item)
+            public bool Remove(T item)
             {
                 if (_items.Contains(item))
                     QueueRemove(item);
@@ -300,14 +314,8 @@ namespace System
                         }
                     }
                 }
-
-                if (QueueAdd(item))
-                {
-                    item.OctreeNode = this;
-                    return true;
-                }
-
-                return false;
+                
+                return QueueAdd(item);
             }
             #endregion
 
@@ -355,7 +363,11 @@ namespace System
                 }
                 else
                 {
-                    _items.Add(item);
+                    if (Owner.AllItems.Add(item))
+                    {
+                        _items.Add(item);
+                        item.OctreeNode = this;
+                    }
                     return true;
                 }
             }
@@ -368,7 +380,11 @@ namespace System
                 }
                 else
                 {
-                    _items.Remove(item);
+                    if (Owner.AllItems.Remove(item))
+                    {
+                        _items.Remove(item);
+                        item.OctreeNode = null;
+                    }
                     return true;
                 }
             }

@@ -73,6 +73,7 @@ namespace TheraEngine.Rendering
     public class Scene2D : Scene
     {
         public Quadtree RenderTree { get; private set; }
+        public override int Count => RenderTree.Count;
         private RenderPasses2D _passes = new RenderPasses2D();
         private bool _preRenderFrustumType;
 

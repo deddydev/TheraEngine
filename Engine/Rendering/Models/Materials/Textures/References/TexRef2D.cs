@@ -187,40 +187,59 @@ namespace TheraEngine.Rendering.Models.Materials
 
         static TextureReference2D()
         {
-            //GetFillerTexture();
+            GetFillerTexture();
         }
 
         private static Texture2D _fillerTexture;
-        private static Texture2D GetFillerTexture()
+        private unsafe static Texture2D GetFillerTexture()
         {
             if (_fillerTexture == null)
             {
+                Bitmap bitmap;
+                EPixelInternalFormat internalFormat = EPixelInternalFormat.Rgba8;
+                EPixelFormat format = EPixelFormat.Bgra;
+                EPixelType type = EPixelType.UnsignedByte;
+
                 TextureFile2D tex = new TextureFile2D(Path.Combine(Engine.Settings.TexturesFolder, "Filler.png"));
-                Bitmap b = tex.Bitmaps[0];
-                EPixelInternalFormat internalFormat = EPixelInternalFormat.Rgb8;
-                EPixelFormat format = EPixelFormat.Rgb;
-                EPixelType type = EPixelType.Byte;
-                switch (b.PixelFormat)
+                if (tex?.Bitmaps != null && tex.Bitmaps.Length > 0 && tex.Bitmaps[0] != null)
                 {
-                    case PixelFormat.Format32bppArgb:
-                    case PixelFormat.Format32bppPArgb:
-                        internalFormat = EPixelInternalFormat.Rgba8;
-                        format = EPixelFormat.Bgra;
-                        type = EPixelType.UnsignedByte;
-                        break;
-                    case PixelFormat.Format24bppRgb:
-                        internalFormat = EPixelInternalFormat.Rgb8;
-                        format = EPixelFormat.Bgr;
-                        type = EPixelType.UnsignedByte;
-                        break;
-                    case PixelFormat.Format64bppArgb:
-                    case PixelFormat.Format64bppPArgb:
-                        internalFormat = EPixelInternalFormat.Rgba16;
-                        format = EPixelFormat.Bgra;
-                        type = EPixelType.UnsignedShort;
-                        break;
+                    bitmap = tex.Bitmaps[0];
+                    switch (bitmap.PixelFormat)
+                    {
+                        case PixelFormat.Format32bppArgb:
+                        case PixelFormat.Format32bppPArgb:
+                            internalFormat = EPixelInternalFormat.Rgba8;
+                            format = EPixelFormat.Bgra;
+                            type = EPixelType.UnsignedByte;
+                            break;
+                        case PixelFormat.Format24bppRgb:
+                            internalFormat = EPixelInternalFormat.Rgb8;
+                            format = EPixelFormat.Bgr;
+                            type = EPixelType.UnsignedByte;
+                            break;
+                        case PixelFormat.Format64bppArgb:
+                        case PixelFormat.Format64bppPArgb:
+                            internalFormat = EPixelInternalFormat.Rgba16;
+                            format = EPixelFormat.Bgra;
+                            type = EPixelType.UnsignedShort;
+                            break;
+                    }
                 }
-                _fillerTexture = new Texture2D(b.Width, b.Height, internalFormat, format, type);
+                else
+                {
+                    bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
+                    Graphics flagGraphics = Graphics.FromImage(bitmap);
+                    int red = 0;
+                    int white = 11;
+                    while (white <= 100)
+                    {
+                        flagGraphics.FillRectangle(Brushes.Red, 0, red, 200, 10);
+                        flagGraphics.FillRectangle(Brushes.White, 0, white, 200, 10);
+                        red += 20;
+                        white += 20;
+                    }
+                }
+                _fillerTexture = new Texture2D(internalFormat, format, type, bitmap);
             }
             return _fillerTexture;
         }

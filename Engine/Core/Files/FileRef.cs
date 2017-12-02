@@ -209,10 +209,10 @@ namespace TheraEngine.Files
             string absolutePath = ReferencePath;
             if (absolutePath != null && Engine.LoadedFiles.TryGetValue(absolutePath, out List<FileObject> files))
             {
-                lock (files)
-                {
+                //lock (files)
+                //{
                     return File = files[0] as T;
-                }
+                //}
             }
             
             return File = LoadNewInstance();

@@ -109,100 +109,89 @@ namespace TheraEngine.Rendering.Models
         [CustomXMLSerializeMethod("Data")]
         private unsafe bool CustomDataSerialize(XmlWriter writer)
         {
-            string s = "";
             int count = _elementCount * _componentCount;
             switch (_componentType)
             {
                 case ComponentType.SByte:
                     sbyte* ptr1 = (sbyte*)_data.Address;
                     for (int i = 0; i < count; ++i)
-                        s += (*ptr1++).ToString() + " ";
+                        writer.WriteString((*ptr1++).ToString() + " ");
                     break;
                 case ComponentType.Byte:
                     byte* ptr2 = (byte*)_data.Address;
                     for (int i = 0; i < count; ++i)
-                        s += (*ptr2++).ToString() + " ";
+                        writer.WriteString((*ptr2++).ToString() + " ");
                     break;
                 case ComponentType.Short:
                     short* ptr3 = (short*)_data.Address;
                     for (int i = 0; i < count; ++i)
-                        s += (*ptr3++).ToString() + " ";
+                        writer.WriteString((*ptr3++).ToString() + " ");
                     break;
                 case ComponentType.UShort:
                     ushort* ptr4 = (ushort*)_data.Address;
                     for (int i = 0; i < count; ++i)
-                        s += (*ptr4++).ToString() + " ";
+                        writer.WriteString((*ptr4++).ToString() + " ");
                     break;
                 case ComponentType.Int:
                     int* ptr5 = (int*)_data.Address;
                     for (int i = 0; i < count; ++i)
-                        s += (*ptr5++).ToString() + " ";
+                        writer.WriteString((*ptr5++).ToString() + " ");
                     break;
                 case ComponentType.UInt:
                     uint* ptr6 = (uint*)_data.Address;
                     for (int i = 0; i < count; ++i)
-                        s += (*ptr6++).ToString() + " ";
+                        writer.WriteString((*ptr6++).ToString() + " ");
                     break;
                 case ComponentType.Float:
                     float* ptr7 = (float*)_data.Address;
                     for (int i = 0; i < count; ++i)
-                        s += (*ptr7++).ToString() + " ";
+                        writer.WriteString((*ptr7++).ToString() + " ");
                     break;
                 case ComponentType.Double:
                     double* ptr8 = (double*)_data.Address;
                     for (int i = 0; i < count; ++i)
-                        s += (*ptr8++).ToString() + " ";
+                        writer.WriteString((*ptr8++).ToString() + " ");
                     break;
             }
-            writer.WriteString(s);
             return true;
         }
         [CustomXMLDeserializeMethod("Data")]
         private unsafe bool CustomDataDeserialize(XMLReader reader)
         {
-            string[] s = reader.ReadElementString().Split(' ');
             int count = _elementCount * _componentCount;
             switch (_componentType)
             {
                 case ComponentType.SByte:
                     sbyte* ptr1 = (sbyte*)_data.Address;
-                    for (int k = 0; k < count; ++k)
-                        *ptr1++ = sbyte.Parse(s[k]);
+                    for (int k = 0; k < count && reader.ReadValue(ptr1++); ++k) ;
                     break;
                 case ComponentType.Byte:
                     byte* ptr2 = (byte*)_data.Address;
-                    for (int k = 0; k < count; ++k)
-                        *ptr2++ = byte.Parse(s[k]);
+                    for (int k = 0; k < count && reader.ReadValue(ptr2++); ++k) ;
                     break;
                 case ComponentType.Short:
                     short* ptr3 = (short*)_data.Address;
-                    for (int k = 0; k < count; ++k)
-                        *ptr3++ = short.Parse(s[k]);
+                    for (int k = 0; k < count && reader.ReadValue(ptr3++); ++k) ;
                     break;
                 case ComponentType.UShort:
                     ushort* ptr4 = (ushort*)_data.Address;
-                    for (int k = 0; k < count; ++k)
-                        *ptr4++ = ushort.Parse(s[k]);
+                    for (int k = 0; k < count && reader.ReadValue(ptr4++); ++k) ;
                     break;
                 case ComponentType.Int:
                     int* ptr5 = (int*)_data.Address;
-                    for (int k = 0; k < count; ++k)
-                        *ptr5++ = int.Parse(s[k]);
+                    for (int k = 0; k < count && reader.ReadValue(ptr5++); ++k) ;
                     break;
                 case ComponentType.UInt:
                     uint* ptr6 = (uint*)_data.Address;
-                    for (int k = 0; k < count; ++k)
-                        *ptr6++ = uint.Parse(s[k]);
+                    for (int k = 0; k < count && reader.ReadValue(ptr6++); ++k) ;
                     break;
                 case ComponentType.Float:
                     float* ptr7 = (float*)_data.Address;
-                    for (int k = 0; k < count; ++k)
-                        *ptr7++ = float.Parse(s[k]);
+                    for (int k = 0; k < count && reader.ReadValue(ptr7++); ++k) ;
                     break;
                 case ComponentType.Double:
                     double* ptr8 = (double*)_data.Address;
-                   for (int k = 0; k < count; ++k)
-                            *ptr8++ = double.Parse(s[k]);
+                    for (int k = 0; k < count && reader.ReadValue(ptr8++); ++k) ;
                     break;
             }
             return true;

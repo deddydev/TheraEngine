@@ -31,7 +31,9 @@ namespace System
         public const int MaxChildNodeCount = 4;
 
         private Node _head;
-        
+
+        public int Count { get; private set; } = 0;
+
         public Quadtree(BoundingRectangle bounds) => _head = new Node(bounds, 0, 0, null, this);
         public Quadtree(BoundingRectangle bounds, List<T> items) => Add(items);
 

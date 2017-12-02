@@ -61,7 +61,7 @@ namespace TheraEngine.Rendering
                 }
                 _worldCamera = value;
 
-                Engine.PrintLine("Updated viewport " + _index + " Camera: " + (_worldCamera == null ? "null" : _worldCamera.GetType().GetFriendlyName()));
+                Engine.PrintLine("Updated viewport " + _index + " camera: " + (_worldCamera == null ? "null" : _worldCamera.GetType().GetFriendlyName()));
 
                 if (_worldCamera != null)
                 {
@@ -237,6 +237,9 @@ namespace TheraEngine.Rendering
 
         public void Render(Scene scene, Camera camera, Frustum frustum)
         {
+            if (scene.Count == 0)
+                return;
+
             CurrentlyRendering = this;
             OnRender(scene, camera, frustum);
             CurrentlyRendering = null;

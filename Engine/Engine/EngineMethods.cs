@@ -171,8 +171,6 @@ namespace TheraEngine
         }
         #endregion
 
-        public static BaseGameMode ActiveGameMode => Game?.State.GameMode?.File;
-        
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
             //ActiveGameMode?.HandleLocalPlayerLeft(item);
@@ -445,14 +443,16 @@ namespace TheraEngine
             if (_currentWorld == world)
                 return;
 
-            bool wasRunning = _timer.IsRunning;
+            PreWorldChanged?.Invoke();
+
+            //bool wasRunning = _timer.IsRunning;
             World previous = World;
 
             ActiveGameMode?.EndGameplay();
             World?.EndPlay();
 
             //Stop();
-            
+
             _currentWorld = world;
             if (World != null)
             {
@@ -468,6 +468,8 @@ namespace TheraEngine
                 Game.State.GameMode = World?.GetGameMode();
 
             ActiveGameMode?.BeginGameplay();
+
+            PostWorldChanged?.Invoke();
 
             //if (wasRunning)
             //    Run();

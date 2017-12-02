@@ -20,7 +20,12 @@ namespace TheraEditor.Windows.Forms
             PlayerIndex = playerIndex;
             InitializeComponent();
             RenderPanel.AllowDrop = true;
+            Engine.PreWorldChanged += Engine_WorldPreChanged;
+            Engine.PostWorldChanged += Engine_WorldPostChanged;
         }
+
+        private void Engine_WorldPreChanged() => Engine.World?.DespawnActor(EditorPawn);
+        private void Engine_WorldPostChanged() => Engine.World?.SpawnActor(EditorPawn);
         
         public int FormIndex { get; private set; }
         public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
@@ -45,7 +50,8 @@ namespace TheraEditor.Windows.Forms
             {
                 HUD = new EditorHud(RenderPanel.ClientSize),
             };
-            Engine.World.SpawnActor(EditorPawn);
+
+            Engine.World?.SpawnActor(EditorPawn);
 
             Viewport v = RenderPanel.GetOrAddViewport(PlayerIndex);
             v.HUD = EditorPawn.HUD;
@@ -55,7 +61,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnClosed(EventArgs e)
         {
-            Engine.World.DespawnActor(EditorPawn);
+            Engine.World?.DespawnActor(EditorPawn);
             base.OnClosed(e);
         }
         

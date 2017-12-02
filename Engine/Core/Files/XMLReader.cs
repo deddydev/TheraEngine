@@ -284,6 +284,141 @@ namespace System.IO
             }
             return false;
         }
+        public unsafe bool ReadValue(sbyte* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (sbyte.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out sbyte f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(byte* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (byte.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out byte f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(short* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (short.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out short f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(ushort* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (ushort.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out ushort f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(int* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(uint* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (uint.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out uint f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(long* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (long.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out long f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(ulong* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (ulong.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out ulong f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(double* pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                if (double.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out double f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
         public unsafe bool ReadValue(ref float pOut)
         {
             if (!LeaveTag())
@@ -329,23 +464,7 @@ namespace System.IO
             }
             return false;
         }
-
-        public unsafe bool ReadValue(int* pOut)
-        {
-            if (!LeaveTag())
-                return false;
-
-            if (ReadString(_valPtr, _valueMax))
-            {
-                if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
-                {
-                    *pOut = f;
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        
         public unsafe bool ReadValue(ref int pOut)
         {
             if (!LeaveTag())

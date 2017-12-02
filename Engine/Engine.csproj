@@ -324,6 +324,7 @@
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
     <Compile Include="Core\Tools\DelegateBuilder.cs" />
+    <Compile Include="Core\Tools\GLSLParser.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
     <Compile Include="Core\Files\XMLSchemeReader.cs" />
     <Compile Include="Core\WorldRenderPanel.cs">

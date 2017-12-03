@@ -38,12 +38,9 @@ namespace TheraEngine.Rendering.Models.Materials
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
             : this(name, width, height)
         {
-            _mipmaps = null;
             _internalFormat = internalFormat;
             _pixelFormat = pixelFormat;
             _pixelType = pixelType;
-            _width = width;
-            _height = height;
         }
         public TextureReference2D(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, PixelFormat bitmapFormat)

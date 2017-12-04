@@ -1,0 +1,11 @@
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\bin\Release\GraphLib.dll
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\bin\Release\GraphLib.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\GraphLib.csprojResolveAssemblyReference.cache
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\GraphLib.PlotterGraphPaneEx.resources
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\GraphLib.PlotterDisplayEx.resources
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\GraphLib.PlotterGraphSelectCurvesForm.resources
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\GraphLib.PrintPreviewForm.resources
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\ClassLibrary1.Properties.Resources.resources
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\GraphLib.csproj.GenerateResource.Cache
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\GraphLib.dll
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraphLib\obj\Release\GraphLib.pdb

@@ -1,0 +1,10 @@
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\bin\Debug\GraficDisplay.exe
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\bin\Debug\GraficDisplay.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\bin\Debug\GraphLib.dll
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\bin\Debug\GraphLib.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\obj\Debug\GraficDisplay.csprojResolveAssemblyReference.cache
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\obj\Debug\GraficDisplay.MainForm.resources
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\obj\Debug\GraficDisplay.Properties.Resources.resources
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\obj\Debug\GraficDisplay.csproj.GenerateResource.Cache
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\obj\Debug\GraficDisplay.exe
+C:\Users\David\Documents\Repositories\TheraEngine\Libraries\GraphDisplay\GraficalDisplay\obj\Debug\GraficDisplay.pdb

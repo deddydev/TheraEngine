@@ -382,7 +382,7 @@ namespace TheraEditor.Windows.Forms
                     break;
                 case "Char":
                     {
-                        //TODO
+                        //TODO: make textbox handle single char input
                         TextBox box = new TextBox()
                         {
                             Tag = arg,

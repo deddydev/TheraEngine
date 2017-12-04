@@ -1,29 +1,41 @@
 ﻿using System;
+using TheraEngine;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds.Actors;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(Material))]
-    public partial class MaterialEditorForm : TheraForm
+    public partial class MaterialEditorForm : DockContent, IEditorControl
     {
+        private UIMaterialEditor _hud;
         public MaterialEditorForm()
         {
             InitializeComponent();
+            renderPanel1.UI = _hud = new UIMaterialEditor(renderPanel1.ClientSize);
         }
         public MaterialEditorForm(Material m) : this()
         {
             Material = m;
         }
-        
-        public Material Material
-        {
-            get => materialEditor1.Material;
-            set => materialEditor1.Material = value;
-        }
         protected override void OnGotFocus(EventArgs e)
         {
-            Editor.SetActiveEditorControl(materialEditor1);
+            Editor.SetActiveEditorControl(this);
             base.OnGotFocus(e);
         }
+        protected override void OnLoad(EventArgs e)
+        {
+            renderPanel1.RegisterTick();
+            base.OnLoad(e);
+        }
+        public Material Material
+        {
+            get => _hud.TargetMaterial;
+            set => _hud.TargetMaterial = value;
+        }
+        LocalPlayerIndex IEditorControl.PlayerIndex => LocalPlayerIndex.One;
+        BaseRenderPanel IEditorControl.RenderPanel => renderPanel1;
+        IPawn IEditorControl.EditorPawn => _hud;
     }
 }

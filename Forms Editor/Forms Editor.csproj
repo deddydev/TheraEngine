@@ -83,6 +83,9 @@
     <Reference Include="Enums.NET">
       <HintPath>..\Libraries\Enums.NET.2.2.0\Bin\Net45\Enums.NET.dll</HintPath>
     </Reference>
+    <Reference Include="GraphLib">
+      <HintPath>..\Libraries\GraphDisplay\GraphLib\bin\Release\GraphLib.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -135,6 +138,12 @@
       <DependentUpon>ObjectCreator.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\EditorForAttribute.cs" />
+    <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.Designer.cs">
+      <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Material Editor\MaterialGraphRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -425,12 +434,6 @@
     <Compile Include="Windows\Forms\Class Creation\GenericSelector.Designer.cs">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\MaterialEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Windows\Forms\Material Editor\MaterialEditor.Designer.cs">
-      <DependentUpon>MaterialEditor.cs</DependentUpon>
-    </Compile>
     <Compile Include="Windows\Forms\Material Editor\MaterialEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -449,6 +452,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
+    <Compile Include="Wrappers\PropertyAnimationWrapper.cs" />
     <Compile Include="Wrappers\MaterialWrapper.cs" />
     <Compile Include="Wrappers\WorldWrapper.cs" />
     <Compile Include="Wrappers\FolderWrapper.cs" />
@@ -480,8 +484,8 @@
     <EmbeddedResource Include="Windows\Forms\Class Creation\GenericSelector.resx">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Material Editor\MaterialEditor.resx">
-      <DependentUpon>MaterialEditor.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.resx">
+      <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Material Editor\MaterialEditorForm.resx">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>

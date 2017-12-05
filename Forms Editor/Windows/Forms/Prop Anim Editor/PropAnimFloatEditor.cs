@@ -26,7 +26,34 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _animation = value;
+                display.DataSources.Clear();
+                var source = new GraphLib.DataSource();
+                source.Name = "";
+                _animation.GetMinMax(out float min, out float max);
+                source.SetDisplayRangeY(min, max);
+                display.DataSources.Add(source);
+                source.OnRenderXAxisLabel += RenderXLabel;
+                source.OnRenderYAxisLabel += RenderYLabel;
             }
+        }
+        private string RenderXLabel(GraphLib.DataSource s, int idx)
+        {
+            if (s.AutoScaleX)
+            {
+                int Value = (int)(s.Samples[idx].x);
+                return "" + Value;
+            }
+            else
+            {
+                int Value = (int)(s.Samples[idx].x / 200);
+                String Label = "" + Value + "\"";
+                return Label;
+            }
+        }
+
+        private String RenderYLabel(GraphLib.DataSource s, float value)
+        {
+            return String.Format("{0:0.0}", value);
         }
     }
 }

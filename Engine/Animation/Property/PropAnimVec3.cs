@@ -34,11 +34,11 @@ namespace TheraEngine.Animation
         public Vec3 GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Vec3 GetValueKeyframed(float second)
-            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
         public Vec3 GetVelocityKeyframed(float second)
-            => _keyframes.KeyCount == 0 ? 0.0f : _keyframes.First.InterpolateVelocity(second);
+            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.InterpolateVelocity(second);
         public Vec3 GetAccelerationKeyframed(float second)
-            => _keyframes.KeyCount == 0 ? 0.0f : _keyframes.First.InterpolateAcceleration(second);
+            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.InterpolateAcceleration(second);
 
         public override void Bake(float framesPerSecond)
         {
@@ -133,20 +133,20 @@ namespace TheraEngine.Animation
         }
         public Vec3 Interpolate(float desiredSecond)
         {
+            //First, check if the desired second is between this key and the next key.
             if (desiredSecond < Second)
             {
-                if (_prev == this)
-                    return InValue;
-
-                return Prev.Interpolate(desiredSecond);
+                //If the previous key's second is greater than this second, this key must be the first key. 
+                //Return the InValue as the desired second comes before this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return _prev.Second < Second ? Prev.Interpolate(desiredSecond) : InValue;
             }
-
-            if (desiredSecond > _next.Second)
+            else if (desiredSecond > _next.Second)
             {
-                if (_next == this)
-                    return OutValue;
-
-                return Next.Interpolate(desiredSecond);
+                //If the next key's second is less than this second, this key must be the last key. 
+                //Return the OutValue as the desired second comes after this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return _next.Second > Second ? Next.Interpolate(desiredSecond) : OutValue;
             }
 
             float span = _next.Second - Second;
@@ -156,20 +156,20 @@ namespace TheraEngine.Animation
         }
         public Vec3 InterpolateVelocity(float desiredSecond)
         {
+            //First, check if the desired second is between this key and the next key.
             if (desiredSecond < Second)
             {
-                if (_prev == this)
-                    return 0.0f;
-
-                return Prev.InterpolateVelocity(desiredSecond);
+                //If the previous key's second is greater than this second, this key must be the first key. 
+                //Return the InValue as the desired second comes before this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return _prev.Second < Second ? Prev.InterpolateVelocity(desiredSecond) : InValue;
             }
-
-            if (desiredSecond > _next.Second)
+            else if (desiredSecond > _next.Second)
             {
-                if (_next == this)
-                    return 0.0f;
-
-                return Next.InterpolateVelocity(desiredSecond);
+                //If the next key's second is less than this second, this key must be the last key. 
+                //Return the OutValue as the desired second comes after this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return _next.Second > Second ? Next.InterpolateVelocity(desiredSecond) : OutValue;
             }
 
             float span = _next.Second - Second;

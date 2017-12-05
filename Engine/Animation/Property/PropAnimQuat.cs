@@ -34,7 +34,7 @@ namespace TheraEngine.Animation
         public Quat GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Quat GetValueKeyframed(float second)
-            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
         
         public override void Bake(float framesPerSecond)
         {

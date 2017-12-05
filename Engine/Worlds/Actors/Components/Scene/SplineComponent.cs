@@ -104,8 +104,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
             {
                 Vertex[] splinePoints = new Vertex[_spline.BakedFrameCount];
                 VertexLine[] velocity = new VertexLine[_spline.BakedFrameCount];
-                Vec3[] keyframePositions = new Vec3[_spline.Keyframes.KeyCount << 1];
-                Vec3[] tangentPositions = new Vec3[_spline.Keyframes.KeyCount << 1];
+                Vec3[] keyframePositions = new Vec3[_spline.Keyframes.Count << 1];
+                Vec3[] tangentPositions = new Vec3[_spline.Keyframes.Count << 1];
 
                 int i, x = 0;
                 for (i = 0; i < splinePoints.Length; ++i)

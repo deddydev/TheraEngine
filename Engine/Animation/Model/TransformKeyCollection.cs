@@ -314,11 +314,11 @@ namespace TheraEngine.Animation
                 for (int i = 0; i < 9; ++i)
                 {
                     var track = _tracks[i];
-                    if (track.KeyCount > 0)
+                    if (track.Count > 0)
                     {
                         writer.WriteStartElement(names[i]);
                         {
-                            writer.WriteAttributeString("Count", track.KeyCount.ToString());
+                            writer.WriteAttributeString("Count", track.Count.ToString());
                             writer.WriteElementString("Second", string.Join(",", track.Select(x => x.Second)));
                             writer.WriteElementString("InValues", string.Join(",", track.Select(x => x.InValue)));
                             writer.WriteElementString("OutValues", string.Join(",", track.Select(x => x.OutValue)));

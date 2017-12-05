@@ -17,7 +17,7 @@ namespace TheraEngine.Animation
 
         protected internal abstract Keyframe FirstKey { get; internal set; }
 
-        public int KeyCount
+        public int Count
         {
             get => _keyCount;
             internal set => _keyCount = value;
@@ -59,7 +59,7 @@ namespace TheraEngine.Animation
 
         public bool IsReadOnly => false;
         public bool IsFixedSize => false;
-        public int Count => KeyCount;
+        //public int Count => base.Count;
         public object SyncRoot => _syncRoot;
         public bool IsSynchronized => _isSynchronized;
 
@@ -173,7 +173,7 @@ namespace TheraEngine.Animation
             if (First == null)
             {
                 First = key;
-                ++KeyCount;
+                ++base.Count;
                 OnChanged();
             }
             else if (key.Second < First.Second)
@@ -193,7 +193,7 @@ namespace TheraEngine.Animation
             if (First == Last)
             {
                 First = null;
-                --KeyCount;
+                --base.Count;
                 OnChanged();
             }
             else
@@ -207,7 +207,7 @@ namespace TheraEngine.Animation
             if (First.Next == First)
             {
                 First = null;
-                --KeyCount;
+                --base.Count;
                 OnChanged();
             }
             else
@@ -271,7 +271,7 @@ namespace TheraEngine.Animation
         public void Clear()
         {
             _first = null;
-            KeyCount = 0;
+            base.Count = 0;
         }
 
         public int IndexOf(object value)
@@ -460,7 +460,7 @@ namespace TheraEngine.Animation
         public Keyframe Link(Keyframe key)
         {
             Relink(key);
-            ++key.OwningTrack.KeyCount;
+            ++key.OwningTrack.Count;
             return key;
         }
 
@@ -479,7 +479,7 @@ namespace TheraEngine.Animation
             //TrackIndex = 0;
             if (_owningTrack != null)
             {
-                --_owningTrack.KeyCount;
+                --_owningTrack.Count;
                 _owningTrack.OnChanged();
             }
             _owningTrack = null;

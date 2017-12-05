@@ -13,6 +13,9 @@ namespace TheraEngine.Animation
         [TSerialize(Condition = "!UseKeyframes")]
         private float[] _baked = null;
 
+        /// <summary>
+        /// The default value to return when no keyframes are set.
+        /// </summary>
         [TSerialize(Condition = "UseKeyframes")]
         public float DefaultValue
         {
@@ -27,6 +30,54 @@ namespace TheraEngine.Animation
 
         protected override void UseKeyframesChanged()
             => _getValue = _useKeyframes ? (GetValue<float>)GetValueKeyframed : GetValueBaked;
+
+        public void GetMinMax(out float min, out float max)
+        {
+            min = DefaultValue;
+            max = DefaultValue;
+            
+            FloatKeyframe kf = _keyframes.First;
+            int lastIndex = _keyframes.Count - 1;
+            for (int i = 0; i < _keyframes.Count; ++i, kf = kf.Next)
+            {
+                if (i == 0 && i != lastIndex)
+                {
+                    //First key, but not the last
+                    if (kf.Next.InValue > kf.OutValue)
+                    {
+                        //Interp end is greater than start
+                    }
+                    else
+                    {
+                        //Interp start is greater than end
+                    }
+                }
+                else if (i == lastIndex && i != 0)
+                {
+                    //Last key, but not the first
+                    //Previous interp bridge has already been evaluated
+                    return;
+                }
+                else if (i == lastIndex)
+                {
+                    //Only key set
+                    min = Math.Min(kf.InValue, kf.OutValue);
+                    max = Math.Max(kf.InValue, kf.OutValue);
+
+                    if (kf.Second.IsZero())
+                        min = max;
+                    else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
+                        max = min;
+
+                    return;
+                }
+                else
+                {
+                    //Key is in between two other keys
+                }
+            }
+        }
+
         protected override object GetValue(float second)
             => _getValue(second);
         public float GetValueBaked(float second)
@@ -34,7 +85,7 @@ namespace TheraEngine.Animation
         public float GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public float GetValueKeyframed(float second)
-            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
         
         public override void Bake(float framesPerSecond)
         {

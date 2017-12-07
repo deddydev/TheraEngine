@@ -39,10 +39,11 @@ namespace TheraEditor.Windows.Forms
                 source.Name = "Interpolation";
                 _animation.GetMinMax(out float min, out float max);
                 source.SetDisplayRangeY(min, max);
-                
-                display.DataSources.Add(source);
+                source.SetGridDistanceY((max - min) / 10.0f);
                 source.OnRenderXAxisLabel += RenderXLabel;
                 source.OnRenderYAxisLabel += RenderYLabel;
+
+                display.DataSources.Add(source);
             }
         }
         private string RenderXLabel(GraphLib.DataSource s, int idx)

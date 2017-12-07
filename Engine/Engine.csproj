@@ -200,23 +200,32 @@
     <Reference Include="FreeImageNET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\FreeImageNET.dll</HintPath>
     </Reference>
-    <Reference Include="IronPython">
-      <HintPath>..\Libraries\IronPython-2.7.7\IronPython.dll</HintPath>
+    <Reference Include="IronPython, Version=2.7.7.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.7\lib\Net45\IronPython.dll</HintPath>
     </Reference>
-    <Reference Include="IronPython.Modules">
-      <HintPath>..\Libraries\IronPython-2.7.7\IronPython.Modules.dll</HintPath>
+    <Reference Include="IronPython.Modules, Version=2.7.7.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.7\lib\Net45\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.SQLite, Version=2.7.7.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.7\lib\Net45\IronPython.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Wpf, Version=2.7.7.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.7\lib\Net45\IronPython.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=3.20.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.3.20.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\Libraries\IronPython-2.7.7\Microsoft.Dynamic.dll</HintPath>
+    <Reference Include="Microsoft.Dynamic, Version=1.1.2.22, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Dynamic.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Scripting">
-      <HintPath>..\Libraries\IronPython-2.7.7\Microsoft.Scripting.dll</HintPath>
+    <Reference Include="Microsoft.Scripting, Version=1.1.2.22, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Scripting.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>..\Libraries\IronPython-2.7.7\Microsoft.Scripting.Metadata.dll</HintPath>
+    <Reference Include="Microsoft.Scripting.AspNet, Version=1.1.1.21, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Scripting.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Metadata, Version=1.1.2.22, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="NetworkCommsDotNetComplete">
       <HintPath>..\Libraries\NetworkCommsDotNetComplete.dll</HintPath>
@@ -257,61 +266,61 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="3rdParty\7zip\Common\CommandLineParser.cs" />
-    <Compile Include="3rdParty\7zip\Common\CRC.cs" />
-    <Compile Include="3rdParty\7zip\Common\InBuffer.cs" />
-    <Compile Include="3rdParty\7zip\Common\OutBuffer.cs" />
-    <Compile Include="3rdParty\7zip\Compress\LZMA\LzmaBase.cs" />
-    <Compile Include="3rdParty\7zip\Compress\LZMA\LzmaDecoder.cs" />
-    <Compile Include="3rdParty\7zip\Compress\LZMA\LzmaEncoder.cs" />
-    <Compile Include="3rdParty\7zip\Compress\LZ\IMatchFinder.cs" />
-    <Compile Include="3rdParty\7zip\Compress\LZ\LzBinTree.cs" />
-    <Compile Include="3rdParty\7zip\Compress\LZ\LzInWindow.cs" />
-    <Compile Include="3rdParty\7zip\Compress\LZ\LzOutWindow.cs" />
-    <Compile Include="3rdParty\7zip\Compress\RangeCoder\RangeCoder.cs" />
-    <Compile Include="3rdParty\7zip\Compress\RangeCoder\RangeCoderBit.cs" />
-    <Compile Include="3rdParty\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
-    <Compile Include="3rdParty\7zip\ICoder.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\DataStore.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\IDataStore.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\IElementGroup.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\IFaceGroup.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\IGroupDataStore.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\IMaterialLibrary.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\INormalDataStore.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\ITextureDataStore.cs" />
-    <Compile Include="3rdParty\OBJ\Data\DataStore\IVertexDataStore.cs" />
-    <Compile Include="3rdParty\OBJ\Data\Elements\Face.cs" />
-    <Compile Include="3rdParty\OBJ\Data\Elements\Group.cs" />
-    <Compile Include="3rdParty\OBJ\Data\Material.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\IMaterialLibraryLoader.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\IMaterialLibraryLoaderFacade.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\IObjLoader.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\IObjLoaderFactory.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\LoaderBase.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\LoadResult.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\MaterialLibraryLoader.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\MaterialLibraryLoaderFacade.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\MaterialStreamProvider.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\ObjLoader.cs" />
-    <Compile Include="3rdParty\OBJ\Loaders\ObjLoaderFactory.cs" />
-    <Compile Include="3rdParty\OBJ\OBJ.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\FaceParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\GroupParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IFaceParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IGroupParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IMaterialLibraryParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\INormalParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\ITextureParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\ITypeParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IUseMaterialParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IVertexParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\MaterialLibraryParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\NormalParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\TextureParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\TypeParserBase.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
-    <Compile Include="3rdParty\OBJ\TypeParsers\VertexParser.cs" />
+    <Compile Include="ThirdParty\7zip\Common\CommandLineParser.cs" />
+    <Compile Include="ThirdParty\7zip\Common\CRC.cs" />
+    <Compile Include="ThirdParty\7zip\Common\InBuffer.cs" />
+    <Compile Include="ThirdParty\7zip\Common\OutBuffer.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\LZMA\LzmaBase.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\LZMA\LzmaDecoder.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\LZMA\LzmaEncoder.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\LZ\IMatchFinder.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\LZ\LzBinTree.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\LZ\LzInWindow.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\LZ\LzOutWindow.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\RangeCoder\RangeCoder.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="ThirdParty\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
+    <Compile Include="ThirdParty\7zip\ICoder.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\DataStore.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\IDataStore.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\IElementGroup.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\IFaceGroup.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\IGroupDataStore.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\IMaterialLibrary.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\INormalDataStore.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\ITextureDataStore.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\DataStore\IVertexDataStore.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\Elements\Face.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\Elements\Group.cs" />
+    <Compile Include="ThirdParty\OBJ\Data\Material.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\IMaterialLibraryLoader.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\IMaterialLibraryLoaderFacade.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\IObjLoader.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\IObjLoaderFactory.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\LoaderBase.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\LoadResult.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\MaterialLibraryLoader.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\MaterialLibraryLoaderFacade.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\MaterialStreamProvider.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\ObjLoader.cs" />
+    <Compile Include="ThirdParty\OBJ\Loaders\ObjLoaderFactory.cs" />
+    <Compile Include="ThirdParty\OBJ\OBJ.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\FaceParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\GroupParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\Interfaces\IFaceParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\Interfaces\IGroupParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\Interfaces\IMaterialLibraryParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\Interfaces\INormalParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\Interfaces\ITextureParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\Interfaces\ITypeParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\Interfaces\IUseMaterialParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\Interfaces\IVertexParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\MaterialLibraryParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\NormalParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\TextureParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\TypeParserBase.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
+    <Compile Include="ThirdParty\OBJ\TypeParsers\VertexParser.cs" />
     <Compile Include="Animation\Model\TransformKeyCollection.cs" />
     <Compile Include="Core\Extensions\FuncExtension.cs" />
     <Compile Include="Core\Extensions\Numbers\DecimalExtension.cs" />
@@ -397,11 +406,11 @@
     <Compile Include="Rendering\UI\Text\TextHudComponent.cs" />
     <Compile Include="Rendering\UI\UIMaterialComponent.cs" />
     <Compile Include="Rendering\UI\UI3DComponent.cs" />
-    <None Include="3rdParty\Collada\Parser\Core\Animation.cs" />
-    <Compile Include="3rdParty\Collada\ColladaAssetDecoder.cs" />
-    <Compile Include="3rdParty\Collada\ColladaImporter.cs" />
-    <None Include="3rdParty\Collada\Parser\ColladaParserModel.cs" />
-    <Compile Include="3rdParty\Collada\Parser\ColladaDefinitions.cs" />
+    <None Include="ThirdParty\Collada\Parser\Core\Animation.cs" />
+    <Compile Include="ThirdParty\Collada\ColladaAssetDecoder.cs" />
+    <Compile Include="ThirdParty\Collada\ColladaImporter.cs" />
+    <None Include="ThirdParty\Collada\Parser\ColladaParserModel.cs" />
+    <Compile Include="ThirdParty\Collada\Parser\ColladaDefinitions.cs" />
     <Compile Include="Rendering\UI\Functions\BaseFuncValue.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\MatFuncValueOutput.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\MatFuncValueInput.cs" />

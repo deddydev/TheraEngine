@@ -234,7 +234,7 @@ namespace TheraEngine.Rendering
             if (Owners.Contains(controller))
                 Owners.Remove(controller);
         }
-
+        
         public void Render(Scene scene, Camera camera, Frustum frustum)
         {
             if (scene.Count == 0)

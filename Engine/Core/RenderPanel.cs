@@ -200,16 +200,16 @@ namespace TheraEngine
         {
             if (_context == null || _context.IsContextDisposed())
                 base.OnPaint(e);
-            else if (Monitor.TryEnter(_context))
+            else// if (Monitor.TryEnter(_context))
             {
-                try
-                {
+                //try
+                //{
                     _context.Capture();
                     OnRender();
                     _context.Swap();
                     _context.ErrorCheck();
-                }
-                finally { Monitor.Exit(_context); }
+                //}
+                //finally { Monitor.Exit(_context); }
             }
         }
         /// <summary>

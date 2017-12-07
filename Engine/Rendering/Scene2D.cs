@@ -92,10 +92,10 @@ namespace TheraEngine.Rendering
             bool hasBottomLeft = Collision.RayIntersectsPlane(frustum.NearBottomLeft, frustum.FarBottomLeft - frustum.NearBottomLeft, Vec3.Zero, Vec3.Backward, out Vec3 bottomLeft);
             bool hasBottomRight = Collision.RayIntersectsPlane(frustum.NearBottomRight, frustum.FarBottomRight - frustum.NearBottomRight, Vec3.Zero, Vec3.Backward, out Vec3 bottomRight);
             
-            float minX = CustomMath.Min(topLeft.X, topRight.X, bottomLeft.X, bottomRight.X);
-            float maxX = CustomMath.Max(topLeft.X, topRight.X, bottomLeft.X, bottomRight.X);
-            float minY = CustomMath.Min(topLeft.Y, topRight.Y, bottomLeft.Y, bottomRight.Y);
-            float maxY = CustomMath.Max(topLeft.Y, topRight.Y, bottomLeft.Y, bottomRight.Y);
+            float minX = TMath.Min(topLeft.X, topRight.X, bottomLeft.X, bottomRight.X);
+            float maxX = TMath.Max(topLeft.X, topRight.X, bottomLeft.X, bottomRight.X);
+            float minY = TMath.Min(topLeft.Y, topRight.Y, bottomLeft.Y, bottomRight.Y);
+            float maxY = TMath.Max(topLeft.Y, topRight.Y, bottomLeft.Y, bottomRight.Y);
 
             BoundingRectangle bounds = BoundingRectangle.FromMinMaxSides(minX, maxX, minY, maxY, 0.0f, 0.0f);
 

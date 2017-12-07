@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using static System.Math;
-using static System.CustomMath;
+using static System.TMath;
 using TheraEngine;
 using TheraEngine.Rendering.Models;
 using System.ComponentModel;

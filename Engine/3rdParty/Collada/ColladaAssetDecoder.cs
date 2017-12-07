@@ -199,7 +199,7 @@ namespace TheraEngine.Rendering.Models
                     sources.ContainsKey(ESemantic.TEXCOORD) ?
                     sources[ESemantic.TEXCOORD].Count : 0;
                 
-                int maxSets = CustomMath.Max(
+                int maxSets = TMath.Max(
                     info._morphCount + 1,
                     info._colorCount,
                     info._texcoordCount);

@@ -145,23 +145,23 @@ namespace TheraEngine.Animation
         //r => p, y, r
 
         public Vec3 GetTranslation(Vec3 bindTranslation) => new Vec3(
-            CustomMath.Lerp(bindTranslation.X, _values[0].Value, _values[0].Weight),
-            CustomMath.Lerp(bindTranslation.Y, _values[1].Value, _values[1].Weight),
-            CustomMath.Lerp(bindTranslation.Z, _values[2].Value, _values[2].Weight));
+            Interp.Lerp(bindTranslation.X, _values[0].Value, _values[0].Weight),
+            Interp.Lerp(bindTranslation.Y, _values[1].Value, _values[1].Weight),
+            Interp.Lerp(bindTranslation.Z, _values[2].Value, _values[2].Weight));
         public Rotator GetRotation(Rotator bindRotation) => new Rotator(
-            CustomMath.Lerp(bindRotation.Pitch, _values[3].Value, _values[4].Weight),
-            CustomMath.Lerp(bindRotation.Yaw, _values[4].Value, _values[3].Weight),
-            CustomMath.Lerp(bindRotation.Roll, _values[5].Value, _values[5].Weight),
+            Interp.Lerp(bindRotation.Pitch, _values[3].Value, _values[4].Weight),
+            Interp.Lerp(bindRotation.Yaw, _values[4].Value, _values[3].Weight),
+            Interp.Lerp(bindRotation.Roll, _values[5].Value, _values[5].Weight),
             _eulerOrder);
         public Quat GetQuat(Rotator bindRotation) => Quat.FromEulerAngles(
-            CustomMath.Lerp(bindRotation.Pitch, _values[3].Value, _values[4].Weight),
-            CustomMath.Lerp(bindRotation.Yaw, _values[4].Value, _values[3].Weight),
-            CustomMath.Lerp(bindRotation.Roll, _values[5].Value, _values[5].Weight),
+            Interp.Lerp(bindRotation.Pitch, _values[3].Value, _values[4].Weight),
+            Interp.Lerp(bindRotation.Yaw, _values[4].Value, _values[3].Weight),
+            Interp.Lerp(bindRotation.Roll, _values[5].Value, _values[5].Weight),
             _eulerOrder);
         public Vec3 GetScale(Vec3 bindScale) => new Vec3(
-            CustomMath.Lerp(bindScale.X, _values[6].Value, _values[6].Weight),
-            CustomMath.Lerp(bindScale.Y, _values[7].Value, _values[7].Weight),
-            CustomMath.Lerp(bindScale.Z, _values[8].Value, _values[8].Weight));
+            Interp.Lerp(bindScale.X, _values[6].Value, _values[6].Weight),
+            Interp.Lerp(bindScale.Y, _values[7].Value, _values[7].Weight),
+            Interp.Lerp(bindScale.Z, _values[8].Value, _values[8].Weight));
         
         public Vec3 GetUnweightedTranslation()
             => new Vec3(_values[0].Value, _values[1].Value, _values[2].Value);
@@ -281,8 +281,8 @@ namespace TheraEngine.Animation
                 var value = _values[i];
                 var otherValue = otherBoneFrame._values[i];
                 values[i] = new FrameValueWeight(
-                    CustomMath.Lerp(value.Value, otherValue.Value, otherWeight),
-                    CustomMath.Lerp(value.Weight, otherValue.Weight, otherWeight));
+                    Interp.Lerp(value.Value, otherValue.Value, otherWeight),
+                    Interp.Lerp(value.Weight, otherValue.Weight, otherWeight));
             }
             return new BoneFrame(_name, values, _eulerOrder);
         }
@@ -296,8 +296,8 @@ namespace TheraEngine.Animation
             {
                 var value = _values[i];
                 var otherValue = otherBoneFrame._values[i];
-                value.Value = CustomMath.Lerp(value.Value, otherValue.Value, otherWeight);
-                value.Weight = CustomMath.Lerp(value.Weight, otherValue.Weight, otherWeight);
+                value.Value = Interp.Lerp(value.Value, otherValue.Value, otherWeight);
+                value.Weight = Interp.Lerp(value.Weight, otherValue.Weight, otherWeight);
             }
         }
         public void BlendWith(BoneAnimation other, float frameIndex, float otherWeight)

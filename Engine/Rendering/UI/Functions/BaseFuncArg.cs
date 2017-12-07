@@ -34,7 +34,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p2 = p3;
             p2.X += Translation.X < point.X ? -10.0f : 10.0f;
 
-            return CustomMath.CubicBezier(p0, p1, p2, p3, time);
+            return Interp.CubicBezier(p0, p1, p2, p3, time);
         }
         public Vec2[] BezierToPointAsPoints(Vec2 point, int count)
         {
@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p2 = p3;
             p2.X += Translation.X < point.X ? -10.0f : 10.0f;
 
-            return CustomMath.GetBezierPoints(p0, p1, p2, p3, count);
+            return Interp.GetBezierPoints(p0, p1, p2, p3, count);
         }
     }
 }

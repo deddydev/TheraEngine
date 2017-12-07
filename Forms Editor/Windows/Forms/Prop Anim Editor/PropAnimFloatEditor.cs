@@ -26,11 +26,20 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _animation = value;
+
                 display.DataSources.Clear();
+                display.PanelLayout = GraphLib.PlotterGraphPaneEx.LayoutMode.NORMAL;
+
+                if (_animation == null)
+                    return;
+
+                display.SetDisplayRangeX(0.0f, _animation.LengthInSeconds);
+
                 var source = new GraphLib.DataSource();
-                source.Name = "";
+                source.Name = "Interpolation";
                 _animation.GetMinMax(out float min, out float max);
                 source.SetDisplayRangeY(min, max);
+                
                 display.DataSources.Add(source);
                 source.OnRenderXAxisLabel += RenderXLabel;
                 source.OnRenderYAxisLabel += RenderYLabel;

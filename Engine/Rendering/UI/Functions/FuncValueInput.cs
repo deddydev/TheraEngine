@@ -81,7 +81,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p2 = p3;
             p2.X -= 10.0f;
 
-            return CustomMath.CubicBezier(p0, p1, p2, p3, time);
+            return Interp.CubicBezier(p0, p1, p2, p3, time);
         }
         /// <summary>
         /// Returns interpolated point from the connected output argument to this argument.
@@ -108,7 +108,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p2 = p3;
             p2.X -= 10.0f;
 
-            return CustomMath.GetBezierPoints(p0, p1, p2, p3, count);
+            return Interp.GetBezierPoints(p0, p1, p2, p3, count);
         }
         public Vec2[] BezierPointsFromOutputArg(Vec2 otherPoint, int count)
         {

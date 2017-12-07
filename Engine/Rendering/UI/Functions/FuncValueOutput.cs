@@ -79,7 +79,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p2 = p3;
             p2.X -= 10.0f;
 
-            return CustomMath.CubicBezier(p0, p1, p2, p3, time);
+            return Interp.CubicBezier(p0, p1, p2, p3, time);
         }
         /// <summary>
         /// Returns interpolated point from the connected output argument to this argument.

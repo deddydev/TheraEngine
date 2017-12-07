@@ -79,7 +79,7 @@ namespace TheraEngine.Core.Shapes
                 float b = 2.0f * diff.Dot(StartPoint - center);
                 float c = center.LengthSquared + StartPoint.LengthSquared - 2.0f * center.Dot(StartPoint) - radius * radius;
 
-                if (CustomMath.Quadratic(a, b, c, out float val1, out float val2))
+                if (TMath.QuadraticRealRoots(a, b, c, out float val1, out float val2))
                 {
                     if (val2 < val1)
                         val1 = val2;

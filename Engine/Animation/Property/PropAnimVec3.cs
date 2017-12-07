@@ -20,6 +20,7 @@ namespace TheraEngine.Animation
             set => _defaultValue = value;
         }
 
+        public PropAnimVec3() : base(0.0f, false, true) { }
         public PropAnimVec3(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimVec3(int frameCount, float FPS, bool looped, bool useKeyframes) 
@@ -179,20 +180,20 @@ namespace TheraEngine.Animation
         }
         public Vec3 InterpolateAcceleration(float desiredSecond)
         {
+            //First, check if the desired second is between this key and the next key.
             if (desiredSecond < Second)
             {
-                if (_prev == this)
-                    return 0.0f;
-
-                return Prev.InterpolateAcceleration(desiredSecond);
+                //If the previous key's second is greater than this second, this key must be the first key. 
+                //Return the InValue as the desired second comes before this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return _prev.Second < Second ? Prev.InterpolateVelocity(desiredSecond) : InValue;
             }
-
-            if (desiredSecond > _next.Second)
+            else if (desiredSecond > _next.Second)
             {
-                if (_next == this)
-                    return 0.0f;
-
-                return Next.InterpolateAcceleration(desiredSecond);
+                //If the next key's second is less than this second, this key must be the last key. 
+                //Return the OutValue as the desired second comes after this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return _next.Second > Second ? Next.InterpolateVelocity(desiredSecond) : OutValue;
             }
 
             float span = _next.Second - Second;
@@ -216,18 +217,18 @@ namespace TheraEngine.Animation
             => Vec3.Zero;
         
         public static Vec3 CubicBezier(Vec3Keyframe key1, Vec3Keyframe key2, float time)
-            => CustomMath.CubicBezier(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+            => Interp.CubicBezier(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
         public static Vec3 CubicBezierVelocity(Vec3Keyframe key1, Vec3Keyframe key2, float time)
-            => CustomMath.CubicBezierVelocity(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+            => Interp.CubicBezierVelocity(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
         public static Vec3 CubicBezierAcceleration(Vec3Keyframe key1, Vec3Keyframe key2, float time)
-            => CustomMath.CubicBezierAcceleration(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+            => Interp.CubicBezierAcceleration(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
         
         public static Vec3 CubicHermite(Vec3Keyframe key1, Vec3Keyframe key2, float time)
-            => CustomMath.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => Interp.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
         public static Vec3 CubicHermiteVelocity(Vec3Keyframe key1, Vec3Keyframe key2, float time)
-            => CustomMath.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
         public static Vec3 CubicHermiteAcceleration(Vec3Keyframe key1, Vec3Keyframe key2, float time)
-            => CustomMath.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
 
         public void AverageKeyframe()
         {

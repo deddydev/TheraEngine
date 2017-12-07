@@ -58,7 +58,7 @@ namespace TheraEngine.Rendering.UI.Functions
                         types.Add(count, new List<Type>() { func });
                 }
             }
-            int maxVal = CustomMath.Max(types.Keys.ToArray());
+            int maxVal = TMath.Max(types.Keys.ToArray());
             return types[maxVal];
         }
     }

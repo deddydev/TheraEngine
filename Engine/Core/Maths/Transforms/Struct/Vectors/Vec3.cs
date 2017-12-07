@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using static System.Math;
-using static System.CustomMath;
+using static System.TMath;
 using System.Xml.Serialization;
 using System.Drawing;
 using TheraEngine;
@@ -96,10 +96,8 @@ namespace System
             }
         }
 
-        public Matrix4 AsTranslationMatrix()
-            => Matrix4.CreateTranslation(this);
-        public Matrix4 AsScaleMatrix()
-            => Matrix4.CreateScale(this);
+        public Matrix4 AsTranslationMatrix() => Matrix4.CreateTranslation(this);
+        public Matrix4 AsScaleMatrix() => Matrix4.CreateScale(this);
 
         [Browsable(false)]
         public float LengthSquared => Dot(this);
@@ -108,12 +106,9 @@ namespace System
         [Browsable(false)]
         public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
 
-        public float DistanceTo(Vec3 point)
-            => (point - this).Length;
-        public float DistanceToFast(Vec3 point)
-            => (point - this).LengthFast;
-        public float DistanceToSquared(Vec3 point)
-            => (point - this).LengthSquared;
+        public float DistanceTo(Vec3 point) => (point - this).Length;
+        public float DistanceToFast(Vec3 point) => (point - this).LengthFast;
+        public float DistanceToSquared(Vec3 point) => (point - this).LengthSquared;
 
         /// <summary>
         /// Safely normalizes this vector to unit length.
@@ -194,7 +189,31 @@ namespace System
         public static readonly Vec3 Left = -Right;
         public static readonly Vec3 Backward = -Forward;
         public static readonly Vec3 Down = -Up;
-        
+
+        #region Max/Min
+        /// <summary>
+        /// Returns a Vec3 with the smallest individual components from the given Vec3 values.
+        /// </summary>
+        public static Vec3 ComponentMin(params Vec3[] values)
+        {
+            Vec3 value = new Vec3(float.MaxValue);
+            foreach (Vec3 v in values)
+                value = ComponentMin(v, value);
+            return value;
+        }
+        /// <summary>
+        /// Returns a Vec3 with the largest individual components from the given Vec3 values.
+        /// </summary>
+        public static Vec3 ComponentMax(params Vec3[] values)
+        {
+            Vec3 value = new Vec3(float.MaxValue);
+            foreach (Vec3 v in values)
+                value = ComponentMax(v, value);
+            return value;
+        }
+        /// <summary>
+        /// Returns a Vec3 with the smallest individual components from the two given Vec3 values.
+        /// </summary>
         public static Vec3 ComponentMin(Vec3 a, Vec3 b)
         {
             a.X = a.X < b.X ? a.X : b.X;
@@ -202,6 +221,9 @@ namespace System
             a.Z = a.Z < b.Z ? a.Z : b.Z;
             return a;
         }
+        /// <summary>
+        /// Returns a Vec3 with the largest individual components from the two given Vec3 values.
+        /// </summary>
         public static Vec3 ComponentMax(Vec3 a, Vec3 b)
         {
             a.X = a.X > b.X ? a.X : b.X;
@@ -209,10 +231,39 @@ namespace System
             a.Z = a.Z > b.Z ? a.Z : b.Z;
             return a;
         }
-        public static Vec3 MagnitudeMin(Vec3 left, Vec3 right)
-            => left.LengthSquared < right.LengthSquared ? left : right;
-        public static Vec3 MagnitudeMax(Vec3 left, Vec3 right)
-            => left.LengthSquared > right.LengthSquared ? left : right;
+        /// <summary>
+        /// Returns the Vec3 whose magnitude/length is smallest.
+        /// </summary>
+        public static Vec3 MagnitudeMin(params Vec3[] values)
+        {
+            Vec3 value = new Vec3(float.MaxValue);
+            foreach (Vec3 v in values)
+                value = MagnitudeMin(v, value);
+            return value;
+        }
+        /// <summary>
+        /// Returns the Vec3 whose magnitude/length is largest.
+        /// </summary>
+        public static Vec3 MagnitudeMax(params Vec3[] values)
+        {
+            Vec3 value = new Vec3(float.MaxValue);
+            foreach (Vec3 v in values)
+                value = MagnitudeMax(v, value);
+            return value;
+        }
+        /// <summary>
+        /// Returns the Vec3 whose magnitude/length is smallest.
+        /// </summary>
+        public static Vec3 MagnitudeMin(Vec3 a, Vec3 b)
+            => a.LengthSquared < b.LengthSquared ? a : b;
+        /// <summary>
+        /// Returns the Vec3 whose magnitude/length is largest.
+        /// </summary>
+        public static Vec3 MagnitudeMax(Vec3 a, Vec3 b)
+            => a.LengthSquared > b.LengthSquared ? a : b;
+        #endregion
+
+        #region Clamping
         public static Vec3 Clamp(Vec3 value, Vec3 min, Vec3 max)
         {
             Vec3 v;
@@ -235,7 +286,9 @@ namespace System
             v.Z = Z < min.Z ? min.Z : Z > max.Z ? max.Z : Z;
             return v;
         }
+        #endregion
 
+        #region Dot/Cross
         /// <summary>
         /// Dot product; 1 is same direction, -1 is opposite direction, 0 is a 90 degree angle
         /// </summary>
@@ -262,6 +315,7 @@ namespace System
 
         public static Vec3 Cross(Vec3 left, Vec3 right)
             => left ^ right;
+        #endregion
 
         /// <summary>
         /// Constructs a normal given three points.

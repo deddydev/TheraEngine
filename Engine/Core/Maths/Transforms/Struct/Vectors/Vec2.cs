@@ -3,7 +3,7 @@ using TheraEngine.Rendering.Models;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
-using static System.CustomMath;
+using static System.TMath;
 using static System.Math;
 using System.ComponentModel;
 using System.Globalization;

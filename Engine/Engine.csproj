@@ -194,22 +194,29 @@
     <Reference Include="BulletSharp">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\BulletSharp.dll</HintPath>
     </Reference>
-    <Reference Include="DiffSharp, Version=0.7.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\DiffSharp.0.7.7\lib\net46\DiffSharp.dll</HintPath>
-    </Reference>
     <Reference Include="Enums.NET">
       <HintPath>..\Libraries\Enums.NET.2.2.0\Bin\Net45\Enums.NET.dll</HintPath>
     </Reference>
     <Reference Include="FreeImageNET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\FreeImageNET.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="IronPython">
+      <HintPath>..\Libraries\IronPython-2.7.7\IronPython.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.Quotations.Evaluator">
-      <HintPath>..\packages\FSharp.Quotations.Evaluator.1.0.7\lib\net40\FSharp.Quotations.Evaluator.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="IronPython.Modules">
+      <HintPath>..\Libraries\IronPython-2.7.7\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=3.20.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.3.20.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\Libraries\IronPython-2.7.7\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\Libraries\IronPython-2.7.7\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Metadata">
+      <HintPath>..\Libraries\IronPython-2.7.7\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="NetworkCommsDotNetComplete">
       <HintPath>..\Libraries\NetworkCommsDotNetComplete.dll</HintPath>
@@ -234,6 +241,7 @@
     <Reference Include="System.Activities" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Activities" />
     <Reference Include="System.Xaml" />
@@ -305,9 +313,11 @@
     <Compile Include="3rdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
     <Compile Include="3rdParty\OBJ\TypeParsers\VertexParser.cs" />
     <Compile Include="Animation\Model\TransformKeyCollection.cs" />
+    <Compile Include="Core\Extensions\FuncExtension.cs" />
     <Compile Include="Core\Extensions\Numbers\DecimalExtension.cs" />
     <Compile Include="Core\Extensions\MethodInfoExtension.cs" />
     <Compile Include="Core\Extensions\TaskExtension.cs" />
+    <Compile Include="Core\Maths\Interpolation.cs" />
     <Compile Include="Core\Reflection\Attributes\BrowsableIfAttribute.cs" />
     <Compile Include="Core\HelperMethods.cs" />
     <None Include="Core\Maths\Transforms\Class\Rotation\EventQuatRotator.cs" />
@@ -725,7 +735,7 @@
     <Compile Include="Input\AIController.cs" />
     <Compile Include="Input\PawnController.cs" />
     <Compile Include="Input\PlayerController.cs" />
-    <Compile Include="Core\Maths\CustomMath.cs" />
+    <Compile Include="Core\Maths\TMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapSettings.cs" />

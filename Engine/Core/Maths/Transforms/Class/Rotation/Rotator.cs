@@ -348,9 +348,9 @@ namespace TheraEngine.Core.Maths.Transforms
             if (r1.Order != r2.Order)
                 return null;
             return new Rotator(
-                CustomMath.Lerp(r1.Pitch, r2.Pitch, time),
-                CustomMath.Lerp(r1.Yaw, r2.Yaw, time),
-                CustomMath.Lerp(r1.Roll, r2.Roll, time), 
+                Interp.Lerp(r1.Pitch, r2.Pitch, time),
+                Interp.Lerp(r1.Yaw, r2.Yaw, time),
+                Interp.Lerp(r1.Roll, r2.Roll, time), 
                 r1.Order);
         }
 

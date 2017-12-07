@@ -20,11 +20,11 @@ namespace TheraEngine.Rendering.Models
         public BoundingBox GetCullingVolume()
         {
             Vec3[] positions = _vertices.Select(x => x._position).ToArray();
-            return BoundingBox.FromMinMax(CustomMath.ComponentMin(positions), CustomMath.ComponentMax(positions));
+            return BoundingBox.FromMinMax(Vec3.ComponentMin(positions), Vec3.ComponentMax(positions));
         }
 
-        public IEnumerator<Vertex> GetEnumerator() { return ((IEnumerable<Vertex>)_vertices).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Vertex>)_vertices).GetEnumerator(); }
+        public IEnumerator<Vertex> GetEnumerator() => ((IEnumerable<Vertex>)_vertices).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Vertex>)_vertices).GetEnumerator();
     }
     public abstract class VertexPolygon : VertexPrimitive
     {

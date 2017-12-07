@@ -57,7 +57,7 @@ namespace TheraEngine.Core.Shapes
             : this()
         {
             float
-                tan = (float)Math.Tan(CustomMath.DegToRad(fovY / 2.0f)),
+                tan = (float)Math.Tan(TMath.DegToRad(fovY / 2.0f)),
                 nearYDist = tan * nearZ,
                 nearXDist = aspect * nearYDist,
                 farYDist = tan * farZ,

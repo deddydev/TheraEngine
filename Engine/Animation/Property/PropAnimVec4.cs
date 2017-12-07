@@ -146,9 +146,9 @@ namespace TheraEngine.Animation
         public static Vec4 Lerp(Vec4Keyframe key1, Vec4Keyframe key2, float time)
             => Vec4.Lerp(key1.OutValue, key2.InValue, time);
         public static Vec4 Bezier(Vec4Keyframe key1, Vec4Keyframe key2, float time)
-            => CustomMath.CubicBezier(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => Interp.CubicBezier(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
         public static Vec4 CubicHermite(Vec4Keyframe key1, Vec4Keyframe key2, float time)
-            => CustomMath.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => Interp.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
 
         public void AverageKeyframe()
         {

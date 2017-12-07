@@ -80,7 +80,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             //if (_laggingDistance > _maxLagDistance)
             //    _interpPoint = CustomMath.InterpLinearTo(_destPoint, _currentPoint, _maxLagDistance / _laggingDistance);
             //else
-                _interpPoint = CustomMath.InterpLinearTo(_currentPoint, _destPoint, _delta, _interpSpeed);
+                _interpPoint = Interp.InterpLinearTo(_currentPoint, _destPoint, _delta, _interpSpeed);
 
             //Engine.DebugPrint(_currentPoint.DistanceTo(_destPoint));
             RecalcGlobalTransform();

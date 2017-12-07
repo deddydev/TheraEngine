@@ -78,7 +78,7 @@ namespace TheraEngine.Worlds.Actors.Types
                     _hiSphere = true;
 
                     //Determine axis snapping
-                    Vec3 angles = CustomMath.RadToDeg(point.GetAngles());
+                    Vec3 angles = TMath.RadToDeg(point.GetAngles());
                     angles.X = Math.Abs(angles.X);
                     angles.Y = Math.Abs(angles.Y);
                     angles.Z = Math.Abs(angles.Z);

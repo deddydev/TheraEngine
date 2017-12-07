@@ -59,9 +59,9 @@ namespace TheraEngine.Core.Shapes
 
         public static PrimitiveData SolidMesh(Vec3 center, float radius, float precision)
         {
-            float halfPI = CustomMath.PIf * 0.5f;
+            float halfPI = TMath.PIf * 0.5f;
             float invPrecision = 1.0f / precision;
-            float twoPIThroughPrecision = CustomMath.PIf * 2.0f * invPrecision;
+            float twoPIThroughPrecision = TMath.PIf * 2.0f * invPrecision;
 
             float theta1, theta2, theta3;
             Vec3 norm, pos;
@@ -114,12 +114,12 @@ namespace TheraEngine.Core.Shapes
         public static PrimitiveData SolidMesh(Vec3 center, float radius, int slices, int stacks)
         {
             List<Vertex> v = new List<Vertex>();
-            float twoPi = CustomMath.PIf * 2.0f;
+            float twoPi = TMath.PIf * 2.0f;
             for (int i = 0; i <= stacks; ++i)
             {
                 // V texture coordinate.
                 float V = i / (float)stacks;
-                float phi = V * CustomMath.PIf;
+                float phi = V * TMath.PIf;
 
                 for (int j = 0; j <= slices; ++j)
                 {
@@ -190,7 +190,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 dir = point - _center;
             float lenSq = dir.LengthSquared;
             if (lenSq > _radius * _radius)
-                return dir * CustomMath.InverseSqrtFast(lenSq) * _radius;
+                return dir * TMath.InverseSqrtFast(lenSq) * _radius;
             return point;
         }
     }

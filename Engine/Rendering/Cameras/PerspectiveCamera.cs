@@ -72,7 +72,7 @@ namespace TheraEngine.Rendering.Cameras
             set
             {
                 _fovY = value;
-                _fovX = 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(_fovY / 2.0f)) * _aspect));
+                _fovX = 2.0f * TMath.RadToDeg((float)Math.Atan(Math.Tan(TMath.DegToRad(_fovY / 2.0f)) * _aspect));
                 CalculateProjection();
             }
         }
@@ -84,7 +84,7 @@ namespace TheraEngine.Rendering.Cameras
             set
             {
                 _fovX = value;
-                _fovY = 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(value / 2.0f)) / _aspect));
+                _fovY = 2.0f * TMath.RadToDeg((float)Math.Atan(Math.Tan(TMath.DegToRad(value / 2.0f)) / _aspect));
                 CalculateProjection();
             }
         }
@@ -137,11 +137,11 @@ namespace TheraEngine.Rendering.Cameras
         }
         public float FrustumHeightAtDistance(float distance)
         {
-            return 2.0f * distance * (float)Math.Tan(CustomMath.DegToRad(_fovY * 0.5f));
+            return 2.0f * distance * (float)Math.Tan(TMath.DegToRad(_fovY * 0.5f));
         }
         public float FOVForHeightAndDistance(float height, float distance)
         {
-            return 2.0f * CustomMath.RadToDeg((float)Math.Atan(height * 0.5f / distance));
+            return 2.0f * TMath.RadToDeg((float)Math.Atan(height * 0.5f / distance));
         }
 
         // half of the the horizontal field of view

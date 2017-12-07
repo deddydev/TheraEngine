@@ -585,7 +585,7 @@ namespace TheraEngine.Rendering
                         (float)r.NextDouble());
                     sample.NormalizeFast();
                     scale = i / (float)samples;
-                    scale = CustomMath.Lerp(minSampleDist, maxSampleDist, scale * scale);
+                    scale = Interp.Lerp(minSampleDist, maxSampleDist, scale * scale);
                     _kernel[i] = sample * scale;
                 }
 

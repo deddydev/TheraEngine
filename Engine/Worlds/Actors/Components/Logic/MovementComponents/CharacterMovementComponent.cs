@@ -379,7 +379,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
         public bool IsSurfaceNormalWalkable(Vec3 normal)
         {
             //TODO: use friction between surfaces, not just a constant angle
-            return CustomMath.AngleBetween(Vec3.Up, normal) <= _maxWalkAngle;
+            return TMath.AngleBetween(Vec3.Up, normal) <= _maxWalkAngle;
         }
         public void OnHit(IPhysicsDrivable other, ManifoldPoint point)
         {

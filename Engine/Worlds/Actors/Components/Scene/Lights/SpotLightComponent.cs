@@ -46,11 +46,11 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 
                 _outerCone.State.Translation.Raw = translation;
                 _outerCone.Height = _distance;
-                _outerCone.Radius = (float)Math.Tan(CustomMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
+                _outerCone.Radius = (float)Math.Tan(TMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
 
                 _innerCone.State.Translation.Raw = translation;
                 _innerCone.Height = _distance;
-                _innerCone.Radius = (float)Math.Tan(CustomMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
+                _innerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
 
                 _shadowCamera.FarZ = _distance - 0.1f;
             }
@@ -81,10 +81,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         [Category("Spotlight Component")]
         public float OuterCutoffAngleDegrees
         {
-            get => CustomMath.RadToDeg((float)Math.Acos(_outerCutoff));
+            get => TMath.RadToDeg((float)Math.Acos(_outerCutoff));
             set
             {
-                float rad = CustomMath.DegToRad(value);
+                float rad = TMath.DegToRad(value);
                 _outerCutoff = (float)Math.Cos(rad);
                 _outerCone.Radius = (float)Math.Tan(rad) * _distance;
 
@@ -94,10 +94,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         [Category("Spotlight Component")]
         public float InnerCutoffAngleDegrees
         {
-            get => CustomMath.RadToDeg((float)Math.Acos(_innerCutoff));
+            get => TMath.RadToDeg((float)Math.Acos(_innerCutoff));
             set
             {
-                float rad = CustomMath.DegToRad(value);
+                float rad = TMath.DegToRad(value);
                 _innerCutoff = (float)Math.Cos(rad);
                 _innerCone.Radius = (float)Math.Tan(rad) * _distance;
 
@@ -120,11 +120,11 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Vec3 direction, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent) 
             : base(color, diffuseIntensity, ambientIntensity)
         {
-            _outerCone = new ConeZ((float)Math.Tan(CustomMath.DegToRad(outerCutoffDeg)) * distance, distance);
-            _innerCone = new ConeZ((float)Math.Tan(CustomMath.DegToRad(innerCutoffDeg)) * distance, distance);
+            _outerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            _innerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
 
-            _outerCutoff = (float)Math.Cos(CustomMath.DegToRad(outerCutoffDeg));
-            _innerCutoff = (float)Math.Cos(CustomMath.DegToRad(innerCutoffDeg));
+            _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
+            _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
             _distance = distance;
             _brightness = brightness;
             _exponent = exponent;
@@ -138,11 +138,11 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
             : base(color, diffuseIntensity, ambientIntensity)
         {
-            _outerCone = new ConeZ((float)Math.Tan(CustomMath.DegToRad(outerCutoffDeg)) * distance, distance);
-            _innerCone = new ConeZ((float)Math.Tan(CustomMath.DegToRad(innerCutoffDeg)) * distance, distance);
+            _outerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            _innerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
 
-            _outerCutoff = (float)Math.Cos(CustomMath.DegToRad(outerCutoffDeg));
-            _innerCutoff = (float)Math.Cos(CustomMath.DegToRad(innerCutoffDeg));
+            _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
+            _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
             _distance = distance;
             _brightness = brightness;
             _exponent = exponent;

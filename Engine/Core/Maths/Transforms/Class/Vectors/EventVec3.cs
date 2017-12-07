@@ -1,5 +1,5 @@
 ﻿using static System.Math;
-using static System.CustomMath;
+using static System.TMath;
 using System.Xml.Serialization;
 using System.Drawing;
 using TheraEngine;

@@ -565,7 +565,7 @@ namespace System
 
             // order the enter / exit values.
             if (tsenter > tsexit)
-                CustomMath.Swap(ref tsenter, ref tsexit);
+                TMath.Swap(ref tsenter, ref tsexit);
             
             // make sure the slab interval and the current box intersection interval overlap
             if (tbenter > tsexit || tsenter > tbexit)

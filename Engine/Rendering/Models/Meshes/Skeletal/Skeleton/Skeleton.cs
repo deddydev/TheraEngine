@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;
-using DiffSharp.Interop.Float32;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
@@ -183,17 +182,6 @@ namespace TheraEngine.Rendering.Models
         public void TriggerChildFrameMatrixUpdate()
         {
             //_childMatrixModified = true;
-        }
-        
-        public void UpdateIK()
-        {
-            Func<DV, DV> f = (vecIn) => 
-            {
-                return new DV(new D[] { });
-            };
-            DV x = new DV(new D[] { 1.0f });
-            DV v = new DV(new D[] { 1.0f });
-            DV result = AD.Jacobianv(f, x, v);
         }
     }
 }

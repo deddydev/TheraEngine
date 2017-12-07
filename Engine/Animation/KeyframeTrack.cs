@@ -9,18 +9,16 @@ namespace TheraEngine.Animation
     public abstract class BaseKeyframeTrack : FileObject
     {
         public event Action Changed;
-
-        internal protected void OnChanged()
-            => Changed?.Invoke();
+        protected internal void OnChanged() => Changed?.Invoke();
         
-        private int _keyCount = 0;
+        private int _count = 0;
 
         protected internal abstract Keyframe FirstKey { get; internal set; }
 
         public int Count
         {
-            get => _keyCount;
-            internal set => _keyCount = value;
+            get => _count;
+            internal set => _count = value;
         }
 
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)

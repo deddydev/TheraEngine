@@ -173,7 +173,7 @@ namespace TheraEngine.Core.Shapes
             Vertex[] topPoints1 = new Vertex[pts], topPoints2 = new Vertex[pts];
             Vertex[] botPoints1 = new Vertex[pts], botPoints2 = new Vertex[pts];
 
-            float angleInc = CustomMath.PIf / pointCountHalfCircle;
+            float angleInc = TMath.PIf / pointCountHalfCircle;
             float angle = 0.0f;
             for (int i = 0; i < pts; ++i, angle += angleInc)
             {
@@ -254,7 +254,7 @@ namespace TheraEngine.Core.Shapes
 
             Quat offset = Quat.BetweenVectors(Vec3.Up, upAxis);
 
-            float angleInc = CustomMath.PIf / pointCountHalfCircle;
+            float angleInc = TMath.PIf / pointCountHalfCircle;
             float angle = 0.0f;
             for (int i = 0; i < pts; ++i, angle += angleInc)
             {

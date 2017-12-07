@@ -68,7 +68,7 @@ namespace TheraEngine.Core.Shapes
             normal.NormalizeFast();
             Quat offset = Quat.BetweenVectors(Vec3.Up, normal);
             Vertex[] points = new Vertex[sides];
-            float angleInc = CustomMath.PIf * 2.0f / sides;
+            float angleInc = TMath.PIf * 2.0f / sides;
             float angle = 0.0f;
             for (int i = 0; i < sides; ++i, angle += angleInc)
             {

@@ -16,10 +16,7 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             display.DataSources.Clear();
             display.PanelLayout = GraphLib.PlotterGraphPaneEx.LayoutMode.NORMAL;
-            var source = new GraphLib.DataSource()
-            {
-                Name = "Interpolation",
-            };
+            var source = new GraphLib.DataSource() { Name = "Interpolation", };
             source.OnRenderXAxisLabel += RenderXLabel;
             source.OnRenderYAxisLabel += RenderYLabel;
             display.DataSources.Add(source);

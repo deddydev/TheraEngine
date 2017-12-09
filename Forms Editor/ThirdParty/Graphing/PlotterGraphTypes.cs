@@ -57,7 +57,7 @@ namespace GraphLib
         public float Cur_YD0 = -200;
         public float Cur_YD1 = 200;
 
-        public float grid_distance_y = 200;       // grid distance in units ( draw a horizontal line every 200 units )       
+        public float grid_distance_y = 200; // grid distance in units ( draw a horizontal line every 200 units )       
 
         public float off_Y = 0;
         public float grid_off_y = 0;
@@ -66,39 +66,13 @@ namespace GraphLib
         
         public bool Active = true;
         
-        private bool YAutoScaleGraph = false;
-        
-        private bool XAutoScaleGraph = false;
-        
         public float XAutoScaleOffset = 100;
         
         public float CurGraphHeight = 1.0f;
-        
         public float CurGraphWidth = 1.0f;
 
-        public bool AutoScaleY
-        {
-            get
-            {
-                return YAutoScaleGraph;
-            }
-            set
-            {
-                YAutoScaleGraph = value;
-            }
-        }
-
-        public bool AutoScaleX
-        {
-            get
-            {
-                return XAutoScaleGraph;
-            }
-            set
-            {
-                XAutoScaleGraph = value;
-            }
-        }
+        public bool AutoScaleY { get; set; } = false;
+        public bool AutoScaleX { get; set; } = false;
 
         public cPoint[] Samples
         {
@@ -193,7 +167,7 @@ namespace GraphLib
             grid_off_y = off_y;
         }
       
-        [Category("Properties")] // Take this out, and you will soon have problems with serialization;
+        [Category("Properties")]
         [DefaultValue(typeof(string), "")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public String Name
@@ -202,7 +176,7 @@ namespace GraphLib
             set { name = value; }
         }
 
-        [Category("Properties")] // Take this out, and you will soon have problems with serialization;
+        [Category("Properties")]
         [DefaultValue(typeof(Color), "")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Color GraphColor
@@ -211,7 +185,7 @@ namespace GraphLib
             set { color = value; }
         }
 
-        [Category("Properties")] // Take this out, and you will soon have problems with serialization;
+        [Category("Properties")]
         [DefaultValue(typeof(int), "0")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Length
@@ -235,7 +209,7 @@ namespace GraphLib
             }
         }
         
-        [Category("Properties")] // Take this out, and you will soon have problems with serialization;
+        [Category("Properties")]
         [DefaultValue(typeof(int), "1")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Downsampling

@@ -45,7 +45,7 @@ namespace GraphLib
 
         private BackBuffer memGraphics;        
         private int ActiveSources = 0;
-     
+
         public LayoutMode layout = LayoutMode.NORMAL;
       
         public Color MajorGridColor = Color.DarkGray;
@@ -67,13 +67,10 @@ namespace GraphLib
       
         private Point mousePos = new Point();
         private bool mouseDown = false;
-
       
         public float starting_idx = 0;
         
-
         public float XD0 = -50;
-        
         public float XD1 = 100;
 
         public float DX = 0;
@@ -81,7 +78,6 @@ namespace GraphLib
         public float off_X = 0;
 
         public float CurXD0 = 0;
-        
         public float CurXD1 = 0;
 
         public float grid_distance_x = 200;       // grid distance in samples ( draw a vertical line every 200 samples )
@@ -726,98 +722,98 @@ namespace GraphLib
         }
 
         private void DrawGrid( Graphics g, DataSource source,  float CurrOffX, float CurOffY )
-    {
-        int Idx = 0;
-        float mult_x = source.CurGraphWidth / DX;
-        float coff_x = off_X - starting_idx * mult_x;
-
-        if (source.AutoScaleX)
         {
-            coff_x = off_X;     // avoid dragging in x-autoscale mode
-        }
+            int Idx = 0;
+            float mult_x = source.CurGraphWidth / DX;
+            float coff_x = off_X - starting_idx * mult_x;
 
-        Color CurGridColor = MajorGridColor;
-        Color CurMinGridClor = MinorGridColor;
+            if (source.AutoScaleX)
+            {
+                coff_x = off_X;     // avoid dragging in x-autoscale mode
+            }
 
-        if (layout == LayoutMode.NORMAL && source.AutoScaleY)
-        {
-            CurGridColor = source.GraphColor;
-            CurMinGridClor = source.GraphColor;
-        }
+            Color CurGridColor = MajorGridColor;
+            Color CurMinGridClor = MinorGridColor;
 
-        using (Pen minorGridPen = new Pen(CurMinGridClor))
-        {
-           minorGridPen.DashPattern = MinorGridPattern;
-           minorGridPen.DashStyle = MinorGridDashStyle;
+            if (layout == LayoutMode.NORMAL && source.AutoScaleY)
+            {
+                CurGridColor = source.GraphColor;
+                CurMinGridClor = source.GraphColor;
+            }
+
+            using (Pen minorGridPen = new Pen(CurMinGridClor))
+            {
+               minorGridPen.DashPattern = MinorGridPattern;
+               minorGridPen.DashStyle = MinorGridDashStyle;
           
-           using (Pen p2 = new Pen(CurGridColor))
-           {
-                p2.DashPattern = MajorGridPattern;
-                p2.DashStyle = MajorGridDashStyle;
+               using (Pen p2 = new Pen(CurGridColor))
+               {
+                    p2.DashPattern = MajorGridPattern;
+                    p2.DashStyle = MajorGridDashStyle;
 
-                if (DX != 0)
-                {
-                    while (true)
+                    if (DX != 0)
                     {
-                        float x = Idx * grid_distance_x * source.CurGraphWidth / DX + grid_off_x * source.CurGraphWidth / DX;
-
-                        if (MoveMinorGrid)
+                        while (true)
                         {
-                            x += coff_x;
-                        }
+                            float x = Idx * grid_distance_x * source.CurGraphWidth / DX + grid_off_x * source.CurGraphWidth / DX;
 
-                        if (x > 0 && x < source.CurGraphWidth)
-                        {
-                            g.DrawLine(minorGridPen, new Point((int)(x + CurrOffX - 0.5f), (int)(CurOffY)),
-                                                     new Point((int)(x + CurrOffX - 0.5f), (int)(CurOffY + source.CurGraphHeight)));                                
-                        }
-                        if (x > source.CurGraphWidth)
-                        {
-                            break;
-                        }
+                            if (MoveMinorGrid)
+                            {
+                                x += coff_x;
+                            }
 
-                        Idx++;
-                    }
-                }
+                            if (x > 0 && x < source.CurGraphWidth)
+                            {
+                                g.DrawLine(minorGridPen, new Point((int)(x + CurrOffX - 0.5f), (int)(CurOffY)),
+                                                         new Point((int)(x + CurrOffX - 0.5f), (int)(CurOffY + source.CurGraphHeight)));                                
+                            }
+                            if (x > source.CurGraphWidth)
+                            {
+                                break;
+                            }
 
-                if (source.DY != 0)
-                {
-                    float y0 = (float)(source.grid_off_y * source.CurGraphHeight / source.DY + source.off_Y);
-
-                    // draw horizontal zero grid lines
-                    g.DrawLine(p2, new Point((int)CurrOffX, (int)(CurOffY + y0 + 0.5f)), new Point((int)(CurrOffX + source.CurGraphWidth + 0.5f), (int)(CurOffY + y0 + 0.5f)));
-
-                    // draw horizontal grid lines
-                    for (Idx = (int)(source.grid_off_y);Idx > (int)(source.YD0 ); Idx -= (int)source.grid_distance_y)
-                    {
-                        float y = (float)(Idx * source.CurGraphHeight) / source.DY + source.off_Y;
-
-                        if (y >= 0 && y < source.CurGraphHeight)
-                        {
-                            g.DrawLine(minorGridPen, 
-                                        new Point((int)CurrOffX, (int)(CurOffY + y + 0.5f)),
-                                        new Point((int)(CurrOffX + source.CurGraphWidth + 0.5f), (int)(0.5f + CurOffY + y)));
+                            Idx++;
                         }
                     }
 
-                    // draw horizontal grid lines
-                    for (Idx = (int)(source.grid_off_y); Idx < (int)(source.YD1  ); Idx += (int)source.grid_distance_y)
+                    if (source.DY != 0)
                     {
-                        float y = (float)Idx * source.CurGraphHeight / source.DY + source.off_Y;
+                        float y0 = (float)(source.grid_off_y * source.CurGraphHeight / source.DY + source.off_Y);
 
-                        if (y >= 0 && y < source.CurGraphHeight)
+                        // draw horizontal zero grid lines
+                        g.DrawLine(p2, new Point((int)CurrOffX, (int)(CurOffY + y0 + 0.5f)), new Point((int)(CurrOffX + source.CurGraphWidth + 0.5f), (int)(CurOffY + y0 + 0.5f)));
+
+                        // draw horizontal grid lines
+                        for (Idx = (int)(source.grid_off_y);Idx > (int)(source.YD0 ); Idx -= (int)source.grid_distance_y)
                         {
-                            g.DrawLine(minorGridPen, 
-                                       new Point((int)CurrOffX, (int)(CurOffY + y + 0.5f)),
-                                       new Point((int)(CurrOffX + source.CurGraphWidth + 0.5f), (int)(0.5f + CurOffY + y)));
+                            float y = (float)(Idx * source.CurGraphHeight) / source.DY + source.off_Y;
+
+                            if (y >= 0 && y < source.CurGraphHeight)
+                            {
+                                g.DrawLine(minorGridPen, 
+                                            new Point((int)CurrOffX, (int)(CurOffY + y + 0.5f)),
+                                            new Point((int)(CurrOffX + source.CurGraphWidth + 0.5f), (int)(0.5f + CurOffY + y)));
+                            }
+                        }
+
+                        // draw horizontal grid lines
+                        for (Idx = (int)(source.grid_off_y); Idx < (int)(source.YD1  ); Idx += (int)source.grid_distance_y)
+                        {
+                            float y = (float)Idx * source.CurGraphHeight / source.DY + source.off_Y;
+
+                            if (y >= 0 && y < source.CurGraphHeight)
+                            {
+                                g.DrawLine(minorGridPen, 
+                                           new Point((int)CurrOffX, (int)(CurOffY + y + 0.5f)),
+                                           new Point((int)(CurrOffX + source.CurGraphWidth + 0.5f), (int)(0.5f + CurOffY + y)));
+                            }
                         }
                     }
                 }
             }
         }
-    }
       
-        private List<int> DrawGraphCurve( Graphics g, DataSource source,  float offset_x, float offset_y )
+        private List<int> DrawGraphCurve(Graphics g, DataSource source,  float offset_x, float offset_y )
         {
             List<int> marker_positions = new List<int>();
 
@@ -827,7 +823,6 @@ namespace GraphLib
                
                 if (source.Samples != null && source.Samples.Length > 1)
                 {
-                   
                     int DownSample = source.Downsampling;
                     cPoint[] data = source.Samples;
                     float mult_y = source.CurGraphHeight / source.DY;

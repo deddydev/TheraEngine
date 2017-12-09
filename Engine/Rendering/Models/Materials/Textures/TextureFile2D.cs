@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.Textures
         public TextureFile2D(string path)
         {
             Engine.PrintLine("Loading texture from " + path);
-            _bitmaps = /*Task.Run(() => */TextureConverter.Decode(path)/*).ContinueWith(t => _bitmaps = t.Result)*/;
+            _bitmaps = TextureConverter.Decode(path);
         }
         public TextureFile2D(string path, Action<TextureFile2D> onFinishedAsync)
         {

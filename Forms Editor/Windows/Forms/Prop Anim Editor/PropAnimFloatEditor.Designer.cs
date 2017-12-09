@@ -43,7 +43,6 @@
             this.display.Location = new System.Drawing.Point(0, 0);
             this.display.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.display.Name = "display";
-            this.display.PlaySpeed = 0.5F;
             this.display.Size = new System.Drawing.Size(805, 437);
             this.display.SolidGridColor = System.Drawing.Color.DarkGray;
             this.display.TabIndex = 0;

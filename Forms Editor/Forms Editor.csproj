@@ -126,20 +126,8 @@
     <Compile Include="ThirdParty\Graphing\PlotterGraphPaneEx.Designer.cs">
       <DependentUpon>PlotterGraphPaneEx.cs</DependentUpon>
     </Compile>
-    <Compile Include="ThirdParty\Graphing\PlotterGraphPropertiesForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ThirdParty\Graphing\PlotterGraphPropertiesForm.Designer.cs">
-      <DependentUpon>PlotterGraphPropertiesForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="ThirdParty\Graphing\PlotterGraphTypes.cs" />
     <Compile Include="ThirdParty\Graphing\PrecisionTimer.cs" />
-    <Compile Include="ThirdParty\Graphing\PrintPreviewForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ThirdParty\Graphing\PrintPreviewForm.Designer.cs">
-      <DependentUpon>PrintPreviewForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="ThirdParty\Graphing\SelectCurvesForm.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -494,14 +482,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ThirdParty\Graphing\PlotterGraphPaneEx.resx">
       <DependentUpon>PlotterGraphPaneEx.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ThirdParty\Graphing\PlotterGraphPropertiesForm.resx">
-      <DependentUpon>PlotterGraphPropertiesForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ThirdParty\Graphing\PrintPreviewForm.resx">
-      <DependentUpon>PrintPreviewForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">

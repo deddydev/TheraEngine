@@ -305,7 +305,7 @@ namespace TheraEngine.Rendering.Models
                 if (m == null)
                     m = TMaterial.GetLitColorMaterial();
 
-                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, m, true));
+                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, data, m));
             }
             public void Initialize(StaticModel model, VisualScene scene)
             {
@@ -327,7 +327,7 @@ namespace TheraEngine.Rendering.Models
                 if (m == null)
                     m = TMaterial.GetLitColorMaterial();
 
-                model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, null, m));
+                model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, null, data, m));
             }
         }
         private static TMaterial CreateMaterial(LibraryMaterials.Material colladaMaterial)

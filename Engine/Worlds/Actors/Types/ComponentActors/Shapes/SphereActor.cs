@@ -19,7 +19,7 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
             {
                 Collision = new SphereShape(radius)
             };
-            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", sphere.GetMesh(10.0f, false), sphere, m));
+            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", true, sphere, sphere.GetMesh(10.0f, false), m));
             RootComponent = new StaticMeshComponent(model, translation, rotation, Vec3.One, info);
             Initialize();
         }

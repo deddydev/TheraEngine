@@ -158,15 +158,7 @@ namespace TheraEditor.Windows.Forms
             _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
 
             DockPanel.Theme = new TheraEditorTheme();
-
-            DockPanel.SuspendLayout(true);
-            OutputForm.Show(DockPanel, DockState.DockBottom);
-            ActorTreeForm.Show(DockPanel, DockState.DockRight);
-            FileTreeForm.Show(DockPanel, DockState.DockLeft);
-            PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
-            RenderForm1.Show(DockPanel, DockState.Document);
-            DockPanel.ResumeLayout(true, true);
-
+            
             DoubleBuffered = false;
             Engine.SetGamePanel(RenderForm1.RenderPanel, false);
             Engine.Game.State.GameMode = _editorGameMode = new EditorGameMode();
@@ -204,6 +196,21 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
+            string configFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
+
+            if (File.Exists(configFile))
+                DockPanel.LoadFromXml(configFile, _deserializeDockContent);
+            else
+            {
+                DockPanel.SuspendLayout(true);
+                OutputForm.Show(DockPanel, DockState.DockBottom);
+                ActorTreeForm.Show(DockPanel, DockState.DockRight);
+                FileTreeForm.Show(DockPanel, DockState.DockLeft);
+                PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
+                RenderForm1.Show(DockPanel, DockState.Document);
+                DockPanel.ResumeLayout(true, true);
+            }
+
             if (DesignMode)
                 return;
 
@@ -212,6 +219,22 @@ namespace TheraEditor.Windows.Forms
             PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
             Engine.SetPaused(true, LocalPlayerIndex.One, true);
             Engine.Run();
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            Engine.UnregisterRenderTick(RenderTick);
+
+            string configFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
+            DockPanel.SaveAsXml(configFile);
+
+            foreach (IDockContent document in DockPanel.DocumentsToArray())
+            {
+                document.DockHandler.DockPanel = null;
+                document.DockHandler.Close();
+            }
+
+            Engine.ShutDown();
+            base.OnClosing(e);
         }
 
         public static void SetPropertyGridObject(object obj)
@@ -289,22 +312,6 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            Engine.UnregisterRenderTick(RenderTick);
-
-            string configFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
-            DockPanel.SaveAsXml(configFile);
-
-            foreach (IDockContent document in DockPanel.DocumentsToArray())
-            {
-                document.DockHandler.DockPanel = null;
-                document.DockHandler.Close();
-            }
-
-            Engine.ShutDown();
-            base.OnClosing(e);
-        }
         public Action OnRedrawn;
         private void Redraw()
         {
@@ -562,7 +569,7 @@ namespace TheraEditor.Windows.Forms
 
         private void Viewport1ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (RenderForm1 != null && !RenderForm1.IsDisposed)
+            if (RenderForm1 != null && !RenderForm1.IsDisposed && RenderForm1.DockPanel != null)
                 RenderForm1.Focus();
             else
                 (RenderForm1 = new DockableRenderForm(LocalPlayerIndex.One, 0)).Show(DockPanel);
@@ -570,7 +577,7 @@ namespace TheraEditor.Windows.Forms
 
         private void viewport2ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (RenderForm2 != null && !RenderForm2.IsDisposed)
+            if (RenderForm2 != null && !RenderForm2.IsDisposed && RenderForm2.DockPanel != null)
                 RenderForm2.Focus();
             else
                 (RenderForm2 = new DockableRenderForm(LocalPlayerIndex.One, 1)).Show(DockPanel);
@@ -578,7 +585,7 @@ namespace TheraEditor.Windows.Forms
 
         private void viewport3ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (RenderForm3 != null && !RenderForm3.IsDisposed)
+            if (RenderForm3 != null && !RenderForm3.IsDisposed && RenderForm3.DockPanel != null)
                 RenderForm3.Focus();
             else
                 (RenderForm3 = new DockableRenderForm(LocalPlayerIndex.One, 2)).Show(DockPanel);
@@ -586,7 +593,7 @@ namespace TheraEditor.Windows.Forms
 
         private void viewport4ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (RenderForm4 != null && !RenderForm4.IsDisposed)
+            if (RenderForm4 != null && !RenderForm4.IsDisposed && RenderForm4.DockPanel != null)
                 RenderForm4.Focus();
             else
                 (RenderForm4 = new DockableRenderForm(LocalPlayerIndex.One, 3)).Show(DockPanel);

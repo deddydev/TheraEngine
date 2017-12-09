@@ -14,7 +14,7 @@ using TheraEngine.Rendering.Models.Materials.Functions;
 namespace TheraEngine.Rendering.Models.Materials
 {
     [FileClass("MAT", "Material")]
-    public class Material : FileObject
+    public class TMaterial : FileObject
     {
         public event Action SettingUniforms;
 
@@ -263,16 +263,16 @@ namespace TheraEngine.Rendering.Models.Materials
             tex.Bind();
         }
 
-        public Material()
+        public TMaterial()
             : this("NewMaterial", new ShaderVar[0], new BaseTextureReference[0]) { }
 
-        public Material(string name, params Shader[] shaders) 
+        public TMaterial(string name, params Shader[] shaders) 
             : this(name, new ShaderVar[0], new BaseTextureReference[0], shaders) { }
-        public Material(string name, ShaderVar[] parameters, params Shader[] shaders)
+        public TMaterial(string name, ShaderVar[] parameters, params Shader[] shaders)
             : this(name, parameters, new BaseTextureReference[0], shaders) { }
-        public Material(string name, BaseTextureReference[] textures, params Shader[] shaders)
+        public TMaterial(string name, BaseTextureReference[] textures, params Shader[] shaders)
             : this(name, new ShaderVar[0], textures, shaders) { }
-        public Material(string name, ShaderVar[] parameters, BaseTextureReference[] textures, params Shader[] shaders)
+        public TMaterial(string name, ShaderVar[] parameters, BaseTextureReference[] textures, params Shader[] shaders)
         {
             _name = name;
             _parameters = parameters ?? new ShaderVar[0];
@@ -336,57 +336,57 @@ namespace TheraEngine.Rendering.Models.Materials
         //        Engine.DebugPrint(r.ToString());
         //}
 
-        public static Material GetUnlitTextureMaterialForward(TextureReference2D texture)
+        public static TMaterial GetUnlitTextureMaterialForward(TextureReference2D texture)
         {
-            return new Material("UnlitTextureMaterial",
+            return new TMaterial("UnlitTextureMaterial",
                 new BaseTextureReference[] { texture },
                 ShaderHelpers.UnlitTextureFragForward())
             {
                 Requirements = UniformRequirements.None,
             };
         }
-        public static Material GetUnlitTextureMaterialForward()
+        public static TMaterial GetUnlitTextureMaterialForward()
         {
-            return new Material("UnlitTextureMaterial", ShaderHelpers.UnlitTextureFragForward())
+            return new TMaterial("UnlitTextureMaterial", ShaderHelpers.UnlitTextureFragForward())
             {
                 Requirements = UniformRequirements.None,
             };
         }
-        public static Material GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static Material GetLitTextureMaterial(bool deferred)
+        public static TMaterial GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial GetLitTextureMaterial(bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
-            return new Material("LitTextureMaterial", frag)
+            return new TMaterial("LitTextureMaterial", frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-        public static Material GetLitTextureMaterial(TextureReference2D texture) => GetLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static Material GetLitTextureMaterial(TextureReference2D texture, bool deferred)
+        public static TMaterial GetLitTextureMaterial(TextureReference2D texture) => GetLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial GetLitTextureMaterial(TextureReference2D texture, bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
-            return new Material("LitTextureMaterial", new TextureReference2D[] { texture }, frag)
+            return new TMaterial("LitTextureMaterial", new TextureReference2D[] { texture }, frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-        public static Material GetUnlitColorMaterialForward()
+        public static TMaterial GetUnlitColorMaterialForward()
             => GetUnlitColorMaterialForward(Color.DarkTurquoise);
-        public static Material GetUnlitColorMaterialForward(ColorF4 color)
+        public static TMaterial GetUnlitColorMaterialForward(ColorF4 color)
         {
             ShaderVar[] parameters = new ShaderVar[]
             {
                 new ShaderVec4(color, "MatColor"),
             };
-            return new Material("UnlitColorMaterial", parameters, ShaderHelpers.UnlitColorFragForward())
+            return new TMaterial("UnlitColorMaterial", parameters, ShaderHelpers.UnlitColorFragForward())
             {
                 Requirements = UniformRequirements.None
             };
         }
-        public static Material GetLitColorMaterial() => GetLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static Material GetLitColorMaterial(bool deferred) => GetLitColorMaterial(Color.DarkTurquoise, deferred);
-        public static Material GetLitColorMaterial(ColorF4 color) => GetLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static Material GetLitColorMaterial(ColorF4 color, bool deferred)
+        public static TMaterial GetLitColorMaterial() => GetLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial GetLitColorMaterial(bool deferred) => GetLitColorMaterial(Color.DarkTurquoise, deferred);
+        public static TMaterial GetLitColorMaterial(ColorF4 color) => GetLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial GetLitColorMaterial(ColorF4 color, bool deferred)
         {
             ShaderVar[] parameters = new ShaderVar[]
             {
@@ -394,14 +394,14 @@ namespace TheraEngine.Rendering.Models.Materials
                 new ShaderFloat(20.0f, "MatSpecularIntensity"),
                 // ShaderFloat(128.0f, "MatShininess"),
             };
-            return new Material("LitColorMaterial", parameters, 
+            return new TMaterial("LitColorMaterial", parameters, 
                 deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward())
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
 
-        public static Material GetBlinnMaterial(
+        public static TMaterial GetBlinnMaterial(
             Vec3? emission,
             Vec3? ambient,
             Vec3? diffuse,
@@ -521,7 +521,7 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
 //}
 
             Shader s = new Shader(ShaderMode.Fragment, source);
-            return new Material("BlinnMaterial", parameters, s)
+            return new TMaterial("BlinnMaterial", parameters, s)
             {
                 Requirements = UniformRequirements.NeedsLightsAndCamera
             };

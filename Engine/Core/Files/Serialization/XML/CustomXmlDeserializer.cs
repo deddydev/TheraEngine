@@ -267,6 +267,8 @@ namespace TheraEngine.Files.Serialization
         {
             reader.ReadAttribute();
             int num = int.Parse(reader.Value.ToString());
+            if (reader.ReadAttribute())
+                arrayType = Type.GetType(reader.Value.ToString());
 
             IList list;
             if (string.Equals(arrayType.BaseType.Name, "Array", StringComparison.InvariantCulture))

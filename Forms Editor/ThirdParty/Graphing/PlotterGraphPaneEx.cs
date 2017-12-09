@@ -139,7 +139,7 @@ namespace GraphLib
         }
         private void OnLoadControl(object sender, EventArgs e)
         {
-            memGraphics.Init(this.CreateGraphics(), this.ClientRectangle.Width, this.ClientRectangle.Height);
+            memGraphics.Init(CreateGraphics(), ClientRectangle.Width, ClientRectangle.Height);
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -158,7 +158,7 @@ namespace GraphLib
        
         private void OnResizeForm(object sender, System.EventArgs e)
         {
-            memGraphics.Init(this.CreateGraphics(), ClientRectangle.Width, ClientRectangle.Height);
+            memGraphics.Init(CreateGraphics(), ClientRectangle.Width, ClientRectangle.Height);
             Invalidate();
         }
 

@@ -411,12 +411,12 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override int GetAttribLocation(int programBindingId, string name)
+        protected override int OnGetAttribLocation(int programBindingId, string name)
         {
             throw new NotImplementedException();
         }
 
-        public override int GetUniformLocation(int programBindingId, string name)
+        protected override int OnGetUniformLocation(int programBindingId, string name)
         {
             throw new NotImplementedException();
         }

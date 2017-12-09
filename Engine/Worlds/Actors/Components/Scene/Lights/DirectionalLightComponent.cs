@@ -135,7 +135,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             }
             return EPixelInternalFormat.DepthComponent32f;
         }
-        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
+        private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
             //These are listed in order of appearance in the shader
             TextureReference2D[] refs = new TextureReference2D[]
@@ -151,9 +151,9 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
                 },
             };
             Shader shader = new Shader(ShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput);
-            Material m = new Material("DirLightShadowMat", new ShaderVar[0], refs, shader)
+            TMaterial m = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, shader)
             {
-                Requirements = Material.UniformRequirements.None,
+                Requirements = TMaterial.UniformRequirements.None,
                 //CullMode = Culling.Front,
             };
             return m;

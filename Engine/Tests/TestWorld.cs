@@ -49,7 +49,7 @@ namespace TheraEngine.Tests
                     "Box" + i, physicsInfo, 0.4f,
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
                     new Rotator(x, y, z, RotationOrder.YPR),
-                    Material.GetLitColorMaterial(Color.Purple));
+                    TMaterial.GetLitColorMaterial(Color.Purple));
                 actor.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
                 array[i] = actor;
             }
@@ -71,7 +71,7 @@ namespace TheraEngine.Tests
                 new Vec3(50.0f, 0.2f, 50.0f),
                 new Vec3(0.0f, 0.0f, 0.0f),
                 new Rotator(00.0f, 0.0f, 0.0f, RotationOrder.YPR),
-                Material.GetLitColorMaterial(Color.FromArgb(180, 200, 230)));
+                TMaterial.GetLitColorMaterial(Color.FromArgb(180, 200, 230)));
             //floorActor1.RootComponent.PhysicsDriver.Kinematic = true;
             BoxActor floorActor2 = new BoxActor(
                 "Floor2",
@@ -79,14 +79,14 @@ namespace TheraEngine.Tests
                 new Vec3(100.0f, 20.0f, 100.0f),
                 new Vec3(0.0f, -20.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
-                Material.GetLitColorMaterial(Color.FromArgb(180, 200, 230)));
+                TMaterial.GetLitColorMaterial(Color.FromArgb(180, 200, 230)));
             BoxActor floorActor3 = new BoxActor(
                 "Floor3",
                 floorInfo,
                 new Vec3(2.0f, 10.0f, 7.0f),
                 new Vec3(6.0f, 0.0f, 0.0f),
                 new Rotator(-10.0f, 60.0f, 0.0f, RotationOrder.YPR),
-                Material.GetLitColorMaterial(Color.Gray));
+                TMaterial.GetLitColorMaterial(Color.Gray));
             //BoxActor floorActor4 = new BoxActor(
             //    "Floor4",
             //    floorInfo,
@@ -304,7 +304,7 @@ namespace TheraEngine.Tests
         
         private void PhysicsDriver_OnHit(IPhysicsDrivable me, IPhysicsDrivable other, BulletSharp.ManifoldPoint point)
         {
-            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.File.RigidChildren[0].Material.File.Parameters[0];
+            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.File.RigidChildren[0].LODs[0].Material.File.Parameters[0];
             color.Value = (ColorF4)Color.Green;
 
             //_collideSound.Play(_param);

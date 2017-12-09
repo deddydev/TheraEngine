@@ -5,6 +5,7 @@ using System;
 using TheraEngine.Rendering;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
+using System.Collections.Generic;
 
 namespace TheraEngine
 {
@@ -28,15 +29,13 @@ namespace TheraEngine
     {
         bool VisibleByDefault { get; set; }
         SingleFileRef<Shape> CullingVolume { get; }
-        SingleFileRef<PrimitiveData> Primitives { get; }
-        SingleFileRef<Material> Material { get; }
+        List<LOD> LODs { get; }
         RenderInfo3D RenderInfo { get; set; }
     }
     public interface ISkeletalSubMesh
     {
         bool VisibleByDefault { get; set; }
-        SingleFileRef<PrimitiveData> Primitives { get; }
-        SingleFileRef<Material> Material { get; }
+        List<LOD> LODs { get; }
         RenderInfo3D RenderInfo { get; set; }
     }
     [TypeConverter(typeof(ExpandableObjectConverter))]

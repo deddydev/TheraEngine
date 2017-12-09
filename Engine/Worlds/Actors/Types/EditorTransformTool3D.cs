@@ -52,10 +52,10 @@ namespace TheraEngine.Worlds.Actors.Types
             TransformSpace = ESpace.Local;
         }
 
-        private Material[] _axisMat = new Material[3];
-        private Material[] _transPlaneMat = new Material[6];
-        private Material[] _scalePlaneMat = new Material[3];
-        private Material _screenMat;
+        private TMaterial[] _axisMat = new TMaterial[3];
+        private TMaterial[] _transPlaneMat = new TMaterial[6];
+        private TMaterial[] _scalePlaneMat = new TMaterial[3];
+        private TMaterial _screenMat;
         
         private ESpace _transformSpace;
 
@@ -80,7 +80,7 @@ namespace TheraEngine.Worlds.Actors.Types
             root.ChildBones.Add(screen);
             Skeleton skel = new Skeleton(root);
             
-            _screenMat = Material.GetUnlitColorMaterialForward(Color.LightGray);
+            _screenMat = TMaterial.GetUnlitColorMaterialForward(Color.LightGray);
             _screenMat.RenderParams.File.DepthTest.Enabled = false;
             _screenMat.RenderParams.File.LineWidth = 2.0f;
 
@@ -98,22 +98,22 @@ namespace TheraEngine.Worlds.Actors.Types
                 Vec3 unit2 = Vec3.Zero;
                 unit2[planeAxis2] = 1.0f;
 
-                Material axisMat = Material.GetUnlitColorMaterialForward(unit);
+                TMaterial axisMat = TMaterial.GetUnlitColorMaterialForward(unit);
                 axisMat.RenderParams.File.DepthTest.Enabled = false;
                 axisMat.RenderParams.File.LineWidth = 2.0f;
                 _axisMat[normalAxis] = axisMat;
 
-                Material planeMat1 = Material.GetUnlitColorMaterialForward(unit1);
+                TMaterial planeMat1 = TMaterial.GetUnlitColorMaterialForward(unit1);
                 planeMat1.RenderParams.File.DepthTest.Enabled = false;
                 planeMat1.RenderParams.File.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 0] = planeMat1;
 
-                Material planeMat2 = Material.GetUnlitColorMaterialForward(unit2);
+                TMaterial planeMat2 = TMaterial.GetUnlitColorMaterialForward(unit2);
                 planeMat2.RenderParams.File.DepthTest.Enabled = false;
                 planeMat2.RenderParams.File.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 1] = planeMat2;
                 
-                Material scalePlaneMat = Material.GetUnlitColorMaterialForward(unit);
+                TMaterial scalePlaneMat = TMaterial.GetUnlitColorMaterialForward(unit);
                 scalePlaneMat.RenderParams.File.DepthTest.Enabled = false;
                 scalePlaneMat.RenderParams.File.LineWidth = 2.0f;
                 _scalePlaneMat[normalAxis] = scalePlaneMat;
@@ -139,7 +139,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
                 PrimitiveData axisPrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), axisLine);
                 axisPrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Axis", axisPrim, axisMat, true)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Axis", true,  axisPrim, axisMat)
                 {
                     RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode != TransformType.Rotate
@@ -148,7 +148,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 float coneHeight = _axisLength - _coneDistance;
                 PrimitiveData arrowPrim = BaseCone.SolidMesh(unit * (_coneDistance + coneHeight / 2.0f), unit, coneHeight, _coneRadius, 6, false);
                 arrowPrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Arrow", arrowPrim, axisMat, true)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Arrow", true, arrowPrim, axisMat)
                 {
                     RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode != TransformType.Rotate
@@ -156,7 +156,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 
                 PrimitiveData transPrim1 = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), transLine1);
                 transPrim1.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane1", transPrim1, planeMat1, true)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane1", true, transPrim1, planeMat1)
                 {
                     RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode == TransformType.Translate
@@ -164,7 +164,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
                 PrimitiveData transPrim2 = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), transLine2);
                 transPrim2.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane2", transPrim2, planeMat2, true)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane2", true, transPrim2, planeMat2)
                 {
                     RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode == TransformType.Translate
@@ -172,7 +172,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
                 PrimitiveData scalePrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), scaleLine1, scaleLine2);
                 scalePrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", scalePrim, scalePlaneMat, true)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", true, scalePrim, scalePlaneMat)
                 {
                     RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode == TransformType.Scale
@@ -180,7 +180,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
                 PrimitiveData rotPrim = Circle3D.WireframeMesh(_orbRadius, unit, Vec3.Zero, _circlePrecision);
                 rotPrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Rotation", rotPrim, axisMat, true)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Rotation", true, rotPrim, axisMat)
                 {
                     RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode == TransformType.Rotate
@@ -191,7 +191,7 @@ namespace TheraEngine.Worlds.Actors.Types
             PrimitiveData screenRotPrim = Circle3D.WireframeMesh(_circRadius, Vec3.UnitZ, Vec3.Zero, _circlePrecision);
             screenRotPrim.SingleBindBone = screenBoneName;
 
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", screenRotPrim, _screenMat, true)
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", true, screenRotPrim, _screenMat)
             {
                 RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                 VisibleByDefault = TransformMode == TransformType.Rotate
@@ -206,7 +206,7 @@ namespace TheraEngine.Worlds.Actors.Types
             PrimitiveData screenTransPrim = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
             screenTransPrim.SingleBindBone = screenBoneName;
 
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenTranslation", screenTransPrim, _screenMat, true)
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenTranslation", true, screenTransPrim, _screenMat)
             {
                 RenderInfo = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false),
                 VisibleByDefault = TransformMode == TransformType.Translate
@@ -226,6 +226,9 @@ namespace TheraEngine.Worlds.Actors.Types
             get => _transformSpace;
             set
             {
+                if (_transformSpace == value)
+                    return;
+
                 _transformSpace = value;
 
                 RootComponent.WorldMatrix = GetWorldMatrix();

@@ -20,6 +20,7 @@ namespace TheraEngine.Animation
             set => _defaultValue = value;
         }
 
+        public PropAnimMatrix4() : base(0.0f, false, true) { }
         public PropAnimMatrix4(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimMatrix4(int frameCount, float FPS, bool looped, bool useKeyframes) 
@@ -27,7 +28,10 @@ namespace TheraEngine.Animation
 
         protected override void UseKeyframesChanged()
             => _getValue = _useKeyframes ? (GetValue<Matrix4>)GetValueKeyframed : GetValueBaked;
-        protected override object GetValue(float second)
+
+        public Matrix4 GetValue(float second)
+            => _getValue(second);
+        protected override object GetValueGeneric(float second)
             => _getValue(second);
         public Matrix4 GetValueBaked(float second)
             => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];

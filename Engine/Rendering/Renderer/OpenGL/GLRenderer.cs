@@ -357,11 +357,11 @@ namespace TheraEngine.Rendering.OpenGL
             GL.LineWidth(r.LineWidth);
         }
 
-        public override int GetAttribLocation(int programBindingId, string name)
+        protected override int OnGetAttribLocation(int programBindingId, string name)
         {
             return GL.GetAttribLocation(programBindingId, name);
         }
-        public override int GetUniformLocation(int programBindingId, string name)
+        protected override int OnGetUniformLocation(int programBindingId, string name)
         {
             return GL.GetUniformLocation(programBindingId, name);
         }

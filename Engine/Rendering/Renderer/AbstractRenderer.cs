@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace TheraEngine.Rendering
         public RenderContext CurrentContext => RenderContext.Current;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
         
-        public Material MaterialOverride
+        public TMaterial MaterialOverride
         {
             get => _fragmentShaderOverride;
             set => _fragmentShaderOverride = value;
@@ -137,7 +138,7 @@ namespace TheraEngine.Rendering
                 return mesh;
             else
             {
-                Material mat = Material.GetUnlitColorMaterialForward();
+                TMaterial mat = TMaterial.GetUnlitColorMaterialForward();
                 mat.RenderParams = null;
                 return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), mat);
             }
@@ -285,11 +286,11 @@ namespace TheraEngine.Rendering
                     Vec3.Zero, Vec3.Up, 1.0f, 1.0f, 30, 
                     out PrimitiveData cylData, out PrimitiveData topData, out PrimitiveData botData);
                 if (mCyl == null)
-                    mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, Material.GetUnlitColorMaterialForward()));
+                    mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, TMaterial.GetUnlitColorMaterialForward()));
                 if (mTop == null)
-                    mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, Material.GetUnlitColorMaterialForward()));
+                    mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, TMaterial.GetUnlitColorMaterialForward()));
                 if (mBot == null)
-                    mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, Material.GetUnlitColorMaterialForward()));
+                    mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, TMaterial.GetUnlitColorMaterialForward()));
             }
             Matrix4 axisRotation = Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis));
             Matrix4 radiusMtx = Matrix4.CreateScale(radius);
@@ -390,7 +391,7 @@ namespace TheraEngine.Rendering
 
         //protected static RenderProgram _currentRenderProgram;
         //protected static Material _currentMaterial;
-        private Material _fragmentShaderOverride;
+        private TMaterial _fragmentShaderOverride;
 
         public abstract void SetBindFragDataLocation(int bindingId, int location, string name);
         public abstract void SetShaderMode(ShaderMode type);
@@ -424,8 +425,47 @@ namespace TheraEngine.Rendering
 
         public abstract void ApplyRenderParams(RenderingParameters r);
 
-        public abstract int GetAttribLocation(int programBindingId, string name);
-        public abstract int GetUniformLocation(int programBindingId, string name);
+        private ConcurrentDictionary<int, ConcurrentDictionary<string, int>> _uniformCache = 
+            new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
+        private ConcurrentDictionary<int, ConcurrentDictionary<string, int>> _attribCache = 
+            new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
+
+        public int GetAttribLocation(int programBindingId, string name)
+        {
+            if (_attribCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> dic))
+            {
+                return dic.GetOrAdd(name, n => OnGetAttribLocation(programBindingId, n));
+            }
+            else
+            {
+                var dic2 = new ConcurrentDictionary<string, int>();
+                int loc = OnGetAttribLocation(programBindingId, name);
+                if (!dic2.TryAdd(name, loc))
+                    throw new Exception();
+                if (!_attribCache.TryAdd(programBindingId, dic2))
+                    throw new Exception();
+                return loc;
+            }
+        }
+        protected abstract int OnGetAttribLocation(int programBindingId, string name);
+        public int GetUniformLocation(int programBindingId, string name)
+        {
+            if (_attribCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> dic))
+            {
+                return dic.GetOrAdd(name, n => OnGetUniformLocation(programBindingId, n));
+            }
+            else
+            {
+                var dic2 = new ConcurrentDictionary<string, int>();
+                int loc = OnGetUniformLocation(programBindingId, name);
+                if (!dic2.TryAdd(name, loc))
+                    throw new Exception();
+                if (!_attribCache.TryAdd(programBindingId, dic2))
+                    throw new Exception();
+                return loc;
+            }
+        }
+        protected abstract int OnGetUniformLocation(int programBindingId, string name);
 
         //public void Uniform(string name, params IUniformable4Int[] p) => Uniform(GetUniformLocation(name), p);
         //public void Uniform(string name, params IUniformable4Float[] p) => Uniform(GetUniformLocation(name), p);

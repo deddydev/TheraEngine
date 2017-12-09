@@ -20,6 +20,7 @@ namespace TheraEngine.Animation
             set => _defaultValue = value;
         }
 
+        public PropAnimBool() : base(0.0f, false, true) { }
         public PropAnimBool(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimBool(int frameCount, float FPS, bool looped, bool useKeyframes) 
@@ -27,7 +28,10 @@ namespace TheraEngine.Animation
 
         protected override void UseKeyframesChanged()
             => _getValue = _useKeyframes ? (GetValue<bool>)GetValueKeyframed : GetValueBaked;
-        protected override object GetValue(float second)
+
+        public bool GetValue(float second)
+            => _getValue(second);
+        protected override object GetValueGeneric(float second)
             => _getValue(second);
         public bool GetValueBaked(float second)
             => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];

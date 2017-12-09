@@ -102,7 +102,7 @@ namespace TheraEngine.Rendering
         public LightManager Lights => _lightManager;
         public ParticleManager Particles => _particles;
 
-        private SingleFileRef<Material> _voxelizationMaterial;
+        private SingleFileRef<TMaterial> _voxelizationMaterial;
 
         public Scene3D()
         {

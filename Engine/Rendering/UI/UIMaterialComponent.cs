@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.UI
     {
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 0, 0);
 
-        public UIMaterialComponent(Material m)
+        public UIMaterialComponent(TMaterial m)
         {
             VertexQuad quad = VertexQuad.PosZQuad(_region.Width, _region.Height, -2.0f, true);
             PrimitiveData quadData = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), quad);
@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.UI
 
         private PrimitiveManager _quad;
         
-        public Material Material
+        public TMaterial Material
         {
             get => _quad.Material;
             set => _quad.Material = value;

@@ -17,8 +17,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         MatFuncValueInput Opacity;
         MatFuncValueInput WorldPositionOffset;
 
-        private Material _material;
-        public Material Material
+        private TMaterial _material;
+        public TMaterial Material
         {
             get => _material;
             set

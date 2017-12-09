@@ -14,6 +14,15 @@ namespace TheraEditor.Windows.Forms
         public PropAnimFloatEditor()
         {
             InitializeComponent();
+            display.DataSources.Clear();
+            display.PanelLayout = GraphLib.PlotterGraphPaneEx.LayoutMode.NORMAL;
+            var source = new GraphLib.DataSource()
+            {
+                Name = "Interpolation",
+            };
+            source.OnRenderXAxisLabel += RenderXLabel;
+            source.OnRenderYAxisLabel += RenderYLabel;
+            display.DataSources.Add(source);
         }
         public PropAnimFloatEditor(PropAnimFloat anim) : this()
         {
@@ -26,25 +35,36 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _animation = value;
-
-                display.DataSources.Clear();
-                display.PanelLayout = GraphLib.PlotterGraphPaneEx.LayoutMode.NORMAL;
-
+                
                 if (_animation == null)
                     return;
 
-                display.SetDisplayRangeX(0.0f, _animation.LengthInSeconds);
-
-                var source = new GraphLib.DataSource();
-                source.Name = "Interpolation";
-                _animation.GetMinMax(out float min, out float max);
-                source.SetDisplayRangeY(min, max);
-                source.SetGridDistanceY((max - min) / 10.0f);
-                source.OnRenderXAxisLabel += RenderXLabel;
-                source.OnRenderYAxisLabel += RenderYLabel;
-
-                display.DataSources.Add(source);
+                RegenerateSamples();
             }
+        }
+        public void RegenerateSamples()
+        {
+            if (_animation == null)
+                return;
+
+            display.SetDisplayRangeX(0.0f, _animation.LengthInSeconds);
+            GraphLib.DataSource source = display.DataSources[0];
+
+            _animation.GetMinMax(out float min, out float max);
+            source.SetDisplayRangeY(min, max);
+            source.SetGridDistanceY((max - min) / 10.0f);
+
+            int precision = 3;
+            float mult = (float)Math.Pow(10.0, precision);
+            float invMult = 1.0f / mult;
+            float dist = 0.0f;
+            source.Length = (int)(Math.Round(_animation.LengthInSeconds, precision, MidpointRounding.AwayFromZero) * mult);
+            for (int i = 0; i < source.Length; i++, dist += invMult)
+            {
+                source.Samples[i].x = dist;
+                source.Samples[i].y = _animation.GetValue(dist);
+            }
+
         }
         private string RenderXLabel(GraphLib.DataSource s, int idx)
         {

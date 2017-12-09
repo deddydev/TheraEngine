@@ -6,12 +6,12 @@ namespace TheraEngine.Rendering.Models.Materials
     public class MaterialInstance
     {
         [TSerialize]
-        SingleFileRef<Material> _material = new SingleFileRef<Material>();
+        SingleFileRef<TMaterial> _material = new SingleFileRef<TMaterial>();
 
         [TSerialize]
         ShaderVar[] _parameters;
 
-        public SingleFileRef<Material> Material => _material;
+        public SingleFileRef<TMaterial> Material => _material;
         public ShaderVar[] Parameters
         {
             get { return _parameters; }

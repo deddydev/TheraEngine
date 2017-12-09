@@ -293,7 +293,7 @@ namespace TheraEngine.Rendering.Models
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
-                Material m = null;
+                TMaterial m = null;
                 if (_inst?.
                     BindMaterialElement?.
                     TechniqueCommonElement?.
@@ -303,7 +303,7 @@ namespace TheraEngine.Rendering.Models
                     m = CreateMaterial(mat);
 
                 if (m == null)
-                    m = Material.GetLitColorMaterial();
+                    m = TMaterial.GetLitColorMaterial();
 
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, m, true));
             }
@@ -315,7 +315,7 @@ namespace TheraEngine.Rendering.Models
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
-                Material m = null;
+                TMaterial m = null;
                 if (_inst?.
                     BindMaterialElement?.
                     TechniqueCommonElement?.
@@ -325,17 +325,17 @@ namespace TheraEngine.Rendering.Models
                     m = CreateMaterial(mat);
 
                 if (m == null)
-                    m = Material.GetLitColorMaterial();
+                    m = TMaterial.GetLitColorMaterial();
 
                 model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), data, null, m));
             }
         }
-        private static Material CreateMaterial(LibraryMaterials.Material colladaMaterial)
+        private static TMaterial CreateMaterial(LibraryMaterials.Material colladaMaterial)
         {
             List<TextureReference2D> texRefs = new List<TextureReference2D>();
 
             //Find effect
-            Material m = null;
+            TMaterial m = null;
             if (colladaMaterial.InstanceEffectElement != null)
             {
                 var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<LibraryEffects.Effect>(colladaMaterial.Root);
@@ -403,8 +403,8 @@ namespace TheraEngine.Rendering.Models
             }
 
             m = texRefs.Count > 0 ?
-                Material.GetLitTextureMaterial() :
-                Material.GetLitColorMaterial(Color.Magenta);
+                TMaterial.GetLitTextureMaterial() :
+                TMaterial.GetLitColorMaterial(Color.Magenta);
             m.Textures = texRefs.ToArray();
             m.Name = colladaMaterial.Name ?? (colladaMaterial.ID ?? "Unnamed Material");
 

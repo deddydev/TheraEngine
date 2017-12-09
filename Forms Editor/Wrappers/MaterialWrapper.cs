@@ -5,8 +5,8 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(Material), SystemImages.GenericFile)]
-    public class MaterialWrapper : FileWrapper<Material>
+    [NodeWrapper(typeof(TMaterial), SystemImages.GenericFile)]
+    public class MaterialWrapper : FileWrapper<TMaterial>
     {
         #region Menu
         private static ContextMenuStrip _menu;

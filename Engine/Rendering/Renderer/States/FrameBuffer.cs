@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering
         //because the two triangles may not be rasterized at the exact same time.
         PrimitiveManager _fullScreenTriangle;
 
-        public QuadFrameBuffer(Material mat)
+        public QuadFrameBuffer(TMaterial mat)
         {
             Material = mat;
 
@@ -65,12 +65,12 @@ namespace TheraEngine.Rendering
     public class MaterialFrameBuffer : FrameBuffer
     {
         public MaterialFrameBuffer() { }
-        public MaterialFrameBuffer(Material m) { Material = m; }
+        public MaterialFrameBuffer(TMaterial m) { Material = m; }
 
         private bool _compiled = false;
 
-        private Material _material;
-        public Material Material
+        private TMaterial _material;
+        public TMaterial Material
         {
             get => _material;
             set

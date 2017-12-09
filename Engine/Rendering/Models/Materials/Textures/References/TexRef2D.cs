@@ -244,7 +244,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
-        public Material Material { get; internal set; }
+        public TMaterial Material { get; internal set; }
         public bool DoNotResize { get; internal set; }
 
         /// <summary>

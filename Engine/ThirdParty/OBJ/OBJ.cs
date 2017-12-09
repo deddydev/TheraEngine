@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.Models
                     BoundingBox b = BoundingBox.ExpandableBox();
                     PrimitiveData data = PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), subgroup.Faces.SelectMany(x => CreateTriangles(x, result, false, modelMatrix, normalMatrix, b)));
                     var objMat = result.Materials.FirstOrDefault(x => x.Name == subgroup.Material?.Name);
-                    m.RigidChildren.Add(new StaticRigidSubMesh(group.Name + "_" + subgroup.Material.Name, data, b, CreateMaterial(objMat, dirPath, options.UseForwardShaders)));
+                    m.RigidChildren.Add(new StaticRigidSubMesh(group.Name + "_" + subgroup.Material.Name, true, b, data, CreateMaterial(objMat, dirPath, options.UseForwardShaders)));
                 }
             }
             return m;
@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering.Models
                 return new VertexTriangleFan(vertices).ToTriangles();
         }
 
-        private static Material CreateMaterial(ObjLoader.Loader.Data.Material objMat, string dirPath, bool forward)
+        private static TMaterial CreateMaterial(ObjLoader.Loader.Data.Material objMat, string dirPath, bool forward)
         {
             Shader shader = GetOBJFragmentShader(forward);
             if (objMat == null)
@@ -93,9 +93,9 @@ namespace TheraEngine.Rendering.Models
                     //new ShaderFloat(0.0f, "SpecularCoef"),
                     //new ShaderFloat(0.0f, "Transparency"),
                 };
-                return new Material("UnnamedMaterial", parameters, new TextureReference2D[0], shader)
+                return new TMaterial("UnnamedMaterial", parameters, new TextureReference2D[0], shader)
                 {
-                    Requirements = forward ? Material.UniformRequirements.NeedsLightsAndCamera : Material.UniformRequirements.None
+                    Requirements = forward ? TMaterial.UniformRequirements.NeedsLightsAndCamera : TMaterial.UniformRequirements.None
                 };
             }
             else
@@ -122,9 +122,9 @@ namespace TheraEngine.Rendering.Models
                 else
                     textures = new TextureReference2D[0];
 
-                return new Material(objMat.Name, parameters, textures, shader)
+                return new TMaterial(objMat.Name, parameters, textures, shader)
                 {
-                    Requirements = forward ? Material.UniformRequirements.NeedsLightsAndCamera : Material.UniformRequirements.None
+                    Requirements = forward ? TMaterial.UniformRequirements.NeedsLightsAndCamera : TMaterial.UniformRequirements.None
                 };
             }
         }

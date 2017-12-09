@@ -184,7 +184,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _texture.PostPushData += SetParameters;
         }
 
-        public Material Material { get; internal set; }
+        public TMaterial Material { get; internal set; }
         public bool DoNotResize { get; internal set; }
 
         /// <summary>

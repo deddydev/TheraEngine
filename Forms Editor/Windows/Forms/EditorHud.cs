@@ -351,13 +351,13 @@ namespace TheraEditor.Windows.Forms
             public SceneComponent HighlightedComponent { get; set; }
             public Matrix4 Transform { get; set; } = Matrix4.Identity;
 
-            private Material _material;
+            private TMaterial _material;
             private PrimitiveManager _circlePrimitive;
             private PrimitiveManager _normalPrimitive;
 
             public HighlightPoint()
             {
-                _material = Material.GetUnlitColorMaterialForward(Color);
+                _material = TMaterial.GetUnlitColorMaterialForward(Color);
                 _material.RenderParams.File.DepthTest.Enabled = false;
                 _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), _material);
                 _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), _material);

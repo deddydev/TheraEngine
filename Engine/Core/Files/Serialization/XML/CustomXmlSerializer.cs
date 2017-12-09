@@ -34,15 +34,15 @@ namespace TheraEngine.Files.Serialization
                 writer.WriteEndDocument();
             }
         }
-        private static void WriteObject(object obj, string name, XmlWriter writer, bool rootElement)
+        private static void WriteObject(object obj, string name, XmlWriter writer, bool writeTypeDefinition)
         {
             if (obj == null)
                 return;
             
             List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(obj.GetType());
-            WriteObject(obj, fields, name, writer, rootElement);
+            WriteObject(obj, fields, name, writer, writeTypeDefinition);
         }
-        private static void WriteObject(object obj, List<VarInfo> members, string name, XmlWriter writer, bool rootElement)
+        private static void WriteObject(object obj, List<VarInfo> members, string name, XmlWriter writer, bool writeTypeDefinition)
         {
             if (obj == null)
                 return;
@@ -69,7 +69,7 @@ namespace TheraEngine.Files.Serialization
             //Write the element for this object
             writer.WriteStartElement(string.IsNullOrEmpty(name) ? SerializationCommon.GetTypeName(objType) : name);
             {
-                if (rootElement)
+                if (writeTypeDefinition)
                     writer.WriteAttributeString("Type", objType.AssemblyQualifiedName);
                 
                 //Attributes are already sorted to come first, then elements
@@ -232,12 +232,14 @@ namespace TheraEngine.Files.Serialization
         {
             writer.WriteStartElement(name);
             writer.WriteAttributeString("Count", array.Count.ToString());
+            Type type = array.GetType();
+            if (type != arrayType)
+                writer.WriteAttributeString("Type", type.AssemblyQualifiedName);
             if (array.Count > 0)
             {
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
                 string elementName = SerializationCommon.GetTypeName(elementType);//elementType.GetFriendlyName("[", "]");
-                SerializationCommon.ValueType type = SerializationCommon.GetValueType(elementType);
-                switch (type)
+                switch (SerializationCommon.GetValueType(elementType))
                 {
                     case SerializationCommon.ValueType.Parsable:
                         WriteStringArray(array, writer, true, false);
@@ -257,7 +259,7 @@ namespace TheraEngine.Files.Serialization
                         break;
                     case SerializationCommon.ValueType.Pointer:
                         foreach (object o in array)
-                            WriteObject(o, elementName, writer, false);
+                            WriteObject(o, elementName, writer, o?.GetType() != elementType);
                         break;
                 }
             }

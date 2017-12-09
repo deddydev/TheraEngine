@@ -128,7 +128,7 @@ namespace TheraEngine.Worlds
             Loop = new UsableValue<bool>(true, false, true),
         };
 
-        public List<Material> CollectDefaultMaterials()
+        public List<TMaterial> CollectDefaultMaterials()
         {
             foreach (Map m in _maps)
             {

@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering
     }
     public abstract class Scene
     {
-        private static List<Material> _activeMaterials = new List<Material>();
+        private static List<TMaterial> _activeMaterials = new List<TMaterial>();
         private static Queue<int> _removedIds = new Queue<int>();
         protected List<IPreRenderNeeded> _preRenderList = new List<IPreRenderNeeded>();
 
@@ -38,13 +38,13 @@ namespace TheraEngine.Rendering
 
         }
         
-        public int AddActiveMaterial(Material material)
+        public int AddActiveMaterial(TMaterial material)
         {
             int id = _removedIds.Count > 0 ? _removedIds.Dequeue() : _activeMaterials.Count;
             _activeMaterials.Add(material);
             return id;
         }
-        public void RemoveActiveMaterial(Material material)
+        public void RemoveActiveMaterial(TMaterial material)
         {
             _removedIds.Enqueue(material.UniqueID);
             _activeMaterials.RemoveAt(material.UniqueID);

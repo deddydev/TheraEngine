@@ -266,6 +266,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Rendering\Models\Meshes\LOD.cs" />
     <Compile Include="ThirdParty\7zip\Common\CommandLineParser.cs" />
     <Compile Include="ThirdParty\7zip\Common\CRC.cs" />
     <Compile Include="ThirdParty\7zip\Common\InBuffer.cs" />

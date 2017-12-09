@@ -58,8 +58,8 @@ namespace TheraEditor.Windows.Forms
             base.OnSpawnedPostComponentSetup(world);
         }
 
-        private Material _targetMaterial;
-        public Material TargetMaterial
+        private TMaterial _targetMaterial;
+        public TMaterial TargetMaterial
         {
             get => _targetMaterial;
             set

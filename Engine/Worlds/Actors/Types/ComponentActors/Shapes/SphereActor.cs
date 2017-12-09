@@ -11,7 +11,7 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
 {
     public class SphereActor : Actor<StaticMeshComponent>
     {
-        public SphereActor(string name, PhysicsConstructionInfo info, float radius, Vec3 translation, Rotator rotation, Material m) : base(true)
+        public SphereActor(string name, PhysicsConstructionInfo info, float radius, Vec3 translation, Rotator rotation, TMaterial m) : base(true)
         {
             _name = name;
             Sphere sphere = new Sphere(radius);

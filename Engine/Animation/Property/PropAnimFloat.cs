@@ -24,7 +24,8 @@ namespace TheraEngine.Animation
             get => _defaultValue;
             set => _defaultValue = value;
         }
-        
+
+        public PropAnimFloat() : base(0.0f, false, true) { }
         public PropAnimFloat(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimFloat(int frameCount, float FPS, bool looped, bool useKeyframes) 
@@ -33,6 +34,26 @@ namespace TheraEngine.Animation
         protected override void UseKeyframesChanged()
             => _getValue = _useKeyframes ? (GetValue<float>)GetValueKeyframed : GetValueBaked;
         
+        public float GetValue(float second)
+            => _getValue(second);
+        protected override object GetValueGeneric(float second)
+            => _getValue(second);
+        public float GetValueBaked(float second)
+            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
+        public float GetValueBaked(int frameIndex)
+            => _baked[frameIndex];
+        public float GetValueKeyframed(float second)
+            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+        
+        public override void Bake(float framesPerSecond)
+        {
+            _bakedFPS = framesPerSecond;
+            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
+            _baked = new float[BakedFrameCount];
+            for (int i = 0; i < BakedFrameCount; ++i)
+                _baked[i] = GetValueKeyframed(i);
+        }
+
         public void GetMinMax(out float min, out float max)
         {
             if (_keyframes.Count == 0)
@@ -109,24 +130,6 @@ namespace TheraEngine.Animation
                     }
                 }
             }
-        }
-
-        protected override object GetValue(float second)
-            => _getValue(second);
-        public float GetValueBaked(float second)
-            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
-        public float GetValueBaked(int frameIndex)
-            => _baked[frameIndex];
-        public float GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
-        
-        public override void Bake(float framesPerSecond)
-        {
-            _bakedFPS = framesPerSecond;
-            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
-            _baked = new float[BakedFrameCount];
-            for (int i = 0; i < BakedFrameCount; ++i)
-                _baked[i] = GetValueKeyframed(i);
         }
 
         public IEnumerator<FloatKeyframe> GetEnumerator()

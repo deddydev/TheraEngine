@@ -28,7 +28,10 @@ namespace TheraEngine.Animation
 
         protected override void UseKeyframesChanged()
             => _getValue = _useKeyframes ? (GetValue<Vec3>)GetValueKeyframed : GetValueBaked;
-        protected override object GetValue(float second)
+
+        public Vec3 GetValue(float second)
+            => _getValue(second);
+        protected override object GetValueGeneric(float second)
             => _getValue(second);
         public Vec3 GetValueBaked(float second)
             => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];

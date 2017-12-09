@@ -31,18 +31,18 @@ namespace TheraEngine.Animation
         {
             if (_state != AnimationState.Playing)
                 return;
-            property.SetValue(obj, GetValue(_currentTime));
+            property.SetValue(obj, GetValueGeneric(_currentTime));
             Progress(delta);
         }
         public void Tick(object obj, MethodInfo method, float delta)
         {
             if (_state != AnimationState.Playing)
                 return;
-            method.Invoke(obj, new object[] { GetValue(_currentTime) });
+            method.Invoke(obj, new object[] { GetValueGeneric(_currentTime) });
             Progress(delta);
         }
 
-        protected abstract object GetValue(float frame);
+        protected abstract object GetValueGeneric(float frame);
         protected abstract void UseKeyframesChanged();
         
         [Category("Property Animation")]

@@ -126,16 +126,16 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
                 VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 
                 PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
-                _splinePrimitive = new PrimitiveManager(splineData, Material.GetUnlitColorMaterialForward(Color.Red));
+                _splinePrimitive = new PrimitiveManager(splineData, TMaterial.GetUnlitColorMaterialForward(Color.Red));
 
                 PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
-                _velocityPrimitive = new PrimitiveManager(velocityData, Material.GetUnlitColorMaterialForward(Color.Blue));
+                _velocityPrimitive = new PrimitiveManager(velocityData, TMaterial.GetUnlitColorMaterialForward(Color.Blue));
                 
                 PrimitiveData pointData = PrimitiveData.FromPoints(keyframePositions);
-                _pointPrimitive = new PrimitiveManager(pointData, Material.GetUnlitColorMaterialForward(Color.Green));
+                _pointPrimitive = new PrimitiveManager(pointData, TMaterial.GetUnlitColorMaterialForward(Color.Green));
 
                 PrimitiveData tangentData = PrimitiveData.FromPoints(tangentPositions);
-                _tangentPrimitive = new PrimitiveManager(tangentData, Material.GetUnlitColorMaterialForward(Color.Purple));
+                _tangentPrimitive = new PrimitiveManager(tangentData, TMaterial.GetUnlitColorMaterialForward(Color.Purple));
             }
         }
         public void Render()

@@ -104,12 +104,12 @@ namespace TheraEngine.Rendering
         }
         #endregion
 
-        public static Material GenerateMaterial(string name, ResultBasicFunc resultFunction)
+        public static TMaterial GenerateMaterial(string name, ResultBasicFunc resultFunction)
         {
             if (resultFunction == null)
                 return null;
 
-            Material m = new Material(name, new ShaderVar[0], new TextureReference2D[0]);
+            TMaterial m = new TMaterial(name, new ShaderVar[0], new TextureReference2D[0]);
 
             //TODO: determine shader types needed
             foreach (MatFuncValueInput arg in resultFunction.InputArguments)

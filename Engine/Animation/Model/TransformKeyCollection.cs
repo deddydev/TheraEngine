@@ -66,7 +66,8 @@ namespace TheraEngine.Animation
         /// Retrieves the parts of the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe void GetTransform(Transform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(Transform bindState, float second,
+            out Vec3 translation, out Rotator rotation, out Vec3 scale)
         {
             Vec3 t, r, s;
             Vec3

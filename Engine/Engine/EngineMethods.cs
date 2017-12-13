@@ -13,6 +13,7 @@ using TheraEngine.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
+using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Scripting;
 using TheraEngine.Timers;
@@ -381,6 +382,9 @@ namespace TheraEngine
         }
         #endregion
 
+        public static bool RayTrace(RayTraceResult result) => World.PhysicsWorld.RayTrace(result);
+        public static bool ShapeTrace(ShapeTraceResult result) => World.PhysicsWorld.ShapeTrace(result);
+        
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
             //ActiveGameMode?.HandleLocalPlayerLeft(item);

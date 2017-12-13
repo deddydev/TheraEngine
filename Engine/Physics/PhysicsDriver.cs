@@ -21,7 +21,7 @@ namespace TheraEngine.Physics
         Interactables   = 0x0080,
         Projectiles     = 0x0100,
     }
-    public delegate void MatrixUpdate(Matrix4 worldMatrix);
+    public delegate void DelMatrixUpdate(Matrix4 worldMatrix);
     public delegate void SimulationUpdate(bool isSimulating);
     public delegate void PhysicsEndContact(ICollidable me, ICollidable other);
     public delegate void PhysicsOverlap(ICollidable me, ICollidable other, ManifoldPoint point);
@@ -30,7 +30,7 @@ namespace TheraEngine.Physics
     {
         public event PhysicsOverlap BeginOverlap, EndOverlap, OnHit;
         public event PhysicsEndContact OnContactEnded;
-        public event MatrixUpdate TransformChanged;
+        public event DelMatrixUpdate TransformChanged;
         public event SimulationUpdate SimulationStateChanged;
 
         public PhysicsDriver(ICollidable owner, TRigidBodyConstructionInfo info)
@@ -42,10 +42,10 @@ namespace TheraEngine.Physics
             _collidesWith = info.CollidesWith;
             CollisionObject = Engine.Physics.NewRigidBody(info);
         }
-        public PhysicsDriver(ICollidable owner, TRigidBodyConstructionInfo info, MatrixUpdate func)
+        public PhysicsDriver(ICollidable owner, TRigidBodyConstructionInfo info, DelMatrixUpdate func)
             : this(owner, info)
             => TransformChanged += func;
-        public PhysicsDriver(ICollidable owner, TRigidBodyConstructionInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc)
+        public PhysicsDriver(ICollidable owner, TRigidBodyConstructionInfo info, DelMatrixUpdate mtxFunc, SimulationUpdate simFunc)
             : this(owner, info, mtxFunc)
             => SimulationStateChanged += simFunc;
 
@@ -58,10 +58,10 @@ namespace TheraEngine.Physics
             _collidesWith = info.CollidesWith;
             CollisionObject = Engine.Physics.NewSoftBody(info);
         }
-        public PhysicsDriver(ICollidable owner, TSoftBodyConstructionInfo info, MatrixUpdate func)
+        public PhysicsDriver(ICollidable owner, TSoftBodyConstructionInfo info, DelMatrixUpdate func)
             : this(owner, info)
             => TransformChanged += func;
-        public PhysicsDriver(ICollidable owner, TSoftBodyConstructionInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc)
+        public PhysicsDriver(ICollidable owner, TSoftBodyConstructionInfo info, DelMatrixUpdate mtxFunc, SimulationUpdate simFunc)
             : this(owner, info, mtxFunc)
             => SimulationStateChanged += simFunc;
 

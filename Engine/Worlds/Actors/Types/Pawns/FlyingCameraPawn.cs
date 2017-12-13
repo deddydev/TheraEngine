@@ -188,7 +188,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             _rightClickPressed = pressed;
             Viewport v = LocalPlayerController.Viewport;
             Vec2 viewportPoint = v.AbsoluteToRelative(HUD.CursorPosition);
-            ClosestRayResultCallback c = Engine.RaycastClosest(v.GetWorldSegment(viewportPoint));
+            ClosestRayResultCallback c = Engine.RayTraceClosest(v.GetWorldSegment(viewportPoint));
             if (c != null && c.HasHit)
                 _hitPoint = c.HitPointWorld;
             else

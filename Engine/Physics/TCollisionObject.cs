@@ -11,12 +11,18 @@ namespace TheraEngine.Physics
         TCollisionObject CollisionObject { get; }
         Matrix4 WorldMatrix { get; }
     }
+    public delegate void DelCollision(TCollisionObject me, TCollisionObject other, CollisionInfo info);
     public abstract class TCollisionObject : TObject
     {
-        public event MatrixUpdate TransformChanged;
+        public event DelMatrixUpdate TransformChanged;
         protected internal void OnTransformChanged(Matrix4 worldTransform)
         {
             TransformChanged?.Invoke(worldTransform);
+        }
+        public event DelCollision Collision;
+        protected internal void OnCollided(TCollisionObject other, CollisionInfo info)
+        {
+            Collision?.Invoke(this, other, info);
         }
 
         public TCollisionObject(TCollisionShape shape)

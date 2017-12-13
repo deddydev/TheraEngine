@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Physics.Bullet;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 
@@ -76,9 +77,54 @@ namespace TheraEngine.Physics
         }
         private static void ManifoldPoint_ContactAdded(ManifoldPoint cp, CollisionObjectWrapper colObj0Wrap, int partId0, int index0, CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
         {
-            PhysicsDriver driver0 = (PhysicsDriver)colObj0Wrap.CollisionObject.UserObject;
-            PhysicsDriver driver1 = (PhysicsDriver)colObj1Wrap.CollisionObject.UserObject;
-            driver0.ContactStarted(driver1, cp);
+            TCollisionObject obj1 = colObj0Wrap.CollisionObject.UserObject as TCollisionObject;
+            TCollisionObject obj2 = colObj1Wrap.CollisionObject.UserObject as TCollisionObject;
+            obj1.OnCollided(obj2, CreateCollisionInfo(cp));
+        }
+
+        private static CollisionInfo CreateCollisionInfo(ManifoldPoint point)
+        {
+            return new CollisionInfo()
+            {
+                AppliedImpulse = point.AppliedImpulse,
+                AppliedImpulseLateral1 = point.AppliedImpulseLateral1,
+                AppliedImpulseLateral2 = point.AppliedImpulseLateral2,
+                LocalPointA = point.LocalPointA,
+                LocalPointB = point.LocalPointB,
+                LateralFrictionDir1 = point.LateralFrictionDir1,
+                LateralFrictionDir2 = point.LateralFrictionDir2,
+                FrictionCfm  = point.FrictionCfm,
+                CombinedFriction = point.CombinedFriction,
+                Distance = point.Distance,
+                UserPersistentData = point.UserPersistentData,
+                CombinedRollingFriction = point.CombinedRollingFriction,
+                CombinedRestitution = point.CombinedRestitution,
+                ContactCfm = point.ContactCfm,
+                ContactErp = point.ContactErp,
+                ContactMotion1 = point.ContactMotion1,
+                ContactMotion2 = point.ContactMotion2,
+                HasContactConstraintForceMixing = point.ContactPointFlags.HasFlag(ContactPointFlags.HasContactCfm),
+                HasContactErrorReductionParameter = point.ContactPointFlags.HasFlag(ContactPointFlags.HasContactErp),
+                LateralFrictionInitialized = point.ContactPointFlags.HasFlag(ContactPointFlags.LateralFrictionInitialized),
+                Index0 = point.Index0,
+                Index1 = point.Index1,
+                LifeTime = point.LifeTime,
+                NormalWorldOnB = point.NormalWorldOnB,
+                PartId0 = point.PartId0,
+                PartId1 = point.PartId1,
+                PositionWorldOnA = point.PositionWorldOnA,
+                PositionWorldOnB = point.PositionWorldOnB,
+            };
+        }
+
+        public override void AddCollisionObject(TCollisionObject collision)
+        {
+            IBulletBody b = (IBulletBody)collision;
+            _dynamicsWorld.AddCollisionObject(b.CollisionObject);
+        }
+        public override void RemoveCollisionObject(TCollisionObject collision)
+        {
+
         }
         private class PhysicsDriverPair
         {
@@ -89,7 +135,11 @@ namespace TheraEngine.Physics
             }
             public PhysicsDriver _driver0, _driver1;
         }
-        public override void Destroy()
+        public override void StepSimulation(float delta)
+        {
+            _dynamicsWorld.StepSimulation(delta, 7, (float)(Engine.RenderPeriod * Engine.TimeDilation));
+        }
+        public override void Dispose()
         {
             if (_dynamicsWorld != null)
             {
@@ -131,26 +181,7 @@ namespace TheraEngine.Physics
                 _physicsDebugDrawer = null;
             }
         }
-
-        public override void RayTrace(Vec3 start, Vec3 end, RayTraceResult result)
-        {
-            ClosestRayResultCallback c = new ClosestRayResultCallback();
-            _dynamicsWorld.RayTest(start, end, c);
-        }
-        public override void StepSimulation(float delta)
-        {
-            _dynamicsWorld.StepSimulation(delta, 7, (float)(Engine.RenderPeriod * Engine.TimeDilation));
-        }
-        public override void Dispose()
-        {
-            Destroy();
-        }
-
-        public override void ShapeTrace(Matrix4 start, Matrix4 end, TCollisionShape shape, ShapeTraceResult result)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         private class CustomOvelapFilter : OverlapFilterCallback
         {
             public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
@@ -211,6 +242,19 @@ namespace TheraEngine.Physics
         {
             _dynamicsWorld.ConvexSweepTest(s, start, end, result);
         }
+
+        public override bool RayTrace(RayTraceResult result)
+        {
+            TRayResultCallback callback = new TRayResultCallback(result);
+            _dynamicsWorld.RayTest(result.Start, result.End, callback);
+            return callback.HasHit;
+        }
+
+        public override bool ShapeTrace(ShapeTraceResult result)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 

@@ -622,5 +622,10 @@ namespace TheraEditor.Windows.Forms
             else
                 (OutputForm = new DockableOutputWindow()).Show(DockPanel);
         }
+
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace System.Windows.Forms
             if (_service != null)
             {
                 _property = context.PropertyDescriptor;
-                if (_property.Attributes[typeof(DragRangeAttribute)] is DragRangeAttribute attrib)
+                if (_property.Attributes[typeof(DragRange)] is DragRange attrib)
                 {
                     _owner = context.Instance;
 

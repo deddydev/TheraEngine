@@ -14,6 +14,8 @@ using System.Drawing.Text;
 using System.Collections.Concurrent;
 using TheraEngine.Timers;
 using TheraEngine.GameModes;
+using TheraEngine.Physics;
+using TheraEngine.Physics.Bullet;
 
 namespace TheraEngine
 {
@@ -75,7 +77,7 @@ namespace TheraEngine
         public static UserSettings UserSettings => Game?.UserSettings;
         
         /// <summary>
-        /// The index of the currently ticking list of functions (group + order)
+        /// The index of the currently ticking list of functions (group + order + pause)
         /// </summary>
         private static int _currentTickList = -1;
         /// <summary>
@@ -85,18 +87,17 @@ namespace TheraEngine
         public static ThreadSafeList<DelTick>[] _tickLists;
 
         private static Game _game;
+        private static World _currentWorld = null;
         private static RenderLibrary _renderLibrary;
         private static AudioLibrary _audioLibrary;
         private static InputLibrary _inputLibrary;
-        private static World _currentWorld = null;
+        private static PhysicsLibrary _physicsLibrary;
 
         private static bool _isPaused = false;
         private static EngineTimer _timer = new EngineTimer();
         private static List<DateTime> _debugTimers = new List<DateTime>();
 
         private static ComputerInfo _computerInfo;
-        private static AbstractRenderer _renderer;
-        private static AbstractAudioManager _audioManager;
 
         //Continually scans for and processes new input devices.
         //TODO: allow disabling
@@ -112,26 +113,22 @@ namespace TheraEngine
         public static int MainThreadID;
         internal static int MaxTextureUnits;
 
+        /// <summary>
+        /// The world that is currently being rendered and played in.
+        /// </summary>
+        public static World World => _currentWorld;
+        public static bool IsPaused => _isPaused;
+
+        /// <summary>
+        /// Class containing this computer's specs. Use to adjust engine performance accordingly.
+        /// </summary>
+        public static ComputerInfo ComputerInfo => _computerInfo;
+
 #if EDITOR
         public static EngineEditorState EditorState = new EngineEditorState();
 #endif
 
-        public static AbstractRenderer Renderer
-        {
-            get
-            {
-                //if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
-                //    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
-                return _renderer;
-            }
-            internal set => _renderer = value;
-        }
-
-        public static AbstractAudioManager Audio
-        {
-            get => _audioManager;
-            set => _audioManager = value;
-        }
+        #region Timing
 
         public static float RenderDelta => (float)_timer.RenderTime;
         public static float UpdateDelta => (float)_timer.UpdateTime;
@@ -164,17 +161,10 @@ namespace TheraEngine
             get => _timer.TimeDilation;
             set => _timer.TimeDilation = value;
         }
-        
-        /// <summary>
-        /// The world that is currently being rendered and played in.
-        /// </summary>
-        public static World World => _currentWorld;
-        public static bool IsPaused => _isPaused;
 
-        /// <summary>
-        /// Class containing this computer's specs. Use to adjust engine performance accordingly.
-        /// </summary>
-        public static ComputerInfo ComputerInfo => _computerInfo;
+        #endregion
+
+        #region Libraries
         /// <summary>
         /// The library to render with.
         /// </summary>
@@ -201,7 +191,24 @@ namespace TheraEngine
                 switch (_audioLibrary)
                 {
                     case AudioLibrary.OpenAL:
-                        Audio = new ALAudioManager();
+                        _audioManager = new ALAudioManager();
+                        break;
+                }
+            }
+        }
+        /// <summary>
+        /// The library to play audio with.
+        /// </summary>
+        public static PhysicsLibrary PhysicsLibrary
+        {
+            get => _physicsLibrary;
+            set
+            {
+                _physicsLibrary = value;
+                switch (_physicsLibrary)
+                {
+                    case PhysicsLibrary.Bullet:
+                        _physicsInterface = new BulletPhysicsInterface();
                         break;
                 }
             }
@@ -227,8 +234,51 @@ namespace TheraEngine
                 }
             }
         }
+        #endregion
 
-        public static BaseGameMode GetGameMode()
-            => World?.Settings.File?.GameModeOverride?.File ?? Game.DefaultGameMode;
+        #region Library Abstraction
+        /// <summary>
+        /// Provides an abstraction layer for managing any supported render library.
+        /// </summary>
+        public static AbstractRenderer Renderer
+        {
+            get
+            {
+                if (_renderer == null)
+                    throw new InvalidOperationException("No render library set.");
+                //if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
+                //    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
+                return _renderer;
+            }
+        }
+        /// <summary>
+        /// Provides an abstraction layer for managing any supported physics engine.
+        /// </summary>
+        public static AbstractPhysicsInterface Physics
+        {
+            get
+            {
+                if (_physicsInterface == null)
+                    throw new InvalidOperationException("No physics library set.");
+                return _physicsInterface;
+            }
+        }
+        /// <summary>
+        /// Provides an abstraction layer for managing any supported audio library.
+        /// </summary>
+        public static AbstractAudioManager Audio
+        {
+            get
+            {
+                if (_audioManager == null)
+                    throw new InvalidOperationException("No audio library set.");
+                return _audioManager;
+            }
+        }
+
+        private static AbstractRenderer _renderer;
+        private static AbstractAudioManager _audioManager;
+        private static AbstractPhysicsInterface _physicsInterface;
+        #endregion
     }
 }

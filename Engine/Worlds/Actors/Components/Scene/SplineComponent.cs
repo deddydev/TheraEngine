@@ -73,16 +73,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
             base.RecalcGlobalTransform();
             //RenderNode?.ItemMoved(this);
         }
-        public override void OnSpawned()
-        {
-            Engine.RegisterSpline(this);
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            Engine.UnregisterSpline(this);
-            base.OnDespawned();
-        }
 
         public void RegenerateSplinePrimitive()
         {

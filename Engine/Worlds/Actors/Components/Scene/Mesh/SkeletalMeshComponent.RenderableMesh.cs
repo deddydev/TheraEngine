@@ -160,7 +160,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             }
             public override string ToString()
             {
-                return ((ObjectBase)_mesh).Name;
+                return ((TObject)_mesh).Name;
             }
         }
     }

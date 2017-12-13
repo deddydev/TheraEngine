@@ -1,5 +1,4 @@
 ﻿using System;
-using BulletSharp;
 using TheraEngine.Rendering;
 using System.Drawing;
 using TheraEngine.Core.Shapes;

@@ -463,7 +463,7 @@ namespace TheraEditor.Windows.Forms
             string[] pathHierarchy = relativePath.Split('\\');
             foreach (string name in pathHierarchy)
             {
-                currentPath += "\\" + name;
+                currentPath += Path.DirectorySeparatorChar + name;
                 if (name == "..")
                 {
                     if (current != null)
@@ -511,7 +511,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            Engine.PrintLine("Externally renamed '{0}' to '{1}'", e.OldFullPath, e.FullPath);
+            Engine.PrintLine("Renamed '{0}' to '{1}'", e.OldFullPath, e.FullPath);
 
             BaseWrapper node = GetNode(e.OldFullPath);
             if (node != null)
@@ -531,7 +531,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            Engine.PrintLine("Externally {0} '{1}'", e.ChangeType.ToString().ToLowerInvariant(), e.FullPath);
+            Engine.PrintLine("{0} '{1}'", e.ChangeType.ToString().ToLowerInvariant(), e.FullPath);
 
             switch (e.ChangeType)
             {

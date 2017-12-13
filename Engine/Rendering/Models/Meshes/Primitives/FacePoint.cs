@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class FacePoint : ObjectBase
+    public class FacePoint : TObject
     {
         public int VertexIndex => _vertexIndex;
         public List<int> BufferIndices => _bufferIndices;

@@ -227,11 +227,14 @@
     <Reference Include="Microsoft.Scripting.Metadata, Version=1.1.2.22, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
-    <Reference Include="NetworkCommsDotNetComplete">
-      <HintPath>..\Libraries\NetworkCommsDotNetComplete.dll</HintPath>
+    <Reference Include="NetworkCommsDotNet, Version=3.0.0.0, Culture=neutral, PublicKeyToken=f58108eb6480f6ec, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetworkCommsDotNet.3.0.3\lib\NetworkCommsDotNet.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.8.1\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="PhysX.Net, Version=0.5.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\PhysX.Net-x64.0.5.1\lib\net45\PhysX.Net.dll</HintPath>
     </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\Steamworks\Steamworks.NET.dll</HintPath>
@@ -251,6 +254,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Activities" />
     <Reference Include="System.Xaml" />
@@ -266,7 +272,28 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
+    <Compile Include="Physics\AbstractPhysicsInterface.cs" />
+    <Compile Include="Physics\AbstractPhysicsShapes.cs" />
+    <Compile Include="Physics\AbstractPhysicsWorld.cs" />
+    <Compile Include="Physics\Bullet\BulletPhysicsInterface.cs" />
+    <Compile Include="Physics\Bullet\BulletPhysicsShapes.cs" />
+    <Compile Include="Physics\Bullet\BulletPhysicsWorld.cs" />
+    <Compile Include="Networking\Client.cs" />
+    <Compile Include="Networking\NetworkPacketObject.cs" />
+    <Compile Include="Networking\NetworkPacketObjectSerializer.cs" />
+    <Compile Include="Networking\Server.cs" />
+    <Compile Include="Physics\Bullet\BulletSoftBody.cs" />
+    <Compile Include="Physics\Bullet\BulletRigidBody.cs" />
+    <Compile Include="Physics\Bullet\TBulletMotionState.cs" />
+    <Compile Include="Physics\SupportedByAttribute.cs" />
+    <Compile Include="Physics\TCollisionObject.cs" />
+    <Compile Include="Physics\TSoftBody.cs" />
+    <Compile Include="Physics\TRigidBody.cs" />
+    <Compile Include="Physics\TSoftBodyConstructionInfo.cs" />
+    <Compile Include="Physics\TRigidBodyConstructionInfo.cs" />
     <Compile Include="Rendering\Models\Meshes\LOD.cs" />
+    <Compile Include="Scripting\Python\Python.cs" />
     <Compile Include="ThirdParty\7zip\Common\CommandLineParser.cs" />
     <Compile Include="ThirdParty\7zip\Common\CRC.cs" />
     <Compile Include="ThirdParty\7zip\Common\InBuffer.cs" />
@@ -328,13 +355,13 @@
     <Compile Include="Core\Extensions\MethodInfoExtension.cs" />
     <Compile Include="Core\Extensions\TaskExtension.cs" />
     <Compile Include="Core\Maths\Interpolation.cs" />
-    <Compile Include="Core\Reflection\Attributes\BrowsableIfAttribute.cs" />
+    <Compile Include="Core\Reflection\Attributes\BrowsableIf.cs" />
     <Compile Include="Core\HelperMethods.cs" />
     <None Include="Core\Maths\Transforms\Class\Rotation\EventQuatRotator.cs" />
     <None Include="Core\Maths\Transforms\Class\Transforms\WorldRotTransform.cs" />
     <None Include="Core\Maths\Transforms\Struct\Rotation\QuatRotator.cs" />
-    <Compile Include="Core\Reflection\Attributes\DragRangeAttribute.cs" />
-    <Compile Include="Core\Reflection\Attributes\StringAttribute.cs" />
+    <Compile Include="Core\Reflection\Attributes\DragRange.cs" />
+    <Compile Include="Core\Reflection\Attributes\String.cs" />
     <Compile Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
     <Compile Include="Audio\ALAudioManager.cs" />
@@ -383,7 +410,7 @@
     <Compile Include="Animation\Model\BlendSpace1D.cs" />
     <Compile Include="Animation\Model\ModelAnimation.cs" />
     <Compile Include="Engine\Game.cs" />
-    <Compile Include="Networking\Network.cs" />
+    <Compile Include="Networking\NetworkConnection.cs" />
     <Compile Include="Rendering\UI\Text\DebugPrintHudComponent.cs" />
     <Compile Include="Animation\Functions\AnimationFunction.cs" />
     <Compile Include="Animation\Functions\AnimFuncExecInput.cs" />
@@ -468,7 +495,7 @@
     <Compile Include="Rendering\Models\Meshes\Static\StaticSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Static\StaticMesh.cs" />
     <Compile Include="Rendering\Models\ModelScene.cs" />
-    <Compile Include="Rendering\PhysicsDriver.cs" />
+    <Compile Include="Physics\PhysicsDriver.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
     <Compile Include="Engine\UserSettings.cs" />
     <Compile Include="Engine\EngineSettings.cs" />
@@ -601,10 +628,10 @@
     <Compile Include="Core\Platform\Linux.cs" />
     <Compile Include="Core\Platform\OSX.cs" />
     <Compile Include="Core\Platform\Win32.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\CustomSerializeMethodAttribute.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\SerializeAttribute.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\CustomSerializeMethod.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\FileClass.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\PrePostDeserialize.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\TSerialize.cs" />
     <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="Core\Files\FileObject.cs" />
     <Compile Include="Core\Time\EngineTimer.cs" />
@@ -762,7 +789,7 @@
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\Texture2D.cs" />
-    <Compile Include="Worlds\WorldDebugDrawer.cs" />
+    <Compile Include="Physics\Bullet\BulletDebugDrawer.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
     <Compile Include="Worlds\WorldState.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -797,6 +824,23 @@
     <Folder Include="Core\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\ZAligned\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="nvToolsExt64_1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PhysX3CharacterKinematicCHECKED_x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PhysX3CHECKED_x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PhysX3CommonCHECKED_x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PhysX3CookingCHECKED_x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\PostSharp.4.3.21\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" />

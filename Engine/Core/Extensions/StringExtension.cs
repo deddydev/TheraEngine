@@ -71,10 +71,10 @@ namespace System
         //{
         //    return string.IsNullOrEmpty(str);
         //}
-        public static string MakePathRelativeTo(this string absolutePath, string relativePath)
+        public static string MakePathRelativeTo(this string relativePath, string absolutePath)
         {
-            string[] relParts = relativePath.Split('\\');
-            string[] absParts = absolutePath.Split('\\');
+            string[] relParts = relativePath.Split(Path.DirectorySeparatorChar);
+            string[] absParts = absolutePath.Split(Path.DirectorySeparatorChar);
             
             int absLen = absParts.Length;
             string fileName = absParts[absParts.Length - 1];
@@ -90,9 +90,9 @@ namespace System
 
             string newDir = "";
             for (int i = bias; i < relParts.Length; ++i)
-                newDir += "..\\";
+                newDir += ".." + Path.DirectorySeparatorChar;
             for (int i = bias; i < absLen; ++i)
-                newDir += absParts[i] + "\\";
+                newDir += absParts[i] + Path.DirectorySeparatorChar;
 
             return newDir + fileName;
         }

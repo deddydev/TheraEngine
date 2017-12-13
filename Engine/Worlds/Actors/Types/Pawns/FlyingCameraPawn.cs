@@ -3,7 +3,6 @@ using TheraEngine.Input.Devices;
 using System;
 using System.ComponentModel;
 using TheraEngine.Rendering;
-using BulletSharp;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors.Components.Scene;
 

@@ -104,6 +104,14 @@ namespace TheraEngine
         /// <summary>
         /// The path to the folder containing premade engine shaders.
         /// </summary>
+        [Description("The path to the folder containing premade engine scripts.")]
+        [Category("Paths")]
+        [TSerialize]
+        public string ScriptsFolder { get; set; }
+
+        /// <summary>
+        /// The path to the folder containing premade engine shaders.
+        /// </summary>
         [Description("The path to the folder containing premade engine shaders.")]
         [Category("Paths")]
         [TSerialize]
@@ -148,6 +156,7 @@ namespace TheraEngine
             string engineFolder = Application.StartupPath + string.Format("{0}..{0}..{0}..{0}Engine{0}", Path.DirectorySeparatorChar);
             ShadersFolder = engineFolder + "Shaders";
             TexturesFolder = engineFolder + "Textures";
+            ScriptsFolder = engineFolder + "Scripts";
         }
     }
 }

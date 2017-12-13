@@ -211,7 +211,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     {
                         if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
                             return;
-                        if (attrib is BrowsableIfAttribute browsableIf && !browsableIf.Evaluate(obj))
+                        if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(obj))
                             return;
                         if (attrib is ReadOnlyAttribute readOnlyAttrib)
                             readOnly = readOnlyAttrib.IsReadOnly;

@@ -12,12 +12,14 @@ namespace TheraEngine
     public interface IObjectBase
     {
         string Name { get; set; }
-        bool IsTicking { get; }
         object UserData { get; set; }
-        MonitoredList<AnimationContainer> Animations { get; }
+
 #if EDITOR
         EditorState EditorState { get; set; }
 #endif
+
+        #region Ticking
+        bool IsTicking { get; }
         void RegisterTick(
             ETickGroup group,
             ETickOrder order,
@@ -28,6 +30,10 @@ namespace TheraEngine
             ETickOrder order,
             DelTick tickFunc,
             InputPauseType pausedBehavior = InputPauseType.TickAlways);
+        #endregion
+
+        #region Animation
+        MonitoredList<AnimationContainer> Animations { get; }
         void AddAnimation(
             AnimationContainer anim,
             bool startNow = false,
@@ -35,6 +41,7 @@ namespace TheraEngine
             ETickGroup group = ETickGroup.PostPhysics,
             ETickOrder order = ETickOrder.BoneAnimation,
             InputPauseType pausedBehavior = InputPauseType.TickAlways);
+        #endregion
     }
     public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
     {
@@ -42,8 +49,8 @@ namespace TheraEngine
             : base(group, order, function) { }
     }
     public delegate void DelTick(float delta);
-    public delegate void ResourceEventHandler(ObjectBase node);
-    public delegate void RenamedEventHandler(ObjectBase node, string oldName);
+    public delegate void ResourceEventHandler(TObject node);
+    public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
     public enum ETickGroup
     {
@@ -60,11 +67,14 @@ namespace TheraEngine
         Scene           = 12, //Update scene
     }
 
-    public abstract class ObjectBase// : INotifyPropertyChanged
+    public abstract class TObject// : INotifyPropertyChanged
     {
-        public static event Action<ObjectBase> OnConstructed;
+        /// <summary>
+        /// Event called any time a new object is created.
+        /// </summary>
+        public static event Action<TObject> OnConstructed;
 
-        public ObjectBase()
+        public TObject()
         {
             OnConstructed?.Invoke(this);
         }

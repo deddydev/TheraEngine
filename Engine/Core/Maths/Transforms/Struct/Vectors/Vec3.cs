@@ -944,11 +944,14 @@ namespace System
 
         public static implicit operator Vec3(Vec2 v)                    => new Vec3(v.X, v.Y, 0.0f);
         public static explicit operator Vec3(ColorF4 v)                 => new Vec3(v.R, v.G, v.B);
-        public static implicit operator BulletSharp.Vector3(Vec3 v)     => new BulletSharp.Vector3(v.X, v.Y, v.Z);
-        public static implicit operator Vec3(BulletSharp.Vector3 v)     => new Vec3(v.X, v.Y, v.Z);
         public static implicit operator Vec3(float v)                   => new Vec3(v);
         public static explicit operator IVec3(Vec3 v)                   => new IVec3((int)Math.Round(v.X), (int)Math.Round(v.Y), (int)Math.Round(v.Z));
-        
+
+        #region BulletSharp
+        public static implicit operator BulletSharp.Vector3(Vec3 v) => new BulletSharp.Vector3(v.X, v.Y, v.Z);
+        public static implicit operator Vec3(BulletSharp.Vector3 v) => new Vec3(v.X, v.Y, v.Z);
+        #endregion
+
         private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
             => ToString(true, true);

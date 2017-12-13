@@ -3,7 +3,6 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.UI;
 using TheraEngine.Worlds.Actors;
 using System;
-using BulletSharp;
 using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -15,6 +14,7 @@ using TheraEngine.Worlds.Actors.Components;
 using TheraEngine.Worlds.Actors.Types.Pawns;
 using System.Windows.Forms;
 using System.IO;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Rendering
 {
@@ -304,7 +304,7 @@ namespace TheraEngine.Rendering
             out Vec3 hitNormal,
             out Vec3 hitPoint,
             out float distance,
-            params CollisionObject[] ignored)
+            params TCollisionObject[] ignored)
         {
             if (testHud)
             {
@@ -328,8 +328,8 @@ namespace TheraEngine.Rendering
                     hitNormal = c.HitNormalWorld;
                     hitPoint = c.HitPointWorld;
                     distance = hitPoint.DistanceToFast(cursor.StartPoint);
-                    CollisionObject coll = c.CollisionObject;
-                    PhysicsDriver d = coll.UserObject as PhysicsDriver;
+                    TCollisionObject coll = c.CollisionObject;
+                    PhysicsDriver d = coll.PhysicsDriver;
                     return d.Owner as SceneComponent;
                 }
 

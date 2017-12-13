@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Rendering
 {
-    public abstract class BaseRenderState : ObjectBase, IDisposable
+    public abstract class BaseRenderState : TObject, IDisposable
     {
         internal const int NullBindingId = 0;
         internal class ContextBind

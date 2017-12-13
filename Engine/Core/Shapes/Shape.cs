@@ -1,5 +1,4 @@
-﻿using BulletSharp;
-using TheraEngine.Files;
+﻿using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Rendering;
 using System;

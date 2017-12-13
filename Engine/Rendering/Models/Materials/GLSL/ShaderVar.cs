@@ -37,7 +37,7 @@ namespace TheraEngine.Rendering.Models.Materials
         _mat3,
         _mat4,
     }
-    public abstract class ShaderVar : ObjectBase, IShaderVarOwner
+    public abstract class ShaderVar : TObject, IShaderVarOwner
     {
         internal static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
         {

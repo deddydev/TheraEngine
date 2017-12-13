@@ -30,8 +30,10 @@ namespace TheraEditor.Wrappers
 
         public override void EditResource()
         {
-            MaterialEditorForm m = new MaterialEditorForm();
-            m.Material = Resource;
+            MaterialEditorForm m = new MaterialEditorForm()
+            {
+                Material = Resource
+            };
             m.Show();
         }
     }

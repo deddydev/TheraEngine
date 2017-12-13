@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class IndexPoint : ObjectBase
+    public class IndexPoint : TObject
     {
         public IndexPoint() { }
         public IndexPoint(int vertexIndex)

@@ -14,18 +14,25 @@ namespace TheraEngine
     public enum RenderLibrary
     {
         OpenGL,
-        Direct3D11,
+        //Direct3D11,
     }
     public enum AudioLibrary
     {
         OpenAL,
-        DirectSound,
+        //DirectSound,
     }
     public enum InputLibrary
     {
         OpenTK,
         XInput,
-        Raw,
+        Windows,
+    }
+    public enum PhysicsLibrary
+    {
+        Bullet,
+        //PhysX,
+        //Jitter,
+        //Havok,
     }
     public enum WindowState
     {
@@ -53,6 +60,7 @@ namespace TheraEngine
         private RenderLibrary _renderLibrary = RenderLibrary.OpenGL;
         private AudioLibrary _audioLibrary = AudioLibrary.OpenAL;
         private InputLibrary _inputLibrary = InputLibrary.OpenTK;
+        private PhysicsLibrary _physicsLibrary = PhysicsLibrary.Bullet;
 
         [TSerialize]
         public VSyncMode VSync { get => _vSyncMode; set => _vSyncMode = value; }
@@ -68,6 +76,8 @@ namespace TheraEngine
         public AudioLibrary AudioLibrary { get => _audioLibrary; set => _audioLibrary = value; }
         [TSerialize]
         public InputLibrary InputLibrary { get => _inputLibrary; set => _inputLibrary = value; }
+        [TSerialize]
+        public PhysicsLibrary PhysicsLibrary { get => _physicsLibrary; set => _physicsLibrary = value; }
         [TSerialize]
         public WindowBorderStyle WindowBorderStyle { get => _windowBorderStyle; set => _windowBorderStyle = value; }
         [TSerialize]

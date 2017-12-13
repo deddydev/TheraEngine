@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
-using BulletSharp;
 using System;
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.GameModes;
 using TheraEngine.Worlds.Actors;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds
 {
     public interface IWorld
     {
         WorldSettings Settings { get; set; }
+        AbstractPhysicsWorld PhysicsWorld { get; }
     }
     [FileClass("WORLD", "World")]
     public unsafe class World : FileObject, IEnumerable<IActor>, IDisposable
@@ -31,14 +32,14 @@ namespace TheraEngine.Worlds
             _settings = settings;
             _state = state;
         }
-
-        internal DiscreteDynamicsWorld _physicsScene;
+        
         [TSerialize("Settings")]
         protected SingleFileRef<WorldSettings> _settings;
         [TSerialize("State")]
         protected SingleFileRef<WorldState> _state;
+        private AbstractPhysicsWorld _physicsWorld;
 
-        public DiscreteDynamicsWorld PhysicsScene => _physicsScene;
+        public AbstractPhysicsWorld PhysicsWorld => _physicsWorld;
         public SingleFileRef<WorldSettings> Settings
         {
             get => _settings;
@@ -49,26 +50,7 @@ namespace TheraEngine.Worlds
             get => _state;
             set => _state = value;
         }
-
-        private void OnGravityChanged(Vec3 oldGravity)
-        {
-            _physicsScene.Gravity = _settings.File.Gravity;
-        }
-        private class CustomOvelapFilter : OverlapFilterCallback
-        {
-            public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
-            {
-                if (proxy0 == null || proxy1 == null)
-                    return false;
-
-                bool collides =
-                    (proxy0.CollisionFilterGroup & proxy1.CollisionFilterMask) != 0 &&
-                    (proxy1.CollisionFilterGroup & proxy0.CollisionFilterMask) != 0;
-
-                return collides;
-            }
-        }
-
+        
         public BaseGameMode GetGameMode()
             => Settings?.File?.GameModeOverride?.File;
         public T GetGameMode<T>() where T : class, IGameMode
@@ -110,7 +92,7 @@ namespace TheraEngine.Worlds
         }
         
         internal void StepSimulation(float delta)
-            => _physicsScene?.StepSimulation(delta, 7, (float)(Engine.RenderPeriod * Engine.TimeDilation));
+            => _physicsWorld?.StepSimulation(delta);
         
         public IActor this[int index]
         {
@@ -126,80 +108,18 @@ namespace TheraEngine.Worlds
             foreach (IActor a in State.File.SpawnedActors)
                 a.RebaseOrigin(newOrigin);
         }
-        BroadphaseInterface _physicsBroadphase;
-        CollisionConfiguration _collisionConfig;
-        CollisionDispatcher _collisionDispatcher;
-        ConstraintSolver _constraintSolver;
-        WorldDebugDrawer _physicsDebugDrawer;
+
         private void CreatePhysicsScene()
         {
-            _physicsBroadphase = new DbvtBroadphase();
-            _collisionConfig = new DefaultCollisionConfiguration();
-            _collisionDispatcher = new CollisionDispatcher(_collisionConfig);
-            _constraintSolver = new SequentialImpulseConstraintSolver();
-            _physicsScene = new DiscreteDynamicsWorld(_collisionDispatcher, _physicsBroadphase, _constraintSolver, _collisionConfig)
-            {
-                Gravity = _settings.File.Gravity
-            };
-            _physicsScene.DebugDrawer = _physicsDebugDrawer = new WorldDebugDrawer()
-            {
-                DebugMode = 
-                DebugDrawModes.DrawNormals | 
-                //DebugDrawModes.DrawAabb | 
-                DebugDrawModes.DrawConstraints | 
-                DebugDrawModes.DrawConstraintLimits | 
-                DebugDrawModes.DrawContactPoints// | 
-                //DebugDrawModes.DrawWireframe |
-                //DebugDrawModes.FastWireframe
-            };
-            //_physicsScene.DispatchInfo.UseContinuous = true;
-            //_physicsScene.DispatchInfo.AllowedCcdPenetration = 0.1f;
-            _physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
-            _settings.File.GravityChanged += OnGravityChanged;
-
+            _physicsWorld?.Destroy();
+            _physicsWorld = Engine.Physics.NewScene();
         }
         public void Dispose()
         {
-            if (_physicsScene != null)
-            {
-                //Remove and dispose of constraints
-                int i;
-                for (i = _physicsScene.NumConstraints - 1; i >= 0; --i)
-                {
-                    TypedConstraint constraint = _physicsScene.GetConstraint(i);
-                    _physicsScene.RemoveConstraint(constraint);
-                    constraint.Dispose();
-                }
-
-                //Remove the rigidbodies from the dynamics world and delete them
-                for (i = _physicsScene.NumCollisionObjects - 1; i >= 0; --i)
-                {
-                    CollisionObject obj = _physicsScene.CollisionObjectArray[i];
-                    if (obj is RigidBody body && body.MotionState != null)
-                        body.MotionState.Dispose();
-                    _physicsScene.RemoveCollisionObject(obj);
-                    obj.Dispose();
-                }
-                
-                _physicsScene.Dispose();
-                _physicsScene = null;
-
-                _constraintSolver?.Dispose();
-                _constraintSolver = null;
-
-                _physicsBroadphase?.Dispose();
-                _physicsBroadphase = null;
-
-                _collisionDispatcher?.Dispose();
-                _collisionDispatcher = null;
-
-                _collisionConfig?.Dispose();
-                _collisionConfig = null;
-
-                _physicsDebugDrawer?.Dispose();
-                _physicsDebugDrawer = null;
-            }
+            _physicsWorld?.Dispose();
+            _physicsWorld = null;
         }
+
         public IEnumerator<IActor> GetEnumerator() => State.File.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.File.SpawnedActors.GetEnumerator();
 

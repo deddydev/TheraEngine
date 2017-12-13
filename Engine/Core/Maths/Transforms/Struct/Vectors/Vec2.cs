@@ -338,7 +338,7 @@ namespace System
         public static implicit operator Vec2(Size v)    => new Vec2(v.Width, v.Height);
         public static explicit operator Size(Vec2 v)    => new Size((int)Round(v.X), (int)Round(v.Y));
 
-        private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
             => ToString(true, true);
         public string ToString(bool includeParentheses, bool includeSeparator)

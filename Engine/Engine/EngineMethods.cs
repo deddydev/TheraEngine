@@ -1,37 +1,37 @@
-﻿using TheraEngine.Files;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
+using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
-using TheraEngine.Worlds;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using TheraEngine.Worlds.Actors;
-using BulletSharp;
-using System.Threading.Tasks;
-using System.Threading;
-using System.IO;
-using System.Windows.Forms;
+using TheraEngine.Scripting;
 using TheraEngine.Timers;
-using System.Diagnostics;
-using System.Drawing;
-using TheraEngine.GameModes;
-using TheraEngine.Core.Shapes;
-using System.Runtime.CompilerServices;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Worlds;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine
 {
     public static partial class Engine
     {
+        #region Startup/Shutdown
+
         static Engine()
         {
             //Steamworks.SteamAPI.Init();
 
             _timer = new EngineTimer();
             _timer.UpdateFrame += Tick;
-            
+
             ActivePlayers.PostAdded += ActivePlayers_Added;
             ActivePlayers.PostRemoved += ActivePlayers_Removed;
 
@@ -39,65 +39,9 @@ namespace TheraEngine
             for (int i = 0; i < _tickLists.Length; ++i)
                 _tickLists[i] = new ThreadSafeList<DelTick>();
 
-            PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
-            PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
-            ManifoldPoint.ContactAdded += ManifoldPoint_ContactAdded;
+            PythonRuntime.Initialize();
         }
 
-        #region Collision Handling
-        private class PhysicsDriverPair
-        {
-            public PhysicsDriverPair(PhysicsDriver driver0, PhysicsDriver driver1)
-            {
-                _driver0 = driver0;
-                _driver1 = driver1;
-            }
-            public PhysicsDriver _driver0, _driver1;
-        }
-        private static void PersistentManifold_ContactProcessed(ManifoldPoint cp, CollisionObject body0, CollisionObject body1)
-        {
-            //PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
-            //PhysicsDriver driver1 = (PhysicsDriver)body1.UserObject;
-            //cp.UserPersistentData = new PhysicsDriverPair(driver0, driver1);
-            //driver0.ContactStarted(driver1, cp);
-        }
-        private static void PersistentManifold_ContactDestroyed(object userPersistantData)
-        {
-            //PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
-            //drivers._driver0.ContactEnded(drivers._driver1);
-            //drivers._driver1.ContactEnded(drivers._driver0);
-        }
-
-        private static void ManifoldPoint_ContactAdded(ManifoldPoint cp, CollisionObjectWrapper colObj0Wrap, int partId0, int index0, CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
-        {
-            PhysicsDriver driver0 = (PhysicsDriver)colObj0Wrap.CollisionObject.UserObject;
-            PhysicsDriver driver1 = (PhysicsDriver)colObj1Wrap.CollisionObject.UserObject;
-            driver0.ContactStarted(driver1, cp);
-        }
-
-        internal static void RegisterSkeleton(Skeleton skeleton)
-        {
-
-        }
-
-        internal static void UnregisterSkeleton(Skeleton skeleton)
-        {
-
-        }
-
-        internal static void RegisterSpline(SplineComponent splineComponent)
-        {
-
-        }
-
-        internal static void UnregisterSpline(SplineComponent splineComponent)
-        {
-
-        }
-
-        #endregion
-
-        #region Startup/Shutdown
         /// <summary>
         /// Call this in the program's main method run a game in the engine.
         /// Will create a render form,  initialize the engine, and start the game, so no other methods are needed.
@@ -171,20 +115,6 @@ namespace TheraEngine
         }
         #endregion
 
-        private static void ActivePlayers_Removed(LocalPlayerController item)
-        {
-            //ActiveGameMode?.HandleLocalPlayerLeft(item);
-
-            //TODO: remove controller from the server
-        }
-
-        private static void ActivePlayers_Added(LocalPlayerController item)
-        {
-            //ActiveGameMode?.HandleLocalPlayerJoined(item);
-
-            //TODO: create controller on the server
-        }
-        
         #region Timing
         /// <summary>
         /// Starts deployment of update and render ticks.
@@ -346,7 +276,8 @@ namespace TheraEngine
         /// <summary>
         /// Loads a ttf or otf font from the given path and adds it to the collection of fonts.
         /// </summary>
-        public static void LoadCustomFont(string path) => LoadCustomFont(path, Path.GetFileNameWithoutExtension(path));
+        public static void LoadCustomFont(string path) 
+            => LoadCustomFont(path, Path.GetFileNameWithoutExtension(path));
         /// <summary>
         /// Loads a ttf or otf font from the given path and adds it to the collection of fonts.
         /// </summary>
@@ -374,20 +305,15 @@ namespace TheraEngine
             => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
         #endregion
 
-        /// <summary>
-        /// Retrieves the viewport with the same index.
-        /// </summary>
-        public static Viewport GetViewport(LocalPlayerIndex index)
-            => BaseRenderPanel.WorldPanel?.GetViewport(index);
-        
-//        public static void LogError(string message, params string[] args)
-//        {
-//#if DEBUG
-//            if (args.Length != 0)
-//                message = string.Format(message, args);
-//            throw new Exception(message);
-//#endif
-//        }
+        #region Output
+        //        public static void LogError(string message, params string[] args)
+        //        {
+        //#if DEBUG
+        //            if (args.Length != 0)
+        //                message = string.Format(message, args);
+        //            throw new Exception(message);
+        //#endif
+        //        }
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
@@ -433,50 +359,15 @@ namespace TheraEngine
                 m = "[" + callerName + "] " + m;
             PrintLine(m);
         }
+        #endregion
+
+        #region Game Modes
         /// <summary>
-        /// Tells the engine to play in a new world.
+        /// Retrieves the current world's overridden game mode or the game's game mode if not overriden.
         /// </summary>
-        /// <param name="world">The world to play in.</param>
-        /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false, bool loadWorldGameMode = true)
-        {
-            if (_currentWorld == world)
-                return;
-
-            PreWorldChanged?.Invoke();
-
-            //bool wasRunning = _timer.IsRunning;
-            World previous = World;
-
-            ActiveGameMode?.EndGameplay();
-            World?.EndPlay();
-
-            //Stop();
-
-            _currentWorld = world;
-            if (World != null)
-            {
-                Scene.Clear(World.Settings.File.Bounds);
-                World.Initialize();
-                if (!deferBeginPlay)
-                    World.BeginPlay();
-            }
-            else
-                Scene.Clear(new BoundingBox(0.5f, Vec3.Zero));
-
-            if (loadWorldGameMode && Game != null)
-                Game.State.GameMode = World?.GetGameMode();
-
-            ActiveGameMode?.BeginGameplay();
-
-            PostWorldChanged?.Invoke();
-
-            //if (wasRunning)
-            //    Run();
-
-            if (unloadPrevious)
-                previous?.Unload();
-        }
+        /// <returns></returns>
+        public static BaseGameMode GetGameMode()
+            => World?.Settings.File?.GameModeOverride?.File ?? Game.DefaultGameMode;
         public static void SetGameMode(BaseGameMode mode) => SetGameMode(mode, null);
         public static void SetGameMode(BaseGameMode mode, Action beforeBeginGameplay)
         {
@@ -487,6 +378,21 @@ namespace TheraEngine
                 beforeBeginGameplay?.Invoke();
                 ActiveGameMode?.BeginGameplay();
             }
+        }
+        #endregion
+
+        private static void ActivePlayers_Removed(LocalPlayerController item)
+        {
+            //ActiveGameMode?.HandleLocalPlayerLeft(item);
+
+            //TODO: remove controller from the server
+        }
+
+        private static void ActivePlayers_Added(LocalPlayerController item)
+        {
+            //ActiveGameMode?.HandleLocalPlayerJoined(item);
+
+            //TODO: create controller on the server
         }
 
         internal static void ResetLocalPlayerControllers()
@@ -552,6 +458,58 @@ namespace TheraEngine
             return true;
         }
 
+
+        /// <summary>
+        /// Retrieves the world viewport with the same index.
+        /// </summary>
+        public static Viewport GetViewport(LocalPlayerIndex index)
+            => BaseRenderPanel.WorldPanel?.GetViewport(index);
+
+        /// <summary>
+        /// Tells the engine to play in a new world.
+        /// </summary>
+        /// <param name="world">The world to play in.</param>
+        /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
+        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false, bool loadWorldGameMode = true)
+        {
+            if (_currentWorld == world)
+                return;
+
+            PreWorldChanged?.Invoke();
+
+            //bool wasRunning = _timer.IsRunning;
+            World previous = World;
+
+            ActiveGameMode?.EndGameplay();
+            World?.EndPlay();
+
+            //Stop();
+
+            _currentWorld = world;
+            if (World != null)
+            {
+                Scene.Clear(World.Settings.File.Bounds);
+                World.Initialize();
+                if (!deferBeginPlay)
+                    World.BeginPlay();
+            }
+            else
+                Scene.Clear(new BoundingBox(0.5f, Vec3.Zero));
+
+            if (loadWorldGameMode && Game != null)
+                Game.State.GameMode = World?.GetGameMode();
+
+            ActiveGameMode?.BeginGameplay();
+
+            PostWorldChanged?.Invoke();
+
+            //if (wasRunning)
+            //    Run();
+
+            if (unloadPrevious)
+                previous?.Unload();
+        }
+
         /// <summary>
         /// Called when the input awaiter discovers a new input device.
         /// </summary>
@@ -593,135 +551,5 @@ namespace TheraEngine
                     ActivePlayers[device.Index].Input.UpdateDevices();
             }
         }
-
-        #region Tracing
-        /// <summary>
-        /// Finds the closest ray intersection with any physics object.
-        /// </summary>
-        /// <returns></returns>
-        public static ClosestRayResultCallback RaycastClosest(Segment ray)
-            => RaycastClosest(ray.StartPoint, ray.EndPoint);
-        public static ClosestRayResultCallback RaycastClosest(Vec3 from, Vec3 to)
-        {
-            if (World == null)
-                return null;
-            Vector3 fromRef = from;
-            Vector3 toRef = to;
-            ClosestRayResultCallback callback = new ClosestRayResultCallback(ref fromRef, ref toRef)
-            {
-                CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
-                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
-            };
-            World?.PhysicsScene.RayTest(from, to, callback);
-            return callback;
-        }
-        public static ClosestRayResultExceptCallback RaycastClosestExcept(Segment ray, params CollisionObject[] ignore)
-            => RaycastClosestExcept(ray.StartPoint, ray.EndPoint, ignore);
-        public static ClosestRayResultExceptCallback RaycastClosestExcept(Vec3 from, Vec3 to, params CollisionObject[] ignore)
-        {
-            if (World == null)
-                return null;
-            Vector3 fromRef = from;
-            Vector3 toRef = to;
-            ClosestRayResultExceptCallback callback = new ClosestRayResultExceptCallback(ref fromRef, ref toRef, ignore)
-            {
-                CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
-                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
-            };
-            World?.PhysicsScene.RayTest(from, to, callback);
-            return callback;
-        }
-        public static AllHitsRayResultCallback RaycastMultiple(Segment ray)
-            => RaycastMultiple(ray.StartPoint, ray.EndPoint);
-        public static AllHitsRayResultCallback RaycastMultiple(Vec3 from, Vec3 to)
-        {
-            if (World == null)
-                return null;
-            AllHitsRayResultCallback callback = new AllHitsRayResultCallback(from, to);
-            World?.PhysicsScene.RayTest(from, to, callback);
-            return callback;
-        }
-
-        public static void ShapeCastClosest(ConvexShape s, Matrix4 start, Matrix4 end, ClosestConvexResultCallback result)
-        {
-            World?.PhysicsScene.ConvexSweepTest(s, start, end, result);
-        }
-        #endregion
     }
-    public class ClosestConvexResultExceptCallback : ClosestConvexResultCallback
-    {
-        CollisionObject[] _ignore;
-        public ClosestConvexResultExceptCallback(params CollisionObject[] ignore) : base()
-            => _ignore = ignore;
-        public ClosestConvexResultExceptCallback(ref Vector3 from, ref Vector3 to, params CollisionObject[] ignore) : base(ref from, ref to) 
-            => _ignore = ignore;
-        public override float AddSingleResult(LocalConvexResult convexResult, bool normalInWorldSpace)
-        {
-            if (_ignore.Any(x => x == convexResult.HitCollisionObject))
-                return 1.0f;
-            return base.AddSingleResult(convexResult, normalInWorldSpace);
-        }
-    }
-    public class ClosestRayResultExceptCallback : ClosestRayResultCallback
-    {
-        CollisionObject[] _ignore;
-        public ClosestRayResultExceptCallback(params CollisionObject[] ignore) : base()
-            => _ignore = ignore;
-        public ClosestRayResultExceptCallback(ref Vector3 from, ref Vector3 to, params CollisionObject[] ignore) : base(ref from, ref to) 
-            => _ignore = ignore;
-        public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
-        {
-            if (_ignore.Any(x => x == rayResult.CollisionObject))
-                return 1.0f;
-            return base.AddSingleResult(rayResult, normalInWorldSpace);
-        }
-    }
-    //public class CustomClosestRayResultCallback : RayResultCallback
-    //{
-    //    public CustomClosestRayResultCallback() : base()
-    //    {
-
-    //    }
-    //    public CustomClosestRayResultCallback(Vec3 rayFromWorld, Vec3 rayToWorld) : base()
-    //    {
-
-    //    }
-
-    //    private Vec3 _rayStartWorld;
-    //    private Vec3 _rayEndWorld;
-    //    private Vec3 _hitPointWorld;
-    //    private Vec3 _hitNormalWorld;
-    //    private float _hitFraction = 1.0f;
-    //    private CustomCollisionGroup
-    //        _collidesWith = CustomCollisionGroup.All,
-    //        //_group = CustomCollisionGroup.All,
-    //        _ignore = CustomCollisionGroup.None;
-
-    //    public Vec3 RayStartWorld { get => _rayStartWorld; set => _rayStartWorld = value; }
-    //    public Vec3 RayEndWorld { get => _rayEndWorld; set => _rayEndWorld = value; }
-    //    public Vec3 HitPointWorld { get => _hitPointWorld; }
-    //    public Vec3 HitNormalWorld { get => _hitNormalWorld; }
-    //    public CustomCollisionGroup CollidesWith { get => _collidesWith; set => _collidesWith = value; }
-    //    public CustomCollisionGroup Ignore { get => _ignore; set => _ignore = value; }
-
-    //    public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
-    //    {
-    //        if (rayResult.HitFraction < _hitFraction)
-    //        {
-    //            CollisionObject = rayResult.CollisionObject;
-    //            _hitFraction = rayResult.HitFraction;
-    //            _hitNormalWorld = normalInWorldSpace ? (Vec3)rayResult.HitNormalLocal : Vec3.TransformNormal(rayResult.HitNormalLocal, rayResult.CollisionObject.WorldTransform).NormalizedFast();
-    //            _hitPointWorld = Vec3.Lerp(_rayStartWorld, _rayEndWorld, _hitFraction);
-    //        }
-
-    //        return rayResult.HitFraction;
-    //    }
-    //    public override bool NeedsCollision(BroadphaseProxy proxy0)
-    //    {
-    //        CustomCollisionGroup g = (CustomCollisionGroup)(short)proxy0.CollisionFilterGroup;
-    //        if ((_collidesWith & g) != 0 && (_ignore & g) == 0)
-    //            return Collision.SegmentIntersectsAABB(RayStartWorld, RayEndWorld, proxy0.AabbMin, proxy0.AabbMax, out Vec3 enterPoint, out Vec3 exitPoint);
-    //        return false;
-    //    }
-    //}
 }

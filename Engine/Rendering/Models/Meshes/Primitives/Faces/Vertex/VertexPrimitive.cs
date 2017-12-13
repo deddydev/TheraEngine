@@ -7,7 +7,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models
 {
-    public abstract class VertexPrimitive : ObjectBase, IEnumerable<Vertex>
+    public abstract class VertexPrimitive : TObject, IEnumerable<Vertex>
     {
         public abstract FaceType Type { get; }
         public ReadOnlyCollection<Vertex> Vertices { get { return _vertices.AsReadOnly(); } }

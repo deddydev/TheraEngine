@@ -25,7 +25,7 @@ namespace TheraEngine.Input.Devices
     /// <summary>
     /// Input from controllers.
     /// </summary>
-    public class InputInterface : ObjectBase
+    public class InputInterface : TObject
     {
         //TODO: contain reference to owning local player controller
         //and use its player index enum instead

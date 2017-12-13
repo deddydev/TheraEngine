@@ -35,8 +35,8 @@ namespace TheraEditor.Wrappers
 
         protected bool _discovered = false;
 
-        protected ObjectBase _resource;
-        public ObjectBase ResourceNode
+        protected TObject _resource;
+        public TObject ResourceNode
         {
             get { return _resource; }
             //set { Link(value); }
@@ -60,7 +60,7 @@ namespace TheraEditor.Wrappers
             return null;
         }
 
-        public void Link(ObjectBase res)
+        public void Link(TObject res)
         {
             //Unlink();
             //if (res != null)
@@ -148,26 +148,26 @@ namespace TheraEditor.Wrappers
             //if (!(Items == null || index < 0 || index >= Items.Count))
             //    TreeView.SelectedNode = Items[index];
         }
-        internal protected virtual void OnUpdateProperties(ObjectBase obj)
+        internal protected virtual void OnUpdateProperties(TObject obj)
         {
             //MainWindow.Instance.PropertyGrid.Refresh();
         }
-        internal protected virtual void OnUpdateCurrentControl(ObjectBase obj)
+        internal protected virtual void OnUpdateCurrentControl(TObject obj)
         {
             //MainWindow form = MainWindow.Instance;
             //var g = form.propertyGrid1.SelectedGridItem;
             //form._currentControl = null;
             //form.resourceTree_SelectionChanged(this, null);
         }
-        internal protected virtual void OnChildAdded(ObjectBase parent, ObjectBase child)
+        internal protected virtual void OnChildAdded(TObject parent, TObject child)
         {
             Items.Add(Wrap(_owner, child));
         }
-        internal protected virtual void OnChildInserted(int index, ObjectBase parent, ObjectBase child)
+        internal protected virtual void OnChildInserted(int index, TObject parent, TObject child)
         {
             Items.Insert(index, Wrap(_owner, child));
         }
-        internal protected virtual void OnChildRemoved(ObjectBase parent, ObjectBase child)
+        internal protected virtual void OnChildRemoved(TObject parent, TObject child)
         {
             foreach (BaseWrapper w in Items)
                 if (w != null)
@@ -177,7 +177,7 @@ namespace TheraEditor.Wrappers
                         w.Remove();
                     }
         }
-        internal protected void RefreshView(ObjectBase node)
+        internal protected void RefreshView(TObject node)
         {
             Link(node);
 
@@ -187,18 +187,18 @@ namespace TheraEditor.Wrappers
             //    TreeView.SelectedNode = this;
             //}
         }
-        internal protected virtual void OnRestored(ObjectBase node) { RefreshView(node); }
-        internal protected virtual void OnReplaced(ObjectBase node) { RefreshView(node); }
-        internal protected virtual void OnRenamed(ObjectBase node, string oldName) { Header = node.Name; }
+        internal protected virtual void OnRestored(TObject node) { RefreshView(node); }
+        internal protected virtual void OnReplaced(TObject node) { RefreshView(node); }
+        internal protected virtual void OnRenamed(TObject node, string oldName) { Header = node.Name; }
 
-        internal protected virtual void OnMovedUp(ObjectBase node, bool select)
+        internal protected virtual void OnMovedUp(TObject node, bool select)
         {
             GenericWrapper res = this.FindResource(node, false) as GenericWrapper;
             res.MoveUp(select);
             res.EnsureVisible();
             //res.TreeView.SelectedNode = res;
         }
-        internal protected virtual void OnMovedDown(ObjectBase node, bool select)
+        internal protected virtual void OnMovedDown(TObject node, bool select)
         {
             GenericWrapper res = this.FindResource(node, false) as GenericWrapper;
             res.MoveDown(select);
@@ -223,7 +223,7 @@ namespace TheraEditor.Wrappers
         }
         internal protected virtual void OnDoubleClick() { }
 
-        internal BaseWrapper FindResource(ObjectBase n, bool searchChildren)
+        internal BaseWrapper FindResource(TObject n, bool searchChildren)
         {
             BaseWrapper node;
             if (_resource == n)
@@ -241,8 +241,8 @@ namespace TheraEditor.Wrappers
         }
 
         public static Control _owner;
-        public static BaseWrapper Wrap(ObjectBase node) { return Wrap(null, node); }
-        public static BaseWrapper Wrap(Control owner, ObjectBase node)
+        public static BaseWrapper Wrap(TObject node) { return Wrap(null, node); }
+        public static BaseWrapper Wrap(Control owner, TObject node)
         {
             _owner = owner;
             BaseWrapper w = null;

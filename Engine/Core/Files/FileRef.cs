@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Files
@@ -289,12 +290,12 @@ namespace TheraEngine.Files
             {
                 _refPath = value;
                 _absolutePath = _refPath;
-                if (_refPath != null)
+                if (!string.IsNullOrEmpty(_refPath))
                 {
-                    if (_refPath.StartsWith("\\"))
+                    if (_refPath[0] == Path.DirectorySeparatorChar)
                         _refPath.Substring(1);
-                    if (!_refPath.Contains("\\"))
-                        _absolutePath = Engine.StartupPath + _refPath;
+                    if (_refPath.IndexOf(Path.DirectorySeparatorChar) < 0)
+                        _absolutePath = _refPath.MakePathRelativeTo(Application.StartupPath);
                 }
             }
         }

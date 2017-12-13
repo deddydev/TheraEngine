@@ -1,6 +1,5 @@
 ﻿using static System.Math;
 using TheraEngine.Rendering.Models;
-using BulletSharp;
 using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;

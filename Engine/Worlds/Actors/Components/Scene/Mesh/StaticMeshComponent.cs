@@ -2,7 +2,6 @@
 using System;
 using TheraEngine.Rendering;
 using System.ComponentModel;
-using BulletSharp;
 using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;

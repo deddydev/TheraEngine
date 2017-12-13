@@ -13,26 +13,21 @@ namespace TheraEngine.Rendering.Models
             SingleFileRef<PrimitiveData> primitives,
             float visibleDistance)
         {
-            _material = material;
-            _primitives = primitives;
-            _visibleDistance = visibleDistance;
+            _material = material ?? new SingleFileRef<TMaterial>();
+            _primitives = primitives ?? new SingleFileRef<PrimitiveData>();
+            VisibleDistance = visibleDistance;
         }
 
+        [Category("LOD")]
         public SingleFileRef<TMaterial> Material => _material;
+        [Category("LOD")]
         public SingleFileRef<PrimitiveData> Primitives => _primitives;
-        public float VisibleDistance
-        {
-            get => _visibleDistance;
-            set => _visibleDistance = value;
-        }
-
         [Category("LOD")]
-        [TSerialize("VisibleDistance")]
-        private float _visibleDistance;
-        [Category("LOD")]
+        [TSerialize]
+        public float VisibleDistance { get; set; } = 0.0f;
+        
         [TSerialize("Primitives")]
         protected SingleFileRef<PrimitiveData> _primitives = new SingleFileRef<PrimitiveData>();
-        [Category("LOD")]
         [TSerialize("Material")]
         protected SingleFileRef<TMaterial> _material = new SingleFileRef<TMaterial>();
 

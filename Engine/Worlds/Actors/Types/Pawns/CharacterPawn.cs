@@ -1,7 +1,6 @@
 ﻿using System;
 using TheraEngine.Rendering;
 using TheraEngine.GameModes;
-using BulletSharp;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Cameras;
@@ -242,8 +241,8 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             };
 
             CapsuleYComponent rootCapsule = new CapsuleYComponent(radius, halfHeight, info);
-            rootCapsule.PhysicsDriver.OnHit += OnHit;
-            rootCapsule.PhysicsDriver.AngularFactor = Vec3.Zero;
+            rootCapsule.CollisionObject.OnHit += OnHit;
+            rootCapsule.CollisionObject.AngularFactor = Vec3.Zero;
             rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 
             _meshComp = new SkeletalMeshComponent();
@@ -262,7 +261,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             PositionLagComponent lagComp = new PositionLagComponent(7.0f, 7.0f);
             rootCapsule.ChildComponents.Add(lagComp);
 
-            _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.PhysicsDriver.CollisionObject };
+            _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.CollisionObject.CollisionObject };
             _tpCameraBoom.Translation.Raw = new Vec3(0.0f, 0.3f, 0.0f);
             _tpCameraBoom.Rotation.SyncFrom(_viewRotation);
             _tpCameraBoom.MaxLength = 5.0f;

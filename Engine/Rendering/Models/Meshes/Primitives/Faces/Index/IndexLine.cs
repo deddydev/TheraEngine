@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class IndexLine : ObjectBase
+    public class IndexLine : TObject
     {
         public IndexLine() { }
         public IndexLine(IndexPoint point1, IndexPoint point2)

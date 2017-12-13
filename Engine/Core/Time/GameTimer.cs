@@ -3,7 +3,7 @@
 namespace TheraEngine.Timers
 {
     public delegate void MultiFireAction(float totalElapsed, int fireNumber);
-    public class GameTimer : ObjectBase
+    public class GameTimer : TObject
     {
         public bool IsRunning => _isRunning;
 

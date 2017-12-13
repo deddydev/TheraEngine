@@ -206,7 +206,7 @@ namespace TheraEngine.Animation
 
         private int _totalAnimCount = 0;
         private AnimFolder _root;
-        internal MonitoredList<ObjectBase> _owners = new MonitoredList<ObjectBase>();
+        internal MonitoredList<TObject> _owners = new MonitoredList<TObject>();
 
         [TSerialize("EndedAnimations")]
         private int _endedAnimations = 0;
@@ -362,7 +362,7 @@ namespace TheraEngine.Animation
         }
         protected internal void Tick(float delta)
         {
-            foreach (ObjectBase b in _owners)
+            foreach (TObject b in _owners)
                 _root?._tick(b, delta);
         }
     }

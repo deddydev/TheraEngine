@@ -9,7 +9,7 @@ namespace TheraEngine.Input.Devices
         TickOnlyWhenUnpaused    = 1,
         TickOnlyWhenPaused      = 2,
     }
-    public abstract class InputDevice : ObjectBase
+    public abstract class InputDevice : TObject
     {
         //TODO: mouse and keyboard should just be their own global devices for ALL input from ANY mice or keyboards
         public static Dictionary<InputDeviceType, InputDevice[]> CurrentDevices =

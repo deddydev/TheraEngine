@@ -1,7 +1,7 @@
 ﻿namespace TheraEngine.Input.Devices
 {
     public delegate void DelFoundInput(InputDevice device);
-    public abstract class InputAwaiter : ObjectBase
+    public abstract class InputAwaiter : TObject
     {
         public event DelFoundInput FoundInput;
 

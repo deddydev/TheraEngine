@@ -1,5 +1,4 @@
-﻿using BulletSharp;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System;
 using TheraEngine.Core.Maths.Transforms;
 

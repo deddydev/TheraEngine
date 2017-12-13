@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering.Models
         QuadStrip,
         Ngon
     }
-    public abstract class IndexPrimitive : ObjectBase
+    public abstract class IndexPrimitive : TObject
     {
         [TSerialize("Points")]
         protected List<IndexPoint> _points = new List<IndexPoint>();

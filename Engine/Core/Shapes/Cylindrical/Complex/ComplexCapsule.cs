@@ -1,5 +1,4 @@
-﻿using BulletSharp;
-using System;
+﻿using System;
 
 namespace TheraEngine.Core.Shapes
 {

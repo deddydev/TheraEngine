@@ -1,6 +1,6 @@
-﻿using BulletSharp;
-using TheraEngine.Rendering;
+﻿using TheraEngine.Rendering;
 using System;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
 {
@@ -55,7 +55,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
 
                             _justJumped = false;
                             //_velocity = root.PhysicsDriver.CollisionObject.LinearVelocity;
-                            root.PhysicsDriver.SimulatingPhysics = false;
+                            root.CollisionObject.SimulatingPhysics = false;
                             //root.PhysicsDriver.Kinematic = true;
                             //Physics simulation updates the world matrix, but not its components (translation, for example)
                             //Do that now
@@ -72,8 +72,8 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
                             }
 
                             //root.PhysicsDriver.Kinematic = false;
-                            root.PhysicsDriver.SimulatingPhysics = true;
-                            root.PhysicsDriver.CollisionObject.LinearVelocity = _velocity;
+                            root.CollisionObject.SimulatingPhysics = true;
+                            root.CollisionObject.CollisionObject.LinearVelocity = _velocity;
                             CurrentWalkingSurface = null;
 
                             _subUpdateTick = TickFalling;
@@ -150,7 +150,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
             Matrix4 inputTransform;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             ConvexShape shape = (ConvexShape)root.CullingVolume.GetCollisionShape();
-            RigidBody body = root.PhysicsDriver.CollisionObject;
+            RigidBody body = root.CollisionObject.CollisionObject;
             
             _prevPosition = root.Translation.Raw;
 
@@ -278,7 +278,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
 
             #endregion
 
-            root.PhysicsDriver.SetPhysicsTransform(root.WorldMatrix);
+            root.CollisionObject.SetPhysicsTransform(root.WorldMatrix);
 
             _prevVelocity = _velocity;
             _position = root.Translation;
@@ -292,10 +292,10 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
         protected virtual void TickFalling(float delta, Vec3 movementInput)
         {
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
-            Vec3 v = root.PhysicsDriver.CollisionObject.LinearVelocity;
+            Vec3 v = root.CollisionObject.CollisionObject.LinearVelocity;
             //Engine.DebugPrint(v.Xz.LengthFast);
             if (v.Xz.LengthFast < 8.667842f)
-                root.PhysicsDriver.CollisionObject.ApplyCentralForce(((1.0f / root.PhysicsDriver.CollisionObject.InvMass) * _fallingMovementSpeed) * movementInput);
+                root.CollisionObject.CollisionObject.ApplyCentralForce(((1.0f / root.CollisionObject.CollisionObject.InvMass) * _fallingMovementSpeed) * movementInput);
         }
         
         public void Jump()
@@ -305,7 +305,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
                 return;
 
             //Get root component of the character
-            IPhysicsDrivable root = OwningActor.RootComponent as IPhysicsDrivable;
+            ICollidable root = OwningActor.RootComponent as ICollidable;
 
             //If the root isn't physics drivable, the player can't jump
             if (root == null)
@@ -315,7 +315,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
             _justJumped = true;
 
             //Start physics simulation of the root
-            PhysicsDriver driver = root.PhysicsDriver;
+            TCollisionObject driver = root.CollisionObject;
             RigidBody character = driver.CollisionObject;
 
             Vec3 up = driver.CollisionObject.Gravity;

@@ -1,14 +1,14 @@
-﻿using BulletSharp;
-using System;
+﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 {
-    public abstract class ShapeComponent : TRComponent, I3DRenderable, IPhysicsDrivable
+    public abstract class ShapeComponent : TRComponent, I3DRenderable, ICollidable
     {
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, false);
 
@@ -31,12 +31,12 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
             }
         }
 
-        public void InitPhysics(PhysicsConstructionInfo info)
+        public void InitPhysics(TRigidBodyConstructionInfo info)
         {
             if (info != null)
             {
                 info.CollisionShape = GetCollisionShape();
-                info.MotionState = new DefaultMotionState(WorldMatrix);
+                info.InitialWorldTransform = WorldMatrix;
                 _physicsDriver = new PhysicsDriver(this, info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
                 WorldTransformChanged += ShapeComponent_WorldTransformChanged;
             }
@@ -49,7 +49,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         }
         private void ShapeComponent_WorldTransformChanged()
         {
-            _physicsDriver.SetPhysicsTransform(WorldMatrix);
+            _collisionObject.SetPhysicsTransform(WorldMatrix);
         }
 
         private void PhysicsSimulationStateChanged(bool isSimulating)
@@ -62,18 +62,19 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 
         public override void OnSpawned()
         {
-            _physicsDriver?.OnSpawned();
+            _collisionObject?.Spawn();
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            _physicsDriver?.OnDespawned();
+            _collisionObject?.Despawn();
             base.OnDespawned();
         }
+
         [TSerialize("RenderParams")]
         private RenderingParameters _renderParams = new RenderingParameters();
-        [TSerialize("PhysicsDriver")]
-        protected PhysicsDriver _physicsDriver;
+        [TSerialize("CollisionObject")]
+        protected TCollisionObject _collisionObject;
         [TSerialize("IsVisible")]
         protected bool _isVisible;
         [TSerialize("VisibleByDefault")]
@@ -84,19 +85,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         protected bool _hiddenFromOwner;
         [TSerialize("VisibleToOwnerOnly")]
         protected bool _visibleToOwnerOnly;
-
-        [Browsable(false)]
-        public CustomCollisionGroup CollisionGroup
-        {
-            get => _physicsDriver.CollisionGroup;
-            set => _physicsDriver.CollisionGroup = value;
-        }
-        [Browsable(false)]
-        public CustomCollisionGroup CollidesWith
-        {
-            get => _physicsDriver.CollidesWith;
-            set => _physicsDriver.CollidesWith = value;
-        }
+        
         [Category("Rendering")]
         public bool Visible
         {
@@ -107,7 +96,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         public bool VisibleByDefault => _visibleByDefault;
 
         [Category("Physics")]
-        public PhysicsDriver PhysicsDriver => _physicsDriver;
+        public TCollisionObject CollisionObject => _collisionObject;
 
         [Category("Rendering")]
         public bool VisibleInEditorOnly
@@ -129,6 +118,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         }
 
         public abstract void Render();
-        protected abstract CollisionShape GetCollisionShape();
+        protected abstract TCollisionShape GetCollisionShape();
     }
 }

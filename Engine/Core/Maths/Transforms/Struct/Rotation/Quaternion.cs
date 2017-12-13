@@ -498,6 +498,12 @@ namespace System
         {
             return new Quat(quaternion.X * scale, quaternion.Y * scale, quaternion.Z * scale, quaternion.W * scale);
         }
+
+        #region BulletSharp
+        public static implicit operator BulletSharp.Quaternion(Quat q) => new BulletSharp.Quaternion(q.X, q.Y, q.Z, q.W);
+        public static implicit operator Quat(BulletSharp.Quaternion q) => new Quat(q.X, q.Y, q.Z, q.W);
+        #endregion
+
         public static bool operator ==(Quat left, Quat right)
         {
             return left.Equals(right);

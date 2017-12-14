@@ -7,30 +7,72 @@ using System.Threading.Tasks;
 namespace TheraEngine.Physics.RayTracing
 {
     /// <summary>
+    /// Provides information about a ray intersection.
+    /// </summary>
+    public class RayCollisionResult
+    {
+        public TCollisionObject CollisionObject { get; internal set; }
+        public float HitFraction { get; internal set; }
+        public Vec3 HitNormalWorld { get; internal set; }
+        public Vec3 HitPointWorld { get; internal set; }
+        public int ShapePart { get; internal set; }
+        public int TriangleIndex { get; internal set; }
+        
+        internal RayCollisionResult() { }
+        internal RayCollisionResult(
+            TCollisionObject collisionObject,
+            float hitFraction,
+            Vec3 hitNormalWorld,
+            Vec3 hitPointWorld,
+            int shapePart, 
+            int triangleIndex)
+        {
+            CollisionObject = collisionObject;
+            HitFraction = hitFraction;
+            HitNormalWorld = hitNormalWorld;
+            HitPointWorld = hitPointWorld;
+            ShapePart = shapePart;
+            TriangleIndex = triangleIndex;
+        }
+    }
+    /// <summary>
     /// Contains properties and methods for projecting a ray in the world and testing for intersections with collision objects.
     /// </summary>
     public abstract class RayTraceResult
     {
-        public Vec3 Start { get; private set; }
-        public Vec3 End { get; private set; }
+        public Vec3 StartPointWorld { get; private set; }
+        public Vec3 EndPointWorld { get; private set; }
         public ushort CollisionGroup { get; private set; }
         public ushort CollidesWith { get; private set; }
+        public TCollisionObject[] Ignored { get; private set; }
 
-        public RayTraceResult(Vec3 start, Vec3 end, ushort collisionGroup, ushort collidesWith)
+        public RayTraceResult(
+            Vec3 startPointWorld,
+            Vec3 endPointWorld,
+            ushort collisionGroup,
+            ushort collidesWith,
+            params TCollisionObject[] ignored)
         {
-            Start = start;
-            End = end;
+            StartPointWorld = startPointWorld;
+            EndPointWorld = endPointWorld;
             CollisionGroup = collisionGroup;
             CollidesWith = collidesWith;
+            Ignored = ignored;
         }
+
+        protected bool CanAddCommon(TCollisionObject obj)
+            => obj.HasContactResponse && !Ignored.Any(x => x == obj);
 
         internal protected abstract void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, float hitFraction, int shapePart, int triangleIndex);
         internal protected virtual bool TestApproxCollision(int uniqueID, ushort collisionGroup, ushort collidesWith, Vec3 aabbMin, Vec3 aabbMax, object clientObject)
         {
-            Vec3 dir = End - Start;
+            //if (Ignored.Any(x => x.UniqueID == uniqueID))
+            //    return false;
+
+            Vec3 dir = EndPointWorld - StartPointWorld;
 
             //I believe this algorithm is faster.
-            if (Collision.RayIntersectsAABBDistance(Start, dir, aabbMin, aabbMax, out float distance) && distance * distance < dir.LengthSquared)
+            if (Collision.RayIntersectsAABBDistance(StartPointWorld, dir, aabbMin, aabbMax, out float distance) && distance * distance < dir.LengthSquared)
 
             //if (Collision.SegmentIntersectsAABB(Start, End, aabbMin, aabbMax, out Vec3 enterPoint, out Vec3 exitPoint))
 
@@ -44,27 +86,6 @@ namespace TheraEngine.Physics.RayTracing
         }
     }
 
-    public class CollisionResult
-    {
-        public TCollisionObject CollisionObject { get; internal set; }
-        public float HitFraction { get; internal set; }
-        public Vec3 HitNormal { get; internal set; }
-        public bool HitNormalInWorldSpace { get; internal set; }
-        public int ShapePart { get; internal set; }
-        public int TriangleIndex { get; internal set; }
-        
-        internal CollisionResult() { }
-        internal CollisionResult(TCollisionObject collisionObject, float hitFraction, Vec3 hitNormal, bool hitNormalInWorldSpace, int shapePart, int triangleIndex)
-        {
-            CollisionObject = collisionObject;
-            HitFraction = hitFraction;
-            HitNormal = hitNormal;
-            HitNormalInWorldSpace = hitNormalInWorldSpace;
-            ShapePart = shapePart;
-            TriangleIndex = triangleIndex;
-        }
-    }
-
     /// <summary>
     /// Returns a single collision result. Use RayTraceClosest if you're looking for a basic single result.
     /// </summary>
@@ -72,10 +93,18 @@ namespace TheraEngine.Physics.RayTracing
     {
         public bool HasHit => Result != null;
 
-        public CollisionResult Result { get; protected set; } = null;
+        protected RayCollisionResult Result { get; set; } = null;
 
-        public RayTraceResultSingle(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags)
-            : base(start, end, collisionGroupFlags, collidesWithFlags) { }
+        public TCollisionObject CollisionObject => Result?.CollisionObject;
+        public float HitFraction => Result == null ? 1.0f : Result.HitFraction;
+        public Vec3 HitNormalWorld => Result == null ? Vec3.Zero : Result.HitNormalWorld;
+        public Vec3 HitPointWorld => Result == null ? Vec3.Zero : Result.HitPointWorld;
+        public int ShapePart => Result == null ? -1 : Result.ShapePart;
+        public int TriangleIndex => Result == null ? -1 : Result.TriangleIndex;
+
+
+        public RayTraceResultSingle(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored)
+            : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }
     }
 
     /// <summary>
@@ -83,16 +112,22 @@ namespace TheraEngine.Physics.RayTracing
     /// </summary>
     public class RayTraceResultMulti : RayTraceResult
     {
-        public bool HasHit => Result.Count != 0;
+        public bool HasHit => Results.Count != 0;
         
-        public List<CollisionResult> Result { get; protected set; } = new List<CollisionResult>();
+        public List<RayCollisionResult> Results { get; } = new List<RayCollisionResult>();
 
-        public RayTraceResultMulti(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags) 
-            : base(start, end, collisionGroupFlags, collidesWithFlags) { }
+        public RayTraceResultMulti(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored) 
+            : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }
 
         protected internal override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, float hitFraction, int shapePart, int triangleIndex)
         {
-            Result.Add(new CollisionResult(obj, hitFraction, ));
+            if (!CanAddCommon(obj))
+                return;
+
+            if (!normalInWorldSpace)
+                hitNormal = Vec3.TransformVector(hitNormal, obj.WorldTransform);
+
+            Results.Add(new RayCollisionResult(obj, hitFraction, hitNormal, Vec3.Lerp(StartPointWorld, EndPointWorld, hitFraction), shapePart, triangleIndex));
         }
     }
 
@@ -101,19 +136,23 @@ namespace TheraEngine.Physics.RayTracing
     /// </summary>
     public class RayTraceClosest : RayTraceResultSingle
     {
-        public RayTraceClosest(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags)
-            : base(start, end, collisionGroupFlags, collidesWithFlags) { }
+        public RayTraceClosest(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored)
+            : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }
 
         protected internal override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, float hitFraction, int shapePart, int triangleIndex)
         {
+            if (!CanAddCommon(obj))
+                return;
+
+            Vec3 hitPointWorld = Vec3.Lerp(StartPointWorld, EndPointWorld, hitFraction);
             if (Result == null)
-                Result = new CollisionResult(obj, hitFraction, hitNormal, normalInWorldSpace, shapePart, triangleIndex);
+                Result = new RayCollisionResult(obj, hitFraction, hitNormal, hitPointWorld, shapePart, triangleIndex);
             else if (hitFraction < Result.HitFraction)
             {
                 Result.CollisionObject = obj;
                 Result.HitFraction = hitFraction;
-                Result.HitNormal = hitNormal;
-                Result.HitNormalInWorldSpace = normalInWorldSpace;
+                Result.HitNormalWorld = hitNormal;
+                Result.HitPointWorld = hitPointWorld;
                 Result.ShapePart = shapePart;
                 Result.TriangleIndex = triangleIndex;
             }

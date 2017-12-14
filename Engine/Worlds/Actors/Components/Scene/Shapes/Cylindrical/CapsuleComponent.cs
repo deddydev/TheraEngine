@@ -5,6 +5,7 @@ using TheraEngine.Core.Shapes;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -12,7 +13,7 @@ namespace TheraEngine.Worlds.Actors
     {
         BaseCapsule _capsule;
 
-        public CapsuleYComponent(float radius, float halfHeight, PhysicsConstructionInfo info) : base()
+        public CapsuleYComponent(float radius, float halfHeight, TRigidBodyConstructionInfo info) : base()
         {
             _capsule = new CapsuleY(Vec3.Zero, Rotator.GetZero(), Vec3.One, radius, halfHeight);
             InitPhysics(info);

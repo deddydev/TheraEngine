@@ -7,9 +7,9 @@ using System.IO;
 namespace TheraEngine.Physics
 {
     [Flags]
-    public enum TCollisionGroup : short
+    public enum TCollisionGroup : ushort
     {
-        All             = -1,
+        All             = 0xFFFF,
         None            = 0x0000,
         Default         = 0x0001,
         Pawns           = 0x0002,

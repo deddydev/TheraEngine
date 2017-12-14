@@ -8,7 +8,7 @@ using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 {
-    public abstract class ShapeComponent : TRComponent, I3DRenderable, ICollidable
+    public abstract class ShapeComponent : TRComponent, I3DRenderable, IRigidCollidable
     {
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, false);
 
@@ -37,11 +37,11 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
             {
                 info.CollisionShape = GetCollisionShape();
                 info.InitialWorldTransform = WorldMatrix;
-                _physicsDriver = new PhysicsDriver(this, info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
+                _rigidBodyCollision = TRigidBody.New(this, info);
                 WorldTransformChanged += ShapeComponent_WorldTransformChanged;
             }
             else
-                _physicsDriver = null;
+                _rigidBodyCollision = null;
         }
         protected virtual void PhysicsTransformChanged(Matrix4 worldMatrix)
         {
@@ -49,7 +49,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         }
         private void ShapeComponent_WorldTransformChanged()
         {
-            _collisionObject.SetPhysicsTransform(WorldMatrix);
+            _rigidBodyCollision.WorldTransform = WorldMatrix;
         }
 
         private void PhysicsSimulationStateChanged(bool isSimulating)
@@ -62,19 +62,19 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 
         public override void OnSpawned()
         {
-            _collisionObject?.Spawn();
+            _rigidBodyCollision?.Spawn();
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            _collisionObject?.Despawn();
+            _rigidBodyCollision?.Despawn();
             base.OnDespawned();
         }
 
         [TSerialize("RenderParams")]
         private RenderingParameters _renderParams = new RenderingParameters();
         [TSerialize("CollisionObject")]
-        protected TCollisionObject _collisionObject;
+        protected TRigidBody _rigidBodyCollision;
         [TSerialize("IsVisible")]
         protected bool _isVisible;
         [TSerialize("VisibleByDefault")]
@@ -96,7 +96,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         public bool VisibleByDefault => _visibleByDefault;
 
         [Category("Physics")]
-        public TCollisionObject CollisionObject => _collisionObject;
+        public TRigidBody RigidBodyCollision => _rigidBodyCollision;
 
         [Category("Rendering")]
         public bool VisibleInEditorOnly

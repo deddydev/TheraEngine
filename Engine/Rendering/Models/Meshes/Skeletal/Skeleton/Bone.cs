@@ -7,6 +7,7 @@ using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 using TheraEngine.Worlds.Actors.Components;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -21,13 +22,13 @@ namespace TheraEngine.Rendering.Models
         PerspectiveXYZ,
     }
     [FileClass("BONE", "Bone")]
-    public class Bone : FileObject, IPhysicsDrivable, ISocket
+    public class Bone : FileObject, IRigidCollidable, ISocket
     {
         public Bone(Skeleton owner)
         {
             _skeleton = owner;
         }
-        public Bone(string name, Transform bindstate, PhysicsConstructionInfo info)
+        public Bone(string name, Transform bindstate, TRigidBodyConstructionInfo info)
         {
             Init(name, bindstate, info);
         }
@@ -43,7 +44,7 @@ namespace TheraEngine.Rendering.Models
         {
             Init("NewBone", new Transform(), null);
         }
-        private void Init(string name, Transform bindState, PhysicsConstructionInfo info)
+        private void Init(string name, Transform bindState, TRigidBodyConstructionInfo info)
         {
             _frameState = _bindState = bindState;
             _frameState.MatrixChanged += FrameStateMatrixChanged;
@@ -63,19 +64,11 @@ namespace TheraEngine.Rendering.Models
             _childComponents.PostInserted += ChildComponentsInserted;
             _childComponents.PostInsertedRange += ChildComponentsInsertedRange;
 
-            _physicsDriver = info == null ? null : new PhysicsDriver(this, info, MatrixUpdate, SimulationUpdate);
+            _rigidBodyCollision = info == null ? null : TRigidBody.New(this, info);
         }
         private void FrameStateMatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
             TriggerFrameMatrixUpdate();
-        }
-        public void MatrixUpdate(Matrix4 worldMatrix)
-        {
-
-        }
-        public void SimulationUpdate(bool isSimulating)
-        {
-
         }
         internal void CollectChildBones(Skeleton owner)
         {
@@ -87,7 +80,7 @@ namespace TheraEngine.Rendering.Models
             if (UsesCamera)
                 Skeleton.AddCameraBone(this);
 
-            if (_physicsDriver != null)
+            if (_rigidBodyCollision != null)
                 Skeleton.AddPhysicsBone(this);
 
             foreach (Bone b in ChildBones)
@@ -113,7 +106,7 @@ namespace TheraEngine.Rendering.Models
         //[Serialize("ChildComponents")]
         private MonitoredList<SceneComponent> _childComponents = new MonitoredList<SceneComponent>();
         [TSerialize("PhysicsDriver")]
-        private PhysicsDriver _physicsDriver;
+        private TRigidBody _rigidBodyCollision;
         [TSerialize("Transform")]
         private Transform _bindState;
 
@@ -140,8 +133,8 @@ namespace TheraEngine.Rendering.Models
             set
             {
                 _selected = value;
-                if (PhysicsDriver != null)
-                    PhysicsDriver.SimulatingPhysics = false;
+                if (RigidBodyCollision != null)
+                    RigidBodyCollision.SimulatingPhysics = false;
             }
         }
         [Browsable(false)]
@@ -208,7 +201,14 @@ namespace TheraEngine.Rendering.Models
             }
         }
         [Category("Bone")]
-        public PhysicsDriver PhysicsDriver => _physicsDriver;
+        public TRigidBody RigidBodyCollision
+        {
+            get => _rigidBodyCollision;
+            set
+            {
+                _rigidBodyCollision = value;
+            }
+        }
 
         [Category("Bone")]
         public BillboardType BillboardType

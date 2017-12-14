@@ -8,10 +8,11 @@ namespace TheraEngine.Physics
 {
     public class TRigidBodyConstructionInfo
     {
+        public bool SleepingEnabled = true;
         public bool CollisionEnabled = true;
         public bool SimulatePhysics = true;
-        public TCollisionGroup CollisionGroup = TCollisionGroup.Default;
-        public TCollisionGroup CollidesWith = TCollisionGroup.All;
+        public ushort CollisionGroup = 1;
+        public ushort CollidesWith = 0xFFFF;
 
         private float _mass = 1.0f;
         private TCollisionShape _collisionShape = null;

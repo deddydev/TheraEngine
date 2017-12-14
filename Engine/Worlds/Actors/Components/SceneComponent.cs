@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components
 {
@@ -22,8 +23,8 @@ namespace TheraEngine.Worlds.Actors.Components
         /// </summary>
         protected virtual void OnWorldTransformChanged()
         {
-            if (this is IPhysicsDrivable p)
-                p.PhysicsDriver?.SetPhysicsTransform(_worldTransform);
+            if (this is IRigidCollidable p && p.RigidBodyCollision != null)
+                p.RigidBodyCollision.WorldTransform = _worldTransform;
 
             if (this is I3DBoundable r)
                 r.OctreeNode?.ItemMoved(r);

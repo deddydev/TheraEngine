@@ -14,6 +14,8 @@ using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Physics;
+using TheraEngine.Physics.RayTracing;
+using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 using TheraEngine.Scripting;
 using TheraEngine.Timers;

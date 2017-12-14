@@ -10,7 +10,19 @@ namespace TheraEngine.Physics.Bullet
 {
     internal class BulletSoftBody : TSoftBody, IBulletBody
     {
-        public SoftBody Body { get; set; }
+        private SoftBody _body;
+        public SoftBody Body
+        {
+            get => _body;
+            set
+            {
+                if (_body != null)
+                    _body.UserObject = null;
+                _body = value;
+                if (_body != null)
+                    _body.UserObject = this;
+            }
+        }
 
         CollisionObject IBulletBody.CollisionObject => Body;
 
@@ -82,7 +94,7 @@ namespace TheraEngine.Physics.Bullet
             set
             {
                 base.CollisionShape = value;
-                Body.CollisionShape = ((IBulletShape)value).CollisionShape;
+                Body.CollisionShape = ((IBulletShape)value).Shape;
             }
         }
         public override bool IsKinematic
@@ -171,13 +183,19 @@ namespace TheraEngine.Physics.Bullet
             get => Body.BroadphaseHandle.AabbMax;
             set => Body.BroadphaseHandle.AabbMax = value;
         }
+        public override Vec3 WindVelocity { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public override float Volume => throw new NotImplementedException();
+
+        public override float TotalMass { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public override Matrix4 InitialWorldTransform { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         #endregion
 
         #region Soft Body Implementation
 
         #endregion
 
-        public BulletSoftBody(SoftBodyWorldInfo info) : base()
+        public BulletSoftBody(SoftBodyWorldInfo info) : base(null)
         {
             Body = new SoftBody(info);
         }

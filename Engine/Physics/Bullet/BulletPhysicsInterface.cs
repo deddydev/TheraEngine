@@ -17,7 +17,7 @@ namespace TheraEngine.Physics.Bullet
         public override TCollisionSphere NewSphere(float radius)
             => new BulletSphere(radius);
 
-        public override TRigidBody NewRigidBody(TRigidBodyConstructionInfo info)
+        public override TRigidBody NewRigidBody(IRigidCollidable owner, TRigidBodyConstructionInfo info)
         {
             TBulletMotionState state = null;
 
@@ -25,7 +25,7 @@ namespace TheraEngine.Physics.Bullet
                 state = new TBulletMotionState(info.InitialWorldTransform, info.CenterOfMassOffset);
 
             RigidBodyConstructionInfo bulletInfo = new RigidBodyConstructionInfo(
-                info.Mass, state, ((IBulletShape)info.CollisionShape).CollisionShape, info.LocalInertia)
+                info.Mass, state, ((IBulletShape)info.CollisionShape).Shape, info.LocalInertia)
             {
                 AdditionalDamping = info.AdditionalDamping,
                 AdditionalDampingFactor = info.AdditionalDampingFactor,
@@ -42,7 +42,12 @@ namespace TheraEngine.Physics.Bullet
                 AdditionalAngularDampingFactor = info.AdditionalAngularDampingFactor,
             };
 
-            BulletRigidBody rigidBody = new BulletRigidBody(bulletInfo, info.CollisionShape);
+            BulletRigidBody rigidBody = new BulletRigidBody(owner, bulletInfo, info.CollisionShape);
+            rigidBody.CollisionGroup = info.CollisionGroup;
+            rigidBody.CollidesWith = info.CollidesWith;
+            rigidBody.SimulatingPhysics = info.SimulatePhysics;
+            rigidBody.CollisionEnabled = info.CollisionEnabled;
+            rigidBody.SleepingEnabled = info.SleepingEnabled;
 
             if (state != null)
                 state.Body = rigidBody;

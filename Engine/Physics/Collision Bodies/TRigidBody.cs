@@ -1,0 +1,169 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace TheraEngine.Physics
+{
+    public enum EBodyActivationState
+    {
+        Active = 1,
+        Sleeping = 2,
+        WantsSleep = 3,
+        DisableSleep = 4,
+        DisableSimulation = 5
+    }
+    public abstract class TRigidBody : TCollisionObject
+    {
+        protected TRigidBody(IRigidCollidable owner, TCollisionShape shape) : base(owner, shape) { }
+
+        public static TRigidBody New(IRigidCollidable owner, TRigidBodyConstructionInfo info)
+            => Engine.Physics.NewRigidBody(owner, info);
+
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 TotalForce { get; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 TotalTorque { get; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Quat Orientation { get; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 LocalInertia { get; }
+
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract int ConstraintCount { get; }
+
+        protected Vec3 _previousLinearFactor;
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 LinearFactor { get; set; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 LinearVelocity { get; set; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract float LinearSleepingThreshold { get; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract float LinearDamping { get; }
+
+        protected Vec3 _previousAngularFactor;
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 AngularFactor { get; set; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 AngularVelocity { get; set; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract float AngularSleepingThreshold { get; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract float AngularDamping { get; }
+
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract bool IsInWorld { get; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract bool WantsSleeping { get; }
+
+        protected ushort _previousCollidesWith;
+        private bool _collisionEnabled;
+        public bool CollisionEnabled
+        {
+            get => _collisionEnabled;
+            set
+            {
+                if (_collisionEnabled == value)
+                    return;
+
+                _collisionEnabled = value;
+
+                HasContactResponse = _collisionEnabled;
+
+                if (_collisionEnabled)
+                    CollidesWith = _previousCollidesWith;
+                else
+                {
+                    _previousCollidesWith = CollidesWith;
+                    CollidesWith = 0;
+                }
+            }
+        }
+
+        private bool _sleepingEnabled;
+        public bool SleepingEnabled
+        {
+            get => _sleepingEnabled;
+            set
+            {
+                _sleepingEnabled = value;
+                if (_sleepingEnabled)
+                {
+                    if (ActivationState == EBodyActivationState.DisableSleep)
+                        ActivationState = EBodyActivationState.Active;
+                }
+                else
+                {
+                    if (ActivationState != EBodyActivationState.DisableSimulation)
+                        ActivationState = EBodyActivationState.DisableSleep;
+                }
+            }
+        }
+
+        private bool _simulatingPhysics = false;
+        public bool SimulatingPhysics
+        {
+            get => _simulatingPhysics;
+            set
+            {
+                _simulatingPhysics = value;
+                if (!_simulatingPhysics)
+                {
+                    _previousLinearFactor = LinearFactor;
+                    _previousAngularFactor = AngularFactor;
+                    //IsStatic = true;
+                    LinearFactor = 0.0f;
+                    AngularFactor = 0.0f;
+                    ActivationState = EBodyActivationState.DisableSimulation;
+                }
+                else
+                {
+                    //IsStatic = false;
+                    LinearFactor = _previousLinearFactor;
+                    AngularFactor = _previousAngularFactor;
+                    WorldTransform = Owner.WorldMatrix;
+                    ActivationState = SleepingEnabled ? EBodyActivationState.Active : EBodyActivationState.DisableSleep;
+                }
+            }
+        }
+
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 Gravity { get; set; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract float Mass { get; }
+
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Matrix4 InvInertiaTensorWorld { get; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 InvInertiaDiagLocal { get; set; }
+
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract int FrictionSolverType { get; set; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract int ContactSolverType { get; set; }
+
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Matrix4 CenterOfMassTransform { get; set; }
+        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        public abstract Vec3 CenterOfMassPosition { get; }
+
+        public Vec3 GetWeight() => Mass * Gravity;
+
+        public MonitoredList<TConstraint> Constraints { get; } = new MonitoredList<TConstraint>();
+        
+        public abstract void ApplyCentralForce(Vec3 force);
+        public abstract void ApplyCentralImpulse(Vec3 impulse);
+        public abstract void ApplyForce(Vec3 force, Vec3 relativePosition);
+        public abstract void ApplyImpulse(Vec3 impulse, Vec3 relativePosition);
+        public abstract void ApplyTorque(Vec3 torque);
+        public abstract void ApplyTorqueImpulse(Vec3 torque);
+        public abstract void ClearForces();
+        
+        public abstract void GetAabb(out Vec3 aabbMin, out Vec3 aabbMax);
+        public abstract Vec3 GetVelocityInLocalPoint(Vec3 relativePosition);
+        public abstract void ProceedToTransform(Matrix4 newTrans);
+        public abstract void SetDamping(float linearDamping, float angularDamping);
+        public abstract void SetMassProps(float mass, Vec3 inertia);
+        public abstract void SetSleepingThresholds(float linear, float angular);
+        public abstract void Translate(Vec3 v);
+    }
+}

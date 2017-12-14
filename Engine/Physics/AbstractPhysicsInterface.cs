@@ -10,7 +10,7 @@ namespace TheraEngine.Physics
     {
         public abstract AbstractPhysicsWorld NewScene();
 
-        public abstract TRigidBody NewRigidBody(TRigidBodyConstructionInfo info);
+        public abstract TRigidBody NewRigidBody(IRigidCollidable owner, TRigidBodyConstructionInfo info);
         public abstract TSoftBody NewSoftBody(TSoftBodyConstructionInfo info);
         
         public abstract TCollisionBox NewBox(Vec3 halfExtents);

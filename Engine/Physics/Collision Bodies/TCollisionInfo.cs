@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Physics
 {
-    public class CollisionInfo
+    public class TCollisionInfo
     {
         public float Distance { get; set; }
         public bool LateralFrictionInitialized { get; set; }

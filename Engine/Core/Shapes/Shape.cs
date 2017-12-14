@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Rendering;
 using System;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -78,7 +79,7 @@ namespace TheraEngine.Core.Shapes
         }
         
         public abstract void Render();
-        public abstract CollisionShape GetCollisionShape();
+        public abstract TCollisionShape GetCollisionShape();
 
         public abstract Vec3 ClosestPoint(Vec3 point);
         public abstract bool Contains(Vec3 point);

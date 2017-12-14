@@ -208,13 +208,13 @@ namespace TheraEngine.Rendering.Models
                 Vertex vtx;
                 Vertex[][] vertices;
                 float[] list;
-                Matrix4 invBind = Matrix4.Identity;// bindMatrix;
-                //if (info.HasNormals || info.HasBinormals || info.HasTangents)
-                //{
-                //    invBind.Invert();
-                //    invBind.Transpose();
-                //    invBind = invBind.GetRotationMatrix4();
-                //}
+
+                Matrix4 invBind = bindMatrix;
+                if (info.HasNormals || info.HasBinormals || info.HasTangents)
+                {
+                    invBind.Invert();
+                    invBind.Transpose();
+                }
 
                 TechniqueCommon.Accessor acc;
                 var indices = prim.IndicesElement.StringContent.Values;
@@ -252,21 +252,15 @@ namespace TheraEngine.Rendering.Models
                                 break;
                             case ESemantic.NORMAL:
                                 Vec3 normal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                normal = normal * invBind;
-                                normal.Normalize();
-                                vtx._normal = normal;
+                                vtx._normal = Vec3.TransformVector(normal, invBind);
                                 break;
                             case ESemantic.TEXBINORMAL:
                                 Vec3 binormal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                binormal = binormal * invBind;
-                                binormal.Normalize();
-                                vtx._binormal = binormal;
+                                vtx._binormal = Vec3.TransformVector(binormal, invBind);
                                 break;
                             case ESemantic.TEXTANGENT:
                                 Vec3 tangent = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                tangent = tangent * invBind;
-                                tangent.Normalize();
-                                vtx._tangent = tangent;
+                                vtx._tangent = Vec3.TransformVector(tangent, invBind);
                                 break;
                             case ESemantic.TEXCOORD:
                                 vtx._texCoord = new Vec2(list[startIndex], list[startIndex + 1]);

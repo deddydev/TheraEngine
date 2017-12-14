@@ -1,5 +1,6 @@
 ﻿using BulletSharp;
 using System;
+using System.Collections.Generic;
 
 namespace TheraEngine.Physics.Bullet
 {
@@ -10,7 +11,19 @@ namespace TheraEngine.Physics.Bullet
     }
     internal class BulletRigidBody : TRigidBody, IBulletBody
     {
-        public RigidBody Body { get; set; }
+        private RigidBody _body;
+        public RigidBody Body
+        {
+            get => _body;
+            set
+            {
+                if (_body != null)
+                    _body.UserObject = null;
+                _body = value;
+                if (_body != null)
+                    _body.UserObject = this;
+            }
+        }
 
         CollisionObject IBulletBody.CollisionObject => Body;
 
@@ -113,7 +126,7 @@ namespace TheraEngine.Physics.Bullet
             set
             {
                 base.CollisionShape = value;
-                Body.CollisionShape = ((IBulletShape)value).CollisionShape;
+                Body.CollisionShape = ((IBulletShape)value).Shape;
             }
         }
         public override float CcdSweptSphereRadius
@@ -152,12 +165,21 @@ namespace TheraEngine.Physics.Bullet
         public override ushort CollidesWith
         {
             get => (ushort)Body.BroadphaseHandle.CollisionFilterMask;
-            set => Body.BroadphaseHandle.CollisionFilterMask = (CollisionFilterGroups)value;
+            set
+            {
+                if (CollisionEnabled)
+                    Body.BroadphaseHandle.CollisionFilterMask = (CollisionFilterGroups)value;
+                else
+                    _previousCollidesWith = value;
+            }
         }
         public override ushort CollisionGroup
         {
             get => (ushort)Body.BroadphaseHandle.CollisionFilterGroup;
-            set => Body.BroadphaseHandle.CollisionFilterGroup = (CollisionFilterGroups)value;
+            set
+            {
+                Body.BroadphaseHandle.CollisionFilterGroup = (CollisionFilterGroups)value;
+            }
         }
         public override Vec3 AabbMin
         {
@@ -175,7 +197,7 @@ namespace TheraEngine.Physics.Bullet
         public override Vec3 TotalTorque => Body.TotalTorque;
         public override Vec3 TotalForce => Body.TotalForce;
         public override Quat Orientation => Body.Orientation;
-        public override int NumConstraintRefs => Body.NumConstraintRefs;
+        public override int ConstraintCount => Body.NumConstraintRefs;
         public override Vec3 LocalInertia => Body.LocalInertia;
         public override Vec3 LinearVelocity
         {
@@ -231,11 +253,128 @@ namespace TheraEngine.Physics.Bullet
             set => Body.AngularFactor = value;
         }
         public override float AngularDamping => Body.AngularDamping;
+
+        #region Methods
+        
+        public override void ApplyCentralForce(Vec3 force)
+        {
+            Body.ApplyCentralForce(force);
+        }
+
+        public override void ApplyCentralImpulse(Vec3 impulse)
+        {
+            Body.ApplyCentralImpulse(impulse);
+        }
+
+        public override void ApplyForce(Vec3 force, Vec3 relativePosition)
+        {
+            Body.ApplyForce(force, relativePosition);
+        }
+        
+        public override void ApplyImpulse(Vec3 impulse, Vec3 relativePosition)
+        {
+            Body.ApplyImpulse(impulse, relativePosition);
+        }
+
+        public override void ApplyTorque(Vec3 torque)
+        {
+            Body.ApplyTorque(torque);
+        }
+
+        public override void ApplyTorqueImpulse(Vec3 torque)
+        {
+            Body.ApplyTorqueImpulse(torque);
+        }
+
+        public override void ClearForces()
+        {
+            Body.ClearForces();
+        }
+
+        public override void GetAabb(out Vec3 aabbMin, out Vec3 aabbMax)
+        {
+            Body.GetAabb(out Vector3 min, out Vector3 max);
+            aabbMin = min;
+            aabbMax = max;
+        }
+
+        public override Vec3 GetVelocityInLocalPoint(Vec3 relativePosition)
+        {
+            return Body.GetVelocityInLocalPoint(relativePosition);
+        }
+
+        public override void ProceedToTransform(Matrix4 newTrans)
+        {
+            Body.ProceedToTransform(newTrans);
+        }
+
+        public override void SetDamping(float linearDamping, float angularDamping)
+        {
+            Body.SetDamping(linearDamping, angularDamping);
+        }
+
+        public override void SetMassProps(float mass, Vec3 inertia)
+        {
+            Body.SetMassProps(mass, inertia);
+        }
+
+        public override void SetSleepingThresholds(float linear, float angular)
+        {
+            Body.SetSleepingThresholds(linear, angular);
+        }
+
+        public override void Translate(Vec3 offset)
+        {
+            Body.Translate(offset);
+        }
+
         #endregion
 
-        public BulletRigidBody(RigidBodyConstructionInfo info, TCollisionShape shape) : base(shape)
+        #endregion
+
+        public BulletRigidBody(IRigidCollidable owner, RigidBodyConstructionInfo info, TCollisionShape shape) : base(owner, shape)
         {
             Body = new RigidBody(info);
+            
+            Constraints.PostAdded += Constraints_PostAdded;
+            Constraints.PostAddedRange += Constraints_PostAddedRange;
+            Constraints.PostInserted += Constraints_PostInserted;
+            Constraints.PostInsertedRange += Constraints_PostInsertedRange;
+            Constraints.PostRemoved += Constraints_PostRemoved;
+            Constraints.PostRemovedRange += Constraints_PostRemovedRange;
+        }
+
+        private void Constraints_PostRemovedRange(IEnumerable<TConstraint> items)
+        {
+            foreach (TConstraint t in items)
+                Constraints_PostRemoved(t);
+        }
+
+        private void Constraints_PostRemoved(TConstraint item)
+        {
+            Body.RemoveConstraintRef(((IBulletConstraint)item).Constraint);
+        }
+
+        private void Constraints_PostInsertedRange(IEnumerable<TConstraint> items, int index)
+        {
+            foreach (TConstraint t in items)
+                Constraints_PostInserted(t, index++);
+        }
+
+        private void Constraints_PostInserted(TConstraint item, int index)
+        {
+            Constraints_PostAdded(item);
+        }
+
+        private void Constraints_PostAddedRange(IEnumerable<TConstraint> items)
+        {
+            foreach (TConstraint t in items)
+                Constraints_PostAdded(t);
+        }
+
+        private void Constraints_PostAdded(TConstraint item)
+        {
+            Body.AddConstraintRef(((IBulletConstraint)item).Constraint);
         }
 
         void IBulletBody.OnTransformChanged(Matrix4 worldTransform)

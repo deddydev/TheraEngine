@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics.Bullet;
+using TheraEngine.Physics.RayTracing;
+using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 
@@ -82,9 +84,9 @@ namespace TheraEngine.Physics
             obj1.OnCollided(obj2, CreateCollisionInfo(cp));
         }
 
-        private static CollisionInfo CreateCollisionInfo(ManifoldPoint point)
+        private static TCollisionInfo CreateCollisionInfo(ManifoldPoint point)
         {
-            return new CollisionInfo()
+            return new TCollisionInfo()
             {
                 AppliedImpulse = point.AppliedImpulse,
                 AppliedImpulseLateral1 = point.AppliedImpulseLateral1,
@@ -246,7 +248,7 @@ namespace TheraEngine.Physics
         public override bool RayTrace(RayTraceResult result)
         {
             TRayResultCallback callback = new TRayResultCallback(result);
-            _dynamicsWorld.RayTest(result.Start, result.End, callback);
+            _dynamicsWorld.RayTest(result.StartPointWorld, result.EndPointWorld, callback);
             return callback.HasHit;
         }
 
@@ -258,34 +260,34 @@ namespace TheraEngine.Physics
         #endregion
     }
 
-    public class ClosestConvexResultExceptCallback : ClosestConvexResultCallback
-    {
-        CollisionObject[] _ignore;
-        public ClosestConvexResultExceptCallback(params CollisionObject[] ignore) : base()
-            => _ignore = ignore;
-        public ClosestConvexResultExceptCallback(ref Vector3 from, ref Vector3 to, params CollisionObject[] ignore) : base(ref from, ref to)
-            => _ignore = ignore;
-        public override float AddSingleResult(LocalConvexResult convexResult, bool normalInWorldSpace)
-        {
-            if (_ignore.Any(x => x == convexResult.HitCollisionObject))
-                return 1.0f;
-            return base.AddSingleResult(convexResult, normalInWorldSpace);
-        }
-    }
-    public class ClosestRayResultExceptCallback : ClosestRayResultCallback
-    {
-        CollisionObject[] _ignore;
-        public ClosestRayResultExceptCallback(params CollisionObject[] ignore) : base()
-            => _ignore = ignore;
-        public ClosestRayResultExceptCallback(ref Vector3 from, ref Vector3 to, params CollisionObject[] ignore) : base(ref from, ref to)
-            => _ignore = ignore;
-        public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
-        {
-            if (_ignore.Any(x => x == rayResult.CollisionObject))
-                return 1.0f;
-            return base.AddSingleResult(rayResult, normalInWorldSpace);
-        }
-    }
+    //public class ClosestConvexResultExceptCallback : ClosestConvexResultCallback
+    //{
+    //    CollisionObject[] _ignore;
+    //    public ClosestConvexResultExceptCallback(params CollisionObject[] ignore) : base()
+    //        => _ignore = ignore;
+    //    public ClosestConvexResultExceptCallback(ref Vector3 from, ref Vector3 to, params CollisionObject[] ignore) : base(ref from, ref to)
+    //        => _ignore = ignore;
+    //    public override float AddSingleResult(LocalConvexResult convexResult, bool normalInWorldSpace)
+    //    {
+    //        if (_ignore.Any(x => x == convexResult.HitCollisionObject))
+    //            return 1.0f;
+    //        return base.AddSingleResult(convexResult, normalInWorldSpace);
+    //    }
+    //}
+    //public class ClosestRayResultExceptCallback : ClosestRayResultCallback
+    //{
+    //    CollisionObject[] _ignore;
+    //    public ClosestRayResultExceptCallback(params CollisionObject[] ignore) : base()
+    //        => _ignore = ignore;
+    //    public ClosestRayResultExceptCallback(ref Vector3 from, ref Vector3 to, params CollisionObject[] ignore) : base(ref from, ref to)
+    //        => _ignore = ignore;
+    //    public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
+    //    {
+    //        if (_ignore.Any(x => x == rayResult.CollisionObject))
+    //            return 1.0f;
+    //        return base.AddSingleResult(rayResult, normalInWorldSpace);
+    //    }
+    //}
     //public class CustomClosestRayResultCallback : RayResultCallback
     //{
     //    public CustomClosestRayResultCallback() : base()

@@ -122,11 +122,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                     _skeleton.File.OwningComponent = null;
                 _skeleton = value;
                 if (_skeleton != null)
-                {
                     _skeleton.File.OwningComponent = this;
-                    if (_skeleton != null)
-                        Engine.RegisterSkeleton(_skeleton.File);
-                }
                 if (_meshes != null)
                     foreach (RenderableMesh m in _meshes)
                         m.Skeleton = _skeleton;
@@ -139,19 +135,14 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         public void SetAllSimulatingPhysics(bool doSimulation)
         {
             foreach (Bone b in _skeleton.File)
-                if (b.PhysicsDriver != null)
-                    b.PhysicsDriver.SimulatingPhysics = doSimulation;
+                if (b.RigidBodyCollision != null)
+                    b.RigidBodyCollision.SimulatingPhysics = doSimulation;
         }
         public override void OnSpawned()
         {
             if (_meshes != null)
                 foreach (RenderableMesh m in _meshes)
                     m.Visible = m.Mesh.VisibleByDefault;
-            
-            if (_skeleton != null)
-                Engine.RegisterSkeleton(_skeleton.File);
-
-            //RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
 
             base.OnSpawned();
         }
@@ -162,11 +153,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                     m.Visible = false;
 
             base.OnDespawned();
-
-            if (_skeleton != null)
-                Engine.UnregisterSkeleton(_skeleton.File);
-
-            //UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
         internal override void RecalcGlobalTransform()
         {

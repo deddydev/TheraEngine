@@ -12,6 +12,7 @@ using TheraEngine.Worlds.Actors.Components.Logic.Animation;
 using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Types.Pawns
 {
@@ -206,7 +207,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         {
             _viewRotation.Pitch += value * _gamePadYLookInputMultiplier;
         }
-        protected void OnHit(IPhysicsDrivable me, IPhysicsDrivable other, ManifoldPoint point)
+        protected void OnHit(TRigidBody me, TRigidBody other, TCollisionInfo point)
         {
             //Engine.DebugPrint(((ObjectBase)other).Name + " collided with " + Name);
             _movement.OnHit(other, point);
@@ -225,7 +226,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             float capsuleTotalHalfHeight = characterHeight / 2.0f;
             float halfHeight = capsuleTotalHalfHeight - radius;
 
-            PhysicsConstructionInfo info = new PhysicsConstructionInfo()
+            TRigidBodyConstructionInfo info = new TRigidBodyConstructionInfo()
             {
                 Mass = 59.0f,
                 AdditionalDamping = false,
@@ -236,13 +237,13 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
                 RollingFriction = 0.01f,
                 CollisionEnabled = true,
                 SimulatePhysics = false,
-                CollisionGroup = CustomCollisionGroup.Characters,
-                CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld,
+                CollisionGroup = (ushort)TCollisionGroup.Characters,
+                CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
             };
 
             CapsuleYComponent rootCapsule = new CapsuleYComponent(radius, halfHeight, info);
-            rootCapsule.CollisionObject.OnHit += OnHit;
-            rootCapsule.CollisionObject.AngularFactor = Vec3.Zero;
+            rootCapsule.RigidBodyCollision.OnHit += OnHit;
+            rootCapsule.RigidBodyCollision.AngularFactor = Vec3.Zero;
             rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 
             _meshComp = new SkeletalMeshComponent();
@@ -261,7 +262,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             PositionLagComponent lagComp = new PositionLagComponent(7.0f, 7.0f);
             rootCapsule.ChildComponents.Add(lagComp);
 
-            _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.CollisionObject.CollisionObject };
+            _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.RigidBodyCollision };
             _tpCameraBoom.Translation.Raw = new Vec3(0.0f, 0.3f, 0.0f);
             _tpCameraBoom.Rotation.SyncFrom(_viewRotation);
             _tpCameraBoom.MaxLength = 5.0f;

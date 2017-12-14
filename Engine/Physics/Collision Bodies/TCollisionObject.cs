@@ -6,12 +6,28 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Physics
 {
-    public interface ICollidable
+    [Flags]
+    public enum TCollisionGroup : ushort
     {
-        TCollisionObject CollisionObject { get; }
-        Matrix4 WorldMatrix { get; }
+        All             = 0xFFFF,
+        None            = 0x0000,
+        Default         = 0x0001,
+        Pawns           = 0x0002,
+        Characters      = 0x0004,
+        Vehicles        = 0x0008,
+        StaticWorld     = 0x0010,
+        DynamicWorld    = 0x0020,
+        PhysicsObjects  = 0x0040,
+        Interactables   = 0x0080,
+        Projectiles     = 0x0100,
     }
-    public delegate void DelCollision(TCollisionObject me, TCollisionObject other, CollisionInfo info);
+    public interface IRigidCollidable
+    {
+        TRigidBody RigidBodyCollision { get; }
+        Matrix4 WorldMatrix { get; set; }
+    }
+    public delegate void DelMatrixUpdate(Matrix4 transform);
+    public delegate void DelCollision(TCollisionObject me, TCollisionObject other, TCollisionInfo info);
     public abstract class TCollisionObject : TObject
     {
         public event DelMatrixUpdate TransformChanged;
@@ -20,19 +36,23 @@ namespace TheraEngine.Physics
             TransformChanged?.Invoke(worldTransform);
         }
         public event DelCollision Collision;
-        protected internal void OnCollided(TCollisionObject other, CollisionInfo info)
+        protected internal void OnCollided(TCollisionObject other, TCollisionInfo info)
         {
             Collision?.Invoke(this, other, info);
         }
 
-        public TCollisionObject(TCollisionShape shape)
+        protected TCollisionObject(IRigidCollidable owner, TCollisionShape shape)
         {
+            Owner = owner;
             CollisionShape = shape;
         }
-        
+
+        public IRigidCollidable Owner { get; set; }
+
+        //[PhysicsSupport(PhysicsLibrary.Bullet)]
+        //public abstract int UniqueID { get; }
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract int IslandTag { get; set; }
-        
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract bool IsActive { get; }
 
@@ -109,5 +129,23 @@ namespace TheraEngine.Physics
         {
             Engine.World.PhysicsWorld.RemoveCollisionObject(this);
         }
+
+        public abstract void Activate();
+        public abstract void Activate(bool forceActivation);
+        public abstract bool CheckCollideWith(TCollisionObject collisionObject);
+        public abstract void ForceActivationState(EBodyActivationState newState);
+        public abstract void GetWorldTransform(out Matrix4 transform);
+        [Flags]
+        public enum EAnisotropicFrictionFlags
+        {
+            Disabled = 0,
+            Linear = 1,
+            Rolling = 2
+        }
+        public abstract bool HasAnisotropicFriction(EAnisotropicFrictionFlags frictionMode);
+        public abstract bool HasAnisotropicFriction();
+        public abstract void SetAnisotropicFriction(Vec3 anisotropicFriction);
+        public abstract void SetAnisotropicFriction(Vec3 anisotropicFriction, EAnisotropicFrictionFlags frictionMode);
+        public abstract void SetIgnoreCollisionCheck(TCollisionObject collisionObject, bool ignoreCollisionCheck);
     }
 }

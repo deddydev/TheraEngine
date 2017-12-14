@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Physics;
+using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
@@ -14,10 +16,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
 
         public event LengthChange CurrentDistanceChanged;
 
-        private SphereShape _traceShape = new SphereShape(0.3f);
+        private TCollisionSphere _traceShape = TCollisionSphere.New(0.3f);
         private float _currentLength = 0.0f;
         private Vec3 _startPoint = Vec3.Zero;
-        private CollisionObject _ignoreCast = null;
+        private TCollisionObject _ignoreCast = null;
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -28,7 +30,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         [TSerialize]
         public float MaxLength { get; set; } = 300.0f;
 
-        public CollisionObject IgnoreCast { get; set; } = null;
+        public TCollisionObject IgnoreCast { get; set; } = null;
 
         public BoomComponent() : base() { }
         
@@ -55,15 +57,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.GetPoint();
 
-            ClosestConvexResultExceptCallback result = new ClosestConvexResultExceptCallback(IgnoreCast)
-            {
-                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
-                CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
-            };
-
-            Engine.ShapeCastClosest(_traceShape, startMatrix, endMatrix, result);
+            ShapeTraceResultClosest result = new ShapeTraceResultClosest(_traceShape, startMatrix, endMatrix, 0xFFFF, 0xFFFF, IgnoreCast);
+            
             Vec3 newEndPoint;
-            if (result.HasHit)
+            if (result.PerformTrace())
                 newEndPoint = result.HitPointWorld;
             else
                 newEndPoint = testEnd;

@@ -4,12 +4,7 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Physics.Bullet
 {
-    internal interface IBulletBody
-    {
-        CollisionObject CollisionObject { get; }
-        void OnTransformChanged(Matrix4 worldTransform);
-    }
-    internal class BulletRigidBody : TRigidBody, IBulletBody
+    internal class BulletRigidBody : TRigidBody, IBulletCollisionObject
     {
         private RigidBody _body;
         public RigidBody Body
@@ -25,9 +20,23 @@ namespace TheraEngine.Physics.Bullet
             }
         }
 
-        CollisionObject IBulletBody.CollisionObject => Body;
+        CollisionObject IBulletCollisionObject.CollisionObject => Body;
+
+        public BulletRigidBody(IRigidCollidable owner, RigidBodyConstructionInfo info, TCollisionShape shape) : base(owner, shape)
+        {
+            Body = new RigidBody(info);
+
+            Constraints.PostAdded += Constraints_PostAdded;
+            Constraints.PostAddedRange += Constraints_PostAddedRange;
+            Constraints.PostInserted += Constraints_PostInserted;
+            Constraints.PostInsertedRange += Constraints_PostInsertedRange;
+            Constraints.PostRemoved += Constraints_PostRemoved;
+            Constraints.PostRemovedRange += Constraints_PostRemovedRange;
+        }
 
         #region Collision Object Implementation
+
+        #region Properties
         public override int IslandTag
         {
             get => Body.IslandTag;
@@ -193,7 +202,55 @@ namespace TheraEngine.Physics.Bullet
         }
         #endregion
 
+        #region Methods
+        public override void Activate()
+        {
+            Body.Activate();
+        }
+        public override void Activate(bool forceActivation)
+        {
+            Body.Activate(forceActivation);
+        }
+        public override bool CheckCollideWith(TCollisionObject collisionObject)
+        {
+            return Body.CheckCollideWith((collisionObject as IBulletCollisionObject)?.CollisionObject);
+        }
+        public override void ForceActivationState(EBodyActivationState newState)
+        {
+            Body.ForceActivationState((ActivationState)(int)newState);
+        }
+        public override void GetWorldTransform(out Matrix4 transform)
+        {
+            Body.GetWorldTransform(out Matrix t);
+            transform = t;
+        }
+        public override bool HasAnisotropicFriction(EAnisotropicFrictionFlags frictionMode)
+        {
+            return Body.HasAnisotropicFriction((AnisotropicFrictionFlags)(int)frictionMode);
+        }
+        public override bool HasAnisotropicFriction()
+        {
+            return Body.HasAnisotropicFriction();
+        }
+        public override void SetAnisotropicFriction(Vec3 anisotropicFriction)
+        {
+            Body.SetAnisotropicFriction(anisotropicFriction);
+        }
+        public override void SetAnisotropicFriction(Vec3 anisotropicFriction, EAnisotropicFrictionFlags frictionMode)
+        {
+            Body.SetAnisotropicFriction(anisotropicFriction, (AnisotropicFrictionFlags)(int)frictionMode);
+        }
+        public override void SetIgnoreCollisionCheck(TCollisionObject collisionObject, bool ignoreCollisionCheck)
+        {
+            Body.SetIgnoreCollisionCheck((collisionObject as IBulletCollisionObject)?.CollisionObject, ignoreCollisionCheck);
+        }
+        #endregion
+
+        #endregion
+
         #region Rigid Body Implementation
+
+        #region Properties
         public override Vec3 TotalTorque => Body.TotalTorque;
         public override Vec3 TotalForce => Body.TotalForce;
         public override Quat Orientation => Body.Orientation;
@@ -253,9 +310,10 @@ namespace TheraEngine.Physics.Bullet
             set => Body.AngularFactor = value;
         }
         public override float AngularDamping => Body.AngularDamping;
+        #endregion
 
         #region Methods
-        
+
         public override void ApplyCentralForce(Vec3 force)
         {
             Body.ApplyCentralForce(force);
@@ -332,52 +390,34 @@ namespace TheraEngine.Physics.Bullet
 
         #endregion
 
-        public BulletRigidBody(IRigidCollidable owner, RigidBodyConstructionInfo info, TCollisionShape shape) : base(owner, shape)
-        {
-            Body = new RigidBody(info);
-            
-            Constraints.PostAdded += Constraints_PostAdded;
-            Constraints.PostAddedRange += Constraints_PostAddedRange;
-            Constraints.PostInserted += Constraints_PostInserted;
-            Constraints.PostInsertedRange += Constraints_PostInsertedRange;
-            Constraints.PostRemoved += Constraints_PostRemoved;
-            Constraints.PostRemovedRange += Constraints_PostRemovedRange;
-        }
-
         private void Constraints_PostRemovedRange(IEnumerable<TConstraint> items)
         {
             foreach (TConstraint t in items)
                 Constraints_PostRemoved(t);
         }
-
         private void Constraints_PostRemoved(TConstraint item)
         {
             Body.RemoveConstraintRef(((IBulletConstraint)item).Constraint);
         }
-
         private void Constraints_PostInsertedRange(IEnumerable<TConstraint> items, int index)
         {
             foreach (TConstraint t in items)
                 Constraints_PostInserted(t, index++);
         }
-
         private void Constraints_PostInserted(TConstraint item, int index)
         {
             Constraints_PostAdded(item);
         }
-
         private void Constraints_PostAddedRange(IEnumerable<TConstraint> items)
         {
             foreach (TConstraint t in items)
                 Constraints_PostAdded(t);
         }
-
         private void Constraints_PostAdded(TConstraint item)
         {
             Body.AddConstraintRef(((IBulletConstraint)item).Constraint);
         }
-
-        void IBulletBody.OnTransformChanged(Matrix4 worldTransform)
+        void IBulletCollisionObject.OnTransformChanged(Matrix4 worldTransform)
         {
             OnTransformChanged(worldTransform);
         }

@@ -9,7 +9,7 @@ namespace TheraEngine.Physics.Bullet
 {
     public class TBulletMotionState : DefaultMotionState
     {
-        public IBulletBody Body { get; set; }
+        public IBulletCollisionObject Body { get; set; }
 
         public TBulletMotionState() : base()
         {

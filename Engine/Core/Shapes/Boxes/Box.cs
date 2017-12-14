@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Drawing;
 using System.ComponentModel;
 using System;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -203,9 +204,9 @@ namespace TheraEngine.Core.Shapes
             //_transform = worldMatrix;
             base.SetRenderTransform(worldMatrix);
         }
-        public override CollisionShape GetCollisionShape()
+        public override TCollisionShape GetCollisionShape()
         {
-            return new BoxShape(_halfExtents);
+            return TCollisionBox.New(_halfExtents);
         }
         public override Shape HardCopy()
         {

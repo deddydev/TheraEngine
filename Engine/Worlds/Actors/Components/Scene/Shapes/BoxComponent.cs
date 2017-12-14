@@ -3,6 +3,7 @@ using TheraEngine.Rendering;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
 using System.ComponentModel;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 {
@@ -14,22 +15,22 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         {
             _box = new Box(1.0f);
         }
-        public BoxComponent(PhysicsConstructionInfo info)
+        public BoxComponent(TRigidBodyConstructionInfo info)
         {
             _box = new Box(1.0f);
             InitPhysics(info);
         }
-        public BoxComponent(Vec3 halfExtents, PhysicsConstructionInfo info)
+        public BoxComponent(Vec3 halfExtents, TRigidBodyConstructionInfo info)
         {
             _box = new Box(halfExtents);
             InitPhysics(info);
         }
-        public BoxComponent(float extentsX, float extentsY, float extentsZ, PhysicsConstructionInfo info)
+        public BoxComponent(float extentsX, float extentsY, float extentsZ, TRigidBodyConstructionInfo info)
         {
             _box = new Box(extentsX, extentsY, extentsZ);
             InitPhysics(info);
         }
-        public BoxComponent(float uniformExtents, PhysicsConstructionInfo info)
+        public BoxComponent(float uniformExtents, TRigidBodyConstructionInfo info)
         {
             _box = new Box(uniformExtents);
             InitPhysics(info);
@@ -55,7 +56,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
             Engine.Renderer.ApplyRenderParams(RenderParams);
             Engine.Renderer.RenderBox(HalfExtents, WorldMatrix, false, Color.Lavender);
         }
-        protected override CollisionShape GetCollisionShape() => _box.GetCollisionShape();
+        protected override TCollisionShape GetCollisionShape() => _box.GetCollisionShape();
 
         public bool Contains(Vec3 point) => _box.Contains(point);
         public EContainment Contains(BoundingBox box) => _box.Contains(box);

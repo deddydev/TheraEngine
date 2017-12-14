@@ -150,7 +150,15 @@ namespace TheraEngine.Physics
 
         public MonitoredList<TConstraint> Constraints { get; } = new MonitoredList<TConstraint>();
         
+        /// <summary>
+        /// Applies a force to the center of mass of the body (the origin).
+        /// </summary>
+        /// <param name="force">The force to apply, in Newtons.</param>
         public abstract void ApplyCentralForce(Vec3 force);
+        /// <summary>
+        /// Applies an impulse to the center of mass of the body (the origin).
+        /// </summary>
+        /// <param name="impulse">The impulse (Force * delta sec) to apply, in Newton-seconds.</param>
         public abstract void ApplyCentralImpulse(Vec3 impulse);
         public abstract void ApplyForce(Vec3 force, Vec3 relativePosition);
         public abstract void ApplyImpulse(Vec3 impulse, Vec3 relativePosition);

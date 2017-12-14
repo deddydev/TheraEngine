@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Physics.Bullet
 {
-    internal class BulletSoftBody : TSoftBody, IBulletBody
+    internal class BulletSoftBody : TSoftBody, IBulletCollisionObject
     {
         private SoftBody _body;
         public SoftBody Body
@@ -24,7 +24,7 @@ namespace TheraEngine.Physics.Bullet
             }
         }
 
-        CollisionObject IBulletBody.CollisionObject => Body;
+        CollisionObject IBulletCollisionObject.CollisionObject => Body;
 
         #region Collision Object Implementation
         public override int IslandTag
@@ -200,9 +200,59 @@ namespace TheraEngine.Physics.Bullet
             Body = new SoftBody(info);
         }
 
-        void IBulletBody.OnTransformChanged(Matrix4 worldTransform)
+        void IBulletCollisionObject.OnTransformChanged(Matrix4 worldTransform)
         {
             OnTransformChanged(worldTransform);
+        }
+
+        public override void Activate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Activate(bool forceActivation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CheckCollideWith(TCollisionObject collisionObject)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ForceActivationState(EBodyActivationState newState)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GetWorldTransform(out Matrix4 transform)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool HasAnisotropicFriction(EAnisotropicFrictionFlags frictionMode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool HasAnisotropicFriction()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetAnisotropicFriction(Vec3 anisotropicFriction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetAnisotropicFriction(Vec3 anisotropicFriction, EAnisotropicFrictionFlags frictionMode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetIgnoreCollisionCheck(TCollisionObject collisionObject, bool ignoreCollisionCheck)
+        {
+            throw new NotImplementedException();
         }
     }
 }

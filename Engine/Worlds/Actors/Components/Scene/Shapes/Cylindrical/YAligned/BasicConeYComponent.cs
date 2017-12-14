@@ -1,6 +1,7 @@
 ﻿using System;
 using TheraEngine.Rendering;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 {
@@ -47,7 +48,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
             //Engine.Renderer.RenderCone(_radius, _height, WorldMatrix, false);
         }
 
-        protected override CollisionShape GetCollisionShape()
+        protected override TCollisionShape GetCollisionShape()
         {
             throw new NotImplementedException();
         }

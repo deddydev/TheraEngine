@@ -84,6 +84,8 @@ namespace TheraEngine.Physics.RayTracing
             }
             return false;
         }
+
+        public bool PerformTrace() => Engine.RayTrace(this);
     }
 
     /// <summary>

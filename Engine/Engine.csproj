@@ -285,6 +285,7 @@
     <Compile Include="Networking\Server.cs" />
     <Compile Include="Physics\Bullet\BulletSoftBody.cs" />
     <Compile Include="Physics\Bullet\BulletRigidBody.cs" />
+    <Compile Include="Physics\Bullet\IBulletCollisionObject.cs" />
     <Compile Include="Physics\Bullet\IBulletConstraint.cs" />
     <Compile Include="Physics\Bullet\TConvexResultCallback.cs" />
     <Compile Include="Physics\Bullet\TRayResultCallback.cs" />

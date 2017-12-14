@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -22,8 +23,8 @@ namespace TheraEngine.Core.Shapes
             _state.Matrix = worldMatrix;
             base.SetRenderTransform(worldMatrix);
         }
-        public override CollisionShape GetCollisionShape()
-            => new CapsuleShape(Radius, HalfHeight * 2.0f);
+        public override TCollisionShape GetCollisionShape()
+            => new TCollisionCapsuleY.New(Radius, HalfHeight * 2.0f);
         public override Shape HardCopy()
             => new CapsuleY(_state.Translation, _state.Rotation, _state.Scale, Radius, HalfHeight);
         public override Shape TransformedBy(Matrix4 worldMatrix)

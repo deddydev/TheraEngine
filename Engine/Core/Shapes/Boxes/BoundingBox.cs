@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Drawing;
 using System.ComponentModel;
 using System;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -82,7 +83,7 @@ namespace TheraEngine.Core.Shapes
         public static BoundingBox FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
             => new BoundingBox(halfExtents, translation);
 
-        public override CollisionShape GetCollisionShape() => new BoxShape(HalfExtents);
+        public override TCollisionShape GetCollisionShape() => TCollisionBox.New(HalfExtents);
 
         //Half extents is one of 8 octants that make up the box, so multiply half extent volume by 8
         public float GetVolume() =>

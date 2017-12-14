@@ -44,13 +44,14 @@ namespace TheraEngine.Physics.ShapeTracing
         public ushort CollidesWith { get; set; }
         public TCollisionObject[] Ignored { get; private set; }
 
-        public ShapeTraceResult(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith)
+        public ShapeTraceResult(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
         {
             Start = start;
             End = end;
             Shape = shape;
             CollisionGroup = collisionGroup;
             CollidesWith = collidesWith;
+            Ignored = ignored;
         }
 
         protected bool CanAddCommon(TCollisionObject obj)
@@ -61,6 +62,8 @@ namespace TheraEngine.Physics.ShapeTracing
         //{
 
         //}
+
+        public bool PerformTrace() => Engine.ShapeTrace(this);
     }
 
     public abstract class ShapeTraceResultSingle : ShapeTraceResult
@@ -76,16 +79,16 @@ namespace TheraEngine.Physics.ShapeTracing
         public int ShapePart => Result == null ? -1 : Result.ShapePart;
         public int TriangleIndex => Result == null ? -1 : Result.TriangleIndex;
 
-        public ShapeTraceResultSingle(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith)
-            : base(shape, start, end, collisionGroup, collidesWith) { }
+        public ShapeTraceResultSingle(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
+            : base(shape, start, end, collisionGroup, collidesWith, ignored) { }
     }
 
     public class ShapeTraceResultMulti : ShapeTraceResult
     {
         public List<ShapeCollisionResult> Results { get; } = new List<ShapeCollisionResult>();
 
-        public ShapeTraceResultMulti(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith)
-            : base(shape, start, end, collisionGroup, collidesWith) { }
+        public ShapeTraceResultMulti(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
+            : base(shape, start, end, collisionGroup, collidesWith, ignored) { }
 
         internal protected override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, Vec3 hitPointLocal, float hitFraction, int shapePart, int triangleIndex)
         {
@@ -103,8 +106,8 @@ namespace TheraEngine.Physics.ShapeTracing
 
     public class ShapeTraceResultClosest : ShapeTraceResultSingle
     {
-        public ShapeTraceResultClosest(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith)
-            : base(shape, start, end, collisionGroup, collidesWith) { }
+        public ShapeTraceResultClosest(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
+            : base(shape, start, end, collisionGroup, collidesWith, ignored) { }
 
         internal protected override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, Vec3 hitPointLocal, float hitFraction, int shapePart, int triangleIndex)
         {

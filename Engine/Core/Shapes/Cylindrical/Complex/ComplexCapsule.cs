@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -65,7 +66,7 @@ namespace TheraEngine.Core.Shapes
         public Sphere GetBottomSphere()
             => new Sphere(_bottomRadius, _upAxis * -_bottomHeight);
         
-        public override CollisionShape GetCollisionShape()
+        public override TCollisionShape GetCollisionShape()
         {
             throw new InvalidOperationException("Complex capsule cannot be used for physics.");
         }

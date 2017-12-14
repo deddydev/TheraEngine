@@ -39,9 +39,9 @@ namespace TheraEngine.Networking
             _connection = UDPConnection.GetConnection(connInfo, UDPOptions.None, false);
             _connection.AppendShutdownHandler(ConnectionEstablishShutdown);
 
-            SendReceiveOptions customSendReceiveOptions = new SendReceiveOptions<>();
+            //SendReceiveOptions customSendReceiveOptions = new SendReceiveOptions<>();
 
-            _connection.AppendIncomingPacketHandler<NetworkPacketObject>("ServerUpdate", RecievedData, sro);
+            //_connection.AppendIncomingPacketHandler<NetworkPacketObject>("ServerUpdate", RecievedData, sro);
         }
         private void RecievedData(PacketHeader packetHeader, Connection connection, NetworkPacketObject data)
         {

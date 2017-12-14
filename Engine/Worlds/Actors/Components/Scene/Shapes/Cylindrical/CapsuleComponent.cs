@@ -45,7 +45,7 @@ namespace TheraEngine.Worlds.Actors
         public override void Render()
             => Engine.Renderer.RenderCapsule(WorldMatrix, _capsule.LocalUpAxis, _capsule.Radius, _capsule.HalfHeight, _capsule.RenderSolid, Color.Red);
 
-        protected override CollisionShape GetCollisionShape()
+        protected override TCollisionShape GetCollisionShape()
             => _capsule.GetCollisionShape();
         public override void OnSpawned()
         {

@@ -121,7 +121,7 @@ namespace TheraEngine.Physics
 
         public override void AddCollisionObject(TCollisionObject collision)
         {
-            IBulletBody b = (IBulletBody)collision;
+            IBulletCollisionObject b = (IBulletCollisionObject)collision;
             _dynamicsWorld.AddCollisionObject(b.CollisionObject);
         }
         public override void RemoveCollisionObject(TCollisionObject collision)

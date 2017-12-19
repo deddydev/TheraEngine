@@ -15,12 +15,19 @@ namespace TheraEngine.Core.Shapes
     {
         //public static List<BoundingBox> Active = new List<BoundingBox>();
         public static BoundingBox ExpandableBox() => FromMinMax(float.MaxValue, float.MinValue);
-        
+
+        #region Fields
         [TSerialize("HalfExtents")]
         protected EventVec3 _halfExtents = Vec3.Half;
         [TSerialize("Translation")]
         protected EventVec3 _translation = Vec3.Zero;
-        
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// The minimum corner position coordinate of this bounding box.
+        /// All components are the smallest.
+        /// </summary>
         public Vec3 Minimum
         {
             get => _translation - _halfExtents;
@@ -29,7 +36,10 @@ namespace TheraEngine.Core.Shapes
                 _translation.Raw = (Maximum + value) / 2.0f;
                 _halfExtents.Raw = (Maximum - value) / 2.0f;
             }
-        }
+        } /// <summary>
+          /// The maximum corner position coordinate of this bounding box.
+          /// All components are the largest.
+          /// </summary>
         public Vec3 Maximum
         {
             get => _translation + _halfExtents;
@@ -39,17 +49,26 @@ namespace TheraEngine.Core.Shapes
                 _halfExtents.Raw = (value - Minimum) / 2.0f;
             }
         }
+        /// <summary>
+        /// Half of the box's total bounds.
+        /// Basically a vector starting at the box's origin that pushes outward diagonally to dictate a corner.
+        /// </summary>
         public EventVec3 HalfExtents
         {
             get => _halfExtents;
-            set => _halfExtents = value;
+            set => _halfExtents = value ?? Vec3.Half;
         }
+        /// <summary>
+        /// The translation of the box's origin from the world/parent origin.
+        /// </summary>
         public EventVec3 Translation
         {
             get => _translation;
-            set => _translation = value;
+            set => _translation = value ?? Vec3.Zero;
         }
+        #endregion
 
+        #region Constructors
         public BoundingBox(float uniformHalfExtents)
             : this(new Vec3(uniformHalfExtents)) { }
         public BoundingBox(float uniformHalfExtents, Vec3 translation)
@@ -77,26 +96,14 @@ namespace TheraEngine.Core.Shapes
         //{
         //    Active.RemoveAt(ShapeIndex);
         //}
-
-        public static BoundingBox FromMinMax(Vec3 min, Vec3 max)
-            => new BoundingBox((max - min) / 2.0f, (max + min) / 2.0f);
-        public static BoundingBox FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
-            => new BoundingBox(halfExtents, translation);
-
-        public override TCollisionShape GetCollisionShape() => TCollisionBox.New(HalfExtents);
-
-        //Half extents is one of 8 octants that make up the box, so multiply half extent volume by 8
-        public float GetVolume() =>
-            _halfExtents.X * _halfExtents.Y * _halfExtents.Z * 8.0f;
-        //Each half extent side is one of 4 quadrants on both sides of the box, so multiply each side area by 8
-        public float GetSurfaceArea() =>
-            _halfExtents.X * _halfExtents.Y * 8.0f +
-            _halfExtents.Y * _halfExtents.Z * 8.0f +
-            _halfExtents.Z * _halfExtents.X * 8.0f;
-
+        #endregion
+        
+        #region Corners
         /// <summary>
-        /// [T = top, B = bottom] 
-        /// [B = back, F = front] 
+        /// Returns the corners of this box at its current position.
+        /// Naming system (back, front, etc) is relative to a camera looking in the -Z direction (forward).
+        /// [T = top, B = bottom]
+        /// [B = back, F = front]
         /// [L = left,  R = right]
         /// </summary>
         public void GetCorners(
@@ -109,10 +116,11 @@ namespace TheraEngine.Core.Shapes
             out Vec3 BFL,
             out Vec3 BFR)
             => GetCorners(Minimum, Maximum, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
-        
         /// <summary>
-        /// [T = top, B = bottom] 
-        /// [B = back, F = front] 
+        /// Returns the corners of a box with the given minimum and maximum corner coordinates.
+        /// Naming system (back, front, etc) is relative to a camera looking in the -Z direction (forward).
+        /// [T = top, B = bottom]
+        /// [B = back, F = front]
         /// [L = left,  R = right]
         /// </summary>
         public static void GetCorners(
@@ -147,6 +155,8 @@ namespace TheraEngine.Core.Shapes
             BFR = new Vec3(Right, Bottom, Front);
         }
         /// <summary>
+        /// Returns the corners of this box transformed by the given matrix.
+        /// Naming system (back, front, etc) is relative to a camera looking in the -Z direction (forward), before the matrix is applied.
         /// [T = top, B = bottom] 
         /// [B = back, F = front] 
         /// [L = left,  R = right]
@@ -162,8 +172,10 @@ namespace TheraEngine.Core.Shapes
             out Vec3 BFL,
             out Vec3 BFR)
             => GetCorners(_halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
-        
+
         /// <summary>
+        /// Returns the corners of a box with the given half extents and transformed by the given matrix.
+        /// Naming system (back, front, etc) is relative to a camera looking in the -Z direction (forward), before the matrix is applied.
         /// [T = top, B = bottom] 
         /// [B = back, F = front] 
         /// [L = left,  R = right]
@@ -219,10 +231,9 @@ namespace TheraEngine.Core.Shapes
             GetCorners(boxMin, boxMax, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
+        #endregion
 
-        public override void Render()
-            => Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid, Color.Blue);
-
+        #region Meshes
         public static PrimitiveData WireframeMesh(Vec3 min, Vec3 max)
         {
             VertexLine 
@@ -274,6 +285,12 @@ namespace TheraEngine.Core.Shapes
 
             return PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
+        /// <summary>
+        /// Creates a mesh representing this bounding box.
+        /// </summary>
+        /// <param name="includeTranslation">If true, makes mesh with minimum and maximum coordinates.
+        /// If false, makes the mesh about the origin.</param>
+        /// <returns></returns>
         public PrimitiveData GetMesh(bool includeTranslation)
         {
             if (includeTranslation)
@@ -281,40 +298,48 @@ namespace TheraEngine.Core.Shapes
             else
                 return SolidMesh(-_halfExtents, _halfExtents);
         }
+        #endregion
+
+        #region Frustums
+        /// <summary>
+        /// Creates a frustum from the minimum and maximum coordinates of a bounding box.
+        /// </summary>
         public static Frustum GetFrustum(Vec3 min, Vec3 max)
         {
             GetCorners(min, max, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
+        /// <summary>
+        /// Creates a frustum from the half extents and the transform of a bounding box.
+        /// </summary>
         public static Frustum GetFrustum(Vec3 halfExtents, Matrix4 transform)
         {
             GetCorners(halfExtents, transform, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
+        /// <summary>
+        /// Converts this bounding box to a frustum.
+        /// </summary>
+        /// <returns></returns>
         public Frustum AsFrustum() => GetFrustum(Minimum, Maximum);
+        /// <summary>
+        /// Converts this bounding box to a frustum, transformed by the given matrix.
+        /// </summary>
         public Frustum AsFrustum(Matrix4 transform) => GetFrustum(_halfExtents, transform);
-        public bool Intersects(Ray ray)
-        {
-            return Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out float distance);
-        }
-        public bool Intersects(Ray ray, out float distance)
-        {
-            return Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out distance);
-        }
-        public bool Intersects(Ray ray, out Vec3 point)
-        {
-            return Collision.RayIntersectsAABB(ray, Minimum, Maximum, out point);
-        }
-        public static BoundingBox FromSphere(Sphere sphere)
-        {
-            return FromMinMax(
-                new Vec3(sphere.Center.X - sphere.Radius, sphere.Center.Y - sphere.Radius, sphere.Center.Z - sphere.Radius),
-                new Vec3(sphere.Center.X + sphere.Radius, sphere.Center.Y + sphere.Radius, sphere.Center.Z + sphere.Radius));
-        }
-        public static BoundingBox Merge(BoundingBox box1, BoundingBox box2)
-        {
-            return FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
-        }
+        #endregion
+
+        //Half extents is one of 8 octants that make up the box, so multiply half extent volume by 8
+        public float GetVolume() =>
+            _halfExtents.X * _halfExtents.Y * _halfExtents.Z * 8.0f;
+        //Each half extent side is one of 4 quadrants on both sides of the box, so multiply each side area by 8
+        public float GetSurfaceArea() =>
+            _halfExtents.X * _halfExtents.Y * 8.0f +
+            _halfExtents.Y * _halfExtents.Z * 8.0f +
+            _halfExtents.Z * _halfExtents.X * 8.0f;
+
+        /// <summary>
+        /// Expands this bounding box to include the given point.
+        /// </summary>
         public void Expand(Vec3 point)
         {
             Vec3 min = Vec3.ComponentMin(point, Minimum);
@@ -323,20 +348,81 @@ namespace TheraEngine.Core.Shapes
             _halfExtents.Raw = (max - min) / 2.0f;
         }
 
-        public static bool operator ==(BoundingBox left, BoundingBox right) { return left.Equals(ref right); }
-        public static bool operator !=(BoundingBox left, BoundingBox right) { return !left.Equals(ref right); }
+        #region Collision
+        /// <summary>
+        /// Returns true if the given ray intersects this box.
+        /// </summary>
+        public bool Intersects(Ray ray)
+            => Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out float distance);
+        /// <summary>
+        /// Returns true if the given ray intersects this box.
+        /// Returns the distance of the closest intersection.
+        /// </summary>
+        public bool Intersects(Ray ray, out float distance)
+            => Collision.RayIntersectsAABBDistance(ray, Minimum, Maximum, out distance);
+        public bool Intersects(Vec3 start, Vec3 direction, out float distance)
+            => Collision.RayIntersectsAABBDistance(start, direction, Minimum, Maximum, out distance);
+        /// <summary>
+        /// Returns true if the given ray intersects this box.
+        /// Returns the position of the closest intersection.
+        /// </summary>
+        public bool Intersects(Ray ray, out Vec3 point)
+            => Collision.RayIntersectsAABB(ray, Minimum, Maximum, out point)
+        //public bool Intersects(Vec3 start, Vec3 direction, out Vec3 point)
+        //    => Collision.RayIntersectsAABB(start, direction, Minimum, Maximum, out point);
+
+        public override bool Contains(Vec3 point)
+            => Collision.AABBContainsPoint(Minimum, Maximum, point);
+        public override EContainment Contains(BoundingBox box)
+            => Collision.AABBContainsAABB(Minimum, Maximum, box.Minimum, box.Maximum);
+        public override EContainment Contains(Box box)
+            => Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.WorldMatrix);
+        public override EContainment Contains(Sphere sphere)
+            => Collision.AABBContainsSphere(Minimum, Maximum, sphere.Center, sphere.Radius);
+        public override EContainment ContainedWithin(BoundingBox box)
+            => box.Contains(this);
+        public override EContainment ContainedWithin(Box box)
+            => box.Contains(this);
+        public override EContainment ContainedWithin(Sphere sphere)
+            => sphere.Contains(this);
+        public override EContainment ContainedWithin(Frustum frustum)
+            => frustum.Contains(this);
+        #endregion
+
+        #region Static Constructors
+        /// <summary>
+        /// Creates a new bounding box from minimum and maximum coordinates.
+        /// </summary>
+        public static BoundingBox FromMinMax(Vec3 min, Vec3 max)
+            => new BoundingBox((max - min) / 2.0f, (max + min) / 2.0f);
+        /// <summary>
+        /// Creates a new bounding box from half extents and a translation.
+        /// </summary>
+        public static BoundingBox FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
+            => new BoundingBox(halfExtents, translation);
+        /// <summary>
+        /// Creates a bounding box that encloses the given sphere.
+        /// </summary>
+        public static BoundingBox EnclosingSphere(Sphere sphere)
+            => FromMinMax(sphere.Center - sphere.Radius, sphere.Center + sphere.Radius);
+        /// <summary>
+        /// Creates a bounding box that includes both given bounding boxes.
+        /// </summary>
+        public static BoundingBox Merge(BoundingBox box1, BoundingBox box2)
+            => FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
+        #endregion
+
+        public static bool operator ==(BoundingBox left, BoundingBox right) => left.Equals(ref right);
+        public static bool operator !=(BoundingBox left, BoundingBox right) => !left.Equals(ref right);
+
+        public bool Equals(ref BoundingBox value)
+            => Minimum == value.Minimum && Maximum == value.Maximum;
+
+        #region Overrides
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentCulture, "Minimum:{0} Maximum:{1}", Minimum.ToString(), Maximum.ToString());
         }
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Minimum.GetHashCode() * 397) ^ Maximum.GetHashCode();
-            }
-        }
-        public bool Equals(ref BoundingBox value) { return Minimum == value.Minimum && Maximum == value.Maximum; }
         public override bool Equals(object value)
         {
             if (!(value is BoundingBox))
@@ -345,38 +431,12 @@ namespace TheraEngine.Core.Shapes
             var strongValue = (BoundingBox)value;
             return Equals(ref strongValue);
         }
-
-        public override bool Contains(Vec3 point)
+        public override int GetHashCode()
         {
-            return Collision.AABBContainsPoint(Minimum, Maximum, point);
-        }
-        public override EContainment Contains(BoundingBox box)
-        {
-            return Collision.AABBContainsAABB(Minimum, Maximum, box.Minimum, box.Maximum);
-        }
-        public override EContainment Contains(Box box)
-        {
-            return Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.WorldMatrix);
-        }
-        public override EContainment Contains(Sphere sphere)
-        {
-            return Collision.AABBContainsSphere(Minimum, Maximum, sphere.Center, sphere.Radius);
-        }
-        public override EContainment ContainedWithin(BoundingBox box)
-        {
-            return box.Contains(this);
-        }
-        public override EContainment ContainedWithin(Box box)
-        {
-            return box.Contains(this);
-        }
-        public override EContainment ContainedWithin(Sphere sphere)
-        {
-            return sphere.Contains(this);
-        }
-        public override EContainment ContainedWithin(Frustum frustum)
-        {
-            return frustum.Contains(this);
+            unchecked
+            {
+                return (Minimum.GetHashCode() * 397) ^ Maximum.GetHashCode();
+            }
         }
         public override void SetRenderTransform(Matrix4 worldMatrix)
         {
@@ -393,11 +453,14 @@ namespace TheraEngine.Core.Shapes
             newBox.SetRenderTransform(worldMatrix);
             return newBox;
         }
-
         public override Matrix4 GetTransformMatrix()
             => _translation.Raw.AsTranslationMatrix();
-
         public override Vec3 ClosestPoint(Vec3 point)
             => Collision.ClosestPointAABBPoint(Minimum, Maximum, point);
+        public override TCollisionShape GetCollisionShape()
+            => TCollisionBox.New(HalfExtents);
+        public override void Render()
+            => Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid, Color.Blue);
+        #endregion
     }
 }

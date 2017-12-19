@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Globalization;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Core;
 
 namespace System
 {
@@ -111,14 +112,35 @@ namespace System
         public float DistanceToSquared(Vec3 point) => (point - this).LengthSquared;
 
         /// <summary>
-        /// Safely normalizes this vector to unit length.
+        /// Normalizes this vector using the requested method.
+        /// </summary>
+        public void Normalize(ENormalizeOption normalizeMethod)
+        {
+            switch (normalizeMethod)
+            {
+                case ENormalizeOption.None:
+                    break;
+                case ENormalizeOption.Safe:
+                    Normalize(true);
+                    break;
+                case ENormalizeOption.Unsafe:
+                    Normalize(false);
+                    break;
+                case ENormalizeOption.FastSafe:
+                    NormalizeFast();
+                    break;
+            }
+        }
+        /// <summary>
+        /// Normalizes this vector to unit length.
         /// For a faster but less precise method, use NormalizeFast.
         /// </summary>
-        public void Normalize()
+        /// <param name="safe">If true, checks that the length of this vector is not zero. If it is, does nothing.</param>
+        public void Normalize(bool safe = true)
         {
-            float length = Length;
-            if (!length.IsZero())
-                this *= (1.0f / length);
+            float lengthSq = LengthSquared;
+            if (safe && lengthSq.IsZero()) return;
+            this *= 1.0f / (float)Sqrt(lengthSq);
         }
         /// <summary>
         /// Returns a copy of this vector safely normalized to unit length.
@@ -133,11 +155,11 @@ namespace System
         /// <summary>
         /// Safely normalizes this vector to unit length using an approximation that does not use square root for a minor speed boost at the cost of precision.
         /// </summary>
-        public void NormalizeFast()
+        public void NormalizeFast(bool safe = true)
         {
             float lengthSq = LengthSquared;
-            if (!lengthSq.IsZero())
-                this *= InverseSqrtFast(lengthSq);
+            if (safe && lengthSq.IsZero()) return;
+            this *= InverseSqrtFast(lengthSq);
         }
         /// <summary>
         /// Returns a copy of this vector safely normalized to unit length using an approximation that does not use square root for a minor speed boost at the cost of precision.
@@ -543,7 +565,7 @@ namespace System
         /// Returns a YPR rotator looking from the origin to this point.
         /// </summary>
         public Rotator LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
-
+        
         //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)
         //{
         //    pitch = RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z)));

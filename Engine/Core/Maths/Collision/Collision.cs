@@ -1,4 +1,5 @@
-﻿using TheraEngine.Core.Shapes;
+﻿using TheraEngine.Core;
+using TheraEngine.Core.Shapes;
 
 namespace System
 {
@@ -503,9 +504,17 @@ namespace System
             rayDirection = rayEndPoint - rayStartPoint;
             return RayIntersectsAABBDistance(rayStartPoint, rayDirection, -boxHalfExtents, boxHalfExtents, out distance);
         }
-        public static bool RayIntersectsAABBDistance(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxMin, Vec3 boxMax, out float distance)
+
+        #region RayIntersectsAABBDistance
+        public static bool RayIntersectsAABBDistance(Ray ray, BoundingBox box, out float distance)
+            => RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, box.Minimum, box.Maximum, out distance);
+        public static bool RayIntersectsAABBDistance(Ray ray, Vec3 boxMin, Vec3 boxMax, out float distance)
+            => RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, boxMin, boxMax, out distance);
+        public static bool RayIntersectsAABBDistance(Vec3 rayStartPoint, Vec3 rayDirection, BoundingBox box, out float distance)
+             => RayIntersectsAABBDistance(rayStartPoint, rayDirection, box.Minimum, box.Maximum, out distance);
+        public static bool RayIntersectsAABBDistance(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxMin, Vec3 boxMax, out float distance, ENormalizeOption normalize = ENormalizeOption.FastSafe)
         {
-            rayDirection.NormalizeFast();
+            rayDirection.Normalize(normalize);
 
             distance = 0.0f;
             float tmax = float.MaxValue;
@@ -543,6 +552,7 @@ namespace System
                 }
             return true;
         }
+        #endregion
 
         private static bool RaySlabIntersect(float slabmin, float slabmax, float raystart, float rayend, ref float tbenter, ref float tbexit)
         {

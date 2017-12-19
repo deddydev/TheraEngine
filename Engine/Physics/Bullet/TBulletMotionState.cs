@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Physics.Bullet
 {
-    public class TBulletMotionState : DefaultMotionState
+    internal class TBulletMotionState : MotionState
     {
         public IBulletCollisionObject Body { get; set; }
 
@@ -15,22 +15,23 @@ namespace TheraEngine.Physics.Bullet
         {
 
         }
-        public TBulletMotionState(Matrix startTrans) : base(startTrans)
+        public TBulletMotionState(Matrix startTrans) : base()
         {
-
+            _worldTransform = startTrans;
         }
-        public TBulletMotionState(Matrix startTrans, Matrix centerOfMassOffset) : base(startTrans, centerOfMassOffset)
+        public TBulletMotionState(Matrix startTrans, Matrix centerOfMassOffset) : base()
         {
-
+            _worldTransform = startTrans;
         }
 
+        private Matrix _worldTransform = Matrix.Identity;
         public override Matrix WorldTransform
         {
-            get => base.WorldTransform;
+            get => _worldTransform;
             set
             {
-                base.WorldTransform = value;
-                Body.OnTransformChanged(value);
+                _worldTransform = value;
+                Body.OnTransformChanged(_worldTransform);
             }
         }
     }

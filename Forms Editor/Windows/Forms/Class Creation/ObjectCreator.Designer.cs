@@ -191,6 +191,8 @@ namespace TheraEditor.Windows.Forms
             this.numericInputBoxSingle1.LargerIncrement = 100;
             this.numericInputBoxSingle1.Location = new System.Drawing.Point(107, 0);
             this.numericInputBoxSingle1.Margin = new System.Windows.Forms.Padding(0);
+            this.numericInputBoxSingle1.MaximumValue = 2147483647;
+            this.numericInputBoxSingle1.MinimumValue = -2147483648;
             this.numericInputBoxSingle1.Name = "numericInputBoxSingle1";
             this.numericInputBoxSingle1.Nullable = false;
             this.numericInputBoxSingle1.NumberPrefix = "";

@@ -9,27 +9,27 @@ namespace TheraEngine.Rendering.Models
     {
         public LOD() { }
         public LOD(
-            SingleFileRef<TMaterial> material,
-            SingleFileRef<PrimitiveData> primitives,
+            GlobalFileRef<TMaterial> material,
+            GlobalFileRef<PrimitiveData> primitives,
             float visibleDistance)
         {
-            _material = material ?? new SingleFileRef<TMaterial>();
-            _primitives = primitives ?? new SingleFileRef<PrimitiveData>();
+            _material = material ?? new GlobalFileRef<TMaterial>();
+            _primitives = primitives ?? new GlobalFileRef<PrimitiveData>();
             VisibleDistance = visibleDistance;
         }
 
         [Category("LOD")]
-        public SingleFileRef<TMaterial> Material => _material;
+        public GlobalFileRef<TMaterial> Material => _material;
         [Category("LOD")]
-        public SingleFileRef<PrimitiveData> Primitives => _primitives;
+        public GlobalFileRef<PrimitiveData> Primitives => _primitives;
         [Category("LOD")]
         [TSerialize]
         public float VisibleDistance { get; set; } = 0.0f;
         
         [TSerialize("Primitives")]
-        protected SingleFileRef<PrimitiveData> _primitives = new SingleFileRef<PrimitiveData>();
+        protected GlobalFileRef<PrimitiveData> _primitives = new GlobalFileRef<PrimitiveData>();
         [TSerialize("Material")]
-        protected SingleFileRef<TMaterial> _material = new SingleFileRef<TMaterial>();
+        protected GlobalFileRef<TMaterial> _material = new GlobalFileRef<TMaterial>();
 
         public PrimitiveManager CreatePrimitiveManager()
             => new PrimitiveManager(_primitives.File, _material.File);

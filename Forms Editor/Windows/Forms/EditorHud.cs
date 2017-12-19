@@ -14,6 +14,7 @@ using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Components;
 using TheraEngine.Worlds.Actors.Types;
 using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Physics;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -25,8 +26,8 @@ namespace TheraEditor.Windows.Forms
         }
         
         private HighlightPoint _highlightPoint;
-        RigidBody _pickedBody;
-        Point2PointConstraint _currentConstraint;
+        TRigidBody _pickedBody;
+        TPointPointConstraint _currentConstraint;
         private float _hitDistance;
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
@@ -213,8 +214,8 @@ namespace TheraEditor.Windows.Forms
             else if (_dragComponent != null)
             {
                 float prevHitDist = _hitDistance;
-                IPhysicsDrivable p = _dragComponent as IPhysicsDrivable;
-                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance, p != null ? new RigidBody[] { p.PhysicsDriver.CollisionObject } : new RigidBody[0]);
+                IRigidCollidable p = _dragComponent as IRigidCollidable;
+                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 float upDist = 0.0f;
                 if (comp == null)
@@ -257,10 +258,10 @@ namespace TheraEditor.Windows.Forms
 
             if (_currentConstraint != null)
             {
-                Engine.World.PhysicsScene.RemoveConstraint(_currentConstraint);
-                _currentConstraint.Dispose();
+                Engine.World.PhysicsWorld.RemoveConstraint(_currentConstraint);
+                //_currentConstraint.Dispose();
                 _currentConstraint = null;
-                _pickedBody.ForceActivationState(ActivationState.ActiveTag);
+                _pickedBody.ForceActivationState(EBodyActivationState.Active);
                 _pickedBody = null;
             }
 
@@ -289,21 +290,21 @@ namespace TheraEditor.Windows.Forms
                 }
                 else// if (comp != null)
                 {
-                    if (_selectedComponent is IPhysicsDrivable d && d.PhysicsDriver != null && d.PhysicsDriver.SimulatingPhysics)
+                    if (_selectedComponent is IRigidCollidable d && d.RigidBodyCollision.SimulatingPhysics)
                     {
                         _dragComponent = null;
                         EditorTransformTool3D.DestroyInstance();
 
-                        _pickedBody = d.PhysicsDriver.CollisionObject;
-                        _pickedBody.ForceActivationState(ActivationState.DisableDeactivation);
+                        _pickedBody = d.RigidBodyCollision;
+                        _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
 
-                        Vec3 localPivot = Vector3.TransformCoordinate(_hitPoint, Matrix.Invert(_pickedBody.CenterOfMassTransform));
-                        Point2PointConstraint p2p = new Point2PointConstraint(_pickedBody, localPivot);
-                        p2p.Setting.ImpulseClamp = 60;
-                        p2p.Setting.Tau = 0.1f;
+                        Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
+                        TPointPointConstraint p2p = TPointPointConstraint.New(_pickedBody, localPivot);
+                        p2p.ImpulseClamp = 60;
+                        p2p.Tau = 0.1f;
 
                         _currentConstraint = p2p;
-                        Engine.World.PhysicsScene.AddConstraint(_currentConstraint);
+                        Engine.World.PhysicsWorld.AddConstraint(_currentConstraint);
                     }
                     else
                     {

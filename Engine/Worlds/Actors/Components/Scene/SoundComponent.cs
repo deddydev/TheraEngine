@@ -2,21 +2,22 @@
 using TheraEngine.Rendering;
 using TheraEngine.Files;
 using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene
 {
     public class SoundComponent : SphereComponent
     {
-        public SingleFileRef<SoundFile> File
+        public GlobalFileRef<SoundFile> File
         {
             get => _file;
             set => _file = value;
         }
 
-        private SingleFileRef<SoundFile> _file;
+        private GlobalFileRef<SoundFile> _file;
 
         public SoundComponent() : base(1.0f) { }
         public SoundComponent(float radius) : base(radius) { }
-        public SoundComponent(float radius, PhysicsConstructionInfo info) : base(radius, info) { }
+        public SoundComponent(float radius, TRigidBodyConstructionInfo info) : base(radius, info) { }
     }
 }

@@ -15,6 +15,7 @@ using TheraEngine.Worlds.Actors.Types.Pawns;
 using System.Windows.Forms;
 using System.IO;
 using TheraEngine.Physics;
+using TheraEngine.Physics.RayTracing;
 
 namespace TheraEngine.Rendering
 {
@@ -320,17 +321,15 @@ namespace TheraEngine.Rendering
             if (testWorld)
             {
                 Segment cursor = GetWorldSegment(viewportPoint);
-                ClosestRayResultCallback c = ignored != null && ignored.Length > 0 ?
-                    Engine.RaycastClosestExcept(cursor, ignored) :
-                    Engine.RaycastClosest(cursor);
-                if (c.HasHit)
+                
+                RayTraceClosest c = new RayTraceClosest(cursor.StartPoint, cursor.EndPoint, 0, 0xFFFF, ignored);
+                if (c.Trace())
                 {
                     hitNormal = c.HitNormalWorld;
                     hitPoint = c.HitPointWorld;
                     distance = hitPoint.DistanceToFast(cursor.StartPoint);
                     TCollisionObject coll = c.CollisionObject;
-                    PhysicsDriver d = coll.PhysicsDriver;
-                    return d.Owner as SceneComponent;
+                    return coll.Owner as SceneComponent;
                 }
 
                 //float depth = GetDepth(viewportPoint);

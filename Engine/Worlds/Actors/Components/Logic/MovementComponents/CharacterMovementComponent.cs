@@ -147,7 +147,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
         }
         protected virtual void TickWalking(float delta, Vec3 movementInput)
         {
-            ShapeTraceResultClosest result;
+            ShapeTraceClosest result;
             Matrix4 inputTransform;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             TCollisionShape shape = root.CullingVolume.GetCollisionShape();
@@ -176,7 +176,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
                     groundRot = Quat.Identity;
                     inputTransform = finalInput.AsTranslationMatrix();
 
-                    result = new ShapeTraceResultClosest(shape,
+                    result = new ShapeTraceClosest(shape,
                         stepUpMatrix * root.WorldMatrix, stepUpMatrix * inputTransform * root.WorldMatrix,
                         (ushort)TCollisionGroup.Characters,
                         (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
@@ -252,7 +252,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
             down *= groundTestDist;
             inputTransform = down.AsTranslationMatrix();
             
-            result = new ShapeTraceResultClosest(shape,
+            result = new ShapeTraceClosest(shape,
                 stepUpMatrix * root.WorldMatrix, stepUpMatrix * inputTransform * root.WorldMatrix, 
                 (ushort)TCollisionGroup.Characters, 
                 (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
@@ -396,7 +396,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
                 //other.Activate();
             }
         }
-        public void OnContactEnded(IPhysicsDrivable other)
+        public void OnContactEnded(TRigidBody other)
         {
 
         }

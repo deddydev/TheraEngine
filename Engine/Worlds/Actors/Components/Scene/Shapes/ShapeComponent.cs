@@ -38,20 +38,18 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
                 info.CollisionShape = GetCollisionShape();
                 info.InitialWorldTransform = WorldMatrix;
                 _rigidBodyCollision = TRigidBody.New(this, info);
+                _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
                 WorldTransformChanged += ShapeComponent_WorldTransformChanged;
             }
             else
                 _rigidBodyCollision = null;
         }
-        protected virtual void PhysicsTransformChanged(Matrix4 worldMatrix)
-        {
-            WorldMatrix = worldMatrix;
-        }
-        private void ShapeComponent_WorldTransformChanged()
-        {
-            _rigidBodyCollision.WorldTransform = WorldMatrix;
-        }
 
+        private void _rigidBodyCollision_TransformChanged(Matrix4 transform)
+            => WorldMatrix = _rigidBodyCollision.WorldTransform;
+        private void ShapeComponent_WorldTransformChanged()
+            => _rigidBodyCollision.ProceedToTransform(WorldMatrix);
+        
         private void PhysicsSimulationStateChanged(bool isSimulating)
         {
             if (isSimulating)

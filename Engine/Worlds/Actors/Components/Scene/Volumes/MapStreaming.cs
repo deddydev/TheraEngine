@@ -11,7 +11,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Volumes
             : base(halfExtents, null) { }
 
         [TSerialize]
-        public SingleFileRef<Map> MapToLoad { get; set; }
+        public GlobalFileRef<Map> MapToLoad { get; set; }
 
     }
 }

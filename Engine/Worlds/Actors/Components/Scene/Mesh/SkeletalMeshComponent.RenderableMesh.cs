@@ -11,6 +11,9 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
     public partial class SkeletalMeshComponent : TRSComponent
     {
+        /// <summary>
+        /// Mesh generated at runtime for internal use.
+        /// </summary>
         public class RenderableMesh : ISubMesh
         {
             private RenderInfo3D _renderInfo;

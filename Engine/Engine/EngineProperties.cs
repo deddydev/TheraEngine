@@ -50,7 +50,9 @@ namespace TheraEngine
 
         public static BaseGameMode ActiveGameMode => Game?.State.GameMode?.File;
 
-        public static ConcurrentDictionary<string, List<FileObject>> LoadedFiles 
+        public static ConcurrentDictionary<string, FileObject> GlobalFileInstances
+            = new ConcurrentDictionary<string, FileObject>();
+        public static ConcurrentDictionary<string, List<FileObject>> LocalFileInstances 
             = new ConcurrentDictionary<string, List<FileObject>>();
 
         public static MonitoredList<LocalPlayerController> ActivePlayers
@@ -130,23 +132,26 @@ namespace TheraEngine
 
         #region Timing
 
-        public static float RenderDelta => (float)_timer.RenderTime;
-        public static float UpdateDelta => (float)_timer.UpdateTime;
-        public static double RenderPeriod => _timer.RenderPeriod;
-        public static double UpdatePeriod => _timer.UpdatePeriod;
+        public static float RenderDelta => _timer.RenderTime;
+        public static float UpdateDelta => _timer.UpdateTime;
+        public static float RenderPeriod => _timer.RenderPeriod;
+        public static float UpdatePeriod => _timer.UpdatePeriod;
 
         /// <summary>
         /// Frames per second that the game will try to render at.
         /// </summary>
-        public static double TargetRenderFreq
+        public static float TargetRenderFreq
         {
             get => _timer.TargetRenderFrequency;
-            set => _timer.TargetRenderFrequency = value;
+            set
+            {
+                _timer.TargetRenderFrequency = value;
+            }
         }
         /// <summary>
         /// Frames per second that the game will try to update at.
         /// </summary>
-        public static double TargetUpdateFreq
+        public static float TargetUpdateFreq
         {
             get => _timer.TargetUpdateFrequency;
             set => _timer.TargetUpdateFrequency = value;
@@ -156,12 +161,15 @@ namespace TheraEngine
         /// How fast/slow the game moves.
         /// Greater than 1.0 for speed up, less than 1.0 for slow down.
         /// </summary>
-        public static double TimeDilation
+        public static float TimeDilation
         {
             get => _timer.TimeDilation;
-            set => _timer.TimeDilation = value;
+            set
+            {
+                _timer.TimeDilation = value;
+            }
         }
-
+        
         #endregion
 
         #region Libraries
@@ -250,6 +258,7 @@ namespace TheraEngine
                 //    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
                 return _renderer;
             }
+            internal set => _renderer = value;
         }
         /// <summary>
         /// Provides an abstraction layer for managing any supported physics engine.

@@ -19,7 +19,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 _fileRef = value as IFileRef;
                 label1.Text = _fileRef?.ReferencedType.GetFriendlyName();
-                textBox1.Text = _fileRef?.FilePath;
+                textBox1.Text = _fileRef?.ReferencePath;
             }
             else
                 throw new Exception(DataType.GetFriendlyName() + " is not an IFileRef type.");

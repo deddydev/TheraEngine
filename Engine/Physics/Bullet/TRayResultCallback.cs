@@ -6,17 +6,22 @@ namespace TheraEngine.Physics.Bullet
 {
     internal class TRayResultCallback : RayResultCallback
     {
-        private RayTraceResult _handler;
+        private RayTrace _handler;
 
-        public TRayResultCallback(RayTraceResult handler) => _handler = handler;
+        public TRayResultCallback(RayTrace handler) => _handler = handler;
         
         public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
         {
             TCollisionObject obj = rayResult.CollisionObject.UserObject as TCollisionObject;
             Vec3 hitNormalLocal = rayResult.HitNormalLocal;
             float hitFraction = rayResult.HitFraction;
-            int shapePart = rayResult.LocalShapeInfo.ShapePart;
-            int triangleIndex = rayResult.LocalShapeInfo.TriangleIndex;
+            int shapePart = -1, triangleIndex = -1;
+
+            if (rayResult.LocalShapeInfo != null)
+            {
+                shapePart = rayResult.LocalShapeInfo.ShapePart;
+                triangleIndex = rayResult.LocalShapeInfo.TriangleIndex;
+            }
 
             _handler.AddResult(obj, hitNormalLocal, normalInWorldSpace, hitFraction, shapePart, triangleIndex);
 

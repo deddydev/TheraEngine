@@ -70,12 +70,12 @@ namespace TheraEngine.Animation
         [TSerialize("PropertyName")]
         private string _propertyName = null;
         [TSerialize("Animation")]
-        private SingleFileRef<BasePropertyAnimation> _animation = new SingleFileRef<BasePropertyAnimation>();
+        private GlobalFileRef<BasePropertyAnimation> _animation = new GlobalFileRef<BasePropertyAnimation>();
         [TSerialize("Children")]
         private MonitoredList<AnimFolder> _children = new MonitoredList<AnimFolder>();
 
         [Category("Animation Folder")]
-        public SingleFileRef<BasePropertyAnimation> Animation => _animation;
+        public GlobalFileRef<BasePropertyAnimation> Animation => _animation;
 
         public void CollectAnimations(string path, Dictionary<string, BasePropertyAnimation> animations)
         {

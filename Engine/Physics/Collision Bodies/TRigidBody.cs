@@ -11,9 +11,21 @@ namespace TheraEngine.Physics
         DisableSleep = 4,
         DisableSimulation = 5
     }
+    public delegate void DelOnHit(TRigidBody me, TRigidBody other, TCollisionInfo collisionPoint);
     public abstract class TRigidBody : TCollisionObject
     {
-        protected TRigidBody(IRigidCollidable owner, TCollisionShape shape) : base(owner, shape) { }
+        public DelOnHit OnHit;
+
+        protected TRigidBody(IRigidCollidable owner, TCollisionShape shape) : base(owner, shape)
+        {
+
+        }
+
+        public new IRigidCollidable Owner
+        {
+            get => (IRigidCollidable)base.Owner;
+            set => base.Owner = value;
+        }
 
         public static TRigidBody New(IRigidCollidable owner, TRigidBodyConstructionInfo info)
             => Engine.Physics.NewRigidBody(owner, info);
@@ -30,7 +42,7 @@ namespace TheraEngine.Physics
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract int ConstraintCount { get; }
 
-        protected Vec3 _previousLinearFactor;
+        protected Vec3 _previousLinearFactor = Vec3.One;
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract Vec3 LinearFactor { get; set; }
         [PhysicsSupport(PhysicsLibrary.Bullet)]
@@ -40,7 +52,7 @@ namespace TheraEngine.Physics
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract float LinearDamping { get; }
 
-        protected Vec3 _previousAngularFactor;
+        protected Vec3 _previousAngularFactor = Vec3.One;
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract Vec3 AngularFactor { get; set; }
         [PhysicsSupport(PhysicsLibrary.Bullet)]
@@ -149,7 +161,7 @@ namespace TheraEngine.Physics
         public Vec3 GetWeight() => Mass * Gravity;
 
         public MonitoredList<TConstraint> Constraints { get; } = new MonitoredList<TConstraint>();
-        
+
         /// <summary>
         /// Applies a force to the center of mass of the body (the origin).
         /// </summary>

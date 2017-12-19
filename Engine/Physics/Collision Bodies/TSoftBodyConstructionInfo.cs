@@ -16,7 +16,7 @@ namespace TheraEngine.Physics
         public float WaterOffset { get; set; }
         public Vec3 WaterNormal { get; set; }
         public float WaterDensity { get; set; }
-        public SparseSdf SparseSdf { get; }
+        //public SparseSdf SparseSdf { get; }
         public float MaxDisplacement { get; set; }
         public Vec3 Gravity { get; set; }
         public float AirDensity { get; set; }

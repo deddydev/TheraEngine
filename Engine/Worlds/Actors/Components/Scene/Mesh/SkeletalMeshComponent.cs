@@ -10,15 +10,21 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
     public partial class SkeletalMeshComponent : TRSComponent, IPreRenderNeeded, IMeshSocketOwner
     {
-        public SkeletalMeshComponent(SkeletalMesh m, Skeleton skeleton)
+        public SkeletalMeshComponent(SkeletalMesh mesh, Skeleton skeleton)
         {
-            Skeleton = skeleton;
-            Model = m;
+            SkeletonRef = skeleton;
+            ModelRef = mesh;
         }
-        public SkeletalMeshComponent() { }
+        public SkeletalMeshComponent()
+        {
+            SkeletonRef = new LocalFileRef<Skeleton>();
+            ModelRef = new GlobalFileRef<SkeletalMesh>();
+        }
 
-        private SingleFileRef<SkeletalMesh> _model;
-        private SingleFileRef<Skeleton> _skeleton;
+        private LocalFileRef<Skeleton> _skeletonRef;
+        private GlobalFileRef<SkeletalMesh> _modelRef;
+
+        //TODO: figure out how to serialize sockets and refer to what's attached to them in the current state
         private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
 
         //For internal runtime use
@@ -64,69 +70,84 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
         #endregion
 
-        [Category("Skeletal Mesh Component")]
+        /// <summary>
+        /// Retrieves the model. 
+        /// May load synchronously if not currently loaded.
+        /// </summary>
+        [Browsable(false)]
+        public SkeletalMesh Model => ModelRef.File;
+
         [TSerialize]
-        public SingleFileRef<SkeletalMesh> Model
+        [Category("Skeletal Mesh Component")]
+        public GlobalFileRef<SkeletalMesh> ModelRef
         {
-            get => _model;
+            get => _modelRef;
             set
             {
-                if (_model == value)
+                if (_modelRef == value)
                     return;
-                _model = value;
-                var skel = _skeleton;
-                _skeleton = null;
-                if (_model != null)
-                {
-                    if (_model.IsLoaded || IsSpawned)
-                    {
-                        SkeletalMesh model = _model.GetInstance();
+                
+                _modelRef = value ?? new GlobalFileRef<SkeletalMesh>();
 
-                        _meshes = new RenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
-                        for (int i = 0; i < model.RigidChildren.Count; ++i)
-                        {
-                            RenderableMesh m = new RenderableMesh(model.RigidChildren[i], skel, this);
-                            m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
-                            _meshes[i] = m;
-                        }
-                        for (int i = 0; i < model.SoftChildren.Count; ++i)
-                        {
-                            RenderableMesh m = new RenderableMesh(model.SoftChildren[i], skel, this);
-                            m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
-                            _meshes[model.RigidChildren.Count + i] = m;
-                        }
-                    }
-                }
-                else
+                if (_meshes != null)
                 {
-                    if (_meshes != null)
+                    foreach (RenderableMesh mesh in _meshes)
+                        mesh.Visible = false;
+                    _meshes = null;
+                }
+
+                if (_modelRef.IsLoaded || IsSpawned)
+                {
+                    _meshes = new RenderableMesh[Model.RigidChildren.Count + Model.SoftChildren.Count];
+                    for (int i = 0; i < Model.RigidChildren.Count; ++i)
                     {
-                        foreach (RenderableMesh mesh in _meshes)
-                            mesh.Visible = false;
-                        _meshes = null;
+                        RenderableMesh mesh = new RenderableMesh(Model.RigidChildren[i], Skeleton, this);
+                        mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
+                        _meshes[i] = mesh;
+                    }
+                    for (int i = 0; i < Model.SoftChildren.Count; ++i)
+                    {
+                        RenderableMesh mesh = new RenderableMesh(Model.SoftChildren[i], Skeleton, this);
+                        mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
+                        _meshes[Model.RigidChildren.Count + i] = mesh;
                     }
                 }
-                _skeleton = skel;
             }
         }
-        [Category("Skeletal Mesh Component")]
+
+        /// <summary>
+        /// Retrieves the skeleton. 
+        /// May load synchronously if not currently loaded.
+        /// </summary>
+        [Browsable(false)]
+        public Skeleton Skeleton => SkeletonRef.File;
+
         [TSerialize]
-        public SingleFileRef<Skeleton> Skeleton
+        [Category("Skeletal Mesh Component")]
+        public LocalFileRef<Skeleton> SkeletonRef
         {
-            get => _skeleton;
+            get => _skeletonRef;
             set
             {
-                if (value == _skeleton)
+                if (_skeletonRef == value)
                     return;
-                if (_skeleton != null)
-                    _skeleton.File.OwningComponent = null;
-                _skeleton = value;
-                if (_skeleton != null)
-                    _skeleton.File.OwningComponent = this;
-                if (_meshes != null)
-                    foreach (RenderableMesh m in _meshes)
-                        m.Skeleton = _skeleton;
+
+                _skeletonRef.Loaded -= _skeletonRef_Loaded;
+
+                if (_skeletonRef.IsLoaded)
+                    _skeletonRef.File.OwningComponent = null;                
+
+                _skeletonRef = value ?? new LocalFileRef<Skeleton>();
+                _skeletonRef.Loaded += _skeletonRef_Loaded;
             }
+        }
+
+        private void _skeletonRef_Loaded(Skeleton skel)
+        {
+            skel.OwningComponent = this;
+            if (_meshes != null)
+                foreach (RenderableMesh m in _meshes)
+                    m.Skeleton = skel;
         }
         
         [Category("Skeletal Mesh Component")]
@@ -134,7 +155,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         
         public void SetAllSimulatingPhysics(bool doSimulation)
         {
-            foreach (Bone b in _skeleton.File)
+            foreach (Bone b in Skeleton)
                 if (b.RigidBodyCollision != null)
                     b.RigidBodyCollision.SimulatingPhysics = doSimulation;
         }
@@ -143,7 +164,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             if (_meshes != null)
                 foreach (RenderableMesh m in _meshes)
                     m.Visible = m.Mesh.VisibleByDefault;
-
+            
             base.OnSpawned();
         }
         public override void OnDespawned()
@@ -157,14 +178,14 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         internal override void RecalcGlobalTransform()
         {
             base.RecalcGlobalTransform();
-            _skeleton?.File?.WorldMatrixChanged();
+            Skeleton.WorldMatrixChanged();
         }
 
         //private void Tick(float delta) => PreRender();
 
         public void PreRender()
         {
-            _skeleton?.File?.UpdateBones(AbstractRenderer.CurrentCamera);
+            Skeleton.UpdateBones(AbstractRenderer.CurrentCamera);
         }
     }
 }

@@ -7,19 +7,19 @@ namespace TheraEngine.Timers
 {
     public class EngineTimer
     {
-        const double MaxFrequency = 500.0; // Frequency cap for Update/RenderFrame events
+        const float MaxFrequency = 500.0f; // Frequency cap for Update/RenderFrame events
 
-        double _updatePeriod, _renderPeriod;
-        double _targetUpdatePeriod, _targetRenderPeriod;
+        float _updatePeriod, _renderPeriod;
+        float _targetUpdatePeriod, _targetRenderPeriod;
 
-        double _updateTime; // length of last UpdateFrame event
-        double _renderTime; // length of last RenderFrame event
-        double _timeDilation = 1.0;
+        float _updateTime; // length of last UpdateFrame event
+        float _renderTime; // length of last RenderFrame event
+        float _timeDilation = 1.0f;
 
-        double _updateTimestamp; // timestamp of last UpdateFrame event
-        double _renderTimestamp; // timestamp of last RenderFrame event
+        float _updateTimestamp; // timestamp of last UpdateFrame event
+        float _renderTimestamp; // timestamp of last RenderFrame event
 
-        double _updateEpsilon = 0.0; // quantization error for UpdateFrame events
+        float _updateEpsilon = 0.0f; // quantization error for UpdateFrame events
 
         bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
 
@@ -79,16 +79,16 @@ namespace TheraEngine.Timers
         }
         private void DispatchRender()
         {
-            double timestamp = _watch.Elapsed.TotalSeconds;
-            double elapsed = (timestamp - _renderTimestamp).Clamp(0.0, 1.0);
+            float timestamp = (float)_watch.Elapsed.TotalSeconds;
+            float elapsed = (timestamp - _renderTimestamp).Clamp(0.0f, 1.0f);
             if (elapsed > 0 && elapsed >= TargetRenderPeriod)
                 RaiseRenderFrame(elapsed, ref timestamp);
         }
         private void DispatchUpdate()
         {
             int runningSlowlyRetries = 4;
-            double timestamp = _watch.Elapsed.TotalSeconds;
-            double elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
+            float timestamp = (float)_watch.Elapsed.TotalSeconds;
+            float elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
             while (elapsed > 0 && elapsed + _updateEpsilon >= TargetUpdatePeriod)
             {
                 RaiseUpdateFrame(elapsed, ref timestamp);
@@ -101,7 +101,7 @@ namespace TheraEngine.Timers
                 // Prepare for next loop
                 elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
 
-                if (TargetUpdatePeriod <= Double.Epsilon)
+                if (TargetUpdatePeriod <= Single.Epsilon)
                 {
                     // According to the TargetUpdatePeriod documentation,
                     // a TargetUpdatePeriod of zero means we will raise
@@ -119,7 +119,7 @@ namespace TheraEngine.Timers
                 }
             }
         }
-        private void RaiseUpdateFrame(double elapsed, ref double timestamp)
+        private void RaiseUpdateFrame(float elapsed, ref float timestamp)
         {
             // Raise UpdateFrame event
             _updateArgs.Time = elapsed;
@@ -130,10 +130,10 @@ namespace TheraEngine.Timers
 
             // Update UpdateTime property
             _updateTimestamp = timestamp;
-            timestamp = _watch.Elapsed.TotalSeconds * _timeDilation;
+            timestamp = (float)_watch.Elapsed.TotalSeconds * _timeDilation;
             _updateTime = timestamp - _updateTimestamp;
         }
-        void RaiseRenderFrame(double elapsed, ref double timestamp)
+        void RaiseRenderFrame(float elapsed, ref float timestamp)
         {
             // Raise RenderFrame event
             _renderArgs.Time = elapsed;
@@ -144,7 +144,7 @@ namespace TheraEngine.Timers
 
             // Update RenderTime property
             _renderTimestamp = timestamp;
-            timestamp = _watch.Elapsed.TotalSeconds;
+            timestamp = (float)_watch.Elapsed.TotalSeconds;
             _renderTime = timestamp - _renderTimestamp;
         }
 
@@ -157,143 +157,143 @@ namespace TheraEngine.Timers
         public bool IsRunning => _running;
         
         /// <summary>
-        /// Gets a double representing the actual frequency of RenderFrame events, in hertz (i.e. fps or frames per second).
+        /// Gets a float representing the actual frequency of RenderFrame events, in hertz (i.e. fps or frames per second).
         /// </summary>
-        public double RenderFrequency
+        public float RenderFrequency
         {
             get
             {
-                if (_renderPeriod == 0.0)
-                    return 1.0;
-                return 1.0 / _renderPeriod;
+                if (_renderPeriod == 0.0f)
+                    return 1.0f;
+                return 1.0f / _renderPeriod;
             }
         }
         
         /// <summary>
-        /// Gets a double representing the period of RenderFrame events, in seconds.
+        /// Gets a float representing the period of RenderFrame events, in seconds.
         /// </summary>
-        public double RenderPeriod => _renderPeriod;
+        public float RenderPeriod => _renderPeriod;
 
         /// <summary>
-        /// Gets a double representing the time spent in the RenderFrame function, in seconds.
+        /// Gets a float representing the time spent in the RenderFrame function, in seconds.
         /// </summary>
-        public double RenderTime => _renderTime;
+        public float RenderTime => _renderTime;
         
         /// <summary>
-        /// Gets or sets a double representing the target render frequency, in hertz.
+        /// Gets or sets a float representing the target render frequency, in hertz.
         /// </summary>
         /// <remarks>
         /// <para>A value of 0.0 indicates that RenderFrame events are generated at the maximum possible frequency (i.e. only limited by the hardware's capabilities).</para>
         /// <para>Values lower than 1.0Hz are clamped to 0.0. Values higher than 500.0Hz are clamped to 200.0Hz.</para>
         /// </remarks>
-        public double TargetRenderFrequency
+        public float TargetRenderFrequency
         {
             get
             {
-                if (_targetRenderPeriod == 0.0)
-                    return 0.0;
-                return 1.0 / _targetRenderPeriod;
+                if (_targetRenderPeriod == 0.0f)
+                    return 0.0f;
+                return 1.0f / _targetRenderPeriod;
             }
             set
             {
-                if (value < 1.0)
+                if (value < 1.0f)
                 {
-                    _targetRenderPeriod = 0.0;
+                    _targetRenderPeriod = 0.0f;
                     Engine.PrintLine("Target render frequency set to unrestricted.");
                 }
                 else if (value < MaxFrequency)
                 {
-                    _targetRenderPeriod = 1.0 / value;
+                    _targetRenderPeriod = 1.0f / value;
                     Engine.PrintLine("Target render frequency set to {0}Hz.", value.ToString());
                 }
                 else
                 {
-                    _targetRenderPeriod = 1.0 / MaxFrequency;
+                    _targetRenderPeriod = 1.0f / MaxFrequency;
                     Engine.PrintLine("Target render frequency clamped to {0}Hz.", MaxFrequency.ToString());
                 }
             }
         }
         
         /// <summary>
-        /// Gets or sets a double representing the target render period, in seconds.
+        /// Gets or sets a float representing the target render period, in seconds.
         /// </summary>
         /// <remarks>
         /// <para>A value of 0.0 indicates that RenderFrame events are generated at the maximum possible frequency (i.e. only limited by the hardware's capabilities).</para>
         /// <para>Values lower than 0.002 seconds (500Hz) are clamped to 0.0. Values higher than 1.0 seconds (1Hz) are clamped to 1.0.</para>
         /// </remarks>
-        public double TargetRenderPeriod
+        public float TargetRenderPeriod
         {
             get => _targetRenderPeriod;
             set
             {
-                if (value < 1.0 / MaxFrequency)
+                if (value < 1.0f / MaxFrequency)
                 {
-                    _targetRenderPeriod = 0.0;
+                    _targetRenderPeriod = 0.0f;
                     Engine.PrintLine("Target render frequency set to unrestricted.");
                 }
-                else if (value < 1.0)
+                else if (value < 1.0f)
                 {
                     _targetRenderPeriod = value;
                     Engine.PrintLine("Target render frequency set to {0}Hz.", TargetRenderFrequency.ToString());
                 }
                 else
                 {
-                    _targetRenderPeriod = 1.0;
+                    _targetRenderPeriod = 1.0f;
                     Engine.PrintLine("Target render frequency clamped to 1Hz.");
                 }
             }
         }
         
         /// <summary>
-        /// Gets or sets a double representing the target update frequency, in hertz.
+        /// Gets or sets a float representing the target update frequency, in hertz.
         /// </summary>
         /// <remarks>
         /// <para>A value of 0.0 indicates that UpdateFrame events are generated at the maximum possible frequency (i.e. only limited by the hardware's capabilities).</para>
         /// <para>Values lower than 1.0Hz are clamped to 0.0. Values higher than 500.0Hz are clamped to 500.0Hz.</para>
         /// </remarks>
-        public double TargetUpdateFrequency
+        public float TargetUpdateFrequency
         {
             get
             {
-                if (_targetUpdatePeriod == 0.0)
-                    return 0.0;
-                return 1.0 / _targetUpdatePeriod;
+                if (_targetUpdatePeriod == 0.0f)
+                    return 0.0f;
+                return 1.0f / _targetUpdatePeriod;
             }
             set
             {
                 if (value < 1.0)
                 {
-                    _targetUpdatePeriod = 0.0;
+                    _targetUpdatePeriod = 0.0f;
                     Debug.Print("Target update frequency set to unrestricted.");
                 }
                 else if (value < MaxFrequency)
                 {
-                    _targetUpdatePeriod = 1.0 / value;
+                    _targetUpdatePeriod = 1.0f / value;
                     Debug.Print("Target update frequency set to {0}Hz.", value);
                 }
                 else
                 {
-                    _targetUpdatePeriod = 1.0 / MaxFrequency;
+                    _targetUpdatePeriod = 1.0f / MaxFrequency;
                     Debug.Print("Target update frequency clamped to {0}Hz.", MaxFrequency);
                 }
             }
         }
         
         /// <summary>
-        /// Gets or sets a double representing the target update period, in seconds.
+        /// Gets or sets a float representing the target update period, in seconds.
         /// </summary>
         /// <remarks>
         /// <para>A value of 0.0 indicates that UpdateFrame events are generated at the maximum possible frequency (i.e. only limited by the hardware's capabilities).</para>
         /// <para>Values lower than 0.002 seconds (500Hz) are clamped to 0.0. Values higher than 1.0 seconds (1Hz) are clamped to 1.0.</para>
         /// </remarks>
-        public double TargetUpdatePeriod
+        public float TargetUpdatePeriod
         {
             get => _targetUpdatePeriod;
             set
             {
-                if (value < 1.0 / MaxFrequency)
+                if (value < 1.0f / MaxFrequency)
                 {
-                    _targetUpdatePeriod = 0.0;
+                    _targetUpdatePeriod = 0.0f;
                     Debug.Print("Target update frequency set to unrestricted.");
                 }
                 else if (value < 1.0)
@@ -303,35 +303,35 @@ namespace TheraEngine.Timers
                 }
                 else
                 {
-                    _targetUpdatePeriod = 1.0;
+                    _targetUpdatePeriod = 1.0f;
                     Debug.Print("Target update frequency clamped to 1Hz.");
                 }
             }
         }
         
         /// <summary>
-        /// Gets a double representing the frequency of UpdateFrame events, in hertz (updates per second).
+        /// Gets a float representing the frequency of UpdateFrame events, in hertz (updates per second).
         /// </summary>
-        public double UpdateFrequency
+        public float UpdateFrequency
         {
             get
             {
-                if (_updatePeriod == 0.0)
-                    return 1.0;
-                return 1.0 / _updatePeriod;
+                if (_updatePeriod == 0.0f)
+                    return 1.0f;
+                return 1.0f / _updatePeriod;
             }
         }
         
         /// <summary>
-        /// Gets a double representing the period of UpdateFrame events, in seconds (seconds per update).
+        /// Gets a float representing the period of UpdateFrame events, in seconds (seconds per update).
         /// </summary>
-        public double UpdatePeriod => _updatePeriod;
+        public float UpdatePeriod => _updatePeriod;
         
         /// <summary>
-        /// Gets a double representing the time spent in the UpdateFrame function, in seconds.
+        /// Gets a float representing the time spent in the UpdateFrame function, in seconds.
         /// </summary>
-        public double UpdateTime => _updateTime;
-        public double TimeDilation
+        public float UpdateTime => _updateTime;
+        public float TimeDilation
         {
             get => _timeDilation;
             set => _timeDilation = value;
@@ -340,20 +340,20 @@ namespace TheraEngine.Timers
 
     public class FrameEventArgs : EventArgs
     {
-        double elapsed;
+        float elapsed;
 
         public FrameEventArgs() { }
 
         /// <param name="elapsed">The amount of time that has elapsed since the previous event, in seconds.</param>
-        public FrameEventArgs(double elapsed)
+        public FrameEventArgs(float elapsed)
         {
             Time = elapsed;
         }
 
         /// <summary>
-        /// Gets a <see cref="System.Double"/> that indicates how many seconds of time elapsed since the previous event.
+        /// Gets a <see cref="System.Single"/> that indicates how many seconds of time elapsed since the previous event.
         /// </summary>
-        public double Time
+        public float Time
         {
             get { return elapsed; }
             set { elapsed = value; }

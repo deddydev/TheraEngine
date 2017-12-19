@@ -38,7 +38,7 @@ namespace TheraEngine.Physics.RayTracing
     /// <summary>
     /// Contains properties and methods for projecting a ray in the world and testing for intersections with collision objects.
     /// </summary>
-    public abstract class RayTraceResult
+    public abstract class RayTrace
     {
         public Vec3 StartPointWorld { get; private set; }
         public Vec3 EndPointWorld { get; private set; }
@@ -46,7 +46,7 @@ namespace TheraEngine.Physics.RayTracing
         public ushort CollidesWith { get; private set; }
         public TCollisionObject[] Ignored { get; private set; }
 
-        public RayTraceResult(
+        public RayTrace(
             Vec3 startPointWorld,
             Vec3 endPointWorld,
             ushort collisionGroup,
@@ -85,13 +85,16 @@ namespace TheraEngine.Physics.RayTracing
             return false;
         }
 
-        public bool PerformTrace() => Engine.RayTrace(this);
+        /// <summary>
+        /// Performs the trace in the world and returns true if there are any collision results.
+        /// </summary>
+        public bool Trace() => Engine.RayTrace(this);
     }
 
     /// <summary>
     /// Returns a single collision result. Use RayTraceClosest if you're looking for a basic single result.
     /// </summary>
-    public abstract class RayTraceResultSingle : RayTraceResult
+    public abstract class RayTraceSingle : RayTrace
     {
         public bool HasHit => Result != null;
 
@@ -105,20 +108,20 @@ namespace TheraEngine.Physics.RayTracing
         public int TriangleIndex => Result == null ? -1 : Result.TriangleIndex;
 
 
-        public RayTraceResultSingle(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored)
+        public RayTraceSingle(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored)
             : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }
     }
 
     /// <summary>
     /// Returns all intersected objects that specify collision with this ray.
     /// </summary>
-    public class RayTraceResultMulti : RayTraceResult
+    public class RayTraceMulti : RayTrace
     {
         public bool HasHit => Results.Count != 0;
         
         public List<RayCollisionResult> Results { get; } = new List<RayCollisionResult>();
 
-        public RayTraceResultMulti(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored) 
+        public RayTraceMulti(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored) 
             : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }
 
         protected internal override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, float hitFraction, int shapePart, int triangleIndex)
@@ -136,7 +139,7 @@ namespace TheraEngine.Physics.RayTracing
     /// <summary>
     /// Returns the first intersected object that specifies collision with this ray.
     /// </summary>
-    public class RayTraceClosest : RayTraceResultSingle
+    public class RayTraceClosest : RayTraceSingle
     {
         public RayTraceClosest(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored)
             : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }

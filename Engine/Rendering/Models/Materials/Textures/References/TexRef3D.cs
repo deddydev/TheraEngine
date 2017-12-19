@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering.Models.Materials
             TPixelFormat bitmapFormat = TPixelFormat.Format32bppRGBAi, int mipCount = 1)
             : this(name, width, height, depth)
         {
-            _mipmaps = new SingleFileRef<TBitmap3D>[mipCount];
+            _mipmaps = new GlobalFileRef<TBitmap3D>[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
                 _mipmaps[i] = new TBitmap3D(width / scale, height / scale, depth / scale, bitmapFormat);
         }
@@ -48,30 +48,30 @@ namespace TheraEngine.Rendering.Models.Materials
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, TPixelFormat bitmapFormat)
             : this(name, width, height, depth, internalFormat, pixelFormat, pixelType)
         {
-            _mipmaps = new SingleFileRef<TBitmap3D>[] { new TBitmap3D(width, height, depth, bitmapFormat) };
+            _mipmaps = new GlobalFileRef<TBitmap3D>[] { new TBitmap3D(width, height, depth, bitmapFormat) };
         }
         public TextureReference3D(string name, params string[] mipMapPaths)
         {
             _name = name;
-            _mipmaps = new SingleFileRef<TBitmap3D>[mipMapPaths.Length];
+            _mipmaps = new GlobalFileRef<TBitmap3D>[mipMapPaths.Length];
             for (int i = 0; i < mipMapPaths.Length; ++i)
             {
                 string path = mipMapPaths[i];
                 if (path.StartsWith("file://"))
                     path = path.Substring(7);
-                _mipmaps = new SingleFileRef<TBitmap3D>[]
+                _mipmaps = new GlobalFileRef<TBitmap3D>[]
                 {
-                    new SingleFileRef<TBitmap3D>(path)
+                    new GlobalFileRef<TBitmap3D>(path)
                 };
             }
         }
         #endregion
 
         //Note: one TextureData object may contain all the mips
-        public SingleFileRef<TBitmap3D>[] _mipmaps;
+        public GlobalFileRef<TBitmap3D>[] _mipmaps;
 
         [TSerialize]
-        public SingleFileRef<TBitmap3D>[] Mipmaps
+        public GlobalFileRef<TBitmap3D>[] Mipmaps
         {
             get => _mipmaps;
             set => _mipmaps = value;

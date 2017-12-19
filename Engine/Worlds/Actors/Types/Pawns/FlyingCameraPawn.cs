@@ -5,6 +5,8 @@ using System.ComponentModel;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Physics.RayTracing;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors.Types.Pawns
 {
@@ -175,7 +177,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         private void OnScrolled(bool up)
         {
             if (_ctrl)
-                Engine.TimeDilation *= up ? 0.8 : 1.2;
+                Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else
             {
                 RootComponent.CameraRef.File.Zoom(up ? ScrollSpeed : -ScrollSpeed);
@@ -188,11 +190,10 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             _rightClickPressed = pressed;
             Viewport v = LocalPlayerController.Viewport;
             Vec2 viewportPoint = v.AbsoluteToRelative(HUD.CursorPosition);
-            ClosestRayResultCallback c = Engine.RayTraceClosest(v.GetWorldSegment(viewportPoint));
-            if (c != null && c.HasHit)
-                _hitPoint = c.HitPointWorld;
-            else
-                _hitPoint = null;
+
+            Segment s = v.GetWorldSegment(viewportPoint);
+            RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
+            _hitPoint = c.Trace() ? (Vec3?)c.HitPointWorld : null;
         }
         
         public void MouseMove(float x, float y)

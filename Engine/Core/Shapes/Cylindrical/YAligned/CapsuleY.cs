@@ -24,7 +24,7 @@ namespace TheraEngine.Core.Shapes
             base.SetRenderTransform(worldMatrix);
         }
         public override TCollisionShape GetCollisionShape()
-            => new TCollisionCapsuleY.New(Radius, HalfHeight * 2.0f);
+            => TCollisionCapsuleY.New(Radius, HalfHeight * 2.0f);
         public override Shape HardCopy()
             => new CapsuleY(_state.Translation, _state.Rotation, _state.Scale, Radius, HalfHeight);
         public override Shape TransformedBy(Matrix4 worldMatrix)

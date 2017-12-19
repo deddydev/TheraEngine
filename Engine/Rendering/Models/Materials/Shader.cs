@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Type", XmlNodeType = EXmlNodeType.Attribute)]
         private ShaderMode _type;
         [TSerialize("Sources")]
-        private SingleFileRef<TextFile>[] _sources;
+        private GlobalFileRef<TextFile>[] _sources;
 
         public Shader(ShaderMode type)
         {
@@ -34,22 +34,22 @@ namespace TheraEngine.Rendering.Models.Materials
         public Shader(ShaderMode type, string source)
         {
             _type = type;
-            _sources = new SingleFileRef<TextFile>[] { TextFile.FromText(source) };
+            _sources = new GlobalFileRef<TextFile>[] { TextFile.FromText(source) };
             _sourceChanged = true;
         }
         public Shader(ShaderMode type, params string[] sources)
         {
             _type = type;
-            _sources = sources.Select(x => new SingleFileRef<TextFile>(x)).ToArray();
+            _sources = sources.Select(x => new GlobalFileRef<TextFile>(x)).ToArray();
             _sourceChanged = true;
         }
         public Shader(ShaderMode type, params TextFile[] files)
         {
             _type = type;
-            _sources = files.Select(x => new SingleFileRef<TextFile>(x)).ToArray();
+            _sources = files.Select(x => new GlobalFileRef<TextFile>(x)).ToArray();
             _sourceChanged = true;
         }
-        public Shader(ShaderMode type, params SingleFileRef<TextFile>[] references)
+        public Shader(ShaderMode type, params GlobalFileRef<TextFile>[] references)
         {
             _type = type;
             _sources = references;
@@ -57,12 +57,12 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public void SetSource(string source)
         {
-            _sources = new SingleFileRef<TextFile>[] { TextFile.FromText(source) };
+            _sources = new GlobalFileRef<TextFile>[] { TextFile.FromText(source) };
             _sourceChanged = true;
         }
         public void SetSources(string[] sources)
         {
-            _sources = sources.Select(x => new SingleFileRef<TextFile>(TextFile.FromText(x))).ToArray();
+            _sources = sources.Select(x => new GlobalFileRef<TextFile>(TextFile.FromText(x))).ToArray();
             _sourceChanged = true;
         }
         internal int Compile()

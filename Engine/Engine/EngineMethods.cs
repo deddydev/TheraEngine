@@ -41,8 +41,6 @@ namespace TheraEngine
             _tickLists = new ThreadSafeList<DelTick>[45];
             for (int i = 0; i < _tickLists.Length; ++i)
                 _tickLists[i] = new ThreadSafeList<DelTick>();
-
-            PythonRuntime.Initialize();
         }
 
         /// <summary>
@@ -71,7 +69,15 @@ namespace TheraEngine
         public static void SetGame(Game game)
         {
             MainThreadID = Thread.CurrentThread.ManagedThreadId;
+            if (_game != null)
+            {
+
+            }
             _game = game;
+            if (_game != null)
+            {
+
+            }
         }
         public static void SetGamePanel(BaseRenderPanel panel, bool registerTickNow = true)
         {
@@ -83,7 +89,7 @@ namespace TheraEngine
         /// Initializes the engine to its beginning state.
         /// Call AFTER SetGame is called and all initial render panels are created and ready.
         /// </summary>
-        public static void Initialize(bool deferOpeningWorldPlay = false, bool loadOpeningWorldGameMode = true)
+        public static async void Initialize(bool deferOpeningWorldPlay = false, bool loadOpeningWorldGameMode = true)
         {
             //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
@@ -91,15 +97,16 @@ namespace TheraEngine
             RenderLibrary = _game.UserSettings.File.RenderLibrary;
             AudioLibrary = _game.UserSettings.File.AudioLibrary;
             InputLibrary = _game.UserSettings.File.InputLibrary;
+            PhysicsLibrary = _game.UserSettings.File.PhysicsLibrary;
 
             //Set initial world (this would generally be a world for opening videos or the main menu)
             SetCurrentWorld(Game.OpeningWorld, true, deferOpeningWorldPlay, loadOpeningWorldGameMode);
 
-            //Preload transition world now
-            Task<World> world = Game.TransitionWorld.LoadNewInstanceAsync();
-            
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
+
+            //Preload transition world now
+            await Game.TransitionWorld.LoadNewInstanceAsync();
         }
         /// <summary>
         /// Call this to stop the engine and dispose of all allocated data.
@@ -109,7 +116,10 @@ namespace TheraEngine
             //Steamworks.SteamAPI.Shutdown();
             Stop();
             SetCurrentWorld(null, true, true, true);
-            var files = new List<FileObject>(LoadedFiles.SelectMany(x => x.Value));
+            IEnumerable<FileObject> files = LocalFileInstances.SelectMany(x => x.Value);
+            foreach (FileObject o in files)
+                o?.Unload();
+            files = GlobalFileInstances.Values;
             foreach (FileObject o in files)
                 o?.Unload();
             var contexts = new List<RenderContext>(RenderContext.BoundContexts);
@@ -384,8 +394,8 @@ namespace TheraEngine
         }
         #endregion
 
-        public static bool RayTrace(RayTraceResult result) => World.PhysicsWorld.RayTrace(result);
-        public static bool ShapeTrace(ShapeTraceResult result) => World.PhysicsWorld.ShapeTrace(result);
+        public static bool RayTrace(RayTrace result) => World.PhysicsWorld.RayTrace(result);
+        public static bool ShapeTrace(ShapeTrace result) => World.PhysicsWorld.ShapeTrace(result);
         
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
@@ -448,14 +458,13 @@ namespace TheraEngine
             return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
         }
 
-        internal static bool AddLoadedFile<T>(string path, T file, bool set) where T : FileObject
+        internal static bool AddLocalFileInstance<T>(string path, T file) where T : FileObject
         {
             if (string.IsNullOrEmpty(path) || file == null)
                 return false;
 
-            LoadedFiles.AddOrUpdate(path, new List<FileObject>() { file }, (key, oldValue) =>
+            LocalFileInstances.AddOrUpdate(path, new List<FileObject>() { file }, (key, oldValue) =>
             {
-                if (set) oldValue.Clear();
                 oldValue.Add(file);
                 return oldValue;
             });
@@ -463,7 +472,16 @@ namespace TheraEngine
             file.OnLoaded();
             return true;
         }
+        internal static bool AddGlobalFileInstance<T>(string path, T file) where T : FileObject
+        {
+            if (string.IsNullOrEmpty(path) || file == null)
+                return false;
 
+            GlobalFileInstances.AddOrUpdate(path, file, (key, oldValue) => file);
+
+            file.OnLoaded();
+            return true;
+        }
 
         /// <summary>
         /// Retrieves the world viewport with the same index.

@@ -65,7 +65,12 @@ namespace TheraEngine.Rendering.Models
             _childComponents.PostInsertedRange += ChildComponentsInsertedRange;
 
             _rigidBodyCollision = info == null ? null : TRigidBody.New(this, info);
+            _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
         }
+
+        private void _rigidBodyCollision_TransformChanged(Matrix4 transform)
+            => WorldMatrix = _rigidBodyCollision.WorldTransform;
+
         private void FrameStateMatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
             TriggerFrameMatrixUpdate();
@@ -105,7 +110,9 @@ namespace TheraEngine.Rendering.Models
         private MonitoredList<Bone> _childBones = new MonitoredList<Bone>();
         //[Serialize("ChildComponents")]
         private MonitoredList<SceneComponent> _childComponents = new MonitoredList<SceneComponent>();
-        [TSerialize("PhysicsDriver")]
+        [TSerialize("ParentPhysicsConstraint")]
+        private TConstraint _parentConstraint;
+        [TSerialize("RigidBodyCollision")]
         private TRigidBody _rigidBodyCollision;
         [TSerialize("Transform")]
         private Transform _bindState;
@@ -163,6 +170,7 @@ namespace TheraEngine.Rendering.Models
                 Matrix4 frameMatrix = OwningComponent.InverseWorldMatrix * value;
                 Matrix4 localMatrix = Parent == null ? frameMatrix : Parent.InverseFrameMatrix * frameMatrix;
                 _frameState.Matrix = localMatrix;
+                _rigidBodyCollision?.ProceedToTransform(value);
             }
         }
         [Browsable(false)]
@@ -200,7 +208,34 @@ namespace TheraEngine.Rendering.Models
                 CalcBindMatrix(false);
             }
         }
-        [Category("Bone")]
+        [Category("Physics")]
+        public TConstraint ParentPhysicsConstraint
+        {
+            get => _parentConstraint;
+            set
+            {
+                if (_parentConstraint == value)
+                    return;
+                if (_parentConstraint != null)
+                {
+                    if (_skeleton?.OwningComponent != null &&
+                        _skeleton.OwningComponent.IsSpawned)
+                    {
+                        Engine.World.PhysicsWorld.RemoveConstraint(_parentConstraint);
+                    }
+                }
+                _parentConstraint = value;
+                if (_parentConstraint != null)
+                {
+                    if (_skeleton?.OwningComponent != null &&
+                        _skeleton.OwningComponent.IsSpawned)
+                    {
+                        Engine.World.PhysicsWorld.AddConstraint(_parentConstraint);
+                    }
+                }
+            }
+        }
+        [Category("Physics")]
         public TRigidBody RigidBodyCollision
         {
             get => _rigidBodyCollision;

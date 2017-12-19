@@ -40,7 +40,7 @@ namespace TheraEngine.Worlds
         /// <summary>
         /// Overrides the default game mode specified by the game.
         /// </summary>
-        public SingleFileRef<BaseGameMode> GameModeOverride
+        public GlobalFileRef<BaseGameMode> GameModeOverride
         {
             get => _gameMode;
             set
@@ -65,7 +65,7 @@ namespace TheraEngine.Worlds
         [TSerialize("Gravity")]
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
         [TSerialize("GameMode")]
-        private SingleFileRef<BaseGameMode> _gameMode;
+        private GlobalFileRef<BaseGameMode> _gameMode;
         [TSerialize("TimeDilation")]
         private float _timeSpeed = 1.0f;
         
@@ -85,7 +85,7 @@ namespace TheraEngine.Worlds
             set => _ambientSound = value;
         }
         [Browsable(false)]
-        public List<SingleFileRef<Map>> Maps
+        public List<GlobalFileRef<Map>> Maps
         {
             get => _maps;
             set => _maps = value;
@@ -117,7 +117,7 @@ namespace TheraEngine.Worlds
         [TSerialize("OriginRebaseBounds")]
         private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(float.MinValue, float.MaxValue);
         [TSerialize("Maps")]
-        private List<SingleFileRef<Map>> _maps = new List<SingleFileRef<Map>>();
+        private List<GlobalFileRef<Map>> _maps = new List<GlobalFileRef<Map>>();
         [TSerialize("AmbientSound")]
         private SoundFile _ambientSound;
         [TSerialize("AmbientParams")]
@@ -146,7 +146,7 @@ namespace TheraEngine.Worlds
         }
         public WorldSettings(string name, params Map[] maps)
         {
-            _maps = maps.Select(x => new SingleFileRef<Map>(x)).ToList();
+            _maps = maps.Select(x => new GlobalFileRef<Map>(x)).ToList();
             _originRebaseBounds = _bounds;
             _name = name;
         }

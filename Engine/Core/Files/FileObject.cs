@@ -116,15 +116,9 @@ namespace TheraEngine.Files
 
         public void Unload()
         {
-            if (!string.IsNullOrEmpty(_filePath) && Engine.LoadedFiles.ContainsKey(_filePath))
-            {
-                Engine.LoadedFiles.TryRemove(_filePath, out List<FileObject> value);
-            }
-
             List<IFileRef> oldRefs = new List<IFileRef>(_references);
             foreach (IFileRef r in oldRefs)
-                if (r is ISingleFileRef)
-                    ((ISingleFileRef)r).UnloadReference();
+                r.UnloadReference();
             OnUnload();
         }
         protected virtual void OnUnload() { }
@@ -157,43 +151,72 @@ namespace TheraEngine.Files
                     return FileFormat.XML;
             }
         }
+
+        /// <summary>
+        /// Extracts the directory, file name, and file format out of a file path.
+        /// </summary>
+        /// <param name="path">The path to the file. Does not need to be absolute.</param>
+        /// <param name="dir">The path to the folder that the file resides in.</param>
+        /// <param name="name">The name of the file in the path.</param>
+        /// <param name="fmt">The format the data is written in.</param>
         public static void GetDirNameFmt(string path, out string dir, out string name, out FileFormat fmt)
         {
             dir = Path.GetDirectoryName(path);
             name = Path.GetFileNameWithoutExtension(path);
             fmt = GetFormat(path);
         }
+
+        /// <summary>
+        /// Creates the full file path to a file given separate parameters.
+        /// </summary>
+        /// <param name="dir">The path to the folder the file resides in.</param>
+        /// <param name="name">The name of the file.</param>
+        /// <param name="format">The format the data is written in.</param>
+        /// <param name="fileType">The type of file object.</param>
+        /// <returns>An absolute path to the file.</returns>
         public static string GetFilePath(string dir, string name, ProprietaryFileFormat format, Type fileType)
         {
-            if (!dir.EndsWith("\\"))
-                dir += "\\";
+            if (dir[dir.Length - 1] != Path.DirectorySeparatorChar)
+                dir += Path.DirectorySeparatorChar;
             return dir + name + "." + GetFileHeader(fileType).GetProperExtension(format);
         }
 
         #region Import/Export
-        public static T FromFile<T>(string fileName) where T : FileObject
+        /// <summary>
+        /// Opens a new instance of the file object at the given file path.
+        /// </summary>
+        /// <typeparam name="T">The type of the file object to load.</typeparam>
+        /// <param name="filePath">The path to the file.</param>
+        /// <returns>A new instance of the file.</returns>
+        public static T Load<T>(string filePath) where T : FileObject
         {
-            switch (GetFormat(fileName))
+            switch (GetFormat(filePath))
             {
                 case FileFormat.ThirdParty:
-                    return FromThirdParty<T>(fileName);
+                    return FromThirdParty<T>(filePath);
                 case FileFormat.Binary:
-                    return FromBinary<T>(fileName);
+                    return FromBinary<T>(filePath);
                 case FileFormat.XML:
-                    return FromXML<T>(fileName);
+                    return FromXML<T>(filePath);
             }
             return default(T);
         }
-        public static FileObject FromFile(Type type, string fileName)
+        /// <summary>
+        /// Opens a new instance of the file object at the given file path.
+        /// </summary>
+        /// <param name="type">The type of the file object to load.</param>
+        /// <param name="filePath">The path to the file.</param>
+        /// <returns>A new instance of the file.</returns>
+        public static FileObject Load(Type type, string filePath)
         {
-            switch (GetFormat(fileName))
+            switch (GetFormat(filePath))
             {
                 case FileFormat.ThirdParty:
-                    return FromThirdParty(type, fileName);
+                    return FromThirdParty(type, filePath);
                 case FileFormat.Binary:
-                    return FromBinary(type, fileName);
+                    return FromBinary(type, filePath);
                 case FileFormat.XML:
-                    return FromXML(type, fileName);
+                    return FromXML(type, filePath);
             }
             return null;
         }
@@ -230,18 +253,18 @@ namespace TheraEngine.Files
         #region XML
         internal static T FromXML<T>(string filePath) where T : FileObject
             => FromXML(typeof(T), filePath) as T;
-        internal static unsafe FileObject FromXML(Type t, string filePath)
+        internal static unsafe FileObject FromXML(Type type, string filePath)
         {
             if (!File.Exists(filePath))
                 return null;
 
             FileObject file;
-            if (GetFileHeader(t).ManualXmlConfigSerialize)
+            if (GetFileHeader(type).ManualXmlConfigSerialize)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                 {
-                    file = SerializationCommon.CreateObject(t) as FileObject;
+                    file = SerializationCommon.CreateObject(type) as FileObject;
                     if (file != null && reader.BeginElement())
                     {
                         //if (reader.Name.Equals(t.ToString(), true))
@@ -257,7 +280,7 @@ namespace TheraEngine.Files
             if (file != null)
             {
                 file.FilePath = filePath;
-                Engine.AddLoadedFile(file._filePath, file, false);
+                file.OnLoaded();
             }
             return file;
         }
@@ -302,31 +325,31 @@ namespace TheraEngine.Files
 
         internal unsafe static T FromBinary<T>(string filePath) where T : FileObject
             => FromBinary(typeof(T), filePath) as T;
-        internal unsafe static FileObject FromBinary(Type t, string filePath)
+        internal unsafe static FileObject FromBinary(Type type, string filePath)
         {
             if (!File.Exists(filePath))
                 return null;
 
-            FileObject obj;
-            if (GetFileHeader(t).ManualBinConfigSerialize)
+            FileObject file;
+            if (GetFileHeader(type).ManualBinConfigSerialize)
             {
-                obj = SerializationCommon.CreateObject(t) as FileObject;
-                if (obj != null)
+                file = SerializationCommon.CreateObject(type) as FileObject;
+                if (file != null)
                 {
                     FileMap map = FileMap.FromFile(filePath);
                     FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
-                    obj.Read(hdr->Data, hdr->Strings);
+                    file.Read(hdr->Data, hdr->Strings);
                 }
             }
             else
-                obj = CustomBinarySerializer.Deserialize(filePath, t) as FileObject;
+                file = CustomBinarySerializer.Deserialize(filePath, type) as FileObject;
 
-            if (obj != null)
+            if (file != null)
             {
-                obj.FilePath = filePath;
-                Engine.AddLoadedFile(obj._filePath, obj, false);
+                file.FilePath = filePath;
+                file.OnLoaded();
             }
-            return obj;
+            return file;
         }
         internal unsafe void ToBinary(string directory, string fileName)
         {

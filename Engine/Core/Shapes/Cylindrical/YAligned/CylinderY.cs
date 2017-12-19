@@ -1,6 +1,7 @@
 ﻿using static System.Math;
 using System.ComponentModel;
 using System;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -26,9 +27,9 @@ namespace TheraEngine.Core.Shapes
             _radius = Abs(radius);
             _height = Abs(height);
         }
-        public override CollisionShape GetCollisionShape()
+        public override TCollisionShape GetCollisionShape()
         {
-            return new CylinderShape(Radius, Height, Radius);
+            return TCollisionCylinderY.New(Radius, Height);
         }
         public override void Render()
         {

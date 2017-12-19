@@ -7,16 +7,8 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Networking
 {
-    public class NetworkPacketObjectSerializer : NetworkCommsDotNet.DPSBase.DataSerializer
+    public class NetworkPacketObjectSerializer
     {
-        protected override object DeserialiseDataObjectInt(Stream inputStream, Type resultType, Dictionary<string, string> options)
-        {
-
-        }
-
-        protected override void SerialiseDataObjectInt(Stream ouputStream, object objectToSerialise, Dictionary<string, string> options)
-        {
-
-        }
+        
     }
 }

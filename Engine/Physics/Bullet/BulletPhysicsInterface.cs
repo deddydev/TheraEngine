@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheraEngine.Physics.Bullet.Constraints;
+using TheraEngine.Physics.Bullet.Shapes;
 
 namespace TheraEngine.Physics.Bullet
 {
@@ -12,10 +14,6 @@ namespace TheraEngine.Physics.Bullet
     {
         public override AbstractPhysicsWorld NewScene() 
             => new BulletPhysicsWorld();
-        public override TCollisionBox NewBox(Vec3 halfExtents)
-            => new BulletBox(halfExtents);
-        public override TCollisionSphere NewSphere(float radius)
-            => new BulletSphere(radius);
 
         public override TRigidBody NewRigidBody(IRigidCollidable owner, TRigidBodyConstructionInfo info)
         {
@@ -42,12 +40,14 @@ namespace TheraEngine.Physics.Bullet
                 AdditionalAngularDampingFactor = info.AdditionalAngularDampingFactor,
             };
 
-            BulletRigidBody rigidBody = new BulletRigidBody(owner, bulletInfo, info.CollisionShape);
-            rigidBody.CollisionGroup = info.CollisionGroup;
-            rigidBody.CollidesWith = info.CollidesWith;
-            rigidBody.SimulatingPhysics = info.SimulatePhysics;
-            rigidBody.CollisionEnabled = info.CollisionEnabled;
-            rigidBody.SleepingEnabled = info.SleepingEnabled;
+            BulletRigidBody rigidBody = new BulletRigidBody(owner, bulletInfo, info.CollisionShape)
+            {
+                CollisionGroup = info.CollisionGroup,
+                CollidesWith = info.CollidesWith,
+                SimulatingPhysics = info.SimulatePhysics,
+                CollisionEnabled = info.CollisionEnabled,
+                SleepingEnabled = info.SleepingEnabled
+            };
 
             if (state != null)
                 state.Body = rigidBody;
@@ -55,7 +55,7 @@ namespace TheraEngine.Physics.Bullet
             return rigidBody;
         }
 
-        public override TSoftBody NewSoftBody(TSoftBodyConstructionInfo info)
+        public override TSoftBody NewSoftBody(ISoftCollidable owner, TSoftBodyConstructionInfo info)
         {
             SoftBodyWorldInfo bulletInfo = new SoftBodyWorldInfo()
             {
@@ -67,9 +67,40 @@ namespace TheraEngine.Physics.Bullet
                 WaterOffset = info.WaterOffset,
             };
 
-            BulletSoftBody softBody = new BulletSoftBody(bulletInfo);
+            BulletSoftBody softBody = new BulletSoftBody(owner, bulletInfo, null);
             
             return softBody;
         }
+        public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, TRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB)
+        {
+            return new BulletPointPointConstraint(rigidBodyA, rigidBodyB, pivotInA, pivotInB);
+        }
+        public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, Vec3 pivotInA)
+        {
+            return new BulletPointPointConstraint(rigidBodyA, pivotInA);
+        }
+
+        public override TCollisionBox NewBox(Vec3 halfExtents)
+            => new BulletBox(halfExtents);
+        public override TCollisionSphere NewSphere(float radius)
+            => new BulletSphere(radius);
+        public override TCollisionConeX NewConeX(float radius, float height)
+            => new BulletConeX(radius, height);
+        public override TCollisionConeY NewConeY(float radius, float height)
+            => new BulletConeY(radius, height);
+        public override TCollisionConeZ NewConeZ(float radius, float height)
+            => new BulletConeZ(radius, height);
+        public override TCollisionCylinderX NewCylinderX(float radius, float height)
+            => new BulletCylinderX(radius, height);
+        public override TCollisionCylinderY NewCylinderY(float radius, float height)
+            => new BulletCylinderY(radius, height);
+        public override TCollisionCylinderZ NewCylinderZ(float radius, float height)
+            => new BulletCylinderZ(radius, height);
+        public override TCollisionCapsuleX NewCapsuleX(float radius, float height)
+            => new BulletCapsuleX(radius, height);
+        public override TCollisionCapsuleY NewCapsuleY(float radius, float height)
+            => new BulletCapsuleY(radius, height);
+        public override TCollisionCapsuleZ NewCapsuleZ(float radius, float height)
+            => new BulletCapsuleZ(radius, height);
     }
 }

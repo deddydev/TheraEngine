@@ -102,7 +102,7 @@ namespace TheraEngine.Rendering
         public LightManager Lights => _lightManager;
         public ParticleManager Particles => _particles;
 
-        private SingleFileRef<TMaterial> _voxelizationMaterial;
+        private GlobalFileRef<TMaterial> _voxelizationMaterial;
 
         public Scene3D()
         {
@@ -339,11 +339,24 @@ namespace TheraEngine.Rendering
         public void Add(I3DBoundable obj)
         {
             RenderTree?.Add(obj);
+            if (obj is I3DRenderable r && r.CullingVolume != null)
+                RegisterCullingVolume(r.CullingVolume);
         }
         public void Remove(I3DBoundable obj)
         {
             RenderTree?.Remove(obj);
+            if (obj is I3DRenderable r && r.CullingVolume != null)
+                UnregisterCullingVolume(r.CullingVolume);
         }
+        private void RegisterCullingVolume(Shape cullingVolume)
+        {
+
+        }
+        private void UnregisterCullingVolume(Shape cullingVolume)
+        {
+
+        }
+
         /// <summary>
         /// Clears all items from the scene and sets the bounds.
         /// </summary>

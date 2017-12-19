@@ -6,6 +6,7 @@ using System.Drawing;
 using System.ComponentModel;
 using TheraEngine.Maths;
 using System;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -50,8 +51,8 @@ namespace TheraEngine.Core.Shapes
             _radius = ball.Radius;
         }
 
-        public override CollisionShape GetCollisionShape()
-            => new SphereShape(Radius);
+        public override TCollisionShape GetCollisionShape()
+            => TCollisionSphere.New(Radius);
 
         public override void Render()
             => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);

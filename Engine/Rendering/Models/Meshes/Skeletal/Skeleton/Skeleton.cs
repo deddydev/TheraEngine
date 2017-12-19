@@ -16,8 +16,8 @@ namespace TheraEngine.Rendering.Models
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Skeleton : FileObject, IEnumerable<Bone>, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
-        public RenderInfo3D RenderInfo => _renderInfo;
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
+
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
@@ -53,6 +53,7 @@ namespace TheraEngine.Rendering.Models
             _visibleToOwnerOnly = false,
             _visibleByDefault = false;
         
+        //Internal usage information, not serialized
         private List<Bone> _physicsDrivableBones = new List<Bone>();
         private List<Bone> _cameraBones = new List<Bone>();
         private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
@@ -60,6 +61,7 @@ namespace TheraEngine.Rendering.Models
         private SkeletalMeshComponent _owningComponent;
         //private bool _childMatrixModified = false;
 
+        
         private Bone[] _rootBones;
 
         [TSerialize]

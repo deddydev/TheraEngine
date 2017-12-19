@@ -182,9 +182,9 @@ namespace TheraEditor.Wrappers
     {
         public override Type FileType => typeof(T);
 
-        protected SingleFileRef<T> _fileRef = new SingleFileRef<T>();
+        protected GlobalFileRef<T> _fileRef = new GlobalFileRef<T>();
 
-        public SingleFileRef<T> Resource => _fileRef;
+        public GlobalFileRef<T> Resource => _fileRef;
         public override bool IsLoaded => Resource.IsLoaded;
         public override string FilePath
         {

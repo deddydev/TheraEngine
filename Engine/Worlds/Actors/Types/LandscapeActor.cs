@@ -10,7 +10,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
         public LandscapeActor()
         {
-            HeightfieldTerrainShape shape = new HeightfieldTerrainShape(_dimensions.Width, _dimensions.Height, null, 1.0f, 0.0f, 1.0f, 1, PhyScalarType.Single, false);
+            //HeightfieldTerrainShape shape = new HeightfieldTerrainShape(_dimensions.Width, _dimensions.Height, null, 1.0f, 0.0f, 1.0f, 1, PhyScalarType.Single, false);
         }
 
         float BaseHeight { get { return Center.Y; } set { Center = new Vec3(Center.X, value, Center.Z); } }

@@ -9,13 +9,19 @@ namespace TheraEngine.Physics
 {
     public abstract class TSoftBody : TCollisionObject
     {
-        public TSoftBody(TCollisionShape shape) : base(shape)
+        public TSoftBody(ISoftCollidable owner, TCollisionShape shape) : base(owner, shape)
         {
             
         }
 
-        public static TSoftBody New(TSoftBodyConstructionInfo info)
-            => Engine.Physics.NewSoftBody(info);
+        public new ISoftCollidable Owner
+        {
+            get => (ISoftCollidable)base.Owner;
+            set => base.Owner = value;
+        }
+
+        public static TSoftBody New(ISoftCollidable owner, TSoftBodyConstructionInfo info)
+            => Engine.Physics.NewSoftBody(owner, info);
 
         public abstract Vec3 WindVelocity { get; set; }
         public abstract float Volume { get; }

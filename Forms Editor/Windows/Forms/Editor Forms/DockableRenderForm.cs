@@ -22,10 +22,27 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.AllowDrop = true;
             Engine.PreWorldChanged += Engine_WorldPreChanged;
             Engine.PostWorldChanged += Engine_WorldPostChanged;
+            RenderPanel.GotFocus += RenderPanel_GotFocus;
         }
 
-        private void Engine_WorldPreChanged() => Engine.World?.DespawnActor(EditorPawn);
-        private void Engine_WorldPostChanged() => Engine.World?.SpawnActor(EditorPawn);
+        private void RenderPanel_GotFocus(object sender, EventArgs e)
+        {
+            Engine.SetGamePanel(RenderPanel, false);
+            Editor.SetActiveEditorControl(this);
+        }
+        
+        private void Engine_WorldPreChanged()
+        {
+            if (Engine.World == null || EditorPawn == null)
+                return;
+            Engine.World.DespawnActor(EditorPawn);
+        }
+        private void Engine_WorldPostChanged()
+        {
+            if (Engine.World == null || EditorPawn == null)
+                return;
+            Engine.World.SpawnActor(EditorPawn);
+        }
         
         public int FormIndex { get; private set; }
         public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
@@ -65,24 +82,6 @@ namespace TheraEditor.Windows.Forms
             base.OnClosed(e);
         }
         
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-        }
-        protected override void OnDeactivate(EventArgs e)
-        {
-            base.OnDeactivate(e);
-        }
-        protected override void OnGotFocus(EventArgs e)
-        {
-            Engine.SetGamePanel(RenderPanel, false);
-            Editor.SetActiveEditorControl(this);
-            base.OnGotFocus(e);
-        }
-        protected override void OnLostFocus(EventArgs e)
-        {
-            base.OnLostFocus(e);
-        }
         protected override void OnResizeBegin(EventArgs e)
         {
             RenderPanel.BeginResize();

@@ -24,7 +24,7 @@ namespace TheraEngine.Worlds.Actors.Components
         protected virtual void OnWorldTransformChanged()
         {
             if (this is IRigidCollidable p && p.RigidBodyCollision != null)
-                p.RigidBodyCollision.WorldTransform = _worldTransform;
+                p.RigidBodyCollision.ProceedToTransform(_worldTransform);
 
             if (this is I3DBoundable r)
                 r.OctreeNode?.ItemMoved(r);
@@ -289,8 +289,8 @@ namespace TheraEngine.Worlds.Actors.Components
         protected internal abstract void OriginRebased(Vec3 newOrigin);
         public override void OnSpawned()
         {
-            if (this is IPhysicsDrivable p)
-                p.PhysicsDriver?.OnSpawned();
+            if (this is IRigidCollidable p)
+                p.RigidBodyCollision?.Spawn();
 
             if (this is IPreRenderNeeded r)
                 Engine.Scene.AddPreRenderedObject(r);
@@ -300,8 +300,8 @@ namespace TheraEngine.Worlds.Actors.Components
         }
         public override void OnDespawned()
         {
-            if (this is IPhysicsDrivable p)
-                p.PhysicsDriver?.OnDespawned();
+            if (this is IRigidCollidable p)
+                p.RigidBodyCollision?.Despawn();
 
             if (this is IPreRenderNeeded r)
                 Engine.Scene.RemovePreRenderedObject(r);
@@ -436,9 +436,9 @@ namespace TheraEngine.Worlds.Actors.Components
             }
 
             //Try to find matching bone
-            if (mesh.Skeleton?.File != null)
+            if (mesh.Skeleton != null)
             {
-                Bone bone = mesh.Skeleton.File[socketName];
+                Bone bone = mesh.Skeleton[socketName];
                 if (bone != null)
                 {
                     bone.ChildComponents.Add(this);

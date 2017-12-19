@@ -28,7 +28,7 @@ namespace TheraEngine
     public interface IStaticSubMesh
     {
         bool VisibleByDefault { get; set; }
-        SingleFileRef<Shape> CullingVolume { get; }
+        GlobalFileRef<Shape> CullingVolume { get; }
         List<LOD> LODs { get; }
         RenderInfo3D RenderInfo { get; set; }
     }

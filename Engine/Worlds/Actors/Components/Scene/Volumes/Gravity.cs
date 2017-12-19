@@ -1,23 +1,26 @@
 ﻿using TheraEngine.Rendering;
 using System;
 using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
+using TheraEngine.Physics;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Volumes
 {
     public class GravityVolumeComponent : BoxComponent
     {
-        private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
+        [TSerialize]
+        public Vec3 Gravity { get; set; } = new Vec3(0.0f, -9.81f, 0.0f);
 
         public GravityVolumeComponent() : this(Vec3.Half) { }
         public GravityVolumeComponent(Vec3 halfExtents) : base(halfExtents, null) { }
 
-        public void OnOverlapEntered(IPhysicsDrivable driver)
+        public void OnOverlapEntered(TRigidBody obj)
         {
-            driver.PhysicsDriver.CollisionObject.Gravity = _gravity;
+            obj.Gravity = Gravity;
         }
-        public void OnOverlapLeft(IPhysicsDrivable driver)
+        public void OnOverlapLeft(TRigidBody obj)
         {
-            driver.PhysicsDriver.CollisionObject.Gravity = Engine.World.Settings.File.Gravity;
+            obj.Gravity = Engine.World.Settings.File.Gravity;
         }
     }
 }

@@ -5,10 +5,11 @@ using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
-    public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
+    public partial class StaticMeshComponent : TRSComponent, IRigidCollidable
     {
         public class RenderableMesh : ISubMesh
         {
@@ -131,7 +132,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 float dist = meshPoint.DistanceToFast(camPoint);
                 _currentLOD = -1;
 
-                //Start with the lowest, farthest away LOD and work toward higher quality
+                //Start with the lowest, farthest away LOD and test toward higher quality
                 for (int i = _lods.Length - 1; i >= 0; --i)
                 {
                     LOD_Internal lod = _lods[i];
@@ -182,14 +183,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                     {
                         if (_isVisible)
                         {
-                            if (_cullingVolume != null && Engine.Settings.RenderCullingVolumes)
-                                Engine.Scene.Add(_cullingVolume);
                             Engine.Scene.Add(this);
                         }
                         else
                         {
-                            if (_cullingVolume != null && Engine.Settings.RenderCullingVolumes)
-                                Engine.Scene.Remove(_cullingVolume);
                             Engine.Scene.Remove(this);
                         }
                     }

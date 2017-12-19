@@ -21,10 +21,17 @@ namespace TheraEngine.Physics
         Interactables   = 0x0080,
         Projectiles     = 0x0100,
     }
-    public interface IRigidCollidable
+    public interface ICollidable
+    {
+        Matrix4 WorldMatrix { get; set; }
+    }
+    public interface IRigidCollidable : ICollidable
     {
         TRigidBody RigidBodyCollision { get; }
-        Matrix4 WorldMatrix { get; set; }
+    }
+    public interface ISoftCollidable : ICollidable
+    {
+        TSoftBody SoftBodyCollision { get; }
     }
     public delegate void DelMatrixUpdate(Matrix4 transform);
     public delegate void DelCollision(TCollisionObject me, TCollisionObject other, TCollisionInfo info);
@@ -41,13 +48,12 @@ namespace TheraEngine.Physics
             Collision?.Invoke(this, other, info);
         }
 
-        protected TCollisionObject(IRigidCollidable owner, TCollisionShape shape)
+        protected TCollisionObject(ICollidable owner, TCollisionShape shape)
         {
             Owner = owner;
-            CollisionShape = shape;
         }
 
-        public IRigidCollidable Owner { get; set; }
+        public ICollidable Owner { get; set; }
 
         //[PhysicsSupport(PhysicsLibrary.Bullet)]
         //public abstract int UniqueID { get; }
@@ -112,9 +118,9 @@ namespace TheraEngine.Physics
         public abstract float Restitution { get; set; }
 
         [PhysicsSupport(PhysicsLibrary.Bullet)]
-        public abstract ushort CollidesWith { get; set; }
+        public virtual ushort CollidesWith { get; set; }
         [PhysicsSupport(PhysicsLibrary.Bullet)]
-        public abstract ushort CollisionGroup { get; set; }
+        public virtual ushort CollisionGroup { get; set; }
 
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract Vec3 AabbMin { get; set; }

@@ -18,7 +18,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Animation
         [TSerialize("States", XmlNodeType = EXmlNodeType.Attribute)]
         private List<AnimState> _states;
         [TSerialize("Skeleton", XmlNodeType = EXmlNodeType.Attribute)]
-        private SingleFileRef<Skeleton> _skeleton;
+        private GlobalFileRef<Skeleton> _skeleton;
         
         private BlendManager _blendManager;
         private AnimState _currentState;
@@ -27,7 +27,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Animation
         {
             _initialStateIndex = -1;
             _states = new List<AnimState>();
-            _skeleton = new SingleFileRef<Skeleton>();
+            _skeleton = new GlobalFileRef<Skeleton>();
         }
 
         [PostDeserialize]
@@ -61,7 +61,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Animation
                 }
             }
         }
-        public SingleFileRef<Skeleton> Skeleton
+        public GlobalFileRef<Skeleton> Skeleton
         {
             get => _skeleton;
             set => _skeleton = value;
@@ -100,7 +100,7 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Animation
         [TSerialize]
         public List<AnimStateTransition> Transitions { get; set; } = new List<AnimStateTransition>();
         [TSerialize]
-        public SingleFileRef<ModelAnimation> Animation { get; set; }
+        public GlobalFileRef<ModelAnimation> Animation { get; set; }
 
         public AnimState() { }
         public AnimState(ModelAnimation animation)

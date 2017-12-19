@@ -50,9 +50,9 @@ namespace TheraEngine.Rendering.Models.Materials
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
         private int _uniqueID = -1;
 
-        private SingleFileRef<RenderingParameters> _renderParams = new RenderingParameters();
+        private GlobalFileRef<RenderingParameters> _renderParams = new RenderingParameters();
         [TSerialize]
-        public SingleFileRef<RenderingParameters> RenderParams
+        public GlobalFileRef<RenderingParameters> RenderParams
         {
             get => _renderParams;
             set => _renderParams = value;

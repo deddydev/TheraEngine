@@ -46,8 +46,8 @@ namespace TheraEngine.Tests
                 //kneeAnim.Keyframes.Add(l3);
                 //skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
 
-                _meshComp.Skeleton = skeleton;
-                _meshComp.Model = mesh;
+                _meshComp.SkeletonRef = skeleton;
+                _meshComp.ModelRef = mesh;
 
                 string animPath = //TestDefaults.DesktopPath + "test_anim.dae";
                 TestDefaults.GoogleDrivePath + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";

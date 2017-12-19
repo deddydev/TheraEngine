@@ -6,39 +6,40 @@ using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 using TheraEngine.Files;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
-    public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable, IMeshSocketOwner
+    public partial class StaticMeshComponent : TRSComponent, IRigidCollidable, IMeshSocketOwner
     {
-        public StaticMeshComponent(StaticModel m, PhysicsConstructionInfo info) 
+        public StaticMeshComponent(StaticModel m, TRigidBodyConstructionInfo info) 
             : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info) { }
         public StaticMeshComponent(
             StaticModel m,
             Vec3 translation,
             Rotator rotation,
             Vec3 scale,
-            PhysicsConstructionInfo info)
+            TRigidBodyConstructionInfo info)
         {
             SetTRS(translation, rotation, scale);
             Model = m;
 
             if (info == null)
-                _physicsDriver = null;
+                _rigidBodyCollision = null;
             else
             {
-                //info.InitialWorldTransform = WorldMatrix;
                 info.CollisionShape = m.Collision;
-                info.MotionState = new DefaultMotionState(WorldMatrix);
-                _physicsDriver = new PhysicsDriver(this, info, PhysicsDriver_TransformChanged);
+                info.InitialWorldTransform = WorldMatrix;
+                _rigidBodyCollision = TRigidBody.New(this, info);
                 WorldTransformChanged += StaticMeshComponent_WorldTransformChanged;
+                _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged; 
             }
         }
 
+        private void _rigidBodyCollision_TransformChanged(Matrix4 transform)
+            => WorldMatrix = _rigidBodyCollision.WorldTransform;
         private void StaticMeshComponent_WorldTransformChanged()
-            => _physicsDriver.SetPhysicsTransform(WorldMatrix);
-        private void PhysicsDriver_TransformChanged(Matrix4 worldMatrix)
-            => WorldMatrix = worldMatrix;
+            => _rigidBodyCollision.WorldTransform = WorldMatrix;
 
         #region IMeshSocketOwner interface
         public MeshSocket this[string socketName]
@@ -91,16 +92,16 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         //For internal runtime use
         private RenderableMesh[] _meshes;
 
-        private SingleFileRef<StaticModel> _model;
+        private GlobalFileRef<StaticModel> _model;
 
-        [TSerialize("PhysicsDriver")]
-        private PhysicsDriver _physicsDriver;
+        [TSerialize("RigidBodyCollision")]
+        private TRigidBody _rigidBodyCollision;
         [TSerialize("Sockets")]
         private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
 
         [Category("Static Mesh Component")]
         [TSerialize]
-        public SingleFileRef<StaticModel> Model
+        public GlobalFileRef<StaticModel> Model
         {
             get => _model;
             set
@@ -142,11 +143,11 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         }
 
         [Category("Static Mesh Component")]
-        public PhysicsDriver PhysicsDriver => _physicsDriver;
+        public TRigidBody RigidBodyCollision => _rigidBodyCollision;
 
         [Category("Static Mesh Component")]
         public RenderableMesh[] Meshes => _meshes;
-
+        
         public override void OnSpawned()
         {
             foreach (RenderableMesh m in _meshes)

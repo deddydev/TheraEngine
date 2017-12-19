@@ -236,7 +236,7 @@ namespace TheraEditor.Wrappers
                 DialogResult r = ofd.ShowDialog(Editor.Instance);
                 if (r == DialogResult.OK)
                 {
-                    FileObject file = FileObject.FromFile(fileType, ofd.FileName);
+                    FileObject file = FileObject.Load(fileType, ofd.FileName);
 
                     FolderWrapper folderNode = GetInstance<FolderWrapper>();
                     string dir = folderNode.FilePath as string;

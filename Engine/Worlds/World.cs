@@ -34,18 +34,18 @@ namespace TheraEngine.Worlds
         }
         
         [TSerialize("Settings")]
-        protected SingleFileRef<WorldSettings> _settings;
+        protected GlobalFileRef<WorldSettings> _settings;
         [TSerialize("State")]
-        protected SingleFileRef<WorldState> _state;
+        protected GlobalFileRef<WorldState> _state;
         private AbstractPhysicsWorld _physicsWorld;
 
         public AbstractPhysicsWorld PhysicsWorld => _physicsWorld;
-        public SingleFileRef<WorldSettings> Settings
+        public GlobalFileRef<WorldSettings> Settings
         {
             get => _settings;
             set => _settings = value;
         }
-        public SingleFileRef<WorldState> State
+        public GlobalFileRef<WorldState> State
         {
             get => _state;
             set => _state = value;
@@ -111,7 +111,7 @@ namespace TheraEngine.Worlds
 
         private void CreatePhysicsScene()
         {
-            _physicsWorld?.Destroy();
+            _physicsWorld?.Dispose();
             _physicsWorld = Engine.Physics.NewScene();
         }
         public void Dispose()

@@ -37,12 +37,12 @@ namespace TheraEditor
             TestCharacter t = Engine.World.State.File.GetSpawnedActorsOfType<TestCharacter>().ToArray()[0];
             SkeletalMeshComponent skm = t.RootComponent.ChildComponents[0] as SkeletalMeshComponent;
 
-            if (skm.Skeleton.IsLoaded)
+            if (skm.SkeletonRef.IsLoaded)
             {
                 if (Engine.Settings.RenderSkeletons)
-                    Engine.Scene.Add(skm.Skeleton.File);
+                    Engine.Scene.Add(skm.SkeletonRef.File);
                 else
-                    Engine.Scene.Remove(skm.Skeleton.File);
+                    Engine.Scene.Remove(skm.SkeletonRef.File);
             }
         }
         private void ToggleCameras()

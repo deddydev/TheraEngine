@@ -137,12 +137,12 @@ namespace TheraEditor.Windows.Forms
             //TODO: read editor state file instead
             string lastOpened = Properties.Settings.Default.LastOpened;//"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
             if (!string.IsNullOrEmpty(lastOpened))
-                p = FileObject.FromFile<Project>(lastOpened);
+                p = FileObject.Load<Project>(lastOpened);
             else
             {
                 p = new Project()
                 {
-                    //OpeningWorld = typeof(TestWorld),
+                    OpeningWorld = typeof(TestWorld),
                     UserSettings = new UserSettings(),
                     EngineSettings = new EngineSettings(),
                 };
@@ -241,39 +241,6 @@ namespace TheraEditor.Windows.Forms
         {
             Instance.PropertyGridForm.PropertyGrid.TargetObject = obj;
         }
-
-        private IDockContent GetContentFromPersistString(string persistString)
-        {
-            if (persistString == typeof(DockableActorTree).ToString())
-                return ActorTreeForm;
-            else if (persistString == typeof(DockableFileTree).ToString())
-                return FileTreeForm;
-            else if (persistString == typeof(DockableOutputWindow).ToString())
-                return OutputForm;
-            else if (persistString == typeof(DockablePropertyGrid).ToString())
-                return PropertyGridForm;
-            else
-            {
-                string[] parsedStrings = persistString.Split(new char[] { ',' });
-                if (parsedStrings.Length == 0)
-                    return null;
-                string type = parsedStrings[0];
-                if (type == typeof(RenderForm).ToString())
-                {
-                    if (parsedStrings.Length < 2)
-                        return null;
-                    switch (parsedStrings[1])
-                    {
-                        case "0": return RenderForm1;
-                        case "1": return RenderForm2;
-                        case "2": return RenderForm3;
-                        case "3": return RenderForm4;
-                        default: return null;
-                    }
-                }
-                return null;
-            }
-        }
         private void GenerateInitialActorList()
         {
             if (InvokeRequired)
@@ -348,7 +315,7 @@ namespace TheraEditor.Windows.Forms
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                World world = FileObject.FromFile<World>(ofd.FileName);
+                World world = FileObject.Load<World>(ofd.FileName);
                 CurrentWorld = world;
             }
         }
@@ -385,8 +352,8 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public static SingleFileRef<EditorSettings> Settings { get; }
-            = new SingleFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
+        public static GlobalFileRef<EditorSettings> Settings { get; }
+            = new GlobalFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
 
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -433,7 +400,7 @@ namespace TheraEditor.Windows.Forms
             };
 
             if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
-                Project = FileObject.FromFile<Project>(ofd.FileName);
+                Project = FileObject.Load<Project>(ofd.FileName);
 
             bool projectOpened = Project != null;
             btnEngineSettings.Enabled = projectOpened;
@@ -626,6 +593,38 @@ namespace TheraEditor.Windows.Forms
         private void fileToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+        private IDockContent GetContentFromPersistString(string persistString)
+        {
+            if (persistString == typeof(DockableActorTree).ToString())
+                return ActorTreeForm;
+            else if (persistString == typeof(DockableFileTree).ToString())
+                return FileTreeForm;
+            else if (persistString == typeof(DockableOutputWindow).ToString())
+                return OutputForm;
+            else if (persistString == typeof(DockablePropertyGrid).ToString())
+                return PropertyGridForm;
+            else
+            {
+                string[] parsedStrings = persistString.Split(new char[] { ',' });
+                if (parsedStrings.Length == 0)
+                    return null;
+                string type = parsedStrings[0];
+                if (type == typeof(DockableRenderForm).ToString())
+                {
+                    if (parsedStrings.Length < 2)
+                        return null;
+                    switch (parsedStrings[1])
+                    {
+                        case "0": return RenderForm1;
+                        case "1": return RenderForm2;
+                        case "2": return RenderForm3;
+                        case "3": return RenderForm4;
+                        default: return null;
+                    }
+                }
+                return null;
+            }
         }
     }
 }

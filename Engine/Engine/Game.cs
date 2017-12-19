@@ -25,21 +25,21 @@ namespace TheraEngine
         /// </summary>
         [Category("Game")]
         [TSerialize]
-        public SingleFileRef<World> TransitionWorld { get; set; } = new SingleFileRef<World>("TransitionWorld.xworld");
+        public GlobalFileRef<World> TransitionWorld { get; set; } = new GlobalFileRef<World>("TransitionWorld.xworld");
         /// <summary>
         /// The world the game starts with.
         /// </summary>
         [Category("Game")]
         [TSerialize]
-        public SingleFileRef<World> OpeningWorld { get; set; } = new SingleFileRef<World>("OpeningWorld.xworld");
+        public GlobalFileRef<World> OpeningWorld { get; set; } = new GlobalFileRef<World>("OpeningWorld.xworld");
         [Category("Engine")]
         [TSerialize]
         [Browsable(false)]
-        public SingleFileRef<EngineSettings> EngineSettings { get; set; } = new EngineSettings();
+        public GlobalFileRef<EngineSettings> EngineSettings { get; set; } = new EngineSettings();
         [Category("Engine")]
         [TSerialize]
         [Browsable(false)]
-        public SingleFileRef<UserSettings> UserSettings { get; set; } = new UserSettings();
+        public GlobalFileRef<UserSettings> UserSettings { get; set; } = new UserSettings();
         [Category("About")]
         [TSerialize]
         [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
@@ -77,7 +77,7 @@ namespace TheraEngine
 
         public virtual GameState State { get; set; } = new GameState();
 
-        public SingleFileRef<BaseGameMode> DefaultGameMode { get; set; } = null;
+        public GlobalFileRef<BaseGameMode> DefaultGameMode { get; set; } = null;
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ namespace TheraEngine
     [FileClass("STATE", "Game State")]
     public class GameState : FileObject
     {
-        public SingleFileRef<World> World { get; set; }
-        public SingleFileRef<BaseGameMode> GameMode { get; set; }
+        public GlobalFileRef<World> World { get; set; }
+        public GlobalFileRef<BaseGameMode> GameMode { get; set; }
     }
 }

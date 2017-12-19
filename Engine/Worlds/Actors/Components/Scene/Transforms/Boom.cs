@@ -57,10 +57,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.GetPoint();
 
-            ShapeTraceResultClosest result = new ShapeTraceResultClosest(_traceShape, startMatrix, endMatrix, 0xFFFF, 0xFFFF, IgnoreCast);
+            ShapeTraceClosest result = new ShapeTraceClosest(_traceShape, startMatrix, endMatrix, 0xFFFF, 0xFFFF, IgnoreCast);
             
             Vec3 newEndPoint;
-            if (result.PerformTrace())
+            if (result.Trace())
                 newEndPoint = result.HitPointWorld;
             else
                 newEndPoint = testEnd;

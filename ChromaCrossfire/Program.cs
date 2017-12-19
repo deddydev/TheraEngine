@@ -12,7 +12,7 @@ namespace ChromaCrossfire
         {
             Game game = new Game()
             {
-                OpeningWorld = new SingleFileRef<World>(""),
+                OpeningWorld = new GlobalFileRef<World>(""),
             };
             Engine.Run(game);
         }

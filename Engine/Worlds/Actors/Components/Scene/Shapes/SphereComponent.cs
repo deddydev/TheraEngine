@@ -2,6 +2,7 @@
 using TheraEngine.Rendering;
 using TheraEngine.Core.Shapes;
 using System.ComponentModel;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 {
@@ -12,7 +13,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         public SphereComponent(float radius)
             => _sphere = new Sphere(radius, Vec3.Zero);
         
-        public SphereComponent(float radius, PhysicsConstructionInfo info)
+        public SphereComponent(float radius, TRigidBodyConstructionInfo info)
         {
             _sphere = new Sphere(radius, Vec3.Zero);
             InitPhysics(info);
@@ -38,7 +39,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
         }
         public override void Render()
             => _sphere.Render();
-        protected override CollisionShape GetCollisionShape()
+        protected override TCollisionShape GetCollisionShape()
             => _sphere.GetCollisionShape();
         public bool Contains(Vec3 point) 
             => _sphere.Contains(point);

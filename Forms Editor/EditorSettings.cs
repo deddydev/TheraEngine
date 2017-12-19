@@ -8,11 +8,11 @@ namespace TheraEditor
     public class EditorSettings : FileObject
     {
         [TSerialize]
-        public SingleFileRef<EngineSettings> Engine { get; set; }
+        public GlobalFileRef<EngineSettings> Engine { get; set; }
         [TSerialize]
-        public SingleFileRef<PropertyGridSettings> PropertyGrid { get; set; }
+        public GlobalFileRef<PropertyGridSettings> PropertyGrid { get; set; }
         [TSerialize]
-        public SingleFileRef<ControlSettings> Controls { get; set; }
+        public GlobalFileRef<ControlSettings> Controls { get; set; }
 
         [FileClass("SET", "Property Grid Settings")]
         public class PropertyGridSettings : FileObject

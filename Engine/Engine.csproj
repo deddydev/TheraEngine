@@ -215,26 +215,20 @@
     <Reference Include="MathNet.Numerics, Version=3.20.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.3.20.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Dynamic, Version=1.1.2.22, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Dynamic.dll</HintPath>
+    <Reference Include="Microsoft.Dynamic, Version=1.2.0.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.2.0\lib\net45\Microsoft.Dynamic.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Scripting, Version=1.1.2.22, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Scripting.dll</HintPath>
+    <Reference Include="Microsoft.Scripting, Version=1.2.0.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.2.0\lib\net45\Microsoft.Scripting.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Scripting.AspNet, Version=1.1.1.21, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Scripting.AspNet.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Metadata, Version=1.1.2.22, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Scripting.Metadata.dll</HintPath>
+    <Reference Include="Microsoft.Scripting.Metadata, Version=1.2.0.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.2.0\lib\net45\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="NetworkCommsDotNet, Version=3.0.0.0, Culture=neutral, PublicKeyToken=f58108eb6480f6ec, processorArchitecture=MSIL">
       <HintPath>..\packages\NetworkCommsDotNet.3.0.3\lib\NetworkCommsDotNet.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.8.1\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="PhysX.Net, Version=0.5.1.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\PhysX.Net-x64.0.5.1\lib\net45\PhysX.Net.dll</HintPath>
+    <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\Steamworks\Steamworks.NET.dll</HintPath>
@@ -272,25 +266,35 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Files\References\FileLoader.cs" />
+    <Compile Include="Core\Files\References\LocalFileRef.cs" />
+    <Compile Include="Core\Files\References\GlobalFileRef.cs" />
     <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
     <Compile Include="Physics\AbstractPhysicsInterface.cs" />
     <Compile Include="Physics\AbstractPhysicsShapes.cs" />
     <Compile Include="Physics\AbstractPhysicsWorld.cs" />
     <Compile Include="Physics\Bullet\BulletPhysicsInterface.cs" />
-    <Compile Include="Physics\Bullet\BulletPhysicsShapes.cs" />
+    <Compile Include="Physics\Bullet\Shapes\BulletCylinder.cs" />
+    <Compile Include="Physics\Bullet\Shapes\BulletCapsule.cs" />
+    <Compile Include="Physics\Bullet\Shapes\BulletCone.cs" />
+    <Compile Include="Physics\Bullet\Shapes\BulletBox.cs" />
+    <Compile Include="Physics\Bullet\Shapes\BulletSphere.cs" />
     <Compile Include="Physics\Bullet\BulletPhysicsWorld.cs" />
     <Compile Include="Networking\Client.cs" />
     <Compile Include="Networking\NetworkPacketObject.cs" />
     <Compile Include="Networking\NetworkPacketObjectSerializer.cs" />
     <Compile Include="Networking\Server.cs" />
-    <Compile Include="Physics\Bullet\BulletSoftBody.cs" />
-    <Compile Include="Physics\Bullet\BulletRigidBody.cs" />
-    <Compile Include="Physics\Bullet\IBulletCollisionObject.cs" />
-    <Compile Include="Physics\Bullet\IBulletConstraint.cs" />
+    <Compile Include="Physics\Bullet\Collision Bodies\BulletSoftBody.cs" />
+    <Compile Include="Physics\Bullet\Collision Bodies\BulletRigidBody.cs" />
+    <Compile Include="Physics\Bullet\Collision Bodies\IBulletCollisionObject.cs" />
+    <Compile Include="Physics\Bullet\Constraints\BulletPointPointConstraint.cs" />
+    <Compile Include="Physics\Bullet\Constraints\IBulletConstraint.cs" />
+    <Compile Include="Physics\Bullet\Shapes\IBulletShape.cs" />
     <Compile Include="Physics\Bullet\TConvexResultCallback.cs" />
     <Compile Include="Physics\Bullet\TRayResultCallback.cs" />
     <Compile Include="Physics\Collision Bodies\TCollisionInfo.cs" />
     <Compile Include="Physics\Bullet\TBulletMotionState.cs" />
+    <Compile Include="Physics\Constraints\TPointPointConstraint.cs" />
     <Compile Include="Physics\ShapeTrace.cs" />
     <Compile Include="Physics\RayTrace.cs" />
     <Compile Include="Physics\SupportedByAttribute.cs" />
@@ -590,7 +594,7 @@
     <Compile Include="Core\Files\Serialization\SerializationCommon.cs" />
     <Compile Include="Core\Files\Serialization\XML\CustomXmlDeserializer.cs" />
     <Compile Include="Core\Files\Serialization\XML\CustomXmlSerializer.cs" />
-    <Compile Include="Core\Files\FileRef.cs" />
+    <Compile Include="Core\Files\References\FileRef.cs" />
     <Compile Include="Core\Files\StringTable.cs" />
     <Compile Include="Core\Files\XMLReader.cs" />
     <Compile Include="Core\Maths\Collision\Collision.cs" />
@@ -832,23 +836,6 @@
     <Folder Include="Core\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\ZAligned\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="nvToolsExt64_1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="PhysX3CharacterKinematicCHECKED_x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="PhysX3CHECKED_x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="PhysX3CommonCHECKED_x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="PhysX3CookingCHECKED_x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\PostSharp.4.3.21\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" />

@@ -11,7 +11,7 @@ namespace TheraEditor
         private static MainWindow _instance;
         public static MainWindow Instance => _instance ?? new MainWindow();
 
-        private SingleFileRef<Project> _project;
+        private GlobalFileRef<Project> _project;
 
         public Project Project
         {

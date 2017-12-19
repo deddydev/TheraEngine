@@ -2,13 +2,14 @@
 using TheraEngine.Rendering;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Volumes
 {
     public class BlockingVolumeComponent : BoxComponent
     {
-        public BlockingVolumeComponent(Vec3 halfExtents, Vec3 translation, Rotator rotation, CustomCollisionGroup collisionGroup, CustomCollisionGroup collidesWith)
-            : base(halfExtents, new PhysicsConstructionInfo()
+        public BlockingVolumeComponent(Vec3 halfExtents, Vec3 translation, Rotator rotation, ushort collisionGroup, ushort collidesWith)
+            : base(halfExtents, new TRigidBodyConstructionInfo()
             {
                 Mass = 0.0f,
                 CollisionEnabled = true,

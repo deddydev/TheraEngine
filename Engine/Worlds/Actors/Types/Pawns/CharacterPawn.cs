@@ -50,8 +50,8 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         public CharacterPawn(LocalPlayerIndex possessor, SkeletalMesh mesh, Skeleton skeleton)
             : base(false, possessor)
         {
-            _meshComp.Skeleton = skeleton;
-            _meshComp.Model = mesh;
+            _meshComp.SkeletonRef = skeleton;
+            _meshComp.ModelRef = mesh;
         }
 
         private GameTimer _respawnTimer = new GameTimer();

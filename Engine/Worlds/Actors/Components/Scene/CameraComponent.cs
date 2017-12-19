@@ -16,13 +16,13 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         public CameraComponent(bool orthographic) : this(orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera()) { }
         public CameraComponent(Camera camera)
         {
-            _cameraRef = new SingleFileRef<Camera>(camera);
+            _cameraRef = new GlobalFileRef<Camera>(camera);
             _cameraRef.RegisterLoadEvent(CameraLoaded);
             _cameraRef.RegisterUnloadEvent(CameraUnloaded);
         }
         #endregion
         
-        private SingleFileRef<Camera> _cameraRef;
+        private GlobalFileRef<Camera> _cameraRef;
 
         public Camera Camera
         {
@@ -31,7 +31,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         }
 
         [TSerialize]
-        public SingleFileRef<Camera> CameraRef
+        public GlobalFileRef<Camera> CameraRef
         {
             get => _cameraRef;
             set
@@ -54,17 +54,15 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
             }
         }
 
-        private void CameraLoaded()
+        private void CameraLoaded(Camera camera)
         {
-            Camera camera = _cameraRef.File;
             if (IsSpawned && Engine.Settings.RenderCameraFrustums)
                 Engine.Scene.Add(camera);
             camera.OwningComponent = this;
             camera.TransformChanged += RecalcLocalTransform;
         }
-        private void CameraUnloaded()
+        private void CameraUnloaded(Camera camera)
         {
-            Camera camera = _cameraRef.File;
             if (IsSpawned && Engine.Settings.RenderCameraFrustums)
                 Engine.Scene.Remove(camera);
             camera.OwningComponent = null;

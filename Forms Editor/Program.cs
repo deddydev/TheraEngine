@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Scripting;
 
 namespace TheraEditor
 {

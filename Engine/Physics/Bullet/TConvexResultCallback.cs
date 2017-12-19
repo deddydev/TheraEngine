@@ -6,9 +6,9 @@ namespace TheraEngine.Physics.Bullet
 {
     internal class TConvexResultCallback : ConvexResultCallback
     {
-        private ShapeTraceResult _handler;
+        private ShapeTrace _handler;
 
-        public TConvexResultCallback(ShapeTraceResult handler) => _handler = handler;
+        public TConvexResultCallback(ShapeTrace handler) => _handler = handler;
         
         public override float AddSingleResult(LocalConvexResult convexResult, bool normalInWorldSpace)
         {

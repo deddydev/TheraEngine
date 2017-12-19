@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine;
+using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -14,6 +15,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
             Engine.DebugOutput += Engine_DebugOutput;
+            PythonRuntime.Initialize();
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {

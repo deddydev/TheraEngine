@@ -16,7 +16,7 @@ namespace TheraEditor
         public const string SourceDirName = "Source\\";
         public const string ContentDirName = "Content\\";
 
-        private SingleFileRef<ProjectState> _state;
+        private GlobalFileRef<ProjectState> _state;
 
         [TSerialize]
         [Browsable(false)]
@@ -39,9 +39,9 @@ namespace TheraEditor
             Project p = new Project()
             {
                 Name = name,
-                State = new SingleFileRef<ProjectState>(new ProjectState()),
-                UserSettings = new SingleFileRef<UserSettings>(new UserSettings()),
-                EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings()),
+                State = new GlobalFileRef<ProjectState>(new ProjectState()),
+                UserSettings = new GlobalFileRef<UserSettings>(new UserSettings()),
+                EngineSettings = new GlobalFileRef<EngineSettings>(new EngineSettings()),
             };
             return p;
         }
@@ -61,9 +61,9 @@ namespace TheraEditor
             {
                 Name = name,
                 FilePath = GetFilePath(directory, name, FileFormat.XML, typeof(Project)),
-                State = new SingleFileRef<ProjectState>(new ProjectState(), directory, name, FileFormat.XML),
-                UserSettings = new SingleFileRef<UserSettings>(new UserSettings(), directory, name, FileFormat.XML),
-                EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
+                State = new GlobalFileRef<ProjectState>(new ProjectState(), directory, name, FileFormat.XML),
+                UserSettings = new GlobalFileRef<UserSettings>(new UserSettings(), directory, name, FileFormat.XML),
+                EngineSettings = new GlobalFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
             };
             return p;
         }

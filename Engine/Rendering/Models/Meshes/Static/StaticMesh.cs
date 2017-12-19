@@ -3,6 +3,7 @@ using TheraEngine.Files;
 using System.ComponentModel;
 using System;
 using System.Xml;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -41,14 +42,13 @@ namespace TheraEngine.Rendering.Models
             _name = name;
         }
 
-        ConvexShape _collision;
+        TCollisionShape _collision;
 
         public List<StaticRigidSubMesh> RigidChildren => _rigidChildren;
         public List<StaticSoftSubMesh> SoftChildren => _softChildren;
 
-        //TODO: serialize convex shape collision using bullet serializer
         [TSerialize]
-        public ConvexShape Collision
+        public TCollisionShape Collision
         {
             get => _collision;
             set => _collision = value;
@@ -59,7 +59,9 @@ namespace TheraEngine.Rendering.Models
         {
             if (_collision == null)
                 return;
-            int size = _collision.CalculateSerializeBufferSize();
+
+            //TODO: serialize convex shape collision using bullet serializer
+            //int size = _collision.CalculateSerializeBufferSize();
         }
         [TSerialize("RigidChildren")]
         protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();

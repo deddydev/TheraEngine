@@ -1,0 +1,69 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using TheraEngine.Core.Reflection.Attributes;
+
+namespace TheraEngine.Files
+{
+    public interface IGlobalFileRef : IFileRef
+    {
+        void UnloadReference();
+    }
+    /// <summary>
+    /// Allows only one loaded instance of this file throughout the program.
+    /// File can be loaded on-demand or preloaded.
+    /// </summary>
+    [FileClass("GREF", "Global File Reference")]
+    public class GlobalFileRef<T> : FileRef<T>, IGlobalFileRef where T : FileObject
+    {
+        public GlobalFileRef()
+            : base() { }
+        public GlobalFileRef(Type type) 
+            : base(type) { }
+        public GlobalFileRef(T file)
+            : base(file) { }
+        public GlobalFileRef(string filePath)
+            : base(filePath) { }
+        public GlobalFileRef(string filePath, Type type) 
+            : base(filePath, type) { }
+        public GlobalFileRef(string filePath, T file, bool exportNow) 
+            : base(filePath, file, exportNow) { }
+        public GlobalFileRef(string filePath, Func<T> createIfNotFound)
+            : base(filePath, createIfNotFound) { }
+        public GlobalFileRef(string dir, string name, ProprietaryFileFormat format) 
+            : base(dir, name, format) { }
+        public GlobalFileRef(string dir, string name, ProprietaryFileFormat format, T file, bool exportNow) 
+            : base(dir, name, format, file, exportNow) { }
+        public GlobalFileRef(string dir, string name, ProprietaryFileFormat format, Func<T> createIfNotFound)
+            : base(dir, name, format, createIfNotFound) { }
+
+        protected override bool RegisterFile(string path, T file)
+            => Engine.AddGlobalFileInstance(path, file);
+
+        public override T GetInstance()
+        {
+            if (_file != null)
+                return _file;
+
+            string absolutePath = ReferencePath;
+            if (absolutePath != null && Engine.GlobalFileInstances.TryGetValue(absolutePath, out FileObject file))
+            {
+                //lock (file)
+                //{
+                File = file as T;
+                File.References.Add(this);
+                //}
+            }
+
+            return File = LoadNewInstance();
+        }
+        
+        public static implicit operator GlobalFileRef<T>(T file) => file == null ? null : new GlobalFileRef<T>(file);
+        public static implicit operator GlobalFileRef<T>(Type type) => new GlobalFileRef<T>(type);
+        public static implicit operator GlobalFileRef<T>(string relativePath) => new GlobalFileRef<T>(relativePath);
+    }
+}

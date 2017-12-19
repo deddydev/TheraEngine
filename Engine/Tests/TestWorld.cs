@@ -13,6 +13,8 @@ using TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Physics;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Tests
 {
@@ -29,7 +31,7 @@ namespace TheraEngine.Tests
             BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
             for (int i = 0; i < array.Length; ++i)
             {
-                PhysicsConstructionInfo physicsInfo = new PhysicsConstructionInfo()
+                TRigidBodyConstructionInfo physicsInfo = new TRigidBodyConstructionInfo()
                 {
                     Mass = 15.0f,
                     AngularDamping = 0.1f,
@@ -39,8 +41,8 @@ namespace TheraEngine.Tests
                     RollingFriction = 0.1f,
                     CollisionEnabled = true,
                     SimulatePhysics = true,
-                    CollisionGroup = CustomCollisionGroup.DynamicWorld,
-                    CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
+                    CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
+                    CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld | TCollisionGroup.Characters),
                 };
                 float x = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.X;
                 float y = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Y;
@@ -50,20 +52,20 @@ namespace TheraEngine.Tests
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
                     new Rotator(x, y, z, RotationOrder.YPR),
                     TMaterial.GetLitColorMaterial(Color.Purple));
-                actor.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
+                actor.RootComponent.RigidBodyCollision.OnHit += PhysicsDriver_OnHit;
                 array[i] = actor;
             }
             //sphereActor = array[0];
             //sphereActor.RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
 
-            PhysicsConstructionInfo floorInfo = new PhysicsConstructionInfo()
+            TRigidBodyConstructionInfo floorInfo = new TRigidBodyConstructionInfo()
             {
                 Mass = 20.0f,
                 Restitution = 0.5f,
                 CollisionEnabled = true,
                 SimulatePhysics = false,
-                CollisionGroup = CustomCollisionGroup.StaticWorld,
-                CollidesWith = CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld,
+                CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+                CollidesWith = (ushort)(TCollisionGroup.Characters | TCollisionGroup.DynamicWorld),
             };
             BoxActor floorActor1 = new BoxActor(
                 "Floor1",
@@ -138,8 +140,6 @@ namespace TheraEngine.Tests
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
             //StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main1\\landtable.obj"*/"X:\\Repositories\\TheraEngine\\Build\\test\\test.obj", objOptions);
-            StaticModel testModel = OBJ.Import(TestDefaults.DesktopPath + "sponza.obj", objOptions);
-            Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
 
             //ModelImportOptions options = new ModelImportOptions()
             //{
@@ -266,7 +266,6 @@ namespace TheraEngine.Tests
                 gunActor,
                 spotlight,
                 //block,
-                testActor,
                 floorActor1,
                 //floorActor2,
                 //floorActor3,
@@ -300,11 +299,17 @@ namespace TheraEngine.Tests
             //_param.MaxDistance.Value = 50.0f;
 
             //ToXML(TestDefaults.DesktopPath, "testworld");
+
+            Task.Run(() => OBJ.Import(TestDefaults.DesktopPath + "sponza.obj", objOptions)).ContinueWith(t =>
+            {
+                Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(t.Result, null)) { Name = "MapActor" };
+                SpawnActor(testActor);
+            });
         }
-        
-        private void PhysicsDriver_OnHit(IPhysicsDrivable me, IPhysicsDrivable other, BulletSharp.ManifoldPoint point)
+
+        private void PhysicsDriver_OnHit(TCollisionObject me, TCollisionObject other, TCollisionInfo point)
         {
-            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.File.RigidChildren[0].LODs[0].Material.File.Parameters[0];
+            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me.Owner).Model.File.RigidChildren[0].LODs[0].Material.File.Parameters[0];
             color.Value = (ColorF4)Color.Green;
 
             //_collideSound.Play(_param);

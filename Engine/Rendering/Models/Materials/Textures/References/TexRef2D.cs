@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering.Models.Materials
             PixelFormat bitmapFormat = PixelFormat.Format32bppArgb, int mipCount = 1)
             : this(name, width, height)
         {
-            _mipmaps = new SingleFileRef<TextureFile2D>[mipCount];
+            _mipmaps = new GlobalFileRef<TextureFile2D>[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
                 _mipmaps[i] = new TextureFile2D(width / scale, height / scale, bitmapFormat);
         }
@@ -46,30 +46,30 @@ namespace TheraEngine.Rendering.Models.Materials
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, PixelFormat bitmapFormat)
             : this(name, width, height, internalFormat, pixelFormat, pixelType)
         {
-            _mipmaps = new SingleFileRef<TextureFile2D>[] { new TextureFile2D(width, height, bitmapFormat) };
+            _mipmaps = new GlobalFileRef<TextureFile2D>[] { new TextureFile2D(width, height, bitmapFormat) };
         }
         public TextureReference2D(string name, params string[] mipMapPaths)
         {
             _name = name;
-            _mipmaps = new SingleFileRef<TextureFile2D>[mipMapPaths.Length];
+            _mipmaps = new GlobalFileRef<TextureFile2D>[mipMapPaths.Length];
             for (int i = 0; i < mipMapPaths.Length; ++i)
             {
                 string path = mipMapPaths[i];
                 if (path.StartsWith("file://"))
                     path = path.Substring(7);
-                _mipmaps = new SingleFileRef<TextureFile2D>[]
+                _mipmaps = new GlobalFileRef<TextureFile2D>[]
                 {
-                    new SingleFileRef<TextureFile2D>(path)
+                    new GlobalFileRef<TextureFile2D>(path)
                 };
             }
         }
         #endregion
 
         //Note: one TextureData object may contain all the mips
-        public SingleFileRef<TextureFile2D>[] _mipmaps;
+        public GlobalFileRef<TextureFile2D>[] _mipmaps;
 
         [TSerialize]
-        public SingleFileRef<TextureFile2D>[] Mipmaps
+        public GlobalFileRef<TextureFile2D>[] Mipmaps
         {
             get => _mipmaps;
             set => _mipmaps = value;

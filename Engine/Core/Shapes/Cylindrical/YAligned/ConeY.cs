@@ -12,6 +12,6 @@ namespace TheraEngine.Core.Shapes
         public ConeY(float radius, float height) 
             : base(Vec3.Zero, Rotator.GetZero(), Vec3.One, Vec3.UnitY, radius, height) { }
         public override TCollisionShape GetCollisionShape()
-            => new ConeShape(Radius, Height);
+            => TCollisionConeY.New(Radius, Height);
     }
 }

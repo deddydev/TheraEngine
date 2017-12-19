@@ -43,4 +43,121 @@ namespace TheraEngine.Physics
         public static TCollisionBox New(Vec3 halfExtents)
             => Engine.Physics.NewBox(halfExtents);
     }
+
+    #region Cone
+    public abstract class TCollisionConeX : TCollisionShape
+    {
+        public abstract float Radius { get; }
+        public abstract float Height { get; }
+        
+        public static TCollisionConeX New(float radius, float height)
+            => Engine.Physics.NewConeX(radius, height);
+    }
+    public abstract class TCollisionConeY : TCollisionShape
+    {
+        public abstract float Radius { get; }
+        public abstract float Height { get; }
+
+        public static TCollisionConeY New(float radius, float height)
+            => Engine.Physics.NewConeY(radius, height);
+    }
+    public abstract class TCollisionConeZ : TCollisionShape
+    {
+        public abstract float Radius { get; }
+        public abstract float Height { get; }
+
+        public static TCollisionConeZ New(float radius, float height)
+            => Engine.Physics.NewConeZ(radius, height);
+    }
+    #endregion
+
+    #region Cylinder
+    public abstract class TCollisionCylinderX : TCollisionShape
+    {
+        public abstract float Radius { get; }
+        public abstract float Height { get; }
+
+        public static TCollisionCylinderX New(float radius, float height)
+            => Engine.Physics.NewCylinderX(radius, height);
+    }
+    public abstract class TCollisionCylinderY : TCollisionShape
+    {
+        public abstract float Radius { get; }
+        public abstract float Height { get; }
+
+        public static TCollisionCylinderY New(float radius, float height)
+            => Engine.Physics.NewCylinderY(radius, height);
+    }
+    public abstract class TCollisionCylinderZ : TCollisionShape
+    {
+        public abstract float Radius { get; }
+        public abstract float Height { get; }
+        
+        public static TCollisionCylinderZ New(float radius, float height)
+            => Engine.Physics.NewCylinderZ(radius, height);
+    }
+    #endregion
+
+    #region Capsule
+    public abstract class TCollisionCapsuleX : TCollisionShape
+    {
+        /// <summary>
+        /// The radius of the upper and lower spheres, and the cylinder.
+        /// </summary>
+        public abstract float Radius { get; }
+        /// <summary>
+        /// How tall the capsule is, not including the radius on top and bottom.
+        /// </summary>
+        public abstract float Height { get; }
+        
+        /// <summary>
+        /// Creates a new capsule with height aligned to the X axis.
+        /// </summary>
+        /// <param name="radius">The radius of the upper and lower spheres, and the cylinder.</param>
+        /// <param name="height">How tall the capsule is, not including the radius on top and bottom.</param>
+        /// <returns>A new capsule with height aligned to the X axis.</returns>
+        public static TCollisionCapsuleX New(float radius, float height)
+            => Engine.Physics.NewCapsuleX(radius, height);
+    }
+    public abstract class TCollisionCapsuleY : TCollisionShape
+    {
+        /// <summary>
+        /// The radius of the upper and lower spheres, and the cylinder.
+        /// </summary>
+        public abstract float Radius { get; }
+        /// <summary>
+        /// How tall the capsule is, not including the radius on top and bottom.
+        /// </summary>
+        public abstract float Height { get; }
+
+        /// <summary>
+        /// Creates a new capsule with height aligned to the Y axis.
+        /// </summary>
+        /// <param name="radius">The radius of the upper and lower spheres, and the cylinder.</param>
+        /// <param name="height">How tall the capsule is, not including the radius on top and bottom.</param>
+        /// <returns>A new capsule with height aligned to the Y axis.</returns>
+        public static TCollisionCapsuleY New(float radius, float height)
+            => Engine.Physics.NewCapsuleY(radius, height);
+    }
+    public abstract class TCollisionCapsuleZ : TCollisionShape
+    {
+        /// <summary>
+        /// The radius of the upper and lower spheres, and the cylinder.
+        /// </summary>
+        public abstract float Radius { get; }
+        /// <summary>
+        /// How tall the capsule is, not including the radius on top and bottom.
+        /// </summary>
+        public abstract float Height { get; }
+
+        /// <summary>
+        /// Creates a new capsule with height aligned to the Z axis.
+        /// </summary>
+        /// <param name="radius">The radius of the upper and lower spheres, and the cylinder.</param>
+        /// <param name="height">How tall the capsule is, not including the radius on top and bottom.</param>
+        /// <returns>A new capsule with height aligned to the Z axis.</returns>
+        public static TCollisionCapsuleZ New(float radius, float height)
+            => Engine.Physics.NewCapsuleZ(radius, height);
+    }
+    #endregion
 }

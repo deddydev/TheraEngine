@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Input;
+using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
@@ -9,13 +10,13 @@ namespace TheraEngine.Worlds.Actors.Types
     {
         protected override PositionComponent OnConstruct()
         {
-            PhysicsConstructionInfo info = new PhysicsConstructionInfo()
-            {
-                CollidesWith = CustomCollisionGroup.All,
-                CollisionGroup = CustomCollisionGroup.StaticWorld,
-                CollisionEnabled = false,
-                SimulatePhysics = false
-            };
+            //TRigidBodyConstructionInfo info = new TRigidBodyConstructionInfo()
+            //{
+            //    CollidesWith = TCollisionGroup.All,
+            //    CollisionGroup = CustomCollisionGroup.StaticWorld,
+            //    CollisionEnabled = false,
+            //    SimulatePhysics = false
+            //};
             return new PositionComponent(Vec3.Zero);
         }
         //TODO: test player's variable-sized capsule against space directly, not fixed-size root component capsule

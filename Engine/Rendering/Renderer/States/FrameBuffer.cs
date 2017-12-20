@@ -102,7 +102,7 @@ namespace TheraEngine.Rendering
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             Material.GenerateTextures(true);
             Engine.Renderer.SetDrawBuffers(attachments);
-            //CheckErrors();
+            CheckErrors();
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
             _compiled = true;
         }

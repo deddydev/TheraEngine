@@ -35,10 +35,14 @@ namespace TheraEditor.Windows.Forms
 
             if (allowDerivedTypes)
             {
-                toolStripTypeSelection.Visible = false;
-                Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => !x.IsAbstract && type.IsAssignableFrom(x));
+                Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x));
                 if (types.Length == 1)
+                {
                     SetTargetType(types[0]);
+                    toolStripTypeSelection.Visible = false;
+                }
+                else
+                    toolStripTypeSelection.Visible = true;
             }
             else if (type.IsAbstract || type.IsInterface)
                 return false;

@@ -19,17 +19,15 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         private TCollisionSphere _traceShape = TCollisionSphere.New(0.3f);
         private float _currentLength = 0.0f;
         private Vec3 _startPoint = Vec3.Zero;
-        private TCollisionObject _ignoreCast = null;
 
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-
-        [DefaultValue(300.0f)]
+        
         [TSerialize]
         public float MaxLength { get; set; } = 300.0f;
-
+        [TSerialize]
         public TCollisionObject IgnoreCast { get; set; } = null;
 
         public BoomComponent() : base() { }
@@ -50,6 +48,19 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             inverseLocalTransform = invTranslation * it * ir;
         }
 
+        public override void OnSpawned()
+        {
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+            //Engine.Scene.AddRenderable(this);
+            base.OnSpawned();
+        }
+        public override void OnDespawned()
+        {
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+            //Engine.Scene.RemoveRenderable(this);
+            base.OnDespawned();
+        }
+
         private void Tick(float delta)
         {
             Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.GetTranslationMatrix();
@@ -58,7 +69,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             Vec3 testEnd = endMatrix.GetPoint();
 
             ShapeTraceClosest result = new ShapeTraceClosest(_traceShape, startMatrix, endMatrix, 0xFFFF, 0xFFFF, IgnoreCast);
-            
+
             Vec3 newEndPoint;
             if (result.Trace())
                 newEndPoint = result.HitPointWorld;
@@ -75,19 +86,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
                 RecalcLocalTransform();
                 CurrentDistanceChanged?.Invoke(_currentLength);
             }
-        }
-
-        public override void OnSpawned()
-        {
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            //Engine.Scene.AddRenderable(this);
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            //Engine.Scene.RemoveRenderable(this);
-            base.OnDespawned();
         }
 
         public void Render()

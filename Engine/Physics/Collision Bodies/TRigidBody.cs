@@ -67,7 +67,7 @@ namespace TheraEngine.Physics
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract bool WantsSleeping { get; }
 
-        protected ushort _previousCollidesWith;
+        protected ushort _previousCollidesWith = 0xFFFF;
         private bool _collisionEnabled;
         public bool CollisionEnabled
         {

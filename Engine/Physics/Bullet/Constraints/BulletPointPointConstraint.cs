@@ -7,23 +7,23 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Physics.Bullet.Constraints
 {
-    internal class BulletPointPointConstraint : TPointPointConstraint
+    internal class BulletPointPointConstraint : TPointPointConstraint, IBulletConstraint
     {
-        public BulletPointPointConstraint(TRigidBody rigidBodyA, Vec3 pivotInA)
+        public BulletPointPointConstraint(BulletRigidBody rigidBodyA, Vec3 pivotInA)
         {
             _rigidBodyA = rigidBodyA;
-            PivotInA = pivotInA;
+            Constraint = new Point2PointConstraint(rigidBodyA.Body, pivotInA);
         }
 
-        public BulletPointPointConstraint(TRigidBody rigidBodyA, TRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB)
+        public BulletPointPointConstraint(BulletRigidBody rigidBodyA, BulletRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB)
         {
             _rigidBodyA = rigidBodyA;
             _rigidBodyB = rigidBodyB;
-            PivotInA = pivotInA;
-            PivotInB = pivotInB;
+            Constraint = new Point2PointConstraint(rigidBodyA.Body, rigidBodyB.Body, pivotInA, pivotInB);
         }
 
         public Point2PointConstraint Constraint { get; set; }
+        TypedConstraint IBulletConstraint.Constraint => Constraint;
 
         public override Vec3 PivotInB
         {
@@ -61,7 +61,7 @@ namespace TheraEngine.Physics.Bullet.Constraints
             set => Constraint.IsEnabled = value;
         }
         
-        private TRigidBody _rigidBodyA, _rigidBodyB;
+        private BulletRigidBody _rigidBodyA, _rigidBodyB;
         public override TRigidBody RigidBodyB => _rigidBodyB;
         public override TRigidBody RigidBodyA => _rigidBodyA;
 

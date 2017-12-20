@@ -162,7 +162,7 @@ namespace TheraEngine.Rendering.Cameras
         }
         [DisplayName("Post-Processing")]
         [Category("Camera")]
-        public PostProcessSettings PostProcessSettings
+        public PostProcessSettings PostProcess
         {
             get => _postProcessSettings;
             set => _postProcessSettings = value ?? new PostProcessSettings();

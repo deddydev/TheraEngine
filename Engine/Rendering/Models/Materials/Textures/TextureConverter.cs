@@ -21,7 +21,21 @@ namespace TheraEngine.Rendering.Textures
             if (!File.Exists(path))
                 return new Bitmap[0];
 
-            return new Bitmap[] { new FreeImageBitmap(path).ToBitmap() };
+            FIBITMAP dib = FreeImage.LoadEx(path);
+            if (dib.IsNull)
+                return new Bitmap[0];
+
+            try
+            {
+                Bitmap bitmap = FreeImage.GetBitmap(dib);
+                FreeImage.UnloadEx(ref dib);
+
+                return new Bitmap[] { bitmap };
+            }
+            catch
+            {
+                return new Bitmap[0];
+            }
         }
 
         //public static readonly TextureConverter I4 = new I4();

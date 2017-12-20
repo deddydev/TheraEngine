@@ -45,6 +45,7 @@ namespace TheraEngine.Physics.RayTracing
         public ushort CollisionGroup { get; private set; }
         public ushort CollidesWith { get; private set; }
         public TCollisionObject[] Ignored { get; private set; }
+        public abstract bool HasHit { get; }
 
         public RayTrace(
             Vec3 startPointWorld,
@@ -96,7 +97,7 @@ namespace TheraEngine.Physics.RayTracing
     /// </summary>
     public abstract class RayTraceSingle : RayTrace
     {
-        public bool HasHit => Result != null;
+        public override bool HasHit => Result != null;
 
         protected RayCollisionResult Result { get; set; } = null;
 
@@ -117,7 +118,7 @@ namespace TheraEngine.Physics.RayTracing
     /// </summary>
     public class RayTraceMulti : RayTrace
     {
-        public bool HasHit => Results.Count != 0;
+        public override bool HasHit => Results.Count != 0;
         
         public List<RayCollisionResult> Results { get; } = new List<RayCollisionResult>();
 

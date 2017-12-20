@@ -42,6 +42,7 @@ namespace TheraEngine.Core.Files
         {
             return
                 (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+                 where !domainAssembly.IsDynamic
                  from assemblyType in domainAssembly.GetExportedTypes()
                  where match(assemblyType) && !assemblyType.IsAbstract
                  select assemblyType).ToArray();

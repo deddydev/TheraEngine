@@ -8,7 +8,7 @@ using TheraEngine.Physics;
 namespace TheraEngine.Core.Shapes
 {
     /// <summary>
-    /// Axis Aligned Bounding Box (AABB)
+    /// Axis-Aligned Bounding Box (AABB)
     /// </summary>
     [FileClass("SHAPE", "Axis-Aligned Bounding Box")]
     public class BoundingBox : Shape
@@ -25,7 +25,7 @@ namespace TheraEngine.Core.Shapes
 
         #region Properties
         /// <summary>
-        /// The minimum corner position coordinate of this bounding box.
+        /// The minimum corner position coordinate of this <see cref="BoundingBox"/>.
         /// All components are the smallest.
         /// </summary>
         public Vec3 Minimum
@@ -37,7 +37,7 @@ namespace TheraEngine.Core.Shapes
                 _halfExtents.Raw = (Maximum - value) / 2.0f;
             }
         } /// <summary>
-          /// The maximum corner position coordinate of this bounding box.
+          /// The maximum corner position coordinate of this <see cref="BoundingBox"/>.
           /// All components are the largest.
           /// </summary>
         public Vec3 Maximum
@@ -350,12 +350,12 @@ namespace TheraEngine.Core.Shapes
 
         #region Collision
         /// <summary>
-        /// Returns true if the given ray intersects this box.
+        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBox"/>.
         /// </summary>
         public bool Intersects(Ray ray)
             => Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out float distance);
         /// <summary>
-        /// Returns true if the given ray intersects this box.
+        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBox"/>.
         /// Returns the distance of the closest intersection.
         /// </summary>
         public bool Intersects(Ray ray, out float distance)
@@ -363,11 +363,11 @@ namespace TheraEngine.Core.Shapes
         public bool Intersects(Vec3 start, Vec3 direction, out float distance)
             => Collision.RayIntersectsAABBDistance(start, direction, Minimum, Maximum, out distance);
         /// <summary>
-        /// Returns true if the given ray intersects this box.
+        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBox"/>.
         /// Returns the position of the closest intersection.
         /// </summary>
         public bool Intersects(Ray ray, out Vec3 point)
-            => Collision.RayIntersectsAABB(ray, Minimum, Maximum, out point)
+            => Collision.RayIntersectsAABB(ray, Minimum, Maximum, out point);
         //public bool Intersects(Vec3 start, Vec3 direction, out Vec3 point)
         //    => Collision.RayIntersectsAABB(start, direction, Minimum, Maximum, out point);
 

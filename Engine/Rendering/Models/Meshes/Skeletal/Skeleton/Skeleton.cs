@@ -101,8 +101,9 @@ namespace TheraEngine.Rendering.Models
             //Looping recursively is more efficient than looping through the whole bone cache
             //because bone subtrees that do not need updating will be skipped entirely
             //instead of being iterated through
-            foreach (Bone b in RootBones)
-                b.CalcFrameMatrix(c, Matrix4.Identity, Matrix4.Identity);
+            if (RootBones != null)
+                foreach (Bone b in RootBones)
+                    b.CalcFrameMatrix(c, Matrix4.Identity, Matrix4.Identity);
         }
 
         public bool VisibleInEditorOnly
@@ -141,8 +142,9 @@ namespace TheraEngine.Rendering.Models
             _boneIndexCache.Clear();
             _physicsDrivableBones.Clear();
             _cameraBones.Clear();
-            foreach (Bone b in RootBones)
-                b.CollectChildBones(this);
+            if (RootBones != null)
+                foreach (Bone b in RootBones)
+                    b.CollectChildBones(this);
         }
         internal void WorldMatrixChanged()
         {

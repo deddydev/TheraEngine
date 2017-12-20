@@ -97,7 +97,14 @@ namespace System
             }
         }
 
+        /// <summary>
+        /// Converts a translation to a matrix.
+        /// </summary>
         public Matrix4 AsTranslationMatrix() => Matrix4.CreateTranslation(this);
+        /// <summary>
+        /// Converts a scale to a matrix.
+        /// </summary>
+        /// <returns></returns>
         public Matrix4 AsScaleMatrix() => Matrix4.CreateScale(this);
 
         [Browsable(false)]
@@ -127,7 +134,10 @@ namespace System
                     Normalize(false);
                     break;
                 case ENormalizeOption.FastSafe:
-                    NormalizeFast();
+                    NormalizeFast(true);
+                    break;
+                case ENormalizeOption.FastUnsafe:
+                    NormalizeFast(false);
                     break;
             }
         }

@@ -44,6 +44,7 @@ namespace TheraEngine.Physics.ShapeTracing
         public ushort CollidesWith { get; set; }
         public TCollisionObject[] Ignored { get; private set; }
         public float AllowedCcdPenetration { get; set; } = -1.0f;
+        public abstract bool HasHit { get; }
 
         public ShapeTrace(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
         {
@@ -72,7 +73,7 @@ namespace TheraEngine.Physics.ShapeTracing
 
     public abstract class ShapeTraceSingle : ShapeTrace
     {
-        public bool HasHit => Result != null;
+        public override bool HasHit => Result != null;
 
         protected ShapeCollisionResult Result { get; set; } = null;
 
@@ -89,6 +90,8 @@ namespace TheraEngine.Physics.ShapeTracing
 
     public class ShapeTraceMulti : ShapeTrace
     {
+        public override bool HasHit => Results.Count > 0;
+
         public List<ShapeCollisionResult> Results { get; } = new List<ShapeCollisionResult>();
 
         public ShapeTraceMulti(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)

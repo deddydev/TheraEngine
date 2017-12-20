@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -44,11 +45,13 @@ namespace TheraEditor
         /// <returns></returns>
         public static Type[] FindPublicTypes(Predicate<Type> match)
         {
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             return
-                (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-                from assemblyType in domainAssembly.GetExportedTypes()
-                where match(assemblyType) && !assemblyType.IsAbstract
-                select assemblyType).ToArray();
+                (from domainAssembly in assemblies
+                 where !domainAssembly.IsDynamic
+                 from assemblyType in domainAssembly.GetExportedTypes()
+                 where match(assemblyType) && !assemblyType.IsAbstract
+                 select assemblyType).ToArray();
         }
         /// <summary>
         /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
@@ -145,29 +148,29 @@ namespace TheraEditor
         public static event Action LostFocus;
         internal static void FocusChanged()
         {
-            if (CheckFocus())
-            {
-                if (!IsFocused)
-                {
-                    IsFocused = true;
-                    Project p = Editor.Instance.Project;
-                    bool? capFPS = p.EngineSettings?.File?.CapFPS;
-                    bool? capUPS = p.EngineSettings?.File?.CapUPS;
-                    Engine.TargetRenderFreq = p != null && capFPS != null && capFPS.Value ? p.EngineSettings.File.TargetFPS : 0.0f;
-                    Engine.TargetUpdateFreq = p != null && capUPS != null && capUPS.Value ? p.EngineSettings.File.TargetUPS : 0.0f;
-                    GotFocus?.Invoke();
-                }
-            }
-            else
-            {
-                if (IsFocused)
-                {
-                    IsFocused = false;
-                    Engine.TargetRenderFreq = 3.0f;
-                    Engine.TargetUpdateFreq = 30.0f;
-                    LostFocus?.Invoke();
-                }
-            }
+            //if (CheckFocus())
+            //{
+            //    if (!IsFocused)
+            //    {
+            //        IsFocused = true;
+            //        Project p = Editor.Instance.Project;
+            //        bool? capFPS = p.EngineSettings?.File?.CapFPS;
+            //        bool? capUPS = p.EngineSettings?.File?.CapUPS;
+            //        Engine.TargetRenderFreq = p != null && capFPS != null && capFPS.Value ? p.EngineSettings.File.TargetFPS : 0.0f;
+            //        Engine.TargetUpdateFreq = p != null && capUPS != null && capUPS.Value ? p.EngineSettings.File.TargetUPS : 0.0f;
+            //        GotFocus?.Invoke();
+            //    }
+            //}
+            //else
+            //{
+            //    if (IsFocused)
+            //    {
+            //        IsFocused = false;
+            //        Engine.TargetRenderFreq = 3.0f;
+            //        Engine.TargetUpdateFreq = 30.0f;
+            //        LostFocus?.Invoke();
+            //    }
+            //}
         }
     }
 }

@@ -26,6 +26,8 @@ namespace TheraEngine.Physics.Bullet
         public BulletRigidBody(IRigidCollidable owner, RigidBodyConstructionInfo info, TCollisionShape shape) : base(owner, shape)
         {
             Body = new RigidBody(info);
+            Body.Activate();
+
             CollisionShape = shape;
 
             Constraints.PostAdded += Constraints_PostAdded;

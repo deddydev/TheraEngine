@@ -72,7 +72,7 @@ namespace TheraEngine.Tests
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(0.45f), TransformOrder.TRS),
             };
             
-            //Task.Run(() => Collada.Import(TestDefaults.DesktopPath + "test.dae", options)).ContinueWith(task => SceneImported(task));
+            Task.Run(() => Collada.Import(TestDefaults.DesktopPath + "test.dae", options)).ContinueWith(task => SceneImported(task));
             
             base.PreConstruct();
         }

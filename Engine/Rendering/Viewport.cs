@@ -173,7 +173,7 @@ namespace TheraEngine.Rendering
         }
         private void _postProcessGBuffer_SettingUniforms(int programBindingId)
         {
-            _worldCamera?.PostProcessSettings.SetUniforms(programBindingId);
+            _worldCamera?.PostProcess.SetUniforms(programBindingId);
         }
 
         private void _deferredGBuffer_SettingUniforms(int programBindingId)
@@ -182,7 +182,7 @@ namespace TheraEngine.Rendering
                 return;
             Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
             _worldCamera.SetUniforms(programBindingId);
-            _worldCamera.PostProcessSettings.AmbientOcclusion.SetUniforms(programBindingId);
+            _worldCamera.PostProcess.AmbientOcclusion.SetUniforms(programBindingId);
         }
 
         public void SetInternalResolution(float width, float height)

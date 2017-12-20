@@ -161,7 +161,7 @@ namespace TheraEngine.Physics
         {
             TRayResultCallback callback = new TRayResultCallback(result);
             _dynamicsWorld.RayTest(result.StartPointWorld, result.EndPointWorld, callback);
-            return callback.HasHit;
+            return result.HasHit;
         }
         public override bool ShapeTrace(ShapeTrace result)
         {
@@ -170,7 +170,7 @@ namespace TheraEngine.Physics
                 _dynamicsWorld.ConvexSweepTest(((IBulletShape)result.Shape).Shape, result.Start, result.End, callback, result.AllowedCcdPenetration);
             else
                 _dynamicsWorld.ConvexSweepTest(((IBulletShape)result.Shape).Shape, result.Start, result.End, callback);
-            return callback.HasHit;
+            return result.HasHit;
         }
         public override void AddConstraint(TConstraint constraint)
         {

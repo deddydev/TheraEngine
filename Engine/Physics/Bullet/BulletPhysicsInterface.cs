@@ -71,15 +71,12 @@ namespace TheraEngine.Physics.Bullet
             
             return softBody;
         }
-        public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, TRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB)
-        {
-            return new BulletPointPointConstraint(rigidBodyA, rigidBodyB, pivotInA, pivotInB);
-        }
-        public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, Vec3 pivotInA)
-        {
-            return new BulletPointPointConstraint(rigidBodyA, pivotInA);
-        }
 
+        public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, TRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB)
+            => new BulletPointPointConstraint((BulletRigidBody)rigidBodyA, (BulletRigidBody)rigidBodyB, pivotInA, pivotInB);
+        public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, Vec3 pivotInA)
+            => new BulletPointPointConstraint((BulletRigidBody)rigidBodyA, pivotInA);
+        
         public override TCollisionBox NewBox(Vec3 halfExtents)
             => new BulletBox(halfExtents);
         public override TCollisionSphere NewSphere(float radius)

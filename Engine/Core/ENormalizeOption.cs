@@ -25,7 +25,7 @@ namespace TheraEngine.Core
         /// </summary>
         FastSafe,
         /// <summary>
-        /// The vector first is checked that it can be normalized safely. If not, does nothing.
+        /// The vector is first checked that it can be normalized safely (no divide by zero). If not, does nothing.
         /// Normalization is done to the vector using the Newton-Raphson approximation method. No square root is taken, but may be less accurate.
         /// </summary>
         FastUnsafe,

@@ -136,14 +136,10 @@ namespace TheraEngine.Rendering.Cameras
             return WorldPoint.DistanceToFast(point) * radius * Vec3.Dot(GetForwardVector() * _aspect.ClampMin(1.0f), (point - WorldPoint).NormalizedFast()) * 0.1f;
         }
         public float FrustumHeightAtDistance(float distance)
-        {
-            return 2.0f * distance * (float)Math.Tan(TMath.DegToRad(_fovY * 0.5f));
-        }
+            => 2.0f * distance * (float)Math.Tan(TMath.DegToRad(_fovY * 0.5f));
         public float FOVForHeightAndDistance(float height, float distance)
-        {
-            return 2.0f * TMath.RadToDeg((float)Math.Atan(height * 0.5f / distance));
-        }
-
+            => 2.0f * TMath.RadToDeg((float)Math.Atan(height * 0.5f / distance));
+        
         // half of the the horizontal field of view
  //       float angleX;
 	//// store the information

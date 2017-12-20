@@ -64,8 +64,11 @@ namespace TheraEngine.Rendering.Models
             _childComponents.PostInserted += ChildComponentsInserted;
             _childComponents.PostInsertedRange += ChildComponentsInsertedRange;
 
-            _rigidBodyCollision = info == null ? null : TRigidBody.New(this, info);
-            _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
+            if (info != null)
+            {
+                _rigidBodyCollision = TRigidBody.New(this, info);
+                _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
+            }
         }
 
         private void _rigidBodyCollision_TransformChanged(Matrix4 transform)

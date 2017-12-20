@@ -119,9 +119,10 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
         {
             if (OwningActor.RootComponent is IRigidCollidable root)
             {
-                //root.PhysicsDriver.Kinematic = false;
-                root.RigidBodyCollision.SleepingEnabled = false;
+                //root.RigidBodyCollision.IsKinematic = true;
                 root.RigidBodyCollision.SimulatingPhysics = true;
+                root.RigidBodyCollision.SleepingEnabled = false;
+                root.RigidBodyCollision.CollisionEnabled = true;
                 root.RigidBodyCollision.LinearVelocity = Vec3.Zero;
             }
             CurrentWalkingSurface = null;
@@ -302,17 +303,15 @@ namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
 
             //Get root component of the character
             IRigidCollidable root = OwningActor.RootComponent as IRigidCollidable;
+            TRigidBody chara = root?.RigidBodyCollision;
 
-            //If the root isn't physics drivable, the player can't jump
-            if (root == null)
+            //If the root has no rigid body, the player can't jump
+            if (chara == null)
                 return;
             
             _postWalkAllowJump = false;
             _justJumped = true;
-
-            //Start physics simulation of the root
-            TRigidBody chara = root.RigidBodyCollision;
-
+            
             Vec3 up = chara.Gravity;
             up.NormalizeFast();
             up = -up;

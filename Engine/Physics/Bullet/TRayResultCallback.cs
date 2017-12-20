@@ -28,6 +28,6 @@ namespace TheraEngine.Physics.Bullet
             return hitFraction;
         }
         public override bool NeedsCollision(BroadphaseProxy proxy0)
-            => _handler.TestApproxCollision(proxy0.UniqueID, (ushort)proxy0.CollisionFilterGroup, (ushort)proxy0.CollisionFilterMask, (Vec3)proxy0.AabbMin, (Vec3)proxy0.AabbMax, proxy0.ClientObject);
+            => _handler.TestApproxCollision(proxy0.UniqueID, (ushort)proxy0.CollisionFilterGroup, (ushort)proxy0.CollisionFilterMask, proxy0.AabbMin, proxy0.AabbMax, proxy0.ClientObject);
     }
 }

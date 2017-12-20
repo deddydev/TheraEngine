@@ -43,30 +43,10 @@ namespace TheraEngine
             InputPauseType pausedBehavior = InputPauseType.TickAlways);
         #endregion
     }
-    public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
-    {
-        public TickInfo(ETickGroup group, ETickOrder order, DelTick function)
-            : base(group, order, function) { }
-    }
-    public delegate void DelTick(float delta);
+   
     public delegate void ResourceEventHandler(TObject node);
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
-    public enum ETickGroup
-    {
-        PrePhysics      = 0,
-        DuringPhysics   = 15,
-        PostPhysics     = 30,
-    }
-    public enum ETickOrder
-    {
-        Timers          = 0, //Call timing events
-        Input           = 3, //Call input events
-        BoneAnimation   = 6, //Update model animation positions
-        Logic           = 9, //Gameplay calculations
-        Scene           = 12, //Update scene
-    }
-
     public abstract class TObject// : INotifyPropertyChanged
     {
         /// <summary>
@@ -135,9 +115,12 @@ namespace TheraEngine
         [Browsable(false)]
         public EditorState EditorState
         {
-            get => _editorState ?? (_editorState = new EditorState());
+            get => _editorState ?? (_editorState = new EditorState(this));
             set => _editorState = value;
         }
+
+        internal protected virtual void OnHighlightChanged(bool highlighted) { }
+        internal protected virtual void OnSelectedChanged(bool selected) { }
 
         //[Browsable(false)]
         //public event PropertyChangedEventHandler PropertyChanged;

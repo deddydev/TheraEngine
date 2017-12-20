@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering.Models
     [FileClass("BONE", "Bone")]
     public class Bone : FileObject, IRigidCollidable, ISocket
     {
-        public Bone(Skeleton owner)
+        public Bone(Skeleton owner) : this()
         {
             _skeleton = owner;
         }

@@ -8,7 +8,7 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {
     [FileClass("cpointlight", "Point Light Component")]
-    public class PointLightComponent : LightComponent
+    public class PointLightComponent : LightComponent, I3DRenderable
     {
         [Category("Point Light Component")]
         public float Radius
@@ -16,6 +16,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             get => _cullingVolume.Radius;
             set => _cullingVolume.Radius = value;
         }
+
+        public RenderInfo3D RenderInfo => ((I3DRenderable)_cullingVolume).RenderInfo;
+        public Shape CullingVolume => ((I3DRenderable)_cullingVolume).CullingVolume;
+        public IOctreeNode OctreeNode { get => ((I3DRenderable)_cullingVolume).OctreeNode; set => ((I3DRenderable)_cullingVolume).OctreeNode = value; }
 
         internal protected Sphere _cullingVolume;
         
@@ -66,5 +70,15 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         {
 
         }
+
+#if EDITOR
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            if (selected)
+                Engine.Scene.Add(this);
+            else
+                Engine.Scene.Remove(this);
+        }
     }
+#endif
 }

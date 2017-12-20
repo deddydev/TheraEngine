@@ -1,4 +1,6 @@
 ﻿using System.Windows.Forms;
+using TheraEngine;
+using TheraEngine.Worlds.Actors;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -9,10 +11,19 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
         }
-
+        
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = e.Node.Tag;
+            if (ActorTree.SelectedNode == null)
+            {
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Engine.World.Settings;
+            }
+            else
+            {
+                IActor t = e.Node.Tag as IActor;
+                t.EditorState.Selected = true;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = e.Node.Tag;
+            }
         }
     }
 }

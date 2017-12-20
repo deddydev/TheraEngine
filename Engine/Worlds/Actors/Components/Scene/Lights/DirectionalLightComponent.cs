@@ -180,5 +180,19 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         {
 
         }
+
+#if EDITOR
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            if (selected)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+#endif
     }
 }

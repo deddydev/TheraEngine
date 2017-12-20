@@ -38,16 +38,16 @@ namespace TheraEngine.Rendering
             light.LightIndex = _directionalLights.Count;
             _directionalLights.Add(light);
 
-            if (Engine.Settings.RenderLights)
-                Engine.Scene.Add(light.ShadowCamera);
+            //if (Engine.Settings.RenderLights)
+            //    Engine.Scene.Add(light.ShadowCamera);
         }
         internal void Remove(DirectionalLightComponent light)
         {
             _directionalLights.Remove(light);
             light.LightIndex = -1;
 
-            if (Engine.Settings.RenderLights)
-                Engine.Scene.Remove(light.ShadowCamera);
+            //if (Engine.Settings.RenderLights)
+            //    Engine.Scene.Remove(light.ShadowCamera);
         }
         internal void Add(SpotLightComponent light)
         {
@@ -56,22 +56,22 @@ namespace TheraEngine.Rendering
             light.LightIndex = _spotLights.Count;
             _spotLights.Add(light);
 
-            if (Engine.Settings.RenderLights)
-            {
-                Engine.Scene.Add(light.OuterCone);
-                Engine.Scene.Add(light.InnerCone);
-            }
+            //if (Engine.Settings.RenderLights)
+            //{
+            //    Engine.Scene.Add(light.OuterCone);
+            //    Engine.Scene.Add(light.InnerCone);
+            //}
         }
         internal void Remove(SpotLightComponent light)
         {
             _spotLights.Remove(light);
             light.LightIndex = -1;
 
-            if (Engine.Settings.RenderLights)
-            {
-                Engine.Scene.Remove(light.OuterCone);
-                Engine.Scene.Remove(light.InnerCone);
-            }
+            //if (Engine.Settings.RenderLights)
+            //{
+            //    Engine.Scene.Remove(light.OuterCone);
+            //    Engine.Scene.Remove(light.InnerCone);
+            //}
         }
         internal void Add(PointLightComponent light)
         {
@@ -80,16 +80,16 @@ namespace TheraEngine.Rendering
             light.LightIndex = _pointLights.Count;
             _pointLights.Add(light);
 
-            if (Engine.Settings.RenderLights)
-                Engine.Scene.Add(light._cullingVolume);
+            //if (Engine.Settings.RenderLights)
+            //    Engine.Scene.Add(light._cullingVolume);
         }
         internal void Remove(PointLightComponent light)
         {
             _pointLights.Remove(light);
             light.LightIndex = -1;
 
-            if (Engine.Settings.RenderLights)
-                Engine.Scene.Remove(light._cullingVolume);
+            //if (Engine.Settings.RenderLights)
+            //    Engine.Scene.Remove(light._cullingVolume);
         }
         internal void RenderShadowMaps(Scene3D scene)
         {

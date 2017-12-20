@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public GlobalFileRef<RenderingParameters> RenderParams
         {
             get => _renderParams;
-            set => _renderParams = value;
+            set => _renderParams = value ?? new GlobalFileRef<RenderingParameters>();
         }
         /// <summary>
         /// Retrieves the material's uniform parameter at the given index.

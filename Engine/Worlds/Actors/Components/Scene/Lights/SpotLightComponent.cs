@@ -288,5 +288,23 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         {
 
         }
+
+#if EDITOR
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            if (selected)
+            {
+                Engine.Scene.Add(OuterCone);
+                Engine.Scene.Add(InnerCone);
+                Engine.Scene.Add(ShadowCamera);
+            }
+            else
+            {
+                Engine.Scene.Remove(OuterCone);
+                Engine.Scene.Remove(InnerCone);
+                Engine.Scene.Remove(ShadowCamera);
+            }
+        }
+#endif
     }
 }

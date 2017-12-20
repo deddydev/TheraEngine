@@ -411,7 +411,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             SubObject = _targetObject;
         }
-
+        
         private void treeViewSceneComps_MouseDown(object sender, MouseEventArgs e)
         {
             if (_updating)
@@ -422,7 +422,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Rectangle r = node.Bounds;
                 r.X -= 25; r.Width += 25;
                 if (r.Contains(e.Location))
+                {
+                    SceneComponent s = node.Tag as SceneComponent;
+                    s.EditorState.Selected = true;
                     SubObject = node.Tag;
+                }
             }
         }
 

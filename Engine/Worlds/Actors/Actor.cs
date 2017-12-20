@@ -219,6 +219,12 @@ For example, a logic component could give any actor health and/or allow it to ta
         public virtual void OnSpawnedPostComponentSetup(World world) { }
         public virtual void OnDespawned() { }
 
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            foreach (SceneComponent s in SceneComponentCache)
+                s.OnSelectedChanged(selected);
+        }
+
         #region Logic Components
         private void _logicComponents_InsertedRange(IEnumerable<LogicComponent> items, int index)
         {

@@ -19,6 +19,26 @@ using TheraEngine.Physics.Bullet;
 
 namespace TheraEngine
 {
+    public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
+    {
+        public TickInfo(ETickGroup group, ETickOrder order, DelTick function)
+            : base(group, order, function) { }
+    }
+    public delegate void DelTick(float delta);
+    public enum ETickGroup
+    {
+        PrePhysics = 0,
+        DuringPhysics = 15,
+        PostPhysics = 30,
+    }
+    public enum ETickOrder
+    {
+        Timers = 0, //Call timing events
+        Input = 3, //Call input events
+        BoneAnimation = 6, //Update model animation positions
+        Logic = 9, //Gameplay calculations
+        Scene = 12, //Update scene
+    }
     public static partial class Engine
     {
         public static string StartupPath = Application.StartupPath + "\\";

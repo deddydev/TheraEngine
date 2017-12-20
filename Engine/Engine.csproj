@@ -757,7 +757,7 @@
     <Compile Include="Core\Extensions\Numbers\Int32Extension.cs" />
     <Compile Include="Core\Extensions\Numbers\UInt32Extension.cs" />
     <Compile Include="Core\Extensions\Numbers\SingleExtension.cs" />
-    <Compile Include="Core\ObjectBase.cs" />
+    <Compile Include="Core\TObject.cs" />
     <Compile Include="Core\Shapes\Cylindrical\YAligned\CapsuleY.cs" />
     <Compile Include="Core\Shapes\Boxes\BoundingBox.cs" />
     <Compile Include="Core\Memory\DataSource.cs" />

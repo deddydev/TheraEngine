@@ -116,7 +116,6 @@ namespace TheraEditor.Windows.Forms
 
                 if (projectOpened)
                 {
-                    _project.EditorState = new EditorState();
                     if (string.IsNullOrEmpty(_project.FilePath))
                         Text = "";
                     else
@@ -276,6 +275,7 @@ namespace TheraEditor.Windows.Forms
                     return;
                 }
                 ActorTreeForm.ActorTree.Nodes.Remove(item.EditorState.TreeNode);
+                item.EditorState.TreeNode = null;
             }
         }
         
@@ -347,19 +347,14 @@ namespace TheraEditor.Windows.Forms
                         Engine.World.Export();
                     Engine.World.EditorState = null;
                 }
-                value.EditorState = new EditorState();
+                
                 Engine.SetCurrentWorld(value, true, true, false);
             }
         }
 
         public static GlobalFileRef<EditorSettings> Settings { get; }
             = new GlobalFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
-
-        private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            PropertyGridForm.PropertyGrid.TargetObject = ActorTreeForm.ActorTree.SelectedNode == null ? Engine.World.Settings : ActorTreeForm.ActorTree.SelectedNode.Tag;
-        }
-
+        
         private bool CloseProject()
         {
             if (_project != null && _project.EditorState != null && _project.EditorState.HasChanges)

@@ -9,14 +9,14 @@ using System;
 
 namespace TheraEngine.Input
 {
-    public class LocalPlayerController : PlayerController
+    public class ServerPlayerController : PlayerController
     {
         public static Dictionary<int, ConcurrentQueue<Camera>> CameraPossessionQueue = new Dictionary<int, ConcurrentQueue<Camera>>();
-
-        public LocalPlayerController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base()
+        
+        public ServerPlayerController(int serverPlayerIndex, Queue<IPawn> possessionQueue = null) : base()
         {
-            _index = index;
-            int i = (int)index;
+            //_serverPlayerIndex = serverPlayerIndex;
+            int i = (int)serverPlayerIndex;
 
             _input = new InputInterface(i);
             _input.WantsInputsRegistered += RegisterInput;
@@ -32,10 +32,10 @@ namespace TheraEngine.Input
                 ViewportCamera = camera;
             }
         }
-        public LocalPlayerController(LocalPlayerIndex index) : base()
+        public ServerPlayerController(int serverPlayerIndex) : base()
         {
-            _index = index;
-            int i = (int)index;
+            //_serverPlayerIndex = serverPlayerIndex;
+            int i = (int)serverPlayerIndex;
 
             _input = new InputInterface(i);
             _input.WantsInputsRegistered += RegisterInput;
@@ -49,25 +49,21 @@ namespace TheraEngine.Input
                 ViewportCamera = camera;
             }
         }
-        ~LocalPlayerController()
+        ~ServerPlayerController()
         {
             _input.WantsInputsRegistered -= RegisterInput;
-            int index = (int)_index;
+            int index = PlayerInfo.ServerIndex;
             if (index >= 0 && index < Engine.LocalPlayers.Count)
                 Engine.LocalPlayers.RemoveAt(index);
         }
 
         private Viewport _viewport;
-        private LocalPlayerIndex _index;
         protected InputInterface _input;
 
-        [Category("Local Player Controller")]
+        [Category("Server Player Controller")]
         public InputInterface Input => _input;
-
-        [Category("Local Player Controller")]
-        public LocalPlayerIndex LocalPlayerIndex => _index;
-
-        [Category("Local Player Controller")]
+        
+        [Category("Server Player Controller")]
         public Viewport Viewport
         {
             get => _viewport;
@@ -121,7 +117,7 @@ namespace TheraEngine.Input
                 if (_controlledPawn == null && _possessionQueue.Count != 0)
                     _controlledPawn = _possessionQueue.Dequeue();
 
-                Engine.PrintLine("Assigned new controlled pawn to Player " + _index + ": " + (_controlledPawn == null ? "null" : _controlledPawn.GetType().GetFriendlyName()));
+                //Engine.PrintLine("Assigned new controlled pawn to Player " + _serverPlayerIndex + ": " + (_controlledPawn == null ? "null" : _controlledPawn.GetType().GetFriendlyName()));
 
                 if (_controlledPawn != null)
                 {
@@ -189,11 +185,11 @@ namespace TheraEngine.Input
         }
         public void TogglePause()
         {
-            Engine.TogglePause(LocalPlayerIndex);
+            //Engine.TogglePause(ServerPlayerIndex);
         }
         public void SetPause(bool paused)
         {
-            Engine.SetPaused(paused, LocalPlayerIndex);
+            //Engine.SetPaused(paused, ServerPlayerIndex);
         }
         internal void Destroy()
         {

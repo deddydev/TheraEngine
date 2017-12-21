@@ -5,9 +5,9 @@
         private string _userName;
 
         //This player's index on the server.
-        private int _index = -1;
+        private int _serverIndex = -1;
 
-        public int Index => _index;
+        public int ServerIndex => _serverIndex;
         public string UserName => _userName;
     }
 }

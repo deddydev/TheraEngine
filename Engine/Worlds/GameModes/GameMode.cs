@@ -201,7 +201,7 @@ namespace TheraEngine.GameModes
         }
         private void InitController(ControllerType t)
         {
-            Engine.ActivePlayers.Add(t);
+            Engine.LocalPlayers.Add(t);
             HandleLocalPlayerJoined(t);
         }
     }

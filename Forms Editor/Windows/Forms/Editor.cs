@@ -50,9 +50,9 @@ namespace TheraEditor.Windows.Forms
             if (ActiveRenderForm != null)
             {
                 int index = (int)ActiveRenderForm.PlayerIndex;
-                if (index < Engine.ActivePlayers.Count)
+                if (index < Engine.LocalPlayers.Count)
                 {
-                    LocalPlayerController c = Engine.ActivePlayers[index];
+                    LocalPlayerController c = Engine.LocalPlayers[index];
                     ActiveRenderForm.RenderPanel.UnregisterController(c);
                     c.ControlledPawn = null;
                 }
@@ -61,9 +61,9 @@ namespace TheraEditor.Windows.Forms
             if (ActiveRenderForm != null)
             {
                 int index = (int)control.PlayerIndex;
-                if (index < Engine.ActivePlayers.Count)
+                if (index < Engine.LocalPlayers.Count)
                 {
-                    LocalPlayerController c = Engine.ActivePlayers[index];
+                    LocalPlayerController c = Engine.LocalPlayers[index];
                     ActiveRenderForm.RenderPanel.GetOrAddViewport(0).RegisterController(c);
                     c.ControlledPawn = ActiveRenderForm.EditorPawn;
                 }

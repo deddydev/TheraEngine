@@ -8,9 +8,9 @@ using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
-    public class EditorTransformTool2D : UIComponent
+    public class TransformTool2D : UIComponent
     {
-        public EditorTransformTool2D(UIComponent modified)
+        public TransformTool2D(UIComponent modified)
         {
             _modified = modified;
         }
@@ -36,7 +36,7 @@ namespace TheraEngine.Worlds.Actors.Types
             set => _modified = value;
         }
 
-        public static EditorTransformTool2D CurrentInstance;
+        public static TransformTool2D CurrentInstance;
 
         private bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
         private const float _orbRadius = 1.0f;

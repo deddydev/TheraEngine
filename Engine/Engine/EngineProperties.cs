@@ -70,13 +70,18 @@ namespace TheraEngine
 
         public static BaseGameMode ActiveGameMode => Game?.State.GameMode?.File;
 
-        public static ConcurrentDictionary<string, FileObject> GlobalFileInstances
-            = new ConcurrentDictionary<string, FileObject>();
-        public static ConcurrentDictionary<string, List<FileObject>> LocalFileInstances 
-            = new ConcurrentDictionary<string, List<FileObject>>();
-
-        public static MonitoredList<LocalPlayerController> ActivePlayers
-            = new MonitoredList<LocalPlayerController>();
+        /// <summary>
+        /// Instances of files that are loaded only once and are accessable by all global references to that file.
+        /// </summary>
+        public static ConcurrentDictionary<string, FileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, FileObject>();
+        /// <summary>
+        /// Instances of files that are loaded locally in a class. A single file may be loaded independently in multiple local contexts.
+        /// </summary>
+        public static ConcurrentDictionary<string, List<FileObject>> LocalFileInstances { get; } = new ConcurrentDictionary<string, List<FileObject>>();
+        /// <summary>
+        /// Controllers for all players that are local to this client.
+        /// </summary>
+        public static MonitoredList<LocalPlayerController> LocalPlayers { get; } = new MonitoredList<LocalPlayerController>();
 
         public static List<AIController> ActiveAI
             = new List<AIController>();

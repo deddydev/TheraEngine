@@ -140,7 +140,7 @@ namespace TheraEngine.Rendering
             else
             {
                 TMaterial mat = TMaterial.GetUnlitColorMaterialForward();
-                mat.RenderParams = new GlobalFileRef<RenderingParameters>();
+                mat.RenderParamsRef = new LocalFileRef<RenderingParameters>();
                 return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), mat);
             }
         }

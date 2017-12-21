@@ -8,7 +8,7 @@ namespace TheraEngine.Input
     {
         PlayerInfo _playerInfo;
 
-        public int ServerPlayerIndex => PlayerInfo != null ? PlayerInfo.Index : -1;
+        public int ServerPlayerIndex => PlayerInfo != null ? PlayerInfo.ServerIndex : -1;
 
         public PlayerInfo PlayerInfo
         {

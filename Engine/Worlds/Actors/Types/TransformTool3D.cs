@@ -38,16 +38,16 @@ namespace TheraEngine.Worlds.Actors.Types
         Translate,
         DragDrop,
     }
-    public class EditorTransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
+    public class TransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
     {
-        public static EditorTransformTool3D Instance => _currentInstance;
-        private static EditorTransformTool3D _currentInstance;
+        public static TransformTool3D Instance => _currentInstance;
+        private static TransformTool3D _currentInstance;
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null);
         public Shape CullingVolume => null;
         public IOctreeNode OctreeNode { get; set; }
 
-        public EditorTransformTool3D() : base()
+        public TransformTool3D() : base()
         {
             TransformSpace = ESpace.Local;
         }
@@ -81,8 +81,8 @@ namespace TheraEngine.Worlds.Actors.Types
             Skeleton skel = new Skeleton(root);
             
             _screenMat = TMaterial.GetUnlitColorMaterialForward(Color.LightGray);
-            _screenMat.RenderParams.File.DepthTest.Enabled = false;
-            _screenMat.RenderParams.File.LineWidth = 2.0f;
+            _screenMat.RenderParamsRef.File.DepthTest.Enabled = false;
+            _screenMat.RenderParamsRef.File.LineWidth = 2.0f;
 
             for (int normalAxis = 0; normalAxis < 3; ++normalAxis)
             {
@@ -99,23 +99,23 @@ namespace TheraEngine.Worlds.Actors.Types
                 unit2[planeAxis2] = 1.0f;
 
                 TMaterial axisMat = TMaterial.GetUnlitColorMaterialForward(unit);
-                axisMat.RenderParams.File.DepthTest.Enabled = false;
-                axisMat.RenderParams.File.LineWidth = 2.0f;
+                axisMat.RenderParams.DepthTest.Enabled = false;
+                axisMat.RenderParams.LineWidth = 2.0f;
                 _axisMat[normalAxis] = axisMat;
 
                 TMaterial planeMat1 = TMaterial.GetUnlitColorMaterialForward(unit1);
-                planeMat1.RenderParams.File.DepthTest.Enabled = false;
-                planeMat1.RenderParams.File.LineWidth = 2.0f;
+                planeMat1.RenderParams.DepthTest.Enabled = false;
+                planeMat1.RenderParams.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 0] = planeMat1;
 
                 TMaterial planeMat2 = TMaterial.GetUnlitColorMaterialForward(unit2);
-                planeMat2.RenderParams.File.DepthTest.Enabled = false;
-                planeMat2.RenderParams.File.LineWidth = 2.0f;
+                planeMat2.RenderParams.DepthTest.Enabled = false;
+                planeMat2.RenderParams.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 1] = planeMat2;
                 
                 TMaterial scalePlaneMat = TMaterial.GetUnlitColorMaterialForward(unit);
-                scalePlaneMat.RenderParams.File.DepthTest.Enabled = false;
-                scalePlaneMat.RenderParams.File.LineWidth = 2.0f;
+                scalePlaneMat.RenderParams.DepthTest.Enabled = false;
+                scalePlaneMat.RenderParams.LineWidth = 2.0f;
                 _scalePlaneMat[normalAxis] = scalePlaneMat;
 
                 VertexLine axisLine = new VertexLine(Vec3.Zero, unit * _axisLength);
@@ -231,7 +231,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
                 _transformSpace = value;
 
-                RootComponent.WorldMatrix = GetWorldMatrix();
+                RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
 
@@ -313,11 +313,11 @@ namespace TheraEngine.Worlds.Actors.Types
                     _targetSocket.Selected = true;
 #endif
                     
-                    RootComponent.WorldMatrix = GetWorldMatrix();
+                    RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
                     _targetSocket.RegisterWorldMatrixChanged(_currentInstance.TranformChanged, false);
                 }
                 else
-                    RootComponent.WorldMatrix = Matrix4.Identity;
+                    RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
 
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
@@ -344,7 +344,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 case ESpace.Screen:
 
                     Vec3 point = _targetSocket.WorldMatrix.GetPoint();
-                    Camera c = Engine.ActivePlayers[0].ViewportCamera;
+                    Camera c = Engine.LocalPlayers[0].ViewportCamera;
                     Rotator angles = (c.WorldPoint - point).LookatAngles();
                     Matrix4 angleMatrix = angles.GetMatrix();
                     //float dot = c.GetRightVector().Dot(Vec3.TransformVector(Vec3.Right, angleMatrix));
@@ -377,7 +377,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
                 case ESpace.Screen:
 
-                    Camera c = Engine.ActivePlayers[0].ViewportCamera;
+                    Camera c = Engine.LocalPlayers[0].ViewportCamera;
                     Vec3 f = c.GetForwardVector();
                     Vec3 u = c.GetUpVector();
                     Vec3 r = c.GetRightVector();
@@ -388,10 +388,10 @@ namespace TheraEngine.Worlds.Actors.Types
                     return _targetSocket.InverseWorldMatrix.GetPoint().AsTranslationMatrix();
             }
         }
-        public static EditorTransformTool3D GetInstance(ISocket comp, TransformType transformType)
+        public static TransformTool3D GetInstance(ISocket comp, TransformType transformType)
         {
             if (_currentInstance == null)
-                _currentInstance = new EditorTransformTool3D();
+                _currentInstance = new TransformTool3D();
 
             if (!_currentInstance.IsSpawned)
                 Engine.World.SpawnActor(_currentInstance);
@@ -406,7 +406,7 @@ namespace TheraEngine.Worlds.Actors.Types
         {
             if (!_pressed)
             {
-                RootComponent.WorldMatrix = GetWorldMatrix();
+                RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
             }
@@ -807,6 +807,11 @@ namespace TheraEngine.Worlds.Actors.Types
         }
         private void OnPressed()
         {
+            if (_targetSocket != null)
+                RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+            else
+                RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
+
             _pressed = true;
             _dragMatrix = RootComponent.WorldMatrix;
             _invDragMatrix = RootComponent.InverseWorldMatrix;

@@ -92,6 +92,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             item.RecalcGlobalTransform();
             //_owner?.GenerateSceneComponentCache();
         }
+
+#if EDITOR
         private bool _selected;
         public bool Selected
         {
@@ -101,6 +103,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 _selected = value;
             }
         }
+#endif
 
         public Transform Transform
         {

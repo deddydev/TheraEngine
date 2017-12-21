@@ -50,12 +50,20 @@ namespace TheraEngine.Rendering.Models.Materials
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
         private int _uniqueID = -1;
 
-        private GlobalFileRef<RenderingParameters> _renderParams = new RenderingParameters();
-        [TSerialize]
-        public GlobalFileRef<RenderingParameters> RenderParams
+        private LocalFileRef<RenderingParameters> _renderParamsRef = new RenderingParameters();
+
+        [Browsable(false)]
+        public RenderingParameters RenderParams
         {
-            get => _renderParams;
-            set => _renderParams = value ?? new GlobalFileRef<RenderingParameters>();
+            get => RenderParamsRef.File;
+            set => RenderParamsRef.File = value;
+        }
+
+        [TSerialize]
+        public LocalFileRef<RenderingParameters> RenderParamsRef
+        {
+            get => _renderParamsRef;
+            set => _renderParamsRef = value ?? new LocalFileRef<RenderingParameters>();
         }
         /// <summary>
         /// Retrieves the material's uniform parameter at the given index.
@@ -228,8 +236,8 @@ namespace TheraEngine.Rendering.Models.Materials
             else if (Requirements == UniformRequirements.NeedsCamera)
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
             
-            if (RenderParams.File != null)
-                Engine.Renderer.ApplyRenderParams(RenderParams.File);
+            if (RenderParamsRef.File != null)
+                Engine.Renderer.ApplyRenderParams(RenderParamsRef.File);
 
             foreach (ShaderVar v in _parameters)
                 v.SetProgramUniform(_program.BindingId);

@@ -89,7 +89,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //If scene component, select it in the scene
                 if (_subObject is SceneComponent s)
                 {
-                    EditorHud hud = (EditorHud)Engine.ActivePlayers[0].ControlledPawn.HUD;
+                    EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn.HUD;
                     hud.SelectedComponent = s;
                 }
 

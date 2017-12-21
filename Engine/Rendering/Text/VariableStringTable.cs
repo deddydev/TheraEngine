@@ -58,22 +58,22 @@ namespace TheraEngine.Rendering.Text
         [TagName("username_0")]
         public string GetUserName0()
         {
-            return Engine.ActivePlayers.Count > 0 ? Engine.ActivePlayers[0].PlayerInfo.UserName : "[InvalidPlayerIndexError]";
+            return Engine.LocalPlayers.Count > 0 ? Engine.LocalPlayers[0].PlayerInfo.UserName : "[InvalidPlayerIndexError]";
         }
         [TagName("username_1")]
         public string GetUserName1()
         {
-            return Engine.ActivePlayers.Count > 1 ? Engine.ActivePlayers[1].PlayerInfo.UserName : "[InvalidPlayerIndexError]";
+            return Engine.LocalPlayers.Count > 1 ? Engine.LocalPlayers[1].PlayerInfo.UserName : "[InvalidPlayerIndexError]";
         }
         [TagName("username_2")]
         public string GetUserName2()
         {
-            return Engine.ActivePlayers.Count > 2 ? Engine.ActivePlayers[2].PlayerInfo.UserName : "[InvalidPlayerIndexError]";
+            return Engine.LocalPlayers.Count > 2 ? Engine.LocalPlayers[2].PlayerInfo.UserName : "[InvalidPlayerIndexError]";
         }
         [TagName("username_3")]
         public string GetUserName3()
         {
-            return Engine.ActivePlayers.Count > 3 ? Engine.ActivePlayers[3].PlayerInfo.UserName : "[InvalidPlayerIndexError]";
+            return Engine.LocalPlayers.Count > 3 ? Engine.LocalPlayers[3].PlayerInfo.UserName : "[InvalidPlayerIndexError]";
         }
     }
 }

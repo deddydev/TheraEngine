@@ -35,8 +35,8 @@ namespace TheraEngine
             _timer = new EngineTimer();
             _timer.UpdateFrame += Tick;
 
-            ActivePlayers.PostAdded += ActivePlayers_Added;
-            ActivePlayers.PostRemoved += ActivePlayers_Removed;
+            LocalPlayers.PostAdded += ActivePlayers_Added;
+            LocalPlayers.PostRemoved += ActivePlayers_Removed;
 
             _tickLists = new ThreadSafeList<DelTick>[45];
             for (int i = 0; i < _tickLists.Length; ++i)
@@ -413,14 +413,14 @@ namespace TheraEngine
 
         internal static void ResetLocalPlayerControllers()
         {
-            foreach (LocalPlayerController controller in ActivePlayers)
+            foreach (LocalPlayerController controller in LocalPlayers)
                 controller.UnlinkControlledPawn();
         }
         internal static void DestroyLocalPlayerControllers()
         {
-            foreach (LocalPlayerController controller in ActivePlayers)
+            foreach (LocalPlayerController controller in LocalPlayers)
                 controller.Destroy();
-            ActivePlayers.Clear();
+            LocalPlayers.Clear();
         }
 
         //public static BaseGameMode ActiveGameMode { get; set; }
@@ -435,8 +435,8 @@ namespace TheraEngine
         public static void QueuePossession(IPawn pawn, LocalPlayerIndex possessor)
         {
             int index = (int)possessor;
-            if (index < ActivePlayers.Count)
-                ActivePlayers[index].EnqueuePosession(pawn);
+            if (index < LocalPlayers.Count)
+                LocalPlayers[index].EnqueuePosession(pawn);
             else if (_possessionQueues.ContainsKey(possessor))
                 _possessionQueues[possessor].Enqueue(pawn);
             else
@@ -542,7 +542,7 @@ namespace TheraEngine
         {
             if (device is BaseKeyboard || device is BaseMouse)
             {
-                if (ActivePlayers.Count == 0)
+                if (LocalPlayers.Count == 0)
                 {
                     LocalPlayerIndex index = LocalPlayerIndex.One;
                     if (_possessionQueues.ContainsKey(index))
@@ -555,13 +555,13 @@ namespace TheraEngine
                         ActiveGameMode?.CreateLocalController(index);
                 }
                 else
-                    ActivePlayers[0].Input.UpdateDevices();
+                    LocalPlayers[0].Input.UpdateDevices();
             }
             else
             {
-                if (device.Index >= ActivePlayers.Count)
+                if (device.Index >= LocalPlayers.Count)
                 {
-                    LocalPlayerIndex index = (LocalPlayerIndex)ActivePlayers.Count;
+                    LocalPlayerIndex index = (LocalPlayerIndex)LocalPlayers.Count;
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
@@ -572,7 +572,7 @@ namespace TheraEngine
                         ActiveGameMode?.CreateLocalController(index);
                 }
                 else
-                    ActivePlayers[device.Index].Input.UpdateDevices();
+                    LocalPlayers[device.Index].Input.UpdateDevices();
             }
         }
     }

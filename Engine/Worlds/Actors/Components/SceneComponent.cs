@@ -56,6 +56,24 @@ namespace TheraEngine.Worlds.Actors.Components
         internal ISocket _parent;
         protected MonitoredList<SceneComponent> _children;
 
+        /// <summary>
+        /// Use to set both matrices at the same time, so neither needs to be inverted to get the other.
+        /// Highly recommended if you can compute both with the same initial parameters.
+        /// </summary>
+        public void SetWorldMatrices(Matrix4 transform, Matrix4 inverse)
+        {
+            _previousWorldTransform = _worldTransform;
+            _previousInverseWorldTransform = _inverseWorldTransform;
+
+            _inverseWorldTransform = inverse;
+            _worldTransform = transform;
+
+            _localTransform = GetInverseParentMatrix() * WorldMatrix;
+            _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
+
+            OnWorldTransformChanged();
+        }
+
         [Browsable(true)]
         [Category("Transform")]
         public virtual Matrix4 WorldMatrix

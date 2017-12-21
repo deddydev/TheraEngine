@@ -135,6 +135,7 @@ namespace TheraEngine.Rendering.Models
         private Matrix4 _vtxPosMtx = Matrix4.Identity;
         private Matrix4 _vtxNrmMtx = Matrix4.Identity;
 
+#if EDITOR
         private bool _selected;
         [Browsable(false)]
         public bool Selected
@@ -147,6 +148,8 @@ namespace TheraEngine.Rendering.Models
                     RigidBodyCollision.SimulatingPhysics = false;
             }
         }
+#endif
+
         [Browsable(false)]
         public Bone Parent
         {

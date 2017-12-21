@@ -5,6 +5,7 @@ using TheraEngine;
 using TheraEngine.Files;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
+using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Types.Pawns;
@@ -74,10 +75,20 @@ namespace TheraEditor.Windows.Forms
             v.HUD = EditorPawn.HUD;
             v.Camera = EditorPawn.CurrentCameraComponent.Camera;
 
+            //Engine.RegisterRenderTick(RenderTick);
+
             base.OnShown(e);
         }
+
+        private void RenderTick(object sender, FrameEventArgs e)
+        {
+            RenderPanel.Invalidate();
+            Application.DoEvents();
+        }
+
         protected override void OnClosed(EventArgs e)
         {
+            //Engine.UnregisterRenderTick(RenderTick);
             Engine.World?.DespawnActor(EditorPawn);
             base.OnClosed(e);
         }

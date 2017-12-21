@@ -76,8 +76,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         public void SetCurrentForPlayer(LocalPlayerIndex playerIndex)
         {
             int index = (int)playerIndex;
-            if (index >= 0 && index < Engine.ActivePlayers.Count)
-                Engine.ActivePlayers[index].ViewportCamera = _cameraRef;
+            if (index >= 0 && index < Engine.LocalPlayers.Count)
+                Engine.LocalPlayers[index].ViewportCamera = _cameraRef;
             else
             {
                 Dictionary<int, ConcurrentQueue<Camera>> v = LocalPlayerController.CameraPossessionQueue;

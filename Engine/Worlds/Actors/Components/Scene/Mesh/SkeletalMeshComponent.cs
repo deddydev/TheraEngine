@@ -12,7 +12,15 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
     {
         public SkeletalMeshComponent(SkeletalMesh mesh, Skeleton skeleton)
         {
-            _skeletonRef = skeleton ?? new LocalFileRef<Skeleton>();
+            if (skeleton != null)
+            {
+                _skeletonRef = skeleton;
+                _skeletonRef_Loaded(skeleton);
+            }
+            else
+            {
+                _skeletonRef = new LocalFileRef<Skeleton>();
+            }
             _skeletonRef.Loaded += _skeletonRef_Loaded;
 
             ModelRef = mesh;

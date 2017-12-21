@@ -271,6 +271,7 @@
     <Compile Include="Core\Files\References\LocalFileRef.cs" />
     <Compile Include="Core\Files\References\GlobalFileRef.cs" />
     <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
+    <Compile Include="Input\ServerPlayerController.cs" />
     <Compile Include="Physics\AbstractPhysicsInterface.cs" />
     <Compile Include="Physics\AbstractPhysicsShapes.cs" />
     <Compile Include="Physics\AbstractPhysicsWorld.cs" />
@@ -768,13 +769,13 @@
     <Compile Include="Worlds\Actors\Actor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\SplineActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\SoundActor.cs" />
-    <Compile Include="Worlds\Actors\Types\EditorTransformTool2D.cs" />
+    <Compile Include="Worlds\Actors\Types\TransformTool2D.cs" />
     <Compile Include="Worlds\Actors\Types\Pawns\CharacterPawn.cs" />
     <Compile Include="Worlds\Actors\Types\Pawns\UIManagerPawn.cs" />
     <Compile Include="Worlds\Actors\Types\Pawns\FlyingCameraPawn.cs" />
     <Compile Include="Worlds\Actors\Types\LandscapeActor.cs" />
     <Compile Include="Worlds\Actors\Pawn.cs" />
-    <Compile Include="Worlds\Actors\Types\EditorTransformTool3D.cs" />
+    <Compile Include="Worlds\Actors\Types\TransformTool3D.cs" />
     <Compile Include="Worlds\Actors\Types\CharacterSpawnPointActor.cs" />
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />
     <Compile Include="Worlds\Actors\Components\Component.cs" />

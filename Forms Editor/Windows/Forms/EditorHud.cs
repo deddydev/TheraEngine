@@ -137,13 +137,13 @@ namespace TheraEditor.Windows.Forms
             _transformType = type;
             if (UseTransformTool = _transformType != TransformType.DragDrop)
             {
-                if (EditorTransformTool3D.Instance != null)
-                    EditorTransformTool3D.Instance.TransformMode = _transformType;
+                if (TransformTool3D.Instance != null)
+                    TransformTool3D.Instance.TransformMode = _transformType;
             }
             else
             {
-                if (EditorTransformTool3D.Instance != null)
-                    EditorTransformTool3D.DestroyInstance();
+                if (TransformTool3D.Instance != null)
+                    TransformTool3D.DestroyInstance();
             }
         }
         
@@ -189,13 +189,13 @@ namespace TheraEditor.Windows.Forms
         }
         public void MouseMove(Viewport v, Vec2 viewportPoint)
         {
-            if (EditorTransformTool3D.Instance != null && EditorTransformTool3D.Instance.IsSpawned)
+            if (TransformTool3D.Instance != null && TransformTool3D.Instance.IsSpawned)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
-                if (EditorTransformTool3D.Instance.MouseMove(cursor, v.Camera, _mouseDown))
+                if (TransformTool3D.Instance.MouseMove(cursor, v.Camera, _mouseDown))
                 {
                     if (!_mouseDown)
-                        HighlightedComponent = EditorTransformTool3D.Instance.RootComponent;
+                        HighlightedComponent = TransformTool3D.Instance.RootComponent;
 
                     return;
                 }
@@ -280,7 +280,7 @@ namespace TheraEditor.Windows.Forms
             if (_selectedComponent != null)
             {
                 Engine.Scene.Remove(_highlightPoint);
-                if (_selectedComponent.OwningActor is EditorTransformTool3D tool)
+                if (_selectedComponent.OwningActor is TransformTool3D tool)
                 {
 
                 }
@@ -290,10 +290,13 @@ namespace TheraEditor.Windows.Forms
                 }
                 else// if (comp != null)
                 {
-                    if (_selectedComponent is IRigidCollidable d && d.RigidBodyCollision.SimulatingPhysics)
+                    if (_selectedComponent is IRigidCollidable d &&
+                        d.RigidBodyCollision != null &&
+                        d.RigidBodyCollision.SimulatingPhysics &&
+                        !Engine.IsPaused)
                     {
                         _dragComponent = null;
-                        EditorTransformTool3D.DestroyInstance();
+                        TransformTool3D.DestroyInstance();
 
                         _pickedBody = d.RigidBodyCollision;
                         _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
@@ -309,10 +312,10 @@ namespace TheraEditor.Windows.Forms
                     else
                     {
                         if (UseTransformTool)
-                            EditorTransformTool3D.GetInstance(_selectedComponent, _transformType);
+                            TransformTool3D.GetInstance(_selectedComponent, _transformType);
                         else
                         {
-                            EditorTransformTool3D.DestroyInstance();
+                            TransformTool3D.DestroyInstance();
                             _dragComponent = _selectedComponent;
                             _hitDistance = 20.0f;
                         }
@@ -330,7 +333,7 @@ namespace TheraEditor.Windows.Forms
             }
             else
             {
-                EditorTransformTool3D.DestroyInstance();
+                TransformTool3D.DestroyInstance();
             }
         }
         public void MouseDown()
@@ -358,14 +361,14 @@ namespace TheraEditor.Windows.Forms
             public HighlightPoint()
             {
                 _material = TMaterial.GetUnlitColorMaterialForward(Color);
-                _material.RenderParams.File.DepthTest.Enabled = false;
+                _material.RenderParamsRef.File.DepthTest.Enabled = false;
                 _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), _material);
                 _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), _material);
             }
             
             public void Render()
             {
-                if (HighlightedComponent != null && HighlightedComponent != EditorTransformTool3D.Instance?.RootComponent)
+                if (HighlightedComponent != null && HighlightedComponent != TransformTool3D.Instance?.RootComponent)
                 {
                     _circlePrimitive.Render(Transform, Matrix3.Identity);
                     _normalPrimitive.Render(Transform, Matrix3.Identity);

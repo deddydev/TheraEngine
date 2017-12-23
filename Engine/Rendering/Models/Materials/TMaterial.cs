@@ -4,9 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using TheraEngine.Files;
-using TheraEngine.Rendering.Textures;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
-using System.Threading.Tasks;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Rendering.Models.Materials.Functions;
@@ -344,24 +342,26 @@ namespace TheraEngine.Rendering.Models.Materials
         //        Engine.DebugPrint(r.ToString());
         //}
 
-        public static TMaterial GetUnlitTextureMaterialForward(TextureReference2D texture)
+        #region Basic Material Generation
+        public static TMaterial CreateUnlitTextureMaterialForward(TextureReference2D texture)
         {
-            return new TMaterial("UnlitTextureMaterial",
-                new BaseTextureReference[] { texture },
+            return new TMaterial("UnlitTextureMaterial", new BaseTextureReference[] { texture },
                 ShaderHelpers.UnlitTextureFragForward())
             {
                 Requirements = UniformRequirements.None,
             };
         }
-        public static TMaterial GetUnlitTextureMaterialForward()
+        public static TMaterial CreateUnlitTextureMaterialForward()
         {
-            return new TMaterial("UnlitTextureMaterial", ShaderHelpers.UnlitTextureFragForward())
+            return new TMaterial("UnlitTextureMaterial",
+                ShaderHelpers.UnlitTextureFragForward())
             {
                 Requirements = UniformRequirements.None,
             };
         }
-        public static TMaterial GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial GetLitTextureMaterial(bool deferred)
+        public static TMaterial CreateLitTextureMaterial() 
+            => CreateLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial CreateLitTextureMaterial(bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", frag)
@@ -369,8 +369,9 @@ namespace TheraEngine.Rendering.Models.Materials
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-        public static TMaterial GetLitTextureMaterial(TextureReference2D texture) => GetLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial GetLitTextureMaterial(TextureReference2D texture, bool deferred)
+        public static TMaterial CreateLitTextureMaterial(TextureReference2D texture)
+            => CreateLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial CreateLitTextureMaterial(TextureReference2D texture, bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", new TextureReference2D[] { texture }, frag)
@@ -378,9 +379,9 @@ namespace TheraEngine.Rendering.Models.Materials
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-        public static TMaterial GetUnlitColorMaterialForward()
-            => GetUnlitColorMaterialForward(Color.DarkTurquoise);
-        public static TMaterial GetUnlitColorMaterialForward(ColorF4 color)
+        public static TMaterial CreateUnlitColorMaterialForward()
+            => CreateUnlitColorMaterialForward(Color.DarkTurquoise);
+        public static TMaterial CreateUnlitColorMaterialForward(ColorF4 color)
         {
             ShaderVar[] parameters = new ShaderVar[]
             {
@@ -391,10 +392,13 @@ namespace TheraEngine.Rendering.Models.Materials
                 Requirements = UniformRequirements.None
             };
         }
-        public static TMaterial GetLitColorMaterial() => GetLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial GetLitColorMaterial(bool deferred) => GetLitColorMaterial(Color.DarkTurquoise, deferred);
-        public static TMaterial GetLitColorMaterial(ColorF4 color) => GetLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial GetLitColorMaterial(ColorF4 color, bool deferred)
+        public static TMaterial CreateLitColorMaterial() 
+            => CreateLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial CreateLitColorMaterial(bool deferred) 
+            => CreateLitColorMaterial(Color.DarkTurquoise, deferred);
+        public static TMaterial CreateLitColorMaterial(ColorF4 color)
+            => CreateLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial CreateLitColorMaterial(ColorF4 color, bool deferred)
         {
             ShaderVar[] parameters = new ShaderVar[]
             {
@@ -409,7 +413,10 @@ namespace TheraEngine.Rendering.Models.Materials
             };
         }
 
-        public static TMaterial GetBlinnMaterial(
+        /// <summary>
+        /// Creates a Blinn lighting model material for a forward renderer.
+        /// </summary>
+        public static TMaterial CreateBlinnMaterial(
             Vec3? emission,
             Vec3? ambient,
             Vec3? diffuse,
@@ -534,5 +541,6 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
                 Requirements = UniformRequirements.NeedsLightsAndCamera
             };
         }
+        #endregion
     }
 }

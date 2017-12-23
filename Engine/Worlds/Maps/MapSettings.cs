@@ -15,15 +15,18 @@ namespace TheraEngine.Worlds.Maps
         protected Vec3 _spawnPosition;
         protected BaseGameMode _defaultGameMode;
 
+        public MapSettings(IEnumerable<IActor> actors) : this(actors.ToArray()) { }
         public MapSettings(params IActor[] actors)
         {
             _visibleByDefault = true;
             _spawnPosition = Vec3.Zero;
             _defaultActors = actors.ToList();
         }
-        public MapSettings(bool visible, Vec3 spawnOrigin, params IActor[] actors)
+        public MapSettings(bool visibleAtSpawn, Vec3 spawnOrigin, IEnumerable<IActor> actors)
+            : this(visibleAtSpawn, spawnOrigin, actors.ToArray()) { }
+        public MapSettings(bool visibleAtSpawn, Vec3 spawnOrigin, params IActor[] actors)
         {
-            _visibleByDefault = visible;
+            _visibleByDefault = visibleAtSpawn;
             _spawnPosition = spawnOrigin;
             _defaultActors = actors.ToList();
         }
@@ -41,7 +44,7 @@ namespace TheraEngine.Worlds.Maps
             set => _spawnPosition = value;
         }
         [TSerialize]
-        public List<IActor> DefaultActors
+        public List<IActor> StaticActors
         {
             get => _defaultActors;
             set => _defaultActors = value;

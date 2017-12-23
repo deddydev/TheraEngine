@@ -180,13 +180,16 @@ namespace TheraEngine.Rendering.OpenGL
             //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             GL.Disable(EnableCap.CullFace);
             GL.Disable(EnableCap.Dither);
-            //GL.FrontFace(FrontFaceDirection.Ccw);
-            //GL.CullFace(CullFaceMode.Front);
+            GL.Enable(EnableCap.Multisample);
+            GL.FrontFace(FrontFaceDirection.Ccw);
             GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Less);
             GL.DepthMask(true);
             GL.ClearDepth(1.0f);
-            GL.Enable(EnableCap.Multisample);
+
+            //Modify depth range so there is no loss of precision with scale and bias conversion
+            //GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.ZeroToOne);
+
             //GL.Enable(EnableCap.FramebufferSrgb);
 
             //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);

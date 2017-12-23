@@ -330,7 +330,7 @@ namespace TheraEngine
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
-        public static void Print(string message, params string[] args)
+        public static void Print(string message, params object[] args)
         {
 #if DEBUG
             if (args.Length != 0)
@@ -342,7 +342,7 @@ namespace TheraEngine
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
-        public static void PrintLine(string message, params string[] args)
+        public static void PrintLine(string message, params object[] args)
         {
 #if DEBUG
             if (args.Length != 0)
@@ -380,7 +380,7 @@ namespace TheraEngine
         /// </summary>
         /// <returns></returns>
         public static BaseGameMode GetGameMode()
-            => World?.Settings.File?.GameModeOverride?.File ?? Game.DefaultGameMode;
+            => World?.Settings?.GameModeOverrideRef?.File ?? Game.DefaultGameMode;
         public static void SetGameMode(BaseGameMode mode) => SetGameMode(mode, null);
         public static void SetGameMode(BaseGameMode mode, Action beforeBeginGameplay)
         {
@@ -512,9 +512,8 @@ namespace TheraEngine
             _currentWorld = world;
             if (World != null)
             {
-                Scene.Clear(World.Settings.File.Bounds);
-                World.Initialize();
-                if (!deferBeginPlay)
+                Scene.Clear(World.Settings.Bounds);
+                //if (!deferBeginPlay)
                     World.BeginPlay();
             }
             else

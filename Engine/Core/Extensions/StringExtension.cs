@@ -207,5 +207,13 @@ namespace System
                     return i;
             return -1;
         }
+        public static void Print(this string str, params object[] args)
+        {
+            Engine.Print(str, args);
+        }
+        public static void PrintLine(this string str, params object[] args)
+        {
+            Engine.PrintLine(str, args);
+        }
     }
 }

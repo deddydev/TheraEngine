@@ -418,7 +418,7 @@ namespace System
             q.Normalize();
             return q;
         }
-        public Vec4 ExtractProjection() { return Column3; }
+        public Vec4 ExtractProjection() => Column3;
        
         /// <summary>
         /// Build a rotation matrix from the specified axis/angle rotation.

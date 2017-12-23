@@ -233,6 +233,8 @@ namespace TheraEngine.Rendering
 
             AbstractRenderer.PushCurrentCamera(camera);
             {
+                //TODO: implement octree on GPU with compute shader instead of here on CPU
+                //Also implement occlusion culling along with frustum culling
                 RenderTree.CollectVisible(frustum, _passes, shadowPass);
                 foreach (IPreRenderNeeded p in _preRenderList)
                     p.PreRender();

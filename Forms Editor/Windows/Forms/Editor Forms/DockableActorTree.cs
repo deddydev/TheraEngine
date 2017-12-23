@@ -24,8 +24,14 @@ namespace TheraEditor.Windows.Forms
                 t.EditorState.Selected = true;
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = e.Node.Tag;
 
-                EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn.HUD;
-                hud.SelectedComponent = t.RootComponent;
+                if (Engine.LocalPlayers.Count > 0)
+                {
+                    EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn.HUD;
+                    if (hud != null)
+                    {
+                        hud.SelectedComponent = t.RootComponent;
+                    }
+                }
             }
         }
     }

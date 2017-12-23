@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.UI
     /// </summary>
     public abstract class UIViewportComponent : UIMaterialComponent
     {
-        public UIViewportComponent() : base(TMaterial.GetUnlitTextureMaterialForward()) { }
+        public UIViewportComponent() : base(TMaterial.CreateUnlitTextureMaterialForward()) { }
 
         public GlobalFileRef<Camera> Camera { get; } = new GlobalFileRef<Camera>();
         public virtual Scene GetScene() => Engine.Scene;

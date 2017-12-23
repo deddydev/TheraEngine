@@ -80,7 +80,7 @@ namespace TheraEngine.Worlds.Actors.Types
             root.ChildBones.Add(screen);
             Skeleton skel = new Skeleton(root);
             
-            _screenMat = TMaterial.GetUnlitColorMaterialForward(Color.LightGray);
+            _screenMat = TMaterial.CreateUnlitColorMaterialForward(Color.LightGray);
             _screenMat.RenderParamsRef.File.DepthTest.Enabled = false;
             _screenMat.RenderParamsRef.File.LineWidth = 2.0f;
 
@@ -98,22 +98,22 @@ namespace TheraEngine.Worlds.Actors.Types
                 Vec3 unit2 = Vec3.Zero;
                 unit2[planeAxis2] = 1.0f;
 
-                TMaterial axisMat = TMaterial.GetUnlitColorMaterialForward(unit);
+                TMaterial axisMat = TMaterial.CreateUnlitColorMaterialForward(unit);
                 axisMat.RenderParams.DepthTest.Enabled = false;
                 axisMat.RenderParams.LineWidth = 2.0f;
                 _axisMat[normalAxis] = axisMat;
 
-                TMaterial planeMat1 = TMaterial.GetUnlitColorMaterialForward(unit1);
+                TMaterial planeMat1 = TMaterial.CreateUnlitColorMaterialForward(unit1);
                 planeMat1.RenderParams.DepthTest.Enabled = false;
                 planeMat1.RenderParams.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 0] = planeMat1;
 
-                TMaterial planeMat2 = TMaterial.GetUnlitColorMaterialForward(unit2);
+                TMaterial planeMat2 = TMaterial.CreateUnlitColorMaterialForward(unit2);
                 planeMat2.RenderParams.DepthTest.Enabled = false;
                 planeMat2.RenderParams.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 1] = planeMat2;
                 
-                TMaterial scalePlaneMat = TMaterial.GetUnlitColorMaterialForward(unit);
+                TMaterial scalePlaneMat = TMaterial.CreateUnlitColorMaterialForward(unit);
                 scalePlaneMat.RenderParams.DepthTest.Enabled = false;
                 scalePlaneMat.RenderParams.LineWidth = 2.0f;
                 _scalePlaneMat[normalAxis] = scalePlaneMat;

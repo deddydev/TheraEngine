@@ -11,11 +11,15 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         ShaderVar[] _parameters;
 
-        public GlobalFileRef<TMaterial> Material => _material;
+        public GlobalFileRef<TMaterial> Material
+        {
+            get => _material;
+            set => _material = value ?? new GlobalFileRef<TMaterial>();
+        }
         public ShaderVar[] Parameters
         {
-            get { return _parameters; }
-            set { _parameters = value; }
+            get => _parameters;
+            set => _parameters = value;
         }
     }
 }

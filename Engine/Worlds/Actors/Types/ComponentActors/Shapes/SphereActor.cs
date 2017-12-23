@@ -11,7 +11,10 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
 {
     public class SphereActor : Actor<StaticMeshComponent>
     {
-        public SphereActor(string name, TRigidBodyConstructionInfo info, float radius, Vec3 translation, Rotator rotation, TMaterial m) : base(true)
+        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material)
+            : this(name, radius, translation, rotation, material, null) { }
+            
+        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material, TRigidBodyConstructionInfo info) : base(true)
         {
             _name = name;
             Sphere sphere = new Sphere(radius);
@@ -19,7 +22,7 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
             {
                 Collision = TCollisionSphere.New(radius)
             };
-            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", true, sphere, sphere.GetMesh(10.0f, false), m));
+            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", true, sphere, sphere.GetMesh(10.0f, false), material));
             RootComponent = new StaticMeshComponent(model, translation, rotation, Vec3.One, info);
             Initialize();
         }

@@ -11,7 +11,9 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
 {
     public class BoxActor : Actor<StaticMeshComponent>
     {
-        public BoxActor(string name, TRigidBodyConstructionInfo info, Vec3 halfExtents, Vec3 translation, Rotator rotation, TMaterial m) : base(true)
+        public BoxActor(string name, Vec3 halfExtents, Vec3 translation, Rotator rotation, TMaterial material)
+            : this(name, halfExtents, translation, rotation, material, null) { }
+        public BoxActor(string name, Vec3 halfExtents, Vec3 translation, Rotator rotation, TMaterial material, TRigidBodyConstructionInfo info) : base(true)
         {
             _name = name;
             BoundingBox box = new BoundingBox(halfExtents, Vec3.Zero);
@@ -19,7 +21,7 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
             {
                 Collision = TCollisionBox.New(halfExtents)
             };
-            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", true, new Box(box), box.GetMesh(false), m));
+            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", true, new Box(box), box.GetMesh(false), material));
             RootComponent = new StaticMeshComponent(model, translation, rotation, Vec3.One, info);
             Initialize();
         }

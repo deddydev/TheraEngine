@@ -141,7 +141,7 @@ namespace TheraEngine.Input
 
         /// <summary>
         /// Determines if this local player controller should update
-        /// its viewport with the currently possessed pawn's HUD.
+        /// its assigned viewport with the possessed pawn's HUD.
         /// </summary>
         [Category("Local Player Controller")]
         public bool SetViewportHUD
@@ -155,7 +155,7 @@ namespace TheraEngine.Input
         }
         /// <summary>
         /// Determines if this local player controller should update
-        /// its viewport with the currently possessed pawn's camera.
+        /// its assigned viewport with the possessed pawn's camera.
         /// </summary>
         [Category("Local Player Controller")]
         public bool SetViewportCamera

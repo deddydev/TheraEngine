@@ -132,9 +132,7 @@ namespace TheraEngine.Audio
         private T _value, _defaultValue;
         private bool _use;
         
-        public T GetActualValue()
-            => _use ? _value : _defaultValue;
-        
+        public T ActualValue => _use ? _value : _defaultValue;
         public T DefaultValue => _defaultValue;
         public T Value
         {

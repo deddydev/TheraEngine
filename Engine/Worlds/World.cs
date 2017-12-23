@@ -17,66 +17,68 @@ namespace TheraEngine.Worlds
     [FileClass("WORLD", "World")]
     public unsafe class World : FileObject, IEnumerable<IActor>, IDisposable
     {
-        public World()
+        public World() : this(new WorldSettings(), new WorldState()) { }
+        public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
+        public World(GlobalFileRef<WorldSettings> settings, GlobalFileRef<WorldState> state)
         {
-            _settings = new WorldSettings();
-            _state = new WorldState();
-        }
-        public World(WorldSettings settings)
-        {
-            _settings = settings;
-            _state = new WorldState();
-        }
-        public World(WorldSettings settings, WorldState state)
-        {
-            _settings = settings;
-            _state = state;
+            StateRef = state;
+            SettingsRef = settings;
         }
         
+        private GlobalFileRef<WorldSettings> _settingsRef;
         [TSerialize("Settings")]
-        protected GlobalFileRef<WorldSettings> _settings;
+        public GlobalFileRef<WorldSettings> SettingsRef
+        {
+            get => _settingsRef;
+            set => _settingsRef = value ?? new GlobalFileRef<WorldSettings>();
+        }
+        public WorldSettings Settings
+        {
+            get => SettingsRef;
+            set => SettingsRef = value;
+        }
+        private GlobalFileRef<WorldState> _stateRef;
         [TSerialize("State")]
-        protected GlobalFileRef<WorldState> _state;
-        private AbstractPhysicsWorld _physicsWorld;
+        public GlobalFileRef<WorldState> StateRef
+        {
+            get => _stateRef;
+            set => _stateRef = value ?? new GlobalFileRef<WorldState>();
+        }
+        public WorldState State
+        {
+            get => StateRef;
+            set => StateRef = value;
+        }
 
+        private AbstractPhysicsWorld _physicsWorld;
         public AbstractPhysicsWorld PhysicsWorld => _physicsWorld;
-        public GlobalFileRef<WorldSettings> Settings
-        {
-            get => _settings;
-            set => _settings = value;
-        }
-        public GlobalFileRef<WorldState> State
-        {
-            get => _state;
-            set => _state = value;
-        }
         
         public BaseGameMode GetGameMode()
-            => Settings?.File?.GameModeOverride?.File;
+            => Settings?.GameModeOverrideRef?.File;
         public T GetGameMode<T>() where T : class, IGameMode
-            => Settings?.File?.GameModeOverride?.File as T;
+            => Settings?.GameModeOverrideRef?.File as T;
 
         [Browsable(false)]
-        public int SpawnedActorCount => State.File.SpawnedActors.Count;
+        public int SpawnedActorCount => StateRef.File.SpawnedActors.Count;
 
         /// <summary>
         /// Adds an actor to the scene.
         /// </summary>
         public void SpawnActor(IActor actor)
         {
-            if (!State.File.SpawnedActors.Contains(actor))
-                State.File.SpawnedActors.Add(actor);
+            if (!StateRef.File.SpawnedActors.Contains(actor))
+                StateRef.File.SpawnedActors.Add(actor);
 
             actor.Spawned(this);
-            Engine.PrintLine("Spawned " + actor.Name);
+            //Engine.PrintLine("Spawned " + actor.Name);
         }
         /// <summary>
         /// Adds an actor to the scene.
         /// </summary>
         public void SpawnActor(IActor actor, Vec3 position)
         {
-            if (!State.File.SpawnedActors.Contains(actor))
-                State.File.SpawnedActors.Add(actor);
+            if (!StateRef.File.SpawnedActors.Contains(actor))
+                StateRef.File.SpawnedActors.Add(actor);
             actor.Spawned(this);
             actor.RebaseOrigin(-position);
         }
@@ -85,10 +87,10 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void DespawnActor(IActor actor)
         {
-            if (State.File.SpawnedActors.Contains(actor))
-                State.File.SpawnedActors.Remove(actor);
+            if (StateRef.File.SpawnedActors.Contains(actor))
+                StateRef.File.SpawnedActors.Remove(actor);
             actor.Despawned();
-            Engine.PrintLine("Despawned " + actor.Name);
+            //Engine.PrintLine("Despawned " + actor.Name);
         }
         
         internal void StepSimulation(float delta)
@@ -96,8 +98,8 @@ namespace TheraEngine.Worlds
         
         public IActor this[int index]
         {
-            get => State.File.SpawnedActors[index];
-            set => State.File.SpawnedActors[index] = value;
+            get => StateRef.File.SpawnedActors[index];
+            set => StateRef.File.SpawnedActors[index] = value;
         }
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
@@ -105,7 +107,7 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void RebaseOrigin(Vec3 newOrigin)
         {
-            foreach (IActor a in State.File.SpawnedActors)
+            foreach (IActor a in StateRef.File.SpawnedActors)
                 a.RebaseOrigin(newOrigin);
         }
 
@@ -120,31 +122,27 @@ namespace TheraEngine.Worlds
             _physicsWorld = null;
         }
 
-        public IEnumerator<IActor> GetEnumerator() => State.File.SpawnedActors.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => State.File.SpawnedActors.GetEnumerator();
+        public IEnumerator<IActor> GetEnumerator() => StateRef.File.SpawnedActors.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => StateRef.File.SpawnedActors.GetEnumerator();
 
         protected override void OnUnload() => Dispose();
         public virtual void EndPlay()
         {
-            foreach (Map m in _settings.File.Maps)
+            foreach (Map m in _settingsRef.File.Maps)
                 m.EndPlay();
         }
         public virtual void BeginPlay()
         {
-            foreach (Map m in _settings.File.Maps)
-                m.BeginPlay();
-        }
-        internal protected virtual void Initialize()
-        {
             CreatePhysicsScene();
 
-            Engine.TimeDilation = _settings.File.TimeDilation;
+            Engine.TimeDilation = Settings.TimeDilation;
 
-            foreach (Map m in _settings.File.Maps)
+            foreach (Map m in Settings.Maps)
             {
                 if (m.Settings.VisibleByDefault)
                 {
-                    m.Initialize();
+                    //m.State.Visible = true;
+                    m.BeginPlay(this);
                 }
             }
         }

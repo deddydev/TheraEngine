@@ -22,7 +22,7 @@ namespace TheraEngine.Tests
     {
         internal protected override void OnLoaded()
         {
-            _settings = new WorldSettings("TestWorld")
+            Settings = new WorldSettings("TestWorld")
             {
                 Bounds = BoundingBox.FromHalfExtentsTranslation(new Vec3(200.0f), Vec3.Zero),
             };
@@ -48,10 +48,10 @@ namespace TheraEngine.Tests
                 float y = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Y;
                 float z = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Z;
                 BoxActor actor = new BoxActor(
-                    "Box" + i, physicsInfo, 0.4f,
+                    "Box" + i, 0.4f,
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
                     new Rotator(x, y, z, RotationOrder.YPR),
-                    TMaterial.GetLitColorMaterial(Color.Purple));
+                    TMaterial.CreateLitColorMaterial(Color.Purple), physicsInfo);
                 actor.RootComponent.RigidBodyCollision.OnHit += PhysicsDriver_OnHit;
                 array[i] = actor;
             }
@@ -69,26 +69,23 @@ namespace TheraEngine.Tests
             };
             BoxActor floorActor1 = new BoxActor(
                 "Floor1",
-                floorInfo,
                 new Vec3(50.0f, 0.2f, 50.0f),
                 new Vec3(0.0f, 0.0f, 0.0f),
                 new Rotator(00.0f, 0.0f, 0.0f, RotationOrder.YPR),
-                TMaterial.GetLitColorMaterial(Color.FromArgb(180, 200, 230)));
+                TMaterial.CreateLitColorMaterial(Color.FromArgb(180, 200, 230)), floorInfo);
             //floorActor1.RootComponent.PhysicsDriver.Kinematic = true;
             BoxActor floorActor2 = new BoxActor(
                 "Floor2",
-                floorInfo,
                 new Vec3(100.0f, 20.0f, 100.0f),
                 new Vec3(0.0f, -20.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
-                TMaterial.GetLitColorMaterial(Color.FromArgb(180, 200, 230)));
+                TMaterial.CreateLitColorMaterial(Color.FromArgb(180, 200, 230)), floorInfo);
             BoxActor floorActor3 = new BoxActor(
                 "Floor3",
-                floorInfo,
                 new Vec3(2.0f, 10.0f, 7.0f),
                 new Vec3(6.0f, 0.0f, 0.0f),
                 new Rotator(-10.0f, 60.0f, 0.0f, RotationOrder.YPR),
-                TMaterial.GetLitColorMaterial(Color.Gray));
+                TMaterial.CreateLitColorMaterial(Color.Gray), floorInfo);
             //BoxActor floorActor4 = new BoxActor(
             //    "Floor4",
             //    floorInfo,
@@ -281,9 +278,9 @@ namespace TheraEngine.Tests
                 //new CharacterPawn(PlayerIndex.Two, ColladaScene?.SkeletalModel, ColladaScene?.Skeleton) { Name = "PlayerCharacter", },
             };
 
-            _settings.File.GameModeOverride = new TestGameMode();// new GameMode<FlyingCameraPawn>();
-            _settings.File.Maps.Add(new Map(this, new MapSettings(actors)));
-            _settings.File.Maps[0].File.Settings.DefaultActors.AddRange(array);
+            Settings.GameModeOverrideRef = new TestGameMode();// new GameMode<FlyingCameraPawn>();
+            Settings.Maps.Add(new Map(new MapSettings(actors)));
+            Settings.Maps[0].File.Settings.StaticActors.AddRange(array);
 
             //Export(Engine.ContentFolderAbs, "TestWorld", FileFormat.XML);
 

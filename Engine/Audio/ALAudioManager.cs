@@ -41,7 +41,7 @@ namespace TheraEngine.Audio
 
         private void ApplyParam(int soundId, UsableValue<bool> param, ALSourceb dest, bool initialPlay)
         {
-            bool value = param.GetActualValue();
+            bool value = param.ActualValue;
             AL.GetSource(soundId, dest, out bool currentValue);
             bool changed = value != currentValue;
             if (changed || initialPlay)
@@ -49,7 +49,7 @@ namespace TheraEngine.Audio
         }
         private void ApplyParam(int soundId, UsableValue<float> param, ALSourcef dest, bool initialPlay)
         {
-            float value = param.GetActualValue();
+            float value = param.ActualValue;
             AL.GetSource(soundId, dest, out float currentValue);
             bool changed = value != currentValue;
             if (changed || initialPlay)
@@ -57,7 +57,7 @@ namespace TheraEngine.Audio
         }
         private void ApplyParam(int soundId, UsableValue<Vec3> param, ALSource3f dest, bool initialPlay)
         {
-            Vec3 value = param.GetActualValue();
+            Vec3 value = param.ActualValue;
             AL.GetSource(soundId, dest, out Vector3 currentValue);
             bool changed = 
                 value.X != currentValue.X || 

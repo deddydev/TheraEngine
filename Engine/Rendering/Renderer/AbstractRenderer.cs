@@ -139,7 +139,7 @@ namespace TheraEngine.Rendering
                 return mesh;
             else
             {
-                TMaterial mat = TMaterial.GetUnlitColorMaterialForward();
+                TMaterial mat = TMaterial.CreateUnlitColorMaterialForward();
                 mat.RenderParamsRef = new LocalFileRef<RenderingParameters>();
                 return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), mat);
             }
@@ -287,11 +287,11 @@ namespace TheraEngine.Rendering
                     Vec3.Zero, Vec3.Up, 1.0f, 1.0f, 30, 
                     out PrimitiveData cylData, out PrimitiveData topData, out PrimitiveData botData);
                 if (mCyl == null)
-                    mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, TMaterial.GetUnlitColorMaterialForward()));
+                    mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, TMaterial.CreateUnlitColorMaterialForward()));
                 if (mTop == null)
-                    mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, TMaterial.GetUnlitColorMaterialForward()));
+                    mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, TMaterial.CreateUnlitColorMaterialForward()));
                 if (mBot == null)
-                    mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, TMaterial.GetUnlitColorMaterialForward()));
+                    mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, TMaterial.CreateUnlitColorMaterialForward()));
             }
             Matrix4 axisRotation = Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis));
             Matrix4 radiusMtx = Matrix4.CreateScale(radius);

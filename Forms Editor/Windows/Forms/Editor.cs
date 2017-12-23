@@ -166,8 +166,8 @@ namespace TheraEditor.Windows.Forms
             GenerateInitialActorList();
             if (Engine.World != null)
             {
-                Engine.World.State.File.SpawnedActors.PostAdded += SpawnedActors_PostAdded;
-                Engine.World.State.File.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
+                Engine.World.StateRef.File.SpawnedActors.PostAdded += SpawnedActors_PostAdded;
+                Engine.World.StateRef.File.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
             }
         }
 
@@ -249,7 +249,7 @@ namespace TheraEditor.Windows.Forms
             }
             ActorTreeForm.ActorTree.Nodes.Clear();
             if (Engine.World != null)
-                ActorTreeForm.ActorTree.Nodes.AddRange(Engine.World.State.File.SpawnedActors.Select(x => x.EditorState.TreeNode = new TreeNode(x.ToString()) { Tag = x }).ToArray());
+                ActorTreeForm.ActorTree.Nodes.AddRange(Engine.World.StateRef.File.SpawnedActors.Select(x => x.EditorState.TreeNode = new TreeNode(x.ToString()) { Tag = x }).ToArray());
         }
         private void SpawnedActors_PostAdded(IActor item)
         {
@@ -456,19 +456,6 @@ namespace TheraEditor.Windows.Forms
 
         }
         
-        private void BtPlay_Click(object sender, EventArgs e)
-        {
-            BaseRenderPanel p = (ActiveRenderForm as DockableRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
-            //p.Focus();
-            //p.Capture = true;
-            //Cursor.Hide();
-            Cursor.Clip = p.RectangleToScreen(p.ClientRectangle);
-            InputInterface.GlobalRegisters.Add(RegisterInput);
-            Engine.SetGameMode(Engine.GetGameMode());
-            Engine.SetPaused(false, LocalPlayerIndex.One, true);
-            Engine.World.BeginPlay();
-        }
-
         private DockableRenderForm FocusViewport(int index)
         {
             DockableRenderForm form = null;
@@ -492,11 +479,21 @@ namespace TheraEditor.Windows.Forms
             input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, EndGameplay, InputPauseType.TickAlways);
         }
 
+        private void BtPlay_Click(object sender, EventArgs e)
+        {
+            BaseRenderPanel p = (ActiveRenderForm as DockableRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
+            //p.Focus();
+            //p.Capture = true;
+            //Cursor.Hide();
+            Cursor.Clip = p.RectangleToScreen(p.ClientRectangle);
+            InputInterface.GlobalRegisters.Add(RegisterInput);
+            Engine.SetGameMode(Engine.GetGameMode());
+            Engine.SetPaused(false, LocalPlayerIndex.One, true);
+        }
         private void EndGameplay()
         {
             Cursor.Clip = new Rectangle();
             //Cursor.Show();
-            Engine.World.EndPlay();
             Engine.SetGameMode(_editorGameMode, () => InputInterface.GlobalRegisters.Remove(RegisterInput));
             Engine.SetPaused(true, LocalPlayerIndex.One, true);
         }

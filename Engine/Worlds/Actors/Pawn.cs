@@ -145,7 +145,7 @@ namespace TheraEngine.Worlds.Actors
             if (Engine.World == null)
                 return;
 
-            BoundingBox bounds = Engine.World.Settings.File.OriginRebaseBounds;
+            BoundingBox bounds = Engine.World.Settings.OriginRebaseBounds;
             Vec3 point = RootComponent.WorldMatrix.GetPoint();
             if (!bounds.Contains(point))
                 Engine.World.RebaseOrigin(point);
@@ -155,7 +155,7 @@ namespace TheraEngine.Worlds.Actors
             if (Engine.World == null)
                 return true;
 
-            BoundingBox bounds = Engine.World.Settings.File.Bounds;
+            BoundingBox bounds = Engine.World.Settings.Bounds;
             Vec3 point = RootComponent.WorldMatrix.GetPoint();
             return bounds.Contains(point);
         }

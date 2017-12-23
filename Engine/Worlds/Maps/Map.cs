@@ -7,36 +7,34 @@ namespace TheraEngine.Worlds
 {
     public class Map : FileObject
     {
-        public Map(World owner, MapSettings settings)
+        public Map(MapSettings settings)
         {
             _settings = settings;
-            _owningWorld = owner;
         }
 
-        private World _owningWorld;
+        public World OwningWorld { get; private set; }
+
         private MapSettings _settings;
 
         [TSerialize]
         public MapSettings Settings
         {
-            get { return _settings; }
-            set { _settings = value; }
+            get => _settings;
+            set => _settings = value;
         }
 
         public virtual void EndPlay()
         {
-            //TODO: Destroy all static actors, but keep all dynamic actors in play
-            //foreach (IActor actor in Settings.DefaultActors)
-            //    _owningWorld.DespawnActor(actor);
+            foreach (IActor actor in Settings.StaticActors)
+                OwningWorld.DespawnActor(actor);
+            //TODO: determine what dynamic actors lie within this map's bounds
+            //and ONLY despawn those actors if this 
         }
-        public virtual void BeginPlay()
+        public virtual void BeginPlay(World world)
         {
-
-        }
-        internal protected virtual void Initialize()
-        {
-            foreach (IActor actor in Settings.DefaultActors)
-                _owningWorld.SpawnActor(actor, Settings.SpawnPosition);
+            OwningWorld = world;
+            foreach (IActor actor in Settings.StaticActors)
+                OwningWorld.SpawnActor(actor, Settings.SpawnPosition);
         }
     }
 }

@@ -50,6 +50,11 @@ namespace TheraEngine.Input.Devices
         Dictionary<string, List<EMouseButton>> _namedMouseButtons = new Dictionary<string, List<EMouseButton>>();
 
         public event DelWantsInputsRegistered WantsInputsRegistered;
+
+        /// <summary>
+        /// Global registration methods found here are called to register input for any and all controllers,
+        /// regardless of the pawn they control or the type of controller they are.
+        /// </summary>
         public static List<DelWantsInputsRegistered> GlobalRegisters = new List<DelWantsInputsRegistered>();
 
         private bool _unregister = false;

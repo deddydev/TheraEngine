@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering.UI
     /// </summary>
     public class UI3DComponent : UIMaterialComponent
     {
-        public UI3DComponent() : base(TMaterial.GetUnlitTextureMaterialForward())
+        public UI3DComponent() : base(TMaterial.CreateUnlitTextureMaterialForward())
         {
             _camera = new PerspectiveCamera();
         }

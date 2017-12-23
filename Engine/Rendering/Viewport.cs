@@ -636,7 +636,7 @@ namespace TheraEngine.Rendering
             //If forward, we can render directly to the post process FBO.
             //If deferred, we have to render to a quad first, then render that to post process
             if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
-                InitDeferFBO(width, height, depthTexture);
+                InitDeferredRendererFBO(width, height, depthTexture);
         }
 
         #region FBOs
@@ -706,7 +706,7 @@ namespace TheraEngine.Rendering
             _postProcessFrameBuffer.SettingUniforms += _postProcessGBuffer_SettingUniforms;
         }
 
-        private unsafe void InitDeferFBO(int width, int height, TextureReference2D depthTexture)
+        private unsafe void InitDeferredRendererFBO(int width, int height, TextureReference2D depthTexture)
         {
             TextureReference2D ssaoNoise = new TextureReference2D("SSAONoise",
                 _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
@@ -733,26 +733,44 @@ namespace TheraEngine.Rendering
             bmp.UnlockBits(data);
             TextureReference2D[] deferredRefs = new TextureReference2D[]
             {
-                    new TextureReference2D("AlbedoSpec", width, height,
-                        EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
-                        {
-                            MinFilter = ETexMinFilter.Nearest,
-                            MagFilter = ETexMagFilter.Nearest,
-                            UWrap = ETexWrapMode.Clamp,
-                            VWrap = ETexWrapMode.Clamp,
-                            FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                        },
-                    new TextureReference2D("Normal", width, height,
-                        EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
-                        {
-                            MinFilter = ETexMinFilter.Nearest,
-                            MagFilter = ETexMagFilter.Nearest,
-                            UWrap = ETexWrapMode.Clamp,
-                            VWrap = ETexWrapMode.Clamp,
-                            FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
-                        },
-                    ssaoNoise,
-                    depthTexture,
+                new TextureReference2D("AlbedoSpec", width, height,
+                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
+                    {
+                        MinFilter = ETexMinFilter.Nearest,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.Clamp,
+                        VWrap = ETexWrapMode.Clamp,
+                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                    },
+                new TextureReference2D("Normal", width, height,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
+                    {
+                        MinFilter = ETexMinFilter.Nearest,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.Clamp,
+                        VWrap = ETexWrapMode.Clamp,
+                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
+                    },
+                //new TextureReference2D("Velocity", width, height,
+                //    EPixelInternalFormat.Rg8, EPixelFormat.Rg, EPixelType.UnsignedByte)
+                //    {
+                //        MinFilter = ETexMinFilter.Nearest,
+                //        MagFilter = ETexMagFilter.Nearest,
+                //        UWrap = ETexWrapMode.Clamp,
+                //        VWrap = ETexWrapMode.Clamp,
+                //        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment2,
+                //    },
+                //new TextureReference2D("RoughnessMetallicOpacityIrradiance", width, height,
+                //    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
+                //    {
+                //        MinFilter = ETexMinFilter.Nearest,
+                //        MagFilter = ETexMagFilter.Nearest,
+                //        UWrap = ETexWrapMode.Clamp,
+                //        VWrap = ETexWrapMode.Clamp,
+                //        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment3,
+                //    },
+                ssaoNoise,
+                depthTexture,
             };
 
             ShaderVar[] deferredParameters = new ShaderVar[]

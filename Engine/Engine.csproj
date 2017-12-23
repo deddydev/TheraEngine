@@ -308,6 +308,7 @@
     <Compile Include="Physics\Collision Bodies\TRigidBodyConstructionInfo.cs" />
     <Compile Include="Rendering\Models\Meshes\LOD.cs" />
     <Compile Include="Scripting\Python\Python.cs" />
+    <Compile Include="Tests\UnitTestingWorld.cs" />
     <Compile Include="ThirdParty\7zip\Common\CommandLineParser.cs" />
     <Compile Include="ThirdParty\7zip\Common\CRC.cs" />
     <Compile Include="ThirdParty\7zip\Common\InBuffer.cs" />
@@ -537,7 +538,7 @@
     <Compile Include="Rendering\Cameras\PostProcessSettings.cs" />
     <Compile Include="Rendering\UI\UIDockableComponent.cs" />
     <Compile Include="Rendering\UI\UIRotatableComponent.cs" />
-    <Compile Include="Rendering\Models\Materials\Material.cs" />
+    <Compile Include="Rendering\Models\Materials\TMaterial.cs" />
     <Compile Include="Rendering\Models\Materials\MaterialInstance.cs" />
     <Compile Include="Rendering\Models\Materials\Shader.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Vertex\VertexPrimitive.cs" />

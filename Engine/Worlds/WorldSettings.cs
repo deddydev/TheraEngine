@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Audio;
-using TheraEngine.Rendering.UI;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Types.Pawns;
@@ -40,7 +39,7 @@ namespace TheraEngine.Worlds
         /// <summary>
         /// Overrides the default game mode specified by the game.
         /// </summary>
-        public GlobalFileRef<BaseGameMode> GameModeOverride
+        public GlobalFileRef<BaseGameMode> GameModeOverrideRef
         {
             get => _gameMode;
             set
@@ -50,7 +49,15 @@ namespace TheraEngine.Worlds
                 OnGameModeOverrideChanged(oldMode);
             }
         }
-        [Description("How fast the game moves.")]
+        /// <summary>
+        /// How fast the game moves. 
+        /// A value of 2 will make the game 2x faster,
+        /// while a value of 0.5 will make it 2x slower.
+        /// </summary>
+        [Description(
+            "How fast the game moves. " +
+            "A value of 2 will make the game 2x faster, " +
+            "while a value of 0.5 will make it 2x slower.")]
         public float TimeDilation
         {
             get => _timeSpeed;
@@ -85,7 +92,7 @@ namespace TheraEngine.Worlds
             set => _ambientSound = value;
         }
         [Browsable(false)]
-        public List<GlobalFileRef<Map>> Maps
+        public List<LocalFileRef<Map>> Maps
         {
             get => _maps;
             set => _maps = value;
@@ -117,7 +124,7 @@ namespace TheraEngine.Worlds
         [TSerialize("OriginRebaseBounds")]
         private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(float.MinValue, float.MaxValue);
         [TSerialize("Maps")]
-        private List<GlobalFileRef<Map>> _maps = new List<GlobalFileRef<Map>>();
+        private List<LocalFileRef<Map>> _maps = new List<LocalFileRef<Map>>();
         [TSerialize("AmbientSound")]
         private SoundFile _ambientSound;
         [TSerialize("AmbientParams")]
@@ -146,7 +153,7 @@ namespace TheraEngine.Worlds
         }
         public WorldSettings(string name, params Map[] maps)
         {
-            _maps = maps.Select(x => new GlobalFileRef<Map>(x)).ToList();
+            _maps = maps.Select(x => new LocalFileRef<Map>(x)).ToList();
             _originRebaseBounds = _bounds;
             _name = name;
         }

@@ -20,7 +20,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Volumes
         }
         public void OnOverlapLeft(TRigidBody obj)
         {
-            obj.Gravity = Engine.World.Settings.File.Gravity;
+            obj.Gravity = Engine.World.Settings.Gravity;
         }
     }
 }

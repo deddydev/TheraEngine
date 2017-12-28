@@ -9,7 +9,7 @@ using TheraEngine.Files;
 using System.ComponentModel;
 using OpenTK;
 
-namespace TheraEngine.Rendering.Models.Materials.Textures
+namespace TheraEngine.Rendering.Models.Materials
 {
     public enum TPixelFormat
     {
@@ -40,7 +40,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         Format32bppRGBf,
         Format32bppRGBAf,
     }
-    [FileClass("bmp3D", "3D Bitmap")]
+    [FileExt("bmp3d")]
+    [FileDef("3D Bitmap")]
     public class TBitmap3D : FileObject, IDisposable
     {
         public TBitmap3D() : this(1, 1, 1) { }

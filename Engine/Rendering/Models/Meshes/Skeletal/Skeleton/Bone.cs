@@ -21,7 +21,8 @@ namespace TheraEngine.Rendering.Models
         RotationXYZ,
         PerspectiveXYZ,
     }
-    [FileClass("BONE", "Bone")]
+    [FileExt("bone")]
+    [FileDef("Bone")]
     public class Bone : FileObject, IRigidCollidable, ISocket
     {
         public Bone(Skeleton owner) : this()
@@ -110,9 +111,9 @@ namespace TheraEngine.Rendering.Models
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
 
         [TSerialize("ChildBones")]
-        private MonitoredList<Bone> _childBones = new MonitoredList<Bone>();
+        private EventList<Bone> _childBones = new EventList<Bone>();
         //[Serialize("ChildComponents")]
-        private MonitoredList<SceneComponent> _childComponents = new MonitoredList<SceneComponent>();
+        private EventList<SceneComponent> _childComponents = new EventList<SceneComponent>();
         [TSerialize("ParentPhysicsConstraint")]
         private TConstraint _parentConstraint;
         [TSerialize("RigidBodyCollision")]
@@ -199,9 +200,9 @@ namespace TheraEngine.Rendering.Models
         //public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
 
         [Category("Bone")]
-        public MonitoredList<SceneComponent> ChildComponents => _childComponents;
+        public EventList<SceneComponent> ChildComponents => _childComponents;
         [Category("Bone")]
-        public MonitoredList<Bone> ChildBones => _childBones;
+        public EventList<Bone> ChildBones => _childBones;
         [Category("Bone")]
         public Transform FrameState => _frameState;
         [Category("Bone")]

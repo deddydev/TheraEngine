@@ -11,7 +11,8 @@ using System.IO;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileClass("TREF2D", "2D Texture Reference")]
+    [FileExt("tref2d")]
+    [FileDef("2D Texture Reference")]
     public class TextureReference2D : BaseTextureReference
     {
         #region Constructors

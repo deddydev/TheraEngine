@@ -2,28 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using MathNet.Numerics.RootFinding;
-using System.Numerics;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimFloat : PropertyAnimation<FloatKeyframe>, IEnumerable<FloatKeyframe>
+    public class PropAnimFloat : PropAnimKeyframed<FloatKeyframe>, IEnumerable<FloatKeyframe>
     {
-        private float _defaultValue = 0.0f;
-        private GetValue<float> _getValue;
+        private DelGetValue<float> _getValue;
 
-        [TSerialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "Baked")]
         private float[] _baked = null;
-
         /// <summary>
         /// The default value to return when no keyframes are set.
         /// </summary>
-        [TSerialize(Condition = "UseKeyframes")]
-        public float DefaultValue
-        {
-            get => _defaultValue;
-            set => _defaultValue = value;
-        }
+        [TSerialize(Condition = "!Baked")]
+        public float DefaultValue { get; set; } = 0.0f;
 
         public PropAnimFloat() : base(0.0f, false, true) { }
         public PropAnimFloat(float lengthInSeconds, bool looped, bool useKeyframes)
@@ -31,8 +23,8 @@ namespace TheraEngine.Animation
         public PropAnimFloat(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void UseKeyframesChanged()
-            => _getValue = _useKeyframes ? (GetValue<float>)GetValueKeyframed : GetValueBaked;
+        protected override void BakedChanged()
+            => _getValue = !Baked ? (DelGetValue<float>)GetValueKeyframed : GetValueBaked;
         
         public float GetValue(float second)
             => _getValue(second);
@@ -43,7 +35,7 @@ namespace TheraEngine.Animation
         public float GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public float GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
         
         public override void Bake(float framesPerSecond)
         {
@@ -58,8 +50,8 @@ namespace TheraEngine.Animation
         {
             if (_keyframes.Count == 0)
             {
-                min = _defaultValue;
-                max = _defaultValue;
+                min = DefaultValue;
+                max = DefaultValue;
             }
             else
             {

@@ -15,7 +15,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
             Engine.DebugOutput += Engine_DebugOutput;
-            PythonRuntime.Initialize();
+            IronPython.Initialize();
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {

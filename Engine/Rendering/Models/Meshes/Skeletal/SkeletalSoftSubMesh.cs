@@ -6,7 +6,8 @@ using System.Linq;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("SKSMESH", "Skeletal Rigid Sub Mesh")]
+    [FileExt("sksmesh")]
+    [FileDef("Skeletal Soft Sub Mesh")]
     public class SkeletalSoftSubMesh : FileObject, ISkeletalSubMesh
     {
         public SkeletalSoftSubMesh() { _name = "SkeletalSoftSubMesh"; }

@@ -7,7 +7,8 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileClass("SHAPE", "Capsule")]
+    [FileExt("capsule")]
+    [FileDef("Capsule")]
     public abstract class BaseCapsule : BaseCylinder
     {
         public BaseCapsule(Vec3 center, Rotator rotation, Vec3 scale, Vec3 upAxis, float radius, float halfHeight) 

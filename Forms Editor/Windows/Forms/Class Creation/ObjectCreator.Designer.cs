@@ -51,8 +51,7 @@ namespace TheraEditor.Windows.Forms
             // 
             // BodyPanel
             // 
-            this.BodyPanel.AutoSize = true;
-            this.BodyPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BodyPanel.AutoScroll = true;
             this.BodyPanel.Controls.Add(this.tblConstructors);
             this.BodyPanel.Controls.Add(this.toolStripTypeSelection);
             this.BodyPanel.Controls.Add(this.pnlArrayLength);
@@ -68,6 +67,7 @@ namespace TheraEditor.Windows.Forms
             // 
             // TitlePanel
             // 
+            this.TitlePanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.TitlePanel.Size = new System.Drawing.Size(332, 40);
             // 
             // FormTitle
@@ -159,6 +159,7 @@ namespace TheraEditor.Windows.Forms
             this.tblConstructors.ColumnCount = 1;
             this.tblConstructors.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblConstructors.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tblConstructors.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tblConstructors.Location = new System.Drawing.Point(5, 53);
             this.tblConstructors.Margin = new System.Windows.Forms.Padding(0);
             this.tblConstructors.Name = "tblConstructors";
@@ -202,7 +203,7 @@ namespace TheraEditor.Windows.Forms
             this.numericInputBoxSingle1.SmallIncrement = 5;
             this.numericInputBoxSingle1.TabIndex = 6;
             this.numericInputBoxSingle1.Text = "0";
-            this.numericInputBoxSingle1.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<int>.BoxValueChanged(this.numericInputBoxSingle1_ValueChanged);
+            this.numericInputBoxSingle1.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<int>.BoxValueChanged(this.ResizeArray);
             // 
             // label1
             // 
@@ -230,7 +231,6 @@ namespace TheraEditor.Windows.Forms
             this.BodyPanel.ResumeLayout(false);
             this.BodyPanel.PerformLayout();
             this.MainPanel.ResumeLayout(false);
-            this.MainPanel.PerformLayout();
             this.TitlePanel.ResumeLayout(false);
             this.MiddlePanel.ResumeLayout(false);
             this.MiddlePanel.PerformLayout();

@@ -90,7 +90,7 @@
             this.treeViewSceneComps.Name = "treeViewSceneComps";
             this.treeViewSceneComps.Size = new System.Drawing.Size(561, 25);
             this.treeViewSceneComps.TabIndex = 3;
-            this.treeViewSceneComps.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewSceneComps_AfterSelect);
+            this.treeViewSceneComps.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewSceneComps_BeforeSelect);
             this.treeViewSceneComps.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSceneComps_MouseDown);
             // 
             // lstLogicComps

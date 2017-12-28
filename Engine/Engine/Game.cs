@@ -12,7 +12,8 @@ namespace TheraEngine
     /// <summary>
     /// Contains all information needed to run any game using the engine.
     /// </summary>
-    [FileClass("GINF", "Game Info")]
+    [FileExt("game")]
+    [FileDef("Game Info", "Contains all information needed to run any game using the engine.")]
     public class Game : FileObject
     {
         public Game() { }
@@ -25,13 +26,13 @@ namespace TheraEngine
         /// </summary>
         [Category("Game")]
         [TSerialize]
-        public GlobalFileRef<World> TransitionWorld { get; set; } = new GlobalFileRef<World>("TransitionWorld.xworld");
+        public GlobalFileRef<World> TransitionWorld { get; set; } = new GlobalFileRef<World>("TransitionWorld");
         /// <summary>
         /// The world the game starts with.
         /// </summary>
         [Category("Game")]
         [TSerialize]
-        public GlobalFileRef<World> OpeningWorld { get; set; } = new GlobalFileRef<World>("OpeningWorld.xworld");
+        public GlobalFileRef<World> OpeningWorld { get; set; } = new GlobalFileRef<World>("OpeningWorld");
         [Category("Engine")]
         [TSerialize]
         [Browsable(false)]
@@ -83,7 +84,8 @@ namespace TheraEngine
     /// <summary>
     /// Contains all information pertaining to the game's current state in the engine.
     /// </summary>
-    [FileClass("STATE", "Game State")]
+    [FileExt("state")]
+    [FileDef("Game State")]
     public class GameState : FileObject
     {
         public GlobalFileRef<World> World { get; set; }

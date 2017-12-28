@@ -1,5 +1,6 @@
 ﻿using TheraEngine.Files;
 using System.ComponentModel;
+using TheraEngine.Properties;
 
 namespace TheraEngine
 {
@@ -46,8 +47,8 @@ namespace TheraEngine
         Fixed,
         Sizable,
     }
-    [FileClass("USET", "User Settings")]
-    public class UserSettings : FileObject
+    [FileDef("User Settings")]
+    public class UserSettings : TSettings
     {
         private WindowBorderStyle _windowBorderStyle = WindowBorderStyle.Sizable;
         private bool _fullscreen = false;

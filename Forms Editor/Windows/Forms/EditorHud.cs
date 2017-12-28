@@ -35,7 +35,11 @@ namespace TheraEditor.Windows.Forms
         private bool _mouseDown;
 
         public bool UseTransformTool { get; set; } = true;
-        public SceneComponent DragComponent { get => _dragComponent; set => _dragComponent = value; }
+        public SceneComponent DragComponent
+        {
+            get => _dragComponent;
+            set => _dragComponent = value;
+        }
         public SceneComponent SelectedComponent
         {
             get => _selectedComponent;
@@ -196,8 +200,6 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (!_mouseDown)
                         HighlightedComponent = TransformTool3D.Instance.RootComponent;
-
-                    return;
                 }
                 else
                 {

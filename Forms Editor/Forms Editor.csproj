@@ -85,6 +85,9 @@
     </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="ScintillaNET">
+      <HintPath>..\Libraries\ScintillaNET.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
@@ -143,6 +146,12 @@
     </Compile>
     <Compile Include="Windows\Forms\BetterTableLayoutPanel.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableScriptEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableScriptEditor.Designer.cs">
+      <DependentUpon>DockableScriptEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.cs">
       <SubType>Form</SubType>
@@ -471,6 +480,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
+    <Compile Include="Wrappers\PythonWrapper.cs" />
     <Compile Include="Wrappers\PropertyAnimationWrapper.cs" />
     <Compile Include="Wrappers\MaterialWrapper.cs" />
     <Compile Include="Wrappers\WorldWrapper.cs" />
@@ -486,6 +496,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableScriptEditor.resx">
+      <DependentUpon>DockableScriptEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableOutputWindow.resx">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>

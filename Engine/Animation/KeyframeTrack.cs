@@ -336,6 +336,7 @@ namespace TheraEngine.Animation
             return false;
         }
 
+        //TODO: write keyframe append method
         public void Append(KeyframeTrack<T> keyframes)
         {
             foreach (Keyframe k in keyframes)

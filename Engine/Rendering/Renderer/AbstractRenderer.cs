@@ -424,6 +424,9 @@ namespace TheraEngine.Rendering
         public abstract void BindPipeline(int pipelineBindingId);
         public abstract void SetPipelineStage(int pipelineBindingId, EProgramStageMask mask, int programBindingId);
 
+        /// <summary>
+        /// Sets various render parameters before rendering a mesh such as culling and blending.
+        /// </summary>
         public abstract void ApplyRenderParams(RenderingParameters r);
 
         private ConcurrentDictionary<int, ConcurrentDictionary<string, int>> _uniformCache = 

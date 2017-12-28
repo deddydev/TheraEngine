@@ -9,7 +9,7 @@ using static System.Math;
 namespace System
 {
     /// <summary>
-    /// Provides features pertaining to interpolation.
+    /// Provides tools pertaining to interpolation.
     /// </summary>
     public static class Interp
     {

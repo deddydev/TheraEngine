@@ -24,6 +24,8 @@ namespace TheraEngine.Animation
         /// </summary>
         Playing,
     }
+    [FileExt("anim")]
+    [FileDef("Animation")]
     public abstract class BaseAnimation : FileObject
     {
         public event Action AnimationStarted;
@@ -50,8 +52,41 @@ namespace TheraEngine.Animation
         protected AnimationState _state = AnimationState.Stopped;
         [TSerialize("IsBaked")]
         protected bool _isBaked = false;
-        [TSerialize("UseKeyframes")]
-        protected bool _useKeyframes = true;
+
+        public BaseAnimation(float lengthInSeconds, bool looped, bool isBaked = false)
+        {
+            _bakedFrameCount = (int)Math.Ceiling(lengthInSeconds * 60.0f);
+            _bakedFPS = 60.0f;
+            _lengthInSeconds = lengthInSeconds;
+            Looped = looped;
+            Baked = isBaked;
+        }
+        public BaseAnimation(int frameCount, float FPS, bool looped, bool isBaked = false)
+        {
+            _bakedFrameCount = frameCount;
+            _bakedFPS = FPS;
+            _lengthInSeconds = frameCount / FPS;
+            Looped = looped;
+            Baked = isBaked;
+        }
+
+        /// <summary>
+        /// Determines which method to use, baked or keyframed.
+        /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
+        /// Baked takes up more memory but requires no calculations. However, the animation cannot be sped up at all, nor slowed down without artifacts.
+        /// </summary>
+        [Category("Animation"), TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public bool Baked
+        {
+            get => _isBaked;
+            set
+            {
+                _isBaked = value;
+                BakedChanged();
+            }
+        }
+
+        protected abstract void BakedChanged();
 
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
@@ -143,7 +178,7 @@ namespace TheraEngine.Animation
             _state = AnimationState.Playing;
             AnimationStarted?.Invoke();
             CurrentTime = 0.0f;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
             PostStarted();
         }
         protected virtual void PreStopped() { }
@@ -156,7 +191,7 @@ namespace TheraEngine.Animation
             _currentTime = 0.0f;
             _state = AnimationState.Stopped;
             AnimationEnded?.Invoke();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
             PostStopped();
         }
         protected virtual void PrePaused() { }
@@ -168,10 +203,16 @@ namespace TheraEngine.Animation
             PreStopped();
             _state = AnimationState.Paused;
             AnimationEnded?.Invoke();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
             PostStopped();
         }
         public void Progress(float delta) => CurrentTime += delta * _speed;
         protected virtual void OnCurrentFrameChanged() => CurrentFrameChanged?.Invoke();
+
+        /// <summary>
+        /// Bakes the interpolated data for fastest access by the game.
+        /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
+        /// </summary>
+        public abstract void Bake(float framesPerSecond);
     }
 }

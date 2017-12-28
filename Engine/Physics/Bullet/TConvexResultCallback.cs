@@ -16,8 +16,13 @@ namespace TheraEngine.Physics.Bullet
             Vec3 hitNormal = convexResult.HitNormalLocal;
             Vec3 hitPointLocal = convexResult.HitPointLocal;
             float hitFraction = convexResult.HitFraction;
-            int shapePart = convexResult.LocalShapeInfo.ShapePart;
-            int triangleIndex = convexResult.LocalShapeInfo.TriangleIndex;
+
+            int shapePart = -1, triangleIndex = -1;
+            if (convexResult.LocalShapeInfo != null)
+            {
+                shapePart = convexResult.LocalShapeInfo.ShapePart;
+                triangleIndex = convexResult.LocalShapeInfo.TriangleIndex;
+            }
 
             _handler.AddResult(obj, hitNormal, normalInWorldSpace, hitPointLocal, hitFraction, shapePart, triangleIndex);
 

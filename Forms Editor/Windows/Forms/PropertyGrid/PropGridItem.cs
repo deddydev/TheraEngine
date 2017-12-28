@@ -131,7 +131,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         internal static GameTimer UpdateTimer = new GameTimer();
 
-        private static List<PropGridItem> VisibleItems = new List<PropGridItem>();
+        /// <summary>
+        /// List of all visible PropGridItems that need to be updated.
+        /// </summary>
+        private static List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
         internal static void UpdateVisibleItems()
         {
             Parallel.For(0, VisibleItems.Count, i =>

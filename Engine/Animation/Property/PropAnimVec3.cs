@@ -5,20 +5,17 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimVec3 : PropertyAnimation<Vec3Keyframe>, IEnumerable<Vec3Keyframe>
+    public class PropAnimVec3 : PropAnimKeyframed<Vec3Keyframe>, IEnumerable<Vec3Keyframe>
     {
-        private Vec3 _defaultValue = Vec3.Zero;
-        private GetValue<Vec3> _getValue;
+        private DelGetValue<Vec3> _getValue;
 
-        [TSerialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "Baked")]
         private Vec3[] _baked = null;
-
-        [TSerialize(Condition = "UseKeyframes")]
-        public Vec3 DefaultValue
-        {
-            get => _defaultValue;
-            set => _defaultValue = value;
-        }
+        /// <summary>
+        /// The default value to return when no keyframes are set.
+        /// </summary>
+        [TSerialize(Condition = "!Baked")]
+        public Vec3 DefaultValue { get; set; } = Vec3.Zero;
 
         public PropAnimVec3() : base(0.0f, false, true) { }
         public PropAnimVec3(float lengthInSeconds, bool looped, bool useKeyframes)
@@ -26,8 +23,8 @@ namespace TheraEngine.Animation
         public PropAnimVec3(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void UseKeyframesChanged()
-            => _getValue = _useKeyframes ? (GetValue<Vec3>)GetValueKeyframed : GetValueBaked;
+        protected override void BakedChanged()
+            => _getValue = !Baked ? (DelGetValue<Vec3>)GetValueKeyframed : GetValueBaked;
 
         public Vec3 GetValue(float second)
             => _getValue(second);
@@ -38,7 +35,7 @@ namespace TheraEngine.Animation
         public Vec3 GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Vec3 GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
         public Vec3 GetVelocityKeyframed(float second)
             => _keyframes.Count == 0 ? 0.0f : _keyframes.First.InterpolateVelocity(second);
         public Vec3 GetAccelerationKeyframed(float second)

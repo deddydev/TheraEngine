@@ -104,9 +104,10 @@ namespace TheraEngine.Rendering
 
         private GlobalFileRef<TMaterial> _voxelizationMaterial;
 
-        public Scene3D()
+        public Scene3D() : this(0.5f) { }
+        public Scene3D(Vec3 boundsHalfExtents)
         {
-            Clear(new BoundingBox(0.5f, Vec3.Zero));
+            Clear(new BoundingBox(boundsHalfExtents, Vec3.Zero));
             Render = RenderDeferred;
             //Material m = new Material("VoxelizeMat",
             //    new ShaderVar[] 

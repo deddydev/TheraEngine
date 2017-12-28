@@ -3,16 +3,14 @@ using System.ComponentModel;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileClass("SHAPE", "Ray")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class Ray
+    public struct Ray
     {
-        public Ray() { }
-        public Ray(Vec3 startPoint, Vec3 direction)
+        public Ray(Vec3 startPoint, Vec3 direction, ENormalizeOption normalization = ENormalizeOption.FastSafe)
         {
             _startPoint = startPoint;
-            _direction = direction.NormalizedFast();
+            _direction = direction.Normalized(normalization);
         }
+
         [TSerialize]
         public Vec3 StartPoint
         {
@@ -124,6 +122,11 @@ namespace TheraEngine.Core.Shapes
         {
             Vec3 diff = end - start;
             return start + (diff * (distance / diff.LengthFast));
+        }
+        public static Vec3 PointAtLerpTime(Vec3 start, Vec3 end, float time)
+        {
+            Vec3 diff = end - start;
+            return start + diff * time;
         }
     }
 }

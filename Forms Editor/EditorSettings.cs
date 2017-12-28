@@ -4,8 +4,8 @@ using TheraEngine.Files;
 
 namespace TheraEditor
 {
-    [FileClass("SET", "Editor Settings")]
-    public class EditorSettings : FileObject
+    [FileDef("Editor Settings")]
+    public class EditorSettings : TSettings
     {
         [TSerialize]
         public GlobalFileRef<EngineSettings> Engine { get; set; }
@@ -13,9 +13,9 @@ namespace TheraEditor
         public GlobalFileRef<PropertyGridSettings> PropertyGrid { get; set; }
         [TSerialize]
         public GlobalFileRef<ControlSettings> Controls { get; set; }
-
-        [FileClass("SET", "Property Grid Settings")]
-        public class PropertyGridSettings : FileObject
+        
+        [FileDef("Property Grid Settings")]
+        public class PropertyGridSettings : TSettings
         {
             [TSerialize]
             public bool SplitCamelCase { get; set; }
@@ -31,8 +31,9 @@ namespace TheraEditor
                 IgnoreLoneSubCategories = true;
             }
         }
-        [FileClass("SET", "Control Settings")]
-        public class ControlSettings : FileObject
+
+        [FileDef("Control Settings")]
+        public class ControlSettings : TSettings
         {
             public ControlSettings()
             {

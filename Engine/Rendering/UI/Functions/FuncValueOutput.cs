@@ -13,9 +13,9 @@ namespace TheraEngine.Rendering.UI.Functions
         where TInput : class, IFuncValueInput where TParent : class, IFunction
     {
         public override bool IsOutput => true;
-        public MonitoredList<TInput> ConnectedTo => _connectedTo;
+        public EventList<TInput> ConnectedTo => _connectedTo;
 
-        protected MonitoredList<TInput> _connectedTo = new MonitoredList<TInput>(false);
+        protected EventList<TInput> _connectedTo = new EventList<TInput>(false);
 
         public FuncValueOutput(string name, params int[] types)
             : base(name)

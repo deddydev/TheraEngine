@@ -2,17 +2,18 @@
 {
     public class ComputerInfo
     {
-        public int _processorCount;
-        public bool _is64BitOS;
-        public OperatingSystem _osVersion;
+        public int ProcessorCount { get; private set; }
+        public bool Is64Bit { get; private set; }
+        public OperatingSystem OSVersion { get; private set; }
+        public Endian.EOrder Endian { get; private set; } = System.Endian.EOrder.Big;
 
         public static ComputerInfo Analyze()
         {
             ComputerInfo c = new ComputerInfo()
             {
-                _processorCount = Environment.ProcessorCount,
-                _osVersion = Environment.OSVersion,
-                _is64BitOS = Environment.Is64BitOperatingSystem
+                ProcessorCount = Environment.ProcessorCount,
+                OSVersion = Environment.OSVersion,
+                Is64Bit = Environment.Is64BitOperatingSystem
             };
             return c;
         }

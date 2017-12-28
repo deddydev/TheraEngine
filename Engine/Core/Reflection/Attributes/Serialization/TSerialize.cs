@@ -25,6 +25,7 @@
     }
     /// <summary>
     /// This attribute means the field should be serialized upon saving.
+    /// Note that the class/struct owning this property or field does NOT need to be a FileObject or a class in particular.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class TSerialize : Attribute

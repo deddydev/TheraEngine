@@ -3,7 +3,12 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileClass("MTRP", "Material Rendering Parameters")]
+    /// <summary>
+    /// Contains parameters for rendering an object, such as blending and depth testing.
+    /// </summary>
+    [FileExt("rendparams")]
+    [FileDef("Rendering Parameters", 
+        "Contains parameters for rendering an object, such as blending and depth testing.")]
     public class RenderingParameters : FileObject
     {
         AlphaTest _alphaTest = new AlphaTest();
@@ -24,6 +29,11 @@ namespace TheraEngine.Rendering.Models.Materials
         public bool WriteAlpha { get; set; } = true;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Culling CullMode { get; set; } = Culling.Back;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public float PointSize { get; set; } = AbstractRenderer.DefaultPointSize;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public float LineWidth { get; set; } = AbstractRenderer.DefaultLineSize;
+
         [TSerialize]
         public AlphaTest AlphaTest { get => _alphaTest; set => _alphaTest = value ?? new AlphaTest(); }
         [TSerialize]
@@ -32,10 +42,6 @@ namespace TheraEngine.Rendering.Models.Materials
         public StencilTest StencilTest { get => _stencilTest; set => _stencilTest = value ?? new StencilTest(); }
         [TSerialize]
         public BlendMode BlendMode { get => _blendMode; set => _blendMode = value ?? new BlendMode(); }
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public float PointSize { get; set; } = AbstractRenderer.DefaultPointSize;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public float LineWidth { get; set; } = AbstractRenderer.DefaultLineSize;
     }
     public class AlphaTest
     {

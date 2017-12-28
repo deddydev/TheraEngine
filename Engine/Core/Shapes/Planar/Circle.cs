@@ -2,42 +2,69 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using System;
+using System.Runtime.InteropServices;
 
 namespace TheraEngine.Core.Shapes
 {
     /// <summary>
     /// Represents a circle in 3D space.
     /// </summary>
-    [FileClass("SHAPE", "3D Circle")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class Circle3D : Plane
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct Circle3D
     {
-        public Circle3D()
-            : base() { _radius = 1.0f; }
         public Circle3D(float radius)
-            : base() { _radius = radius; }
-        public Circle3D(float radius, Vec3 normal, float distance) 
-            : base(normal, distance)  { _radius = radius; }
+        {
+            _plane = new Plane(Vec3.Up, 0.0f);
+            _radius = radius;
+        }
+        public Circle3D(float radius, Vec3 normal, float distance)
+        {
+            _plane = new Plane(normal, distance);
+            _radius = radius;
+        }
         public Circle3D(float radius, Vec3 point)
-            : base(point) { _radius = radius; }
-        public Circle3D(float radius, Vec3 point, Vec3 normal) 
-            : base(point, normal) { _radius = radius; }
+        {
+            _plane = new Plane(point);
+            _radius = radius;
+        }
+        public Circle3D(float radius, Vec3 point, Vec3 normal)
+        {
+            _plane = new Plane(point, normal);
+            _radius = radius;
+        }
         public Circle3D(float radius, Vec3 point0, Vec3 point1, Vec3 point2)
-            : base(point0, point1, point2) { _radius = radius; }
-        
-        [TSerialize("Radius")]
+        {
+            _plane = new Plane(point0, point1, point2);
+            _radius = radius;
+        }
+        public Circle3D(float radius, Plane plane)
+        {
+            _plane = plane;
+            _radius = radius;
+        }
+
+        private Plane _plane;
         private float _radius;
+
+        [TSerialize]
+        public Plane Plane
+        {
+            get => _plane;
+            set => _plane = value;
+        }
+        [TSerialize]
         public float Radius
         {
             get => _radius;
             set => _radius = value;
         }
+
         public PrimitiveData GetSolidMesh(int sides)
-            => SolidMesh(Radius, Normal, IntersectionPoint, sides);
+            => SolidMesh(Radius, Plane.Normal, Plane.IntersectionPoint, sides);
         public PrimitiveData GetWireframeMesh(int sides)
-            => WireframeMesh(Radius, Normal, IntersectionPoint, sides);
+            => WireframeMesh(Radius, Plane.Normal, Plane.IntersectionPoint, sides);
         public VertexLineStrip GetLineStrip(int sides)
-            => LineStrip(Radius, Normal, IntersectionPoint, sides);
+            => LineStrip(Radius, Plane.Normal, Plane.IntersectionPoint, sides);
         
         public static PrimitiveData SolidMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {

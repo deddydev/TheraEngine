@@ -6,6 +6,7 @@ using System.ComponentModel;
 using TheraEngine.GameModes;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Physics;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds
 {
@@ -14,7 +15,8 @@ namespace TheraEngine.Worlds
         WorldSettings Settings { get; set; }
         AbstractPhysicsWorld PhysicsWorld { get; }
     }
-    [FileClass("WORLD", "World")]
+    [FileExt("world")]
+    [FileDef("World")]
     public unsafe class World : FileObject, IEnumerable<IActor>, IDisposable
     {
         public World() : this(new WorldSettings(), new WorldState()) { }
@@ -34,8 +36,8 @@ namespace TheraEngine.Worlds
         }
         public WorldSettings Settings
         {
-            get => SettingsRef;
-            set => SettingsRef = value;
+            get => SettingsRef.File;
+            set => SettingsRef.File = value;
         }
         private GlobalFileRef<WorldState> _stateRef;
         [TSerialize("State")]
@@ -46,8 +48,16 @@ namespace TheraEngine.Worlds
         }
         public WorldState State
         {
-            get => StateRef;
-            set => StateRef = value;
+            get => StateRef.File;
+            set => StateRef.File = value;
+        }
+        public Scene3D Scene
+        {
+            get => State.Scene;
+            set
+            {
+                State.Scene = value;
+            }
         }
 
         private AbstractPhysicsWorld _physicsWorld;
@@ -133,6 +143,7 @@ namespace TheraEngine.Worlds
         }
         public virtual void BeginPlay()
         {
+            State.Scene = new Scene3D(Settings.Bounds.HalfExtents);
             CreatePhysicsScene();
 
             Engine.TimeDilation = Settings.TimeDilation;

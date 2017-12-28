@@ -32,7 +32,7 @@ namespace TheraEditor.Wrappers
         public override void EditResource()
         {
             PropAnimFloatEditor m = new PropAnimFloatEditor();
-            m.Animation = Resource;
+            m.Animation = ResourceRef;
             m.Show();
         }
     }

@@ -10,7 +10,7 @@ using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
 namespace TheraEngine.Rendering.Particles
 {
-    [FileClass("cptcl", "Particle System Component")]
+    [FileDef("Particle System Component")]
     public class ParticleSystemComponent : TRComponent
     {
         private List<Emitter> _emitters;

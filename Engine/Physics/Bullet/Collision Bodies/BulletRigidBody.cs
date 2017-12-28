@@ -30,12 +30,18 @@ namespace TheraEngine.Physics.Bullet
 
             CollisionShape = shape;
 
-            Constraints.PostAdded += Constraints_PostAdded;
-            Constraints.PostAddedRange += Constraints_PostAddedRange;
-            Constraints.PostInserted += Constraints_PostInserted;
-            Constraints.PostInsertedRange += Constraints_PostInsertedRange;
-            Constraints.PostRemoved += Constraints_PostRemoved;
-            Constraints.PostRemovedRange += Constraints_PostRemovedRange;
+            Constraints.PostAnythingAdded += Constraints_PostAnythingAdded;
+            Constraints.PostAnythingRemoved += Constraints_PostAnythingRemoved;
+        }
+
+        private void Constraints_PostAnythingRemoved(TConstraint item)
+        {
+            Body.RemoveConstraintRef(((IBulletConstraint)item).Constraint);
+        }
+
+        private void Constraints_PostAnythingAdded(TConstraint item)
+        {
+            Body.AddConstraintRef(((IBulletConstraint)item).Constraint);
         }
 
         #region Collision Object Implementation
@@ -399,34 +405,7 @@ namespace TheraEngine.Physics.Bullet
         #endregion
 
         #endregion
-
-        private void Constraints_PostRemovedRange(IEnumerable<TConstraint> items)
-        {
-            foreach (TConstraint t in items)
-                Constraints_PostRemoved(t);
-        }
-        private void Constraints_PostRemoved(TConstraint item)
-        {
-            Body.RemoveConstraintRef(((IBulletConstraint)item).Constraint);
-        }
-        private void Constraints_PostInsertedRange(IEnumerable<TConstraint> items, int index)
-        {
-            foreach (TConstraint t in items)
-                Constraints_PostInserted(t, index++);
-        }
-        private void Constraints_PostInserted(TConstraint item, int index)
-        {
-            Constraints_PostAdded(item);
-        }
-        private void Constraints_PostAddedRange(IEnumerable<TConstraint> items)
-        {
-            foreach (TConstraint t in items)
-                Constraints_PostAdded(t);
-        }
-        private void Constraints_PostAdded(TConstraint item)
-        {
-            Body.AddConstraintRef(((IBulletConstraint)item).Constraint);
-        }
+        
         void IBulletCollisionObject.OnTransformChanged(Matrix4 worldTransform)
         {
             OnTransformChanged(worldTransform);

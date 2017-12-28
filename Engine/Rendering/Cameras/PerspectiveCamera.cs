@@ -131,9 +131,25 @@ namespace TheraEngine.Rendering.Cameras
                 transformed ? GetUpVector() : Vec3.Up,
                 transformed ? _localPoint.Raw : Vec3.Zero);
         }
+
+        public Plane GetScreenPlane()
+        {
+            Vec3 forward = GetForwardVector();
+            return new Plane(forward, Plane.ComputeDistance(WorldPoint, forward));
+        }
+        public Vec3 GetScreenPlaneOriginDistance()
+            => Plane.ComputeDistance(WorldPoint, GetForwardVector());
+
         public override float DistanceScale(Vec3 point, float radius = 1.0f)
         {
-            return WorldPoint.DistanceToFast(point) * radius /** Vec3.Dot(GetForwardVector() * _aspect.ClampMin(1.0f), (point - WorldPoint).NormalizedFast())*/ * 0.1f;
+            //Using distance to the screen plane
+            //instead of distance to the camera's world point
+            //returns expected results.
+            //Otherwise scale will increase on edges of screen
+
+            Vec3 forward = GetForwardVector();
+            float distance = Collision.DistancePlanePoint(forward, Plane.ComputeDistance(WorldPoint, forward), point);
+            return distance * radius * 0.1f;
         }
         public float FrustumHeightAtDistance(float distance)
             => 2.0f * distance * (float)Math.Tan(TMath.DegToRad(_fovY * 0.5f));

@@ -10,7 +10,8 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileClass("TREF3D", "3D Texture Reference")]
+    [FileExt("tref3d")]
+    [FileDef("3D Texture Reference")]
     public class TextureReference3D : BaseTextureReference
     {
         #region Constructors

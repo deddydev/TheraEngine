@@ -141,7 +141,7 @@ namespace TheraEditor.Windows.Forms
             {
                 p = new Project()
                 {
-                    OpeningWorld = typeof(TestWorld),
+                    OpeningWorld = typeof(UnitTestingWorld),
                     UserSettings = new UserSettings(),
                     EngineSettings = new EngineSettings(),
                 };
@@ -161,7 +161,7 @@ namespace TheraEditor.Windows.Forms
             DoubleBuffered = false;
             Engine.SetGamePanel(RenderForm1.RenderPanel, false);
             Engine.Game.State.GameMode = _editorGameMode = new EditorGameMode();
-            Engine.Initialize(true, false);
+            Engine.Initialize(false);
 
             GenerateInitialActorList();
             if (Engine.World != null)
@@ -310,7 +310,7 @@ namespace TheraEditor.Windows.Forms
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = FileObject.GetFileHeader(typeof(World)).GetFilter(),
+                Filter = FileObject.GetFilter<World>(),
                 Multiselect = false
             };
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -348,7 +348,7 @@ namespace TheraEditor.Windows.Forms
                     Engine.World.EditorState = null;
                 }
                 
-                Engine.SetCurrentWorld(value, true, true, false);
+                Engine.SetCurrentWorld(value, true, false);
             }
         }
 
@@ -391,7 +391,7 @@ namespace TheraEditor.Windows.Forms
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = FileObject.GetFileHeader(typeof(Project)).GetFilter(),
+                Filter = FileObject.GetFilter<Project>(),
             };
 
             if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
@@ -417,12 +417,11 @@ namespace TheraEditor.Windows.Forms
         {
             SaveFileDialog sfd = new SaveFileDialog()
             {
-                Filter = FileObject.GetFileHeader(typeof(Project)).GetFilter(),
+                Filter = FileObject.GetFilter<Project>(),
             };
             if (sfd.ShowDialog() == DialogResult.OK)
             {
-                FileObject.GetDirNameFmt(sfd.FileName, out string dir, out string name, out FileFormat fmt);
-                _project.Export(dir, name, fmt);
+                _project.Export(sfd.FileName);
             }
         }
 
@@ -468,7 +467,8 @@ namespace TheraEditor.Windows.Forms
             }
             if (form != null)
             {
-                form.Show(DockPanel, DockState.Document);
+                if (form.IsHidden)
+                    form.Show(DockPanel, DockState.Document);
                 form.Focus();
             }
             return form;

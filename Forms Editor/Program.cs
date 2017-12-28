@@ -37,22 +37,6 @@ namespace TheraEditor
 
             return activeProcId == procId;
         }
-
-        /// <summary>
-        /// Finds all public types in all loaded assemblies that match the given predicate.
-        /// </summary>
-        /// <param name="match"></param>
-        /// <returns></returns>
-        public static Type[] FindPublicTypes(Predicate<Type> match)
-        {
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            return
-                (from domainAssembly in assemblies
-                 where !domainAssembly.IsDynamic
-                 from assemblyType in domainAssembly.GetExportedTypes()
-                 where match(assemblyType) && !assemblyType.IsAbstract
-                 select assemblyType).ToArray();
-        }
         /// <summary>
         /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
         /// </summary>
@@ -62,7 +46,7 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static Type[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
         {
-            Type[] fileObjectTypes = FindPublicTypes(match);
+            Type[] fileObjectTypes = Engine.FindTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (Type t in fileObjectTypes)

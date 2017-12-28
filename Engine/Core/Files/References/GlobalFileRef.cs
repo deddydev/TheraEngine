@@ -11,13 +11,14 @@ namespace TheraEngine.Files
 {
     public interface IGlobalFileRef : IFileRef
     {
-        void UnloadReference();
+
     }
     /// <summary>
     /// Allows only one loaded instance of this file throughout the program.
     /// File can be loaded on-demand or preloaded.
     /// </summary>
-    [FileClass("GREF", "Global File Reference")]
+    [FileExt("globalref")]
+    [FileDef("Global File Reference")]
     public class GlobalFileRef<T> : FileRef<T>, IGlobalFileRef where T : FileObject
     {
         public GlobalFileRef()

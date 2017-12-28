@@ -97,7 +97,7 @@ namespace TheraEngine.Physics.ShapeTracing
         public ShapeTraceMulti(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
             : base(shape, start, end, collisionGroup, collidesWith, ignored) { }
 
-        internal protected override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, Vec3 hitPointLocal, float hitFraction, int shapePart, int triangleIndex)
+        internal protected override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, Vec3 hitPointWorld, float hitFraction, int shapePart, int triangleIndex)
         {
             if (!CanAddCommon(obj))
                 return;
@@ -105,9 +105,9 @@ namespace TheraEngine.Physics.ShapeTracing
             if (!normalInWorldSpace)
                 hitNormal = Vec3.TransformNormal(hitNormal, obj.WorldTransform);
 
-            hitPointLocal = Vec3.TransformPosition(hitPointLocal, obj.WorldTransform);
+            //hitPointLocal = Vec3.TransformPosition(hitPointLocal, obj.WorldTransform);
 
-            Results.Add(new ShapeCollisionResult(obj, hitFraction, hitNormal, hitPointLocal, shapePart, triangleIndex));
+            Results.Add(new ShapeCollisionResult(obj, hitFraction, hitNormal, hitPointWorld, shapePart, triangleIndex));
         }
     }
 
@@ -116,7 +116,7 @@ namespace TheraEngine.Physics.ShapeTracing
         public ShapeTraceClosest(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
             : base(shape, start, end, collisionGroup, collidesWith, ignored) { }
 
-        internal protected override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, Vec3 hitPointLocal, float hitFraction, int shapePart, int triangleIndex)
+        internal protected override void AddResult(TCollisionObject obj, Vec3 hitNormal, bool normalInWorldSpace, Vec3 hitPointWorld, float hitFraction, int shapePart, int triangleIndex)
         {
             if (!CanAddCommon(obj))
                 return;
@@ -124,16 +124,16 @@ namespace TheraEngine.Physics.ShapeTracing
             if (!normalInWorldSpace)
                 hitNormal = Vec3.TransformNormal(hitNormal, obj.WorldTransform);
 
-            hitPointLocal = Vec3.TransformPosition(hitPointLocal, obj.WorldTransform);
+            //hitPointLocal = Vec3.TransformPosition(hitPointLocal, obj.WorldTransform);
 
             if (Result == null)
-                Result = new ShapeCollisionResult(obj, hitFraction, hitNormal, hitPointLocal, shapePart, triangleIndex);
+                Result = new ShapeCollisionResult(obj, hitFraction, hitNormal, hitPointWorld, shapePart, triangleIndex);
             else if (hitFraction < Result.HitFraction)
             {
                 Result.CollisionObject = obj;
                 Result.HitFraction = hitFraction;
                 Result.HitNormalWorld = hitNormal;
-                Result.HitPointWorld = hitPointLocal;
+                Result.HitPointWorld = hitPointWorld;
                 Result.ShapePart = shapePart;
                 Result.TriangleIndex = triangleIndex;
             }

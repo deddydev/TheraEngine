@@ -8,17 +8,17 @@ using System.Xml;
 using System.IO;
 using System;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Files;
 
 namespace TheraEngine.Core.Shapes
 {
     /// <summary>
     /// Contains the points and planes at the edges and near/far of a camera's view.
     /// </summary>
-    [FileClass("FRUSTUM", "Camera View Frustum")]
     public class Frustum : I3DRenderable, IEnumerable<Plane>
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
-        public RenderInfo3D RenderInfo => _renderInfo;
+        public RenderInfo3D RenderInfo { get; } 
+            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];

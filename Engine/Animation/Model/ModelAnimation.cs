@@ -9,11 +9,12 @@ using TheraEngine.Worlds.Actors.Components.Logic.Animation;
 
 namespace TheraEngine.Animation
 {
-    [FileClass("MANIM", "Model Animation", 
-        ImportableExtensions = new[] { "DAE" })]
-    public class ModelAnimation : BaseAnimation
+    [File3rdParty(new string[] { "dae" }, null)]
+    [FileExt("skelanim")]
+    [FileDef("Skeletal Animation")]
+    public class SkeletalAnimation : BaseAnimation
     {
-        [ThirdPartyLoader("DAE")]
+        [ThirdPartyLoader("dae")]
         public static FileObject LoadDAE(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
@@ -27,6 +28,12 @@ namespace TheraEngine.Animation
             };
             return Collada.Import(path, o)?.Models[0].Animation;
         }
+        
+        public SkeletalAnimation() : base(0.0f, false, true) { }
+        public SkeletalAnimation(float lengthInSeconds, bool looped, bool isBaked = false)
+            : base(lengthInSeconds, looped, isBaked) { }
+        public SkeletalAnimation(int frameCount, float FPS, bool looped, bool isBaked = false)
+            : base(frameCount, FPS, looped, isBaked) { }
 
         [TSerialize("BoneAnimations")]
         public Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
@@ -72,7 +79,7 @@ namespace TheraEngine.Animation
         {
             return other.GetAllNames(this);
         }
-        public IEnumerable<string> GetAllNames(ModelAnimation other)
+        public IEnumerable<string> GetAllNames(SkeletalAnimation other)
         {
             string[] theseNames = new string[_boneAnimations.Keys.Count];
             _boneAnimations.Keys.CopyTo(theseNames, 0);
@@ -82,7 +89,7 @@ namespace TheraEngine.Animation
         }
         public void UpdateSkeletonBlended(
             Skeleton skeleton,
-            ModelAnimation other,
+            SkeletalAnimation other,
             float otherWeight,
             AnimBlendType blendType)
         {
@@ -113,7 +120,7 @@ namespace TheraEngine.Animation
             return frame;
         }
 
-        public void UpdateSkeletonBlendedMulti(Skeleton skeleton, ModelAnimation[] other, float[] otherWeight)
+        public void UpdateSkeletonBlendedMulti(Skeleton skeleton, SkeletalAnimation[] other, float[] otherWeight)
         {
             //string[] theseNames = new string[_boneAnimations.Keys.Count];
             //_boneAnimations.Keys.CopyTo(theseNames, 0);
@@ -138,10 +145,20 @@ namespace TheraEngine.Animation
             //    }
             //}
         }
+
+        protected override void BakedChanged()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Bake(float framesPerSecond)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class BoneAnimation
     {
-        public BoneAnimation(ModelAnimation parent, string name)
+        public BoneAnimation(SkeletalAnimation parent, string name)
         {
             _name = name;
             Parent = parent;
@@ -168,7 +185,7 @@ namespace TheraEngine.Animation
         public void SetLength(float seconds, bool stretchAnimation)
             => _tracks.SetLength(seconds, stretchAnimation);
         
-        internal ModelAnimation Parent { get; set; }
+        internal SkeletalAnimation Parent { get; set; }
 
         [Category("Bone Animation"), TSerialize("Name")]
         public string _name;

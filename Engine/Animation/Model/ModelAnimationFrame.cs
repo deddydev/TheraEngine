@@ -35,7 +35,7 @@ namespace TheraEngine.Animation
             other._boneFrames.Keys.CopyTo(thoseNames, 0);
             return theseNames.Intersect(thoseNames);
         }
-        public IEnumerable<string> GetAllNames(ModelAnimation other)
+        public IEnumerable<string> GetAllNames(SkeletalAnimation other)
         {
             string[] theseNames = new string[_boneFrames.Keys.Count];
             _boneFrames.Keys.CopyTo(theseNames, 0);
@@ -63,7 +63,7 @@ namespace TheraEngine.Animation
             }
             return blendedFrame;
         }
-        public ModelAnimationFrame BlendedWith(ModelAnimation other, float frameIndex, float otherWeight)
+        public ModelAnimationFrame BlendedWith(SkeletalAnimation other, float frameIndex, float otherWeight)
         {
             ModelAnimationFrame blendedFrame = new ModelAnimationFrame();
             foreach (string name in GetAllNames(other))
@@ -104,7 +104,7 @@ namespace TheraEngine.Animation
                 }
             }
         }
-        public void BlendWith(ModelAnimation other, float frameIndex, float otherWeight)
+        public void BlendWith(SkeletalAnimation other, float frameIndex, float otherWeight)
         {
             foreach (string name in GetAllNames(other))
             {

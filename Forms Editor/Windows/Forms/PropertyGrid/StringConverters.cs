@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace System

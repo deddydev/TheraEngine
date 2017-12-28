@@ -4,24 +4,19 @@ using System;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileClass("SHAPE", "Segment")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class Segment
+    public struct Segment
     {
-        public Segment() { }
         public Segment(Vec3 startPoint, Vec3 endPoint)
         {
             _startPoint = startPoint;
             _endPoint = endPoint;
         }
-
-        [TSerialize]
+        
         public Vec3 StartPoint
         {
             get => _startPoint;
             set => _startPoint = value;
         }
-        [TSerialize]
         public Vec3 EndPoint
         {
             get => _endPoint;

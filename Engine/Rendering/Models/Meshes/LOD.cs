@@ -4,7 +4,8 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("LOD", "Level Of Detail Mesh Spec")]
+    [FileExt("lod")]
+    [FileDef("Level Of Detail Mesh Spec")]
     public class LOD : FileObject
     {
         public LOD() { }

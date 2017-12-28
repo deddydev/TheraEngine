@@ -5,20 +5,17 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimString : PropertyAnimation<StringKeyframe>, IEnumerable<StringKeyframe>
+    public class PropAnimString : PropAnimKeyframed<StringKeyframe>, IEnumerable<StringKeyframe>
     {
-        private string _defaultValue = "";
-        private GetValue<string> _getValue;
+        private DelGetValue<string> _getValue;
 
-        [TSerialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "Baked")]
         private string[] _baked = null;
-
-        [TSerialize(Condition = "UseKeyframes")]
-        public string DefaultValue
-        {
-            get => _defaultValue;
-            set => _defaultValue = value;
-        }
+        /// <summary>
+        /// The default value to return when no keyframes are set.
+        /// </summary>
+        [TSerialize(Condition = "!Baked")]
+        public string DefaultValue { get; set; } = string.Empty;
 
         public PropAnimString() : base(0.0f, false, true) { }
         public PropAnimString(float lengthInSeconds, bool looped, bool useKeyframes)
@@ -26,8 +23,8 @@ namespace TheraEngine.Animation
         public PropAnimString(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void UseKeyframesChanged()
-            => _getValue = _useKeyframes ? (GetValue<string>)GetValueKeyframed : GetValueBaked;
+        protected override void BakedChanged()
+            => _getValue = !Baked ? (DelGetValue<string>)GetValueKeyframed : GetValueBaked;
 
         public string GetValue(float second)
             => _getValue(second);
@@ -42,7 +39,7 @@ namespace TheraEngine.Animation
             StringKeyframe key = _keyframes.GetKeyBefore(second);
             if (key != null)
                 return key.Value;
-            return _defaultValue;
+            return DefaultValue;
         }
         
         public override void Bake(float framesPerSecond)

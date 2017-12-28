@@ -10,6 +10,7 @@ using System.Globalization;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Core;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace System
 {
@@ -142,6 +143,15 @@ namespace System
             }
         }
         /// <summary>
+        /// Normalizes and returns a copy of this vector using the requested method.
+        /// </summary>
+        public Vec3 Normalized(ENormalizeOption normalizeMethod)
+        {
+            Vec3 v = this;
+            v.Normalize(normalizeMethod);
+            return v;
+        }
+        /// <summary>
         /// Normalizes this vector to unit length.
         /// For a faster but less precise method, use NormalizeFast.
         /// </summary>
@@ -202,7 +212,7 @@ namespace System
 
         public void ChangeZupToYup(bool negateX = true)
         {
-            Swap(ref Z, ref Y);
+            THelpers.Swap(ref Z, ref Y);
             if (negateX)
                 X = -X;
         }

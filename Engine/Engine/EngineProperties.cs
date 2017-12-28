@@ -16,6 +16,7 @@ using TheraEngine.Timers;
 using TheraEngine.GameModes;
 using TheraEngine.Physics;
 using TheraEngine.Physics.Bullet;
+using System.IO;
 
 namespace TheraEngine
 {
@@ -35,17 +36,17 @@ namespace TheraEngine
     {
         Timers = 0, //Call timing events
         Input = 3, //Call input events
-        BoneAnimation = 6, //Update model animation positions
+        Animation = 6, //Update model animation positions
         Logic = 9, //Gameplay calculations
         Scene = 12, //Update scene
     }
     public static partial class Engine
     {
-        public static string StartupPath = Application.StartupPath + "\\";
-        public static string ContentFolderAbs = StartupPath + "Content\\";
-        public static string ContentFolderRel = "Content\\";
-        public static string ConfigFolderAbs = StartupPath + "Config\\";
-        public static string ConfigFolderRel = "Config\\";
+        public static string StartupPath = Application.StartupPath + Path.DirectorySeparatorChar;
+        public static string ContentFolderAbs = StartupPath + ContentFolderRel;
+        public static string ContentFolderRel = "Content" + Path.DirectorySeparatorChar;
+        public static string ConfigFolderAbs = StartupPath + ConfigFolderRel;
+        public static string ConfigFolderRel = "Config" + Path.DirectorySeparatorChar;
         public static string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xset";
         public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xset";
         public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
@@ -81,7 +82,7 @@ namespace TheraEngine
         /// <summary>
         /// Controllers for all players that are local to this client.
         /// </summary>
-        public static MonitoredList<LocalPlayerController> LocalPlayers { get; } = new MonitoredList<LocalPlayerController>();
+        public static EventList<LocalPlayerController> LocalPlayers { get; } = new EventList<LocalPlayerController>();
 
         public static List<AIController> ActiveAI
             = new List<AIController>();
@@ -89,7 +90,7 @@ namespace TheraEngine
         /// <summary>
         /// The scene containing actors of the world the engine is currently hosting.
         /// </summary>
-        public static Scene3D Scene { get; } = new Scene3D();
+        public static Scene3D Scene => World?.Scene;
         /// <summary>
         /// Information necessary to run a game.
         /// </summary>

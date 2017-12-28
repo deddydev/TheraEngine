@@ -6,6 +6,7 @@ using TheraEngine.Input.Devices;
 using System.Runtime.CompilerServices;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using System.Collections;
 
 namespace TheraEngine
 {
@@ -31,23 +32,24 @@ namespace TheraEngine
             DelTick tickFunc,
             InputPauseType pausedBehavior = InputPauseType.TickAlways);
         #endregion
-
+        
         #region Animation
-        MonitoredList<AnimationContainer> Animations { get; }
+        IReadOnlyList<AnimationContainer> Animations { get; }
         void AddAnimation(
             AnimationContainer anim,
             bool startNow = false,
             bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
-            ETickOrder order = ETickOrder.BoneAnimation,
+            ETickOrder order = ETickOrder.Animation,
             InputPauseType pausedBehavior = InputPauseType.TickAlways);
+        bool RemoveAnimation(AnimationContainer anim);
         #endregion
     }
    
     public delegate void ResourceEventHandler(TObject node);
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
-    public abstract class TObject// : INotifyPropertyChanged
+    public abstract class TObject
     {
         /// <summary>
         /// Event called any time a new object is created.
@@ -139,108 +141,62 @@ namespace TheraEngine
         //    }
         //}
 #endif
-
+        
         #region Animation
-
+        
         [TSerialize]
-        private MonitoredList<AnimationContainer> _animations = null;
+        private List<AnimationContainer> _animations = null;
 
-        [PostDeserialize]
-        private void PostDeserialize()
-        {
-            if (_animations != null)
-            {
-                _animations.PostAdded += _animations_PostAdded;
-                _animations.PostInserted += _animations_PostInserted;
-                _animations.PostAddedRange += _animations_PostAddedRange;
-                _animations.PostInsertedRange += _animations_PostInsertedRange;
-                _animations.PostRemoved += _animations_PostRemoved;
-                _animations.PostRemovedRange += _animations_PostRemovedRange;
-            }
-        }
+        [Browsable(false)]
+        public IReadOnlyList<AnimationContainer> Animations => _animations;
 
-        [Category("Object")]
-        public MonitoredList<AnimationContainer> Animations
-        {
-            get
-            {
-                if (_animations == null)
-                {
-                    _animations = new MonitoredList<AnimationContainer>();
-                    _animations.PostAdded += _animations_PostAdded;
-                    _animations.PostInserted += _animations_PostInserted;
-                    _animations.PostAddedRange += _animations_PostAddedRange;
-                    _animations.PostInsertedRange += _animations_PostInsertedRange;
-                    _animations.PostRemoved += _animations_PostRemoved;
-                    _animations.PostRemovedRange += _animations_PostRemovedRange;
-                }
-                return _animations;
-            }
-        }
-
-        private void _animations_PostRemovedRange(IEnumerable<AnimationContainer> items)
-        {
-            foreach (AnimationContainer item in items)
-                _animations_PostRemoved(item);
-        }
-
-        private void _animations_PostRemoved(AnimationContainer item)
-        {
-            if (_animations.Count == 0)
-            {
-                _animations.PostAdded -= _animations_PostAdded;
-                _animations.PostInserted -= _animations_PostInserted;
-                _animations.PostAddedRange -= _animations_PostAddedRange;
-                _animations.PostInsertedRange -= _animations_PostInsertedRange;
-                _animations.PostRemoved -= _animations_PostRemoved;
-                _animations.PostRemovedRange -= _animations_PostRemovedRange;
-                _animations = null;
-            }
-            item._owners.Remove(this);
-        }
-
-        private void _animations_PostInsertedRange(IEnumerable<AnimationContainer> items, int index)
-        {
-            foreach (AnimationContainer item in items)
-                _animations_PostAdded(item);
-        }
-
-        private void _animations_PostAddedRange(IEnumerable<AnimationContainer> items)
-        {
-            foreach (AnimationContainer item in items)
-                _animations_PostAdded(item);
-        }
-
-        private void _animations_PostInserted(AnimationContainer item, int index)
-        {
-            _animations_PostAdded(item);
-        }
-
-        private void _animations_PostAdded(AnimationContainer item)
-        {
-            item._owners.Add(this);
-        }
-
+        /// <summary>
+        /// Adds a property animation tree to this TObject.
+        /// </summary>
+        /// <param name="anim">The animation tree to add.</param>
+        /// <param name="startNow">If the animation should be run immediately.</param>
+        /// <param name="removeOnEnd">If the animation should be removed from this TObject upon finishing.</param>
+        /// <param name="group">The group to tick this animation in.</param>
+        /// <param name="order">The order within the group to tick this animation in.</param>
+        /// <param name="pausedBehavior">Ticking behavior of the animation while paused.</param>
         public void AddAnimation(
             AnimationContainer anim,
             bool startNow = false,
             bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
-            ETickOrder order = ETickOrder.BoneAnimation,
+            ETickOrder order = ETickOrder.Animation,
             InputPauseType pausedBehavior = InputPauseType.TickOnlyWhenUnpaused)
         {
             if (anim == null)
                 return;
             if (removeOnEnd)
                 anim.AnimationEnded += RemoveAnimationSelf;
-            Animations.Add(anim);
+            if (_animations == null)
+                _animations = new List<AnimationContainer>();
+            _animations.Add(anim);
+            anim.Owners.Add(this);
+            anim.Group = group;
+            anim.Order = order;
+            anim.PausedBehavior = pausedBehavior;
             if (startNow)
-                anim.Start(group, order, pausedBehavior);
+                anim.Start();
+        }
+        public bool RemoveAnimation(AnimationContainer anim)
+        {
+            if (anim == null)
+                return false;
+            anim.AnimationEnded -= RemoveAnimationSelf;
+            anim.Owners.Remove(this);
+            bool removed = _animations.Remove(anim);
+            if (_animations.Count == 0)
+                _animations = null;
+            return removed;
         }
         private void RemoveAnimationSelf(AnimationContainer anim)
         {
             anim.AnimationEnded -= RemoveAnimationSelf;
-            Animations.Remove(anim);
+            anim.Owners.Remove(this);
+            _animations.Remove(anim);
         }
         #endregion
 

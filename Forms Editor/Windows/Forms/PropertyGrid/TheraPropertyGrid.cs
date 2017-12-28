@@ -23,7 +23,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public static Dictionary<Type, Type> FullEditorTypes = new Dictionary<Type, Type>();
         static TheraPropertyGrid()
         {
-            var propControls = Program.FindPublicTypes(x => x.IsSubclassOf(typeof(PropGridItem)));
+            var propControls = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)));
             foreach (var propControlType in propControls)
             {
                 var attribs = propControlType.GetCustomAttributesExt<PropGridControlForAttribute>();
@@ -38,7 +38,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
                 }
             }
-            var fullEditors = Program.FindPublicTypes(x => x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null);
+            var fullEditors = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null);
             foreach (var editorType in fullEditors)
             {
                 var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
@@ -86,10 +86,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 _subObject = value;
 
+                if (_subObject is TObject obj)
+                    obj.EditorState.Selected = true;
+
                 //If scene component, select it in the scene
-                if (_subObject is SceneComponent s)
+                if (_subObject is SceneComponent s && Engine.LocalPlayers.Count > 0)
                 {
-                    EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn.HUD;
+                    EditorHud hud = Engine.LocalPlayers[0]?.ControlledPawn?.HUD as EditorHud;
                     hud.SelectedComponent = s;
                 }
 
@@ -155,7 +158,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private void PopulateLogicComponentList(MonitoredList<LogicComponent> logicComponents)
+        private void PopulateLogicComponentList(EventList<LogicComponent> logicComponents)
         {
             if (lstLogicComps.Visible = lblLogicComps.Visible = 
                 logicComponents != null && logicComponents.Count > 0)
@@ -229,27 +232,28 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 });
             }).ContinueWith(t =>
             {
-                Invoke((Action)(() =>
-                {
-                    for (int i = 0; i < props.Length; ++i)
+                if (!IsDisposed)
+                    Invoke((Action)(() =>
                     {
-                        if (!info.ContainsKey(i))
-                            continue;
-                        PropertyData p = info[i];
-                        CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly);
-                    }
+                        for (int i = 0; i < props.Length; ++i)
+                        {
+                            if (!info.ContainsKey(i))
+                                continue;
+                            PropertyData p = info[i];
+                            CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly);
+                        }
 
-                    for (int i = 0; i < methods.Length; ++i)
-                    {
-                        MethodInfo p = methods[i];
-                        //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
-                    }
+                        for (int i = 0; i < methods.Length; ++i)
+                        {
+                            MethodInfo p = methods[i];
+                            //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
+                        }
 
-                    if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
-                        _categories.Values.ToArray()[0].CategoryName = null;
+                        if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                            _categories.Values.ToArray()[0].CategoryName = null;
 
-                    pnlProps.ResumeLayout(true);
-                }));
+                        pnlProps.ResumeLayout(true);
+                    }));
             });
         }
 
@@ -385,11 +389,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             lstLogicComps.Height += diff;
         }
 
-        private void treeViewSceneComps_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            
-        }
-
         private void lstLogicComps_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_updating)
@@ -422,11 +421,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Rectangle r = node.Bounds;
                 r.X -= 25; r.Width += 25;
                 if (r.Contains(e.Location))
-                {
-                    SceneComponent s = node.Tag as SceneComponent;
-                    s.EditorState.Selected = true;
                     SubObject = node.Tag;
-                }
+            }
+        }
+
+        private void treeViewSceneComps_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+            if (_updating || e.Action == TreeViewAction.ByMouse)
+                return;
+            TreeNode node = e.Node;
+            if (node != null)
+            {
+                SceneComponent s = node.Tag as SceneComponent;
+                SubObject = node.Tag;
             }
         }
 

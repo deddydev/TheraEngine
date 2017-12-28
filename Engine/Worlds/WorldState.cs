@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Files;
+using TheraEngine.Rendering;
 using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Worlds
@@ -11,19 +12,21 @@ namespace TheraEngine.Worlds
     public class WorldState : FileObject
     {
         public List<Map> SpawnedMaps => _spawnedMaps;
-        public MonitoredList<IActor> SpawnedActors => _spawnedActors;
+        public EventList<IActor> SpawnedActors => _spawnedActors;
+
+        public Scene3D Scene { get; set; } = null;
 
         [TSerialize("SpawnedMaps")]
         private List<Map> _spawnedMaps;
         [TSerialize("SpawnedActors")]
-        private MonitoredList<IActor> _spawnedActors;
+        private EventList<IActor> _spawnedActors;
 
         public Dictionary<Type, HashSet<int>> _actorMap;
 
         public WorldState()
         {
             _spawnedMaps = new List<Map>();
-            _spawnedActors = new MonitoredList<IActor>();
+            _spawnedActors = new EventList<IActor>();
             _actorMap = new Dictionary<Type, HashSet<int>>();
 
             _spawnedActors.PostAdded += _spawnedActors_Added;

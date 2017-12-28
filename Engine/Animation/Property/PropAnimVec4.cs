@@ -5,20 +5,17 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimVec4 : PropertyAnimation<Vec4Keyframe>, IEnumerable<Vec4Keyframe>
+    public class PropAnimVec4 : PropAnimKeyframed<Vec4Keyframe>, IEnumerable<Vec4Keyframe>
     {
-        private Vec4 _defaultValue = Vec4.Zero;
-        private GetValue<Vec4> _getValue;
+        private DelGetValue<Vec4> _getValue;
 
-        [TSerialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "Baked")]
         private Vec4[] _baked = null;
-
-        [TSerialize(Condition = "UseKeyframes")]
-        public Vec4 DefaultValue
-        {
-            get => _defaultValue;
-            set => _defaultValue = value;
-        }
+        /// <summary>
+        /// The default value to return when no keyframes are set.
+        /// </summary>
+        [TSerialize(Condition = "!Baked")]
+        public Vec4 DefaultValue { get; set; } = Vec4.Zero;
 
         public PropAnimVec4() : base(0.0f, false, true) { }
         public PropAnimVec4(float lengthInSeconds, bool looped, bool useKeyframes)
@@ -26,8 +23,8 @@ namespace TheraEngine.Animation
         public PropAnimVec4(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void UseKeyframesChanged()
-            => _getValue = _useKeyframes ? (GetValue<Vec4>)GetValueKeyframed : GetValueBaked;
+        protected override void BakedChanged()
+            => _getValue = !Baked ? (DelGetValue<Vec4>)GetValueKeyframed : GetValueBaked;
 
         public Vec4 GetValue(float second)
             => _getValue(second);
@@ -38,7 +35,7 @@ namespace TheraEngine.Animation
         public Vec4 GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Vec4 GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
 
         public override void Bake(float framesPerSecond)
         {

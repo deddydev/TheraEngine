@@ -12,8 +12,8 @@ using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("SKEL", "Model Skeleton")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
+    [FileExt("skel")]
+    [FileDef("Model Skeleton")]
     public class Skeleton : FileObject, IEnumerable<Bone>, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);

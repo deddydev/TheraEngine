@@ -460,7 +460,7 @@ namespace TheraEditor.Windows.Forms
             string projectFilePath = current.FilePath;
             string currentPath = projectFilePath;
             string relativePath = path.MakePathRelativeTo(projectFilePath);
-            string[] pathHierarchy = relativePath.Split('\\');
+            string[] pathHierarchy = relativePath.Split(Path.DirectorySeparatorChar);
             foreach (string name in pathHierarchy)
             {
                 currentPath += Path.DirectorySeparatorChar + name;
@@ -531,7 +531,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            Engine.PrintLine("{0} '{1}'", e.ChangeType.ToString().ToLowerInvariant(), e.FullPath);
+            Engine.PrintLine("{0} '{1}'", e.ChangeType.ToString(), e.FullPath);
 
             switch (e.ChangeType)
             {
@@ -575,7 +575,7 @@ namespace TheraEditor.Windows.Forms
                                     {
                                         SaveFileDialog sfd = new SaveFileDialog()
                                         {
-                                            Filter = b.SingleInstance.FileHeader.GetFilter()
+                                            Filter = b.SingleInstance.GetFilter()
                                         };
                                         if (sfd.ShowDialog(f) == DialogResult.OK)
                                         {

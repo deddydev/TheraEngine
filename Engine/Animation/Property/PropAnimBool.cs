@@ -5,20 +5,17 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
+    public class PropAnimBool : PropAnimKeyframed<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
-        private bool _defaultValue = false;
-        private GetValue<bool> _getValue;
+        private DelGetValue<bool> _getValue;
 
-        [TSerialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "Baked")]
         private bool[] _baked = null;
-
-        [TSerialize(Condition = "UseKeyframes")]
-        public bool DefaultValue
-        {
-            get => _defaultValue;
-            set => _defaultValue = value;
-        }
+        /// <summary>
+        /// The default value to return when no keyframes are set.
+        /// </summary>
+        [TSerialize(Condition = "!Baked")]
+        public bool DefaultValue { get; set; } = false;
 
         public PropAnimBool() : base(0.0f, false, true) { }
         public PropAnimBool(float lengthInSeconds, bool looped, bool useKeyframes)
@@ -26,8 +23,8 @@ namespace TheraEngine.Animation
         public PropAnimBool(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void UseKeyframesChanged()
-            => _getValue = _useKeyframes ? (GetValue<bool>)GetValueKeyframed : GetValueBaked;
+        protected override void BakedChanged()
+            => _getValue = !Baked ? (DelGetValue<bool>)GetValueKeyframed : GetValueBaked;
 
         public bool GetValue(float second)
             => _getValue(second);
@@ -42,7 +39,7 @@ namespace TheraEngine.Animation
             BoolKeyframe key = _keyframes.GetKeyBefore(frameIndex);
             if (key != null)
                 return key.Value;
-            return _defaultValue;
+            return DefaultValue;
         }
 
         public override void Bake(float framesPerSecond)

@@ -6,13 +6,18 @@ using System;
 
 namespace TheraEngine
 {
+    [FileExt("set")]
+    public abstract class TSettings : FileObject
+    {
+
+    }
     public enum ShadingStyle
     {
         Forward = 0,
         Deferred = 1,
     }
-    [FileClass("ENSET", "Engine Settings")]
-    public class EngineSettings : FileObject
+    [FileDef("Engine Settings")]
+    public class EngineSettings : TSettings
     {
         [Category("Performance")]
         [TSerialize]

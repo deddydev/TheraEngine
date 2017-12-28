@@ -11,6 +11,6 @@ namespace TheraEngine
         public Vec3 _hitNormal;
         public Vec3 _location;
         public IActor _hitActor;
-        public SkeletalMesh _hitModel;
+        public SkeletalModel _hitModel;
     }
 }

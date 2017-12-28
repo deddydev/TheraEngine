@@ -10,7 +10,7 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileClass("SHAPE", "Sphere")]
+    [FileDef("Sphere")]
     public class Sphere : Shape
     {
         [TSerialize("Radius")]

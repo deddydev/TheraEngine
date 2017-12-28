@@ -25,6 +25,8 @@ namespace TheraEngine.Files
     {
 
     }
+    [FileExt("tasset")]
+    [FileDef("Thera Engine Asset")]
     public abstract class FileObject : TObject, IFileObject
     {
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
@@ -38,60 +40,65 @@ namespace TheraEngine.Files
         }
 
         [Browsable(false)]
-        public FileClass FileHeader => GetFileHeader(GetType());
-        public static FileClass GetFileHeader(Type t)
+        public FileDef FileDefinition => GetFileDefinition(GetType());
+        public static FileDef GetFileDefinition(Type classType)
         {
-            return Attribute.GetCustomAttribute(t, typeof(FileClass)) as FileClass;
-            //throw new Exception("No FileClass attribute specified for " + t.ToString());
+            return Attribute.GetCustomAttribute(classType, typeof(FileDef), true) as FileDef;
+            //throw new Exception("No FileDef attribute specified for " + t.ToString());
+        }
+        [Browsable(false)]
+        public FileExt FileExtension => GetFileExtension(GetType());
+        public static FileExt GetFileExtension(Type classType)
+        {
+            return Attribute.GetCustomAttribute(classType, typeof(FileExt), true) as FileExt;
+            //throw new Exception("No FileExt attribute specified for " + t.ToString());
+        }
+        [Browsable(false)]
+        public File3rdParty File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
+        public static File3rdParty GetFile3rdPartyExtensions(Type classType)
+        {
+            return Attribute.GetCustomAttribute(classType, typeof(File3rdParty), true) as File3rdParty;
+            //throw new Exception("No File3rdParty attribute specified for " + t.ToString());
         }
 
         private List<IFileRef> _references = new List<IFileRef>();
         private string _filePath;
         private int _calculatedSize;
 
-        public delegate FileObject DelLoadThirdPartyFile(string path);
+        public delegate FileObject DelThirdPartyFileMethod(string path);
         static FileObject()
         {
-            _thirdPartyLoaders = new Dictionary<string, Dictionary<Type, DelLoadThirdPartyFile>>();
+            _3rdPartyLoaders = new Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>>();
+            _3rdPartyExporters = new Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>>();
             try
             {
-                var types =
-                (
-                    from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-                    where !domainAssembly.IsDynamic
-                    from assemblyType in domainAssembly.GetExportedTypes()
-                    where assemblyType.IsSubclassOf(typeof(FileObject)) && !assemblyType.IsAbstract
-                    select assemblyType
-                )
-                .ToArray();
-
+                var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(FileObject)) && !t.IsAbstract).ToArray();
                 foreach (Type t in types)
                 {
-                    FileClass c = GetFileHeader(t);
-                    if (c != null && c.ImportableExtensions != null)
+                    File3rdParty attrib = GetFile3rdPartyExtensions(t);
+                    if (attrib == null)
+                        continue;
+                    foreach (string ext3rd in attrib.ImportableExtensions)
                     {
-                        foreach (string ext3rd in c.ImportableExtensions)
+                        string extLower = ext3rd.ToLowerInvariant();
+                        Dictionary<Type, DelThirdPartyFileMethod> d;
+                        if (_3rdPartyLoaders.ContainsKey(extLower))
+                            d = _3rdPartyLoaders[extLower];
+                        else
+                            _3rdPartyLoaders.Add(extLower, d = new Dictionary<Type, DelThirdPartyFileMethod>());
+                        if (!d.ContainsKey(t))
                         {
-                            string extLower = ext3rd.ToLowerInvariant();
-                            Dictionary<Type, DelLoadThirdPartyFile> d;
-                            if (_thirdPartyLoaders.ContainsKey(extLower))
-                                d = _thirdPartyLoaders[extLower];
-                            else
-                                _thirdPartyLoaders.Add(extLower, d = new Dictionary<Type, DelLoadThirdPartyFile>());
-                            if (!d.ContainsKey(t))
-                            {
-                                var methods = t.GetMethods(
-                                    BindingFlags.NonPublic |
-                                    BindingFlags.Public |
-                                    BindingFlags.Static)
-                                    .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
-                                    .ToArray();
-                                if (methods.Length > 0 && Delegate.CreateDelegate(typeof(DelLoadThirdPartyFile), methods[0]) is DelLoadThirdPartyFile result)
-                                    d.Add(t, result);
-                            }
-                            else
-                                throw new Exception(t.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
+                            var methods = t.GetMethods(
+                                BindingFlags.NonPublic |
+                                BindingFlags.Public |
+                                BindingFlags.Static)
+                                .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
+                                .ToArray();
+                            if (methods.Length > 0 && Delegate.CreateDelegate(typeof(DelThirdPartyFileMethod), methods[0]) is DelThirdPartyFileMethod result)
+                                d.Add(t, result);
                         }
+                        else
+                            throw new Exception(t.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
                     }
                 }
             }
@@ -133,13 +140,21 @@ namespace TheraEngine.Files
                 case FileFormat.Binary:
                     return CustomBinarySerializer.DetermineType(path);
                 default:
-                    return null;
+                    return DetermineTypeThirdParty(path);
             }
         }
+
+        private static Type DetermineTypeThirdParty(string path)
+        {
+            //TODO: finish
+            return null;
+        }
+
         public static FileFormat GetFormat(string path)
         {
+            //TODO: implement a more dependable method for this?
             string ext = Path.GetExtension(path).Substring(1);
-            if (FileClass.Has3rdPartyExtension(ext))
+            if (File3rdParty.Has3rdPartyExtension(ext))
                 return FileFormat.ThirdParty;
             switch (ext.ToLowerInvariant()[0])
             {
@@ -178,12 +193,107 @@ namespace TheraEngine.Files
         {
             if (dir[dir.Length - 1] != Path.DirectorySeparatorChar)
                 dir += Path.DirectorySeparatorChar;
-            return dir + name + "." + GetFileHeader(fileType).GetProperExtension(format);
+            return dir + name + "." + GetFileExtension(fileType).GetProperExtension(format);
+        }
+
+        public string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false)
+        {
+            return GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
+        }
+        public static string GetFilter<T>(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false) where T : FileObject
+        {
+            return GetFilter(typeof(T), proprietary, import3rdParty, export3rdParty);
+        }
+        /// <summary>
+        /// Returns the filter for all extensions related to this format.
+        /// </summary>
+        /// <param name="classType">The type of the class to get the filter for.</param>
+        /// <param name="proprietary">Add the TheraEngine proprietary formats (binary, xml, etc)</param>
+        /// <param name="import3rdParty">Add any importable 3rd party file formats</param>
+        /// <param name="export3rdParty">Add any exportable 3rd party file formats</param>
+        /// <returns>The filter to be used in open file dialog, save file dialog, etc</returns>
+        public static string GetFilter(Type classType, bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false)
+        {
+            string allTypes = "";
+            string eachType = "";
+            bool first = true;
+            FileDef def = GetFileDefinition(classType);
+            if (proprietary)
+            {
+                FileExt ext = GetFileExtension(classType);
+                foreach (string type in Enum.GetNames(typeof(ProprietaryFileFormat)))
+                {
+                    if (first)
+                        first = false;
+                    else
+                    {
+                        allTypes += ";";
+                        eachType += "|";
+                    }
+                    string fmt = String.Format("*.{0}{1}", type.Substring(0, 1).ToLowerInvariant(), ext.Extension);
+                    eachType += String.Format("{0} [{2}] ({1})|{1}", def.UserFriendlyName, fmt, type);
+                    allTypes += fmt;
+                }
+            }
+            if (import3rdParty || export3rdParty)
+            {
+                File3rdParty ext = GetFile3rdPartyExtensions(classType);
+                if (import3rdParty)
+                {
+                    foreach (string ext3rd in ext.ImportableExtensions)
+                    {
+                        string extLower = ext3rd.ToLowerInvariant();
+                        if (first)
+                            first = false;
+                        else
+                        {
+                            allTypes += ";";
+                            eachType += "|";
+                        }
+                        string fmt = String.Format("*.{0}", extLower);
+                        if (File3rdParty.ExtensionNames3rdParty.ContainsKey(extLower))
+                            eachType += String.Format("{0} ({1})|{1}", File3rdParty.ExtensionNames3rdParty[extLower], fmt);
+                        else
+                            eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
+                        allTypes += fmt;
+                    }
+                }
+                if (export3rdParty)
+                {
+                    foreach (string ext3rd in ext.ExportableExtensions)
+                    {
+                        //Don't rewrite extension if it was already written as importable
+                        if (import3rdParty && 
+                            ext.ImportableExtensions != null && 
+                            ext.ImportableExtensions.Contains(ext3rd, StringComparer.InvariantCultureIgnoreCase))
+                            continue;
+
+                        string extLower = ext3rd.ToLowerInvariant();
+
+                        if (first)
+                            first = false;
+                        else
+                        {
+                            allTypes += ";";
+                            eachType += "|";
+                        }
+                        string fmt = String.Format("*.{0}", extLower);
+                        if (File3rdParty.ExtensionNames3rdParty.ContainsKey(extLower))
+                            eachType += String.Format("{0} ({1})|{1}", File3rdParty.ExtensionNames3rdParty[extLower], fmt);
+                        else
+                            eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
+                        allTypes += fmt;
+                    }
+                }
+            }
+
+            string allTypesFull = String.Format("{0} ({1})|{1}", def.UserFriendlyName, allTypes);
+            return allTypesFull + "|" + eachType;
         }
 
         #region Import/Export
         /// <summary>
-        /// Opens a new instance of the file object at the given file path.
+        /// Opens a new instance of the given file at the given file path.
         /// </summary>
         /// <typeparam name="T">The type of the file object to load.</typeparam>
         /// <param name="filePath">The path to the file.</param>
@@ -193,7 +303,7 @@ namespace TheraEngine.Files
             switch (GetFormat(filePath))
             {
                 case FileFormat.ThirdParty:
-                    return FromThirdParty<T>(filePath);
+                    return Read3rdParty<T>(filePath);
                 case FileFormat.Binary:
                     return FromBinary<T>(filePath);
                 case FileFormat.XML:
@@ -212,7 +322,7 @@ namespace TheraEngine.Files
             switch (GetFormat(filePath))
             {
                 case FileFormat.ThirdParty:
-                    return FromThirdParty(type, filePath);
+                    return Read3rdParty(type, filePath);
                 case FileFormat.Binary:
                     return FromBinary(type, filePath);
                 case FileFormat.XML:
@@ -259,7 +369,7 @@ namespace TheraEngine.Files
                 return null;
 
             FileObject file;
-            if (GetFileHeader(type).ManualXmlConfigSerialize)
+            if (GetFileExtension(type).ManualXmlConfigSerialize)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
@@ -301,9 +411,11 @@ namespace TheraEngine.Files
             if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 directory += Path.DirectorySeparatorChar;
 
-            FilePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.XML);
+            FileExt ext = FileExtension;
 
-            if (FileHeader.ManualXmlConfigSerialize)
+            FilePath = directory + fileName + "." + ext.GetProperExtension(ProprietaryFileFormat.XML);
+
+            if (ext.ManualXmlConfigSerialize)
             {
                 using (FileStream stream = new FileStream(_filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
                 using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
@@ -319,6 +431,21 @@ namespace TheraEngine.Files
             else
                 CustomXmlSerializer.Serialize(this, _filePath);
         }
+        /// <summary>
+        /// Writes this object to an xml file using the given xml writer.
+        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
+        /// </summary>
+        /// <param name="writer">The xml writer to write the file with.</param>
+        internal protected virtual void Write(XmlWriter writer)
+            => throw new NotImplementedException("Override of \"internal protected virtual void Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
+        /// <summary>
+        /// Reads this object from an xml file using the given xml reader.
+        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
+        /// </summary>
+        /// <param name="reader">The xml reader to read the file with.</param>
+        internal protected virtual void Read(XMLReader reader)
+            => throw new NotImplementedException("Override of \"internal protected virtual void Read(XMLReader reader)\" required when using ManualXmlSerialize in FileClass attribute.");
+
         #endregion
 
         #region Binary
@@ -331,7 +458,7 @@ namespace TheraEngine.Files
                 return null;
 
             FileObject file;
-            if (GetFileHeader(type).ManualBinConfigSerialize)
+            if (GetFileExtension(type).ManualBinConfigSerialize)
             {
                 file = SerializationCommon.CreateObject(type) as FileObject;
                 if (file != null)
@@ -363,9 +490,11 @@ namespace TheraEngine.Files
             if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 directory += Path.DirectorySeparatorChar;
 
-            FilePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.Binary);
+            FileExt ext = FileExtension;
 
-            if (FileHeader.ManualBinConfigSerialize)
+            FilePath = directory + fileName + "." + ext.GetProperExtension(ProprietaryFileFormat.Binary);
+
+            if (ext.ManualBinConfigSerialize)
             {
                 using (FileStream stream = new FileStream(_filePath,
                     FileMode.OpenOrCreate,
@@ -385,7 +514,7 @@ namespace TheraEngine.Files
                         table.WriteTable(hdr);
                         hdr->_fileLength = totalSize;
                         hdr->_stringTableLength = stringSize;
-                        hdr->_endian = (byte)Endian.EOrder.Big;
+                        hdr->_endian = (byte)Engine.ComputerInfo.Endian;
                         Write(hdr->Data, table);
                     }
                 }
@@ -431,62 +560,79 @@ namespace TheraEngine.Files
         /// <param name="strings">The string table to get strings from.</param>
         internal protected virtual void Read(VoidPtr address, VoidPtr strings)
             => throw new NotImplementedException("Override of \"internal protected virtual void Read(VoidPtr address, VoidPtr strings)\" required when using ManualBinarySerialize in FileClass attribute.");
-        /// <summary>
-        /// Writes this object to an xml file using the given xml writer.
-        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
-        /// </summary>
-        /// <param name="writer">The xml writer to write the file with.</param>
-        internal protected virtual void Write(XmlWriter writer) 
-            => throw new NotImplementedException("Override of \"internal protected virtual void Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
-        /// <summary>
-        /// Reads this object from an xml file using the given xml reader.
-        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
-        /// </summary>
-        /// <param name="reader">The xml reader to read the file with.</param>
-        internal protected virtual void Read(XMLReader reader) 
-            => throw new NotImplementedException("Override of \"internal protected virtual void Read(XMLReader reader)\" required when using ManualXmlSerialize in FileClass attribute.");
-
         #endregion
 
         #region 3rd Party
-        internal unsafe static T FromThirdParty<T>(string filePath) where T : FileObject
-            => FromThirdParty(typeof(T), filePath) as T;
-        internal unsafe static FileObject FromThirdParty(Type t, string filePath)
+        internal unsafe static T Read3rdParty<T>(string filePath) where T : FileObject
+            => Read3rdParty(typeof(T), filePath) as T;
+        internal unsafe static FileObject Read3rdParty(Type classType, string filePath)
         {
             string ext = Path.GetExtension(filePath).Substring(1);
-            return GetThirdPartyLoader(t, ext)?.Invoke(filePath);
+            return Get3rdPartyLoader(classType, ext)?.Invoke(filePath);
         }
-        private static Dictionary<string, Dictionary<Type, DelLoadThirdPartyFile>> _thirdPartyLoaders;
-        public static DelLoadThirdPartyFile GetThirdPartyLoader(Type fileType, string extension)
+        private static Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>> _3rdPartyLoaders;
+        private static Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>> _3rdPartyExporters;
+        public static DelThirdPartyFileMethod Get3rdPartyLoader(Type fileType, string extension)
         {
             extension = extension.ToLowerInvariant();
-            if (_thirdPartyLoaders != null && _thirdPartyLoaders.ContainsKey(extension))
+            if (_3rdPartyLoaders != null && _3rdPartyLoaders.ContainsKey(extension))
             {
-                var t = _thirdPartyLoaders[extension];
+                var t = _3rdPartyLoaders[extension];
                 if (t.ContainsKey(fileType))
                     return t[fileType];
             }
             return null;
         }
-        public static void RegisterThirdPartyLoader<T>(string extension, DelLoadThirdPartyFile loaderMethod) where T : FileObject
+        public static DelThirdPartyFileMethod Get3rdPartyExporter(Type fileType, string extension)
+        {
+            extension = extension.ToLowerInvariant();
+            if (_3rdPartyExporters != null && _3rdPartyExporters.ContainsKey(extension))
+            {
+                var t = _3rdPartyExporters[extension];
+                if (t.ContainsKey(fileType))
+                    return t[fileType];
+            }
+            return null;
+        }
+        public static void Register3rdPartyLoader<T>(string extension, DelThirdPartyFileMethod loadMethod) where T : FileObject
+        {
+            Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
+        }
+        public static void Register3rdPartyExporter<T>(string extension, DelThirdPartyFileMethod exportMethod) where T : FileObject
+        {
+            Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
+        }
+        private static void Register3rdParty<T>(Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>> methodDic, string extension, DelThirdPartyFileMethod method) where T : FileObject
         {
             extension = extension.ToLowerInvariant();
 
-            if (_thirdPartyLoaders == null)
-                _thirdPartyLoaders = new Dictionary<string, Dictionary<Type, DelLoadThirdPartyFile>>();
+            if (methodDic == null)
+                methodDic = new Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>>();
 
-            Dictionary<Type, DelLoadThirdPartyFile> typesforExt;
-            if (!_thirdPartyLoaders.ContainsKey(extension))
-                _thirdPartyLoaders.Add(extension, typesforExt = new Dictionary<Type, DelLoadThirdPartyFile>());
+            Dictionary<Type, DelThirdPartyFileMethod> typesforExt;
+            if (!methodDic.ContainsKey(extension))
+                methodDic.Add(extension, typesforExt = new Dictionary<Type, DelThirdPartyFileMethod>());
             else
-                typesforExt = _thirdPartyLoaders[extension];
+                typesforExt = methodDic[extension];
 
             Type fileType = typeof(T);
             if (!typesforExt.ContainsKey(fileType))
-                typesforExt.Add(fileType, loaderMethod);
+                typesforExt.Add(fileType, method);
             else
                 throw new Exception("Registered " + extension + " for " + fileType.GetFriendlyName() + " too many times.");
         }
+        /// <summary>
+        /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to write the object to a path.
+        /// </summary>
+        /// <param name="filePath">The path of the file to write.</param>
+        internal protected virtual void WriteThirdParty(string filePath)
+            => throw new NotImplementedException("Override of \"internal protected virtual void WriteThirdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
+        /// <summary>
+        /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to read the object from a path.
+        /// </summary>
+        /// <param name="filePath">The path of the file to read.</param>
+        internal protected virtual void Read3rdParty(string filePath)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ReadThirdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
         #endregion
     }
 }

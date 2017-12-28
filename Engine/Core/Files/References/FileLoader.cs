@@ -17,7 +17,8 @@ namespace TheraEngine.Files
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
-    [FileClass("LDR", "File Loader")]
+    [FileExt("ldr")]
+    [FileDef("File Loader")]
     public class FileLoader<T> : FileObject, IFileLoader where T : FileObject
     {
         #region Constructors
@@ -59,20 +60,20 @@ namespace TheraEngine.Files
         {
             get
             {
-                if (string.IsNullOrEmpty(_absolutePath) && Engine.Settings != null && !string.IsNullOrEmpty(Engine.Game.FilePath) && !string.IsNullOrEmpty(_localPath))
-                    _absolutePath = Engine.Game.FilePath + _localPath;
+                //if (string.IsNullOrEmpty(_absolutePath) && Engine.Settings != null && !string.IsNullOrEmpty(Engine.Game.FilePath) && !string.IsNullOrEmpty(_localPath))
+                //    _absolutePath = Engine.Game.FilePath + _localPath;
                 return _absolutePath;
             }
             set
             {
-                _localPath = value;
-                _absolutePath = _localPath;
-                if (!string.IsNullOrEmpty(_localPath))
+                if (!string.IsNullOrEmpty(value))
                 {
-                    if (_localPath[0] == Path.DirectorySeparatorChar)
-                        _localPath.Substring(1);
-                    if (_localPath.IndexOf(Path.DirectorySeparatorChar) < 0)
-                        _absolutePath = _localPath.MakePathRelativeTo(Application.StartupPath);
+                    _localPath = value.MakePathRelativeTo(Application.StartupPath);
+                    _absolutePath = Path.GetFullPath(Application.StartupPath + _localPath);
+                }
+                else
+                {
+                    _absolutePath = _localPath = "";
                 }
             }
         }
@@ -80,7 +81,7 @@ namespace TheraEngine.Files
         [Browsable(false)]
         public Type ReferencedType => typeof(T);
         
-        public event Action<T> Loaded;
+        private event Action<T> Loaded;
         /// <summary>
         /// Method to be called when a new instance is loaded.
         /// </summary>
@@ -97,21 +98,25 @@ namespace TheraEngine.Files
                 return;
             Loaded -= onLoaded;
         }
-        protected virtual T LoadNewInstance()
+        protected virtual T LoadNewInstance(bool allowConstruct = true, params object[] constructionArgs)
         {
             string absolutePath = ReferencePath;
 
             if (string.IsNullOrWhiteSpace(absolutePath))
             {
-                T file = CreateNewInstance_Internal(false);
-                if (file != null)
+                if (allowConstruct)
                 {
-                    file.FilePath = absolutePath;
-                    OnFileLoaded(file);
-                    file.OnLoaded();
-                    Loaded?.Invoke(file);
+                    T file = CreateNewInstance_Internal(false, constructionArgs);
+                    if (file != null)
+                    {
+                        file.FilePath = absolutePath;
+                        OnFileLoaded(file);
+                        file.OnLoaded();
+                        Loaded?.Invoke(file);
+                    }
+                    return file;
                 }
-                return file;
+                return null;
             }
 
             if (!File.Exists(absolutePath))
@@ -122,10 +127,11 @@ namespace TheraEngine.Files
 
             try
             {
-                if (IsSpecial())
+                if (IsThirdPartyFormat())
                 {
-                    T file = Activator.CreateInstance(_subType, absolutePath) as T;
+                    T file = Activator.CreateInstance(_subType) as T;
                     file.FilePath = absolutePath;
+                    file.Read3rdParty(absolutePath);
                     OnFileLoaded(file);
                     file.OnLoaded();
                     Loaded?.Invoke(file);
@@ -169,20 +175,25 @@ namespace TheraEngine.Files
 
         /// <summary>
         /// Retrieves the extension from the reference path.
+        /// Returns lowercase WITHOUT a period as the first char.
         /// </summary>
-        public string Extension()
-            => ReferencePath == null ? null : Path.GetExtension(ReferencePath).ToLowerInvariant().Substring(1);
+        public string Extension() => ReferencePath == null ? null :
+            Path.GetExtension(ReferencePath).ToLowerInvariant().Substring(1);
 
         /// <summary>
         /// Retrieves the proprietary file format type from the extension.
+        /// Does not account for extensions that are 3rd party.
         /// </summary>
         public FileFormat GetFormat()
         {
             string ext = Extension();
             if (!string.IsNullOrEmpty(ext))
             {
-                if (ext.StartsWith("x"))
-                    return FileFormat.XML;
+                switch (ext.ToLowerInvariant()[0])
+                {
+                    case 'x': return FileFormat.XML;
+                    case 'b': return FileFormat.Binary;
+                }
             }
             return FileFormat.Binary;
         }
@@ -199,12 +210,12 @@ namespace TheraEngine.Files
         {
             if (_subType.IsAbstract)
             {
-                Engine.LogWarning("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
+                //Engine.LogWarning("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
                 return null;
             }
             else if (_subType.IsInterface)
             {
-                Engine.LogWarning("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
+                //Engine.LogWarning("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
                 return null;
             }
             else
@@ -228,10 +239,10 @@ namespace TheraEngine.Files
         /// Returns true if the file needs special deserialization handling.
         /// If so, the class needs a constructor that takes the file's absolute path (string) as its only argument.
         /// </summary>
-        private bool IsSpecial()
+        private bool IsThirdPartyFormat()
         {
-            FileClass header = GetFileHeader(_subType);
-            return header == null ? false : header.IsSpecialDeserialize;
+            File3rdParty header = GetFile3rdPartyExtensions(_subType);
+            return header?.HasAnyExtensions ?? false;
         }
         public override string ToString() => ReferencePath;
         

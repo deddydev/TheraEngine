@@ -7,7 +7,6 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileClass("SHAPE", "Cone")]
     public abstract class BaseCone : Shape
     {
         public override Shape CullingVolume => null;

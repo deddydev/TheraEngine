@@ -5,7 +5,7 @@ namespace System
 {
     /// <summary>
     /// Thera Math: contains static methods and constants not included in the built-in System.Math class.
-    /// <para>using static System.TMath;</para>
+    /// <para>Easily call utilize this class by implementing 'using static System.TMath;' at the top of code files.</para>
     /// </summary>
     public unsafe static class TMath
     {
@@ -13,23 +13,54 @@ namespace System
         /// PI represented as a float value.
         /// </summary>
         public static readonly float PIf = (float)PI;
-
-        public static double DegToRad(double degrees)
-            => degrees * PI / 180.0;
-        public static double RadToDeg(double radians)
-            => radians * 180.0 / PI;
-        public static float DegToRad(float degrees)
-            => degrees * PIf / 180.0f;
-        public static float RadToDeg(float radians)
-            => radians * 180.0f / PIf;
-        public static Vec2 DegToRad(Vec2 degrees)
-            => degrees * PIf / 180.0f;
-        public static Vec2 RadToDeg(Vec2 radians)
-            => radians * 180.0f / PIf;
-        public static Vec3 DegToRad(Vec3 degrees)
-            => degrees * PIf / 180.0f;
-        public static Vec3 RadToDeg(Vec3 radians)
-            => radians * 180.0f / PIf;
+        /// <summary>
+        /// Multiply this constant by a degree value to convert to radians.
+        /// </summary>
+        public static readonly double DegToRadMult = PI / 180.0;
+        /// <summary>
+        /// Multiply this constant by a degree value to convert to radians.
+        /// </summary>
+        public static readonly float DegToRadMultf = PIf / 180.0f;
+        /// <summary>
+        /// Multiply this constant by a radian value to convert to degrees.
+        /// </summary>
+        public static readonly double RadToDegMult = 180.0 / PI;
+        /// <summary>
+        /// Multiply this constant by a radian value to convert to degrees.
+        /// </summary>
+        public static readonly float RadToDegMultf = 180.0f / PIf;
+        /// <summary>
+        /// Converts the given value in degrees to radians.
+        /// </summary>
+        public static double DegToRad(double degrees) => degrees * DegToRadMult;
+        /// <summary>
+        /// Converts the given value in radians to degrees.
+        /// </summary>
+        public static double RadToDeg(double radians) => radians * RadToDegMult;
+        /// <summary>
+        /// Converts the given value in degrees to radians.
+        /// </summary>
+        public static float DegToRad(float degrees) => degrees * DegToRadMultf;
+        /// <summary>
+        /// Converts the given value in radians to degrees.
+        /// </summary>
+        public static float RadToDeg(float radians) => radians * RadToDegMultf;
+        /// <summary>
+        /// Converts the given value in degrees to radians.
+        /// </summary>
+        public static Vec2 DegToRad(Vec2 degrees) => degrees * DegToRadMultf;
+        /// <summary>
+        /// Converts the given value in radians to degrees.
+        /// </summary>
+        public static Vec2 RadToDeg(Vec2 radians) => radians * RadToDegMultf;
+        /// <summary>
+        /// Converts the given value in degrees to radians.
+        /// </summary>
+        public static Vec3 DegToRad(Vec3 degrees) => degrees * DegToRadMultf;
+        /// <summary>
+        /// Converts the given value in radians to degrees.
+        /// </summary>
+        public static Vec3 RadToDeg(Vec3 radians) => radians * RadToDegMultf;
 
         /// <summary>
         /// Returns the most significant decimal digit.
@@ -76,19 +107,6 @@ namespace System
             x = *(float*)&i;                // Convert bits back to float
             x = x * (1.5f - xhalf * x * x); // Perform left single Newton-Raphson step.
             return x;
-        }
-        public static void Swap(ref float value1, ref float value2)
-        {
-            float temp = value1;
-            value1 = value2;
-            value2 = temp;
-        }
-
-        public static void Swap(ref int value1, ref int value2)
-        {
-            int temp = value1;
-            value1 = value2;
-            value2 = temp;
         }
         /// <summary>
         /// Finds the two values of x where the equation ax^2 + bx + c evaluates to 0.
@@ -240,17 +258,17 @@ namespace System
         {
             return point * Matrix4.CreateTranslation(-center) * angles.GetMatrix() * Matrix4.CreateTranslation(center);
         }
-        public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Quat angles)
+        public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Quat rotation)
         {
-            return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateFromQuaternion(angles) * Matrix4.CreateTranslation(center);
-        }
-        public static Vec2 RotateAboutPoint(Vec2 point, Vec2 center, float angle)
-        {
-            return (Vec2)((Vec3)point * Matrix4.CreateTranslation(-center) * Matrix4.CreateRotationZ(angle) * Matrix4.CreateTranslation(center));
+            return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateFromQuaternion(rotation) * Matrix4.CreateTranslation(center);
         }
         public static Vec3 ScaleAboutPoint(Vec3 point, Vec3 center, Vec3 scale)
         {
             return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(center);
+        }
+        public static Vec2 RotateAboutPoint(Vec2 point, Vec2 center, float angle)
+        {
+            return (Vec2)((Vec3)point * Matrix4.CreateTranslation(-center) * Matrix4.CreateRotationZ(angle) * Matrix4.CreateTranslation(center));
         }
         public static Vec2 ScaleAboutPoint(Vec2 point, Vec2 center, Vec2 scale)
         {

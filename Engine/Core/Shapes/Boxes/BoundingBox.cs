@@ -10,7 +10,7 @@ namespace TheraEngine.Core.Shapes
     /// <summary>
     /// Axis-Aligned Bounding Box (AABB)
     /// </summary>
-    [FileClass("SHAPE", "Axis-Aligned Bounding Box")]
+    [FileDef("Axis-Aligned Bounding Box")]
     public class BoundingBox : Shape
     {
         //public static List<BoundingBox> Active = new List<BoundingBox>();
@@ -36,10 +36,12 @@ namespace TheraEngine.Core.Shapes
                 _translation.Raw = (Maximum + value) / 2.0f;
                 _halfExtents.Raw = (Maximum - value) / 2.0f;
             }
-        } /// <summary>
-          /// The maximum corner position coordinate of this <see cref="BoundingBox"/>.
-          /// All components are the largest.
-          /// </summary>
+        }
+        public Box AsBox() => new Box(this);
+        /// <summary>
+        /// The maximum corner position coordinate of this <see cref="BoundingBox"/>.
+        /// All components are the largest.
+        /// </summary>
         public Vec3 Maximum
         {
             get => _translation + _halfExtents;
@@ -237,7 +239,7 @@ namespace TheraEngine.Core.Shapes
         public static PrimitiveData WireframeMesh(Vec3 min, Vec3 max)
         {
             VertexLine 
-                topFront, topRight, topBack, topLeft, 
+                topFront, topRight, topBack, topLeft,
                 frontLeft, frontRight, backLeft, backRight,
                 bottomFront, bottomRight, bottomBack, bottomLeft;
 
@@ -258,7 +260,7 @@ namespace TheraEngine.Core.Shapes
             backLeft = new VertexLine(new Vertex(TBL), new Vertex(BBL));
             backRight = new VertexLine(new Vertex(TBR), new Vertex(BBR));
 
-            return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), 
+            return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(),
                 topFront, topRight, topBack, topLeft,
                 frontLeft, frontRight, backLeft, backRight,
                 bottomFront, bottomRight, bottomBack, bottomLeft);
@@ -267,7 +269,15 @@ namespace TheraEngine.Core.Shapes
         {
             VertexQuad left, right, top, bottom, front, back;
 
-            GetCorners(min, max, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
+            GetCorners(min, max, 
+                out Vec3 TBL,
+                out Vec3 TBR,
+                out Vec3 TFL,
+                out Vec3 TFR,
+                out Vec3 BBL,
+                out Vec3 BBR,
+                out Vec3 BFL,
+                out Vec3 BFR);
 
             Vec3 rightNormal = Vec3.Right;
             Vec3 frontNormal = -Vec3.Forward;
@@ -290,7 +300,6 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         /// <param name="includeTranslation">If true, makes mesh with minimum and maximum coordinates.
         /// If false, makes the mesh about the origin.</param>
-        /// <returns></returns>
         public PrimitiveData GetMesh(bool includeTranslation)
         {
             if (includeTranslation)

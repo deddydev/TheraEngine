@@ -10,7 +10,7 @@ namespace Thera.Worlds.Actors.Components.Logic
     {
         public InventoryComponent()
         {
-            _items = new MonitoredList<InventoryItem>();
+            _items = new EventList<InventoryItem>();
             _items.PostAdded += _items_PostAdded;
             _items.PostAddedRange += _items_PostAddedRange;
             _items.PostInserted += _items_PostInserted;
@@ -49,9 +49,9 @@ namespace Thera.Worlds.Actors.Components.Logic
 
         }
 
-        MonitoredList<InventoryItem> _items;
+        EventList<InventoryItem> _items;
 
-        public MonitoredList<InventoryItem> Items => _items;
+        public EventList<InventoryItem> Items => _items;
 
         public IEnumerator<InventoryItem> GetEnumerator() => ((IEnumerable<InventoryItem>)_items).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<InventoryItem>)_items).GetEnumerator();

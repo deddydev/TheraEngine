@@ -8,7 +8,8 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("PRIM", "Mesh Data")]
+    [FileExt("primdata")]
+    [FileDef("Mesh Primitive Data")]
     public partial class PrimitiveData : FileObject, IDisposable
     {
         public static PrimitiveData FromQuads(Culling culling, VertexShaderDesc info, params VertexQuad[] quads)

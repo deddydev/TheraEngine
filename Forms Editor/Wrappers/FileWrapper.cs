@@ -184,14 +184,24 @@ namespace TheraEditor.Wrappers
 
         protected GlobalFileRef<T> _fileRef = new GlobalFileRef<T>();
 
-        public GlobalFileRef<T> Resource => _fileRef;
-        public override bool IsLoaded => Resource.IsLoaded;
+        public T Resource
+        {
+            get => ResourceRef.File;
+            set => ResourceRef.File = value;
+        }
+        public GlobalFileRef<T> ResourceRef
+        {
+            get => _fileRef;
+            set => _fileRef = value ?? new GlobalFileRef<T>();
+        }
+
+        public override bool IsLoaded => ResourceRef.IsLoaded;
         public override string FilePath
         {
-            get => Resource.ReferencePath;
+            get => ResourceRef.ReferencePath;
             set
             {
-                Resource.ReferencePath = value;
+                ResourceRef.ReferencePath = value;
                 Name = value;
             }
         }
@@ -199,11 +209,11 @@ namespace TheraEditor.Wrappers
             => _fileRef.GetInstance();
         public override FileObject SingleInstance
         {
-            get => Resource.File;
+            get => ResourceRef.File;
             set
             {
                 T obj = value as T;
-                Resource.File = obj;
+                ResourceRef.File = obj;
                 Name = FilePath;
             }
         }
@@ -211,8 +221,8 @@ namespace TheraEditor.Wrappers
         protected internal override void FixPath(string parentFolderPath)
         {
             string fileName = Text;
-            if (!parentFolderPath.EndsWith("\\"))
-                parentFolderPath += "\\";
+            if (parentFolderPath[parentFolderPath.Length - 1] != Path.DirectorySeparatorChar)
+                parentFolderPath += Path.DirectorySeparatorChar;
             FilePath = parentFolderPath + fileName;
         }
     }

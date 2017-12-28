@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.IO;
 
-namespace TheraEngine.Rendering.Textures
+namespace TheraEngine.Rendering.Models.Materials
 {
     public enum TextureFormat
     {

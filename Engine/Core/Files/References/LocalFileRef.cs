@@ -18,7 +18,8 @@ namespace TheraEngine.Files
     /// Other local references with the same file path will load their own new instances of the file.
     /// File can be loaded on-demand or preloaded.
     /// </summary>
-    [FileClass("LREF", "Local File Reference")]
+    [FileExt("localref")]
+    [FileDef("Local File Reference")]
     public class LocalFileRef<T> : FileRef<T>, ILocalFileRef where T : FileObject
     {
         public LocalFileRef()

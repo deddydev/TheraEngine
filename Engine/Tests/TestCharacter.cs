@@ -51,7 +51,7 @@ namespace TheraEngine.Tests
 
                 string animPath = //TestDefaults.DesktopPath + "test_anim.dae";
                 TestDefaults.GoogleDrivePath + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
-                ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
+                SkeletalAnimation m = Read3rdParty<SkeletalAnimation>(animPath);
                 //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
                 {
                     _animationStateMachine.Skeleton = _meshComp.Skeleton;
@@ -73,8 +73,6 @@ namespace TheraEngine.Tests
             };
             
             Task.Run(() => Collada.Import(TestDefaults.DesktopPath + "test.dae", options)).ContinueWith(task => SceneImported(task));
-            
-            base.PreConstruct();
         }
     }
 }

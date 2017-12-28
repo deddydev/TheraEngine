@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
@@ -11,7 +12,8 @@ namespace TheraEngine.Rendering.Cameras
 
         //public bool Enabled { get => _enabled; set => _enabled = value; }
     }
-    [FileClass("POSTP", "Camera Post-Processing Settings")]
+    [FileExt("campost")]
+    [FileDef("Camera Post-Processing Settings")]
     public class PostProcessSettings : FileObject
     {
         public PostProcessSettings()

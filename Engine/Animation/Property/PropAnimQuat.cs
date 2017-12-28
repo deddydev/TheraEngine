@@ -5,20 +5,17 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimQuat : PropertyAnimation<QuatKeyframe>, IEnumerable<QuatKeyframe>
+    public class PropAnimQuat : PropAnimKeyframed<QuatKeyframe>, IEnumerable<QuatKeyframe>
     {
-        private Quat _defaultValue = Quat.Identity;
-        private GetValue<Quat> _getValue;
+        private DelGetValue<Quat> _getValue;
 
-        [TSerialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "Baked")]
         private Quat[] _baked = null;
-
-        [TSerialize(Condition = "UseKeyframes")]
-        public Quat DefaultValue
-        {
-            get => _defaultValue;
-            set => _defaultValue = value;
-        }
+        /// <summary>
+        /// The default value to return when no keyframes are set.
+        /// </summary>
+        [TSerialize(Condition = "!Baked")]
+        public Quat DefaultValue { get; set; } = Quat.Identity;
 
         public PropAnimQuat() : base(0.0f, false, true) { }
         public PropAnimQuat(float lengthInSeconds, bool looped, bool useKeyframes)
@@ -26,8 +23,8 @@ namespace TheraEngine.Animation
         public PropAnimQuat(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void UseKeyframesChanged()
-            => _getValue = _useKeyframes ? (GetValue<Quat>)GetValueKeyframed : GetValueBaked;
+        protected override void BakedChanged()
+            => _getValue = !Baked ? (DelGetValue<Quat>)GetValueKeyframed : GetValueBaked;
 
         public Quat GetValue(float second)
             => _getValue(second);
@@ -38,7 +35,7 @@ namespace TheraEngine.Animation
         public Quat GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Quat GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
         
         public override void Bake(float framesPerSecond)
         {

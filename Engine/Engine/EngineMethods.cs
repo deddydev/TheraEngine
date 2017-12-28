@@ -17,6 +17,8 @@ using TheraEngine.Physics;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Scripting;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
@@ -26,6 +28,8 @@ namespace TheraEngine
 {
     public static partial class Engine
     {
+        public static ColorF4 InvalidColor { get; } = Color.Magenta;
+
         #region Startup/Shutdown
 
         static Engine()
@@ -79,6 +83,15 @@ namespace TheraEngine
 
             }
         }
+
+        private static IEnumerable<Type> _typeCache = null;
+        public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, bool resetTypeCache = false)
+        {
+            if (_typeCache == null || resetTypeCache)
+                _typeCache = AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes());
+            return _typeCache.Where(x => matchPredicate(x));
+        }
+
         public static void SetGamePanel(BaseRenderPanel panel, bool registerTickNow = true)
         {
             BaseRenderPanel.WorldPanel = panel;
@@ -89,7 +102,7 @@ namespace TheraEngine
         /// Initializes the engine to its beginning state.
         /// Call AFTER SetGame is called and all initial render panels are created and ready.
         /// </summary>
-        public static async void Initialize(bool deferOpeningWorldPlay = false, bool loadOpeningWorldGameMode = true)
+        public static async void Initialize(bool loadOpeningWorldGameMode = true)
         {
             //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
@@ -100,7 +113,7 @@ namespace TheraEngine
             PhysicsLibrary = _game.UserSettings.File.PhysicsLibrary;
 
             //Set initial world (this would generally be a world for opening videos or the main menu)
-            SetCurrentWorld(Game.OpeningWorld, true, deferOpeningWorldPlay, loadOpeningWorldGameMode);
+            SetCurrentWorld(Game.OpeningWorld, true, loadOpeningWorldGameMode);
 
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
@@ -115,7 +128,7 @@ namespace TheraEngine
         {
             //Steamworks.SteamAPI.Shutdown();
             Stop();
-            SetCurrentWorld(null, true, true, true);
+            SetCurrentWorld(null, true, true);
             IEnumerable<FileObject> files = LocalFileInstances.SelectMany(x => x.Value);
             foreach (FileObject o in files)
                 o?.Unload();
@@ -282,6 +295,7 @@ namespace TheraEngine
                 return;
             _isPaused = wantsPause;
             Paused?.Invoke(_isPaused, toggler);
+            string.Format("Engine{0}paused.", _isPaused ? " " : " un").PrintLine();
         }
         #endregion
 
@@ -494,7 +508,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="world">The world to play in.</param>
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false, bool loadWorldGameMode = true)
+        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool loadWorldGameMode = true)
         {
             if (_currentWorld == world)
                 return;
@@ -512,12 +526,11 @@ namespace TheraEngine
             _currentWorld = world;
             if (World != null)
             {
-                Scene.Clear(World.Settings.Bounds);
                 //if (!deferBeginPlay)
                     World.BeginPlay();
             }
-            else
-                Scene.Clear(new BoundingBox(0.5f, Vec3.Zero));
+            //else
+            //    Scene.Clear(new BoundingBox(0.5f, Vec3.Zero));
 
             if (loadWorldGameMode && Game != null)
                 Game.State.GameMode = World?.GetGameMode();

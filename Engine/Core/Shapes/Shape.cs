@@ -29,7 +29,7 @@ namespace TheraEngine.Core.Shapes
         ConeZ,
         ConeComplex,
     }
-    [FileClass("SHAPE", "Shape")]
+    [FileExt("shape")]
     public abstract class Shape : FileObject, I3DRenderable
     {
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, false);

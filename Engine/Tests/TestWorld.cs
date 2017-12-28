@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
@@ -306,7 +305,7 @@ namespace TheraEngine.Tests
 
         private void PhysicsDriver_OnHit(TCollisionObject me, TCollisionObject other, TCollisionInfo point)
         {
-            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me.Owner).Model.File.RigidChildren[0].LODs[0].Material.File.Parameters[0];
+            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me.Owner).ModelRef.File.RigidChildren[0].LODs[0].Material.File.Parameters[0];
             color.Value = (ColorF4)Color.Green;
 
             //_collideSound.Play(_param);

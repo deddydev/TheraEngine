@@ -7,7 +7,7 @@ namespace TheraEditor
     /// <summary>
     /// Stores all information on the state of the project within the editor.
     /// </summary>
-    [FileClass("SPROJ", "Project State")]
+    [FileDef("Project State", "state")]
     public class ProjectState : FileObject
     {
         private World _currentWorld;

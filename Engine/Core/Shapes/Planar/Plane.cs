@@ -2,15 +2,15 @@
 using TheraEngine.Rendering.Models;
 using System.ComponentModel;
 using System;
+using System.Runtime.InteropServices;
 
 namespace TheraEngine.Core.Shapes
 {
     /// <summary>
-    /// Represents a plane in 3D space using a normal and distance to the origin (0,0,0).
+    /// Represents a plane in 3D space using a normal and distance to the origin at (0,0,0).
     /// </summary>
-    [FileClass("SHAPE", "Plane")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class Plane : FileObject
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct Plane
     {
         /*
         * Represents a plane a certain distance from the origin.
@@ -24,16 +24,54 @@ namespace TheraEngine.Core.Shapes
         *          origin
         */
         
-        [TSerialize("Normal")]
-        protected EventVec3 _normal;
-        [TSerialize("Distance")]
-        protected float _distance;
+        private Vec3 _normal;
+        private float _distance;
 
-        public Plane()
+        [TSerialize]
+        [Category("Plane")]
+        public float Distance
         {
-            _normal = Vec3.Up;
-            _distance = 0;
+            get => _distance;
+            set => _distance = value;
         }
+        /// <summary>
+        /// The intersection point of a line, which is perpendicular to the plane and passes through the origin, and the plane.
+        /// Note that while you can set this point to anything, the original world position will be lost and the distance value will be updated
+        /// so that the plane is coplanar with the point, using same normal.
+        /// </summary>
+        [Category("Plane")]
+        [Description("The intersection point of a line, which is perpendicular to the plane " +
+            "and passes through the origin, and the plane. " +
+            "Note that while you can set this point to anything, the original world position will be lost +" +
+            "and the distance value will be updated so that the plane is coplanar with the point, using same normal.")]
+        public Vec3 IntersectionPoint
+        {
+            //Ax + By + Cz + D = 0
+            //Ax + By + Cz = -D
+            //(x, y, z) = -D * (A, B, C)
+            get => _normal * -_distance;
+            set => _distance = -value.Dot(_normal);
+        }
+        [TSerialize]
+        [Category("Plane")]
+        public Vec3 Normal
+        {
+            get => _normal;
+            set
+            {
+                Vec3 point = IntersectionPoint;
+                _normal = value;
+                _normal.NormalizeFast();
+                IntersectionPoint = point;
+            }
+        }
+
+        //public Plane()
+        //{
+        //    _normal = Vec3.Up;
+        //    _distance = 0;
+        //}
+
         /// <summary>
         /// Constructs a plane given a point.
         /// The normal points in the direction of the origin.
@@ -99,40 +137,6 @@ namespace TheraEngine.Core.Shapes
             //Solve for distance
             _distance = -point0.Dot(_normal);
         }
-        [Category("Plane")]
-        public float Distance
-        {
-            get => _distance;
-            set => _distance = value;
-        }
-        /// <summary>
-        /// The intersection point of a line, which is perpendicular to the plane and passes through the origin, and the plane.
-        /// Note that while you can set this point to anything, the original world position will be lost and the distance value will be updated
-        /// so that the plane is coplanar with the point, using same normal.
-        /// </summary>
-        [Category("Plane")]
-        [Description(@"The intersection point of a line, which is perpendicular to the plane and passes through the origin, and the plane.
-Note that while you can set this point to anything, the original world position will be lost and the distance value will be updated so that the plane is coplanar with the point, using same normal.")]
-        public Vec3 IntersectionPoint
-        {
-            //Ax + By + Cz + D = 0
-            //Ax + By + Cz = -D
-            //(x, y, z) = -D * (A, B, C)
-            get => _normal * -_distance;
-            set => _distance = -value.Dot(_normal);
-        }
-        [Category("Plane")]
-        public EventVec3 Normal
-        {
-            get => _normal;
-            set
-            {
-                Vec3 point = IntersectionPoint;
-                _normal = value;
-                _normal.NormalizeFast();
-                IntersectionPoint = point;
-            }
-        }
         public void NormalizeFast()
         {
             float magnitude = 1.0f / Normal.LengthFast;
@@ -184,12 +188,11 @@ Note that while you can set this point to anything, the original world position 
             => Collision.DistancePlanePoint(this, point);
 
         public Plane TransformedBy(Matrix4 transform)
-        {
-            return new Plane(Vec3.TransformPosition(IntersectionPoint, transform), _normal.Raw * transform.GetRotationMatrix4());
-        }
+            => new Plane(Vec3.TransformPosition(IntersectionPoint, transform), _normal * transform.GetRotationMatrix4());
+        
         public void TransformBy(Matrix4 transform)
         {
-            _normal.Raw = _normal.Raw * transform.GetRotationMatrix4();
+            _normal = _normal * transform.GetRotationMatrix4();
             IntersectionPoint = IntersectionPoint * transform;
         }
 

@@ -5,8 +5,7 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileClass("SHAPE", "Y-Aligned Cylinder")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
+    [FileDef("Y-Aligned Cylinder")]
     public class CylinderY : Shape
     {
         public float _radius, _height;

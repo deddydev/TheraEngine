@@ -5,20 +5,17 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimMatrix4 : PropertyAnimation<Matrix4Keyframe>, IEnumerable<Matrix4Keyframe>
+    public class PropAnimMatrix4 : PropAnimKeyframed<Matrix4Keyframe>, IEnumerable<Matrix4Keyframe>
     {
-        private Matrix4 _defaultValue = Matrix4.Identity;
-        private GetValue<Matrix4> _getValue;
+        private DelGetValue<Matrix4> _getValue;
 
-        [TSerialize(Condition = "!UseKeyframes")]
+        [TSerialize(Condition = "Baked")]
         private Matrix4[] _baked = null;
-
-        [TSerialize(Condition = "UseKeyframes")]
-        public Matrix4 DefaultValue
-        {
-            get => _defaultValue;
-            set => _defaultValue = value;
-        }
+        /// <summary>
+        /// The default value to return when no keyframes are set.
+        /// </summary>
+        [TSerialize(Condition = "!Baked")]
+        public Matrix4 DefaultValue { get; set; } = Matrix4.Identity;
 
         public PropAnimMatrix4() : base(0.0f, false, true) { }
         public PropAnimMatrix4(float lengthInSeconds, bool looped, bool useKeyframes)
@@ -26,8 +23,8 @@ namespace TheraEngine.Animation
         public PropAnimMatrix4(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void UseKeyframesChanged()
-            => _getValue = _useKeyframes ? (GetValue<Matrix4>)GetValueKeyframed : GetValueBaked;
+        protected override void BakedChanged()
+            => _getValue = !Baked ? (DelGetValue<Matrix4>)GetValueKeyframed : GetValueBaked;
 
         public Matrix4 GetValue(float second)
             => _getValue(second);
@@ -38,7 +35,7 @@ namespace TheraEngine.Animation
         public Matrix4 GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Matrix4 GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? _defaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
         
         public override void Bake(float framesPerSecond)
         {

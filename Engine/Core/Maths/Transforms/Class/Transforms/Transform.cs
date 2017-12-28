@@ -14,8 +14,8 @@ namespace System
         STR,
         SRT,
     }
-    [FileClass("TFM", "Transform")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
+    [FileExt("transform")]
+    [FileDef("Transform")]
     public class Transform : FileObject
     {
         public delegate void TranslationChange(Vec3 oldTranslation);

@@ -103,7 +103,11 @@ namespace System
         }
         public static float DistancePlanePoint(Plane plane, Vec3 point)
         {
-            return Vec3.Dot(plane.Normal, point) + plane.Distance;
+            return DistancePlanePoint(plane.Normal, plane.Distance, point);
+        }
+        public static float DistancePlanePoint(Vec3 planeNormal, float planeOriginDistance, Vec3 point)
+        {
+            return Vec3.Dot(planeNormal, point) + planeOriginDistance;
         }
 
         public static EContainment SphereContainsAABB(Vec3 center, float radius, Vec3 minimum, Vec3 maximum)
@@ -575,7 +579,7 @@ namespace System
 
             // order the enter / exit values.
             if (tsenter > tsexit)
-                TMath.Swap(ref tsenter, ref tsexit);
+                THelpers.Swap(ref tsenter, ref tsexit);
             
             // make sure the slab interval and the current box intersection interval overlap
             if (tbenter > tsexit || tsenter > tbexit)

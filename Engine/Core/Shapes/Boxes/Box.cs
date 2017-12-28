@@ -7,12 +7,9 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileClass("SHAPE", "Box")]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
+    [FileDef("Box")]
     public class Box : Shape
     {
-        public event Action TransformChanged;
-
         public EventVec3 _halfExtents;
         public Transform _transform;
 

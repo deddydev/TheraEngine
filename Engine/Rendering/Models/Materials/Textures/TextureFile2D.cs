@@ -4,13 +4,16 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Textures
 {
     /// <summary>
     /// Wrapper class for a set of bitmaps, optionally (usually) stored in an external texture file such as a PNG or DDS.
     /// </summary>
-    [FileClass("", "", IsSpecialDeserialize = true)]
+    [File3rdParty("png", "jpg", "jpeg", "tiff", "gif", "dds", "tga")]
+    [FileExt("tex2d")]
+    [FileDef("Texture File 2D")]
     public class TextureFile2D : FileObject
     {
         private Bitmap[] _bitmaps = null;
@@ -22,15 +25,16 @@ namespace TheraEngine.Rendering.Textures
         public TextureFile2D() : this(1, 1) { }
         public TextureFile2D(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb)
             => _bitmaps = new Bitmap[] { new Bitmap(width, height, format) };
-        public TextureFile2D(string path)
-        {
-            Engine.PrintLine("Loading texture from " + path);
-            _bitmaps = TextureConverter.Decode(path);
-        }
+        public TextureFile2D(string path) => Read3rdParty(path);
         public TextureFile2D(string path, Action<TextureFile2D> onFinishedAsync)
         {
             Engine.PrintLine("Loading texture async from " + path);
             Task.Run(() => TextureConverter.Decode(path)).ContinueWith(t => { _bitmaps = t.Result; onFinishedAsync?.Invoke(this); });
+        }
+        protected internal override void Read3rdParty(string filePath)
+        {
+            Engine.PrintLine("Loading texture from " + filePath);
+            _bitmaps = TextureConverter.Decode(filePath);
         }
     }
 }

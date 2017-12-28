@@ -7,6 +7,8 @@ namespace System
 {
     public static unsafe class StringExtension
     {
+        public static bool EndsWithDirectorySeparator(this string str)
+            => !string.IsNullOrEmpty(str) && str[str.Length - 1] == Path.DirectorySeparatorChar;
         public static string SplitCamelCase(this string str)
             => Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
         public static bool? IsDirectory(this string path)
@@ -71,28 +73,29 @@ namespace System
         //{
         //    return string.IsNullOrEmpty(str);
         //}
-        public static string MakePathRelativeTo(this string relativePath, string absolutePath)
+        public static string MakePathRelativeTo(this string mainPath, string otherPath)
         {
-            string[] relParts = relativePath.Split(Path.DirectorySeparatorChar);
-            string[] absParts = absolutePath.Split(Path.DirectorySeparatorChar);
+            string[] mainParts = Path.GetFullPath(mainPath).Split(Path.DirectorySeparatorChar);
+            string[] otherParts = Path.GetFullPath(otherPath).Split(Path.DirectorySeparatorChar);
             
-            int absLen = absParts.Length;
-            string fileName = absParts[absParts.Length - 1];
+            int mainLen = mainParts.Length;
+            string fileName = mainParts[mainParts.Length - 1];
             if (fileName.Contains("."))
-                --absLen;
+                --mainLen;
             else
                 fileName = "";
 
+            //Find the first folder that does not match between the two paths
             int bias;
-            for (bias = 0; bias < Math.Min(absLen, relParts.Length); ++bias)
-                if (!absParts[bias].Equals(relParts[bias], StringComparison.InvariantCulture))
+            for (bias = 0; bias < Math.Min(mainLen, otherParts.Length); ++bias)
+                if (!mainParts[bias].Equals(otherParts[bias], StringComparison.InvariantCulture))
                     break;
 
-            string newDir = "";
-            for (int i = bias; i < relParts.Length; ++i)
+            string newDir = Path.DirectorySeparatorChar.ToString();
+            for (int i = bias; i < otherParts.Length; ++i)
                 newDir += ".." + Path.DirectorySeparatorChar;
-            for (int i = bias; i < absLen; ++i)
-                newDir += absParts[i] + Path.DirectorySeparatorChar;
+            for (int i = bias; i < mainLen; ++i)
+                newDir += mainParts[i] + Path.DirectorySeparatorChar;
 
             return newDir + fileName;
         }
@@ -207,13 +210,19 @@ namespace System
                     return i;
             return -1;
         }
+        /// <summary>
+        /// Prints this string to the engine's output logs.
+        /// </summary>
+        /// <param name="str">The string to be printed.</param>
+        /// <param name="args">Arguments for string.Format().</param>
         public static void Print(this string str, params object[] args)
-        {
-            Engine.Print(str, args);
-        }
+            => Engine.Print(str, args);
+        /// <summary>
+        /// Prints this string to the engine's output logs and moves to the next line.
+        /// </summary>
+        /// <param name="str">The string to be printed.</param>
+        /// <param name="args">Arguments for string.Format().</param>
         public static void PrintLine(this string str, params object[] args)
-        {
-            Engine.PrintLine(str, args);
-        }
+            => Engine.PrintLine(str, args);
     }
 }

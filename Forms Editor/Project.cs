@@ -2,19 +2,21 @@
 using TheraEngine.Files;
 using System.IO;
 using System.ComponentModel;
+using System;
 
 namespace TheraEditor
 {
     /// <summary>
     /// Extension of the game class for use with the editor.
     /// </summary>
-    [FileClass("TPROJ", "Thera Engine Project", PreferredFormat = SerializeFormat.XML)]
+    [FileExt("tproj", PreferredFormat = SerializeFormat.XML)]
+    [FileDef("Thera Engine Project")]
     public class Project : Game
     {
-        public const string BinDirName = "Bin\\";
-        public const string ConfigDirName = "Config\\";
-        public const string SourceDirName = "Source\\";
-        public const string ContentDirName = "Content\\";
+        public static readonly string BinDirName = "Bin" + Path.DirectorySeparatorChar.ToString();
+        public static readonly string ConfigDirName = "Config" + Path.DirectorySeparatorChar.ToString();
+        public static readonly string SourceDirName = "Source" + Path.DirectorySeparatorChar.ToString();
+        public static readonly string ContentDirName = "Content" + Path.DirectorySeparatorChar.ToString();
 
         private GlobalFileRef<ProjectState> _state;
 
@@ -27,8 +29,9 @@ namespace TheraEditor
         }
         public void SetDirectory(string directory)
         {
-            if (!directory.EndsWith("\\"))
-                directory += "\\";
+            if (!directory.EndsWithDirectorySeparator())
+                directory += Path.DirectorySeparatorChar;
+
             FilePath = GetFilePath(directory, Name, ProprietaryFileFormat.XML, typeof(Project));
             _state.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(ProjectState));
             UserSettings.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(UserSettings));
@@ -47,13 +50,13 @@ namespace TheraEditor
         }
         public static Project Create(string directory, string name)
         {
-            if (!directory.EndsWith("\\"))
-                directory += "\\";
+            if (!directory.EndsWithDirectorySeparator())
+                directory += Path.DirectorySeparatorChar;
 
-            string binariesDir = directory + BinDirName + "\\";
-            string configDir = directory + ConfigDirName + "\\";
-            string sourceDir = directory + SourceDirName + "\\";
-            string contentDir = directory + ContentDirName + "\\";
+            string binariesDir = directory + BinDirName + Path.DirectorySeparatorChar;
+            string configDir = directory + ConfigDirName + Path.DirectorySeparatorChar;
+            string sourceDir = directory + SourceDirName + Path.DirectorySeparatorChar;
+            string contentDir = directory + ContentDirName + Path.DirectorySeparatorChar;
 
             Directory.CreateDirectory(binariesDir);
             Directory.CreateDirectory(configDir);

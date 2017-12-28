@@ -6,10 +6,12 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileClass("", "", IsSpecialDeserialize = true)]
+    [File3rdParty("txt", "rtf")]
+    [FileDef("Text File")]
     public class TextFile : FileObject
     {
         private string _text = null;
+
         [TSerialize("Text", XmlNodeType = EXmlNodeType.ElementString)]
         public string Text
         {
@@ -20,25 +22,22 @@ namespace TheraEngine.Rendering.Models.Materials
         public TextFile()
         {
             FilePath = null;
-            Text = null;
+            Text = "";
         }
         public TextFile(string path)
         {
             FilePath = path;
             Text = null;
         }
+
         public static TextFile FromText(string text)
-        {
-            return new TextFile() { Text = text };
-        }
+            => new TextFile() { Text = text };
+
         public static implicit operator string(TextFile textFile)
-        {
-            return textFile?.Text;
-        }
+            => textFile?.Text;
         public static implicit operator TextFile(string text)
-        {
-            return FromText(text);
-        }
+            => FromText(text);
+        
         public string Load()
         {
             _text = null;

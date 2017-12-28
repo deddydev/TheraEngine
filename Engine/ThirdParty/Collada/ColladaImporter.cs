@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.Models
         public class Data
         {
             public List<ModelScene> Models { get; set; }
-            public List<BasePropertyAnimation> PropertyAnimations { get; set; }
+            public List<BasePropAnim> PropertyAnimations { get; set; }
         }
         public static Data Import(string filePath, ModelImportOptions options)
         {
@@ -113,7 +113,7 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 else
                                 {
-                                    modelScene.SkeletalModel = new SkeletalMesh()
+                                    modelScene.SkeletalModel = new SkeletalModel()
                                     {
                                         Name = Path.GetFileNameWithoutExtension(filePath)
                                     };
@@ -127,8 +127,8 @@ namespace TheraEngine.Rendering.Models
 
                                 if (!options.IgnoreFlags.HasFlag(IgnoreFlags.Animations))
                                 {
-                                    data.PropertyAnimations = new List<BasePropertyAnimation>();
-                                    ModelAnimation anim = new ModelAnimation()
+                                    data.PropertyAnimations = new List<BasePropAnim>();
+                                    SkeletalAnimation anim = new SkeletalAnimation()
                                     {
                                         Name = Path.GetFileNameWithoutExtension(filePath),
                                         Looped = true,
@@ -285,7 +285,7 @@ namespace TheraEngine.Rendering.Models
 
             public bool UsesController => _rig != null;
 
-            public void Initialize(SkeletalMesh model, VisualScene scene)
+            public void Initialize(SkeletalModel model, VisualScene scene)
             {
                 PrimitiveData data;
                 if (_rig != null)
@@ -418,7 +418,7 @@ namespace TheraEngine.Rendering.Models
             CARDINAL,
             BSPLINE,
         }
-        private static void ParseAnimation(LibraryAnimations.Animation animElem, ModelAnimation anim, VisualScene visualScene, List<BasePropertyAnimation> propAnims, ref float animationLength)
+        private static void ParseAnimation(LibraryAnimations.Animation animElem, SkeletalAnimation anim, VisualScene visualScene, List<BasePropAnim> propAnims, ref float animationLength)
         {
             foreach (var animElemChild in animElem.AnimationElements)
                 ParseAnimation(animElemChild, anim, visualScene, propAnims, ref animationLength);

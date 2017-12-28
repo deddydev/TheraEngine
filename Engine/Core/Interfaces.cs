@@ -38,7 +38,6 @@ namespace TheraEngine
         List<LOD> LODs { get; }
         RenderInfo3D RenderInfo { get; set; }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class RenderInfo2D
     {
         /// <summary>
@@ -59,7 +58,6 @@ namespace TheraEngine
             OrderInLayer = orderInLayer;
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class RenderInfo3D
     {
         /// <summary>
@@ -88,12 +86,8 @@ namespace TheraEngine
     /// <summary>
     /// Use this interface for objects you want to be able to render in 3D world space with the engine.
     /// </summary>
-    public interface I3DRenderable : I3DBoundable
+    public interface I3DRenderable : I3DBoundable, IRenderable
     {
-        /// <summary>
-        /// Called when the engine wants to render this object.
-        /// </summary>
-        void Render();
         /// <summary>
         /// Used to determine when to render this object.
         /// </summary>
@@ -135,12 +129,8 @@ namespace TheraEngine
     /// <summary>
     /// Use this interface for objects you want to be able to render in 2D HUD space with the engine.
     /// </summary>
-    public interface I2DRenderable : I2DBoundable
+    public interface I2DRenderable : I2DBoundable, IRenderable
     {
-        /// <summary>
-        /// Called when the engine wants to render this object.
-        /// </summary>
-        void Render();
         /// <summary>
         /// Used to determine when to render this object.
         /// </summary>
@@ -152,6 +142,13 @@ namespace TheraEngine
         IQuadtreeNode QuadtreeNode { get; set; }
         bool IsRendering { get; set; }
         bool Contains(Vec2 point);
+    }
+    public interface IRenderable
+    {
+        /// <summary>
+        /// Called when the engine wants to render this object.
+        /// </summary>
+        void Render();
     }
     public interface IPanel
     {

@@ -158,9 +158,9 @@ namespace TheraEngine.Physics
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract Vec3 CenterOfMassPosition { get; }
 
-        public Vec3 GetWeight() => Mass * Gravity;
+        public Vec3 Weight => Mass * Gravity;
 
-        public MonitoredList<TConstraint> Constraints { get; } = new MonitoredList<TConstraint>();
+        public EventList<TConstraint> Constraints { get; } = new EventList<TConstraint>();
 
         /// <summary>
         /// Applies a force to the center of mass of the body (the origin).
@@ -172,7 +172,17 @@ namespace TheraEngine.Physics
         /// </summary>
         /// <param name="impulse">The impulse (Force * delta sec) to apply, in Newton-seconds.</param>
         public abstract void ApplyCentralImpulse(Vec3 impulse);
+        /// <summary>
+        /// Applies a force to the body at a position relative to the body's center of mass (the origin).
+        /// </summary>
+        /// <param name="force">The force to apply, in Newtons.</param>
+        /// <param name="relativePosition">An offset relative to the body's origin.</param>
         public abstract void ApplyForce(Vec3 force, Vec3 relativePosition);
+        /// <summary>
+        /// Applies an impulse to the body at a position relative to the body's center of mass (the origin).
+        /// </summary>
+        /// <param name="impulse">The impulse (Force * delta sec) to apply, in Newton-seconds.</param>
+        /// <param name="relativePosition">An offset relative to the body's origin.</param>
         public abstract void ApplyImpulse(Vec3 impulse, Vec3 relativePosition);
         public abstract void ApplyTorque(Vec3 torque);
         public abstract void ApplyTorqueImpulse(Vec3 torque);

@@ -11,7 +11,8 @@ using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileClass("MAT", "Material")]
+    [FileExt("mat")]
+    [FileDef("Material")]
     public class TMaterial : FileObject
     {
         public event Action SettingUniforms;

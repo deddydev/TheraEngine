@@ -196,14 +196,14 @@ namespace TheraEditor.Wrappers
 
         private static bool IsFileObject(Type t)
         {
-            return t.IsSubclassOf(typeof(FileObject));
+            return !t.IsAbstract && t.IsSubclassOf(typeof(FileObject));
         }
 
         private static bool Is3rdPartyImportable(Type t)
         {
-            if (!t.IsSubclassOf(typeof(FileObject)))
+            if (t.IsAbstract || !t.IsSubclassOf(typeof(FileObject)))
                 return false;
-            string[] ext = FileObject.GetFileHeader(t)?.ImportableExtensions;
+            string[] ext = FileObject.GetFile3rdPartyExtensions(t)?.ImportableExtensions;
             return ext != null && ext.Length > 0;
         }
 
@@ -225,12 +225,9 @@ namespace TheraEditor.Wrappers
                     else
                         return;
                 }
-
-                FileClass fileInfo = FileObject.GetFileHeader(fileType);
-
                 OpenFileDialog ofd = new OpenFileDialog()
                 {
-                    Filter = fileInfo.GetFilter(true, true, false),
+                    Filter = FileObject.GetFilter(fileType, true, true, false),
                     Title = "Import File"
                 };
                 DialogResult r = ofd.ShowDialog(Editor.Instance);
@@ -253,19 +250,20 @@ namespace TheraEditor.Wrappers
         {
             if (sender is ToolStripDropDownButton button)
             {
-                FileObject file;
+                FileObject file = null;
                 Type fileType = button.Tag as Type;
                 if (fileType.ContainsGenericParameters)
                 {
                     GenericsSelector gs = new GenericsSelector(fileType);
                     if (gs.ShowDialog() == DialogResult.OK)
                         file = Editor.UserCreateInstanceOf(gs.FinalClassType, true) as FileObject;
-                    else
-                        return;
                 }
                 else
                     file = Editor.UserCreateInstanceOf(fileType, true) as FileObject;
-                
+
+                if (file == null)
+                    return;
+
                 FolderWrapper folderNode = GetInstance<FolderWrapper>();
                 string dir = folderNode.FilePath as string;
 
@@ -291,21 +289,21 @@ namespace TheraEditor.Wrappers
             set
             {
                 base.Text = value;
-                FilePath = Path.GetDirectoryName(FilePath) + "\\" + value;
+                FilePath = Path.GetDirectoryName(FilePath) + Path.DirectorySeparatorChar + value;
                 if (_isPopulated)
                     foreach (BaseWrapper b in Nodes)
-                        b.FixPath(FilePath + "\\");
+                        b.FixPath(FilePath + Path.DirectorySeparatorChar);
             }
         }
         protected internal override void FixPath(string parentFolderPath)
         {
             string folderName = Text;
-            if (!parentFolderPath.EndsWith("\\"))
-                parentFolderPath += "\\";
+            if (parentFolderPath[parentFolderPath.Length - 1] != Path.DirectorySeparatorChar)
+                parentFolderPath += Path.DirectorySeparatorChar;
             FilePath = parentFolderPath + folderName;
             if (_isPopulated)
                 foreach (BaseWrapper b in Nodes)
-                    b.FixPath(FilePath + "\\");
+                    b.FixPath(FilePath + Path.DirectorySeparatorChar);
         }
     }
 }

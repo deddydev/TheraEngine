@@ -3,6 +3,8 @@ using System;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
+using System.Collections.Generic;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
 {
@@ -32,13 +34,19 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
         public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material)
             : this(name, radius, translation, rotation, material, null) { }
         
-        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material, TRigidBodyConstructionInfo info, float meshPrecision = 30.0f) : base(
+        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material, TRigidBodyConstructionInfo info, uint meshPrecision = 30u) : base(
                 name, 
                 new Sphere(radius),
-                Sphere.SolidMesh(Vec3.Zero, radius, 20.0f), 
                 translation,
                 rotation,
-                material,
+                new List<LOD>()
+                {
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, meshPrecision), radius * 4),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.66f).ClampMin(1.0f)), radius * 8),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.33f).ClampMin(1.0f)), radius * 64),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.22f).ClampMin(1.0f)), radius * 128),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.11f).ClampMin(1.0f)), radius * 256),
+                },
                 TCollisionSphere.New(radius),
                 info) { }
     }

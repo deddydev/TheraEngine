@@ -161,8 +161,8 @@ namespace TheraEngine.Animation.Property
                     return;
             }
 
-            if (Animation != null)
-                Animation.File?.Tick(obj, _propertyCache, delta);
+            if (Animation.IsLoaded)
+                Animation.File.Tick(obj, _propertyCache, delta);
             else
             {
                 object value = _propertyCache.GetValue(obj);

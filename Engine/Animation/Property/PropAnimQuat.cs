@@ -17,7 +17,7 @@ namespace TheraEngine.Animation
         [TSerialize(Condition = "!Baked")]
         public Quat DefaultValue { get; set; } = Quat.Identity;
 
-        public PropAnimQuat() : base(0.0f, false, true) { }
+        public PropAnimQuat() : base(0.0f, false) { }
         public PropAnimQuat(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimQuat(int frameCount, float FPS, bool looped, bool useKeyframes) 

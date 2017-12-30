@@ -19,8 +19,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
     }
     public abstract class LightComponent : TRComponent
     {
-        protected EventColorF3 _color = (ColorF3)Color.Blue/*, _specular = Color.Yellow*/;
-        protected float _diffuseIntensity = 1.0f, _ambientIntensity = 0.2f;
+        protected EventColorF3 _color = (ColorF3)Color.White;
+        protected float _diffuseIntensity = 1.0f, _ambientIntensity = 0.0f;
         protected int _lightIndex = -1;
         private LightType _type;
 

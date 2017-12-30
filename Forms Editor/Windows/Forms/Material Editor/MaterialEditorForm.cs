@@ -6,7 +6,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    [EditorFor(typeof(TMaterial))]
+    //[EditorFor(typeof(TMaterial))]
     public partial class MaterialEditorForm : DockContent, IEditorControl
     {
         private UIMaterialEditor _hud;

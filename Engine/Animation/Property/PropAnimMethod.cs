@@ -4,6 +4,10 @@ using System.Reflection;
 
 namespace TheraEngine.Animation
 {
+    /// <summary>
+    /// Executes a method instead of using keyframes.
+    /// </summary>
+    /// <typeparam name="T">The type of value to animate.</typeparam>
     public class PropAnimMethod<T> : BasePropAnim
     {
         public delegate T DelGetValue(float second);
@@ -29,12 +33,18 @@ namespace TheraEngine.Animation
         [TSerialize(Condition = "!Baked")]
         public T DefaultValue { get; set; }
         
-        public PropAnimMethod() : base(0.0f, false, true) { }
+        public PropAnimMethod() : base(0.0f, false, false) { }
         public PropAnimMethod(float lengthInSeconds, bool looped, bool isBaked = false)
             : base(lengthInSeconds, looped, isBaked) { }
         public PropAnimMethod(int frameCount, float FPS, bool looped, bool isBaked = false)
             : base(frameCount, FPS, looped, isBaked) { }
-        
+
+        public PropAnimMethod(DelGetValue method) : base(0.0f, false) => TickMethod = method;
+        public PropAnimMethod(float lengthInSeconds, bool looped, DelGetValue method)
+            : base(lengthInSeconds, looped, false) => TickMethod = method;
+        public PropAnimMethod(int frameCount, float FPS, bool looped, DelGetValue method)
+            : base(frameCount, FPS, looped, false) => TickMethod = method;
+
         public T GetValueMethod(float second)
             => TickMethod != null ? TickMethod(second) : DefaultValue;
         protected override object GetValueGeneric(float second)

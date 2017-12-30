@@ -11,7 +11,10 @@ namespace TheraEngine.Rendering.Models
     [FileDef("Static Rigid Sub Mesh")]
     public class StaticRigidSubMesh : FileObject, IStaticSubMesh
     {
-        public StaticRigidSubMesh() { _name = "StaticRigidSubMesh"; }
+        public StaticRigidSubMesh()
+        {
+            _name = "StaticRigidSubMesh";
+        }
         public StaticRigidSubMesh(
             string name,
             bool visibleByDefault,
@@ -27,20 +30,24 @@ namespace TheraEngine.Rendering.Models
         public StaticRigidSubMesh(
             string name,
             bool visibleByDefault,
+            Shape cullingVolume,
             List<LOD> lods)
         {
             _name = name;
             _visibleByDefault = visibleByDefault;
+            _cullingVolume.File = cullingVolume;
             _lods = lods ?? new List<LOD>();
         }
         public StaticRigidSubMesh(
             string name,
             bool visibleByDefault,
+            Shape cullingVolume,
             params LOD[] lods)
         {
             _name = name;
             _visibleByDefault = visibleByDefault;
-            _lods = lods.ToList();
+            _cullingVolume.File = cullingVolume;
+            _lods = lods?.ToList() ?? new List<LOD>();
         }
 
         protected List<LOD> _lods = new List<LOD>();

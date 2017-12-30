@@ -3,6 +3,8 @@ using System;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
+using System.Collections.Generic;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
 {
@@ -35,10 +37,12 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
         public BoxActor(string name, Vec3 halfExtents, Vec3 translation, Rotator rotation, TMaterial material, TRigidBodyConstructionInfo info) : base(
                 name, 
                 new Box(halfExtents),
-                BoundingBox.SolidMesh(-halfExtents, halfExtents), 
                 translation,
                 rotation,
-                material,
+                new List<LOD>()
+                {
+                    new LOD(material, BoundingBox.SolidMesh(-halfExtents, halfExtents), 0.0f),
+                },
                 TCollisionBox.New(halfExtents),
                 info) { }
     }

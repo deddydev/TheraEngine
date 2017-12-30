@@ -12,6 +12,7 @@ using TheraEngine.Rendering.Textures;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Models;
+using System.Linq;
 
 namespace TheraEngine.Rendering
 {
@@ -77,7 +78,7 @@ namespace TheraEngine.Rendering
         public void Render(ERenderPass3D pass)
         {
             var list = _passes[(int)pass];
-            foreach (I3DRenderable r in list/*.OrderBy(x => x, _sorter)*/)
+            foreach (I3DRenderable r in list.OrderBy(x => x, _sorter))
                 r.Render();
             list.Clear();
         }

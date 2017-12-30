@@ -66,7 +66,8 @@ namespace TheraEngine
         private object _userData = null;
         
         [TSerialize]
-        [BrowsableIf("_userData != null")]
+        //[BrowsableIf("_userData != null")]
+        [Browsable(false)]
         [Category("Object")]
         public object UserData
         {

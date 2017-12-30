@@ -40,17 +40,16 @@ namespace TheraEngine.Physics.Bullet
                 AdditionalAngularDampingFactor = info.AdditionalAngularDampingFactor,
             };
 
-            BulletRigidBody rigidBody = new BulletRigidBody(owner, bulletInfo, info.CollisionShape)
-            {
-                CollisionGroup = info.CollisionGroup,
-                CollidesWith = info.CollidesWith,
-                SimulatingPhysics = info.SimulatePhysics,
-                CollisionEnabled = info.CollisionEnabled,
-                SleepingEnabled = info.SleepingEnabled
-            };
+            BulletRigidBody rigidBody = new BulletRigidBody(owner, bulletInfo, info.CollisionShape);
 
             if (state != null)
                 state.Body = rigidBody;
+
+            rigidBody.CollisionGroup = info.CollisionGroup;
+            rigidBody.CollidesWith = info.CollidesWith;
+            rigidBody.SimulatingPhysics = info.SimulatePhysics;
+            rigidBody.CollisionEnabled = info.CollisionEnabled;
+            rigidBody.SleepingEnabled = info.SleepingEnabled;
 
             return rigidBody;
         }

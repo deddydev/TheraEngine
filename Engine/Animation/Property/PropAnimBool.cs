@@ -17,7 +17,7 @@ namespace TheraEngine.Animation
         [TSerialize(Condition = "!Baked")]
         public bool DefaultValue { get; set; } = false;
 
-        public PropAnimBool() : base(0.0f, false, true) { }
+        public PropAnimBool() : base(0.0f, false) { }
         public PropAnimBool(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimBool(int frameCount, float FPS, bool looped, bool useKeyframes) 

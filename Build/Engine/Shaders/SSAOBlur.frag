@@ -125,7 +125,7 @@ float ReadShadowMap(in vec3 fragPosWS, in vec3 N, in float NoL, in BaseLight lig
 	//Create bias depending on angle of normal to the light
     float maxBias = 0.04f;
     float minBias = 0.001f;
-    float bias = mix(maxBias, minBias, NoL);
+    float bias = max(maxBias * (1.0f - NoL), minBias);
 
 	//Read depth value from shadow map rendered in light space
     float depth = texture(light.ShadowMap, fragCoord.xy).r;

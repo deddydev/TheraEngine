@@ -29,6 +29,35 @@ namespace TheraEngine.Animation
             method.Invoke(obj, new object[] { GetValueGeneric(_currentTime) });
             Progress(delta);
         }
+        public override void Start()
+        {
+            if (_state == AnimationState.Playing)
+                return;
+            PreStarted();
+            _state = AnimationState.Playing;
+            CurrentTime = 0.0f;
+            OnAnimationStarted();
+            PostStarted();
+        }
+        public override void Stop()
+        {
+            if (_state == AnimationState.Stopped)
+                return;
+            PreStopped();
+            CurrentTime = 0.0f;
+            _state = AnimationState.Stopped;
+            OnAnimationEnded();
+            PostStopped();
+        }
+        public override void Pause()
+        {
+            if (_state != AnimationState.Playing)
+                return;
+            PrePaused();
+            _state = AnimationState.Paused;
+            OnAnimationPaused();
+            PostPaused();
+        }
         protected abstract object GetValueGeneric(float frame);
     }
 }

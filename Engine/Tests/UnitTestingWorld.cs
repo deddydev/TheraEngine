@@ -39,30 +39,34 @@ namespace TheraEngine.Tests
             List<IActor> actors = new List<IActor>();
             IActor actor;
 
+            int count = 5;
+            int y = 0;
+
             //Create spheres
-            for (int i = -5; i < 5; ++i)
-            {
-                actor = new SphereActor("TestSphere", radius, new Vec3(i * originDist, 0.0f, 0.0f), Rotator.GetZero(),
-                    TMaterial.CreateLitColorMaterial(sphereColor), new TRigidBodyConstructionInfo()
-                    {
-                        //UseMotionState = false,
-                    });
-                actors.Add(actor);
-            }
+            for (int x = -count; x <= count; ++x)
+                for (int z = -count; z <= count; ++z)
+                {
+                    TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor);
+                    mat.Parameter<ShaderFloat>("Roughness").Value = ((x + count) / (float)count * 0.5f).ClampMin(0.1f);
+                    mat.Parameter<ShaderFloat>("Metallic").Value = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
+                    actor = new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(),
+                        mat, new TRigidBodyConstructionInfo() { UseMotionState = true, });
+                    actors.Add(actor);
+                }
 
             //Create boxes
-            for (int i = -5; i < 5; ++i)
-            {
-                actor = new BoxActor("TestBox", radius, new Vec3(i * originDist, 0.0f, originDist), new Rotator(0.0f, 0.0f, i * 30.0f, RotationOrder.YPR),
-                    TMaterial.CreateLitColorMaterial(boxColor), new TRigidBodyConstructionInfo()
-                    {
-                        //UseMotionState = false,
-                    });
-                actors.Add(actor);
-            }
+            //for (int i = -5; i < 5; ++i)
+            //{
+            //    actor = new BoxActor("TestBox", radius, new Vec3(i * originDist, 0.0f, originDist), new Rotator(0.0f, 0.0f, i * 30.0f, RotationOrder.YPR),
+            //        TMaterial.CreateLitColorMaterial(boxColor), new TRigidBodyConstructionInfo()
+            //        {
+            //            //UseMotionState = false,
+            //        });
+            //    actors.Add(actor);
+            //}
 
             //Create floor
-            actor = new BoxActor("Floor", 
+            actor = new BoxActor("Floor",
                 new Vec3(500.0f, 0.5f, 500.0f), new Vec3(0.0f, -30.0f, 0.0f),
                 Rotator.GetZero(), TMaterial.CreateLitColorMaterial(floorColor));
             actors.Add(actor);
@@ -70,14 +74,19 @@ namespace TheraEngine.Tests
             //Create shape tracer
             actor = new SphereTraceActor();
             actors.Add(actor);
-            
             float rotationsPerSecond = 0.1f;
+            float testRadius = 30.0f;
+            float testHeight = 20.0f;
             PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(1.0f / rotationsPerSecond, true)
             {
-                TickMethod = RotateTick
+                TickMethod = second =>
+                {
+                    TMath.SinCosdf((rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f, out float sin, out float cos);
+                    return new Vec3(cos * testRadius, testHeight, sin * testRadius);
+                }
             };
             AnimationContainer anim = new AnimationContainer("RotationTrace", "Translation.Raw", false, animMethod);
-            actor.RootComponent.AddAnimation(anim, true);
+            actor.RootComponent.AddAnimation(anim, true, false, ETickGroup.PrePhysics, ETickOrder.Animation, Input.Devices.InputPauseType.TickAlways);
 
             //Create world light
             Actor<DirectionalLightComponent> light = new Actor<DirectionalLightComponent>();
@@ -85,33 +94,43 @@ namespace TheraEngine.Tests
             light.RootComponent.Rotation.Pitch = -35;
             actors.Add(light);
 
-            PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
-            ScreenShake3DComponent shakeComp = new ScreenShake3DComponent()
+            //Create camera shake test
+            //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
+            //ScreenShake3DComponent shakeComp = new ScreenShake3DComponent()
+            //{
+            //    MaxTrauma = 100.0f,
+            //    TraumaDecrementPerSecond = 0.0f,
+            //    Trauma = 40.0f,
+            //};
+            //CameraComponent camComp = new CameraComponent(new PerspectiveCamera(0.1f, 2000.0f, 45.0f, 1.0f));
+            //posComp.ChildComponents.Add(shakeComp);
+            //shakeComp.ChildComponents.Add(camComp);
+            //Actor<PositionComponent> testScreenshake = new Actor<PositionComponent>(posComp);
+            //actors.Add(testScreenshake);
+
+            //Create point lights
+            int lightCount = 4;
+            float angle = 360.0f / lightCount * TMath.DegToRadMultf;
+            float lightPosRadius = 50.0f;
+            float upTrans = 20.0f;
+            for (int i = 0; i < lightCount; i++)
             {
-                MaxTrauma = 100.0f,
-                TraumaDecrementPerSecond = 0.0f,
-                Trauma = 40.0f,
-            };
-            CameraComponent camComp = new CameraComponent(new PerspectiveCamera(0.1f, 2000.0f, 45.0f, 1.0f));
-            posComp.ChildComponents.Add(shakeComp);
-            shakeComp.ChildComponents.Add(camComp);
-            Actor<PositionComponent> testScreenshake = new Actor<PositionComponent>(posComp);
-            actors.Add(testScreenshake);
+                Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>();
+                pointLight.RootComponent.Radius = 200.0f;
+                pointLight.RootComponent.DiffuseIntensity = 1000.0f;
+                pointLight.RootComponent.AmbientIntensity = 0.001f;
+                pointLight.RootComponent.Translation = new Vec3(
+                    TMath.Cosf(i * angle) * lightPosRadius,
+                    upTrans,
+                    TMath.Sinf(i * angle) * lightPosRadius);
+                actors.Add(pointLight);
+            }
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {
                 Bounds = new BoundingBox(500.0f),
                 OriginRebaseBounds = new BoundingBox(50.0f),
             };
-        }
-
-        private Vec3 RotateTick(float second)
-        {
-            float rotation = (0.1f * second).RemapToRange(0.0f, 1.0f) * 360.0f * TMath.DegToRadMultf;
-            return new Vec3(
-                (float)Math.Cos(rotation) * 15.0f,
-                0.0f,
-                (float)Math.Sin(rotation) * 15.0f);
         }
     }
 

@@ -30,10 +30,19 @@ namespace TheraEngine.Animation
     {
         public event Action AnimationStarted;
         public event Action AnimationEnded;
+        public event Action AnimationPaused;
         public event Action CurrentFrameChanged;
         public event Action SpeedChanged;
         public event Action LoopChanged;
         public event Action LengthChanged;
+
+        protected void OnAnimationStarted() => AnimationStarted?.Invoke();
+        protected void OnAnimationEnded() => AnimationEnded?.Invoke();
+        protected void OnAnimationPaused() => AnimationPaused?.Invoke();
+        protected void OnCurrentFrameChanged() => CurrentFrameChanged?.Invoke();
+        protected void OnSpeedChanged() => SpeedChanged?.Invoke();
+        protected void OnLoopChanged() => LoopChanged?.Invoke();
+        protected void OnLengthChanged() => LengthChanged?.Invoke();
 
         [TSerialize("BakedFrameCount", Condition = "_isBaked")]
         protected int _bakedFrameCount = 0;
@@ -170,7 +179,7 @@ namespace TheraEngine.Animation
         }
         protected virtual void PreStarted() { }
         protected virtual void PostStarted() { }
-        public void Start()
+        public virtual void Start()
         {
             if (_state == AnimationState.Playing)
                 return;
@@ -178,36 +187,35 @@ namespace TheraEngine.Animation
             _state = AnimationState.Playing;
             AnimationStarted?.Invoke();
             CurrentTime = 0.0f;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickAlways);
             PostStarted();
         }
         protected virtual void PreStopped() { }
         protected virtual void PostStopped() { }
-        public void Stop()
+        public virtual void Stop()
         {
             if (_state == AnimationState.Stopped)
                 return;
             PreStopped();
             _currentTime = 0.0f;
             _state = AnimationState.Stopped;
-            AnimationEnded?.Invoke();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
+            OnAnimationEnded();
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickAlways);
             PostStopped();
         }
         protected virtual void PrePaused() { }
         protected virtual void PostPaused() { }
-        public void Pause()
+        public virtual void Pause()
         {
             if (_state != AnimationState.Playing)
                 return;
-            PreStopped();
+            PrePaused();
             _state = AnimationState.Paused;
-            AnimationEnded?.Invoke();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
-            PostStopped();
+            OnAnimationPaused();
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickAlways);
+            PostPaused();
         }
         public void Progress(float delta) => CurrentTime += delta * _speed;
-        protected virtual void OnCurrentFrameChanged() => CurrentFrameChanged?.Invoke();
 
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.

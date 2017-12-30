@@ -401,14 +401,33 @@ namespace TheraEngine.Rendering.Models.Materials
             => CreateLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static TMaterial CreateLitColorMaterial(ColorF4 color, bool deferred)
         {
-            ShaderVar[] parameters = new ShaderVar[]
+            ShaderVar[] parameters;
+            Shader frag;
+            if (deferred)
             {
-                new ShaderVec4(color, "MatColor"),
-                new ShaderFloat(20.0f, "MatSpecularIntensity"),
-                // ShaderFloat(128.0f, "MatShininess"),
-            };
-            return new TMaterial("LitColorMaterial", parameters, 
-                deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward())
+                frag = ShaderHelpers.LitColorFragDeferred();
+                parameters = new ShaderVar[]
+                {
+                    new ShaderVec3((ColorF3)color, "BaseColor"),
+                    new ShaderFloat(color.A, "Opacity"),
+                    new ShaderFloat(1.0f, "Specular"),
+                    new ShaderFloat(0.0f, "Roughness"),
+                    new ShaderFloat(0.0f, "Metallic"),
+                    new ShaderFloat(1.0f, "IndexOfRefraction"),
+                };
+            }
+            else
+            {
+                frag = ShaderHelpers.LitColorFragForward();
+                parameters = new ShaderVar[]
+                {
+                    new ShaderVec4(color, "MatColor"),
+                    new ShaderFloat(20.0f, "MatSpecularIntensity"),
+                    // ShaderFloat(128.0f, "MatShininess"),
+                };
+            }
+
+            return new TMaterial("LitColorMaterial", parameters, frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };

@@ -57,7 +57,7 @@ namespace TheraEngine.Core.Shapes
         public override void Render()
             => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);
 
-        public static PrimitiveData SolidMesh(Vec3 center, float radius, float precision)
+        public static PrimitiveData SolidMesh(Vec3 center, float radius, uint precision)
         {
             float halfPI = TMath.PIf * 0.5f;
             float invPrecision = 1.0f / precision;
@@ -146,7 +146,7 @@ namespace TheraEngine.Core.Shapes
 
         public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)
             => SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, slices, stacks);
-        public PrimitiveData GetMesh(float precision, bool includeCenter)
+        public PrimitiveData GetMesh(uint precision, bool includeCenter)
             => SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, precision);
         
         public override bool Contains(Vec3 point)

@@ -121,11 +121,16 @@ namespace TheraEngine
             //Preload transition world now
             await Game.TransitionWorld.LoadNewInstanceAsync();
         }
+
+        public static bool ShuttingDown { get; private set; }
+
         /// <summary>
         /// Call this to stop the engine and dispose of all allocated data.
         /// </summary>
         public static void ShutDown()
         {
+            ShuttingDown = true;
+
             //Steamworks.SteamAPI.Shutdown();
             Stop();
             SetCurrentWorld(null, true, true);

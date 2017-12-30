@@ -155,11 +155,11 @@ namespace TheraEngine.Rendering
                 case DebugPrimitiveType.WireSphere: //Diameter is set to 2.0f on purpose
                     return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60);
                 case DebugPrimitiveType.SolidSphere: //Diameter is set to 2.0f on purpose
-                    return Sphere.SolidMesh(Vec3.Zero, 1.0f, 30.0f);
+                    return Sphere.SolidMesh(Vec3.Zero, 1.0f, 30);
                 case DebugPrimitiveType.WireBox:
-                    return BoundingBox.WireframeMesh(new Vec3(-1.0f), new Vec3(1.0f));
+                    return BoundingBox.WireframeMesh(-1.0f, 1.0f);
                 case DebugPrimitiveType.SolidBox:
-                    return BoundingBox.SolidMesh(new Vec3(-1.0f), new Vec3(1.0f));
+                    return BoundingBox.SolidMesh(-1.0f, 1.0f);
                 case DebugPrimitiveType.WireQuad:
                     return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(2.0f).ToLines());
                 case DebugPrimitiveType.SolidQuad:

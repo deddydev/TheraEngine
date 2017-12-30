@@ -459,21 +459,26 @@ namespace TheraEngine.Worlds.Actors.Types
         {
             Quat delta = Quat.BetweenVectors(_lastPoint, dragPoint);
             _targetSocket.HandleLocalRotation(delta);
-            RootComponent.WorldMatrix = GetWorldMatrix();
+
+            RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
         private void DragTranslation(Vec3 dragPoint)
         {
             Vec3 delta = dragPoint - _lastPoint;
+
             Matrix4 m = _targetSocket.InverseWorldMatrix.ClearScale();
             m = m.ClearTranslation();
+
             _targetSocket.HandleLocalTranslation(m * delta);
-            RootComponent.WorldMatrix = GetWorldMatrix();
+
+            RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
         private void DragScale(Vec3 dragPoint)
         {
             Vec3 delta = dragPoint - _lastPoint;
             _targetSocket.HandleLocalScale(delta);
-            RootComponent.WorldMatrix = GetWorldMatrix();
+
+            RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
         /// <summary>
         /// Returns a point relative to the local space of the target socket (origin at 0,0,0), clamped to the highlighted drag plane.

@@ -180,7 +180,8 @@ namespace TheraEngine.Rendering.OpenGL
             //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             GL.Disable(EnableCap.CullFace);
             GL.Disable(EnableCap.Dither);
-            GL.Enable(EnableCap.Multisample);
+            GL.Disable(EnableCap.Multisample);
+            GL.Enable(EnableCap.TextureCubeMapSeamless);
             GL.FrontFace(FrontFaceDirection.Ccw);
             GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Less);

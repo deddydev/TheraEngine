@@ -25,7 +25,14 @@ namespace TheraEngine.Worlds.Actors.Components
         protected virtual void OnWorldTransformChanged()
         {
             if (this is IRigidCollidable p && p.RigidBodyCollision != null)
-                p.RigidBodyCollision.WorldTransform = (_worldTransform);
+            {
+                p.RigidBodyCollision.WorldTransform = _worldTransform;
+
+                //AABBs are not updated unless the physics world is ticking.
+                //Without an updated AABB, collision against traces will not work properly.
+                if (Engine.IsPaused)
+                    Engine.World?.PhysicsWorld.UpdateSingleAabb(p.RigidBodyCollision);
+            }
 
             if (this is I3DBoundable r)
                 r.OctreeNode?.ItemMoved(r);
@@ -75,7 +82,7 @@ namespace TheraEngine.Worlds.Actors.Components
             OnWorldTransformChanged();
         }
 
-        [Browsable(true)]
+        [Browsable(false)]
         [Category("Transform")]
         public virtual Matrix4 WorldMatrix
         {
@@ -301,9 +308,17 @@ namespace TheraEngine.Worlds.Actors.Components
         }
 
         [Browsable(false)]
-        public Matrix4 PreviousWorldTransform { get => _previousWorldTransform; set => _previousWorldTransform = value; }
+        public Matrix4 PreviousWorldTransform
+        {
+            get => _previousWorldTransform;
+            set => _previousWorldTransform = value;
+        }
         [Browsable(false)]
-        public Matrix4 PreviousInverseWorldTransform { get => _previousInverseWorldTransform; set => _previousInverseWorldTransform = value; }
+        public Matrix4 PreviousInverseWorldTransform
+        {
+            get => _previousInverseWorldTransform;
+            set => _previousInverseWorldTransform = value;
+        }
 
         public override void OnSpawned()
         {

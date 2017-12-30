@@ -17,12 +17,16 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             set => _cullingVolume.Radius = value;
         }
 
+        [Browsable(false)]
         public RenderInfo3D RenderInfo => ((I3DRenderable)_cullingVolume).RenderInfo;
+        [Browsable(false)]
         public Shape CullingVolume => ((I3DRenderable)_cullingVolume).CullingVolume;
+        [Browsable(false)]
         public IOctreeNode OctreeNode { get => ((I3DRenderable)_cullingVolume).OctreeNode; set => ((I3DRenderable)_cullingVolume).OctreeNode = value; }
 
-        internal protected Sphere _cullingVolume;
+        private Sphere _cullingVolume;
         
+        public PointLightComponent() : this(100.0f, new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
         public PointLightComponent(float radius, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
             : base(color, diffuseIntensity, ambientIntensity)
         {

@@ -104,9 +104,7 @@ namespace TheraEngine.Physics.ShapeTracing
 
             if (!normalInWorldSpace)
                 hitNormal = Vec3.TransformNormal(hitNormal, obj.WorldTransform);
-
-            //hitPointLocal = Vec3.TransformPosition(hitPointLocal, obj.WorldTransform);
-
+            
             Results.Add(new ShapeCollisionResult(obj, hitFraction, hitNormal, hitPointWorld, shapePart, triangleIndex));
         }
     }
@@ -123,9 +121,7 @@ namespace TheraEngine.Physics.ShapeTracing
 
             if (!normalInWorldSpace)
                 hitNormal = Vec3.TransformNormal(hitNormal, obj.WorldTransform);
-
-            //hitPointLocal = Vec3.TransformPosition(hitPointLocal, obj.WorldTransform);
-
+            
             if (Result == null)
                 Result = new ShapeCollisionResult(obj, hitFraction, hitNormal, hitPointWorld, shapePart, triangleIndex);
             else if (hitFraction < Result.HitFraction)

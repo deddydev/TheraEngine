@@ -52,6 +52,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             => Translation -= newOrigin;
 
 #if EDITOR
+        [Browsable(false)]
         public override bool IsTranslatable => true;
         public override void HandleLocalTranslation(Vec3 delta)
         {

@@ -20,6 +20,8 @@ namespace TheraEngine.Physics
         public abstract void RemoveConstraint(TConstraint constraint);
         public abstract bool RayTrace(RayTrace result);
         public abstract bool ShapeTrace(ShapeTrace result);
+        public abstract void UpdateAabbs();
+        public abstract void UpdateSingleAabb(TCollisionObject collision);
 
         public abstract void Dispose();
     }

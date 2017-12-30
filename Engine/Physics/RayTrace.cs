@@ -74,9 +74,7 @@ namespace TheraEngine.Physics.RayTracing
 
             //I believe this algorithm is faster.
             if (Collision.RayIntersectsAABBDistance(StartPointWorld, dir, aabbMin, aabbMax, out float distance) && distance * distance < dir.LengthSquared)
-
             //if (Collision.SegmentIntersectsAABB(Start, End, aabbMin, aabbMax, out Vec3 enterPoint, out Vec3 exitPoint))
-
             {
                 bool rayIntersectsOther = (CollisionGroup & collidesWith) == CollisionGroup;
                 bool otherIntersectsRay = (collisionGroup & CollidesWith) == collisionGroup;
@@ -107,7 +105,6 @@ namespace TheraEngine.Physics.RayTracing
         public Vec3 HitPointWorld => Result == null ? Vec3.Zero : Result.HitPointWorld;
         public int ShapePart => Result == null ? -1 : Result.ShapePart;
         public int TriangleIndex => Result == null ? -1 : Result.TriangleIndex;
-
 
         public RayTraceSingle(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored)
             : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }

@@ -166,8 +166,8 @@ namespace TheraEditor.Windows.Forms
             GenerateInitialActorList();
             if (Engine.World != null)
             {
-                Engine.World.StateRef.File.SpawnedActors.PostAdded += SpawnedActors_PostAdded;
-                Engine.World.StateRef.File.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
+                Engine.World.StateRef.File.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
+                Engine.World.StateRef.File.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
             }
         }
 
@@ -221,8 +221,6 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnClosing(CancelEventArgs e)
         {
-            Engine.UnregisterRenderTick(RenderTick);
-
             string configFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
             DockPanel.SaveAsXml(configFile);
 
@@ -232,7 +230,9 @@ namespace TheraEditor.Windows.Forms
                 document.DockHandler.Close();
             }
 
+            Engine.UnregisterRenderTick(RenderTick);
             Engine.ShutDown();
+
             base.OnClosing(e);
         }
 
@@ -253,7 +253,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void SpawnedActors_PostAdded(IActor item)
         {
-            if (Engine.World != null)
+            if (Engine.World != null && !Engine.ShuttingDown)
             {
                 if (InvokeRequired)
                 {
@@ -267,7 +267,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void SpawnedActors_PostRemoved(IActor item)
         {
-            if (Engine.World != null)
+            if (Engine.World != null && !Engine.ShuttingDown)
             {
                 if (InvokeRequired)
                 {

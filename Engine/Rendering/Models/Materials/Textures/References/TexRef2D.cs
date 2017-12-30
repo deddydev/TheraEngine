@@ -246,14 +246,14 @@ namespace TheraEngine.Rendering.Models.Materials
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
         public TMaterial Material { get; internal set; }
-        public bool DoNotResize { get; internal set; }
+        public bool ResizingDisabled { get; internal set; }
 
         /// <summary>
         /// Resizes the textures stored in memory.
         /// </summary>
         public void Resize(int width, int height)
         {
-            if (DoNotResize)
+            if (ResizingDisabled)
                 return;
 
             _width = width;

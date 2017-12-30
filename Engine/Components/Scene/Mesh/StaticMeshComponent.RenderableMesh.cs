@@ -6,6 +6,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Physics;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
@@ -16,10 +17,12 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             private RenderInfo3D _renderInfo;
             public RenderInfo3D RenderInfo => _renderInfo;
 
-            private class LOD_Internal
+            public class LOD_Internal
             {
                 public float VisibleDistance { get; set; }
                 public PrimitiveManager Manager { get; set; }
+
+                public ShaderVar[] Parameters => Manager.Material.Parameters;
             }
 
             [Browsable(false)]
@@ -161,6 +164,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 
             private int _currentLOD = 0;
             private LOD_Internal[] _lods;
+
+            public LOD_Internal[] LODs => _lods;
 
             private bool
                 _ownerNoSee = false,

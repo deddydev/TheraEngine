@@ -17,7 +17,7 @@ namespace TheraEngine.Animation
         [TSerialize(Condition = "!Baked")]
         public Vec2 DefaultValue { get; set; } = Vec2.Zero;
 
-        public PropAnimVec2() : base(0.0f, false, true) { }
+        public PropAnimVec2() : base(0.0f, false) { }
         public PropAnimVec2(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimVec2(int frameCount, float FPS, bool looped, bool useKeyframes) 

@@ -178,7 +178,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         private void LoadProperties(object obj)
         {
-            pnlProps.SuspendLayout();
+            if (Disposing || IsDisposed)
+                return;
+
+            //pnlProps.SuspendLayout();
 
             pnlProps.Controls.Clear();
             foreach (var category in _categories.Values)
@@ -187,9 +190,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (obj == null)
             {
-                pnlProps.ResumeLayout(true);
+                //pnlProps.ResumeLayout(true);
                 return;
             }
+
             PropertyInfo[] props = null;
             MethodInfo[] methods = null;
             ConcurrentDictionary<int, PropertyData> info = new ConcurrentDictionary<int, PropertyData>();
@@ -232,7 +236,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 });
             }).ContinueWith(t =>
             {
-                if (!IsDisposed)
+                if (!Disposing && !IsDisposed)
                     Invoke((Action)(() =>
                     {
                         for (int i = 0; i < props.Length; ++i)
@@ -252,7 +256,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
 
-                        pnlProps.ResumeLayout(true);
+                        //pnlProps.ResumeLayout(true);
                     }));
             });
         }

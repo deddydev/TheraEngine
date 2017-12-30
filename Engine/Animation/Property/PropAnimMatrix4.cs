@@ -17,7 +17,7 @@ namespace TheraEngine.Animation
         [TSerialize(Condition = "!Baked")]
         public Matrix4 DefaultValue { get; set; } = Matrix4.Identity;
 
-        public PropAnimMatrix4() : base(0.0f, false, true) { }
+        public PropAnimMatrix4() : base(0.0f, false) { }
         public PropAnimMatrix4(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimMatrix4(int frameCount, float FPS, bool looped, bool useKeyframes) 

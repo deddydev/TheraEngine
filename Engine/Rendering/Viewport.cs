@@ -674,29 +674,15 @@ namespace TheraEngine.Rendering
         {
             TextureReference2D[] postProcessRefs = new TextureReference2D[]
             {
-                new TextureReference2D("OutputColor", width, height,
-                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Clamp,
-                    VWrap = ETexWrapMode.Clamp,
-                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                },
+                CreateFrameBufferTexture("OutputColor", width, height,
+                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
+                    EFramebufferAttachment.ColorAttachment0),
                 depthTexture,
             };
-
-            ShaderVar[] postProcessParameters = new ShaderVar[]
-            {
-
-            };
-
+            ShaderVar[] postProcessParameters = new ShaderVar[] { };
             TMaterial postProcessMat = new TMaterial("PostProcessMat",
                 postProcessParameters, postProcessRefs,
-                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcess.frag"))))
-            {
-                Requirements = TMaterial.UniformRequirements.None
-            };
+                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcess.frag"))));
 
             //postProcessMat.RenderParams.DepthTest.Enabled = true;
             //postProcessMat.RenderParams.DepthTest.UpdateDepth = false;
@@ -705,7 +691,6 @@ namespace TheraEngine.Rendering
             _postProcessFrameBuffer = new QuadFrameBuffer(postProcessMat);
             _postProcessFrameBuffer.SettingUniforms += _postProcessGBuffer_SettingUniforms;
         }
-
         private unsafe void InitDeferredRendererFBO(int width, int height, TextureReference2D depthTexture)
         {
             TextureReference2D ssaoNoise = new TextureReference2D("SSAONoise",
@@ -717,7 +702,7 @@ namespace TheraEngine.Rendering
                 MagFilter = ETexMagFilter.Nearest,
                 UWrap = ETexWrapMode.Repeat,
                 VWrap = ETexWrapMode.Repeat,
-                DoNotResize = true,
+                ResizingDisabled = true,
             };
             Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
@@ -733,51 +718,22 @@ namespace TheraEngine.Rendering
             bmp.UnlockBits(data);
             TextureReference2D[] deferredRefs = new TextureReference2D[]
             {
-                new TextureReference2D("AlbedoSpec", width, height,
-                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
-                    {
-                        MinFilter = ETexMinFilter.Nearest,
-                        MagFilter = ETexMagFilter.Nearest,
-                        UWrap = ETexWrapMode.Clamp,
-                        VWrap = ETexWrapMode.Clamp,
-                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                    },
-                new TextureReference2D("Normal", width, height,
-                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
-                    {
-                        MinFilter = ETexMinFilter.Nearest,
-                        MagFilter = ETexMagFilter.Nearest,
-                        UWrap = ETexWrapMode.Clamp,
-                        VWrap = ETexWrapMode.Clamp,
-                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
-                    },
-                //new TextureReference2D("Velocity", width, height,
-                //    EPixelInternalFormat.Rg8, EPixelFormat.Rg, EPixelType.UnsignedByte)
-                //    {
-                //        MinFilter = ETexMinFilter.Nearest,
-                //        MagFilter = ETexMagFilter.Nearest,
-                //        UWrap = ETexWrapMode.Clamp,
-                //        VWrap = ETexWrapMode.Clamp,
-                //        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment2,
-                //    },
-                //new TextureReference2D("RoughnessMetallicOpacityIrradiance", width, height,
-                //    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
-                //    {
-                //        MinFilter = ETexMinFilter.Nearest,
-                //        MagFilter = ETexMagFilter.Nearest,
-                //        UWrap = ETexWrapMode.Clamp,
-                //        VWrap = ETexWrapMode.Clamp,
-                //        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment3,
-                //    },
+                CreateFrameBufferTexture("AlbedoSpec", width, height,
+                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
+                    EFramebufferAttachment.ColorAttachment0),
+                CreateFrameBufferTexture("Normal", width, height,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
+                    EFramebufferAttachment.ColorAttachment1),
+                CreateFrameBufferTexture("RoughnessMetallicOpacityIor", width, height,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
+                    EFramebufferAttachment.ColorAttachment2),
+                //CreateFrameBufferTexture("Velocity", width, height,
+                //    EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat,
+                //    EFramebufferAttachment.ColorAttachment3),
                 ssaoNoise,
                 depthTexture,
             };
-
-            ShaderVar[] deferredParameters = new ShaderVar[]
-            {
-
-            };
-
+            ShaderVar[] deferredParameters = new ShaderVar[] { };
             TMaterial deferredMat = new TMaterial("GBufferDeferredMaterial",
             deferredParameters,
             deferredRefs,
@@ -796,6 +752,18 @@ namespace TheraEngine.Rendering
 
             _deferredGBuffer = new QuadFrameBuffer(deferredMat);
             _deferredGBuffer.SettingUniforms += _deferredGBuffer_SettingUniforms;
+        }
+        private TextureReference2D CreateFrameBufferTexture(string name, int width, int height,
+            EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType, EFramebufferAttachment bufAttach)
+        {
+            return new TextureReference2D(name, width, height, internalFmt, fmt, pixelType)
+            {
+                MinFilter = ETexMinFilter.Nearest,
+                MagFilter = ETexMagFilter.Nearest,
+                UWrap = ETexWrapMode.Clamp,
+                VWrap = ETexWrapMode.Clamp,
+                FrameBufferAttachment = bufAttach,
+            };
         }
         #endregion
 

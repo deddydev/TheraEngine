@@ -34,5 +34,7 @@ namespace TheraEngine.Physics.Bullet
                 Body.OnTransformChanged(_worldTransform);
             }
         }
+
+        internal void SetWorldTransform_Internal(Matrix transform) => _worldTransform = transform;
     }
 }

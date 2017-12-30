@@ -107,19 +107,52 @@ void main()
             string source = @"
 #version 450
 
-layout (location = 0) out vec4 AlbedoSpec;
+layout (location = 0) out vec4 AlbedoOpacity;
 layout (location = 1) out vec3 Normal;
+layout (location = 2) out vec4 RMSI;
 
-uniform float MatSpecularIntensity;
 uniform sampler2D Texture0;
+uniform float Opacity = 1.0f;
+uniform float Specular = 1.0f;
+uniform float Roughness = 0.0f;
+uniform float Metallic = 0.0f;
+uniform float IndexOfRefraction = 1.0f;
 
 in vec3 FragNorm;
 in vec2 FragUV0;
 
 void main()
 {
-    AlbedoSpec = vec4(texture(Texture0, FragUV0).rgb, MatSpecularIntensity);
     Normal = normalize(FragNorm);
+    AlbedoOpacity = vec4(texture(Texture0, FragUV0).rgb, Opacity);
+    RMSI = vec4(Roughness, Metallic, Specular, IndexOfRefraction);
+}
+";
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        public static Shader LitColorFragDeferred()
+        {
+            string source = @"
+#version 450
+
+layout (location = 0) out vec4 AlbedoOpacity;
+layout (location = 1) out vec3 Normal;
+layout (location = 2) out vec4 RMSI;
+
+uniform vec3 BaseColor;
+uniform float Opacity = 1.0f;
+uniform float Specular = 1.0f;
+uniform float Roughness = 0.0f;
+uniform float Metallic = 0.0f;
+uniform float IndexOfRefraction = 1.0f;
+
+in vec3 FragNorm;
+
+void main()
+{
+    Normal = normalize(FragNorm);
+    AlbedoOpacity = vec4(BaseColor, Opacity);
+    RMSI = vec4(Roughness, Metallic, Specular, IndexOfRefraction);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -158,27 +191,6 @@ void main()
 layout (location = 0) out vec4 OutColor;
 uniform vec4 MatColor;
 void main() { OutColor = MatColor; }
-";
-            return new Shader(ShaderMode.Fragment, source);
-        }
-        public static Shader LitColorFragDeferred()
-        {
-            string source = @"
-#version 450
-
-layout (location = 0) out vec4 AlbedoSpec;
-layout (location = 1) out vec3 Normal;
-
-uniform vec4 MatColor;
-uniform float MatSpecularIntensity;
-
-in vec3 FragNorm;
-
-void main()
-{
-    Normal = normalize(FragNorm);
-    AlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
-}
 ";
             return new Shader(ShaderMode.Fragment, source);
         }

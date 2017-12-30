@@ -7,7 +7,7 @@ namespace TheraEngine.Input.Devices
     {
         public BaseKeyboard(int index) : base(index) { }
 
-        protected List<EKey> _registeredKeys = new List<EKey>();
+        protected List<EKey> _registeredKeys = new List<EKey>(132);
 
         protected override int GetAxisCount() => 0;
         protected override int GetButtonCount() => 132;

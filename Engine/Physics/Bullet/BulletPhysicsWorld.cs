@@ -157,6 +157,14 @@ namespace TheraEngine.Physics
                 return collides;
             }
         }
+        public override void UpdateAabbs()
+        {
+            _dynamicsWorld.UpdateAabbs();
+        }
+        public override void UpdateSingleAabb(TCollisionObject collision)
+        {
+            _dynamicsWorld.UpdateSingleAabb(((IBulletCollisionObject)collision).CollisionObject);
+        }
         public override bool RayTrace(RayTrace result)
         {
             TRayResultCallback callback = new TRayResultCallback(result);

@@ -108,6 +108,49 @@ namespace System
             x = x * (1.5f - xhalf * x * x); // Perform left single Newton-Raphson step.
             return x;
         }
+
+        /// <summary>
+        /// Returns the sine and cosine of a radian angle simultaneously as doubles.
+        /// </summary>
+        public static void SinCos(double rad, out double sin, out double cos)
+        {
+            sin = Sin(rad);
+            cos = Cos(rad);
+        }
+        /// <summary>
+        /// Returns the sine and cosine of a radian angle simultaneously as floats.
+        /// </summary>
+        public static void SinCosf(float rad, out float sin, out float cos)
+        {
+            sin = Sinf(rad);
+            cos = Cosf(rad);
+        }
+        /// <summary>
+        /// Returns the sine and cosine of a degree angle simultaneously as doubles.
+        /// </summary>
+        public static void SinCosd(double deg, out double sin, out double cos)
+        {
+            sin = Sind(deg);
+            cos = Cosd(deg);
+        }
+        /// <summary>
+        /// Returns the sine and cosine of a degree angle simultaneously as floats.
+        /// </summary>
+        public static void SinCosdf(float deg, out float sin, out float cos)
+        {
+            sin = Sindf(deg);
+            cos = Cosdf(deg);
+        }
+        public static float Cosf(float rad) => (float)Cos(rad);
+        public static float Sinf(float rad) => (float)Sin(rad);
+        public static float Tanf(float rad) => (float)Tan(rad);
+        public static float Cosdf(float deg) => Cosf(deg * DegToRadMultf);
+        public static float Sindf(float deg) => Sinf(deg * DegToRadMultf);
+        public static float Tandf(float deg) => Tanf(deg * DegToRadMultf);
+        public static double Cosd(double deg) => Cos(deg * DegToRadMult);
+        public static double Sind(double deg) => Sin(deg * DegToRadMult);
+        public static double Tand(double deg) => Tan(deg * DegToRadMult);
+
         /// <summary>
         /// Finds the two values of x where the equation ax^2 + bx + c evaluates to 0.
         /// Returns false if the solutions are not a real numbers.

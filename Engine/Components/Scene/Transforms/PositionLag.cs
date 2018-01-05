@@ -88,13 +88,13 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         {
             _currentPoint = _worldTransform.GetPoint();
             //Engine.Scene.Add(this);
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             //Engine.Scene.Remove(this);
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.InputPauseType.TickOnlyWhenUnpaused);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnDespawned();
         }
 

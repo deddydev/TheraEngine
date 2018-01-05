@@ -18,10 +18,10 @@ namespace TheraEngine.Animation
         public float DefaultValue { get; set; } = 0.0f;
 
         public PropAnimFloat() : base(0.0f, false) { }
-        public PropAnimFloat(float lengthInSeconds, bool looped, bool useKeyframes)
-            : base(lengthInSeconds, looped, useKeyframes) { }
-        public PropAnimFloat(int frameCount, float FPS, bool looped, bool useKeyframes) 
-            : base(frameCount, FPS, looped, useKeyframes) { }
+        public PropAnimFloat(float lengthInSeconds, bool looped, bool isBaked)
+            : base(lengthInSeconds, looped, isBaked) { }
+        public PropAnimFloat(int frameCount, float FPS, bool looped, bool isBaked) 
+            : base(frameCount, FPS, looped, isBaked) { }
 
         protected override void BakedChanged()
             => _getValue = !Baked ? (DelGetValue<float>)GetValueKeyframed : GetValueBaked;

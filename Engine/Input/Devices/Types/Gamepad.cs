@@ -72,29 +72,29 @@ namespace TheraEngine.Input.Devices
             return _axisStates[a];
         }
 
-        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
+        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
             RegisterButtonEvent(unregister ? _buttonStates[(int)button] : CacheButton(button), type, pauseType, func, unregister);
         }
-        public void RegisterButtonEvent(GamePadAxis axis, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
+        public void RegisterButtonEvent(GamePadAxis axis, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
             RegisterButtonEvent(unregister ? _axisStates[(int)axis] : CacheAxis(axis), type, pauseType, func, unregister);
         }
-        public void RegisterButtonState(GamePadButton button, InputPauseType pauseType, DelButtonState func, bool unregister)
+        public void RegisterButtonState(GamePadButton button, EInputPauseType pauseType, DelButtonState func, bool unregister)
         {
             if (unregister)
                 _buttonStates[(int)button]?.RegisterPressedState(func, pauseType, true);
             else
                 CacheButton(button)?.RegisterPressedState(func, pauseType, false);
         }
-        public void RegisterButtonState(GamePadAxis axis, InputPauseType pauseType, DelButtonState func, bool unregister)
+        public void RegisterButtonState(GamePadAxis axis, EInputPauseType pauseType, DelButtonState func, bool unregister)
         {
             if (unregister)
                 _axisStates[(int)axis]?.RegisterPressedState(func, pauseType, true);
             else
                 CacheAxis(axis)?.RegisterPressedState(func, pauseType, false);
         }
-        public void RegisterAxisUpdate(GamePadAxis axis, InputPauseType pauseType, DelAxisValue func, bool continuousUpdate, bool unregister)
+        public void RegisterAxisUpdate(GamePadAxis axis, EInputPauseType pauseType, DelAxisValue func, bool continuousUpdate, bool unregister)
         {
             if (unregister)
                 _axisStates[(int)axis]?.RegisterAxis(func, pauseType, continuousUpdate, true);

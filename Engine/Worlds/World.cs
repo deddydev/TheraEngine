@@ -40,7 +40,7 @@ namespace TheraEngine.Worlds
             set => SettingsRef.File = value;
         }
         private GlobalFileRef<WorldState> _stateRef;
-        [TSerialize("State")]
+        [TSerialize("State", State = true)]
         public GlobalFileRef<WorldState> StateRef
         {
             get => _stateRef;
@@ -132,18 +132,19 @@ namespace TheraEngine.Worlds
             _physicsWorld = null;
         }
 
-        public IEnumerator<IActor> GetEnumerator() => StateRef.File.SpawnedActors.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => StateRef.File.SpawnedActors.GetEnumerator();
+        public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
 
         protected override void OnUnload() => Dispose();
         public virtual void EndPlay()
         {
-            foreach (Map m in _settingsRef.File.Maps)
+            foreach (Map m in Settings.Maps)
                 m.EndPlay();
         }
         public virtual void BeginPlay()
         {
             State.Scene = new Scene3D(Settings.Bounds.HalfExtents);
+            State.Scene.Lights.GlobalAmbient = Settings.GlobalAmbient;
             CreatePhysicsScene();
 
             Engine.TimeDilation = Settings.TimeDilation;

@@ -57,7 +57,7 @@ namespace TheraEngine.Input.Devices
             }
         }
         public bool IsEmpty() => _usedActions.Count == 0 && _onStateChanged.All(x => x == null || x.Count == 0);
-        public void Register(Action func, ButtonInputType type, InputPauseType pauseType, bool unregister)
+        public void Register(Action func, ButtonInputType type, EInputPauseType pauseType, bool unregister)
         {
             int index = (int)type * 3 + (int)pauseType;
             if (unregister)
@@ -83,7 +83,7 @@ namespace TheraEngine.Input.Devices
                     _actions[index].Add(func);
             }
         }
-        public void RegisterPressedState(DelButtonState func, InputPauseType pauseType, bool unregister)
+        public void RegisterPressedState(DelButtonState func, EInputPauseType pauseType, bool unregister)
         {
             int index = (int)pauseType;
             if (unregister)
@@ -131,7 +131,7 @@ namespace TheraEngine.Input.Devices
         }
         protected void PerformStateAction(bool pressed)
         {
-            List<DelButtonState> list = _onStateChanged[(int)InputPauseType.TickAlways];
+            List<DelButtonState> list = _onStateChanged[(int)EInputPauseType.TickAlways];
             if (list != null)
             {
                 int i = list.Count;
@@ -139,8 +139,8 @@ namespace TheraEngine.Input.Devices
                     list[x](pressed);
             }
             list = Engine.IsPaused ?
-                _onStateChanged[(int)InputPauseType.TickOnlyWhenPaused] :
-                _onStateChanged[(int)InputPauseType.TickOnlyWhenUnpaused];
+                _onStateChanged[(int)EInputPauseType.TickOnlyWhenPaused] :
+                _onStateChanged[(int)EInputPauseType.TickOnlyWhenUnpaused];
             if (list != null)
             {
                 int i = list.Count;
@@ -159,8 +159,8 @@ namespace TheraEngine.Input.Devices
                     list[x]();
             }
             list = Engine.IsPaused ?
-                _actions[index + (int)InputPauseType.TickOnlyWhenPaused] :
-                _actions[index + (int)InputPauseType.TickOnlyWhenUnpaused];
+                _actions[index + (int)EInputPauseType.TickOnlyWhenPaused] :
+                _actions[index + (int)EInputPauseType.TickOnlyWhenUnpaused];
             if (list != null)
             {
                 int i = list.Count;

@@ -35,6 +35,8 @@ namespace TheraEngine.Worlds
             _spawnedActors.PreAddedRange += _spawnedActors_AddedRange;
             _spawnedActors.PostInsertedRange += _spawnedActors_InsertedRange;
         }
+
+        #region Spawned Actors
         private void _spawnedActors_Added(IActor item)
         {
             _spawnedActors_Inserted(item, _spawnedActors.Count - 1);
@@ -64,6 +66,7 @@ namespace TheraEngine.Worlds
                 ++i;
             }
         }
+        #endregion
 
         [PostDeserialize]
         private void CreateActorMap()
@@ -78,6 +81,7 @@ namespace TheraEngine.Worlds
                     _actorMap[t].Add(i);
             }
         }
+
         public IEnumerable<T> GetSpawnedActorsOfType<T>() where T : IActor
         {
             Type t = typeof(T);
@@ -85,10 +89,10 @@ namespace TheraEngine.Worlds
                 return _actorMap[t].Select(x => (T)_spawnedActors[x]);
             return null;
         }
-        public IEnumerable<IActor> GetSpawnedActorsOfType(Type t)
+        public IEnumerable<IActor> GetSpawnedActorsOfType(Type actorType)
         {
-            if (_actorMap.ContainsKey(t))
-                return _actorMap[t].Select(x => _spawnedActors[x]);
+            if (_actorMap.ContainsKey(actorType))
+                return _actorMap[actorType].Select(x => _spawnedActors[x]);
             return null;
         }
     }

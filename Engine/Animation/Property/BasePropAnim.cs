@@ -58,6 +58,11 @@ namespace TheraEngine.Animation
             OnAnimationPaused();
             PostPaused();
         }
-        protected abstract object GetValueGeneric(float frame);
+        /// <summary>
+        /// Retrieves the value for the given second.
+        /// Used by the internal animation implementation to set property values and call methods,
+        /// so must be overridden.
+        /// </summary>
+        protected abstract object GetValueGeneric(float second);
     }
 }

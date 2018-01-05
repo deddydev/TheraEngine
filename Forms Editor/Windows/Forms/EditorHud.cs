@@ -113,16 +113,16 @@ namespace TheraEditor.Windows.Forms
         public override void RegisterInput(InputInterface input)
         {
             //input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnMouseDown, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, OnMouseUp, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnMouseDown, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, OnMouseUp, EInputPauseType.TickAlways);
 
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, EInputPauseType.TickAlways);
             
-            input.RegisterButtonEvent(EKey.Number1, ButtonInputType.Pressed, SetTranslationMode, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number2, ButtonInputType.Pressed, SetRotationMode, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number3, ButtonInputType.Pressed, SetScaleMode, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number4, ButtonInputType.Pressed, SetDragDropMode, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Number1, ButtonInputType.Pressed, SetTranslationMode, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Number2, ButtonInputType.Pressed, SetRotationMode, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Number3, ButtonInputType.Pressed, SetScaleMode, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Number4, ButtonInputType.Pressed, SetDragDropMode, EInputPauseType.TickAlways);
         }
         TransformType _transformType = TransformType.Translate;
         private void ToggleTransformMode()

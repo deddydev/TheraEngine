@@ -31,7 +31,7 @@ namespace TheraEngine.Animation
         [TSerialize("TickOrder")]
         private ETickOrder _order = ETickOrder.Animation;
         [TSerialize("TickPausedBehavior")]
-        private InputPauseType _pausedBehavior = InputPauseType.TickAlways;
+        private EInputPauseType _pausedBehavior = EInputPauseType.TickAlways;
 
         [PostDeserialize]
         private void PostDeserialize()
@@ -162,7 +162,7 @@ namespace TheraEngine.Animation
                 _order = value;
             }
         }
-        public InputPauseType PausedBehavior
+        public EInputPauseType PausedBehavior
         {
             get => _pausedBehavior;
             set
@@ -191,7 +191,7 @@ namespace TheraEngine.Animation
         }
         [Browsable(true)]
         public void Start() => Start(_group, _order, _pausedBehavior);
-        public void Start(ETickGroup group, ETickOrder order, InputPauseType pausedBehavior)
+        public void Start(ETickGroup group, ETickOrder order, EInputPauseType pausedBehavior)
         {
             if (_state == AnimationState.Playing)
                 return;

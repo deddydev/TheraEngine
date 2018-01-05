@@ -162,6 +162,14 @@ namespace TheraEngine.Animation
             }
         }
 
+        public void Add(IEnumerable<T> keys)
+        {
+            keys.ForEach(x => Add(x));
+        }
+        public void Add(params T[] keys)
+        {
+            keys.ForEach(x => Add(x));
+        }
         public void Add(T key)
         {
             if (key.Second < 0)
@@ -171,7 +179,7 @@ namespace TheraEngine.Animation
             if (First == null)
             {
                 First = key;
-                ++base.Count;
+                ++Count;
                 OnChanged();
             }
             else if (key.Second < First.Second)
@@ -191,7 +199,7 @@ namespace TheraEngine.Animation
             if (First == Last)
             {
                 First = null;
-                --base.Count;
+                --Count;
                 OnChanged();
             }
             else
@@ -205,7 +213,7 @@ namespace TheraEngine.Animation
             if (First.Next == First)
             {
                 First = null;
-                --base.Count;
+                --Count;
                 OnChanged();
             }
             else

@@ -320,10 +320,10 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void SetActiveTexture(int unit)
         {
-            if (unit < 0)
-                throw new InvalidOperationException("Unit needs to be >= 0.");
-            if (unit >= Engine.MaxTextureUnits)
-                throw new InvalidOperationException("Unit needs to be less than " + Engine.MaxTextureUnits.ToString());
+            //if (unit < 0)
+            //    throw new InvalidOperationException("Unit needs to be >= 0.");
+            //if (unit >= Engine.MaxTextureUnits)
+            //    throw new InvalidOperationException("Unit needs to be less than " + Engine.MaxTextureUnits.ToString());
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
         }
         public override void UseProgram(int programBindingId)

@@ -18,25 +18,19 @@ namespace TheraEngine
     {
 
     }
-    public interface ISubMesh : I3DRenderable
-    {
-        bool Visible { get; set; }
-        bool VisibleInEditorOnly { get; set; }
-        bool HiddenFromOwner { get; set; }
-        bool VisibleToOwnerOnly { get; set; }
-    }
-    public interface IStaticSubMesh
+    public interface IBaseSubMesh : IObjectBase
     {
         bool VisibleByDefault { get; set; }
+        List<LOD> LODs { get; }
+        RenderInfo3D RenderInfo { get; set; }
+    }
+    public interface IStaticSubMesh : IBaseSubMesh
+    {
         GlobalFileRef<Shape> CullingVolume { get; }
-        List<LOD> LODs { get; }
-        RenderInfo3D RenderInfo { get; set; }
     }
-    public interface ISkeletalSubMesh
+    public interface ISkeletalSubMesh : IBaseSubMesh
     {
-        bool VisibleByDefault { get; set; }
-        List<LOD> LODs { get; }
-        RenderInfo3D RenderInfo { get; set; }
+
     }
     public class RenderInfo2D
     {
@@ -58,14 +52,15 @@ namespace TheraEngine
             OrderInLayer = orderInLayer;
         }
     }
+    public delegate float DelGetSortOrder(bool shadowPass);
     public class RenderInfo3D
     {
         /// <summary>
         /// Used to render objects in the same pass in a certain order.
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
         /// </summary>
-        [Browsable(false)]
-        public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
+        //[Browsable(false)]
+        //public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
         [TSerialize]
         public bool ReceivesShadows { get; set; } = true;
         [TSerialize]
@@ -73,14 +68,19 @@ namespace TheraEngine
         [TSerialize]
         public ERenderPass3D RenderPass { get; set; } = ERenderPass3D.OpaqueDeferredLit;
 
-        public Func<float> RenderOrderFunc;
+        public DelGetSortOrder RenderOrderFunc;
 
-        public RenderInfo3D(ERenderPass3D pass, Func<float> renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
+        public RenderInfo3D(ERenderPass3D pass, DelGetSortOrder renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
         {
             RenderPass = pass;
             RenderOrderFunc = renderOrderFunc;
             CastsShadows = castsShadows;
             ReceivesShadows = receivesShadows;
+        }
+
+        internal float GetRenderOrder(bool shadowPass)
+        {
+            return RenderOrderFunc == null ? 0.0f : RenderOrderFunc(shadowPass);
         }
     }
     /// <summary>

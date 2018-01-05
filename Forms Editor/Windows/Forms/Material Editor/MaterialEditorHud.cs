@@ -15,9 +15,9 @@ namespace TheraEditor.Windows.Forms
 
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, MouseDown, InputPauseType.TickAlways);
-            input.RegisterMouseScroll(OnScrolledInput, InputPauseType.TickAlways);
-            input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, MouseDown, EInputPauseType.TickAlways);
+            input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
+            input.RegisterMouseMove(OnMouseMove, false, EInputPauseType.TickAlways);
         }
 
         private void MouseDown()

@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 31
+/svn/!svn/ver/2/trunk/LocalDXUT
+END
+DXUT.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUT.cpp
+END
+DXUTmisc.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTmisc.h
+END
+dxstdafx.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/2/trunk/LocalDXUT/dxstdafx.cpp
+END
+DXUTMesh.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTMesh.h
+END
+DXUT.h
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUT.h
+END
+DXUTenum.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTenum.cpp
+END
+DXUTgui.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTgui.cpp
+END
+dxstdafx.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/2/trunk/LocalDXUT/dxstdafx.h
+END
+DXUTSettingsDlg.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTSettingsDlg.cpp
+END
+DXUTgui.h
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTgui.h
+END
+DXUTenum.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTenum.h
+END
+DXUTmisc.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTmisc.cpp
+END
+DXUTMesh.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTMesh.cpp
+END
+DXUTSettingsDlg.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/2/trunk/LocalDXUT/DXUTSettingsDlg.h
+END

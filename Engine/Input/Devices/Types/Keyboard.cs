@@ -22,7 +22,7 @@ namespace TheraEngine.Input.Devices
             }
             return _buttonStates[b];
         }
-        public void RegisterButtonPressed(EKey key, InputPauseType pauseType, DelButtonState func, bool unregister)
+        public void RegisterButtonPressed(EKey key, EInputPauseType pauseType, DelButtonState func, bool unregister)
         {
             if (unregister)
             {
@@ -41,7 +41,7 @@ namespace TheraEngine.Input.Devices
             else
                 CacheKey(key)?.RegisterPressedState(func, pauseType, false);
         }
-        public void RegisterButtonEvent(EKey key, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
+        public void RegisterButtonEvent(EKey key, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
             RegisterButtonEvent(unregister ? _buttonStates[(int)key] : CacheKey(key), type, pauseType, func, unregister);
         }

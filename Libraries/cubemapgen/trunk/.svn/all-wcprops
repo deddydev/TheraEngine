@@ -1,0 +1,227 @@
+K 25
+svn:wc:ra_dav:version-url
+V 22
+/svn/!svn/ver/32/trunk
+END
+CCubeGenApp.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/26/trunk/CCubeGenApp.cpp
+END
+UIRegionManager.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/2/trunk/UIRegionManager.cpp
+END
+VectorMacros.h
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/2/trunk/VectorMacros.h
+END
+rgbe.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svn/!svn/ver/2/trunk/rgbe.cpp
+END
+CCubeMapProcessor.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/28/trunk/CCubeMapProcessor.cpp
+END
+CBBoxInt32.h
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/2/trunk/CBBoxInt32.h
+END
+HDRWrite.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/2/trunk/HDRWrite.cpp
+END
+CGeom.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 31
+/svn/!svn/ver/2/trunk/CGeom.cpp
+END
+CEffectList.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/2/trunk/CEffectList.cpp
+END
+resource.h
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/!svn/ver/2/trunk/resource.h
+END
+CImageSurface.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/32/trunk/CImageSurface.cpp
+END
+ErrorMsg.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/2/trunk/ErrorMsg.cpp
+END
+ObjReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/2/trunk/ObjReader.h
+END
+CTexture.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/2/trunk/CTexture.cpp
+END
+CubeMapGenLib.2008.vcproj
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/2/trunk/CubeMapGenLib.2008.vcproj
+END
+ReadMe_CubeGen.doc
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/2/trunk/ReadMe_CubeGen.doc
+END
+resource.rc
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/2/trunk/resource.rc
+END
+CBBoxInt32.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/2/trunk/CBBoxInt32.cpp
+END
+CFrustum.h
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/!svn/ver/2/trunk/CFrustum.h
+END
+UIRegionManager.h
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/2/trunk/UIRegionManager.h
+END
+CCubeGenApp.h
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/26/trunk/CCubeGenApp.h
+END
+CubeGen.2008.vcproj
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/27/trunk/CubeGen.2008.vcproj
+END
+CCubeMapProcessor.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/28/trunk/CCubeMapProcessor.h
+END
+rgbe.h
+K 25
+svn:wc:ra_dav:version-url
+V 28
+/svn/!svn/ver/2/trunk/rgbe.h
+END
+Version.h
+K 25
+svn:wc:ra_dav:version-url
+V 31
+/svn/!svn/ver/2/trunk/Version.h
+END
+ObjReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/2/trunk/ObjReader.cpp
+END
+HDRWrite.h
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/!svn/ver/2/trunk/HDRWrite.h
+END
+CGeom.h
+K 25
+svn:wc:ra_dav:version-url
+V 29
+/svn/!svn/ver/2/trunk/CGeom.h
+END
+CEffectList.h
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/2/trunk/CEffectList.h
+END
+CImageSurface.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/2/trunk/CImageSurface.h
+END
+License.doc
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/2/trunk/License.doc
+END
+ErrorMsg.h
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/!svn/ver/2/trunk/ErrorMsg.h
+END
+CFrustum.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/2/trunk/CFrustum.cpp
+END
+CTexture.h
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/!svn/ver/2/trunk/CTexture.h
+END
+Types.h
+K 25
+svn:wc:ra_dav:version-url
+V 29
+/svn/!svn/ver/2/trunk/Types.h
+END
+UIElements.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/28/trunk/UIElements.cpp
+END
+CubeGen.2008.sln
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/2/trunk/CubeGen.2008.sln
+END

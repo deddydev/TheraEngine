@@ -90,6 +90,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private int _index;
         private ETexWrapMode _uWrapMode = ETexWrapMode.Repeat;
         private ETexWrapMode _vWrapMode = ETexWrapMode.Repeat;
+        private ETexWrapMode _wWrapMode = ETexWrapMode.Repeat;
         private ETexMinFilter _minFilter = ETexMinFilter.LinearMipmapLinear;
         private ETexMagFilter _magFilter = ETexMagFilter.Linear;
         private float _lodBias = 0.0f;
@@ -128,6 +129,12 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _uWrapMode = value;
         }
         [TSerialize]
+        public ETexWrapMode WWrap
+        {
+            get => _wWrapMode;
+            set => _wWrapMode = value;
+        }
+        [TSerialize]
         public float LodBias
         {
             get => _lodBias;
@@ -142,12 +149,15 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             if (_texture == null)
                 return;
+
             _texture.Bind();
+
             Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureLodBias, _lodBias);
             Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMagFilter, (int)_magFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMinFilter, (int)_minFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapT, (int)_vWrapMode);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapR, (int)_wWrapMode);
         }
 
         private bool _isLoading = false;

@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering
 {
     public class Viewport
     {
-        public const int GBufferTextureCount = 4;
+        public const int GBufferTextureCount = 5;
 
         public static Viewport CurrentlyRendering { get; private set; }
         
@@ -32,10 +32,8 @@ namespace TheraEngine.Rendering
         //private BaseRenderPanel _owningPanel;
 
         private SSAOInfo _ssaoInfo = new SSAOInfo();
-        internal QuadFrameBuffer _skyBoxBuffer;
-        internal QuadFrameBuffer _deferredGBuffer;
-        internal QuadFrameBuffer _postProcessFrameBuffer;
-        internal QuadFrameBuffer _hudFrameBuffer;
+        internal QuadFrameBuffer DeferredLightingQuadFBO;
+        internal QuadFrameBuffer ResizeQuadFBO;
 
         private BoundingRectangle _internalResolution = new BoundingRectangle();
 
@@ -143,10 +141,9 @@ namespace TheraEngine.Rendering
             set
             {
                 _hud = value;
+                _hud?.Resize(Region.Bounds);
 
                 Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud == null ? "null" : _hud.GetType().GetFriendlyName()));
-
-                _hud?.Resize(Region.Bounds);
             }
         }
         public Viewport(BaseRenderPanel panel, int index)
@@ -176,24 +173,14 @@ namespace TheraEngine.Rendering
             _worldCamera?.PostProcess.SetUniforms(programBindingId);
         }
 
-        private void _deferredGBuffer_SettingUniforms(int programBindingId)
-        {
-            if (_worldCamera == null)
-                return;
-            Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
-            _worldCamera.SetUniforms(programBindingId);
-            _worldCamera.PostProcess.AmbientOcclusion.SetUniforms(programBindingId);
-        }
-
         public void SetInternalResolution(float width, float height)
         {
             _internalResolution.Width = width;
             _internalResolution.Height = height;
 
             _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
-            _deferredGBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
-            _postProcessFrameBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
-            _hudFrameBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+            DeferredLightingQuadFBO?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+            ResizeQuadFBO?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
             HUD?.Resize(_internalResolution.Bounds);
         }
         internal void Resize(
@@ -274,7 +261,7 @@ namespace TheraEngine.Rendering
         {
             throw new NotImplementedException();
             Vec2 absolutePoint = viewportPoint;//RelativeToAbsolute(viewportPoint);
-            _deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
+            DeferredLightingQuadFBO.Bind(EFramebufferTarget.Framebuffer);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             //var depthTex = _gBuffer.Textures[4];
             //depthTex.Bind();
@@ -284,7 +271,7 @@ namespace TheraEngine.Rendering
             //float depth = *(float*)((byte*)bmd.Scan0 + ((int)viewportPoint.Y * bmd.Stride + (int)viewportPoint.X * 4));
             //depthTex.UnlockBits(bmd);
             float depth = Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
-            _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
+            DeferredLightingQuadFBO.Unbind(EFramebufferTarget.Framebuffer);
             return depth;
         }
         /// <summary>
@@ -631,7 +618,7 @@ namespace TheraEngine.Rendering
             };
 
             InitPostFBO(width, height, depthTexture);
-            InitUiFBO(width, height, depthTexture);
+            //InitUiFBO(width, height, depthTexture);
 
             //If forward, we can render directly to the post process FBO.
             //If deferred, we have to render to a quad first, then render that to post process
@@ -640,36 +627,6 @@ namespace TheraEngine.Rendering
         }
 
         #region FBOs
-        private void InitUiFBO(int width, int height, TextureReference2D depthTexture)
-        {
-            TextureReference2D[] hudRefs = new TextureReference2D[]
-            {
-                new TextureReference2D("OutputColor", width, height,
-                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Clamp,
-                    VWrap = ETexWrapMode.Clamp,
-                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                },
-                depthTexture,
-            };
-
-            ShaderVar[] postProcessParameters = new ShaderVar[]
-            {
-
-            };
-
-            TMaterial hudMat = new TMaterial("HUDMat",
-                new ShaderVar[0], hudRefs,
-                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "HUD.frag"))))
-            {
-                Requirements = TMaterial.UniformRequirements.None
-            };
-            _hudFrameBuffer = new QuadFrameBuffer(hudMat);
-        }
-
         private void InitPostFBO(int width, int height, TextureReference2D depthTexture)
         {
             TextureReference2D[] postProcessRefs = new TextureReference2D[]
@@ -688,8 +645,8 @@ namespace TheraEngine.Rendering
             //postProcessMat.RenderParams.DepthTest.UpdateDepth = false;
             //postProcessMat.RenderParams.DepthTest.Function = EComparison.Always;
 
-            _postProcessFrameBuffer = new QuadFrameBuffer(postProcessMat);
-            _postProcessFrameBuffer.SettingUniforms += _postProcessGBuffer_SettingUniforms;
+            ResizeQuadFBO = new QuadFrameBuffer(postProcessMat);
+            ResizeQuadFBO.SettingUniforms += _postProcessGBuffer_SettingUniforms;
         }
         private unsafe void InitDeferredRendererFBO(int width, int height, TextureReference2D depthTexture)
         {
@@ -718,14 +675,14 @@ namespace TheraEngine.Rendering
             bmp.UnlockBits(data);
             TextureReference2D[] deferredRefs = new TextureReference2D[]
             {
-                CreateFrameBufferTexture("AlbedoSpec", width, height,
+                CreateFrameBufferTexture("AlbedoOpacity", width, height,
                     EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0),
                 CreateFrameBufferTexture("Normal", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment1),
-                CreateFrameBufferTexture("RoughnessMetallicOpacityIor", width, height,
-                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
+                CreateFrameBufferTexture("RoughnessMetallicSpecular", width, height,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment2),
                 //CreateFrameBufferTexture("Velocity", width, height,
                 //    EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat,
@@ -734,24 +691,26 @@ namespace TheraEngine.Rendering
                 depthTexture,
             };
             ShaderVar[] deferredParameters = new ShaderVar[] { };
-            TMaterial deferredMat = new TMaterial("GBufferDeferredMaterial",
-            deferredParameters,
-            deferredRefs,
-            new Shader(ShaderMode.Fragment,
-            new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "GBufferQuad.frag"))))
-            {
-                Requirements = TMaterial.UniformRequirements.NeedsLightsAndCamera,
-            };
+            TMaterial deferredMat = new TMaterial("DeferredLightingMaterial",
+            deferredParameters, deferredRefs, new Shader(ShaderMode.Fragment,
+            new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "DeferredLighting.frag"))))
+            { Requirements = TMaterial.UniformRequirements.NeedsLightsAndCamera, };
 
             //Don't overwrite the depth texture generated by the deferred pass (and used by the forward pass)
             //when rendering the screen-space quad that shows the deferred pass
-
             deferredMat.RenderParamsRef.File.DepthTest.Enabled = true;
             deferredMat.RenderParamsRef.File.DepthTest.UpdateDepth = false;
             deferredMat.RenderParamsRef.File.DepthTest.Function = EComparison.Always;
 
-            _deferredGBuffer = new QuadFrameBuffer(deferredMat);
-            _deferredGBuffer.SettingUniforms += _deferredGBuffer_SettingUniforms;
+            DeferredLightingQuadFBO = new QuadFrameBuffer(deferredMat);
+            DeferredLightingQuadFBO.SettingUniforms += programBindingId =>
+            {
+                if (_worldCamera == null)
+                    return;
+                Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+                _worldCamera.SetUniforms(programBindingId);
+                _worldCamera.PostProcess.AmbientOcclusion.SetUniforms(programBindingId);
+            };
         }
         private TextureReference2D CreateFrameBufferTexture(string name, int width, int height,
             EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType, EFramebufferAttachment bufAttach)
@@ -766,133 +725,5 @@ namespace TheraEngine.Rendering
             };
         }
         #endregion
-
-
-        //        internal static Shader GBufferShaderDeferred()
-        //        {
-        //            string source = @"
-        //#version 450
-        ////GBUFFER FRAG SHADER
-
-        //layout (location = 0) out vec4 OutColor;
-        //in vec3 FragPos;
-
-        //uniform sampler2D Texture0; //AlbedoSpec
-        //uniform sampler2D Texture1; //Normal
-        //uniform sampler2D Texture2; //SSAO Noise
-        //uniform sampler2D Texture3; //Depth
-
-        //uniform vec3 SSAOSamples[64];
-        //uniform float SSAORadius = 0.75;
-        //uniform float SSAOPower = 4.0;
-
-        //" + Camera.ShaderDecl() + @"
-        //" + ShaderHelpers.LightingDeclBasic() + @"
-        //" + ShaderHelpers.Func_ViewPosFromDepth + @"
-
-        //void main()
-        //{
-        //    vec2 uv = FragPos.xy;
-        //    if (uv.x > 1.0 || uv.y > 1.0)
-        //        discard;
-
-        //    vec4 AlbedoSpec = texture(Texture0, uv);
-        //    vec3 Normal = texture(Texture1, uv).rgb;
-        //    float Depth = texture(Texture3, uv).r;
-
-        //    vec3 FragPosVS = ViewPosFromDepth(Depth, uv);
-        //    vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0)).xyz;
-
-        //    ivec2 res = textureSize(Texture0, 0);
-        //    vec2 noiseScale = vec2(res.x * 0.25f, res.y * 0.25f);
-
-        //    vec3 randomVec = vec3(texture(Texture2, uv * noiseScale).rg * 2.0f - 1.0f, 0.0f);
-        //    vec3 n = normalize(vec3(WorldToCameraSpaceMatrix * vec4(Normal, 0.0)));
-        //    vec3 tangent = normalize(randomVec - n * dot(randomVec, n));
-        //    vec3 bitangent = cross(n, tangent);
-        //    mat3 TBN = mat3(tangent, bitangent, n); 
-
-        //    int kernelSize = 64;
-        //    float bias = 0.025;
-
-        //    float occlusion = 0.0f;
-        //    for (int i = 0; i < kernelSize; ++i)
-        //    {
-        //        vec3 noiseSample = TBN * SSAOSamples[i];
-        //        noiseSample = FragPosVS + noiseSample * SSAORadius;
-
-        //        vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
-        //        offset.xyz /= offset.w;
-        //        offset.xyz = offset.xyz * 0.5f + 0.5f;
-
-        //        float sampleDepth = ViewPosFromDepth(texture(Texture3, offset.xy).r, offset.xy).z;
-
-        //        float rangeCheck = smoothstep(0.0, 1.0, SSAORadius / abs(FragPosVS.z - sampleDepth));
-        //        occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0 : 0.0) * rangeCheck;  
-        //    } 
-
-        //    occlusion = pow(1.0 - (occlusion / kernelSize), SSAOPower);
-
-        //    " + ShaderHelpers.LightingCalcBasic("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "occlusion") + @"
-
-        //    OutColor = vec4(AlbedoSpec.rgb * totalLight, 1.0);
-        //}";
-
-        //            return new Shader(ShaderMode.Fragment, source);
-        //        }
-        //        internal static Shader GBufferShaderPostProcess()
-        //        {
-        //            string source = @"
-        //#version 450
-        ////POST PROCESSING FRAG SHADER
-
-        //out vec4 OutColor;
-        //in vec3 FragPos;
-
-        //uniform sampler2D Texture0; //HDR Scene Color
-        //uniform sampler2D Texture1; //Depth
-
-        //" + PostProcessSettings.ShaderSetup() + @"
-        //" + ShaderHelpers.Func_RGBtoHSV + @"
-        //" + ShaderHelpers.Func_HSVtoRGB + @"
-
-        //float rand(vec2 co)
-        //{
-        //    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
-        //}
-
-        //void main()
-        //{
-        //    vec2 uv = FragPos.xy;
-        //    vec3 hdrSceneColor = texture(Texture0, uv).rgb;
-        //    float Depth = texture(Texture1, uv).r;
-
-        //    //Color grading
-        //    hdrSceneColor *= ColorGrade.Tint;
-        //    vec3 hsv = RGBtoHSV(hdrSceneColor);
-        //    hsv.x *= ColorGrade.Hue;
-        //    hsv.y *= ColorGrade.Saturation;
-        //    hsv.z *= ColorGrade.Brightness;
-        //    hdrSceneColor = HSVtoRGB(hsv);
-        //    hdrSceneColor = (hdrSceneColor - 0.5) * ColorGrade.Contrast + 0.5;
-
-        //    //Tone mapping
-        //    vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
-
-        //    //Vignette
-        //    uv *= 1.0 - uv.yx;
-        //    float vig = clamp(pow(uv.x * uv.y * Vignette.Intensity, Vignette.Power), 0.0, 1.0);
-        //    ldrSceneColor = mix(Vignette.Color, ldrSceneColor, vig);
-
-        //    //Gamma-correct
-        //    vec3 gammaCorrected = pow(ldrSceneColor, vec3(1.0 / ColorGrade.Gamma));
-
-        //    //Fix subtle banding by applying fine noise
-        //    gammaCorrected += mix(-0.5/255.0, 0.5/255.0, rand(uv));
-
-        //    OutColor = vec4(gammaCorrected, 1.0);
-        //}";
-        //            return new Shader(ShaderMode.Fragment, source);
-        //        }
     }
 }

@@ -6,60 +6,126 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {
+    public class RenderCubeMipMap
+    {
+        public Bitmap[] Sides { get; private set; }
+        
+        public RenderCubeMipMap(Bitmap cubeCrossBmp)
+        {
+            int w = cubeCrossBmp.Width;
+            int h = cubeCrossBmp.Height;
+            if (w % 4 == 0 && w / 4 * 3 == h)
+            {
+                //Cross is on its side.
+                //     __
+                //  __|__|__ __        +Y
+                // |__|__|__|__|   -X, -Z, +X, +Z
+                //    |__|             -Y
+
+                int dim = w / 4;
+                Sides = new Bitmap[]
+                {
+                    cubeCrossBmp.Clone(new Rectangle(dim * 2, dim, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(0, dim, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(dim, 0, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(dim, dim * 2, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(dim * 3, dim, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(dim, dim, dim, dim), cubeCrossBmp.PixelFormat),
+                };
+            }
+            else if (h % 4 == 0 && h / 4 * 3 == w)
+            {
+                //Cross is standing up.
+                //     __
+                //  __|__|__        +Y
+                // |__|__|__|   -X, -Z, +X
+                //    |__|          -Y
+                //    |__|          +Z
+
+                int dim = h / 4;
+                Sides = new Bitmap[]
+                {
+                    cubeCrossBmp.Clone(new Rectangle(dim * 2, dim, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(0, dim, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(dim, 0, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(dim, dim * 2, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(dim, dim * 3, dim, dim), cubeCrossBmp.PixelFormat),
+                    cubeCrossBmp.Clone(new Rectangle(dim, dim, dim, dim), cubeCrossBmp.PixelFormat),
+                };
+            }
+            else
+            {
+                throw new InvalidOperationException("Cubemap cross dimensions are invalid.");
+            }
+        }
+
+        public RenderCubeMipMap(
+            Bitmap posX,
+            Bitmap negX,
+            Bitmap posY,
+            Bitmap negY,
+            Bitmap posZ,
+            Bitmap negZ)
+        {
+            Sides = new Bitmap[6] { posX, negX, posY, negY, posZ, negZ };
+        }
+
+        public RenderCubeMipMap(int dim, PixelFormat bitmapFormat)
+        {
+            Sides = new Bitmap[6];
+            Sides.FillWith(i => new Bitmap(dim, dim, bitmapFormat));
+        }
+
+        public void PushData(int i)
+        {
+
+        }
+    }
     public class TextureCubemap : BaseRenderTexture
     {
         public TextureCubemap() : this(null) { }
-        public TextureCubemap(int bindingId) : base(bindingId) => Init(null);
-        public TextureCubemap(params Bitmap[] mipmaps) : base() => Init(mipmaps);
+        public TextureCubemap(int bindingId) : base(bindingId) => Mipmaps = null;
+        public TextureCubemap(params RenderCubeMipMap[] mipmaps) : base() => Mipmaps = mipmaps;
         public TextureCubemap(
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
             EPixelType pixelType,
-            params Bitmap[] mipmaps)
+            params RenderCubeMipMap[] mipmaps)
             : this(mipmaps)
         {
             InternalFormat = internalFormat;
             PixelFormat = pixelFormat;
             PixelType = pixelType;
         }
-        public TextureCubemap(int bindingId, params Bitmap[] mipmaps) : base(bindingId) => Init(mipmaps);
+        public TextureCubemap(int bindingId, params RenderCubeMipMap[] mipmaps) 
+            : base(bindingId) => Mipmaps = mipmaps;
         /// <summary>
         /// Initializes the texture as an unallocated texture to be filled by a framebuffer.
         /// </summary>
-        public TextureCubemap(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType) : this(null)
+        public TextureCubemap(
+            int cubeExtent,
+            EPixelInternalFormat internalFormat,
+            EPixelFormat pixelFormat,
+            EPixelType pixelType) 
+            : this(null)
         {
-            _width = width;
-            _height = height;
             InternalFormat = internalFormat;
             PixelFormat = pixelFormat;
             PixelType = pixelType;
             _mipmaps = null;
         }
-        private void Init(params Bitmap[] mipmaps)
-        {
-            _mipmaps = mipmaps;
-            _width = mipmaps != null && mipmaps.Length > 0 ? mipmaps[0].Width : 1;
-            _height = mipmaps != null && mipmaps.Length > 0 ? mipmaps[0].Height : 1;
-        }
         
-        private int _width, _height;
-        private Bitmap[] _mipmaps;
+        private RenderCubeMipMap[] _mipmaps;
 
         public override ETexTarget TextureTarget => ETexTarget.TextureCubeMap;
 
-        public Bitmap[] Mipmaps
+        public RenderCubeMipMap[] Mipmaps
         {
             get => _mipmaps;
-            set
-            {
-                _mipmaps = value;
-                _width = _mipmaps != null && _mipmaps.Length > 0 ? _mipmaps[0].Width : 1;
-                _height = _mipmaps != null && _mipmaps.Length > 0 ? _mipmaps[0].Height : 1;
-            }
+            set => _mipmaps = value;
         }
-
-        public int Width => _width;
-        public int Height => _height;
+        
+        public int NullCubeExtent => _cubeExtent;
 
         public static TextureCubemap[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<TextureCubemap>(EObjectType.Texture, count);
@@ -73,19 +139,12 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             OnPrePushData();
 
             if (_mipmaps == null || _mipmaps.Length == 0)
-                Engine.Renderer.PushTextureData(TextureTarget, 0, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
+                Engine.Renderer.PushTextureData(TextureTarget, 0, InternalFormat, 1, 1, PixelFormat, PixelType, IntPtr.Zero);
             else
                 for (int i = 0; i < _mipmaps.Length; ++i)
                 {
-                    Bitmap bmp = _mipmaps[i];
-                    if (bmp != null)
-                    {
-                        BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                        Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, data.Scan0);
-                        bmp.UnlockBits(data);
-                    }
-                    else
-                        Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
+                    RenderCubeMipMap mip = _mipmaps[i];
+                    mip.PushData(i);
                 }
 
             Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
@@ -95,13 +154,13 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
             OnPostPushData();
         }
-        public void Resize(int width, int height)
+        public void Resize(int cubeExtent)
         {
             if (_mipmaps != null && _mipmaps.Length > 0)
             {
-                _mipmaps[0] = _mipmaps[0].Resized(width, height);
+                _mipmaps[0] = _mipmaps[0].Resized(cubeExtent, cubeExtent);
 
-                double wratio = (double)width / _width;
+                double wratio = (double)cubeExtent / _width;
                 double hratio = (double)height / _height;
 
                 for (int i = 1; i < _mipmaps.Length; ++i)
@@ -111,7 +170,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 }
             }
 
-            _width = width;
+            _width = cubeExtent;
             _height = height;
 
             PushData();

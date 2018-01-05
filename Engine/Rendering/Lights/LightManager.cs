@@ -1,25 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 
 namespace TheraEngine.Rendering
 {
-    public class LightManager
+    public class LightManager : TObject
     {
         public const int MaxPointLights = 16;
         public const int MaxSpotLights = 16;
         public const int MaxDirectionalLights = 2;
 
+        private ColorF3 _globalAmbient;
         private HashSet<DirectionalLightComponent> _directionalLights = new HashSet<DirectionalLightComponent>();
         private HashSet<SpotLightComponent> _spotLights = new HashSet<SpotLightComponent>();
         private HashSet<PointLightComponent> _pointLights = new HashSet<PointLightComponent>();
 
         public HashSet<DirectionalLightComponent> DirectionalLights => _directionalLights;
-        
+
+        public ColorF3 GlobalAmbient
+        {
+            get => _globalAmbient;
+            set => _globalAmbient = value;
+        }
+
         internal void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", Engine.World.SettingsRef.File.GlobalAmbient);
+            Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", _globalAmbient);
             Engine.Renderer.Uniform(programBindingId, "DirLightCount", _directionalLights.Count.Clamp(0, MaxDirectionalLights));
             Engine.Renderer.Uniform(programBindingId, "PointLightCount", _pointLights.Count.Clamp(0, MaxPointLights));
             Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count.Clamp(0, MaxSpotLights));

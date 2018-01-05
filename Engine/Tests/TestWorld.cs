@@ -14,6 +14,7 @@ using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Physics;
 using System.Threading.Tasks;
+using TheraEngine.Animation;
 
 namespace TheraEngine.Tests
 {
@@ -111,23 +112,27 @@ namespace TheraEngine.Tests
             //    Material.GetLitColorMaterial(Color.Green));
 
             //_settings.GlobalAmbient = new ColorF3(0.01f, 0.01f, 0.01f);
+            
+            Actor<PointLightComponent> lightActor = new Actor<PointLightComponent>("TestLightActor");
+            lightActor.RootComponent.Radius = 30.0f;
+            lightActor.RootComponent.AmbientIntensity = 0.0f;
+            lightActor.RootComponent.DiffuseIntensity = 1000.0f;
+            lightActor.RootComponent.LightColor = (ColorF3)Color.Beige;
+            
+            PropAnimFloat lightAnim = new PropAnimFloat(7.0f, true, false);
+            FloatKeyframe k0 = new FloatKeyframe(0.0f, 5.0f, 0.0f, PlanarInterpType.CubicHermite);
+            FloatKeyframe k1 = new FloatKeyframe(3.5f, 25.0f, 0.0f, PlanarInterpType.CubicHermite);
+            FloatKeyframe k2 = new FloatKeyframe(7.0f, 5.0f, 0.0f, PlanarInterpType.CubicHermite);
+            lightAnim.Keyframes.Add(k0, k1, k2);
+            AnimationContainer lightAnimContainer = new AnimationContainer(
+                "LightTranslationAnim", "Translation.Y", false, lightAnim);
+            lightActor.RootComponent.AddAnimation(lightAnimContainer, true);
 
-            DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
-            //dirLightComp.Translation.Y = 30.0f;
-
-            //PropAnimFloat lightAnim = new PropAnimFloat(1000, 60.0f, true, true);
-            //FloatKeyframe first2 = new FloatKeyframe(0, 60.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);
-            //FloatKeyframe x2 = new FloatKeyframe(500, 60.0f, 20.0f, 0.0f, PlanarInterpType.CubicHermite);
-            //FloatKeyframe last2 = new FloatKeyframe(1000, 60.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);
-            //lightAnim.Keyframes.Add(first2);
-            //lightAnim.Keyframes.Add(x2);
-            //lightAnim.Keyframes.Add(last2);
-            //AnimationContainer lightAnimContainer = new AnimationContainer("Translation.Y", false, lightAnim);
-            ////dirLightComp.AddAnimation(lightAnimContainer, true);
             //floorActor1.RootComponent.AddAnimation(lightAnimContainer, true, ETickGroup.PostPhysics, ETickOrder.BoneAnimation, InputPauseType.TickOnlyWhenUnpaused);
 
-            Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
+            //DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
+            //    (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
+            //Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
             
             ModelImportOptions objOptions = new ModelImportOptions()
             {
@@ -229,9 +234,10 @@ namespace TheraEngine.Tests
             //Engine.TimeDilation = 0.3f;
             //cam.RootComponent.SetCurrentForPlayer(PlayerIndex.One);
 
-            SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, 0.3f, Vec3.Down, 30.0f, 10.0f, 40.0f, 100.0f);
-            spotLightComp.Translation.Y = 50.0f;
-            Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>(spotLightComp) { Name = "SpotLight" };
+            //SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, 0.3f, Vec3.Down, 30.0f, 10.0f, 40.0f, 100.0f);
+            //spotLightComp.Translation.Y = 50.0f;
+            //spotLightComp.AmbientIntensity = 0.0f;
+            //Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>("SpotLight", spotLightComp);
 
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
             spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
@@ -253,20 +259,21 @@ namespace TheraEngine.Tests
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
 
-            var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
-            ModelScene gunScene = dae.Models[0];
-            Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
+            //var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
+            //ModelScene gunScene = dae.Models[0];
+            //Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
 
             IActor[] actors = new IActor[]
             {
-                gunActor,
-                spotlight,
+                lightActor,
+                //gunActor,
+                //spotlight,
                 //block,
-                floorActor1,
+                //floorActor1,
                 //floorActor2,
                 //floorActor3,
                 //floorActor4,
-                dirLightActor,
+                //dirLightActor,
                 //skybox,
                 //splineActor,
                 //cam,
@@ -279,7 +286,7 @@ namespace TheraEngine.Tests
 
             Settings.GameModeOverrideRef = new TestGameMode();// new GameMode<FlyingCameraPawn>();
             Settings.Maps.Add(new Map(new MapSettings(actors)));
-            Settings.Maps[0].File.Settings.StaticActors.AddRange(array);
+            //Settings.Maps[0].File.Settings.StaticActors.AddRange(array);
 
             //Export(Engine.ContentFolderAbs, "TestWorld", FileFormat.XML);
 

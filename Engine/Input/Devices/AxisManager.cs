@@ -46,7 +46,7 @@ namespace TheraEngine.Input.Devices
 
             Tick(Math.Abs(realValue) > _pressedThreshold, delta);
         }
-        public void RegisterAxis(DelAxisValue func, InputPauseType pauseType, bool continuousUpdate, bool unregister)
+        public void RegisterAxis(DelAxisValue func, EInputPauseType pauseType, bool continuousUpdate, bool unregister)
         {
             if (unregister)
             {

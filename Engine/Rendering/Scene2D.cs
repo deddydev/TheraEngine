@@ -12,6 +12,7 @@ using TheraEngine.Rendering.Textures;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Models;
+using System.Linq;
 
 namespace TheraEngine.Rendering
 {
@@ -56,7 +57,7 @@ namespace TheraEngine.Rendering
         public void Render(ERenderPass2D pass)
         {
             var list = _passes[(int)pass];
-            foreach (I2DRenderable r in list/*.OrderBy(x => x, _sorter)*/)
+            foreach (I2DRenderable r in list.OrderBy(x => x, _sorter))
                 r.Render();
             list.Clear();
         }
@@ -100,9 +101,7 @@ namespace TheraEngine.Rendering
             BoundingRectangle bounds = BoundingRectangle.FromMinMaxSides(minX, maxX, minY, maxY, 0.0f, 0.0f);
 
             AbstractRenderer.PushCurrentCamera(camera);
-            RenderTree.CollectVisible(bounds, _passes);
-            foreach (IPreRenderNeeded p in _preRenderList)
-                p.PreRender();
+            PreRender(bounds);
         }
         public void PreRender(BoundingRectangle bounds)
         {
@@ -111,7 +110,11 @@ namespace TheraEngine.Rendering
             foreach (IPreRenderNeeded p in _preRenderList)
                 p.PreRender();
         }
-
+        public void PostRender()
+        {
+            if (_preRenderFrustumType)
+                AbstractRenderer.PopCurrentCamera();
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -137,7 +140,7 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.PushRenderArea(v.InternalResolution);
                 {
                     //Now render to final post process framebuffer.
-                    v._postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                    v.ResizeQuadFBO.Bind(EFramebufferTarget.Framebuffer);
                     {
                         Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
@@ -153,15 +156,15 @@ namespace TheraEngine.Rendering
                         
                         _passes.Render(ERenderPass2D.OnTop);
                     }
-                    v._postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                    v.ResizeQuadFBO.Unbind(EFramebufferTarget.Framebuffer);
 
                     //Render to 2D framebuffer.
-                    v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                    {
-                        Engine.Renderer.DepthFunc(EComparison.Lequal);
-                        v._postProcessFrameBuffer.Render();
-                    }
-                    v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                    //v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                    //{
+                    //    Engine.Renderer.DepthFunc(EComparison.Lequal);
+                    //    v._postProcessFrameBuffer.Render();
+                    //}
+                    //v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
                 }
                 //Disable internal resolution
                 Engine.Renderer.PopRenderArea();
@@ -170,7 +173,7 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.PushRenderArea(v.Region);
                 {
                     Engine.Renderer.CropRenderArea(v.Region);
-                    v._hudFrameBuffer.Render();
+                    //v._hudFrameBuffer.Render();
                 }
                 Engine.Renderer.PopRenderArea();
             }
@@ -198,11 +201,6 @@ namespace TheraEngine.Rendering
             RenderTree?.Resize(bounds);
         }
 
-        public void PostRender()
-        {
-            if (_preRenderFrustumType)
-                AbstractRenderer.PopCurrentCamera();
-        }
         public void Add(I2DBoundable obj)
         {
             RenderTree?.Add(obj);

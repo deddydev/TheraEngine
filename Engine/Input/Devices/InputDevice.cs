@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Input.Devices
 {
-    public enum InputPauseType
+    public enum EInputPauseType
     {
         TickAlways              = 0,
         TickOnlyWhenUnpaused    = 1,
@@ -60,7 +60,7 @@ namespace TheraEngine.Input.Devices
             //TODO: only tick inputs for local controllers that have registered input to the currently focused render panel
             return _isConnected && BaseRenderPanel.CapturedPanel != null;
         }
-        public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
+        public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
             m?.Register(func, type, pauseType, unregister);
         }

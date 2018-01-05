@@ -143,12 +143,15 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             if (_texture == null)
                 return;
+
             _texture.Bind();
+
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, _lodBias);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)_magFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
+
             if (_frameBufferAttachment.HasValue && Material != null && Material.HasAttachment(_frameBufferAttachment.Value))
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, _frameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
         }
@@ -188,7 +191,7 @@ namespace TheraEngine.Rendering.Models.Materials
             GetFillerTexture();
         }
 
-        private static Texture2D _fillerTexture;
+        internal static Texture2D _fillerTexture;
         private unsafe static Texture2D GetFillerTexture()
         {
             if (_fillerTexture == null)
@@ -225,17 +228,14 @@ namespace TheraEngine.Rendering.Models.Materials
                 }
                 else
                 {
-                    bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
+                    int scale = 4;
+                    int dim = scale * 2;
+                    bitmap = new Bitmap(dim, dim, PixelFormat.Format32bppArgb);
                     Graphics flagGraphics = Graphics.FromImage(bitmap);
-                    int red = 0;
-                    int white = 11;
-                    while (white <= 100)
-                    {
-                        flagGraphics.FillRectangle(Brushes.Red, 0, red, 200, 10);
-                        flagGraphics.FillRectangle(Brushes.White, 0, white, 200, 10);
-                        red += 20;
-                        white += 20;
-                    }
+                    flagGraphics.FillRectangle(Brushes.Red, 0, 0, scale, scale);
+                    flagGraphics.FillRectangle(Brushes.Red, scale, scale, scale, scale);
+                    flagGraphics.FillRectangle(Brushes.White, 0, scale, scale, scale);
+                    flagGraphics.FillRectangle(Brushes.White, scale, 0, scale, scale);
                 }
                 _fillerTexture = new Texture2D(internalFormat, format, type, bitmap);
             }

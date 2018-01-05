@@ -8,7 +8,15 @@ namespace System
     /// <para>Easily call utilize this class by implementing 'using static System.TMath;' at the top of code files.</para>
     /// </summary>
     public unsafe static class TMath
-    {
+    {        
+        /// <summary>
+        /// 2 * PI represented as a float value.
+        /// </summary>
+        public static readonly float TwoPIf = 2.0f * PIf;
+        /// <summary>
+        /// 2 * PI represented as a double value.
+        /// </summary>
+        public static readonly double TwoPI = 2.0 * PI;
         /// <summary>
         /// PI represented as a float value.
         /// </summary>
@@ -107,6 +115,17 @@ namespace System
             x = *(float*)&i;                // Convert bits back to float
             x = x * (1.5f - xhalf * x * x); // Perform left single Newton-Raphson step.
             return x;
+        }
+
+        public static Vec2 PolarToCartesianDeg(float degree, float radius)
+        {
+            SinCosdf(degree, out float sin, out float cos);
+            return new Vec2(cos * radius, sin * radius);
+        }
+        public static Vec2 PolarToCartesianRad(float radians, float radius)
+        {
+            SinCosf(radians, out float sin, out float cos);
+            return new Vec2(cos * radius, sin * radius);
         }
 
         /// <summary>

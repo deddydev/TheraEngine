@@ -268,9 +268,11 @@
   <ItemGroup>
     <Compile Include="Actors\Types\SkylightActor.cs" />
     <Compile Include="Animation\Property\AnimationFolder.cs" />
+    <Compile Include="Animation\Property\PropAnimInt.cs" />
     <Compile Include="Animation\Property\PropAnimMethod.cs" />
     <Compile Include="Animation\Property\BasePropAnim.cs" />
     <Compile Include="Animation\Property\BasePropAnimKeyframed.cs" />
+    <Compile Include="Components\Scene\Mesh\BaseRenderableMesh.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake2D.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake3D.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoiseTR.cs" />
@@ -337,6 +339,7 @@
     <Compile Include="Rendering\Models\Materials\Colors\EventColorF4.cs" />
     <Compile Include="Rendering\Models\Materials\Colors\ColorInterfaces.cs" />
     <Compile Include="Rendering\Models\Materials\Colors\TexturePixelTypesCommon.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\References\TexRefCube.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\TextureCubemap.cs" />
     <Compile Include="Rendering\Models\Meshes\LOD.cs" />
     <Compile Include="Scripting\Python\IronPython.cs" />

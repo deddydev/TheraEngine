@@ -69,5 +69,12 @@ namespace System
                 group element by i++ / size into splitGroups
                 select splitGroups.AsEnumerable();
         }
+        public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
+        {
+            foreach (T item in enumeration)
+            {
+                action(item);
+            }
+        }
     }
 }

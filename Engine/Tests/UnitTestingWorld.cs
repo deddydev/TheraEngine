@@ -2,21 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheraEngine.Animation;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Worlds.Actors.Components.Scene.Lights;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 using TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes;
@@ -47,7 +40,7 @@ namespace TheraEngine.Tests
                 for (int z = -count; z <= count; ++z)
                 {
                     TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor);
-                    mat.Parameter<ShaderFloat>("Roughness").Value = ((x + count) / (float)count * 0.5f).ClampMin(0.1f);
+                    mat.Parameter<ShaderFloat>("Roughness").Value = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
                     mat.Parameter<ShaderFloat>("Metallic").Value = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
                     actor = new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(),
                         mat, new TRigidBodyConstructionInfo() { UseMotionState = true, });
@@ -72,27 +65,30 @@ namespace TheraEngine.Tests
             actors.Add(actor);
 
             //Create shape tracer
+
+
             actor = new SphereTraceActor();
             actors.Add(actor);
-            float rotationsPerSecond = 0.1f;
-            float testRadius = 30.0f;
-            float testHeight = 20.0f;
-            PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(1.0f / rotationsPerSecond, true)
+            float rotationsPerSecond = 0.1f, testRadius = 30.0f, testHeight = 20.0f;
+            PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
+                1.0f / rotationsPerSecond, true, second =>
             {
-                TickMethod = second =>
-                {
-                    TMath.SinCosdf((rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f, out float sin, out float cos);
-                    return new Vec3(cos * testRadius, testHeight, sin * testRadius);
-                }
-            };
-            AnimationContainer anim = new AnimationContainer("RotationTrace", "Translation.Raw", false, animMethod);
-            actor.RootComponent.AddAnimation(anim, true, false, ETickGroup.PrePhysics, ETickOrder.Animation, Input.Devices.InputPauseType.TickAlways);
+                float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
+                //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
+                Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
+                return new Vec3(coord.X, testHeight, -coord.Y);
+            });
+            AnimationContainer anim = new AnimationContainer(
+                "RotationTrace", "Translation.Raw", false, animMethod);
+            actor.RootComponent.AddAnimation(anim, true, false, 
+                ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create world light
-            Actor<DirectionalLightComponent> light = new Actor<DirectionalLightComponent>();
-            light.RootComponent.LightColor = (ColorF3)Color.Beige;
-            light.RootComponent.Rotation.Pitch = -35;
-            actors.Add(light);
+            //Actor<DirectionalLightComponent> light = new Actor<DirectionalLightComponent>();
+            //light.RootComponent.LightColor = (ColorF3)Color.Beige;
+            //light.RootComponent.Rotation.Pitch = -35;
+            //light.RootComponent.AmbientIntensity = 0.0f;
+            //actors.Add(light);
 
             //Create camera shake test
             //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
@@ -109,20 +105,20 @@ namespace TheraEngine.Tests
             //actors.Add(testScreenshake);
 
             //Create point lights
-            int lightCount = 4;
-            float angle = 360.0f / lightCount * TMath.DegToRadMultf;
+            int lightCount = 5;
+            float lightAngle = 360.0f / lightCount * TMath.DegToRadMultf;
             float lightPosRadius = 50.0f;
             float upTrans = 20.0f;
             for (int i = 0; i < lightCount; i++)
             {
                 Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>();
                 pointLight.RootComponent.Radius = 200.0f;
-                pointLight.RootComponent.DiffuseIntensity = 1000.0f;
-                pointLight.RootComponent.AmbientIntensity = 0.001f;
+                pointLight.RootComponent.DiffuseIntensity = 2000.0f;
+                pointLight.RootComponent.AmbientIntensity = 0.0f;
                 pointLight.RootComponent.Translation = new Vec3(
-                    TMath.Cosf(i * angle) * lightPosRadius,
+                    TMath.Cosf(i * lightAngle) * lightPosRadius,
                     upTrans,
-                    TMath.Sinf(i * angle) * lightPosRadius);
+                    TMath.Sinf(i * lightAngle) * lightPosRadius);
                 actors.Add(pointLight);
             }
 
@@ -142,12 +138,12 @@ namespace TheraEngine.Tests
         private TCollisionSphere _sphere = TCollisionSphere.New(3.0f);
         private bool _hasHit = false;
         private Vec3 _hitPoint, _hitNormal, _drawPoint;
-        private float
-            _rotation = 0.0f,
-            _rotationPerSec = 1.0f / 10.0f,
-            _rotationRadius = 15.0f,
-            _xOffset = 0.0f,
-            _zOffset = 0.0f;
+        //private float
+        //    _rotation = 0.0f,
+        //    _rotationPerSec = 1.0f / 10.0f,
+        //    _rotationRadius = 15.0f,
+        //    _xOffset = 0.0f,
+        //    _zOffset = 0.0f;
         
         public Vec3 Direction
         {
@@ -164,27 +160,27 @@ namespace TheraEngine.Tests
             get => _sphere.Radius;
             set => _sphere.Radius = value;
         }
-        public float SecondsPerFullRotation
-        {
-            get => 1.0f / _rotationPerSec;
-            set => _rotationPerSec = 1.0f / value;
-        }
-        public float RotationRadius
-        {
-            get => _rotationRadius;
-            set => _rotationRadius = value;
-        }
+        //public float SecondsPerFullRotation
+        //{
+        //    get => 1.0f / _rotationPerSec;
+        //    set => _rotationPerSec = 1.0f / value;
+        //}
+        //public float RotationRadius
+        //{
+        //    get => _rotationRadius;
+        //    set => _rotationRadius = value;
+        //}
 
-        public float XOffset
-        {
-            get => _xOffset;
-            set => _xOffset = value;
-        }
-        public float ZOffset
-        {
-            get => _zOffset;
-            set => _zOffset = value;
-        }
+        //public float XOffset
+        //{
+        //    get => _xOffset;
+        //    set => _xOffset = value;
+        //}
+        //public float ZOffset
+        //{
+        //    get => _zOffset;
+        //    set => _zOffset = value;
+        //}
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false);
 

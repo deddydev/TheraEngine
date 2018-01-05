@@ -31,12 +31,12 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         public override void OnSpawned()
         {
             _noise.SetFrequency(_noiseFrequency);
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, NoiseTick, InputPauseType.TickAlways);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, NoiseTick, EInputPauseType.TickAlways);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, NoiseTick, InputPauseType.TickAlways);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, NoiseTick, EInputPauseType.TickAlways);
             base.OnDespawned();
         }
         protected virtual void NoiseTick(float delta)

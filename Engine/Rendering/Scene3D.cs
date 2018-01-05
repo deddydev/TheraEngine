@@ -65,19 +65,26 @@ namespace TheraEngine.Rendering
 
         private class RenderSort : IComparer<I3DRenderable>
         {
+            public bool ShadowPass { get; set; }
             int IComparer<I3DRenderable>.Compare(I3DRenderable x, I3DRenderable y)
             {
-                if (x.RenderInfo.RenderOrder < y.RenderInfo.RenderOrder)
+                float xOrder = x.RenderInfo.GetRenderOrder(ShadowPass);
+                float yOrder = y.RenderInfo.GetRenderOrder(ShadowPass);
+
+                if (xOrder < yOrder)
                     return -1;
-                if (x.RenderInfo.RenderOrder > y.RenderInfo.RenderOrder)
+
+                if (xOrder > yOrder)
                     return 1;
+
                 return 0;
             }
         }
 
-        public void Render(ERenderPass3D pass)
+        public void Render(ERenderPass3D pass, bool shadowPass)
         {
             var list = _passes[(int)pass];
+            _sorter.ShadowPass = shadowPass;
             foreach (I3DRenderable r in list.OrderBy(x => x, _sorter))
                 r.Render();
             list.Clear();
@@ -179,24 +186,24 @@ namespace TheraEngine.Rendering
                 //Enable internal resolution
                 Engine.Renderer.PushRenderArea(v.InternalResolution);
                 {
-                    v._postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                    v.ResizeQuadFBO.Bind(EFramebufferTarget.Framebuffer);
                     {
                         //Initial scene setup
                         Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                         Engine.Renderer.AllowDepthWrite(true);
 
                         //Render forward opaque objects first
-                        _passes.Render(ERenderPass3D.OpaqueForward);
+                        _passes.Render(ERenderPass3D.OpaqueForward, shadowPass);
                         //Render forward transparent objects next
-                        _passes.Render(ERenderPass3D.TransparentForward);
+                        _passes.Render(ERenderPass3D.TransparentForward, shadowPass);
 
                         //Disable depth fail for objects on top
                         Engine.Renderer.DepthFunc(EComparison.Always);
 
                         //Render forward on-top objects last
-                        _passes.Render(ERenderPass3D.OnTopForward);
+                        _passes.Render(ERenderPass3D.OnTopForward, shadowPass);
                     }
-                    v._postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                    v.ResizeQuadFBO.Unbind(EFramebufferTarget.Framebuffer);
 
                 }
                 //Disable internal resolution
@@ -208,7 +215,7 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.CropRenderArea(v.Region);
 
                     //Render final post process quad
-                    v._postProcessFrameBuffer.Render();
+                    v.ResizeQuadFBO.Render();
                 }
                 Engine.Renderer.PopRenderArea();
             }
@@ -247,21 +254,21 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.PushRenderArea(v.InternalResolution);
                     {
                         //Render to deferred framebuffer.
-                        v._deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
+                        v.DeferredLightingQuadFBO.Bind(EFramebufferTarget.Framebuffer);
                         {
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                             Engine.Renderer.DepthFunc(EComparison.Lequal);
 
                             Engine.Renderer.AllowDepthWrite(false);
-                            _passes.Render(ERenderPass3D.Skybox);
+                            _passes.Render(ERenderPass3D.Skybox, shadowPass);
 
                             Engine.Renderer.AllowDepthWrite(true);
-                            _passes.Render(ERenderPass3D.OpaqueDeferredLit);
+                            _passes.Render(ERenderPass3D.OpaqueDeferredLit, shadowPass);
                         }
-                        v._deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                        v.DeferredLightingQuadFBO.Unbind(EFramebufferTarget.Framebuffer);
 
                         //Now render to final post process framebuffer.
-                        v._postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                        v.ResizeQuadFBO.Bind(EFramebufferTarget.Framebuffer);
                         {
                             //No need to clear anything, 
                             //color will be fully overwritten by the previous pass, 
@@ -270,32 +277,20 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.AllowDepthWrite(false);
 
                             //Render the deferred pass result
-                            v._deferredGBuffer.Render();
+                            v.DeferredLightingQuadFBO.Render();
 
                             Engine.Renderer.AllowDepthWrite(true);
-                            _passes.Render(ERenderPass3D.OpaqueForward);
+                            _passes.Render(ERenderPass3D.OpaqueForward, shadowPass);
                             //Render forward transparent objects next
-                            _passes.Render(ERenderPass3D.TransparentForward);
+                            _passes.Render(ERenderPass3D.TransparentForward, shadowPass);
 
                             //Disable depth fail for objects on top
                             Engine.Renderer.DepthFunc(EComparison.Always);
 
                             //Render forward on-top objects last
-                            _passes.Render(ERenderPass3D.OnTopForward);
+                            _passes.Render(ERenderPass3D.OnTopForward, shadowPass);
                         }
-                        v._postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
-
-                        //if (v.HUD != null)
-                        //{
-                        //    //Render hud to hud framebuffer.
-                        //    v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                        //    {
-                        //        Engine.Renderer.AllowDepthWrite(true);
-                        //        Engine.Renderer.DepthFunc(EComparison.Lequal);
-                        //        v.HUD.Scene.Render(camera, frustum, v, false);
-                        //    }
-                        //    v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
-                        //}
+                        v.ResizeQuadFBO.Unbind(EFramebufferTarget.Framebuffer);
                     }
                     //Disable internal resolution
                     Engine.Renderer.PopRenderArea();
@@ -305,9 +300,11 @@ namespace TheraEngine.Rendering
                     {
                         Engine.Renderer.CropRenderArea(v.Region);
 
-                        //if (v.HUD != null)
-                        //    v._hudFrameBuffer.Render();
-                        v._postProcessFrameBuffer.Render();
+                        Engine.Renderer.AllowDepthWrite(true);
+                        Engine.Renderer.DepthFunc(EComparison.Lequal);
+                        v.HUD.Scene.Render(camera, frustum, v, false);
+
+                        v.ResizeQuadFBO.Render();
                     }
                     Engine.Renderer.PopRenderArea();
                 }
@@ -316,10 +313,10 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
                     Engine.Renderer.AllowDepthWrite(false);
-                    _passes.Render(ERenderPass3D.Skybox);
+                    _passes.Render(ERenderPass3D.Skybox, shadowPass);
 
                     Engine.Renderer.AllowDepthWrite(true);
-                    _passes.Render(ERenderPass3D.OpaqueDeferredLit);
+                    _passes.Render(ERenderPass3D.OpaqueDeferredLit, shadowPass);
 
                     //No need to clear anything, 
                     //color will be fully overwritten by the previous pass, 
@@ -328,15 +325,15 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.AllowDepthWrite(false);
 
                     Engine.Renderer.AllowDepthWrite(true);
-                    _passes.Render(ERenderPass3D.OpaqueForward);
+                    _passes.Render(ERenderPass3D.OpaqueForward, shadowPass);
                     //Render forward transparent objects next
-                    _passes.Render(ERenderPass3D.TransparentForward);
+                    _passes.Render(ERenderPass3D.TransparentForward, shadowPass);
 
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
 
                     //Render forward on-top objects last
-                    _passes.Render(ERenderPass3D.OnTopForward);
+                    _passes.Render(ERenderPass3D.OnTopForward, shadowPass);
                 }
             }
         }

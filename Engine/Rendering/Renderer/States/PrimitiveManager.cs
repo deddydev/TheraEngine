@@ -401,6 +401,8 @@ namespace TheraEngine.Rendering.Models
             //TODO: don't invert, transpose, and get rotation matrix here
             Render(modelMatrix, modelMatrix.GetRotationMatrix3());//modelMatrix.Inverted().Transposed().GetRotationMatrix3());
         }
+
+        private Matrix4 _lastRenderedModelMatrix = Matrix4.Identity;
         public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix)
         {
             if (_data == null)
@@ -433,7 +435,9 @@ namespace TheraEngine.Rendering.Models
             }
             
             SetSkinningUniforms(vtxId);
+
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ModelMatrix), modelMatrix);
+            //Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.PrevModelMatrix), _lastRenderedModelMatrix);
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix), AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix), AbstractRenderer.CurrentCamera.ProjectionMatrix);
@@ -443,6 +447,8 @@ namespace TheraEngine.Rendering.Models
             OnSettingUniforms();
            
             Engine.Renderer.RenderPrimitiveManager(this, false);
+
+            _lastRenderedModelMatrix = modelMatrix;
         }
         private void OnSettingUniforms() => SettingUniforms?.Invoke();
         protected override void OnGenerated()

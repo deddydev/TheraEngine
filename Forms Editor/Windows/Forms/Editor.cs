@@ -476,7 +476,7 @@ namespace TheraEditor.Windows.Forms
 
         private void RegisterInput(InputInterface input)
         {
-            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, EndGameplay, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
         }
 
         private void BtPlay_Click(object sender, EventArgs e)

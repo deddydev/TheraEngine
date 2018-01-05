@@ -172,7 +172,7 @@ namespace TheraEngine
         /// <param name="order">The order to execute the function within its group.</param>
         /// <param name="function">The function to execute per update tick.</param>
         /// <param name="pausedBehavior">If the function should even execute at all, depending on the pause state.</param>
-        internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function, InputPauseType pausedBehavior = InputPauseType.TickAlways)
+        internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
             if (function != null)
             {
@@ -187,7 +187,7 @@ namespace TheraEngine
         /// <summary>
         /// Stops running a tick method that was previously registered with the same parameters.
         /// </summary>
-        internal static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function, InputPauseType pausedBehavior = InputPauseType.TickAlways)
+        internal static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
             if (function != null)
             {
@@ -202,7 +202,7 @@ namespace TheraEngine
         /// <summary>
         /// Gets a list of items to tick (in no particular order) that were registered with the following parameters.
         /// </summary>
-        private static ThreadSafeList<DelTick> GetTickList(ETickGroup group, ETickOrder order, InputPauseType pausedBehavior)
+        private static ThreadSafeList<DelTick> GetTickList(ETickGroup group, ETickOrder order, EInputPauseType pausedBehavior)
             => _tickLists[(int)group + (int)order + (int)pausedBehavior];
         /// <summary>
         /// Ticks the before, during, and after physics groups. Also steps the physics simulation during the during physics tick group.

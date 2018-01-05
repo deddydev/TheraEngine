@@ -177,6 +177,8 @@ namespace TheraEngine.Animation
                 Start();
             }
         }
+
+        #region Playback
         protected virtual void PreStarted() { }
         protected virtual void PostStarted() { }
         public virtual void Start()
@@ -187,7 +189,7 @@ namespace TheraEngine.Animation
             _state = AnimationState.Playing;
             AnimationStarted?.Invoke();
             CurrentTime = 0.0f;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickAlways);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostStarted();
         }
         protected virtual void PreStopped() { }
@@ -200,7 +202,7 @@ namespace TheraEngine.Animation
             _currentTime = 0.0f;
             _state = AnimationState.Stopped;
             OnAnimationEnded();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickAlways);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostStopped();
         }
         protected virtual void PrePaused() { }
@@ -212,9 +214,15 @@ namespace TheraEngine.Animation
             PrePaused();
             _state = AnimationState.Paused;
             OnAnimationPaused();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.InputPauseType.TickAlways);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostPaused();
         }
+        #endregion
+
+        /// <summary>
+        /// Progresses this animation forward by the specified change in seconds.
+        /// </summary>
+        /// <param name="delta"></param>
         public void Progress(float delta) => CurrentTime += delta * _speed;
 
         /// <summary>

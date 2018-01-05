@@ -25,12 +25,12 @@ namespace TheraEngine
             ETickGroup group,
             ETickOrder order,
             DelTick tickFunc,
-            InputPauseType pausedBehavior = InputPauseType.TickAlways);
+            EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
         void UnregisterTick(
             ETickGroup group,
             ETickOrder order,
             DelTick tickFunc,
-            InputPauseType pausedBehavior = InputPauseType.TickAlways);
+            EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
         #endregion
         
         #region Animation
@@ -41,7 +41,7 @@ namespace TheraEngine
             bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
             ETickOrder order = ETickOrder.Animation,
-            InputPauseType pausedBehavior = InputPauseType.TickAlways);
+            EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
         bool RemoveAnimation(AnimationContainer anim);
         #endregion
     }
@@ -96,12 +96,12 @@ namespace TheraEngine
         private ThreadSafeList<TickInfo> _tickFunctions = new ThreadSafeList<TickInfo>();
         [Browsable(false)]
         public bool IsTicking => _tickFunctions.Count > 0;
-        public void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways)
+        public void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
             _tickFunctions.Add(new TickInfo(group, order, tickFunc));
             Engine.RegisterTick(group, order, tickFunc, pausedBehavior);
         }
-        public void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways)
+        public void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
             int index = _tickFunctions.FindIndex(x => x.Item1 == group && x.Item2 == order && x.Item3 == tickFunc);
             if (index >= 0)
@@ -166,7 +166,7 @@ namespace TheraEngine
             bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
             ETickOrder order = ETickOrder.Animation,
-            InputPauseType pausedBehavior = InputPauseType.TickOnlyWhenUnpaused)
+            EInputPauseType pausedBehavior = EInputPauseType.TickOnlyWhenUnpaused)
         {
             if (anim == null)
                 return;

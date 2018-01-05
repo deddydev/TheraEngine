@@ -27,22 +27,22 @@ namespace TheraEngine.Input.Devices
                 _buttonStates[b] = new ButtonManager(button.ToString());
             return _buttonStates[b];
         }
-        public void RegisterButtonPressed(EMouseButton button, InputPauseType pauseType, DelButtonState func, bool unregister)
+        public void RegisterButtonPressed(EMouseButton button, EInputPauseType pauseType, DelButtonState func, bool unregister)
         {
             if (unregister)
                 _buttonStates[(int)button]?.RegisterPressedState(func, pauseType, true);
             else
                 CacheButton(button)?.RegisterPressedState(func, pauseType, false);
         }
-        public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
+        public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
             RegisterButtonEvent(unregister ? _buttonStates[(int)button] : CacheButton(button), type, pauseType, func, unregister);
         }
-        public void RegisterScroll(DelMouseScroll func, InputPauseType pauseType, bool unregister)
+        public void RegisterScroll(DelMouseScroll func, EInputPauseType pauseType, bool unregister)
         {
             _wheel.Register(func, pauseType, unregister);
         }
-        public void RegisterMouseMove(DelCursorUpdate func, InputPauseType pauseType, bool relative, bool unregister)
+        public void RegisterMouseMove(DelCursorUpdate func, EInputPauseType pauseType, bool relative, bool unregister)
         {
             _cursor.Register(func, pauseType, relative, unregister);
         }
@@ -68,7 +68,7 @@ namespace TheraEngine.Input.Devices
             _lastX = xPos;
             _lastY = yPos;
         }
-        public void Register(DelCursorUpdate func, InputPauseType pauseType, bool relative, bool unregister)
+        public void Register(DelCursorUpdate func, EInputPauseType pauseType, bool relative, bool unregister)
         {
             int index = (relative ? 0 : 3) + (int)pauseType;
             if (unregister)
@@ -107,8 +107,8 @@ namespace TheraEngine.Input.Devices
                     list[j](x, y);
             }
             list = Engine.IsPaused ?
-                _onCursorUpdate[index + (int)InputPauseType.TickOnlyWhenPaused] :
-                _onCursorUpdate[index + (int)InputPauseType.TickOnlyWhenUnpaused];
+                _onCursorUpdate[index + (int)EInputPauseType.TickOnlyWhenPaused] :
+                _onCursorUpdate[index + (int)EInputPauseType.TickOnlyWhenUnpaused];
             if (list != null)
             {
                 int i = list.Count;
@@ -120,7 +120,7 @@ namespace TheraEngine.Input.Devices
     }
     public class ScrollWheelManager
     {
-        List<Tuple<InputPauseType, DelMouseScroll>> _onUpdate = new List<Tuple<InputPauseType, DelMouseScroll>>();
+        List<Tuple<EInputPauseType, DelMouseScroll>> _onUpdate = new List<Tuple<EInputPauseType, DelMouseScroll>>();
 
         float _lastValue = 0.0f;
 
@@ -139,7 +139,7 @@ namespace TheraEngine.Input.Devices
                 _lastValue = value;
             }
         }
-        public void Register(DelMouseScroll func, InputPauseType pauseType, bool unregister)
+        public void Register(DelMouseScroll func, EInputPauseType pauseType, bool unregister)
         {
             if (unregister)
             {
@@ -148,7 +148,7 @@ namespace TheraEngine.Input.Devices
                     _onUpdate.RemoveAt(index);
             }
             else
-                _onUpdate.Add(new Tuple<InputPauseType, DelMouseScroll>(pauseType, func));
+                _onUpdate.Add(new Tuple<EInputPauseType, DelMouseScroll>(pauseType, func));
         }
         private void OnUpdate(bool up)
         {
@@ -156,9 +156,9 @@ namespace TheraEngine.Input.Devices
             for (int x = 0; x < i; ++x)
             {
                 var update = _onUpdate[x];
-                if (update.Item1 == InputPauseType.TickAlways ||
-                    (update.Item1 == InputPauseType.TickOnlyWhenUnpaused && !Engine.IsPaused) ||
-                    (update.Item1 == InputPauseType.TickOnlyWhenPaused && Engine.IsPaused))
+                if (update.Item1 == EInputPauseType.TickAlways ||
+                    (update.Item1 == EInputPauseType.TickOnlyWhenUnpaused && !Engine.IsPaused) ||
+                    (update.Item1 == EInputPauseType.TickOnlyWhenPaused && Engine.IsPaused))
                     update.Item2(up);
             }
         }

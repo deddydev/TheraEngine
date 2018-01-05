@@ -105,34 +105,34 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
 
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterMouseScroll(OnScrolled, InputPauseType.TickAlways);
-            input.RegisterMouseMove(MouseMove, true, InputPauseType.TickAlways);
+            input.RegisterMouseScroll(OnScrolled, EInputPauseType.TickAlways);
+            input.RegisterMouseMove(MouseMove, true, EInputPauseType.TickAlways);
 
-            input.RegisterButtonPressed(EMouseButton.RightClick, OnRightClick, InputPauseType.TickAlways);
+            input.RegisterButtonPressed(EMouseButton.RightClick, OnRightClick, EInputPauseType.TickAlways);
 
-            input.RegisterButtonPressed(EKey.A, MoveLeft, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.W, MoveForward, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.S, MoveBackward, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.D, MoveRight, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.Q, MoveDown, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.E, MoveUp, InputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.A, MoveLeft, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.W, MoveForward, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.S, MoveBackward, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.D, MoveRight, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.Q, MoveDown, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.E, MoveUp, EInputPauseType.TickAlways);
 
-            input.RegisterButtonPressed(EKey.ControlLeft, OnControl, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.ControlRight, OnControl, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.AltLeft, OnAlt, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.AltRight, OnAlt, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.ShiftLeft, OnShift, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.ShiftRight, OnShift, InputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.ControlLeft, OnControl, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.ControlRight, OnControl, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.AltLeft, OnAlt, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.AltRight, OnAlt, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.ShiftLeft, OnShift, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.ShiftRight, OnShift, EInputPauseType.TickAlways);
 
-            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause, EInputPauseType.TickAlways);
 
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, InputPauseType.TickAlways);
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false, InputPauseType.TickAlways);
-            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickX, OnRightStickX, false, InputPauseType.TickAlways);
-            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, OnRightStickY, false, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(GamePadButton.RightBumper, MoveUp, InputPauseType.TickAlways);
-            input.RegisterButtonPressed(GamePadButton.LeftBumper, MoveDown, InputPauseType.TickAlways);
+            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, EInputPauseType.TickAlways);
+            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false, EInputPauseType.TickAlways);
+            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickX, OnRightStickX, false, EInputPauseType.TickAlways);
+            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, OnRightStickY, false, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(GamePadButton.RightBumper, MoveUp, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(GamePadButton.LeftBumper, MoveDown, EInputPauseType.TickAlways);
         }
         
         private void OnTogglePause()

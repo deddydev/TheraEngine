@@ -25,11 +25,13 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         {
             _component = component;
 
-            LODs = lods.Select(x => new RenderableLOD()
+            LODs = new LinkedList<RenderableLOD>(lods.Select(x => new RenderableLOD()
             {
                 VisibleDistance = x.VisibleDistance,
                 Manager = x.CreatePrimitiveManager(),
-            }).ToArray();
+            }));
+
+            _currentLOD = LODs.Last;
 
             RenderInfo = renderInfo;
             RenderInfo.RenderOrderFunc = GetRenderDistance;
@@ -39,9 +41,9 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 
         private bool _visible = false;
         protected SceneComponent _component;
-        protected RenderableLOD _currentLOD = null;
+        protected LinkedListNode<RenderableLOD> _currentLOD;
 
-        public RenderableLOD[] LODs { get; private set; }
+        public LinkedList<RenderableLOD> LODs { get; private set; }
         public RenderInfo3D RenderInfo { get; protected set; }
 
         [Browsable(false)]
@@ -86,24 +88,42 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 
         private void UpdateLOD(float viewDist)
         {
-            _currentLOD = null;
+            while (true)
+            {
+                if (_currentLOD.Value.Manager == null)
+                    break;
+                if (viewDist < _currentLOD.Value.VisibleDistance)
+                {
+                    if (_currentLOD.Previous != null)
+                        _currentLOD = _currentLOD.Previous;
+                    else
+                        break;
+                }
+                else
+                {
+                    if (_currentLOD.Next != null && viewDist >= _currentLOD.Next.Value.VisibleDistance)
+                        _currentLOD = _currentLOD.Next;
+                    else
+                        break;
+                }
+            }
 
             //Start with the lowest, farthest away LOD and work toward higher quality
             //Most renderables will be farther rather than closer, so this is fastest
-            for (int i = LODs.Length - 1; i >= 0; --i)
-            {
-                _currentLOD = LODs[i];
-                if (_currentLOD?.Manager == null || viewDist >= _currentLOD.VisibleDistance)
-                    break;
-            }
+            //for (int i = LODs.Length - 1; i >= 0; --i)
+            //{
+            //    _currentLOD = LODs[i];
+            //    if (_currentLOD?.Manager == null || viewDist >= _currentLOD.VisibleDistance)
+            //        break;
+            //}
 
-            Visible = _currentLOD?.Manager != null;
+            //Visible = _currentLOD.Value.Manager != null;
         }
         public void Render()
         {
             //Visible will be set to false if the current lod or its manager is null
             //Therefore this code will never be run in those circumstances
-            _currentLOD.Manager.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
+            _currentLOD.Value.Manager?.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
         }
     }
 }

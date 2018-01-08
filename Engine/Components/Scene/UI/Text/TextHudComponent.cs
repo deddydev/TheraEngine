@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering.UI
 {
     public class TextHudComponent : UIMaterialComponent
     {
-        public TextHudComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(new TextureReference2D()))
+        public TextHudComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(new TexRef2D()))
         {
             _textDrawer = new TextDrawer();
             //_textDrawer.NeedsRedraw += Redraw;

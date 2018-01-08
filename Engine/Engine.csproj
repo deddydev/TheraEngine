@@ -272,6 +272,7 @@
     <Compile Include="Animation\Property\PropAnimMethod.cs" />
     <Compile Include="Animation\Property\BasePropAnim.cs" />
     <Compile Include="Animation\Property\BasePropAnimKeyframed.cs" />
+    <Compile Include="Components\Scene\InteractorComponent.cs" />
     <Compile Include="Components\Scene\Mesh\BaseRenderableMesh.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake2D.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake3D.cs" />
@@ -339,9 +340,14 @@
     <Compile Include="Rendering\Models\Materials\Colors\EventColorF4.cs" />
     <Compile Include="Rendering\Models\Materials\Colors\ColorInterfaces.cs" />
     <Compile Include="Rendering\Models\Materials\Colors\TexturePixelTypesCommon.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\References\RefCubeSide.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\References\TexRefCube.cs" />
-    <Compile Include="Rendering\Models\Materials\Textures\Rendering\TextureCubemap.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderCubeMipmap.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderCubeSide.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderTexCube.cs" />
     <Compile Include="Rendering\Models\Meshes\LOD.cs" />
+    <Compile Include="Rendering\Renderer\States\FrameBuffers\MaterialFrameBuffer.cs" />
+    <Compile Include="Rendering\Renderer\States\FrameBuffers\QuadFrameBuffer.cs" />
     <Compile Include="Scripting\Python\IronPython.cs" />
     <Compile Include="Scripting\Python\Script.cs" />
     <Compile Include="Tests\UnitTestingWorld.cs" />
@@ -445,7 +451,7 @@
     <Compile Include="Rendering\Models\Materials\Textures\References\TexRef3D.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\References\BaseTexRef.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\BaseRenderTexture.cs" />
-    <Compile Include="Rendering\Models\Materials\Textures\Rendering\Texture3D.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderTex3D.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\PrimitiveData\PrimitiveDataConstruction.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\PrimitiveData\PrimitiveDataMembers.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\PrimitiveData\PrimitiveDataXMLSerialize.cs" />
@@ -589,7 +595,7 @@
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
     <Compile Include="Rendering\Scene3D.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
-    <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
+    <Compile Include="Rendering\Renderer\States\FrameBuffers\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
     <Compile Include="Rendering\Renderer\States\VertexBuffer.cs" />
     <None Include="Rendering\Renderer\States\DisplayList.cs" />
@@ -804,7 +810,7 @@
     <Compile Include="Actors\Types\CharacterSpawnPointActor.cs" />
     <Compile Include="Actors\Types\Vehicle.cs" />
     <Compile Include="Components\Component.cs" />
-    <Compile Include="Components\Logic\InteractionComponent.cs" />
+    <Compile Include="Components\Logic\InteractableComponent.cs" />
     <Compile Include="Components\Scene\Mesh\SkeletalMeshComponent.cs" />
     <Compile Include="Components\Logic\MovementComponents\MovementComponent.cs" />
     <Compile Include="Input\AIController.cs" />
@@ -826,7 +832,7 @@
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalModel.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Skeleton.cs" />
-    <Compile Include="Rendering\Models\Materials\Textures\Rendering\Texture2D.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderTex2D.cs" />
     <Compile Include="Physics\Bullet\BulletDebugDrawer.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
     <Compile Include="Worlds\WorldState.cs" />

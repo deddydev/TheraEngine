@@ -332,7 +332,7 @@ namespace TheraEngine.Rendering.Models
         }
         private static TMaterial CreateMaterial(LibraryMaterials.Material colladaMaterial)
         {
-            List<TextureReference2D> texRefs = new List<TextureReference2D>();
+            List<TexRef2D> texRefs = new List<TexRef2D>();
 
             //Find effect
             TMaterial m = null;
@@ -351,19 +351,19 @@ namespace TheraEngine.Rendering.Models
                         if (tex != null)
                         {
                             var image = tex.Root.GetIDEntry(tex.TextureID);
-                            TextureReference2D texRef = null;
+                            TexRef2D texRef = null;
                             if (image is Image14X img14x)
                             {
                                 var source = img14x.GetChild<Image14X.ISource>();
                                 if (source is Image14X.InitFrom initFrom)
                                 {
                                     string path = initFrom.StringContent.Value;
-                                    texRef = new TextureReference2D(Path.GetFileNameWithoutExtension(path), path);
+                                    texRef = new TexRef2D(Path.GetFileNameWithoutExtension(path), path);
                                 }
                                 else if (source is Image14X.Data d)
                                 {
                                     Engine.PrintLine("Internal image data not supported");
-                                    texRef = new TextureReference2D();
+                                    texRef = new TexRef2D();
                                 }
                             }
                             else if (image is Image15X img15x)
@@ -372,12 +372,12 @@ namespace TheraEngine.Rendering.Models
                                 if (source.RefElement != null)
                                 {
                                     string path = source.RefElement.StringContent.Value;
-                                    texRef = new TextureReference2D(Path.GetFileNameWithoutExtension(path), path);
+                                    texRef = new TexRef2D(Path.GetFileNameWithoutExtension(path), path);
                                 }
                                 else if (source.EmbeddedElement != null)
                                 {
                                     Engine.PrintLine("Internal image data not supported");
-                                    texRef = new TextureReference2D();
+                                    texRef = new TexRef2D();
                                 }
                             }
                             texRefs.Add(texRef);

@@ -37,18 +37,22 @@ namespace System
         {
             Array.Resize(ref data, newSize);
         }
-        public static void FillWith<T>(this T[] array, T value)
+        public static T[] FillWith<T>(this T[] array, T value)
         {
             for (int i = 0; i < array.Length; i++)
                 array[i] = value;
+
+            return array;
         }
-        public static void FillWith<T>(this T[] array, Func<int, T> factory)
+        public static T[] FillWith<T>(this T[] array, Func<int, T> factory)
         {
             if (factory == null)
-                return;
+                return array;
 
             for (int i = 0; i < array.Length; i++)
                 array[i] = factory(i);
+
+            return array;
         }
         public static void ForEach<T>(this T[] data, Action<T> method)
             => Array.ForEach(data, method);

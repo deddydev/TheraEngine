@@ -81,6 +81,12 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private const float ByteToFloat = 1.0f / 255.0f;
 
+        public static readonly ColorF3 Red = new ColorF3(1.0f, 0.0f, 0.0f);
+        public static readonly ColorF3 Green = new ColorF3(0.0f, 1.0f, 0.0f);
+        public static readonly ColorF3 Blue = new ColorF3(0.0f, 0.0f, 1.0f);
+        public static readonly ColorF3 White = new ColorF3(1.0f, 1.0f, 1.0f);
+        public static readonly ColorF3 Black = new ColorF3(0.0f, 0.0f, 0.0f);
+
         public static implicit operator ColorF3(RGBAPixel p) => new ColorF3(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat);
         public static implicit operator ColorF3(ARGBPixel p) => new ColorF3(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat);
         public static explicit operator ColorF3(Vec4 v) => new ColorF3(v.X, v.Y, v.Z);

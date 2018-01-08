@@ -84,11 +84,23 @@ namespace TheraEngine.Tests
                 ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create world light
-            //Actor<DirectionalLightComponent> light = new Actor<DirectionalLightComponent>();
-            //light.RootComponent.LightColor = (ColorF3)Color.Beige;
-            //light.RootComponent.Rotation.Pitch = -35;
-            //light.RootComponent.AmbientIntensity = 0.0f;
-            //actors.Add(light);
+            Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
+            dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
+            dirlight.RootComponent.Rotation.Pitch = -35;
+            dirlight.RootComponent.AmbientIntensity = 0.01f;
+            actors.Add(dirlight);
+
+            //Create spot light
+            //Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>();
+            //spotlight.RootComponent.LightColor = (ColorF3)Color.Beige;
+            //spotlight.RootComponent.Rotation.Pitch = -90;
+            //spotlight.RootComponent.AmbientIntensity = 0.01f;
+            //spotlight.RootComponent.Translation.Raw = Vec3.Up * 70.0f;
+            //spotlight.RootComponent.Distance = 200.0f;
+            //spotlight.RootComponent.Brightness = 100.0f;
+            //spotlight.RootComponent.OuterCutoffAngleDegrees = 50.0f;
+            //spotlight.RootComponent.InnerCutoffAngleDegrees = 30.0f;
+            //actors.Add(spotlight);
 
             //Create camera shake test
             //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
@@ -182,7 +194,8 @@ namespace TheraEngine.Tests
         //    set => _zOffset = value;
         //}
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null, false, false);
+        public RenderInfo3D RenderInfo { get; } 
+            = new RenderInfo3D(Rendering.ERenderPass3D.OpaqueForward, null, false, false);
 
         [Browsable(false)]
         public Shape CullingVolume => null;

@@ -25,7 +25,7 @@ namespace TheraEngine.Core.Maths.Transforms
         public Rotator() : this(RotationOrder.YPR) { }
 
         public Rotator(RotationOrder order) : this(0.0f, 0.0f, 0.0f, order) { }
-        public Rotator(float pitch, float yaw, float roll, RotationOrder rotationOrder)
+        public Rotator(float pitch, float yaw, float roll, RotationOrder rotationOrder = RotationOrder.YPR)
         {
             Yaw = yaw;
             Pitch = pitch;

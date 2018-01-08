@@ -42,10 +42,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
                     if (_cameraRef.IsLoaded && _cameraRef.File != null)
                     {
                         Camera camera = _cameraRef.File;
-
-                        if (IsSpawned && Engine.Settings.RenderCameraFrustums)
-                            Engine.Scene.Remove(camera);
-
                         camera.OwningComponent = null;
                         camera.TransformChanged -= RecalcLocalTransform;
                     }
@@ -56,15 +52,11 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
 
         private void CameraLoaded(Camera camera)
         {
-            if (IsSpawned && Engine.Settings.RenderCameraFrustums)
-                Engine.Scene.Add(camera);
             camera.OwningComponent = this;
             camera.TransformChanged += RecalcLocalTransform;
         }
         private void CameraUnloaded(Camera camera)
         {
-            if (IsSpawned && Engine.Settings.RenderCameraFrustums)
-                Engine.Scene.Remove(camera);
             camera.OwningComponent = null;
             camera.TransformChanged -= RecalcLocalTransform;
         }
@@ -126,18 +118,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
             _cameraRef.File.TranslateAbsolute(-newOrigin);
-        }
-        public override void OnSpawned()
-        {
-            if (Engine.Settings.RenderCameraFrustums)
-                Engine.Scene.Add(_cameraRef.File);
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            if (Engine.Settings.RenderCameraFrustums)
-                Engine.Scene.Remove(_cameraRef.File);
-            base.OnDespawned();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {

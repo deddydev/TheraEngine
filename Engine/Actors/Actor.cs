@@ -66,10 +66,11 @@ namespace TheraEngine.Worlds.Actors
         }
         public Actor() : this(false) { }
         public Actor(string name) : this(name, false) { }
-        public Actor(bool deferInitialization) : this("Actor", deferInitialization) { }
+        public Actor(bool deferInitialization) : this(null, deferInitialization) { }
         public Actor(string name, bool deferInitialization)
         {
-            Name = name;
+            Name = string.IsNullOrEmpty(name) ? GetType().GetFriendlyName("[", "]") : name;
+
             _logicComponents = new EventList<LogicComponent>();
             _logicComponents.PostAnythingAdded += _logicComponents_PostAnythingAdded;
             _logicComponents.PostAnythingRemoved += _logicComponents_PostAnythingRemoved;
@@ -77,10 +78,11 @@ namespace TheraEngine.Worlds.Actors
                 Initialize();
         }
         public Actor(T root, params LogicComponent[] logicComponents)
-            : this("Actor", root, logicComponents) { }
+            : this(null, root, logicComponents) { }
         public Actor(string name, T root, params LogicComponent[] logicComponents)
         {
-            Name = name;
+            Name = string.IsNullOrEmpty(name) ? GetType().GetFriendlyName("[", "]") : name;
+
             _isConstructing = true;
 
             _logicComponents = new EventList<LogicComponent>(logicComponents.ToList());

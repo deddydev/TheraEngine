@@ -12,11 +12,11 @@ namespace TheraEngine.Rendering.Models.Materials
 {
     [FileExt("tref3d")]
     [FileDef("3D Texture Reference")]
-    public class TextureReference3D : BaseTextureReference
+    public class TexRef3D : BaseTexRef
     {
         #region Constructors
-        public TextureReference3D() : this(null, 1, 1, 1) { }
-        public TextureReference3D(string name, int width, int height, int depth)
+        public TexRef3D() : this(null, 1, 1, 1) { }
+        public TexRef3D(string name, int width, int height, int depth)
         {
             _mipmaps = null;
             _name = name;
@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _pixelFormat = EPixelFormat.Bgra;
             _pixelType = EPixelType.UnsignedByte;
         }
-        public TextureReference3D(string name, int width, int height, int depth,
+        public TexRef3D(string name, int width, int height, int depth,
             TPixelFormat bitmapFormat = TPixelFormat.Format32bppRGBAi, int mipCount = 1)
             : this(name, width, height, depth)
         {
@@ -34,7 +34,7 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
                 _mipmaps[i] = new TBitmap3D(width / scale, height / scale, depth / scale, bitmapFormat);
         }
-        public TextureReference3D(string name, int width, int height, int depth,
+        public TexRef3D(string name, int width, int height, int depth,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
             : this(name, width, height, depth)
         {
@@ -45,13 +45,13 @@ namespace TheraEngine.Rendering.Models.Materials
             _width = width;
             _height = height;
         }
-        public TextureReference3D(string name, int width, int height, int depth,
+        public TexRef3D(string name, int width, int height, int depth,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, TPixelFormat bitmapFormat)
             : this(name, width, height, depth, internalFormat, pixelFormat, pixelType)
         {
             _mipmaps = new GlobalFileRef<TBitmap3D>[] { new TBitmap3D(width, height, depth, bitmapFormat) };
         }
-        public TextureReference3D(string name, params string[] mipMapPaths)
+        public TexRef3D(string name, params string[] mipMapPaths)
         {
             _name = name;
             _mipmaps = new GlobalFileRef<TBitmap3D>[mipMapPaths.Length];
@@ -78,7 +78,7 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _mipmaps = value;
         }
         
-        private Texture3D _texture;
+        private RenderTex3D _texture;
 
         [TSerialize("Width")]
         private int _width;
@@ -161,7 +161,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         private bool _isLoading = false;
-        public async Task<Texture3D> GetTextureAsync()
+        public async Task<RenderTex3D> GetTextureAsync()
         {
             if (_texture != null || _isLoading)
                 return _texture;
@@ -171,7 +171,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return _texture;
         }
-        public Texture3D GetTexture(bool loadSynchronously = false)
+        public RenderTex3D GetTexture(bool loadSynchronously = false)
         {
             if (_texture != null || _isLoading)
                 return _texture;
@@ -213,7 +213,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_isLoading)
                 return;
 
-            Texture3D t = GetTexture();
+            RenderTex3D t = GetTexture();
             t?.Resize(_width, _height, _depth);
         }
 

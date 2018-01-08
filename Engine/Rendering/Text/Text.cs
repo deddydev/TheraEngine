@@ -143,7 +143,7 @@ namespace TheraEngine.Rendering.Text
             _modified.AddLast(text);
         }
 
-        public unsafe void Draw(Texture2D texture)
+        public unsafe void Draw(RenderTex2D texture)
         {
             Bitmap b = texture.Mipmaps[0];
             b.MakeTransparent();

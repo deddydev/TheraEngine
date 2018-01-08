@@ -6,12 +6,12 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {
-    public class Texture3D : BaseRenderTexture
+    public class RenderTex3D : BaseRenderTexture
     {
-        public Texture3D() : this(null) { }
-        public Texture3D(int bindingId) : base(bindingId) => Init(null);
-        public Texture3D(params TBitmap3D[] mipmaps) : base() => Init(mipmaps);
-        public Texture3D(
+        public RenderTex3D() : this(null) { }
+        public RenderTex3D(int bindingId) : base(bindingId) => Init(null);
+        public RenderTex3D(params TBitmap3D[] mipmaps) : base() => Init(mipmaps);
+        public RenderTex3D(
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
             EPixelType pixelType,
@@ -22,11 +22,11 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             PixelFormat = pixelFormat;
             PixelType = pixelType;
         }
-        public Texture3D(int bindingId, params TBitmap3D[] mipmaps) : base(bindingId) => Init(mipmaps);
+        public RenderTex3D(int bindingId, params TBitmap3D[] mipmaps) : base(bindingId) => Init(mipmaps);
         /// <summary>
         /// Initializes the texture as an unallocated texture to be filled by a framebuffer.
         /// </summary>
-        public Texture3D(int width, int height, int depth, EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType) : this(null)
+        public RenderTex3D(int width, int height, int depth, EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType) : this(null)
         {
             _width = width;
             _height = height;
@@ -64,8 +64,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public int Height => _height;
         public int Depth => _depth;
 
-        public static Texture3D[] GenTextures(int count)
-            => Engine.Renderer.CreateObjects<Texture3D>(EObjectType.Texture, count);
+        public static RenderTex3D[] GenTextures(int count)
+            => Engine.Renderer.CreateObjects<RenderTex3D>(EObjectType.Texture, count);
         
         public override void PushData()
         {

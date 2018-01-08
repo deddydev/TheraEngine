@@ -8,7 +8,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
 {
     public class DecalComponent : BoxComponent
     {
-        private Texture2D _texture;
+        private RenderTex2D _texture;
         private StaticModel _mesh;
         
         public DecalComponent() : base() { }

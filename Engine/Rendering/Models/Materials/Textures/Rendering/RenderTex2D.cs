@@ -4,15 +4,19 @@ using System.Drawing.Imaging;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {
-    public class Texture2D : BaseRenderTexture
+    public class RenderTex2DMipmap
     {
-        public static Texture2D[] GenTextures(int count)
-            => Engine.Renderer.CreateObjects<Texture2D>(EObjectType.Texture, count);
 
-        public Texture2D() : this(null) { }
-        public Texture2D(int bindingId) : base(bindingId) => Mipmaps = null;
-        public Texture2D(params Bitmap[] mipmaps) : base() => Mipmaps = mipmaps;
-        public Texture2D(
+    }
+    public class RenderTex2D : BaseRenderTexture
+    {
+        public static RenderTex2D[] GenTextures(int count)
+            => Engine.Renderer.CreateObjects<RenderTex2D>(EObjectType.Texture, count);
+
+        public RenderTex2D() : this(null) { }
+        public RenderTex2D(int bindingId) : base(bindingId) => Mipmaps = null;
+        public RenderTex2D(params Bitmap[] mipmaps) : base() => Mipmaps = mipmaps;
+        public RenderTex2D(
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
             EPixelType pixelType,
@@ -23,11 +27,11 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             PixelFormat = pixelFormat;
             PixelType = pixelType;
         }
-        public Texture2D(int bindingId, params Bitmap[] mipmaps) : base(bindingId) => Mipmaps = mipmaps;
+        public RenderTex2D(int bindingId, params Bitmap[] mipmaps) : base(bindingId) => Mipmaps = mipmaps;
         /// <summary>
         /// Initializes the texture as an unallocated texture to be filled by a framebuffer.
         /// </summary>
-        public Texture2D(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType) : this(null)
+        public RenderTex2D(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType) : this(null)
         {
             _width = width;
             _height = height;

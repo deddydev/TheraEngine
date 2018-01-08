@@ -16,7 +16,9 @@ namespace TheraEngine.Rendering
         private HashSet<DirectionalLightComponent> _directionalLights = new HashSet<DirectionalLightComponent>();
         private HashSet<SpotLightComponent> _spotLights = new HashSet<SpotLightComponent>();
         private HashSet<PointLightComponent> _pointLights = new HashSet<PointLightComponent>();
-
+        
+        public HashSet<SpotLightComponent> SpotLights => _spotLights;
+        public HashSet<PointLightComponent> PointLights => _pointLights;
         public HashSet<DirectionalLightComponent> DirectionalLights => _directionalLights;
 
         public ColorF3 GlobalAmbient

@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Models
 
         private VertexBuffer _indexBuffer;
         private EDrawElementType _elementType;
-        internal Shader _vertexShader, _geometryShader;
+        internal Shader _vertexShader;
 
         //Skeleton information
         private Bone _singleBind;
@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering.Models
                             if (_vertexProgram.IsActive)
                             {
                                 _vertexProgram.Destroy();
-                                _vertexProgram = new RenderProgram(_vertexShader, _geometryShader);
+                                _vertexProgram = new RenderProgram(_vertexShader);
                                 _vertexProgram.Generate();
                             }
                             else
@@ -352,7 +352,7 @@ namespace TheraEngine.Rendering.Models
                 Engine.Renderer.Uniform(programBindingId, Uniform.BoneNrmMtxName, nrm);
 
                 //Update modified bone matrix uniforms
-                //foreach (int index in _modifiedBoneIndices)
+                //foreach (int index in _modifiedBoneIndices)                
                 //{
                 //    int remappedIndex = _boneRemap[index];
                 //    Bone b = _utilizedBones[remappedIndex];
@@ -417,19 +417,20 @@ namespace TheraEngine.Rendering.Models
                 normalMatrix = normalMatrix * _singleBind.NormalMatrix.GetRotationMatrix3();
             }
 
-            TMaterial m;
+            TMaterial mat;
             int vtxId, fragId;
             if (Engine.Settings.AllowShaderPipelines)
             {
-                m = Engine.Renderer.MaterialOverride ?? Material;
+                mat = Engine.Renderer.MaterialOverride ?? Material;
 
                 _pipeline.Bind();
+                _pipeline.Set(EProgramStageMask.AllShaderBits, fragId = mat.Program.BindingId);
                 _pipeline.Set(EProgramStageMask.VertexShaderBit, vtxId = _vertexProgram.BindingId);
-                _pipeline.Set(EProgramStageMask.FragmentShaderBit, fragId = m.Program.BindingId);
             }
             else
             {
-                m = Material;
+                mat = Material;
+
                 vtxId = fragId = VertexFragProgram.BindingId;
                 VertexFragProgram.Use();
             }
@@ -439,10 +440,23 @@ namespace TheraEngine.Rendering.Models
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ModelMatrix), modelMatrix);
             //Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.PrevModelMatrix), _lastRenderedModelMatrix);
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
-            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix), AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
-            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix), AbstractRenderer.CurrentCamera.ProjectionMatrix);
 
-            m.SetUniforms(fragId);
+            if (AbstractRenderer.CurrentCamera != null)
+            {
+                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix),
+                    AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
+                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix),
+                    AbstractRenderer.CurrentCamera.ProjectionMatrix);
+            }
+            else
+            {
+                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix),
+                    Matrix4.Identity);
+                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix),
+                    Matrix4.Identity);
+            }
+
+            mat.SetUniforms(fragId);
 
             OnSettingUniforms();
            
@@ -456,7 +470,7 @@ namespace TheraEngine.Rendering.Models
             //Create vertex shader program here
             if (Engine.Settings.AllowShaderPipelines)
             {
-                _vertexProgram = new RenderProgram(_vertexShader, _geometryShader);
+                _vertexProgram = new RenderProgram(_vertexShader);
                 _vertexProgram.Generate();
             }
             else

@@ -32,8 +32,8 @@ namespace TheraEngine.Rendering
         //private BaseRenderPanel _owningPanel;
 
         private SSAOInfo _ssaoInfo = new SSAOInfo();
-        internal QuadFrameBuffer DeferredLightingQuadFBO;
-        internal QuadFrameBuffer ResizeQuadFBO;
+        internal QuadFrameBuffer GBufferFBO;
+        internal QuadFrameBuffer PostProcessFBO;
 
         private BoundingRectangle _internalResolution = new BoundingRectangle();
 
@@ -178,10 +178,12 @@ namespace TheraEngine.Rendering
             _internalResolution.Width = width;
             _internalResolution.Height = height;
 
+            GBufferFBO?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+            PostProcessFBO?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+
             _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
-            DeferredLightingQuadFBO?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
-            ResizeQuadFBO?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
             HUD?.Resize(_internalResolution.Bounds);
+
         }
         internal void Resize(
             float parentWidth,
@@ -261,7 +263,7 @@ namespace TheraEngine.Rendering
         {
             throw new NotImplementedException();
             Vec2 absolutePoint = viewportPoint;//RelativeToAbsolute(viewportPoint);
-            DeferredLightingQuadFBO.Bind(EFramebufferTarget.Framebuffer);
+            GBufferFBO.Bind(EFramebufferTarget.Framebuffer);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             //var depthTex = _gBuffer.Textures[4];
             //depthTex.Bind();
@@ -271,7 +273,7 @@ namespace TheraEngine.Rendering
             //float depth = *(float*)((byte*)bmd.Scan0 + ((int)viewportPoint.Y * bmd.Stride + (int)viewportPoint.X * 4));
             //depthTex.UnlockBits(bmd);
             float depth = Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
-            DeferredLightingQuadFBO.Unbind(EFramebufferTarget.Framebuffer);
+            GBufferFBO.Unbind(EFramebufferTarget.Framebuffer);
             return depth;
         }
         /// <summary>
@@ -607,7 +609,7 @@ namespace TheraEngine.Rendering
 
             _ssaoInfo.Generate();
 
-            TextureReference2D depthTexture = new TextureReference2D("Depth", width, height,
+            TexRef2D depthTexture = new TexRef2D("Depth", width, height,
                 EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
             {
                 MinFilter = ETexMinFilter.Nearest,
@@ -623,34 +625,34 @@ namespace TheraEngine.Rendering
             //If forward, we can render directly to the post process FBO.
             //If deferred, we have to render to a quad first, then render that to post process
             if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
-                InitDeferredRendererFBO(width, height, depthTexture);
+                InitGBuffer(width, height, depthTexture);
         }
 
         #region FBOs
-        private void InitPostFBO(int width, int height, TextureReference2D depthTexture)
+        private void InitPostFBO(int width, int height, TexRef2D depthTexture)
         {
-            TextureReference2D[] postProcessRefs = new TextureReference2D[]
+            TexRef2D[] postProcessRefs = new TexRef2D[]
             {
                 CreateFrameBufferTexture("OutputColor", width, height,
                     EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0),
-                depthTexture,
+                depthTexture
             };
             ShaderVar[] postProcessParameters = new ShaderVar[] { };
             TMaterial postProcessMat = new TMaterial("PostProcessMat",
                 postProcessParameters, postProcessRefs,
-                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcess.frag"))));
+                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcess.fs"))));
 
             //postProcessMat.RenderParams.DepthTest.Enabled = true;
             //postProcessMat.RenderParams.DepthTest.UpdateDepth = false;
             //postProcessMat.RenderParams.DepthTest.Function = EComparison.Always;
 
-            ResizeQuadFBO = new QuadFrameBuffer(postProcessMat);
-            ResizeQuadFBO.SettingUniforms += _postProcessGBuffer_SettingUniforms;
+            PostProcessFBO = new QuadFrameBuffer(postProcessMat);
+            PostProcessFBO.SettingUniforms += _postProcessGBuffer_SettingUniforms;
         }
-        private unsafe void InitDeferredRendererFBO(int width, int height, TextureReference2D depthTexture)
+        private unsafe void InitGBuffer(int width, int height, TexRef2D depthTexture)
         {
-            TextureReference2D ssaoNoise = new TextureReference2D("SSAONoise",
+            TexRef2D ssaoNoise = new TexRef2D("SSAONoise",
                 _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
                 EPixelInternalFormat.Rgb16, EPixelFormat.Bgr, EPixelType.UnsignedShort,
                 PixelFormat.Format64bppArgb)
@@ -673,7 +675,7 @@ namespace TheraEngine.Rendering
                 //*values++ = 0;
             }
             bmp.UnlockBits(data);
-            TextureReference2D[] deferredRefs = new TextureReference2D[]
+            TexRef2D[] deferredRefs = new TexRef2D[]
             {
                 CreateFrameBufferTexture("AlbedoOpacity", width, height,
                     EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
@@ -693,7 +695,7 @@ namespace TheraEngine.Rendering
             ShaderVar[] deferredParameters = new ShaderVar[] { };
             TMaterial deferredMat = new TMaterial("DeferredLightingMaterial",
             deferredParameters, deferredRefs, new Shader(ShaderMode.Fragment,
-            new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "DeferredLighting.frag"))))
+            new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "DeferredLighting.fs"))))
             { Requirements = TMaterial.UniformRequirements.NeedsLightsAndCamera, };
 
             //Don't overwrite the depth texture generated by the deferred pass (and used by the forward pass)
@@ -702,20 +704,21 @@ namespace TheraEngine.Rendering
             deferredMat.RenderParamsRef.File.DepthTest.UpdateDepth = false;
             deferredMat.RenderParamsRef.File.DepthTest.Function = EComparison.Always;
 
-            DeferredLightingQuadFBO = new QuadFrameBuffer(deferredMat);
-            DeferredLightingQuadFBO.SettingUniforms += programBindingId =>
-            {
-                if (_worldCamera == null)
-                    return;
-                Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
-                _worldCamera.SetUniforms(programBindingId);
-                _worldCamera.PostProcess.AmbientOcclusion.SetUniforms(programBindingId);
-            };
+            GBufferFBO = new QuadFrameBuffer(deferredMat);
+            GBufferFBO.SettingUniforms += GBuffer_SetUniforms;
         }
-        private TextureReference2D CreateFrameBufferTexture(string name, int width, int height,
+        private void GBuffer_SetUniforms(int programBindingId)
+        {
+            if (_worldCamera == null)
+                return;
+            Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+            _worldCamera.SetUniforms(programBindingId);
+            _worldCamera.PostProcess.AmbientOcclusion.SetUniforms(programBindingId);
+        }
+        private TexRef2D CreateFrameBufferTexture(string name, int width, int height,
             EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType, EFramebufferAttachment bufAttach)
         {
-            return new TextureReference2D(name, width, height, internalFmt, fmt, pixelType)
+            return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
                 MinFilter = ETexMinFilter.Nearest,
                 MagFilter = ETexMagFilter.Nearest,

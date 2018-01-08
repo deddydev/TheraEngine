@@ -32,31 +32,40 @@ uniform mat4 InvProjMatrix;
 
 struct BaseLight
 {
-    vec3 Color;
-    float DiffuseIntensity;
-    float AmbientIntensity;
-    mat4 WorldToLightSpaceProjMatrix;
-    sampler2D ShadowMap;
+    	vec3 Color;
+    	float DiffuseIntensity;
+    	float AmbientIntensity;
 };
 struct DirLight
 {
-    BaseLight Base;
-    vec3 Direction;
+   	BaseLight Base;
+    	sampler2D ShadowMap;
+    	mat4 WorldToLightSpaceProjMatrix;
+
+    	vec3 Direction;
 };
 struct PointLight
 {
-    BaseLight Base;
-    vec3 Position;
-    float Radius;
-    float Brightness;
+    	BaseLight Base;
+    	samplerCube ShadowMap;
+
+    	vec3 Position;
+    	float Radius;
+    	float Brightness;
 };
 struct SpotLight
 {
-    PointLight Base;
-    vec3 Direction;
-    float InnerCutoff;
-    float OuterCutoff;
-    float Exponent;
+    	BaseLight Base;
+    	sampler2D ShadowMap;
+    	mat4 WorldToLightSpaceProjMatrix;
+
+	vec3 Position;
+    	vec3 Direction;
+    	float Radius;
+    	float Brightness;
+    	float InnerCutoff;
+    	float OuterCutoff;
+    	float Exponent;
 };
 
 uniform vec3 GlobalAmbient;
@@ -73,24 +82,24 @@ uniform PointLight PointLights[16];
 //Trowbridge-Reitz GGX
 float SpecD_TRGGX(float NoH2, float a2)
 {
-    float num    = a2;
-    float denom  = (NoH2 * (a2 - 1.0f) + 1.0f);
-    denom        = PI * denom * denom;
+    	float num    = a2;
+    	float denom  = (NoH2 * (a2 - 1.0f) + 1.0f);
+    	denom        = PI * denom * denom;
 
-    return num / denom;
+    	return num / denom;
 }
 float SpecG_SchlickGGX(float NoV, float k)
 {
-    float num   = NoV;
+    	float num   = NoV;
    	float denom = NoV * (1.0f - k) + k;
 
-    return num / denom;
+    	return num / denom;
 }
 float SpecG_Smith(float NoV, float NoL, float k)
 {
-    float ggx1 = SpecG_SchlickGGX(NoV, k);
-    float ggx2 = SpecG_SchlickGGX(NoL, k);
-    return ggx1 * ggx2;
+    	float ggx1 = SpecG_SchlickGGX(NoV, k);
+    	float ggx2 = SpecG_SchlickGGX(NoL, k);
+    	return ggx1 * ggx2;
 }
 vec3 SpecF_Schlick(float VoH, vec3 F0)
 {
@@ -101,7 +110,7 @@ vec3 SpecF_Schlick(float VoH, vec3 F0)
 	//https://seblagarde.wordpress.com/2012/06/03/spherical-gaussien-approximation-for-blinn-phong-phong-and-fresnel/
 	float pow = exp2((-5.55473f * VoH - 6.98316f) * VoH);
 
-    return F0 + (1.0f - F0) * pow;
+    	return F0 + (1.0f - F0) * pow;
 }
 vec3 Spec_CookTorrance(float D, float G, vec3 F, float NoV, float NoL)
 {
@@ -111,41 +120,51 @@ vec3 Spec_CookTorrance(float D, float G, vec3 F, float NoV, float NoL)
 }
 
 //0 is fully in shadow, 1 is fully lit
-float ReadShadowMap(in vec3 fragPosWS, in vec3 N, in float NoL, in BaseLight light)
+float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D shadowMap, mat4 lightMatrix)
 {
 	//Move the fragment position into light space
-    vec4 fragPosLightSpace = light.WorldToLightSpaceProjMatrix * vec4(fragPosWS, 1.0f);
+    	vec4 fragPosLightSpace = lightMatrix * vec4(fragPosWS, 1.0f);
 
 	//Perspective divide
-    vec3 fragCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    	vec3 fragCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
 
 	//Scale and bias
-    fragCoord = fragCoord * vec3(0.5f) + vec3(0.5f);
+    	fragCoord = fragCoord * 0.5f + 0.5f;
 
 	//Create bias depending on angle of normal to the light
-    float maxBias = 0.04f;
-    float minBias = 0.001f;
-    float bias = mix(maxBias, minBias, NoL);
+    	float maxBias = 0.04f;
+    	float minBias = 0.001f;
+    	float bias = mix(maxBias, minBias, NoL);
 
 	//Read depth value from shadow map rendered in light space
-    float depth = texture(light.ShadowMap, fragCoord.xy).r;
+    	float depth = texture(shadowMap, fragCoord.xy).r;
 
 	//Hard shadow
-    float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;        
+    	float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;        
 
 	//PCF shadow
-    //float shadow = 0.0;
-    //vec2 texelSize = 1.0f / textureSize(light.ShadowMap, 0);
-    //for (int x = -1; x <= 1; ++x)
-    //{
-    //    for (int y = -1; y <= 1; ++y)
-    //    {
-    //        float pcfDepth = texture(light.ShadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
-    //        shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;        
-    //    }    
-    //}
+    	//float shadow = 0.0;
+    	//vec2 texelSize = 1.0f / textureSize(light.ShadowMap, 0);
+    	//for (int x = -1; x <= 1; ++x)
+    	//{
+    	//    for (int y = -1; y <= 1; ++y)
+    	//    {
+    	//        float pcfDepth = texture(light.ShadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
+    	//        shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;        
+    	//    }    
+    	//}
 	//shadow *= 0.111111111f; //divided by 9
 
+	return shadow; 
+}
+float ReadShadowMapCube(in vec3 fragPosWS, in vec3 lightPosWS, in samplerCube shadowMap)
+{
+ 	vec3 fragToLight = fragPosWS - lightPosWS;
+	float closestDepth = texture(shadowMap, fragToLight).r;
+    closestDepth *= 10000.0f;
+    float currentDepth = length(fragToLight);
+    float bias = 0.05f;
+    float shadow = currentDepth - bias > closestDepth ? 0.0f : 1.0f;
 	return shadow; 
 }
 
@@ -155,14 +174,12 @@ float Attenuate(in float dist, in float radius)
 	return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
 }
 
-vec3 CalcColor(BaseLight light, vec3 N, vec3 V, vec3 L, vec3 fragPosWS, float attn, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
+vec3 ColorCombine(vec3 color, vec3 ambient, float shadow, float ambOcc)
 {
-	vec3 H = normalize(V + L);
-	float NoL = max(dot(N, L), 0.0f);
-	float NoH = max(dot(N, H), 0.0f);
-	float NoV = max(dot(N, V), 0.0f);
-	float HoV = max(dot(H, V), 0.0f);
-
+	return (ambient + color * shadow) * ambOcc;
+}
+void CalcColor(BaseLight light, float NoL, float NoH, float NoV, float HoV, float attn, vec4 albedoOpacity, vec4 rmsi, out vec3 color, out vec3 ambient)
+{
 	vec3 radiance = attn * light.Color * light.DiffuseIntensity;
 	
 	//Cook-torrance BRDF
@@ -182,27 +199,49 @@ vec3 CalcColor(BaseLight light, vec3 N, vec3 V, vec3 L, vec3 fragPosWS, float at
 	vec3 kD = vec3(1.0f) - kS;
 	kD *= 1.0f - rmsi.g;
 
-	vec3 color = (kD * albedoOpacity.rgb / PI + spec) * radiance * NoL;
-	vec3 ambient = light.Color * light.AmbientIntensity;
-	float shadow = ReadShadowMap(fragPosWS, N, NoL, light);
-	return (ambient + color * shadow) * ambOcc;
+	color = (kD * albedoOpacity.rgb / PI + spec) * radiance * NoL;
+	ambient = light.Color * light.AmbientIntensity;
 }
 
 vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
 {
-    return CalcColor(light.Base, N, V, -light.Direction, fragPosWS, 1.0f, albedoOpacity, rmsi, ambOcc);
+	vec3 L = -light.Direction;
+	vec3 H = normalize(V + L);
+	float NoL = max(dot(N, L), 0.0f);
+	float NoH = max(dot(N, H), 0.0f);
+	float NoV = max(dot(N, V), 0.0f);
+	float HoV = max(dot(H, V), 0.0f);
+	
+	vec3 color;
+	vec3 ambient;
+   	CalcColor(light.Base, NoL, NoH, NoV, HoV, 1.0f, albedoOpacity, rmsi, color, ambient);
+
+	float shadow = ReadShadowMap2D(fragPosWS, N, NoL, light.ShadowMap, light.WorldToLightSpaceProjMatrix);
+	return ColorCombine(color, ambient, shadow, ambOcc);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
 {
-    vec3 L = light.Position - fragPosWS;
-	float attn = Attenuate(length(L), light.Radius);
-    return CalcColor(light.Base, N, V, normalize(L), fragPosWS, attn, albedoOpacity, rmsi, ambOcc);
+    	vec3 L = light.Position - fragPosWS;
+	float attn = Attenuate(length(L) / light.Brightness, light.Radius);
+	L = normalize(L);
+	vec3 H = normalize(V + L);
+	float NoL = max(dot(N, L), 0.0f);
+	float NoH = max(dot(N, H), 0.0f);
+	float NoV = max(dot(N, V), 0.0f);
+	float HoV = max(dot(H, V), 0.0f);
+
+	vec3 color;
+	vec3 ambient;
+   	CalcColor(light.Base, NoL, NoH, NoV, HoV, attn, albedoOpacity, rmsi, color, ambient);
+
+	float shadow = ReadShadowMapCube(fragPosWS, light.Position, light.ShadowMap);
+	return ColorCombine(color, ambient, shadow, ambOcc);
 } 
 
 vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
 {
-    vec3 L = light.Base.Position - fragPosWS;
+    	vec3 L = light.Position - fragPosWS;
 	float distance = length(L);
 	L = normalize(L);
 
@@ -213,21 +252,32 @@ vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoO
 	float cosine = dot(L, -normalize(light.Direction));
 
 	if (cosine <= light.OuterCutoff)
-		return vec3(light.Base.Base.Color * light.Base.Base.AmbientIntensity) * ambOcc;
+		return vec3(light.Base.Color * light.Base.AmbientIntensity) * ambOcc;
 
-    float clampedCosine = clamp(cosine, light.OuterCutoff, light.InnerCutoff);
+    	float clampedCosine = clamp(cosine, light.OuterCutoff, light.InnerCutoff);
 
 	//Subtract smaller value and divide by range to normalize value
-    float time = (clampedCosine - light.OuterCutoff) / (light.InnerCutoff - light.OuterCutoff);
+    	float time = (clampedCosine - light.OuterCutoff) / (light.InnerCutoff - light.OuterCutoff);
 
 	//Make transition smooth rather than linear
 	float spotAmt = smoothstep(0.0f, 1.0f, time);
 
-    float spotAttn = pow(clampedCosine, light.Exponent);
-    float distAttn = Attenuate(distance / light.Base.Brightness, light.Base.Radius);
+    	float spotAttn = pow(clampedCosine, light.Exponent);
+    	float distAttn = Attenuate(distance / light.Brightness, light.Radius);
 	float attn = spotAmt * spotAttn * distAttn;
 
-    return CalcColor(light.Base.Base, N, V, L, fragPosWS, attn, albedoOpacity, rmsi, ambOcc);
+    	vec3 H = normalize(V + L);
+	float NoL = max(dot(N, L), 0.0f);
+	float NoH = max(dot(N, H), 0.0f);
+	float NoV = max(dot(N, V), 0.0f);
+	float HoV = max(dot(H, V), 0.0f);
+	
+	vec3 color;
+	vec3 ambient;
+   	CalcColor(light.Base, NoL, NoH, NoV, HoV, attn, albedoOpacity, rmsi, color, ambient);
+
+	float shadow = ReadShadowMap2D(fragPosWS, N, NoL, light.ShadowMap, light.WorldToLightSpaceProjMatrix);
+	return ColorCombine(color, ambient, shadow, ambOcc);
 }
 
 vec3 CalcTotalLight(vec3 N, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)

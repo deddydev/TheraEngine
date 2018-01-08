@@ -325,12 +325,7 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override void AllowDepthWrite(bool allow)
         {
             throw new NotImplementedException();
@@ -542,6 +537,11 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void GenerateTextureMipmap(int textureBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel)
         {
             throw new NotImplementedException();
         }

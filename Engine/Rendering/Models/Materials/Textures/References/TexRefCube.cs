@@ -8,54 +8,99 @@ using System.Threading.Tasks;
 using System;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using System.IO;
+using System.Drawing.Drawing2D;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
     public class CubeMipmap
     {
-        public GlobalFileRef<TextureFile2D>[] Sides { get; private set; }
-        
-        public CubeMipmap()
-        {
-            Sides = new GlobalFileRef<TextureFile2D>[6];
-            Sides.FillWith(i => new GlobalFileRef<TextureFile2D>());
-        }
+        public bool IsCrossMap => Sides.Length == 1;
+
+        public RefCubeSide[] Sides { get; private set; }
         
         public CubeMipmap(GlobalFileRef<TextureFile2D> crossMap)
-            => Sides = new GlobalFileRef<TextureFile2D>[1] { crossMap };
+            => Sides = new RefCubeSide[1] { new RefCubeSideTextured(crossMap) };
 
         public CubeMipmap(
-            GlobalFileRef<TextureFile2D> posX,
-            GlobalFileRef<TextureFile2D> negX,
-            GlobalFileRef<TextureFile2D> posY,
-            GlobalFileRef<TextureFile2D> negY,
-            GlobalFileRef<TextureFile2D> posZ,
-            GlobalFileRef<TextureFile2D> negZ)
-            => Sides = new GlobalFileRef<TextureFile2D>[6] { posX, negX, posY, negY, posZ, negZ };
+            RefCubeSide posX, RefCubeSide negX,
+            RefCubeSide posY, RefCubeSide negY,
+            RefCubeSide posZ, RefCubeSide negZ)
+            => Sides = new RefCubeSide[6] { posX, negX, posY, negY, posZ, negZ };
 
-        public CubeMipmap(int dim, PixelFormat bitmapFormat)
+        public CubeMipmap(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat format, EPixelType type)
         {
-            Sides = new GlobalFileRef<TextureFile2D>[6];
-            Sides.FillWith(i => new GlobalFileRef<TextureFile2D>(new TextureFile2D(dim, dim, bitmapFormat)));
+            Sides = new RefCubeSide[6];
+            Sides.FillWith(i => new RefCubeSideBlank(width, height, internalFormat, format, type));
+        }
+
+        public CubeMipmap(int width, int height, PixelFormat bitmapFormat)
+        {
+            Sides = new RefCubeSide[6];
+            Sides.FillWith(i => new RefCubeSideTextured(width, height, bitmapFormat));
+        }
+
+        public void FillRenderMap(RenderCubeMipmap mip, int mipIndex)
+        {
+            if (mip == null)
+                return;
+            if (IsCrossMap)
+            {
+                RefCubeSideTextured crossTex = ((RefCubeSideTextured)Sides[0]);
+                TextureFile2D tex = crossTex.Map.GetInstance();
+                //Task.Run(() => crossTex.Map.GetInstance()).ContinueWith(x =>
+                {
+                    Bitmap[] maps = tex.Bitmaps;//x.Result.Bitmaps;
+                    if (maps != null)
+                    {
+                        if (mipIndex >= maps.Length)
+                        {
+                            Bitmap bmp = maps[maps.Length - 1];
+                            int w = bmp.Width;
+                            int h = bmp.Height;
+                            for (int i = maps.Length; i <= mipIndex; ++i)
+                            {
+                                w /= 2;
+                                h /= 2;
+                            }
+                            bmp = bmp.Resized(w, h, InterpolationMode.HighQualityBicubic); //TODO: use NearestNeighbor instead?
+                        }
+                        if (!mip.SetCrossCubeMap(maps[mipIndex]))
+                            Engine.LogWarning("Cubemap cross dimensions are invalid; width/height be a 4:3 or 3:4 ratio.");
+                    }
+                }//);
+            }
+            else
+            {
+                mip.SetSides(
+                    Sides[0].AsRenderSide(mipIndex),
+                    Sides[1].AsRenderSide(mipIndex),
+                    Sides[2].AsRenderSide(mipIndex),
+                    Sides[3].AsRenderSide(mipIndex),
+                    Sides[4].AsRenderSide(mipIndex),
+                    Sides[5].AsRenderSide(mipIndex));
+            }
+        }
+        public RenderCubeMipmap AsRenderMipmap(int mipIndex)
+        {
+            RenderCubeMipmap mip = new RenderCubeMipmap(TexRef2D.FillerBitmap, true);
+            FillRenderMap(mip, mipIndex);
+            return mip;
         }
     }
 
     [FileExt("trefcube")]
     [FileDef("Cubemap Texture Reference")]
-    public class TextureReferenceCube : BaseTextureReference
+    public class TexRefCube : BaseTexRef
     {
         #region Constructors
-        public TextureReferenceCube() : this(null, 1) { }
-        public TextureReferenceCube(string name, int dim)
+        public TexRefCube() : this(null, 1) { }
+        public TexRefCube(string name, int dim)
         {
             Mipmaps = null;
             _name = name;
             _cubeExtent = dim;
-            _internalFormat = EPixelInternalFormat.Rgba8;
-            _pixelFormat = EPixelFormat.Bgra;
-            _pixelType = EPixelType.UnsignedByte;
         }
-        public TextureReferenceCube(
+        public TexRefCube(
             string name,
             int dim,
             PixelFormat bitmapFormat = PixelFormat.Format32bppArgb,
@@ -65,32 +110,23 @@ namespace TheraEngine.Rendering.Models.Materials
             int sDim = dim;
             Mipmaps = new CubeMipmap[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i, sDim = dim / scale)
-                Mipmaps[i] = new CubeMipmap(sDim, bitmapFormat);
+                Mipmaps[i] = new CubeMipmap(sDim, sDim, bitmapFormat);
         }
-        public TextureReferenceCube(
-            string name,
-            int dim,
-            EPixelInternalFormat internalFormat,
-            EPixelFormat pixelFormat,
-            EPixelType pixelType)
-            : this(name, dim)
-        {
-            _internalFormat = internalFormat;
-            _pixelFormat = pixelFormat;
-            _pixelType = pixelType;
-        }
-        public TextureReferenceCube(
+        public TexRefCube(
             string name,
             int dim,
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
             EPixelType pixelType,
-            PixelFormat bitmapFormat)
-            : this(name, dim, internalFormat, pixelFormat, pixelType)
+            int mipCount = 1)
+            : this(name, dim)
         {
-            Mipmaps = new CubeMipmap[] { new CubeMipmap(dim, bitmapFormat) };
+            int sDim = dim;
+            Mipmaps = new CubeMipmap[mipCount];
+            for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i, sDim = dim / scale)
+                Mipmaps[i] = new CubeMipmap(sDim, sDim, internalFormat, pixelFormat, pixelType);
         }
-        public TextureReferenceCube(string name, int dim, params CubeMipmap[] mipmaps)
+        public TexRefCube(string name, int dim, params CubeMipmap[] mipmaps)
         {
             _name = name;
             Mipmaps = mipmaps;
@@ -100,34 +136,18 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public CubeMipmap[] Mipmaps { get; set; }
         
-        private TextureCubemap _texture;
+        private RenderTexCube _texture;
 
         [TSerialize("CubeExtent")]
         private int _cubeExtent;
-
-        private int _index;
-        private ETexWrapMode _uWrapMode = ETexWrapMode.Repeat;
-        private ETexWrapMode _vWrapMode = ETexWrapMode.Repeat;
+        
+        private ETexWrapMode _uWrapMode = ETexWrapMode.ClampToEdge;
+        private ETexWrapMode _vWrapMode = ETexWrapMode.ClampToEdge;
+        private ETexWrapMode _wWrapMode = ETexWrapMode.ClampToEdge;
         private ETexMinFilter _minFilter = ETexMinFilter.LinearMipmapLinear;
         private ETexMagFilter _magFilter = ETexMagFilter.Linear;
         private float _lodBias = 0.0f;
-        private EPixelInternalFormat _internalFormat;
-        private EPixelFormat _pixelFormat;
-        private EPixelType _pixelType;
-        private EFramebufferAttachment? _frameBufferAttachment;
 
-        [TSerialize]
-        public EFramebufferAttachment? FrameBufferAttachment
-        {
-            get => _frameBufferAttachment;
-            set => _frameBufferAttachment = value;
-        }
-        [TSerialize]
-        public int Index
-        {
-            get => _index;
-            set => _index = value;
-        }
         [TSerialize]
         public ETexMagFilter MagFilter
         {
@@ -153,6 +173,12 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _uWrapMode = value;
         }
         [TSerialize]
+        public ETexWrapMode WWrap
+        {
+            get => _wWrapMode;
+            set => _wWrapMode = value;
+        }
+        [TSerialize]
         public float LodBias
         {
             get => _lodBias;
@@ -172,121 +198,70 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapR, (int)_wWrapMode);
 
-            if (_frameBufferAttachment.HasValue && Material != null && Material.HasAttachment(_frameBufferAttachment.Value))
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, _frameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
+            if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
+                //OpenTK.Graphics.OpenGL.GL.FramebufferTexture(
+                //    OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,
+                //    OpenTK.Graphics.OpenGL.FramebufferAttachment.DepthAttachment,
+                //    _texture.BindingId, 0);
+                for (int i = 0; i < Mipmaps.Length; ++i)
+                    for (int x = 0; x < 6; ++x)
+                        Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer,
+                            FrameBufferAttachment.Value, ETexTarget.TextureCubeMapPositiveX + x, _texture.BindingId, i);
         }
 
         private bool _isLoading = false;
-        public async Task<TextureCubemap> GetTextureAsync()
+        public async Task<RenderTexCube> GetTextureAsync()
         {
             if (_texture != null)
                 return _texture;
 
             if (!_isLoading)
+            {
+                CreateRenderTexture();
                 await Task.Run((Action)LoadMipmaps);
+            }
 
             return _texture;
         }
-        public TextureCubemap GetTexture(bool loadSynchronously = false)
+        public RenderTexCube GetTexture(bool loadSynchronously = false)
         {
             if (_texture != null)
                 return _texture;
 
             if (!_isLoading)
             {
+                CreateRenderTexture();
                 if (loadSynchronously)
-                {
                     LoadMipmaps();
-                    return _texture;
-                }
                 else
-                    GetTextureAsync().ContinueWith(task => _texture = task.Result);
+                    Task.Run(() => LoadMipmaps());
             }
 
-            return GetFillerTexture();
-        }
-
-        static TextureReferenceCube()
-        {
-            GetFillerTexture();
-        }
-
-        internal static TextureCubemap _fillerTexture;
-        private unsafe static TextureCubemap GetFillerTexture()
-        {
-            if (_fillerTexture == null)
-            {
-                Bitmap bitmap;
-                EPixelInternalFormat internalFormat = EPixelInternalFormat.Rgba8;
-                EPixelFormat format = EPixelFormat.Bgra;
-                EPixelType type = EPixelType.UnsignedByte;
-
-                TextureFile2D tex = TextureReference2D._fillerTexture;
-                if (tex?.Bitmaps != null && tex.Bitmaps.Length > 0 && tex.Bitmaps[0] != null)
-                {
-                    bitmap = tex.Bitmaps[0];
-                    switch (bitmap.PixelFormat)
-                    {
-                        case PixelFormat.Format32bppArgb:
-                        case PixelFormat.Format32bppPArgb:
-                            internalFormat = EPixelInternalFormat.Rgba8;
-                            format = EPixelFormat.Bgra;
-                            type = EPixelType.UnsignedByte;
-                            break;
-                        case PixelFormat.Format24bppRgb:
-                            internalFormat = EPixelInternalFormat.Rgb8;
-                            format = EPixelFormat.Bgr;
-                            type = EPixelType.UnsignedByte;
-                            break;
-                        case PixelFormat.Format64bppArgb:
-                        case PixelFormat.Format64bppPArgb:
-                            internalFormat = EPixelInternalFormat.Rgba16;
-                            format = EPixelFormat.Bgra;
-                            type = EPixelType.UnsignedShort;
-                            break;
-                    }
-                }
-                else
-                {
-                    bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
-                    Graphics flagGraphics = Graphics.FromImage(bitmap);
-                    int red = 0;
-                    int white = 11;
-                    while (white <= 100)
-                    {
-                        flagGraphics.FillRectangle(Brushes.Red, 0, red, 200, 10);
-                        flagGraphics.FillRectangle(Brushes.White, 0, white, 200, 10);
-                        red += 20;
-                        white += 20;
-                    }
-                }
-                _fillerTexture = new Texture2D(internalFormat, format, type, bitmap);
-            }
-            return _fillerTexture;
+            return _texture;
         }
         
         public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
-        public TMaterial Material { get; internal set; }
-        public bool ResizingDisabled { get; internal set; }
+        //public bool ResizingDisabled { get; internal set; }
 
-        /// <summary>
-        /// Resizes the textures stored in memory.
-        /// </summary>
-        public void Resize(int cubeExtent)
-        {
-            if (ResizingDisabled)
-                return;
+        ///// <summary>
+        ///// Resizes the textures stored in memory.
+        ///// </summary>
+        //public void Resize(int cubeExtent)
+        //{
+        //    if (ResizingDisabled)
+        //        return;
 
-            _cubeExtent = cubeExtent;
+        //    _cubeExtent = cubeExtent;
 
-            if (_isLoading)
-                return;
+        //    if (_isLoading)
+        //        return;
             
-            GetTexture(true)?.Resize(_cubeExtent);
-        }
+        //    GetTexture(true)?.Resize(_cubeExtent);
+        //}
 
         public bool IsLoaded => _texture != null;
 
@@ -296,56 +271,26 @@ namespace TheraEngine.Rendering.Models.Materials
         public void LoadMipmaps()
         {
             _isLoading = true;
-            if (_mipmaps != null)
+            if (Mipmaps != null && Mipmaps.Length > 0)
             {
-                if (_mipmaps.Length > 0)
-                {
-                    var tref = _mipmaps[0];
-                    var t = tref.File;
-                    if (t != null && t.Bitmaps.Length > 0)
-                    {
-                        var b = t.Bitmaps[0];
-                        if (b != null)
-                        {
-                            switch (b.PixelFormat)
-                            {
-                                case PixelFormat.Format32bppArgb:
-                                case PixelFormat.Format32bppPArgb:
-                                    _internalFormat = EPixelInternalFormat.Rgba8;
-                                    _pixelFormat = EPixelFormat.Bgra;
-                                    _pixelType = EPixelType.UnsignedByte;
-                                    break;
-                                case PixelFormat.Format24bppRgb:
-                                    _internalFormat = EPixelInternalFormat.Rgb8;
-                                    _pixelFormat = EPixelFormat.Bgr;
-                                    _pixelType = EPixelType.UnsignedByte;
-                                    break;
-                                case PixelFormat.Format64bppArgb:
-                                case PixelFormat.Format64bppPArgb:
-                                    _internalFormat = EPixelInternalFormat.Rgba16;
-                                    _pixelFormat = EPixelFormat.Bgra;
-                                    _pixelType = EPixelType.UnsignedShort;
-                                    break;
-                            }
-                        }
-                    }
-
-                }
+                _texture.Mipmaps = new RenderCubeMipmap[Mipmaps.Length];
+                //Task.Run(() => Parallel.For(0, Mipmaps.Length, i =>
+                for (int i = 0; i < Mipmaps.Length; ++i)
+                    _texture.Mipmaps[i] = Mipmaps[i].AsRenderMipmap(i);
             }
-            CreateRenderTexture();
+            
             _isLoading = false;
         }
         private void CreateRenderTexture()
         {
             if (_texture != null)
-            {
                 _texture.PostPushData -= SetParameters;
-            }
 
-            if (_mipmaps != null && _mipmaps.Length > 0)
-                _texture = new Texture2D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
+            if (Mipmaps != null && Mipmaps.Length > 0)
+                _texture = new RenderTexCube(new RenderCubeMipmap[Mipmaps.Length].FillWith(
+                    i => new RenderCubeMipmap(TexRef2D.FillerBitmap, true)));
             else
-                _texture = new Texture2D(_cubeExtent, _height, _internalFormat, _pixelFormat, _pixelType);
+                _texture = new RenderTexCube();
 
             _texture.PostPushData += SetParameters;
         }

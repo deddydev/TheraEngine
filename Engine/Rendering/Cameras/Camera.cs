@@ -456,23 +456,23 @@ namespace TheraEngine.Rendering.Cameras
         protected void OnRotationChanged(Rotator oldRotation)
             => RotationChanged?.Invoke(oldRotation);
         
-        internal static string ShaderDecl()
-        {
-            return @"
-uniform vec3 CameraPosition;
-uniform vec3 CameraForward;
-uniform float CameraNearZ;
-uniform float CameraFarZ;
-uniform float ScreenWidth;
-uniform float ScreenHeight;
-uniform float ScreenOrigin;
-uniform float ProjOrigin;
-uniform float ProjRange;
-uniform mat4 WorldToCameraSpaceMatrix;
-uniform mat4 CameraToWorldSpaceMatrix;
-uniform mat4 ProjMatrix;
-uniform mat4 InvProjMatrix;";
-        }
+//        internal static string ShaderDecl()
+//        {
+//            return @"
+//uniform vec3 CameraPosition;
+//uniform vec3 CameraForward;
+//uniform float CameraNearZ;
+//uniform float CameraFarZ;
+//uniform float ScreenWidth;
+//uniform float ScreenHeight;
+//uniform float ScreenOrigin;
+//uniform float ProjOrigin;
+//uniform float ProjRange;
+//uniform mat4 WorldToCameraSpaceMatrix;
+//uniform mat4 CameraToWorldSpaceMatrix;
+//uniform mat4 ProjMatrix;
+//uniform mat4 InvProjMatrix;";
+//        }
 
         public virtual void SetUniforms(int programBindingId)
         {

@@ -11,7 +11,7 @@ namespace TheraEngine.Worlds.Actors.Types
 {
     public class SkylightActor : Actor<PositionComponent>
     {
-        TextureCubemap _skyTexture;
+        RenderTexCube _skyTexture;
         
         public SkylightActor()
         {

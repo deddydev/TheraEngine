@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheraEngine.Rendering;
 using System;
 using TheraEngine.Physics;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -32,8 +33,8 @@ namespace TheraEngine.Core.Shapes
     [FileExt("shape")]
     public abstract class Shape : FileObject, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, false);
-        public RenderInfo3D RenderInfo => _renderInfo;
+        public RenderInfo3D RenderInfo { get; }
+            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
 
         [Browsable(false)]
         public virtual Shape CullingVolume => this;
@@ -44,6 +45,8 @@ namespace TheraEngine.Core.Shapes
         protected bool _isVisible;
         [TSerialize("RenderSolid", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _renderSolid;
+        [TSerialize("RenderColor")]
+        protected ColorF3 _renderColor = ColorF3.Red;
         [TSerialize("VisibleInEditorOnly", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _visibleInEditorOnly = false;
         [TSerialize("HiddenFromOwner", XmlNodeType = EXmlNodeType.Attribute)]
@@ -56,11 +59,10 @@ namespace TheraEngine.Core.Shapes
             get => _renderSolid;
             set => _renderSolid = value;
         }
-
         public bool Visible
         {
-            get { return _isVisible; }
-            set { _isVisible = value; }
+            get => _isVisible;
+            set => _isVisible = value;
         }
         public bool VisibleInEditorOnly
         {

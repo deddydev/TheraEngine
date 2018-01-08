@@ -72,7 +72,7 @@ namespace TheraEngine.Rendering.Cameras
             set
             {
                 _fovY = value;
-                _fovX = 2.0f * TMath.RadToDeg((float)Math.Atan(Math.Tan(TMath.DegToRad(_fovY / 2.0f)) * _aspect));
+                _fovX = 2.0f * TMath.RadToDeg((float)Math.Atan(Math.Tan(TMath.DegToRad(value / 2.0f)) * _aspect));
                 CalculateProjection();
             }
         }

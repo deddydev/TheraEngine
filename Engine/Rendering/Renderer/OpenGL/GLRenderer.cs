@@ -642,54 +642,36 @@ namespace TheraEngine.Rendering.OpenGL
         #endregion
 
         #region Framebuffers     
+
         public override void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
-        {
-            GL.NamedFramebufferTexture(frameBufferBindingId, (FramebufferAttachment)(int)attachment, textureBindingId, mipLevel);
-        }
+            => GL.NamedFramebufferTexture(frameBufferBindingId, (FramebufferAttachment)(int)attachment, textureBindingId, mipLevel);
         public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel)
-        {
-            GL.FramebufferTexture2D((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachment, (TextureTarget)(int)texTarget, textureBindingId, mipLevel);
-        }
+            => GL.FramebufferTexture2D((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachment, (TextureTarget)(int)texTarget, textureBindingId, mipLevel);
+
         public override void SetDrawBuffer(EDrawBuffersAttachment attachment)
-        {
-            GL.DrawBuffer((DrawBufferMode)(int)attachment);
-        }
+            => GL.DrawBuffer((DrawBufferMode)(int)attachment);
         public override void SetDrawBuffer(int bindingId, EDrawBuffersAttachment attachment)
-        {
-            GL.NamedFramebufferDrawBuffer(bindingId, (DrawBufferMode)(int)attachment);
-        }
-        public override void SetReadBuffer(EDrawBuffersAttachment attachment)
-        {
-            GL.ReadBuffer((ReadBufferMode)(int)attachment);
-        }
-        public override void SetReadBuffer(int bindingId, EDrawBuffersAttachment attachment)
-        {
-            GL.NamedFramebufferReadBuffer(bindingId, (ReadBufferMode)(int)attachment);
-        }
+            => GL.NamedFramebufferDrawBuffer(bindingId, (DrawBufferMode)(int)attachment);
         public override void SetDrawBuffers(EDrawBuffersAttachment[] attachments)
-        {
-            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)(int)x).ToArray());
-        }
+           => GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)(int)x).ToArray());
         public override void SetDrawBuffers(int bindingId, EDrawBuffersAttachment[] attachments)
-        {
-            GL.NamedFramebufferDrawBuffers(bindingId, attachments.Length, attachments.Select(x => (DrawBuffersEnum)(int)x).ToArray());
-        }
+           => GL.NamedFramebufferDrawBuffers(bindingId, attachments.Length, attachments.Select(x => (DrawBuffersEnum)(int)x).ToArray());
+
+        public override void SetReadBuffer(EDrawBuffersAttachment attachment)
+            => GL.ReadBuffer((ReadBufferMode)(int)attachment);
+        public override void SetReadBuffer(int bindingId, EDrawBuffersAttachment attachment)
+           => GL.NamedFramebufferReadBuffer(bindingId, (ReadBufferMode)(int)attachment);
+
         public override void BindRenderBuffer(int bindingId)
-        {
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, bindingId);
-        }
+            => GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, bindingId);
         public override void RenderbufferStorage(ERenderBufferStorage storage, int width, int height)
-        {
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage)(int)storage, width, height);
-        }
+            => GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage)(int)storage, width, height);
+
         public override void FramebufferRenderBuffer(EFramebufferTarget target, EFramebufferAttachment attachement, int renderBufferBindingId)
-        {
-            GL.FramebufferRenderbuffer((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachement, RenderbufferTarget.Renderbuffer, renderBufferBindingId);
-        }
+            => GL.FramebufferRenderbuffer((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachement, RenderbufferTarget.Renderbuffer, renderBufferBindingId);
         public override void FramebufferRenderBuffer(int frameBufferBindingId, EFramebufferAttachment attachement, int renderBufferBindingId)
-        {
-            GL.NamedFramebufferRenderbuffer(frameBufferBindingId, (FramebufferAttachment)(int)attachement, RenderbufferTarget.Renderbuffer, renderBufferBindingId);
-        }
+            => GL.NamedFramebufferRenderbuffer(frameBufferBindingId, (FramebufferAttachment)(int)attachement, RenderbufferTarget.Renderbuffer, renderBufferBindingId);
+        
         public override void BlitFrameBuffer(
             int readBufferId, int writeBufferId,
             int srcX0, int srcY0,

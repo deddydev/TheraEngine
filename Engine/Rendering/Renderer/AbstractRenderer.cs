@@ -55,18 +55,25 @@ namespace TheraEngine.Rendering
         internal static void PushCurrentCamera(Camera camera)
         {
             Camera c = CurrentCamera;
+
             if (c != null)
                 c.IsActiveRenderCamera = false;
+
+            //Pushing a null camera is okay
             _cameraStack.Push(camera);
+
             if (camera != null)
                 camera.IsActiveRenderCamera = true;
         }
         internal static void PopCurrentCamera()
         {
             Camera c = _cameraStack.Pop();
+
             if (c != null)
                 c.IsActiveRenderCamera = false;
+
             c = CurrentCamera;
+
             if (c != null)
                 c.IsActiveRenderCamera = true;
         }
@@ -454,7 +461,7 @@ namespace TheraEngine.Rendering
         protected abstract int OnGetAttribLocation(int programBindingId, string name);
         public int GetUniformLocation(int programBindingId, string name)
         {
-            if (_attribCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> dic))
+            if (_uniformCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> dic))
             {
                 return dic.GetOrAdd(name, n => OnGetUniformLocation(programBindingId, n));
             }
@@ -464,7 +471,7 @@ namespace TheraEngine.Rendering
                 int loc = OnGetUniformLocation(programBindingId, name);
                 if (!dic2.TryAdd(name, loc))
                     throw new Exception();
-                if (!_attribCache.TryAdd(programBindingId, dic2))
+                if (!_uniformCache.TryAdd(programBindingId, dic2))
                     throw new Exception();
                 return loc;
             }
@@ -651,20 +658,25 @@ namespace TheraEngine.Rendering
         //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
 
         #region Frame Buffers
+
+        public abstract void BindFrameBuffer(EFramebufferTarget type, int bindingId);
         public abstract void CheckFrameBufferErrors();
         public abstract void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);
         public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel);
+
         public abstract void SetDrawBuffer(EDrawBuffersAttachment attachment);
         public abstract void SetDrawBuffer(int bindingId, EDrawBuffersAttachment attachment);
         public abstract void SetDrawBuffers(EDrawBuffersAttachment[] attachments);
         public abstract void SetDrawBuffers(int bindingId, EDrawBuffersAttachment[] attachments);
+
         public abstract void SetReadBuffer(EDrawBuffersAttachment attachment);
         public abstract void SetReadBuffer(int bindingId, EDrawBuffersAttachment attachment);
-        public abstract void BindFrameBuffer(EFramebufferTarget type, int bindingId);
+        
         public abstract void BindRenderBuffer(int bindingId);
         public abstract void RenderbufferStorage(ERenderBufferStorage storage, int width, int height);
         public abstract void FramebufferRenderBuffer(EFramebufferTarget target, EFramebufferAttachment attachement, int renderBufferBindingId);
         public abstract void FramebufferRenderBuffer(int frameBufferBindingId, EFramebufferAttachment attachement, int renderBufferBindingId);
+
         public abstract void BlitFrameBuffer(
           int readBufferId, int writeBufferId,
           int srcX0, int srcY0,

@@ -134,13 +134,23 @@ namespace TheraEngine.Rendering
                 return;
 
             PreRender(camera, frustum);
+            ActualRender(v);
+        }
+        public void RenderForward(BoundingRectangle bounds, Viewport v)
+        {
+            PreRender(bounds);
+            ActualRender(v);
+        }
+
+        private void ActualRender(Viewport v)
+        {
             if (v != null)
             {
                 //Enable internal resolution
                 Engine.Renderer.PushRenderArea(v.InternalResolution);
                 {
                     //Now render to final post process framebuffer.
-                    v.ResizeQuadFBO.Bind(EFramebufferTarget.Framebuffer);
+                    v.PostProcessFBO.Bind(EFramebufferTarget.Framebuffer);
                     {
                         Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
@@ -153,10 +163,10 @@ namespace TheraEngine.Rendering
 
                         //Disable depth fail for objects on top
                         Engine.Renderer.DepthFunc(EComparison.Always);
-                        
+
                         _passes.Render(ERenderPass2D.OnTop);
                     }
-                    v.ResizeQuadFBO.Unbind(EFramebufferTarget.Framebuffer);
+                    v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
 
                     //Render to 2D framebuffer.
                     //v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
@@ -183,14 +193,13 @@ namespace TheraEngine.Rendering
 
                 Engine.Renderer.AllowDepthWrite(false);
                 _passes.Render(ERenderPass2D.Background);
-                
+
                 Engine.Renderer.AllowDepthWrite(true);
                 _passes.Render(ERenderPass2D.Opaque);
                 _passes.Render(ERenderPass2D.Transparent);
 
                 //Disable depth fail for objects on top
                 Engine.Renderer.DepthFunc(EComparison.Always);
-                
                 _passes.Render(ERenderPass2D.OnTop);
             }
             PostRender();

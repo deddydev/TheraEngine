@@ -13,11 +13,11 @@ namespace TheraEngine.Rendering.Models.Materials
 {
     [FileExt("tref2d")]
     [FileDef("2D Texture Reference")]
-    public class TextureReference2D : BaseTextureReference
+    public class TexRef2D : BaseTexRef
     {
         #region Constructors
-        public TextureReference2D() : this(null, 1, 1) { }
-        public TextureReference2D(string name, int width, int height)
+        public TexRef2D() : this(null, 1, 1) { }
+        public TexRef2D(string name, int width, int height)
         {
             _mipmaps = null;
             _name = name;
@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _pixelFormat = EPixelFormat.Bgra;
             _pixelType = EPixelType.UnsignedByte;
         }
-        public TextureReference2D(string name, int width, int height,
+        public TexRef2D(string name, int width, int height,
             PixelFormat bitmapFormat = PixelFormat.Format32bppArgb, int mipCount = 1)
             : this(name, width, height)
         {
@@ -35,7 +35,7 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
                 _mipmaps[i] = new TextureFile2D(width / scale, height / scale, bitmapFormat);
         }
-        public TextureReference2D(string name, int width, int height,
+        public TexRef2D(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
             : this(name, width, height)
         {
@@ -43,13 +43,13 @@ namespace TheraEngine.Rendering.Models.Materials
             _pixelFormat = pixelFormat;
             _pixelType = pixelType;
         }
-        public TextureReference2D(string name, int width, int height,
+        public TexRef2D(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, PixelFormat bitmapFormat)
             : this(name, width, height, internalFormat, pixelFormat, pixelType)
         {
             _mipmaps = new GlobalFileRef<TextureFile2D>[] { new TextureFile2D(width, height, bitmapFormat) };
         }
-        public TextureReference2D(string name, params string[] mipMapPaths)
+        public TexRef2D(string name, params string[] mipMapPaths)
         {
             _name = name;
             _mipmaps = new GlobalFileRef<TextureFile2D>[mipMapPaths.Length];
@@ -76,14 +76,13 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _mipmaps = value;
         }
         
-        private Texture2D _texture;
+        private RenderTex2D _texture;
 
         [TSerialize("Width")]
         private int _width;
         [TSerialize("Height")]
         private int _height;
-
-        private int _index;
+        
         private ETexWrapMode _uWrapMode = ETexWrapMode.Repeat;
         private ETexWrapMode _vWrapMode = ETexWrapMode.Repeat;
         private ETexMinFilter _minFilter = ETexMinFilter.LinearMipmapLinear;
@@ -92,20 +91,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private EPixelInternalFormat _internalFormat;
         private EPixelFormat _pixelFormat;
         private EPixelType _pixelType;
-        private EFramebufferAttachment? _frameBufferAttachment;
-
-        [TSerialize]
-        public EFramebufferAttachment? FrameBufferAttachment
-        {
-            get => _frameBufferAttachment;
-            set => _frameBufferAttachment = value;
-        }
-        [TSerialize]
-        public int Index
-        {
-            get => _index;
-            set => _index = value;
-        }
+        
         [TSerialize]
         public ETexMagFilter MagFilter
         {
@@ -152,12 +138,12 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
 
-            if (_frameBufferAttachment.HasValue && Material != null && Material.HasAttachment(_frameBufferAttachment.Value))
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, _frameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
+            if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
+                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
         }
 
         private bool _isLoading = false;
-        public async Task<Texture2D> GetTextureAsync()
+        public async Task<RenderTex2D> GetTextureAsync()
         {
             if (_texture != null)
                 return _texture;
@@ -167,7 +153,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return _texture;
         }
-        public Texture2D GetTexture(bool loadSynchronously = false)
+        public RenderTex2D GetTexture(bool loadSynchronously = false)
         {
             if (_texture != null)
                 return _texture;
@@ -183,69 +169,12 @@ namespace TheraEngine.Rendering.Models.Materials
                     GetTextureAsync().ContinueWith(task => _texture = task.Result);
             }
 
-            return GetFillerTexture();
+            return _texture;
         }
 
-        static TextureReference2D()
-        {
-            GetFillerTexture();
-        }
-
-        internal static Texture2D _fillerTexture;
-        private unsafe static Texture2D GetFillerTexture()
-        {
-            if (_fillerTexture == null)
-            {
-                Bitmap bitmap;
-                EPixelInternalFormat internalFormat = EPixelInternalFormat.Rgba8;
-                EPixelFormat format = EPixelFormat.Bgra;
-                EPixelType type = EPixelType.UnsignedByte;
-
-                TextureFile2D tex = new TextureFile2D(Path.Combine(Engine.Settings.TexturesFolder, "Filler.png"));
-                if (tex?.Bitmaps != null && tex.Bitmaps.Length > 0 && tex.Bitmaps[0] != null)
-                {
-                    bitmap = tex.Bitmaps[0];
-                    switch (bitmap.PixelFormat)
-                    {
-                        case PixelFormat.Format32bppArgb:
-                        case PixelFormat.Format32bppPArgb:
-                            internalFormat = EPixelInternalFormat.Rgba8;
-                            format = EPixelFormat.Bgra;
-                            type = EPixelType.UnsignedByte;
-                            break;
-                        case PixelFormat.Format24bppRgb:
-                            internalFormat = EPixelInternalFormat.Rgb8;
-                            format = EPixelFormat.Bgr;
-                            type = EPixelType.UnsignedByte;
-                            break;
-                        case PixelFormat.Format64bppArgb:
-                        case PixelFormat.Format64bppPArgb:
-                            internalFormat = EPixelInternalFormat.Rgba16;
-                            format = EPixelFormat.Bgra;
-                            type = EPixelType.UnsignedShort;
-                            break;
-                    }
-                }
-                else
-                {
-                    int scale = 4;
-                    int dim = scale * 2;
-                    bitmap = new Bitmap(dim, dim, PixelFormat.Format32bppArgb);
-                    Graphics flagGraphics = Graphics.FromImage(bitmap);
-                    flagGraphics.FillRectangle(Brushes.Red, 0, 0, scale, scale);
-                    flagGraphics.FillRectangle(Brushes.Red, scale, scale, scale, scale);
-                    flagGraphics.FillRectangle(Brushes.White, 0, scale, scale, scale);
-                    flagGraphics.FillRectangle(Brushes.White, scale, 0, scale, scale);
-                }
-                _fillerTexture = new Texture2D(internalFormat, format, type, bitmap);
-            }
-            return _fillerTexture;
-        }
-        
         public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
-
-        public TMaterial Material { get; internal set; }
+        
         public bool ResizingDisabled { get; internal set; }
 
         /// <summary>
@@ -315,16 +244,35 @@ namespace TheraEngine.Rendering.Models.Materials
         private void CreateRenderTexture()
         {
             if (_texture != null)
-            {
                 _texture.PostPushData -= SetParameters;
-            }
 
             if (_mipmaps != null && _mipmaps.Length > 0)
-                _texture = new Texture2D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
+                _texture = new RenderTex2D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
             else
-                _texture = new Texture2D(_width, _height, _internalFormat, _pixelFormat, _pixelType);
+                _texture = new RenderTex2D(_width, _height, _internalFormat, _pixelFormat, _pixelType);
 
             _texture.PostPushData += SetParameters;
+        }
+
+        public static Bitmap FillerBitmap => _fillerBitmap.Value;
+        private static Lazy<Bitmap> _fillerBitmap = new Lazy<Bitmap>(() => GetFillerBitmap());
+        private unsafe static Bitmap GetFillerBitmap()
+        {
+            TextureFile2D tex = new TextureFile2D(Path.Combine(Engine.Settings.TexturesFolder, "Filler.png"));
+            if (tex?.Bitmaps != null && tex.Bitmaps.Length > 0 && tex.Bitmaps[0] != null)
+                return tex.Bitmaps[0];
+            else
+            {
+                int squareExtent = 4;
+                int dim = squareExtent * 2;
+                Bitmap bmp = new Bitmap(dim, dim, PixelFormat.Format32bppArgb);
+                Graphics flagGraphics = Graphics.FromImage(bmp);
+                flagGraphics.FillRectangle(Brushes.Red, 0, 0, squareExtent, squareExtent);
+                flagGraphics.FillRectangle(Brushes.Red, squareExtent, squareExtent, squareExtent, squareExtent);
+                flagGraphics.FillRectangle(Brushes.White, 0, squareExtent, squareExtent, squareExtent);
+                flagGraphics.FillRectangle(Brushes.White, squareExtent, 0, squareExtent, squareExtent);
+                return bmp;
+            }
         }
     }
 }

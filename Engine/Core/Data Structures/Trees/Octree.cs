@@ -70,7 +70,12 @@ namespace System
         }
 
         public void CollectVisible(Frustum frustum, RenderPasses3D passes, bool shadowPass)
-            => _head.CollectVisible(frustum, passes, shadowPass);
+        {
+            if (frustum != null)
+                _head.CollectVisible(frustum, passes, shadowPass);
+            else
+                _head.CollectAll(passes, shadowPass);
+        }
         public void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f)
             => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
 
@@ -231,7 +236,7 @@ namespace System
                     }
                 }
             }
-            private void CollectAll(RenderPasses3D passes, bool shadowPass)
+            public void CollectAll(RenderPasses3D passes, bool shadowPass)
             {
                 IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)

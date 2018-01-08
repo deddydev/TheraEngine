@@ -32,27 +32,27 @@ namespace TheraEngine
         [TSerialize]
         public bool AllowShaderPipelines { get; set; }
 
-        [Category("Debug")]
-        [TSerialize]
-        public bool RenderCameraFrustums { get; set; }
-        [Category("Debug")]
-        [TSerialize]
-        public bool RenderSkeletons { get; set; }
+        //[Category("Debug")]
+        //[TSerialize]
+        //public bool RenderCameraFrustums { get; set; }
+        //[Category("Debug")]
+        //[TSerialize]
+        //public bool RenderSkeletons { get; set; }
         [Category("Debug")]
         [TSerialize]
         public bool RenderQuadtree { get; set; }
         [Category("Debug")]
         [TSerialize]
         public bool RenderOctree { get; set; }
-        [Category("Debug")]
-        [TSerialize]
-        public bool RenderSplines { get; set; }
+        //[Category("Debug")]
+        //[TSerialize]
+        //public bool RenderSplines { get; set; }
         [Category("Debug")]
         [TSerialize]
         public bool RenderCullingVolumes { get; set; }
-        [Category("Debug")]
-        [TSerialize]
-        public bool RenderLights { get; set; }
+        //[Category("Debug")]
+        //[TSerialize]
+        //public bool RenderLights { get; set; }
         [Category("Debug")]
         [TSerialize]
         public bool RenderPhysicsWorld { get; set; }
@@ -140,11 +140,11 @@ namespace TheraEngine
             RenderPhysicsWorld = false;
             RenderOctree = false;
             RenderQuadtree = true;
-            RenderSkeletons = false;
-            RenderCameraFrustums = false;
-            RenderSplines = false;
+            //RenderSkeletons = false;
+            //RenderCameraFrustums = false;
+            //RenderSplines = false;
             RenderCullingVolumes = false;
-            RenderLights = false;
+            //RenderLights = false;
 #else
             RenderOctree = false;
             RenderQuadtree = false;

@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering.Models
                     //new ShaderFloat(0.0f, "SpecularCoef"),
                     //new ShaderFloat(0.0f, "Transparency"),
                 };
-                return new TMaterial("UnnamedMaterial", parameters, new TextureReference2D[0], shader)
+                return new TMaterial("UnnamedMaterial", parameters, new TexRef2D[0], shader)
                 {
                     Requirements = forward ? TMaterial.UniformRequirements.NeedsLightsAndCamera : TMaterial.UniformRequirements.None
                 };
@@ -111,16 +111,16 @@ namespace TheraEngine.Rendering.Models
 
                 string mapPath = objMat.DiffuseTextureMap;
 
-                TextureReference2D[] textures;
+                TexRef2D[] textures;
                 if (mapPath != null)
                 {
-                    textures = new TextureReference2D[]
+                    textures = new TexRef2D[]
                     {
-                        new TextureReference2D(Path.GetFileNameWithoutExtension(mapPath), mapPath.Contains(":") ? mapPath : dirPath + "\\" + mapPath ),
+                        new TexRef2D(Path.GetFileNameWithoutExtension(mapPath), mapPath.Contains(":") ? mapPath : dirPath + "\\" + mapPath ),
                     };
                 }
                 else
-                    textures = new TextureReference2D[0];
+                    textures = new TexRef2D[0];
 
                 return new TMaterial(objMat.Name, parameters, textures, shader)
                 {

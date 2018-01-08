@@ -11,11 +11,12 @@ using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    public delegate void DelSettingUniforms(int programBindingId);
     [FileExt("mat")]
     [FileDef("Material")]
     public class TMaterial : FileObject
     {
-        public event Action SettingUniforms;
+        public event DelSettingUniforms SettingUniforms;
 
 #if EDITOR
         public ResultBasicFunc EditorMaterialEnd
@@ -44,7 +45,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         [TSerialize("Parameters")]
         protected ShaderVar[] _parameters;
-        protected BaseTextureReference[] _textures;
+        protected BaseTexRef[] _textures;
 
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
         private int _uniqueID = -1;
@@ -84,7 +85,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public ShaderVar[] Parameters => _parameters;
 
         [TSerialize]
-        public BaseTextureReference[] Textures
+        public BaseTexRef[] Textures
         {
             get => _textures;
             set
@@ -130,7 +131,7 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _requirements = value;
         }
 
-        public EDrawBuffersAttachment[] FBOAttachments
+        public EDrawBuffersAttachment[] FBODrawAttachments
         {
             get => _fboAttachments;
             set
@@ -158,7 +159,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_textures != null && _textures.Length > 0)
             {
                 List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-                foreach (TextureReference2D tref in _textures)
+                foreach (BaseTexRef tref in _textures)
                 {
                     tref.Material = this;
                     if (!tref.FrameBufferAttachment.HasValue || _overrideAttachments)
@@ -227,6 +228,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (programBindingId <= 0)
                 programBindingId = Program.BindingId;
 
+            //Set engine uniforms
             if (Requirements == UniformRequirements.NeedsLightsAndCamera)
             {
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
@@ -235,15 +237,19 @@ namespace TheraEngine.Rendering.Models.Materials
             else if (Requirements == UniformRequirements.NeedsCamera)
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
             
-            if (RenderParamsRef.File != null)
-                Engine.Renderer.ApplyRenderParams(RenderParamsRef.File);
+            //Apply special rendering parameters
+            if (RenderParams != null)
+                Engine.Renderer.ApplyRenderParams(RenderParams);
 
+            //Set variable uniforms
             foreach (ShaderVar v in _parameters)
                 v.SetProgramUniform(_program.BindingId);
 
+            //Set texture uniforms
             SetTextureUniforms(programBindingId);
 
-            SettingUniforms?.Invoke();
+            //Set extra uniforms
+            SettingUniforms?.Invoke(programBindingId);
         }
         /// <summary>
         /// Resizes the gbuffer's textures.
@@ -253,8 +259,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public void Resize2DTextures(int width, int height)
         {
             //Update each texture's dimensions
-            foreach (BaseTextureReference t in Textures)
-                if (t is TextureReference2D t2d)
+            foreach (BaseTexRef t in Textures)
+                if (t is TexRef2D t2d)
                     t2d.Resize(width, height);
         }
         private void SetTextureUniforms(int programBindingId)
@@ -266,24 +272,23 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             Engine.Renderer.SetActiveTexture(textureUnit);
             Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
-            BaseRenderTexture tex = Textures[textureIndex].GetTextureGeneric();
-            tex.Bind();
+            Textures[textureIndex].GetTextureGeneric(true).Bind();
         }
 
         public TMaterial()
-            : this("NewMaterial", new ShaderVar[0], new BaseTextureReference[0]) { }
+            : this("NewMaterial", new ShaderVar[0], new BaseTexRef[0]) { }
 
         public TMaterial(string name, params Shader[] shaders) 
-            : this(name, new ShaderVar[0], new BaseTextureReference[0], shaders) { }
+            : this(name, new ShaderVar[0], new BaseTexRef[0], shaders) { }
         public TMaterial(string name, ShaderVar[] parameters, params Shader[] shaders)
-            : this(name, parameters, new BaseTextureReference[0], shaders) { }
-        public TMaterial(string name, BaseTextureReference[] textures, params Shader[] shaders)
+            : this(name, parameters, new BaseTexRef[0], shaders) { }
+        public TMaterial(string name, BaseTexRef[] textures, params Shader[] shaders)
             : this(name, new ShaderVar[0], textures, shaders) { }
-        public TMaterial(string name, ShaderVar[] parameters, BaseTextureReference[] textures, params Shader[] shaders)
+        public TMaterial(string name, ShaderVar[] parameters, BaseTexRef[] textures, params Shader[] shaders)
         {
             _name = name;
             _parameters = parameters ?? new ShaderVar[0];
-            Textures = textures ?? new BaseTextureReference[0];
+            Textures = textures ?? new BaseTexRef[0];
 
             _shaders = shaders;
             _fragmentShaders = new List<Shader>();
@@ -344,9 +349,9 @@ namespace TheraEngine.Rendering.Models.Materials
         //}
 
         #region Basic Material Generation
-        public static TMaterial CreateUnlitTextureMaterialForward(TextureReference2D texture)
+        public static TMaterial CreateUnlitTextureMaterialForward(TexRef2D texture)
         {
-            return new TMaterial("UnlitTextureMaterial", new BaseTextureReference[] { texture },
+            return new TMaterial("UnlitTextureMaterial", new BaseTexRef[] { texture },
                 ShaderHelpers.UnlitTextureFragForward())
             {
                 Requirements = UniformRequirements.None,
@@ -370,12 +375,12 @@ namespace TheraEngine.Rendering.Models.Materials
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-        public static TMaterial CreateLitTextureMaterial(TextureReference2D texture)
+        public static TMaterial CreateLitTextureMaterial(TexRef2D texture)
             => CreateLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial CreateLitTextureMaterial(TextureReference2D texture, bool deferred)
+        public static TMaterial CreateLitTextureMaterial(TexRef2D texture, bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
-            return new TMaterial("LitTextureMaterial", new TextureReference2D[] { texture }, frag)
+            return new TMaterial("LitTextureMaterial", new TexRef2D[] { texture }, frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };

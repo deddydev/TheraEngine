@@ -84,11 +84,11 @@ namespace TheraEngine.Tests
                 ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create world light
-            //Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
-            //dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
-            //dirlight.RootComponent.Rotation.Pitch = -35;
-            //dirlight.RootComponent.AmbientIntensity = 0.01f;
-            //actors.Add(dirlight);
+            Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
+            dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
+            dirlight.RootComponent.Rotation.Pitch = -35;
+            dirlight.RootComponent.AmbientIntensity = 0.01f;
+            actors.Add(dirlight);
 
             //Create spot light
             //Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>();
@@ -117,7 +117,7 @@ namespace TheraEngine.Tests
             //actors.Add(testScreenshake);
 
             //Create point lights
-            int lightCount = 5;
+            int lightCount = 1;
             float lightAngle = 360.0f / lightCount * TMath.DegToRadMultf;
             float lightPosRadius = 50.0f;
             float upTrans = 20.0f;

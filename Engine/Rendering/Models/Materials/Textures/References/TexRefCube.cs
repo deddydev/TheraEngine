@@ -200,15 +200,24 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureWrapT, (int)_vWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureWrapR, (int)_wWrapMode);
 
+            //if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
+            //    OpenTK.Graphics.OpenGL.GL.FramebufferTexture(
+            //        OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,
+            //        OpenTK.Graphics.OpenGL.FramebufferAttachment.DepthAttachment,
+            //        _texture.BindingId, 0);
+            //for (int i = 0; i < Mipmaps.Length; ++i)
+            //    for (int x = 0; x < 6; ++x)
+            //        Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer,
+            //            FrameBufferAttachment.Value, ETexTarget.TextureCubeMapPositiveX + x, _texture.BindingId, i);
+        }
+
+        internal override void AttachToFBO()
+        {
             if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
                 OpenTK.Graphics.OpenGL.GL.FramebufferTexture(
                     OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,
                     OpenTK.Graphics.OpenGL.FramebufferAttachment.DepthAttachment,
                     _texture.BindingId, 0);
-            //for (int i = 0; i < Mipmaps.Length; ++i)
-            //    for (int x = 0; x < 6; ++x)
-            //        Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer,
-            //            FrameBufferAttachment.Value, ETexTarget.TextureCubeMapPositiveX + x, _texture.BindingId, i);
         }
 
         private bool _isLoading = false;

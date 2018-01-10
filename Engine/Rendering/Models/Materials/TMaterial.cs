@@ -272,6 +272,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             Engine.Renderer.SetActiveTexture(textureUnit);
             Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
+            //Engine.PrintLine("Texture unit {0} set: {1}", textureUnit, varName);
             Textures[textureIndex].GetTextureGeneric(true).Bind();
         }
 

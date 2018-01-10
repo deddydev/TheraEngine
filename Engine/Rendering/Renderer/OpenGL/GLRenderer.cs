@@ -72,9 +72,12 @@ namespace TheraEngine.Rendering.OpenGL
 
         public override void CheckErrors()
         {
-            ErrorCode code = GL.GetError();
-            if (code != ErrorCode.NoError)
-                throw new Exception(code.ToString());
+            ErrorCode code;
+            string error = "";
+            while ((code = GL.GetError()) != ErrorCode.NoError)
+                error += code.ToString();
+            if (error.Length > 0)
+                throw new Exception(error);
         }
 
         #region Objects
@@ -870,7 +873,7 @@ namespace TheraEngine.Rendering.OpenGL
         public override void PushBufferData(VertexBuffer buffer)
         {
             //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
-            GL.NamedBufferData(buffer.BindingId, buffer._componentCount, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer._usage);
+            GL.NamedBufferData(buffer.BindingId, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer._usage);
         }
         public override void InitializeBuffer(VertexBuffer buffer)
         {
@@ -997,7 +1000,7 @@ namespace TheraEngine.Rendering.OpenGL
                 PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data._type;
                 int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
                 DrawElementsType elemType = DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType;
-                Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());
+                //Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());
                 GL.DrawElements(type, count, elemType, 0);
             }
             CheckErrors();

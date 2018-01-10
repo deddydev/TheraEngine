@@ -126,6 +126,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             {
                 _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(resolution));
                 _shadowMap.Material.SettingUniforms += SetShadowDepthUniforms;
+
+                _shadowMap.Compile();
             }
             else
                 _shadowMap.ResizeTextures(resolution, resolution);
@@ -162,18 +164,18 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         }
         public override void RenderShadowMap(Scene3D scene)
         {
-            //Engine.Renderer.MaterialOverride = _shadowMap.Material;
+            Engine.Renderer.MaterialOverride = _shadowMap.Material;
             _shadowMap.Bind(EFramebufferTarget.Framebuffer);
-            //Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowResolution, _shadowResolution, 0.0f, 0.0f));
-            //{
-            //    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-            //    Engine.Renderer.AllowDepthWrite(true);
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowResolution, _shadowResolution, 0.0f, 0.0f));
+            {
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                Engine.Renderer.AllowDepthWrite(true);
 
-            //    scene.Render(null, null, null, true);
-            //}
-            //Engine.Renderer.PopRenderArea();
+                scene.Render(null, null, null, true);
+            }
+            Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.Framebuffer);
-            //Engine.Renderer.MaterialOverride = null;
+            Engine.Renderer.MaterialOverride = null;
         }
 
         public override void BakeShadowMaps()

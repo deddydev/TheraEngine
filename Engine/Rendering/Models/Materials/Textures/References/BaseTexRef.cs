@@ -38,5 +38,6 @@ namespace TheraEngine.Rendering.Models.Materials
         /// Converts this texture reference into a texture made for rendering.
         /// </summary>
         public abstract Task<BaseRenderTexture> GetTextureGenericAsync();
+        internal abstract void AttachToFBO();
     }
 }

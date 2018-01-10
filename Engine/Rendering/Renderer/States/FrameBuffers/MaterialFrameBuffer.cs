@@ -44,8 +44,12 @@ namespace TheraEngine.Rendering
                 return;
             if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.Game))
                 return;
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             Material.GenerateTextures(true);
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+            foreach (BaseTexRef tref in Material.Textures)
+            {
+                tref.AttachToFBO();
+            }
             Engine.Renderer.SetDrawBuffers(drawAttachments);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             CheckErrors();

@@ -138,8 +138,6 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
 
-            if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
         }
 
         private bool _isLoading = false;
@@ -273,6 +271,13 @@ namespace TheraEngine.Rendering.Models.Materials
                 flagGraphics.FillRectangle(Brushes.White, squareExtent, 0, squareExtent, squareExtent);
                 return bmp;
             }
+        }
+
+        internal override void AttachToFBO()
+        {
+
+            if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
+                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
         }
     }
 }

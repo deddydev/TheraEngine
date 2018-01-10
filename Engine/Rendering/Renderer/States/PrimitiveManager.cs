@@ -426,7 +426,8 @@ namespace TheraEngine.Rendering.Models
                 mat = Engine.Renderer.MaterialOverride ?? Material;
 
                 _pipeline.Bind();
-                _pipeline.Set(EProgramStageMask.AllShaderBits, fragId = mat.Program.BindingId);
+                //Engine.PrintLine("{0} bound", _pipeline.ToString());
+                _pipeline.Set(EProgramStageMask.FragmentShaderBit | EProgramStageMask.GeometryShaderBit, fragId = mat.Program.BindingId);
                 _pipeline.Set(EProgramStageMask.VertexShaderBit, vtxId = _vertexProgram.BindingId);
             }
             else

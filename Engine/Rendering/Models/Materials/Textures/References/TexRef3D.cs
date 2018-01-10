@@ -264,5 +264,9 @@ namespace TheraEngine.Rendering.Models.Materials
             }
             _isLoading = false;
         }
+        internal override void AttachToFBO()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -408,9 +408,11 @@ namespace TheraEngine.Rendering.Models
             if (_data == null)
                 return;
 
+            Engine.Renderer.CheckErrors();
             if (!IsActive)
                 Generate();
-            
+
+            Engine.Renderer.CheckErrors();
             if (_singleBind != null)
             {
                 modelMatrix = modelMatrix * _singleBind.VertexMatrix;
@@ -437,6 +439,7 @@ namespace TheraEngine.Rendering.Models
             
             SetSkinningUniforms(vtxId);
 
+            Engine.Renderer.CheckErrors();
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ModelMatrix), modelMatrix);
             //Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.PrevModelMatrix), _lastRenderedModelMatrix);
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
@@ -459,9 +462,10 @@ namespace TheraEngine.Rendering.Models
             mat.SetUniforms(fragId);
 
             OnSettingUniforms();
-           
-            Engine.Renderer.RenderPrimitiveManager(this, false);
 
+            Engine.Renderer.CheckErrors();
+            Engine.Renderer.RenderPrimitiveManager(this, false);
+            Engine.Renderer.CheckErrors();
             _lastRenderedModelMatrix = modelMatrix;
         }
         private void OnSettingUniforms() => SettingUniforms?.Invoke();

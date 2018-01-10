@@ -354,9 +354,13 @@ namespace TheraEngine.Rendering
         public void RenderPrimitiveManager(IPrimitiveManager manager, bool preservePreviouslyBound = true)
         {
             IPrimitiveManager prev = _currentPrimitiveManager;
+            Engine.Renderer.CheckErrors();
             BindPrimitiveManager(manager);
+            Engine.Renderer.CheckErrors();
             RenderCurrentPrimitiveManager();
+            Engine.Renderer.CheckErrors();
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
+            Engine.Renderer.CheckErrors();
         }
         public abstract void RenderCurrentPrimitiveManager();
         public abstract void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer);
@@ -656,6 +660,8 @@ namespace TheraEngine.Rendering
         public abstract void BindTexture(ETexTarget texTarget, int bindingId);
 
         //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
+
+        public abstract void CheckErrors();
 
         #region Frame Buffers
 

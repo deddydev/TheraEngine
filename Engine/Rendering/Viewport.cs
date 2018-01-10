@@ -643,9 +643,9 @@ namespace TheraEngine.Rendering
                 postProcessParameters, postProcessRefs,
                 new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcess.fs"))));
 
-            //postProcessMat.RenderParams.DepthTest.Enabled = true;
-            //postProcessMat.RenderParams.DepthTest.UpdateDepth = false;
-            //postProcessMat.RenderParams.DepthTest.Function = EComparison.Always;
+            postProcessMat.RenderParams.DepthTest.Enabled = true;
+            postProcessMat.RenderParams.DepthTest.UpdateDepth = false;
+            postProcessMat.RenderParams.DepthTest.Function = EComparison.Always;
 
             PostProcessFBO = new QuadFrameBuffer(postProcessMat);
             PostProcessFBO.SettingUniforms += _postProcessGBuffer_SettingUniforms;

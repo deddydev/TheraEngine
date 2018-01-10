@@ -70,6 +70,13 @@ namespace TheraEngine.Rendering.OpenGL
             GL.ClearColor(color.R, color.G, color.B, color.A);
         }
 
+        public override void CheckErrors()
+        {
+            ErrorCode code = GL.GetError();
+            if (code != ErrorCode.NoError)
+                throw new Exception(code.ToString());
+        }
+
         #region Objects
         public override void DeleteObject(EObjectType type, int bindingId)
         {
@@ -842,6 +849,7 @@ namespace TheraEngine.Rendering.OpenGL
             //    BufferAccessMask.MapReadBit |
             //    BufferAccessMask.MapWriteBit), DataLength);
 
+            CheckErrors();
             int length = buffer._data.Length;
             GL.NamedBufferStorage(buffer.BindingId, length, buffer._data.Address,
                 BufferStorageFlags.MapWriteBit |
@@ -850,11 +858,13 @@ namespace TheraEngine.Rendering.OpenGL
                 BufferStorageFlags.MapCoherentBit |
                 BufferStorageFlags.ClientStorageBit);
             buffer._data.Dispose();
+            CheckErrors();
             buffer._data = new DataSource(GL.MapNamedBufferRange(buffer.BindingId, IntPtr.Zero, length,
                 BufferAccessMask.MapPersistentBit |
                 BufferAccessMask.MapCoherentBit |
                 BufferAccessMask.MapReadBit |
                 BufferAccessMask.MapWriteBit), length);
+            CheckErrors();
             //buffer._data = new DataSource(GL.MapNamedBuffer(buffer.BindingId, BufferAccess.ReadWrite), length);
         }
         public override void PushBufferData(VertexBuffer buffer)
@@ -909,19 +919,38 @@ namespace TheraEngine.Rendering.OpenGL
 
                 case 2:
 
-                    GL.EnableVertexArrayAttrib(vaoId, index);
-                    if (integral)
-                        GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
-                    else
-                        GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
+                    if (index >= 0)
+                    {
+                        CheckErrors();
+                        GL.EnableVertexArrayAttrib(vaoId, index);
+                        CheckErrors();
+                        if (integral)
+                            GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
+                        else
+                            GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
 
-                    if (VertexBuffer.MapData)
-                        MapBufferData(buffer);
-                    else
-                        PushBufferData(buffer);
+                        CheckErrors();
 
-                    GL.VertexArrayAttribBinding(vaoId, index, index);
-                    GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
+                        if (VertexBuffer.MapData)
+                            MapBufferData(buffer);
+                        else
+                            PushBufferData(buffer);
+
+                        CheckErrors();
+                        GL.VertexArrayAttribBinding(vaoId, index, index);
+                        CheckErrors();
+                        GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
+                        CheckErrors();
+                    }
+                    else
+                    {
+                        CheckErrors();
+                        if (VertexBuffer.MapData)
+                            MapBufferData(buffer);
+                        else
+                            PushBufferData(buffer);
+                        CheckErrors();
+                    }
 
                     break;
             }
@@ -949,20 +978,29 @@ namespace TheraEngine.Rendering.OpenGL
         {
             if (indexBuffer._target != EBufferTarget.DrawIndices)
                 throw new Exception("IndexBuffer needs target type of " + EBufferTarget.DrawIndices.ToString() + ".");
-            GL.VertexArrayElementBuffer(manager.BindingId, indexBuffer.BindingId);
+            CheckErrors();
+            int vao = manager.BindingId;
+            CheckErrors();
+            int buf = indexBuffer.BindingId;
+            CheckErrors();
+            GL.VertexArrayElementBuffer(vao, buf);
+            CheckErrors();
         }
         /// <summary>
         /// Requires 1.1
         /// </summary>
         public override void RenderCurrentPrimitiveManager()
         {
+            CheckErrors();
             if (_currentPrimitiveManager != null)
-                GL.DrawElements(
-                    PrimitiveType.Points + (int)_currentPrimitiveManager.Data._type,
-                    _currentPrimitiveManager.IndexBuffer.ElementCount,
-                    DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType,
-                    0);
-
+            {
+                PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data._type;
+                int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
+                DrawElementsType elemType = DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType;
+                Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());
+                GL.DrawElements(type, count, elemType, 0);
+            }
+            CheckErrors();
         }
         #endregion
 

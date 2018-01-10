@@ -141,13 +141,17 @@ namespace TheraEngine.Rendering
             if (IsActive)
                 return BindingId;
 
+            Engine.Renderer.CheckErrors();
             int id = CreateObject();
             if (id == 0)
                 throw new Exception("Unable to create render object.");
+            Engine.Renderer.CheckErrors();
 
             CurrentBind.BindingId = id;
             OnGenerated();
+            Engine.Renderer.CheckErrors();
             Generated?.Invoke();
+            Engine.Renderer.CheckErrors();
             return id;
         }
         /// <summary>

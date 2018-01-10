@@ -545,5 +545,10 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void CheckErrors()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

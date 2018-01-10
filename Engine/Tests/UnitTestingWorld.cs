@@ -84,11 +84,11 @@ namespace TheraEngine.Tests
                 ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create world light
-            Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
-            dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
-            dirlight.RootComponent.Rotation.Pitch = -35;
-            dirlight.RootComponent.AmbientIntensity = 0.01f;
-            actors.Add(dirlight);
+            //Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
+            //dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
+            //dirlight.RootComponent.Rotation.Pitch = -35;
+            //dirlight.RootComponent.AmbientIntensity = 0.01f;
+            //actors.Add(dirlight);
 
             //Create spot light
             //Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>();
@@ -145,26 +145,19 @@ namespace TheraEngine.Tests
     public class SphereTraceActor : Actor<TRComponent>, I3DRenderable
     {
         private Vec3 _direction;
-        private Matrix4 _directionMatrix;
         private Matrix4 _endTraceTransform = Matrix4.Identity;
         private TCollisionSphere _sphere = TCollisionSphere.New(3.0f);
         private bool _hasHit = false;
         private Vec3 _hitPoint, _hitNormal, _drawPoint;
-        //private float
-        //    _rotation = 0.0f,
-        //    _rotationPerSec = 1.0f / 10.0f,
-        //    _rotationRadius = 15.0f,
-        //    _xOffset = 0.0f,
-        //    _zOffset = 0.0f;
-        
-        public Vec3 Direction
+        private float _testDistance = 40.0f;
+
+        public float TestDistance
         {
-            get => _direction;
+            get => _testDistance;
             set
             {
-                _direction = value;
-                _directionMatrix = _direction.AsTranslationMatrix();
-                _endTraceTransform = _directionMatrix * RootComponent.WorldMatrix;
+                _testDistance = value;
+                RootComponent_WorldTransformChanged();
             }
         }
         public float Radius
@@ -172,27 +165,6 @@ namespace TheraEngine.Tests
             get => _sphere.Radius;
             set => _sphere.Radius = value;
         }
-        //public float SecondsPerFullRotation
-        //{
-        //    get => 1.0f / _rotationPerSec;
-        //    set => _rotationPerSec = 1.0f / value;
-        //}
-        //public float RotationRadius
-        //{
-        //    get => _rotationRadius;
-        //    set => _rotationRadius = value;
-        //}
-
-        //public float XOffset
-        //{
-        //    get => _xOffset;
-        //    set => _xOffset = value;
-        //}
-        //public float ZOffset
-        //{
-        //    get => _zOffset;
-        //    set => _zOffset = value;
-        //}
 
         public RenderInfo3D RenderInfo { get; } 
             = new RenderInfo3D(Rendering.ERenderPass3D.OpaqueForward, null, false, false);
@@ -204,15 +176,16 @@ namespace TheraEngine.Tests
 
         public override void OnSpawnedPostComponentSetup(World world)
         {
-            Direction = Vec3.Down * 40.0f;
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
+            RootComponent.Rotation.Pitch = -90.0f;
             Engine.Scene.Add(this);
         }
 
         private void RootComponent_WorldTransformChanged()
         {
-            _endTraceTransform = _directionMatrix * RootComponent.WorldMatrix;
+            _direction = Vec3.TransformVector(new Vec3(0.0f, 0.0f, -_testDistance), RootComponent.Rotation.GetMatrix());
+            _endTraceTransform = _direction.AsTranslationMatrix() * RootComponent.WorldMatrix;
         }
 
         public override void OnDespawned()
@@ -223,15 +196,6 @@ namespace TheraEngine.Tests
 
         private void Tick(float delta)
         {
-            //_rotation += _rotationPerSec * delta * 360.0f;
-            //_rotation = _rotation.RemapToRange(0.0f, 360.0f);
-
-            //float rads = TMath.DegToRad(_rotation);
-            //RootComponent.Translation = new Vec3(
-            //    _xOffset + (float)Math.Cos(rads) * _rotationRadius,
-            //    20.0f,
-            //    _zOffset - (float)Math.Sin(rads) * _rotationRadius);
-
             ShapeTraceClosest t = new ShapeTraceClosest(_sphere, RootComponent.WorldMatrix, _endTraceTransform, 0, 0xFFFF);
             if (_hasHit = t.Trace())
             {

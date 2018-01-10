@@ -104,6 +104,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Position", _cullingVolume.Center);
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", Radius);
             Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
+
             _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount +
                 Engine.Scene.Lights.DirectionalLights.Count + Engine.Scene.Lights.SpotLights.Count + LightIndex,
                 indexer + "ShadowMap", programBindingId);
@@ -145,7 +146,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             TexRefCube[] refs = new TexRefCube[]
             {
                 new TexRefCube("PointDepth", cubeExtent,
-                    GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                    EPixelInternalFormat.DepthComponent, EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -161,18 +162,18 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         }
         public override void RenderShadowMap(Scene3D scene)
         {
-            Engine.Renderer.MaterialOverride = _shadowMap.Material;
+            //Engine.Renderer.MaterialOverride = _shadowMap.Material;
             _shadowMap.Bind(EFramebufferTarget.Framebuffer);
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowResolution, _shadowResolution, 0.0f, 0.0f));
-            {
-                //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                //Engine.Renderer.AllowDepthWrite(true);
+            //Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowResolution, _shadowResolution, 0.0f, 0.0f));
+            //{
+            //    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+            //    Engine.Renderer.AllowDepthWrite(true);
 
-                scene.Render(null, null, null, true);
-            }
-            Engine.Renderer.PopRenderArea();
+            //    scene.Render(null, null, null, true);
+            //}
+            //Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.Framebuffer);
-            Engine.Renderer.MaterialOverride = null;
+            //Engine.Renderer.MaterialOverride = null;
         }
 
         public override void BakeShadowMaps()
@@ -184,9 +185,17 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         protected internal override void OnSelectedChanged(bool selected)
         {
             if (selected)
+            {
                 Engine.Scene.Add(_cullingVolume);
+                foreach (PerspectiveCamera c in ShadowCameras)
+                    Engine.Scene.Add(c);
+            }
             else
+            {
                 Engine.Scene.Remove(_cullingVolume);
+                foreach (PerspectiveCamera c in ShadowCameras)
+                    Engine.Scene.Remove(c);
+            }
             base.OnSelectedChanged(selected);
         }
     }

@@ -192,10 +192,7 @@ namespace TheraEngine.Rendering
                         _passes.Render(ERenderPass3D.OpaqueForward, shadowPass);
                         //Render forward transparent objects next
                         _passes.Render(ERenderPass3D.TransparentForward, shadowPass);
-
-                        //Disable depth fail for objects on top
-                        Engine.Renderer.DepthFunc(EComparison.Always);
-
+                        
                         //Render forward on-top objects last
                         _passes.Render(ERenderPass3D.OnTopForward, shadowPass);
                     }
@@ -260,11 +257,11 @@ namespace TheraEngine.Rendering
                         }
                         v.GBufferFBO.Unbind(EFramebufferTarget.Framebuffer);
 
-//                        Engine.Renderer.BlitFrameBuffer(
-//v.GBufferFBO.BindingId, v.PostProcessFBO.BindingId,
-//0, 0, v.InternalResolution.IntWidth, v.InternalResolution.IntHeight,
-//0, 0, v.InternalResolution.IntWidth, v.InternalResolution.IntHeight,
-//EClearBufferMask.DepthBufferBit, EBlitFramebufferFilter.Nearest);
+                        //Engine.Renderer.BlitFrameBuffer(
+                        //v.GBufferFBO.BindingId, v.PostProcessFBO.BindingId,
+                        //0, 0, v.InternalResolution.IntWidth, v.InternalResolution.IntHeight,
+                        //0, 0, v.InternalResolution.IntWidth, v.InternalResolution.IntHeight,
+                        //EClearBufferMask.DepthBufferBit, EBlitFramebufferFilter.Nearest);
 
                         //Now render to final post process framebuffer.
                         v.PostProcessFBO.Bind(EFramebufferTarget.Framebuffer);
@@ -275,17 +272,18 @@ namespace TheraEngine.Rendering
                             //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                             Engine.Renderer.AllowDepthWrite(false);
 
+                            Engine.Renderer.CheckErrors();
                             //Render the deferred pass result
                             v.GBufferFBO.Render();
+                            Engine.Renderer.CheckErrors();
 
                             Engine.Renderer.AllowDepthWrite(true);
                             
                             _passes.Render(ERenderPass3D.OpaqueForward, shadowPass);
                             //Render forward transparent objects next
                             _passes.Render(ERenderPass3D.TransparentForward, shadowPass);
-
-                            //Disable depth fail for objects on top
-                            Engine.Renderer.DepthFunc(EComparison.Always);
+                            
+                            //Engine.Renderer.Clear(EBufferClear.Depth);
 
                             //Render forward on-top objects last
                             _passes.Render(ERenderPass3D.OnTopForward, shadowPass);

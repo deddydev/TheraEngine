@@ -187,6 +187,8 @@ namespace TheraEngine.Rendering.OpenGL
             GL.DepthFunc(DepthFunction.Less);
             GL.DepthMask(true);
             GL.ClearDepth(1.0f);
+            GL.Enable(EnableCap.TextureCubeMap);
+            GL.Enable(EnableCap.TextureCubeMapSeamless);
 
             //Modify depth range so there is no loss of precision with scale and bias conversion
             //GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.ZeroToOne);

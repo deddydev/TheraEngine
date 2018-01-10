@@ -82,7 +82,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public RenderCubeMipmap AsRenderMipmap(int mipIndex)
         {
-            RenderCubeMipmap mip = new RenderCubeMipmap(TexRef2D.FillerBitmap, true);
+            RenderCubeMipmap mip = new RenderCubeMipmap();
             FillRenderMap(mip, mipIndex);
             return mip;
         }
@@ -193,22 +193,22 @@ namespace TheraEngine.Rendering.Models.Materials
 
             _texture.Bind();
 
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, _lodBias);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)_magFilter);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilter);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapR, (int)_wWrapMode);
+            Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureLodBias, _lodBias);
+            Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureMagFilter, (int)_magFilter);
+            Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureMinFilter, (int)_minFilter);
+            Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureWrapS, (int)_uWrapMode);
+            Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureWrapT, (int)_vWrapMode);
+            Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureWrapR, (int)_wWrapMode);
 
             if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
-                //OpenTK.Graphics.OpenGL.GL.FramebufferTexture(
-                //    OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,
-                //    OpenTK.Graphics.OpenGL.FramebufferAttachment.DepthAttachment,
-                //    _texture.BindingId, 0);
-                for (int i = 0; i < Mipmaps.Length; ++i)
-                    for (int x = 0; x < 6; ++x)
-                        Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer,
-                            FrameBufferAttachment.Value, ETexTarget.TextureCubeMapPositiveX + x, _texture.BindingId, i);
+                OpenTK.Graphics.OpenGL.GL.FramebufferTexture(
+                    OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,
+                    OpenTK.Graphics.OpenGL.FramebufferAttachment.DepthAttachment,
+                    _texture.BindingId, 0);
+            //for (int i = 0; i < Mipmaps.Length; ++i)
+            //    for (int x = 0; x < 6; ++x)
+            //        Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer,
+            //            FrameBufferAttachment.Value, ETexTarget.TextureCubeMapPositiveX + x, _texture.BindingId, i);
         }
 
         private bool _isLoading = false;
@@ -285,13 +285,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             if (_texture != null)
                 _texture.PostPushData -= SetParameters;
-
-            if (Mipmaps != null && Mipmaps.Length > 0)
-                _texture = new RenderTexCube(new RenderCubeMipmap[Mipmaps.Length].FillWith(
-                    i => new RenderCubeMipmap(TexRef2D.FillerBitmap, true)));
-            else
-                _texture = new RenderTexCube();
-
+            _texture = new RenderTexCube();
             _texture.PostPushData += SetParameters;
         }
     }

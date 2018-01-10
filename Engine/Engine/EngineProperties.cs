@@ -280,6 +280,7 @@ namespace TheraEngine
             {
                 if (_renderer == null)
                     throw new InvalidOperationException("No render library set.");
+                _renderer.CheckErrors();
                 //if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
                 //    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
                 return _renderer;

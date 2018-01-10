@@ -348,7 +348,7 @@ namespace TheraEngine.Rendering.Models
                         _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
                     }
 
-                    if (ScaleByDistance)
+                    if (ScaleByDistance && c != null)
                     {
                         float scale = c.DistanceScale(WorldMatrix.GetPoint(), _screenSize);
                         _frameMatrix = _frameMatrix * Matrix4.CreateScale(scale);
@@ -533,6 +533,9 @@ namespace TheraEngine.Rendering.Models
 
         private void HandleBillboarding(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, Camera c)
         {
+            if (c == null)
+                return;
+
             //Apply local translation component to parent matrix
             Matrix4 frameTrans = parentMatrix * _frameState.Translation.Raw.AsTranslationMatrix();
             Matrix4 invFramTrans = (-_frameState.Translation.Raw).AsTranslationMatrix() * inverseParentMatrix;

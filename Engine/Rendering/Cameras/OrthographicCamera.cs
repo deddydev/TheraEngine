@@ -100,9 +100,9 @@ namespace TheraEngine.Rendering.Cameras
         }
         protected override void CalculateProjection()
         {
-            base.CalculateProjection();
             _projectionMatrix = Matrix4.CreateOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
             _projectionInverse = Matrix4.CreateInverseOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
+            base.CalculateProjection();
         }
         public void SetProjectionParams(float farz, float nearz)
         {

@@ -1,8 +1,5 @@
 import sys
+from datetime import datetime
 
 def Test():
-	print "Hello from Python"
-	print "Call Dir(): "
-	print dir()
-	print "Print the Path: " 
-	print sys.path
+	print "Test script: today is " + str(datetime.now())

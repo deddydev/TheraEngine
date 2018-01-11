@@ -7,12 +7,19 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Maths.Transforms;
 using System.IO;
+using System.Drawing;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {
     [FileDef("Point Light Component")]
-    public class PointLightComponent : LightComponent
+    public class PointLightComponent : LightComponent, I3DRenderable
     {
+        [Category("Point Light Component")]
+        public Vec3 Position
+        {
+            get => _cullingVolume.Center;
+            set => WorldMatrix = value.AsTranslationMatrix();
+        }
         [Category("Point Light Component")]
         public float Radius
         {
@@ -37,14 +44,15 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         public PerspectiveCamera[] ShadowCameras { get; }
 
         [Browsable(false)]
-        public RenderInfo3D RenderInfo => _cullingVolume.RenderInfo;
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
         [Browsable(false)]
-        public Shape CullingVolume => _cullingVolume.CullingVolume;
+        public Shape CullingVolume => _cullingVolume;
         [Browsable(false)]
-        public IOctreeNode OctreeNode
+        public IOctreeNode OctreeNode { get; set; }
+
+        public void Render()
         {
-            get => _cullingVolume.OctreeNode;
-            set => _cullingVolume.OctreeNode = value;
+            Engine.Renderer.RenderPoint(Position, Color.LimeGreen, 20.0f);
         }
 
         private Sphere _cullingVolume;
@@ -85,11 +93,13 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         {
             if (Type == LightType.Dynamic)
                 Engine.Scene.Lights.Add(this);
+            Engine.Scene.Add(this);
         }
         public override void OnDespawned()
         {
             if (Type == LightType.Dynamic)
                 Engine.Scene.Lights.Remove(this);
+            Engine.Scene.Remove(this);
         }
 
         /// <summary>
@@ -171,7 +181,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
 
-                scene.Render(null, null, null, true);
+                //scene.Render(null, null, null, true);
             }
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.Framebuffer);
@@ -189,14 +199,14 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             if (selected)
             {
                 Engine.Scene.Add(_cullingVolume);
-                foreach (PerspectiveCamera c in ShadowCameras)
-                    Engine.Scene.Add(c);
+                //foreach (PerspectiveCamera c in ShadowCameras)
+                //    Engine.Scene.Add(c);
             }
             else
             {
                 Engine.Scene.Remove(_cullingVolume);
-                foreach (PerspectiveCamera c in ShadowCameras)
-                    Engine.Scene.Remove(c);
+                //foreach (PerspectiveCamera c in ShadowCameras)
+                //    Engine.Scene.Remove(c);
             }
             base.OnSelectedChanged(selected);
         }

@@ -88,9 +88,9 @@ namespace TheraEngine.Rendering.Models.Materials
         private ETexMinFilter _minFilter = ETexMinFilter.LinearMipmapLinear;
         private ETexMagFilter _magFilter = ETexMagFilter.Linear;
         private float _lodBias = 0.0f;
-        private EPixelInternalFormat _internalFormat;
-        private EPixelFormat _pixelFormat;
-        private EPixelType _pixelType;
+        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba;
+        private EPixelFormat _pixelFormat = EPixelFormat.Rgba;
+        private EPixelType _pixelType = EPixelType.UnsignedByte;
         
         [TSerialize]
         public ETexMagFilter MagFilter

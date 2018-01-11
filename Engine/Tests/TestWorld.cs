@@ -15,6 +15,7 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Physics;
 using System.Threading.Tasks;
 using TheraEngine.Animation;
+using System.Collections.Generic;
 
 namespace TheraEngine.Tests
 {
@@ -22,10 +23,9 @@ namespace TheraEngine.Tests
     {
         internal protected override void OnLoaded()
         {
-            Settings = new WorldSettings("TestWorld")
-            {
-                Bounds = BoundingBox.FromHalfExtentsTranslation(new Vec3(200.0f), Vec3.Zero),
-            };
+            List<IActor> actors = new List<IActor>();
+            IActor actor;
+
             Random r = new Random();
             IActor[] array = new IActor[100];
             BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
@@ -47,14 +47,16 @@ namespace TheraEngine.Tests
                 float x = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.X;
                 float y = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Y;
                 float z = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Z;
-                BoxActor actor = new BoxActor(
+                BoxActor box = new BoxActor(
                     "Box" + i, 0.4f,
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
                     new Rotator(x, y, z, RotationOrder.YPR),
                     TMaterial.CreateLitColorMaterial(Color.Purple), physicsInfo);
-                actor.RootComponent.RigidBodyCollision.OnHit += PhysicsDriver_OnHit;
-                array[i] = actor;
+                box.RootComponent.RigidBodyCollision.OnHit += PhysicsDriver_OnHit;
+                array[i] = box;
             }
+            actors.AddRange(array);
+
             //sphereActor = array[0];
             //sphereActor.RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
 
@@ -73,19 +75,22 @@ namespace TheraEngine.Tests
                 new Vec3(0.0f, 0.0f, 0.0f),
                 new Rotator(00.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 TMaterial.CreateLitColorMaterial(Color.FromArgb(180, 200, 230)), floorInfo);
-            //floorActor1.RootComponent.PhysicsDriver.Kinematic = true;
+            //floorActor1.RootComponent.PhysicsDriver.Kinematic = true
+            actors.Add(floorActor1);
             BoxActor floorActor2 = new BoxActor(
                 "Floor2",
                 new Vec3(100.0f, 20.0f, 100.0f),
                 new Vec3(0.0f, -20.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 TMaterial.CreateLitColorMaterial(Color.FromArgb(180, 200, 230)), floorInfo);
+            actors.Add(floorActor2);
             BoxActor floorActor3 = new BoxActor(
                 "Floor3",
                 new Vec3(2.0f, 10.0f, 7.0f),
                 new Vec3(6.0f, 0.0f, 0.0f),
                 new Rotator(-10.0f, 60.0f, 0.0f, RotationOrder.YPR),
                 TMaterial.CreateLitColorMaterial(Color.Gray), floorInfo);
+            actors.Add(floorActor3);
             //BoxActor floorActor4 = new BoxActor(
             //    "Floor4",
             //    floorInfo,
@@ -112,28 +117,30 @@ namespace TheraEngine.Tests
             //    Material.GetLitColorMaterial(Color.Green));
 
             //_settings.GlobalAmbient = new ColorF3(0.01f, 0.01f, 0.01f);
-            
-            Actor<PointLightComponent> lightActor = new Actor<PointLightComponent>("TestLightActor");
-            lightActor.RootComponent.Radius = 30.0f;
-            lightActor.RootComponent.AmbientIntensity = 0.0f;
-            lightActor.RootComponent.DiffuseIntensity = 1000.0f;
-            lightActor.RootComponent.LightColor = (ColorF3)Color.Beige;
-            
-            PropAnimFloat lightAnim = new PropAnimFloat(7.0f, true, false);
-            FloatKeyframe k0 = new FloatKeyframe(0.0f, 5.0f, 0.0f, PlanarInterpType.CubicHermite);
-            FloatKeyframe k1 = new FloatKeyframe(3.5f, 25.0f, 0.0f, PlanarInterpType.CubicHermite);
-            FloatKeyframe k2 = new FloatKeyframe(7.0f, 5.0f, 0.0f, PlanarInterpType.CubicHermite);
-            lightAnim.Keyframes.Add(k0, k1, k2);
-            AnimationContainer lightAnimContainer = new AnimationContainer(
-                "LightTranslationAnim", "Translation.Y", false, lightAnim);
-            lightActor.RootComponent.AddAnimation(lightAnimContainer, true);
+
+            //Actor<PointLightComponent> lightActor = new Actor<PointLightComponent>("TestLightActor");
+            //lightActor.RootComponent.Radius = 30.0f;
+            //lightActor.RootComponent.AmbientIntensity = 0.0f;
+            //lightActor.RootComponent.DiffuseIntensity = 1000.0f;
+            //lightActor.RootComponent.LightColor = (ColorF3)Color.Beige;
+            //actors.Add(lightActor);
+
+            //PropAnimFloat lightAnim = new PropAnimFloat(7.0f, true, false);
+            //FloatKeyframe k0 = new FloatKeyframe(0.0f, 5.0f, 0.0f, PlanarInterpType.CubicHermite);
+            //FloatKeyframe k1 = new FloatKeyframe(3.5f, 25.0f, 0.0f, PlanarInterpType.CubicHermite);
+            //FloatKeyframe k2 = new FloatKeyframe(7.0f, 5.0f, 0.0f, PlanarInterpType.CubicHermite);
+            //lightAnim.Keyframes.Add(k0, k1, k2);
+            //AnimationContainer lightAnimContainer = new AnimationContainer(
+            //    "LightTranslationAnim", "Translation.Y", false, lightAnim);
+            //lightActor.RootComponent.AddAnimation(lightAnimContainer, true);
 
             //floorActor1.RootComponent.AddAnimation(lightAnimContainer, true, ETickGroup.PostPhysics, ETickOrder.BoneAnimation, InputPauseType.TickOnlyWhenUnpaused);
 
-            //DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-            //    (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
-            //Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
-            
+            DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
+                (ColorF3)Color.Beige, 1.0f, 0.0f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
+            actor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
+            actors.Add(actor);
+
             ModelImportOptions objOptions = new ModelImportOptions()
             {
                 UseForwardShaders = Engine.Settings.ShadingStyle3D == ShadingStyle.Forward,
@@ -234,13 +241,14 @@ namespace TheraEngine.Tests
             //Engine.TimeDilation = 0.3f;
             //cam.RootComponent.SetCurrentForPlayer(PlayerIndex.One);
 
-            //SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, 0.3f, Vec3.Down, 30.0f, 10.0f, 40.0f, 100.0f);
-            //spotLightComp.Translation.Y = 50.0f;
-            //spotLightComp.AmbientIntensity = 0.0f;
-            //Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>("SpotLight", spotLightComp);
+            SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, 0.0f, Vec3.Down, 30.0f, 10.0f, 40.0f, 1.0f);
+            spotLightComp.Translation.Y = 50.0f;
+            Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>("SpotLight", spotLightComp);
+            actors.Add(spotlight);
 
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
             spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
+            actors.Add(spawn);
 
             //Actor<BlockingVolumeComponent> block = new Actor<BlockingVolumeComponent>(new BlockingVolumeComponent(
             //        new Vec3(500.0f, 10.0f, 500.0f),
@@ -263,29 +271,12 @@ namespace TheraEngine.Tests
             //ModelScene gunScene = dae.Models[0];
             //Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
 
-            IActor[] actors = new IActor[]
+            Settings = new WorldSettings("TestWorld")
             {
-                lightActor,
-                //gunActor,
-                //spotlight,
-                //block,
-                //floorActor1,
-                //floorActor2,
-                //floorActor3,
-                //floorActor4,
-                //dirLightActor,
-                //skybox,
-                //splineActor,
-                //cam,
-                //floor2Actor,
-                spawn,
-                //importedActor,
-                //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
-                //new CharacterPawn(PlayerIndex.Two, ColladaScene?.SkeletalModel, ColladaScene?.Skeleton) { Name = "PlayerCharacter", },
+                Bounds = BoundingBox.FromHalfExtentsTranslation(new Vec3(200.0f), Vec3.Zero),
             };
-
             Settings.GameModeOverrideRef = new TestGameMode();// new GameMode<FlyingCameraPawn>();
-            Settings.Maps.Add(new Map(new MapSettings(actors)));
+            Settings.Maps.Add(new Map(new MapSettings(true, Vec3.Zero, actors)));
             //Settings.Maps[0].File.Settings.StaticActors.AddRange(array);
 
             //Export(Engine.ContentFolderAbs, "TestWorld", FileFormat.XML);

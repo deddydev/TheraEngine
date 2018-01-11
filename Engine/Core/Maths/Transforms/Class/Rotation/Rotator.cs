@@ -399,7 +399,6 @@ namespace TheraEngine.Core.Maths.Transforms
             _rotationOrder = order;
             EndUpdate();
         }
-
         public void SetRotationsNoUpdate(float pitch, float yaw, float roll)
         {
             if (!_lockPitch)
@@ -428,6 +427,23 @@ namespace TheraEngine.Core.Maths.Transforms
             if (!_lockRoll)
                 _pyr.Z = roll;
             _rotationOrder = order;
+        }
+        public void AddRotations(float pitch, float yaw, float roll)
+        {
+            BeginUpdate();
+            Pitch += pitch;
+            Yaw += yaw;
+            Roll += roll;
+            EndUpdate();
+        }
+        public void AddRotationsNoUpdate(float pitch, float yaw, float roll)
+        {
+            if (!_lockPitch)
+                _pyr.X += pitch;
+            if (!_lockYaw)
+                _pyr.Y += yaw;
+            if (!_lockRoll)
+                _pyr.Z += roll;
         }
 
         [Browsable(false)]

@@ -6,11 +6,12 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using System.Drawing;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {
     [FileDef("Spot Light Component")]
-    public class SpotLightComponent : LightComponent
+    public class SpotLightComponent : LightComponent, I3DRenderable
     {
         private float _outerCutoff, _innerCutoff, _exponent, _brightness, _distance;
         private Vec3 _direction;
@@ -19,7 +20,14 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         private IVec2 _shadowDims;
         private Matrix4 _worldToLightSpaceProjMatrix;
         private ConeZ _innerCone, _outerCone;
-        
+
+        [Category("Spotlight Component")]
+        public Vec3 Position
+        {
+            get => WorldMatrix.GetPoint();
+            set => WorldMatrix = value.AsTranslationMatrix();
+        }
+
         [Category("Spotlight Component")]
         public int ShadowMapResolutionWidth
         {
@@ -82,27 +90,42 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         public float OuterCutoffAngleDegrees
         {
             get => TMath.RadToDeg((float)Math.Acos(_outerCutoff));
-            set
-            {
-                float rad = TMath.DegToRad(value);
-                _outerCutoff = (float)Math.Cos(rad);
-                _outerCone.Radius = (float)Math.Tan(rad) * _distance;
-
-                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f;
-            }
+            set => SetCutoffs(InnerCutoffAngleDegrees, value, true);
         }
         [Category("Spotlight Component")]
         public float InnerCutoffAngleDegrees
         {
             get => TMath.RadToDeg((float)Math.Acos(_innerCutoff));
-            set
-            {
-                float rad = TMath.DegToRad(value);
-                _innerCutoff = (float)Math.Cos(rad);
-                _innerCone.Radius = (float)Math.Tan(rad) * _distance;
+            set => SetCutoffs(value, OuterCutoffAngleDegrees, false);
+        }
 
-                _shadowCamera.VerticalFieldOfView = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f;
+        private void SetCutoffs(float innerDegrees, float outerDegrees, bool settingOuter)
+        {
+            innerDegrees = innerDegrees.Clamp(0.0f, 90.0f);
+            outerDegrees = outerDegrees.Clamp(0.0f, 90.0f);
+
+            if (outerDegrees < innerDegrees)
+            {
+                float bias = 0.0001f;
+                if (settingOuter)
+                {
+                    innerDegrees = outerDegrees - bias;
+                }
+                else
+                {
+                    outerDegrees = innerDegrees + bias;
+                }
             }
+            
+            float radOuter = TMath.DegToRad(outerDegrees);
+            _outerCutoff = TMath.Cosf(radOuter);
+            _outerCone.Radius = TMath.Tanf(radOuter) * _distance;
+      
+            float radInner = TMath.DegToRad(innerDegrees);
+            _innerCutoff = TMath.Cosf(radInner);
+            _innerCone.Radius = TMath.Tanf(radInner) * _distance;
+            
+            _shadowCamera.VerticalFieldOfView = Math.Max(outerDegrees, innerDegrees) * 2.0f;
         }
 
         [Browsable(false)]
@@ -117,6 +140,18 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         [ReadOnly(true)]
         [Category("Spotlight Component")]
         public PerspectiveCamera ShadowCamera  => _shadowCamera;
+
+        [Browsable(false)]
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
+        [Browsable(false)]
+        public Shape CullingVolume => null; //TODO: use outer cone as culling volume
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+
+        public void Render()
+        {
+            Engine.Renderer.RenderPoint(Position, Color.Orange, 10.0f);
+        }
 
         public SpotLightComponent()
             : this(100.0f, new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, 0.0f, Vec3.Down, 60.0f, 30.0f, 1.0f, 1.0f) { }
@@ -187,16 +222,16 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         {
             if (Type == LightType.Dynamic)
                 Engine.Scene.Lights.Add(this);
+            Engine.Scene.Add(this);
         }
         public override void OnDespawned()
         {
             if (Type == LightType.Dynamic)
                 Engine.Scene.Lights.Remove(this);
+            Engine.Scene.Remove(this);
         }
         public override void SetUniforms(int programBindingId)
         {
-            Vec3 point = WorldMatrix.GetPoint();
-
             string indexer = Uniform.SpotLightsName + "[" + _lightIndex + "].";
 
             Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
@@ -204,7 +239,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "InnerCutoff", _innerCutoff);
             Engine.Renderer.Uniform(programBindingId, indexer + "Exponent", _exponent);
 
-            Engine.Renderer.Uniform(programBindingId, indexer + "Position", point);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Position", Position);
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", _distance);
             Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
 

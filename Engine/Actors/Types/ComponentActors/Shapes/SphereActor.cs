@@ -34,19 +34,27 @@ namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
         public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material)
             : this(name, radius, translation, rotation, material, null) { }
         
-        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material, TRigidBodyConstructionInfo info, uint meshPrecision = 30u) : base(
+        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material, TRigidBodyConstructionInfo info, uint meshPrecision = 40u) : base(
                 name, 
                 new Sphere(radius),
                 translation,
                 rotation,
                 new List<LOD>()
                 {
-                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, meshPrecision), radius * 4),
-                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.66f).ClampMin(1.0f)), radius * 8),
-                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.33f).ClampMin(1.0f)), radius * 64),
-                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.22f).ClampMin(1.0f)), radius * 128),
-                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.11f).ClampMin(1.0f)), radius * 256),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, meshPrecision), radius * 8),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.8f).ClampMin(1.0f)), radius * 16),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.6f).ClampMin(1.0f)), radius * 32),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.4f).ClampMin(1.0f)), radius * 64),
+                    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.2f).ClampMin(1.0f)), radius * 128),
                 },
+                //new List<LOD>()
+                //{
+                //    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, meshPrecision), radius * 2),
+                //    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.7f).ClampMin(1.0f)), radius * 4),
+                //    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.5f).ClampMin(1.0f)), radius * 8),
+                //    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.3f).ClampMin(1.0f)), radius * 16),
+                //    new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.15f).ClampMin(1.0f)), radius * 32),
+                //},
                 TCollisionSphere.New(radius),
                 info) { }
     }

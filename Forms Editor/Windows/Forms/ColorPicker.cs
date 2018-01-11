@@ -58,7 +58,7 @@ namespace System.Windows.Forms
         {
             InitializeComponent();
 
-            AutoScaleMode = AutoScaleMode.Dpi;
+            AutoScaleMode = AutoScaleMode.Font;
 
             _boxes = new NumericUpDown[] { numH, numS, numV, numR, numG, numB, numA };
             for (int i = 0; i < _boxes.Length; i++)

@@ -65,10 +65,9 @@ namespace TheraEngine.Tests
             actors.Add(actor);
 
             //Create shape tracer
-
-
             actor = new SphereTraceActor();
             actors.Add(actor);
+
             float rotationsPerSecond = 0.1f, testRadius = 30.0f, testHeight = 20.0f;
             PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
                 1.0f / rotationsPerSecond, true, second =>
@@ -84,12 +83,12 @@ namespace TheraEngine.Tests
                 ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create world light
-            Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
-            dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
-            dirlight.RootComponent.Rotation.Pitch = -35;
-            dirlight.RootComponent.AmbientIntensity = 0.01f;
-            actors.Add(dirlight);
-
+            //Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
+            //dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
+            //dirlight.RootComponent.Rotation.Pitch = -35;
+            //dirlight.RootComponent.AmbientIntensity = 0.01f;
+            //actors.Add(dirlight);
+            
             //Create spot light
             //Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>();
             //spotlight.RootComponent.LightColor = (ColorF3)Color.Beige;
@@ -117,7 +116,7 @@ namespace TheraEngine.Tests
             //actors.Add(testScreenshake);
 
             //Create point lights
-            int lightCount = 1;
+            int lightCount = 4;
             float lightAngle = 360.0f / lightCount * TMath.DegToRadMultf;
             float lightPosRadius = 50.0f;
             float upTrans = 20.0f;

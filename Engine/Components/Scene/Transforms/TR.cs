@@ -62,11 +62,14 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             localTransform = t * r;
             inverseLocalTransform = ir * it;
         }
+        public void TranslateRelative(float x, float y, float z)
+            => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
         {
             _localTransform = LocalMatrix * Matrix4.CreateTranslation(translation);
             _inverseLocalTransform = Matrix4.CreateTranslation(-translation) * InverseLocalMatrix;
             _translation = LocalMatrix.GetPoint();
+            RecalcGlobalTransform();
         }
         public override void HandleLocalRotation(Quat delta)
         {

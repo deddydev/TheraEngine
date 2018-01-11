@@ -157,7 +157,8 @@ namespace TheraEditor.Windows.Forms
             _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
 
             DockPanel.Theme = new TheraEditorTheme();
-            
+
+            AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
             Engine.SetGamePanel(RenderForm1.RenderPanel, false);
             Engine.Game.State.GameMode = _editorGameMode = new EditorGameMode();

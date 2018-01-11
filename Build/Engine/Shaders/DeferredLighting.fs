@@ -47,7 +47,7 @@ struct DirLight
 struct PointLight
 {
 	BaseLight Base;
-	samplerCube ShadowMap;
+	//samplerCube ShadowMap;
 
 	vec3 Position;
 	float Radius;
@@ -134,7 +134,7 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 	//Create bias depending on angle of normal to the light
 	float maxBias = 0.04f;
 	float minBias = 0.001f;
-	float bias = mix(maxBias, minBias, NoL);
+	float bias = 0.001f;//mix(maxBias, minBias, NoL);
 
 	//Read depth value from shadow map rendered in light space
 	float depth = texture(shadowMap, fragCoord.xy).r;
@@ -157,16 +157,16 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 
 	return shadow; 
 }
-float ReadShadowMapCube(in vec3 fragPosWS, in vec3 lightPosWS, in samplerCube shadowMap)
-{
- 	vec3 fragToLight = fragPosWS - lightPosWS;
-	float closestDepth = texture(shadowMap, fragToLight).r;
-    closestDepth *= 10000.0f;
-    float currentDepth = length(fragToLight);
-    float bias = 0.05f;
-    float shadow = currentDepth - bias > closestDepth ? 0.0f : 1.0f;
-	return shadow; 
-}
+//float ReadShadowMapCube(in vec3 fragPosWS, in vec3 lightPosWS, in samplerCube shadowMap)
+//{
+// 	vec3 fragToLight = fragPosWS - lightPosWS;
+//	float closestDepth = texture(shadowMap, fragToLight).r;
+//    closestDepth *= 10000.0f;
+//    float currentDepth = length(fragToLight);
+//    float bias = 0.05f;
+//    float shadow = currentDepth - bias > closestDepth ? 0.0f : 1.0f;
+//	return shadow; 
+//}
 
 float Attenuate(in float dist, in float radius)
 {
@@ -233,7 +233,7 @@ vec3 CalcPointLight(PointLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albed
 	vec3 ambient;
    	CalcColor(light.Base, NoL, NoH, NoV, HoV, attn, albedoOpacity, rmsi, color, ambient);
 
-	float shadow = ReadShadowMapCube(fragPosWS, light.Position, light.ShadowMap);
+	float shadow = 1.0f;//ReadShadowMapCube(fragPosWS, light.Position, light.ShadowMap);
 	return ColorCombine(color, ambient, shadow, ambOcc);
 } 
 vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)

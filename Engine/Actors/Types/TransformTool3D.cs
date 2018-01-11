@@ -40,8 +40,8 @@ namespace TheraEngine.Worlds.Actors.Types
     }
     public class TransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
     {
-        public static TransformTool3D Instance => _currentInstance;
-        private static TransformTool3D _currentInstance;
+        public static TransformTool3D Instance => _currentInstance.Value;
+        private static Lazy<TransformTool3D> _currentInstance = new Lazy<TransformTool3D>(() => new TransformTool3D());
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(Rendering.ERenderPass3D.OnTopForward, null);
         public Shape CullingVolume => null;
@@ -304,7 +304,7 @@ namespace TheraEngine.Worlds.Actors.Types
 //#if EDITOR
 //                    _targetSocket.Selected = false;
 //#endif
-                    _targetSocket.RegisterWorldMatrixChanged(_currentInstance.TranformChanged, true);
+                    _targetSocket.RegisterWorldMatrixChanged(Instance.TranformChanged, true);
                 }
                 _targetSocket = value;
                 if (_targetSocket != null)
@@ -314,7 +314,7 @@ namespace TheraEngine.Worlds.Actors.Types
 //#endif
                     
                     RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
-                    _targetSocket.RegisterWorldMatrixChanged(_currentInstance.TranformChanged, false);
+                    _targetSocket.RegisterWorldMatrixChanged(Instance.TranformChanged, false);
                 }
                 else
                     RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
@@ -390,16 +390,13 @@ namespace TheraEngine.Worlds.Actors.Types
         }
         public static TransformTool3D GetInstance(ISocket comp, TransformType transformType)
         {
-            if (_currentInstance == null)
-                _currentInstance = new TransformTool3D();
+            if (!Instance.IsSpawned)
+                Engine.World.SpawnActor(Instance);
 
-            if (!_currentInstance.IsSpawned)
-                Engine.World.SpawnActor(_currentInstance);
+            Instance.TargetSocket = comp;
+            Instance.TransformMode = transformType;
 
-            _currentInstance.TargetSocket = comp;
-            _currentInstance.TransformMode = transformType;
-
-            return _currentInstance;
+            return Instance;
         }
 
         private void TranformChanged(ISocket socket)
@@ -414,7 +411,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
         public static void DestroyInstance()
         {
-            _currentInstance?.Despawn();
+            Instance.Despawn();
         }
         public override void OnSpawnedPreComponentSetup(World world)
         {

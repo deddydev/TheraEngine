@@ -80,6 +80,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             if (_mipmaps == null || _mipmaps.Length == 0)
                 Engine.Renderer.PushTextureData(TextureTarget, 0, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
             else
+            {
                 for (int i = 0; i < _mipmaps.Length; ++i)
                 {
                     Bitmap bmp = _mipmaps[i];
@@ -92,11 +93,15 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                     else
                         Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
                 }
+                if (_mipmaps.Length == 1)
+                    Engine.Renderer.GenerateMipmap(TextureTarget);
+            }
 
+            int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
             Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, _mipmaps == null ? 0 : _mipmaps.Length - 1);
+            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
             Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, _mipmaps == null ? 0 : _mipmaps.Length - 1);
+            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, max);
 
             OnPostPushData();
         }

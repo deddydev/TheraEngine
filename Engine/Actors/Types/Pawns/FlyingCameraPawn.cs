@@ -7,6 +7,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Types.Pawns
 {
@@ -43,13 +44,25 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         public EMouseButton _type;
         public ComboModifier _modifiers;
     }
-    public class FlyingCameraPawn : Pawn<CameraComponent>
+    public class FlyingCameraPawn : Pawn<TRComponent>
     {
         public FlyingCameraPawn() : base() { }
         public FlyingCameraPawn(LocalPlayerIndex possessor) : base(false, possessor) { }
 
-        protected override CameraComponent OnConstruct() => new CameraComponent(false);
-        
+        protected override TRComponent OnConstruct()
+        {
+            TRComponent root = new TRComponent();
+            ScreenShakeComponent = new ScreenShake3DComponent();
+            Camera = new PerspectiveCamera();
+            CameraComponent cam = new CameraComponent(Camera);
+            ScreenShakeComponent.ChildComponents.Add(cam);
+            root.ChildComponents.Add(ScreenShakeComponent);
+            return root;
+        }
+
+        public PerspectiveCamera Camera { get; private set; }
+        public ScreenShake3DComponent ScreenShakeComponent { get; private set; }
+
         //Movement parameters
         float
             _scrollSpeed = 5.0f,
@@ -92,8 +105,8 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
 
         protected override void PostConstruct()
         {
-            RootComponent.CameraRef.File.TranslateAbsolute(new Vec3(0.0f, 20.0f, -40.0f));
-            RootComponent.CameraRef.File.LocalRotation.Pitch = -10.0f;
+            RootComponent.Translation = new Vec3(0.0f, 20.0f, -40.0f);
+            RootComponent.Rotation.Pitch = -10.0f;
             Camera_TransformChanged();
             base.PostConstruct();
         }
@@ -116,6 +129,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             input.RegisterButtonPressed(EKey.D, MoveRight, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.Q, MoveDown, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.E, MoveUp, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.T, ButtonInputType.Pressed, AddTrauma, EInputPauseType.TickAlways);
 
             input.RegisterButtonPressed(EKey.ControlLeft, OnControl, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.ControlRight, OnControl, EInputPauseType.TickAlways);
@@ -134,7 +148,12 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             input.RegisterButtonPressed(GamePadButton.RightBumper, MoveUp, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(GamePadButton.LeftBumper, MoveDown, EInputPauseType.TickAlways);
         }
-        
+
+        private void AddTrauma()
+        {
+            ScreenShakeComponent.Trauma += 0.4f;
+        }
+
         private void OnTogglePause()
         {
             Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
@@ -180,7 +199,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else
             {
-                RootComponent.CameraRef.File.Zoom(up ? ScrollSpeed : -ScrollSpeed);
+                RootComponent.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
                 Camera_TransformChanged();
             }
         }
@@ -200,23 +219,22 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                RootComponent.CameraRef.File.AddRotation(-y * MouseRotateSpeed, -x * MouseRotateSpeed);
+                RootComponent.Rotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
                 Camera_TransformChanged();
             }
             else if (Translating)
             {
                 if (_hitPoint != null)
                 {
-                    PerspectiveCamera c = RootComponent.CameraRef.File as PerspectiveCamera;
-                    Vec3 v = c._projectionRange * (((_hitPoint.Value * (c.ProjectionMatrix * c.WorldToCameraSpaceMatrix)) + 1.0f) / 2.0f);
+                    Vec3 v = Camera.WorldToScreen(_hitPoint.Value);
                     v.X += -x;
                     v.Y += y;
-                    Vec3 newPoint = ((v / c._projectionRange) * 2.0f - 1.0f) * (c.CameraToWorldSpaceMatrix * c.InverseProjectionMatrix);
+                    Vec3 newPoint = Camera.ScreenToWorld(v);
                     Vec3 diff = newPoint - _hitPoint.Value;
-                    RootComponent.CameraRef.File.TranslateAbsolute(diff);
+                    RootComponent.Translation.Raw += diff;
                 }
                 else
-                    RootComponent.CameraRef.File.TranslateRelative(new Vec3(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f));
+                    RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
                 Camera_TransformChanged();
             }
         }
@@ -239,9 +257,9 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
             if (translate)
-                RootComponent.CameraRef.File.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+                RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                RootComponent.CameraRef.File.AddRotation(_pitch * delta, _yaw * delta);
+                RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
             if (translate || rotate)
                 Camera_TransformChanged();
         }

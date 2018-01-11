@@ -23,9 +23,9 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public BaseRenderTexture() : base(EObjectType.Texture) { }
         public BaseRenderTexture(int bindingId) : base(EObjectType.Texture, bindingId) { }
 
-        public EPixelInternalFormat InternalFormat { get; set; }
-        public EPixelFormat PixelFormat { get; set; }
-        public EPixelType PixelType { get; set; }
+        public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba;
+        public EPixelFormat PixelFormat { get; set; } = EPixelFormat.Rgba;
+        public EPixelType PixelType { get; set; } = EPixelType.UnsignedByte;
 
         public abstract ETexTarget TextureTarget { get; }
 

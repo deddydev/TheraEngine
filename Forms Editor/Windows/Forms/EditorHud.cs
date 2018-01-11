@@ -123,7 +123,30 @@ namespace TheraEditor.Windows.Forms
             input.RegisterButtonEvent(EKey.Number2, ButtonInputType.Pressed, SetRotationMode, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EKey.Number3, ButtonInputType.Pressed, SetScaleMode, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EKey.Number4, ButtonInputType.Pressed, SetDragDropMode, EInputPauseType.TickAlways);
+            
+            input.RegisterButtonEvent(EKey.Number5, ButtonInputType.Pressed, SetWorldSpace, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Number6, ButtonInputType.Pressed, SetParentSpace, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Number7, ButtonInputType.Pressed, SetLocalSpace, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Number8, ButtonInputType.Pressed, SetScreenSpace, EInputPauseType.TickAlways);
         }
+
+        private void SetWorldSpace()
+        {
+            TransformTool3D.Instance.TransformSpace = ESpace.World;
+        }
+        private void SetLocalSpace()
+        {
+            TransformTool3D.Instance.TransformSpace = ESpace.Local;
+        }
+        private void SetScreenSpace()
+        {
+            TransformTool3D.Instance.TransformSpace = ESpace.Screen;
+        }
+        private void SetParentSpace()
+        {
+            TransformTool3D.Instance.TransformSpace = ESpace.Parent;
+        }
+
         TransformType _transformType = TransformType.Translate;
         private void ToggleTransformMode()
         {
@@ -141,13 +164,11 @@ namespace TheraEditor.Windows.Forms
             _transformType = type;
             if (UseTransformTool = _transformType != TransformType.DragDrop)
             {
-                if (TransformTool3D.Instance != null)
-                    TransformTool3D.Instance.TransformMode = _transformType;
+                TransformTool3D.Instance.TransformMode = _transformType;
             }
             else
             {
-                if (TransformTool3D.Instance != null)
-                    TransformTool3D.DestroyInstance();
+                TransformTool3D.DestroyInstance();
             }
         }
         
@@ -193,7 +214,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void MouseMove(Viewport v, Vec2 viewportPoint)
         {
-            if (TransformTool3D.Instance != null && TransformTool3D.Instance.IsSpawned)
+            if (TransformTool3D.Instance.IsSpawned)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
                 if (TransformTool3D.Instance.MouseMove(cursor, v.Camera, _mouseDown))

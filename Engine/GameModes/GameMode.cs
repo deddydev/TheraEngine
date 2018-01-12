@@ -121,6 +121,7 @@ namespace TheraEngine.GameModes
         protected virtual void OnBeginGameplay() { }
         public void BeginGameplay()
         {
+            Engine.PrintLine("Game mode {0} has begun play.", GetType().GetFriendlyName());
             CreateLocalPlayerControllers();
             OnBeginGameplay();
         }
@@ -129,6 +130,7 @@ namespace TheraEngine.GameModes
         {
             Engine.DestroyLocalPlayerControllers();
             OnEndGameplay();
+            Engine.PrintLine("Game mode {0} has ended play.", GetType().GetFriendlyName());
         }
         protected virtual void OnAbortGameplay() { }
         public void AbortGameplay()

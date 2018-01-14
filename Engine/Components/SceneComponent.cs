@@ -526,28 +526,31 @@ namespace TheraEngine.Worlds.Actors.Components
         public void DetachFromParent()
             => ParentSocket?.ChildComponents.Remove(this);
 
-#if EDITOR
+        #region Transform Tool
         [Browsable(false)]
         public virtual bool IsTranslatable => false;
         [Browsable(false)]
         public virtual bool IsRotatable => false;
         [Browsable(false)]
         public virtual bool IsScalable => false;
-        public virtual void HandleLocalTranslation(Vec3 delta)
+        public virtual void HandleWorldTranslation(Vec3 delta)
         {
             if (!IsTranslatable)
                 throw new InvalidOperationException();
         }
-        public virtual void HandleLocalScale(Vec3 delta)
+        public virtual void HandleWorldScale(Vec3 delta)
         {
             if (!IsScalable)
                 throw new InvalidOperationException();
         }
-        public virtual void HandleLocalRotation(Quat delta)
+        public virtual void HandleWorldRotation(Quat delta)
         {
             if (!IsRotatable)
                 throw new InvalidOperationException();
         }
+        #endregion
+
+#if EDITOR
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             foreach (SceneComponent comp in ChildComponents)

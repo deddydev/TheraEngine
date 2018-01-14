@@ -71,12 +71,15 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             _translation = LocalMatrix.GetPoint();
             RecalcGlobalTransform();
         }
-        public override void HandleLocalRotation(Quat delta)
+        
+        [Browsable(false)]
+        public override bool IsRotatable => true;
+        public override void HandleWorldRotation(Quat delta)
         {
             Quat q = _rotation.ToQuaternion();
             q = q * delta;
             _rotation.SetRotations(q.ToYawPitchRoll());
-            base.HandleLocalRotation(delta);
+            base.HandleWorldRotation(delta);
         }
     }
 }

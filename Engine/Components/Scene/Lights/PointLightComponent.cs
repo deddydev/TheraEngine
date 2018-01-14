@@ -210,6 +210,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             }
             base.OnSelectedChanged(selected);
         }
-    }
 #endif
+    }
 }

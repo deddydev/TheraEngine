@@ -61,6 +61,5 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             localTransform = r * t;
             inverseLocalTransform = it * ir;
         }
-        protected internal override void OriginRebased(Vec3 newOrigin) { }
     }
 }

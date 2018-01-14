@@ -65,7 +65,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             localTransform = t * r * s;
             inverseLocalTransform = iS * ir * it;
         }
-        public override void HandleLocalScale(Vec3 delta)
+
+        [Browsable(false)]
+        public override bool IsScalable => true;
+        public override void HandleWorldScale(Vec3 delta)
         {
             _scale.Raw += delta;
         }

@@ -50,6 +50,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             _currentPoint -= newOrigin;
             _destPoint -= newOrigin;
             _interpPoint -= newOrigin;
+            RecalcGlobalTransform();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
@@ -103,21 +104,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             //Engine.Renderer.RenderSphere(_currentPoint, 10.0f, false, Color.Magenta);
             //Engine.Renderer.RenderSphere(_interpPoint, 10.0f, false, Color.Pink);
             //Engine.Renderer.RenderSphere(_destPoint, 10.0f, false, Color.White);
-        }
-
-        public override void HandleLocalTranslation(Vec3 delta)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void HandleLocalScale(Vec3 delta)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void HandleLocalRotation(Quat delta)
-        {
-            throw new NotImplementedException();
         }
     }
 }

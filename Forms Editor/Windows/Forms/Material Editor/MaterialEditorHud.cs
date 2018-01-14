@@ -52,12 +52,7 @@ namespace TheraEditor.Windows.Forms
             };
             return root;
         }
-
-        public override void OnSpawnedPostComponentSetup(World world)
-        {
-            base.OnSpawnedPostComponentSetup(world);
-        }
-
+        
         private TMaterial _targetMaterial;
         public TMaterial TargetMaterial
         {

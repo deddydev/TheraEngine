@@ -97,13 +97,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private EPixelInternalFormat _internalFormat;
         private EPixelFormat _pixelFormat;
         private EPixelType _pixelType;
-
-        [TSerialize]
-        public int Index
-        {
-            get => _index;
-            set => _index = value;
-        }
+        
         [TSerialize]
         public ETexMagFilter MagFilter
         {
@@ -194,8 +188,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             _texture.PostPushData += SetParameters;
         }
-
-        public TMaterial Material { get; internal set; }
+        
         public bool DoNotResize { get; internal set; }
 
         /// <summary>

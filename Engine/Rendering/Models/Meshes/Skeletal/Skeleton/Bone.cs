@@ -299,15 +299,16 @@ namespace TheraEngine.Rendering.Models
         {
             return (Parent == null ? (OwningComponent == null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
         }
-        public void HandleLocalTranslation(Vec3 delta)
+
+        public void HandleWorldTranslation(Vec3 delta)
         {
 
         }
-        public void HandleLocalScale(Vec3 delta)
+        public void HandleWorldScale(Vec3 delta)
         {
 
         }
-        public void HandleLocalRotation(Quat delta)
+        public void HandleWorldRotation(Quat delta)
         {
 
         }
@@ -633,6 +634,11 @@ namespace TheraEngine.Rendering.Models
         }
 
         ISocket ISocket.ParentSocket => _parent;
+
+        bool ISocket.IsTranslatable => true;
+        bool ISocket.IsScalable => true;
+        bool ISocket.IsRotatable => true;
+
         public event DelSocketTransformChange SocketTransformChanged;
         void ISocket.RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister)
         {

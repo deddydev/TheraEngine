@@ -308,19 +308,19 @@ namespace TheraEngine.Rendering.UI
         public IEnumerator<UIComponent> GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
 
-        public override void HandleLocalTranslation(Vec3 delta)
-        {
+        //public override void HandleLocalTranslation(Vec3 delta)
+        //{
 
-        }
+        //}
 
-        public override void HandleLocalScale(Vec3 delta)
-        {
+        //public override void HandleLocalScale(Vec3 delta)
+        //{
 
-        }
+        //}
 
-        public override void HandleLocalRotation(Quat delta)
-        {
+        //public override void HandleLocalRotation(Quat delta)
+        //{
 
-        }
+        //}
     }
 }

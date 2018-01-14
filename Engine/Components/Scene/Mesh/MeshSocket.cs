@@ -20,14 +20,13 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
         Matrix4 InverseWorldMatrix { get; }
         EventList<SceneComponent> ChildComponents { get; }
         void RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister = false);
-
-//#if EDITOR
-//        bool Selected { get; set; }
-//#endif
-
-        void HandleLocalTranslation(Vec3 delta);
-        void HandleLocalScale(Vec3 delta);
-        void HandleLocalRotation(Quat delta);
+        
+        bool IsTranslatable { get; }
+        bool IsScalable { get; }
+        bool IsRotatable { get; }
+        void HandleWorldTranslation(Vec3 delta);
+        void HandleWorldScale(Vec3 delta);
+        void HandleWorldRotation(Quat delta);
     }
     public class MeshSocket : ISocket
     {
@@ -93,18 +92,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             //_owner?.GenerateSceneComponentCache();
         }
 
-#if EDITOR
-        private bool _selected;
-        public bool Selected
-        {
-            get => _selected;
-            set
-            {
-                _selected = value;
-            }
-        }
-#endif
-
         public Transform Transform
         {
             get => _transform;
@@ -122,15 +109,18 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             SocketTransformChanged?.Invoke(this);
         }
 
-        public void HandleLocalTranslation(Vec3 delta)
+        bool ISocket.IsTranslatable => true;
+        public void HandleWorldTranslation(Vec3 delta)
         {
             _transform.Translation += delta;
         }
-        public void HandleLocalScale(Vec3 delta)
+        bool ISocket.IsScalable => true;
+        public void HandleWorldScale(Vec3 delta)
         {
             _transform.Scale += delta;
         }
-        public void HandleLocalRotation(Quat delta)
+        bool ISocket.IsRotatable => true;
+        public void HandleWorldRotation(Quat delta)
         {
             _transform.Quaternion *= delta;
         }

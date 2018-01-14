@@ -133,21 +133,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
             OnWorldTransformChanged();
         }
 
-        public override void HandleLocalTranslation(Vec3 delta)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void HandleLocalScale(Vec3 delta)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void HandleLocalRotation(Quat delta)
-        {
-            throw new NotImplementedException();
-        }
-
+#if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
             if (selected)
@@ -156,6 +142,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene
                 Engine.Scene.Remove(Camera);
             base.OnSelectedChanged(selected);
         }
+#endif
 
         #endregion
     }

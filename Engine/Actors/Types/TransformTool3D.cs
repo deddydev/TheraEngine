@@ -455,7 +455,7 @@ namespace TheraEngine.Worlds.Actors.Types
         private void DragRotation(Vec3 dragPoint)
         {
             Quat delta = Quat.BetweenVectors(_lastPoint, dragPoint);
-            _targetSocket.HandleLocalRotation(delta);
+            _targetSocket.HandleWorldRotation(delta);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
@@ -466,14 +466,14 @@ namespace TheraEngine.Worlds.Actors.Types
             Matrix4 m = _targetSocket.InverseWorldMatrix.ClearScale();
             m = m.ClearTranslation();
 
-            _targetSocket.HandleLocalTranslation(m * delta);
+            _targetSocket.HandleWorldTranslation(m * delta);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
         private void DragScale(Vec3 dragPoint)
         {
             Vec3 delta = dragPoint - _lastPoint;
-            _targetSocket.HandleLocalScale(delta);
+            _targetSocket.HandleWorldScale(delta);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }

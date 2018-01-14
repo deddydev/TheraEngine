@@ -49,15 +49,11 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         }
         
         protected internal override void OriginRebased(Vec3 newOrigin)
-            => Translation -= newOrigin;
-
-#if EDITOR
+            => HandleWorldTranslation(-newOrigin);
+        
         [Browsable(false)]
         public override bool IsTranslatable => true;
-        public override void HandleLocalTranslation(Vec3 delta)
-        {
-            Translation.Raw += delta;
-        }
-#endif
+        public override void HandleWorldTranslation(Vec3 delta)
+            => Translation.Raw += delta;
     }
 }

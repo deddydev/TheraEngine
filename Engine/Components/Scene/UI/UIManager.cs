@@ -68,9 +68,9 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
                 }
             }
         }
-
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false);
-        public RenderInfo3D RenderInfo => _renderInfo;
+        
+        public RenderInfo3D RenderInfo { get; } 
+            = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false);
 
         public Shape CullingVolume => null;
         public IOctreeNode OctreeNode { get; set; }

@@ -70,7 +70,10 @@ namespace System
         }
         public void CollectVisible(Sphere sphere, RenderPasses3D passes, bool shadowPass)
         {
-            _head.CollectVisible(sphere, passes, shadowPass);
+            if (sphere != null)
+                _head.CollectVisible(sphere, passes, shadowPass);
+            else
+                _head.CollectAll(passes, shadowPass);
         }
         public void CollectVisible(Frustum frustum, RenderPasses3D passes, bool shadowPass)
         {

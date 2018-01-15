@@ -235,7 +235,10 @@ namespace TheraEngine.Rendering
             CurrentlyRendering = null;
         }
         protected virtual void OnRender(Scene scene, Camera camera, Frustum frustum)
-            => scene.Render(camera, frustum, this, false);
+        {
+            scene.CollectVisibleRenderables(frustum, false);
+            scene.Render(camera, this);
+        }
 
         #region Coordinate conversion
         public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)

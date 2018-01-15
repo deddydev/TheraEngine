@@ -172,7 +172,7 @@ namespace TheraEngine.Rendering
             //Engine.Renderer.ColorMask(true, true, true, true);
         }
 
-        public void CollectVisibleRenderables(Frustum frustum, bool shadowPass)
+        public override void CollectVisibleRenderables(Frustum frustum, bool shadowPass)
         {
             //TODO: implement octree on GPU with compute shader instead of here on CPU
             //Also implement occlusion culling along with frustum culling

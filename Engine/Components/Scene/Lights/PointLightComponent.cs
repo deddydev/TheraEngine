@@ -24,8 +24,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         [Category("Point Light Component")]
         public float Radius
         {
-            get => _cullingVolume.Radius;
-            set => _cullingVolume.Radius = value;
+            get => _radius;
+            set => _cullingVolume.Radius = (_radius = value);
         }
         [Category("Point Light Component")]
         public int ShadowMapResolution
@@ -37,7 +37,10 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         public float Brightness
         {
             get => _brightness;
-            set => _brightness = value;
+            set
+            {
+                _brightness = value;
+            }
         }
         [Browsable(false)]
         [ReadOnly(true)]
@@ -59,13 +62,14 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         private Sphere _cullingVolume;
         private MaterialFrameBuffer _shadowMap;
         private int _shadowResolution;
-        private float _brightness = 1.0f;
+        private float _brightness = 1.0f, _radius = 100.0f;
 
         public PointLightComponent() : this(100.0f, 1.0f, new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
         public PointLightComponent(float radius, float brightness, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
             : base(color, diffuseIntensity, ambientIntensity)
         {
-            _cullingVolume = new Sphere(radius);
+            _cullingVolume = new Sphere((_radius = radius));
+            _brightness = brightness;
 
             ShadowCameras = new PerspectiveCamera[6];
             Rotator[] rotations = new Rotator[]

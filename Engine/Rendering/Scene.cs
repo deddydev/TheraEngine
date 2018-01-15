@@ -64,5 +64,7 @@ namespace TheraEngine.Rendering
             if (_preRenderList.Contains(obj))
                 _preRenderList.Remove(obj);
         }
+        
+        public abstract void CollectVisibleRenderables(Frustum frustum, bool shadowPass);
     }
 }

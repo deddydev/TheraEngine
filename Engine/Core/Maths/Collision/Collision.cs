@@ -1,4 +1,5 @@
-﻿using TheraEngine.Core;
+﻿using System.Linq;
+using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
 
 namespace System
@@ -112,7 +113,25 @@ namespace System
 
         public static EContainment SphereContainsAABB(Vec3 center, float radius, Vec3 minimum, Vec3 maximum)
         {
-            throw new NotImplementedException();
+            float r2 = radius * radius;
+            if ((center - minimum).LengthSquared < r2 &&
+                (center - maximum).LengthSquared < r2)
+                return EContainment.Contains;
+
+            Sphere sphere = new Sphere(center, radius);
+            EPlaneIntersection[] intersections = new EPlaneIntersection[]
+            {
+                PlaneIntersectsSphere(new Plane(maximum, Vec3.UnitX), sphere),
+                PlaneIntersectsSphere(new Plane(minimum, -Vec3.UnitX), sphere),
+                PlaneIntersectsSphere(new Plane(maximum, Vec3.UnitY), sphere),
+                PlaneIntersectsSphere(new Plane(minimum, -Vec3.UnitY), sphere),
+                PlaneIntersectsSphere(new Plane(maximum, Vec3.UnitZ), sphere),
+                PlaneIntersectsSphere(new Plane(minimum, -Vec3.UnitZ), sphere),
+            };
+            if (intersections.Any(x => x == EPlaneIntersection.Front))
+                return EContainment.Disjoint;
+
+            return EContainment.Intersects;
         }
 
         public static float DistancePlanePoint(Vec3 normal, Vec3 planePoint, Vec3 point)
@@ -1094,51 +1113,20 @@ namespace System
         {
             throw new NotImplementedException();
         }
-        /// <summary>
-        /// Determines whether a <see cref="Sphere"/> contains a <see cref="BoundingBox"/>.
-        /// </summary>
-        /// <param name="sphere">The sphere to test.</param>
-        /// <param name="box">The box to test.</param>
-        /// <returns>The type of containment the two objects have.</returns>
+
         public static EContainment SphereContainsBox(
             Vec3 sphereCenter,
             float sphereRadius,
             Vec3 boxHalfExtents,
-            Matrix4 boxTransform/*,
-            Matrix4 boxInverseTransform*/)
-        {
-            //if (!BoxIntersectsSphere(boxHalfExtents, boxInverseTransform, sphereCenter, sphereRadius))
-            //    return EContainment.Disjoint;
-
-            int inside = 0, outside = 0;
-
-            float r2 = sphereRadius * sphereRadius;
-            Vec3[] points = BoundingBox.GetCorners(boxHalfExtents, boxTransform);
-            foreach (Vec3 point in points)
-                if (sphereCenter.DistanceToSquared(point) > r2)
-                    ++outside;
-                else
-                    ++inside;
-
-            if (outside == 0)
-                return EContainment.Contains;
-            if (inside == 0)
-                return EContainment.Disjoint;
-            
-            return EContainment.Intersects;
-        }
-        public static EContainment SphereContainsBox(
-            Vec3 sphereCenter,
-            float sphereRadius,
-            Vec3 boxHalfExtents,
-            Matrix4 boxTransform,
             Matrix4 boxInverseTransform)
         {
             if (!BoxIntersectsSphere(boxHalfExtents, boxInverseTransform, sphereCenter, sphereRadius))
                 return EContainment.Disjoint;
 
+            sphereCenter = Vec3.TransformPosition(sphereCenter, boxInverseTransform);
+
             float r2 = sphereRadius * sphereRadius;
-            Vec3[] points = BoundingBox.GetCorners(boxHalfExtents, boxTransform);
+            Vec3[] points = BoundingBox.GetCorners(boxHalfExtents, Matrix4.Identity);
             foreach (Vec3 point in points)
                 if (sphereCenter.DistanceToSquared(point) > r2)
                     return EContainment.Intersects;

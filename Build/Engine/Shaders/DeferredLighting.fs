@@ -119,6 +119,11 @@ vec3 Spec_CookTorrance(float D, float G, vec3 F, float NoV, float NoL)
 	return num / denom;
 }
 
+float GetShadowBias(in float NoL, in float power, in float minBias, in float maxBias)
+{
+    float mapped = pow(10.0f, -NoL * power);
+    return mix(minBias, maxBias, mapped);
+}
 //0 is fully in shadow, 1 is fully lit
 float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D shadowMap, mat4 lightMatrix)
 {
@@ -132,9 +137,7 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 	fragCoord = fragCoord * 0.5f + 0.5f;
 
 	//Create bias depending on angle of normal to the light
-	float maxBias = 0.04f;
-	float minBias = 0.001f;
-	float bias = 0.001f;//mix(maxBias, minBias, NoL);
+	float bias = GetShadowBias(NoL, 2.5f, 0.001f, 0.04f);
 
 	//Read depth value from shadow map rendered in light space
 	float depth = texture(shadowMap, fragCoord.xy).r;
@@ -157,10 +160,10 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 
 	return shadow;
 }
+//0 is fully in shadow, 1 is fully lit
 float ReadShadowMapCube(in vec3 fragToLightWS, in float lightDist, in float NoL)
 {
-	float mapped = pow(10.0f, -NoL * 2.5f);
-    float bias = mix(0.05f, 4.0f, mapped);
+    float bias = GetShadowBias(NoL, 2.5f, 0.15f, 5.0f);
 	float closestDepth = texture(PointShadowMap, fragToLightWS).r * 1000.0f;
 	return lightDist - bias > closestDepth ? 0.0f : 1.0f;
 }
@@ -219,7 +222,7 @@ vec3 CalcPointLight(PointLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albed
 {
     vec3 L = light.Position - fragPosWS;
 	float lightDist = length(L);
-	float attn = Attenuate(lightDist / light.Brightness, light.Radius);
+	float attn = Attenuate(lightDist / light.Brightness, light.Radius / light.Brightness);
 	L = normalize(L);
 	vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
@@ -236,7 +239,7 @@ vec3 CalcPointLight(PointLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albed
 } 
 vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
 {
-    	vec3 L = light.Position - fragPosWS;
+    vec3 L = light.Position - fragPosWS;
 	float distance = length(L);
 	L = normalize(L);
 
@@ -249,19 +252,19 @@ vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoO
 	if (cosine <= light.OuterCutoff)
 		return vec3(light.Base.Color * light.Base.AmbientIntensity) * ambOcc;
 
-    	float clampedCosine = clamp(cosine, light.OuterCutoff, light.InnerCutoff);
+    float clampedCosine = clamp(cosine, light.OuterCutoff, light.InnerCutoff);
 
 	//Subtract smaller value and divide by range to normalize value
-    	float time = (clampedCosine - light.OuterCutoff) / (light.InnerCutoff - light.OuterCutoff);
+    float time = (clampedCosine - light.OuterCutoff) / (light.InnerCutoff - light.OuterCutoff);
 
 	//Make transition smooth rather than linear
 	float spotAmt = smoothstep(0.0f, 1.0f, time);
 
-    	float spotAttn = pow(clampedCosine, light.Exponent);
-    	float distAttn = Attenuate(distance / light.Brightness, light.Radius);
+    float spotAttn = pow(clampedCosine, light.Exponent);
+    float distAttn = Attenuate(distance / light.Brightness, light.Radius);
 	float attn = spotAmt * spotAttn * distAttn;
 
-    	vec3 H = normalize(V + L);
+    vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
 	float NoH = max(dot(N, H), 0.0f);
 	float NoV = max(dot(N, V), 0.0f);

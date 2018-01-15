@@ -33,6 +33,12 @@ namespace TheraEngine.Core.Shapes
             get => _transform.Matrix;
             set => _transform.Matrix = value;
         }
+        [Browsable(false)]
+        public Matrix4 InverseWorldMatrix
+        {
+            get => _transform.InverseMatrix;
+            set => _transform.InverseMatrix = value;
+        }
 
         public Vec3 Center => _transform.Matrix.GetPoint();
 

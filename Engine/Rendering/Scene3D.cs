@@ -81,12 +81,10 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public void Render(ERenderPass3D pass, bool shadowPass)
+        public void Render(ERenderPass3D pass)
         {
             var list = _passes[(int)pass];
-            _sorter.ShadowPass = shadowPass;
-            foreach (I3DRenderable r in list.OrderBy(x => x, _sorter))
-                r.Render();
+            list.ForEach(x => x.Render());
             list.Clear();
         }
 
@@ -94,6 +92,13 @@ namespace TheraEngine.Rendering
         {
             List<I3DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
             r.Add(item);
+        }
+
+        public void Sort(bool shadowPass)
+        {
+            _sorter.ShadowPass = shadowPass;
+            foreach (var list in _passes)
+                list.Sort(_sorter);
         }
     }
     /// <summary>
@@ -167,15 +172,25 @@ namespace TheraEngine.Rendering
             //Engine.Renderer.ColorMask(true, true, true, true);
         }
 
-        public void RenderForward(
-            Camera camera,
-            Frustum frustum,
-            Viewport v,
-            bool shadowPass)
+        public void CollectVisibleRenderables(Frustum frustum, bool shadowPass)
+        {
+            //TODO: implement octree on GPU with compute shader instead of here on CPU
+            //Also implement occlusion culling along with frustum culling
+            RenderTree.CollectVisible(frustum, _passes, shadowPass);
+            _passes.Sort(shadowPass);
+        }
+        public void CollectVisibleRenderables(Sphere sphere, bool shadowPass)
+        {
+            //TODO: implement octree on GPU with compute shader instead of here on CPU
+            //Also implement occlusion culling along with frustum culling
+            RenderTree.CollectVisible(sphere, _passes, shadowPass);
+            _passes.Sort(shadowPass);
+        }
+
+        public void RenderForward(Camera camera, Viewport v)
         {
             AbstractRenderer.PushCurrentCamera(camera);
             {
-                RenderTree.CollectVisible(frustum, _passes, shadowPass);
                 foreach (IPreRenderNeeded p in _preRenderList)
                     p.PreRender();
 
@@ -189,12 +204,12 @@ namespace TheraEngine.Rendering
                         Engine.Renderer.AllowDepthWrite(true);
 
                         //Render forward opaque objects first
-                        _passes.Render(ERenderPass3D.OpaqueForward, shadowPass);
+                        _passes.Render(ERenderPass3D.OpaqueForward);
                         //Render forward transparent objects next
-                        _passes.Render(ERenderPass3D.TransparentForward, shadowPass);
+                        _passes.Render(ERenderPass3D.TransparentForward);
                         
                         //Render forward on-top objects last
-                        _passes.Render(ERenderPass3D.OnTopForward, shadowPass);
+                        _passes.Render(ERenderPass3D.OnTopForward);
                     }
                     v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
 
@@ -214,27 +229,10 @@ namespace TheraEngine.Rendering
             }
             AbstractRenderer.PopCurrentCamera();
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="camera"></param>
-        /// <param name="frustum"></param>
-        /// <param name="lightingBuffer"></param>
-        /// <param name="postProcessBuffer"></param>
-        /// <param name="viewportRegion"></param>
-        /// <param name="shadowPass"></param>
-        public void RenderDeferred(
-            Camera camera,
-            Frustum frustum,
-            Viewport v,
-            bool shadowPass)
+        public void RenderDeferred(Camera c, Viewport v)
         {
-            AbstractRenderer.PushCurrentCamera(camera);
+            AbstractRenderer.PushCurrentCamera(c);
             {
-                //TODO: implement octree on GPU with compute shader instead of here on CPU
-                //Also implement occlusion culling along with frustum culling
-                RenderTree.CollectVisible(frustum, _passes, shadowPass);
                 foreach (IPreRenderNeeded p in _preRenderList)
                     p.PreRender();
 
@@ -250,10 +248,10 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.DepthFunc(EComparison.Lequal);
 
                             Engine.Renderer.AllowDepthWrite(false);
-                            _passes.Render(ERenderPass3D.Skybox, shadowPass);
+                            _passes.Render(ERenderPass3D.Skybox);
 
                             Engine.Renderer.AllowDepthWrite(true);
-                            _passes.Render(ERenderPass3D.OpaqueDeferredLit, shadowPass);
+                            _passes.Render(ERenderPass3D.OpaqueDeferredLit);
                         }
                         v.GBufferFBO.Unbind(EFramebufferTarget.Framebuffer);
 
@@ -271,22 +269,20 @@ namespace TheraEngine.Rendering
                             //and we need depth from the previous pass
                             //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                             Engine.Renderer.AllowDepthWrite(false);
-
-                            Engine.Renderer.CheckErrors();
+                            
                             //Render the deferred pass result
                             v.GBufferFBO.Render();
-                            Engine.Renderer.CheckErrors();
 
                             Engine.Renderer.AllowDepthWrite(true);
                             
-                            _passes.Render(ERenderPass3D.OpaqueForward, shadowPass);
+                            _passes.Render(ERenderPass3D.OpaqueForward);
                             //Render forward transparent objects next
-                            _passes.Render(ERenderPass3D.TransparentForward, shadowPass);
+                            _passes.Render(ERenderPass3D.TransparentForward);
                             
                             //Engine.Renderer.Clear(EBufferClear.Depth);
 
                             //Render forward on-top objects last
-                            _passes.Render(ERenderPass3D.OnTopForward, shadowPass);
+                            _passes.Render(ERenderPass3D.OnTopForward);
                         }
                         v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
                     }
@@ -310,22 +306,18 @@ namespace TheraEngine.Rendering
                 {
                     Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
-                    if (!shadowPass)
-                    {
-                        Engine.Renderer.AllowDepthWrite(false);
-                        _passes.Render(ERenderPass3D.Skybox, false);
-                    }
-
+                    Engine.Renderer.AllowDepthWrite(false);
+                    _passes.Render(ERenderPass3D.Skybox);
+                    
                     Engine.Renderer.AllowDepthWrite(true);
-
-                    _passes.Render(ERenderPass3D.OpaqueDeferredLit, shadowPass);
-                    _passes.Render(ERenderPass3D.OpaqueForward, shadowPass);
-                    _passes.Render(ERenderPass3D.TransparentForward, shadowPass);
+                    _passes.Render(ERenderPass3D.OpaqueDeferredLit);
+                    _passes.Render(ERenderPass3D.OpaqueForward);
+                    _passes.Render(ERenderPass3D.TransparentForward);
 
                     //Render forward on-top objects last
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
-                    _passes.Render(ERenderPass3D.OnTopForward, shadowPass);
+                    _passes.Render(ERenderPass3D.OnTopForward);
                 }
             }
             AbstractRenderer.PopCurrentCamera();

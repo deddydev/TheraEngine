@@ -8,6 +8,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Maths.Transforms;
 using System.IO;
 using System.Drawing;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 {
@@ -69,14 +70,14 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             ShadowCameras = new PerspectiveCamera[6];
             Rotator[] rotations = new Rotator[]
             {
-                new Rotator(0.0f, -90.0f, 0.0f), //right
-                new Rotator(0.0f,  90.0f, 0.0f), //left
-                new Rotator(0.0f,   0.0f, 0.0f), //forward
-                new Rotator(0.0f, 180.0f, 0.0f), //backward
-                new Rotator(90.0f,  0.0f, 0.0f), //up
-                new Rotator(-90.0f, 0.0f, 0.0f), //down
+                new Rotator(0.0f, -90.0f, 180.0f), //+X
+                new Rotator(0.0f,  90.0f, 180.0f), //-X
+                new Rotator(90.0f,  0.0f, 0.0f), //+Y
+                new Rotator(-90.0f, 0.0f, 0.0f), //-Y
+                new Rotator(0.0f, 180.0f, 180.0f), //+Z
+                new Rotator(0.0f,   0.0f, 180.0f), //-Z
             };
-            ShadowCameras.FillWith(i => new PerspectiveCamera(Vec3.Zero, rotations[i], 0.01f, 10000.0f, 90.0f, 1.0f));
+            ShadowCameras.FillWith(i => new PerspectiveCamera(Vec3.Zero, rotations[i], 0.01f, 1000.0f, 90.0f, 1.0f));
 
             SetShadowMapResolution(1024);
         }
@@ -117,17 +118,17 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 
             _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount +
                 Engine.Scene.Lights.DirectionalLights.Count + Engine.Scene.Lights.SpotLights.Count + LightIndex,
-                indexer + "ShadowMap", programBindingId);
+                "PointShadowMap", programBindingId);
         }
         /// <summary>
         /// This is to set special uniforms each time something is rendered with the shadow depth shader.
         /// </summary>
         private void SetShadowDepthUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform(programBindingId, "FarPlane", 10000.0f);
+            Engine.Renderer.Uniform(programBindingId, "FarPlane", 1000.0f);
             Engine.Renderer.Uniform(programBindingId, "LightPos", _cullingVolume.Center);
             for (int i = 0; i < ShadowCameras.Length; ++i)
-                Engine.Renderer.Uniform(programBindingId, string.Format("ShadowCameraMatrices[{0}]", i), ShadowCameras[i].WorldToCameraSpaceMatrix * ShadowCameras[i].ProjectionMatrix);
+                Engine.Renderer.Uniform(programBindingId, string.Format("ShadowMatrices[{0}]", i), ShadowCameras[i].WorldToCameraProjSpaceMatrix);
         }
         public void SetShadowMapResolution(int resolution)
         {
@@ -152,13 +153,13 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             }
             return EPixelInternalFormat.DepthComponent32f;
         }
-        private static TMaterial GetShadowMapMaterial(int cubeExtent, EDepthPrecision precision = EDepthPrecision.Flt32)
+        private static TMaterial GetShadowMapMaterial(int cubeExtent, EDepthPrecision precision = EDepthPrecision.Int16)
         {
             //These are listed in order of appearance in the shader
             TexRefCube[] refs = new TexRefCube[]
             {
                 new TexRefCube("PointDepth", cubeExtent,
-                    EPixelInternalFormat.DepthComponent, EPixelFormat.DepthComponent, EPixelType.Float)
+                    GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -168,9 +169,11 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
                     FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                 },
             };
-            Shader fragShader = new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "point_shadows_depth.fs")));
-            Shader geomShader = new Shader(ShaderMode.Geometry, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "point_shadows_depth.gs")));
-            return new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader, geomShader);
+            Shader fragShader = Engine.LoadEngineShader("PointLightShadowDepth.fs", ShaderMode.Fragment);
+            Shader geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", ShaderMode.Geometry);
+            TMaterial mat = new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader, geomShader);
+            mat.RenderParams.CullMode = Culling.None;
+            return mat;
         }
         public override void RenderShadowMap(Scene3D scene)
         {
@@ -181,7 +184,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
 
-                //scene.Render(null, null, null, true);
+                scene.CollectVisibleRenderables(_cullingVolume, true);
+                scene.Render(null, null);
             }
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.Framebuffer);

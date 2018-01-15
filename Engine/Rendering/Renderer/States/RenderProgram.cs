@@ -1,5 +1,6 @@
 ﻿using TheraEngine.Rendering.Models.Materials;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace TheraEngine.Rendering
 {
@@ -10,6 +11,10 @@ namespace TheraEngine.Rendering
         public RenderProgram(params Shader[] shaders) : base(EObjectType.Program)
         {
             _shaders = shaders;
+        }
+        public RenderProgram(IEnumerable<Shader> shaders) : base(EObjectType.Program)
+        {
+            _shaders = shaders.ToArray();
         }
         protected override int CreateObject()
         {

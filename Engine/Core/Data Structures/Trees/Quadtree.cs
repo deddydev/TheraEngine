@@ -32,6 +32,8 @@ namespace System
 
         private Node _head;
 
+        public BoundingRectangle Bounds => _head.Bounds;
+
         public int Count { get; private set; } = 0;
 
         public Quadtree(BoundingRectangle bounds) => _head = new Node(bounds, 0, 0, null, this);

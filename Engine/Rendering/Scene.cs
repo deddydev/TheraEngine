@@ -15,7 +15,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelRender(Camera camera, Frustum frustum, Viewport viewport, bool shadowPass);
+    public delegate void DelRender(Camera camera, Viewport viewport);
     /// <summary>
     /// Use for calculating something right before *anything* in the scene is rendered.
     /// Generally used for setting up data for a collection of sub-renderables just before they are rendered separately.

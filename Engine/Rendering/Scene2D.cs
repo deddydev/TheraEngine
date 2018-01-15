@@ -76,133 +76,104 @@ namespace TheraEngine.Rendering
         public Quadtree RenderTree { get; private set; }
         public override int Count => RenderTree.Count;
         private RenderPasses2D _passes = new RenderPasses2D();
-        private bool _preRenderFrustumType;
 
         public Scene2D()
         {
-            Render = RenderForward;
+            Render = DoRender;
             Clear(Vec2.Zero);
         }
         
-        public void PreRender(Camera camera, Frustum frustum)
+        public void CollectVisibleRenderables(Frustum frustum)
         {
-            _preRenderFrustumType = true;
-
             bool hasTopLeft = Collision.RayIntersectsPlane(frustum.NearTopLeft, frustum.FarTopLeft - frustum.NearTopLeft, Vec3.Zero, Vec3.Backward, out Vec3 topLeft);
             bool hasTopRight = Collision.RayIntersectsPlane(frustum.NearTopRight, frustum.FarTopRight - frustum.NearTopRight, Vec3.Zero, Vec3.Backward, out Vec3 topRight);
             bool hasBottomLeft = Collision.RayIntersectsPlane(frustum.NearBottomLeft, frustum.FarBottomLeft - frustum.NearBottomLeft, Vec3.Zero, Vec3.Backward, out Vec3 bottomLeft);
             bool hasBottomRight = Collision.RayIntersectsPlane(frustum.NearBottomRight, frustum.FarBottomRight - frustum.NearBottomRight, Vec3.Zero, Vec3.Backward, out Vec3 bottomRight);
-            
+
             float minX = TMath.Min(topLeft.X, topRight.X, bottomLeft.X, bottomRight.X);
             float maxX = TMath.Max(topLeft.X, topRight.X, bottomLeft.X, bottomRight.X);
             float minY = TMath.Min(topLeft.Y, topRight.Y, bottomLeft.Y, bottomRight.Y);
             float maxY = TMath.Max(topLeft.Y, topRight.Y, bottomLeft.Y, bottomRight.Y);
 
-            BoundingRectangle bounds = BoundingRectangle.FromMinMaxSides(minX, maxX, minY, maxY, 0.0f, 0.0f);
-
-            AbstractRenderer.PushCurrentCamera(camera);
-            PreRender(bounds);
+            CollectVisibleRenderables(BoundingRectangle.FromMinMaxSides(minX, maxX, minY, maxY, 0.0f, 0.0f));
         }
-        public void PreRender(BoundingRectangle bounds)
+        public void CollectVisibleRenderables()
         {
-            _preRenderFrustumType = false;
+            CollectVisibleRenderables(RenderTree.Bounds);
+        }
+        public void CollectVisibleRenderables(BoundingRectangle bounds)
+        {
             RenderTree.CollectVisible(bounds, _passes);
-            foreach (IPreRenderNeeded p in _preRenderList)
-                p.PreRender();
         }
-        public void PostRender()
+        
+        public void DoRender(Camera c, Viewport v)
         {
-            if (_preRenderFrustumType)
-                AbstractRenderer.PopCurrentCamera();
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="camera"></param>
-        /// <param name="frustum"></param>
-        /// <param name="lightingBuffer"></param>
-        /// <param name="postProcessBuffer"></param>
-        /// <param name="viewportRegion"></param>
-        /// <param name="shadowPass"></param>
-        public void RenderForward(
-            Camera camera,
-            Frustum frustum,
-            Viewport v,
-            bool shadowPass)
-        {
-            if (camera == null)
-                return;
-
-            PreRender(camera, frustum);
-            ActualRender(v);
-        }
-        public void RenderForward(BoundingRectangle bounds, Viewport v)
-        {
-            PreRender(bounds);
-            ActualRender(v);
-        }
-
-        private void ActualRender(Viewport v)
-        {
-            if (v != null)
+            AbstractRenderer.PushCurrentCamera(c);
             {
-                //Enable internal resolution
-                Engine.Renderer.PushRenderArea(v.InternalResolution);
+                foreach (IPreRenderNeeded p in _preRenderList)
+                    p.PreRender();
+                if (v != null)
                 {
-                    //Now render to final post process framebuffer.
-                    v.PostProcessFBO.Bind(EFramebufferTarget.Framebuffer);
+                    //Enable internal resolution
+                    Engine.Renderer.PushRenderArea(v.InternalResolution);
                     {
-                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        //Now render to final post process framebuffer.
+                        v.PostProcessFBO.Bind(EFramebufferTarget.Framebuffer);
+                        {
+                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
-                        Engine.Renderer.AllowDepthWrite(false);
-                        _passes.Render(ERenderPass2D.Background);
+                            Engine.Renderer.AllowDepthWrite(false);
+                            _passes.Render(ERenderPass2D.Background);
 
-                        Engine.Renderer.AllowDepthWrite(true);
-                        _passes.Render(ERenderPass2D.Opaque);
-                        _passes.Render(ERenderPass2D.Transparent);
+                            Engine.Renderer.AllowDepthWrite(true);
+                            _passes.Render(ERenderPass2D.Opaque);
+                            _passes.Render(ERenderPass2D.Transparent);
 
-                        //Disable depth fail for objects on top
-                        Engine.Renderer.DepthFunc(EComparison.Always);
+                            //Disable depth fail for objects on top
+                            Engine.Renderer.DepthFunc(EComparison.Always);
 
-                        _passes.Render(ERenderPass2D.OnTop);
+                            _passes.Render(ERenderPass2D.OnTop);
+                        }
+                        v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
+
+                        //Render to 2D framebuffer.
+                        //v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                        //{
+                        //    Engine.Renderer.DepthFunc(EComparison.Lequal);
+                        //    v._postProcessFrameBuffer.Render();
+                        //}
+                        //v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
                     }
-                    v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
+                    //Disable internal resolution
+                    Engine.Renderer.PopRenderArea();
 
-                    //Render to 2D framebuffer.
-                    //v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                    //{
-                    //    Engine.Renderer.DepthFunc(EComparison.Lequal);
-                    //    v._postProcessFrameBuffer.Render();
-                    //}
-                    //v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                    //Render the last pass to the actual screen resolution
+                    Engine.Renderer.PushRenderArea(v.Region);
+                    {
+                        Engine.Renderer.CropRenderArea(v.Region);
+                        //v._hudFrameBuffer.Render();
+                    }
+                    Engine.Renderer.PopRenderArea();
+
+                    AbstractRenderer.PopCurrentCamera();
                 }
-                //Disable internal resolution
-                Engine.Renderer.PopRenderArea();
-
-                //Render the last pass to the actual screen resolution
-                Engine.Renderer.PushRenderArea(v.Region);
+                else
                 {
-                    Engine.Renderer.CropRenderArea(v.Region);
-                    //v._hudFrameBuffer.Render();
+                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+
+                    Engine.Renderer.AllowDepthWrite(false);
+                    _passes.Render(ERenderPass2D.Background);
+
+                    Engine.Renderer.AllowDepthWrite(true);
+                    _passes.Render(ERenderPass2D.Opaque);
+                    _passes.Render(ERenderPass2D.Transparent);
+
+                    //Disable depth fail for objects on top
+                    Engine.Renderer.DepthFunc(EComparison.Always);
+                    _passes.Render(ERenderPass2D.OnTop);
                 }
-                Engine.Renderer.PopRenderArea();
             }
-            else
-            {
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-
-                Engine.Renderer.AllowDepthWrite(false);
-                _passes.Render(ERenderPass2D.Background);
-
-                Engine.Renderer.AllowDepthWrite(true);
-                _passes.Render(ERenderPass2D.Opaque);
-                _passes.Render(ERenderPass2D.Transparent);
-
-                //Disable depth fail for objects on top
-                Engine.Renderer.DepthFunc(EComparison.Always);
-                _passes.Render(ERenderPass2D.OnTop);
-            }
-            PostRender();
+            AbstractRenderer.PopCurrentCamera();
         }
 
         public void Resize(Vec2 bounds)

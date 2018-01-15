@@ -34,7 +34,12 @@ namespace TheraEngine.Rendering.UI
         }
         public override void Render()
         {
-            GetScene().Render(Camera.File, Camera.File.Frustum, _viewport, false);
+            Scene scene = GetScene();
+            if (scene is Scene2D scene2d)
+                scene2d.CollectVisibleRenderables();
+            else if (scene is Scene3D scene3d)
+                scene3d.CollectVisibleRenderables(Camera.File.Frustum, false);
+            scene.Render(Camera.File, _viewport);
             base.Render();
         }
     }

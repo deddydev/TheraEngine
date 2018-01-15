@@ -68,7 +68,10 @@ namespace System
             _head.FindAll(shape, list, containment);
             return list;
         }
-
+        public void CollectVisible(Sphere sphere, RenderPasses3D passes, bool shadowPass)
+        {
+            _head.CollectVisible(sphere, passes, shadowPass);
+        }
         public void CollectVisible(Frustum frustum, RenderPasses3D passes, bool shadowPass)
         {
             if (frustum != null)
@@ -210,6 +213,32 @@ namespace System
             #endregion
 
             #region Visible collection
+            public void CollectVisible(Sphere sphere, RenderPasses3D passes, bool shadowPass)
+            {
+                EContainment c = sphere.Contains(_bounds);
+                if (c != EContainment.Disjoint)
+                {
+                    if (c == EContainment.Contains)
+                        CollectAll(passes, shadowPass);
+                    else
+                    {
+                        IsLoopingItems = true;
+                        for (int i = 0; i < _items.Count; ++i)
+                        {
+                            I3DRenderable r = _items[i] as I3DRenderable;
+                            bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
+                            if (allowRender && (r.CullingVolume == null || (c = r.CullingVolume.ContainedWithin(sphere)) != EContainment.Disjoint))
+                                passes.Add(r);
+                        }
+                        IsLoopingItems = false;
+
+                        IsLoopingSubNodes = true;
+                        for (int i = 0; i < MaxChildNodeCount; ++i)
+                            _subNodes[i]?.CollectVisible(sphere, passes, shadowPass);
+                        IsLoopingSubNodes = false;
+                    }
+                }
+            }
             public void CollectVisible(Frustum frustum, RenderPasses3D passes, bool shadowPass)
             {
                 EContainment c = frustum.Contains(_bounds);

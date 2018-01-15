@@ -272,6 +272,7 @@
     <Compile Include="Animation\Property\PropAnimMethod.cs" />
     <Compile Include="Animation\Property\BasePropAnim.cs" />
     <Compile Include="Animation\Property\BasePropAnimKeyframed.cs" />
+    <Compile Include="Components\Logic\ScriptComponent.cs" />
     <Compile Include="Components\Scene\InteractorComponent.cs" />
     <Compile Include="Components\Scene\Mesh\BaseRenderableMesh.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake2D.cs" />

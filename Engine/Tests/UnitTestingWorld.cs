@@ -58,11 +58,25 @@ namespace TheraEngine.Tests
             //    actors.Add(actor);
             //}
 
-            //Create floor
-            actor = new BoxActor("Floor",
-                new Vec3(500.0f, 0.5f, 500.0f), new Vec3(0.0f, -30.0f, 0.0f),
-                Rotator.GetZero(), TMaterial.CreateLitColorMaterial(floorColor));
-            actors.Add(actor);
+            Rotator[] rotations = 
+            {
+                new Rotator(0.0f, 0.0f, 0.0f),
+                new Rotator(90.0f, 0.0f, 0.0f),
+                new Rotator(180.0f, 0.0f, 0.0f),
+                new Rotator(270.0f, 0.0f, 0.0f),
+                new Rotator(90.0f, 90.0f, 0.0f),
+                new Rotator(90.0f, -90.0f, 0.0f),
+            };
+
+            //Create walls
+            for (int i = 0; i < 6; ++i)
+            {
+                Rotator r = rotations[i];
+                actor = new BoxActor("Wall" + i,
+                    new Vec3(500.0f, 0.5f, 500.0f), r.GetMatrix() * new Vec3(0.0f, -50.0f, 0.0f),
+                    r, TMaterial.CreateLitColorMaterial(floorColor));
+                actors.Add(actor);
+            }
 
             //Create shape tracer
             actor = new SphereTraceActor();
@@ -83,12 +97,12 @@ namespace TheraEngine.Tests
                 ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create world light
-            //Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
-            //dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
-            //dirlight.RootComponent.Rotation.Pitch = -35;
-            //dirlight.RootComponent.AmbientIntensity = 0.01f;
-            //actors.Add(dirlight);
-            
+            Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
+            dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
+            dirlight.RootComponent.Rotation.Pitch = -35;
+            dirlight.RootComponent.AmbientIntensity = 0.00f;
+            actors.Add(dirlight);
+
             //Create spot light
             //Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>();
             //spotlight.RootComponent.LightColor = (ColorF3)Color.Beige;
@@ -116,7 +130,7 @@ namespace TheraEngine.Tests
             //actors.Add(testScreenshake);
 
             //Create point lights
-            int lightCount = 4;
+            int lightCount = 1;
             float lightAngle = 360.0f / lightCount * TMath.DegToRadMultf;
             float lightPosRadius = 50.0f;
             float upTrans = 20.0f;

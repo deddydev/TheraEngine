@@ -229,15 +229,18 @@ namespace TheraEngine.Rendering.Cameras
             _projectionMatrix = Matrix4.Identity,
             _projectionInverse = Matrix4.Identity,
             _cameraToWorldSpaceMatrix = Matrix4.Identity,
-            _worldToCameraSpaceMatrix = Matrix4.Identity;
+            _worldToCameraSpaceMatrix = Matrix4.Identity,
+            _worldToCameraProjSpaceMatrix = Matrix4.Identity,
+            _cameraProjToWorldSpaceMatrix = Matrix4.Identity;
         private Vec3
             _forwardDirection = Vec3.Forward,
             _upDirection = Vec3.Up,
             _rightDirection = Vec3.Right;
         private bool
-            _forwardInvalidated = true,
-            _upInvalidated = true,
-            _rightInvalidated = true;
+            _forwardInvalidated = false,
+            _upInvalidated = false,
+            _rightInvalidated = false,
+            _matrixInvalidated = false;
 
         [TSerialize("Point")]
         protected EventVec3 _localPoint;
@@ -397,6 +400,33 @@ namespace TheraEngine.Rendering.Cameras
             return _rightDirection;
         }
 
+        public Matrix4 WorldToCameraProjSpaceMatrix
+        {
+            get
+            {
+                if (_matrixInvalidated)
+                {
+                    _worldToCameraProjSpaceMatrix = ProjectionMatrix * WorldToCameraSpaceMatrix;
+                    _cameraProjToWorldSpaceMatrix = CameraToWorldSpaceMatrix * InverseProjectionMatrix;
+                    _matrixInvalidated = false;
+                }
+                return _worldToCameraProjSpaceMatrix;
+            }
+        }
+        public Matrix4 CameraProjToWorldSpaceMatrix
+        {
+            get
+            {
+                if (_matrixInvalidated)
+                {
+                    _worldToCameraProjSpaceMatrix = ProjectionMatrix * WorldToCameraSpaceMatrix;
+                    _cameraProjToWorldSpaceMatrix = CameraToWorldSpaceMatrix * InverseProjectionMatrix;
+                    _matrixInvalidated = false;
+                }
+                return _cameraProjToWorldSpaceMatrix;
+            }
+        }
+
         /// <summary>
         /// Increments the camera's pitch and yaw rotations.
         /// </summary>
@@ -447,7 +477,7 @@ namespace TheraEngine.Rendering.Cameras
 
         protected void OnTransformChanged()
         {
-            _forwardInvalidated = _upInvalidated = _rightInvalidated = true;
+            _forwardInvalidated = _upInvalidated = _rightInvalidated = _matrixInvalidated = true;
             _updating = true;
             TransformChanged?.Invoke();
             _updating = false;

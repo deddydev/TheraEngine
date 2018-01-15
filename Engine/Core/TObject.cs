@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using System.Collections;
+using TheraEngine.Scripting;
 
 namespace TheraEngine
 {
@@ -109,6 +110,13 @@ namespace TheraEngine
             Engine.UnregisterTick(group, order, tickFunc, pausedBehavior);
         }
         #endregion
+
+        public static void RunScript(string path, params object[] arguments)
+            => RunScript(new PythonScript(path));
+        public static void RunScript(PythonScript script, params object[] arguments)
+        {
+            //script.Run();
+        }
 
 #if EDITOR
 

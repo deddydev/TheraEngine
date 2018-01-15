@@ -88,6 +88,7 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+
         protected unsafe override void CalculateProjection()
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);

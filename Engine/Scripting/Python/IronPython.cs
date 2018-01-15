@@ -23,8 +23,8 @@ namespace TheraEngine.Scripting
             Runtime.IO.SetErrorOutput(stream, writer);
 
             //Run test script
-            dynamic test = Runtime.UseFile(Path.Combine(Engine.Settings.ScriptsFolder, "Test.py"));
-            test.Test();
+            //dynamic test = Runtime.UseFile(Path.Combine(Engine.Settings.ScriptsFolder, "Test.py"));
+            //test.Test();
         }
         private static void OutputUpdate(object sender, EventArgs<string> e)
         {

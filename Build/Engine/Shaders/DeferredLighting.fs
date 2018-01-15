@@ -29,6 +29,7 @@ uniform mat4 WorldToCameraSpaceMatrix;
 uniform mat4 CameraToWorldSpaceMatrix;
 uniform mat4 ProjMatrix;
 uniform mat4 InvProjMatrix;
+uniform samplerCube PointShadowMap;
 
 struct BaseLight
 {
@@ -47,7 +48,6 @@ struct DirLight
 struct PointLight
 {
 	BaseLight Base;
-	//samplerCube ShadowMap;
 
 	vec3 Position;
 	float Radius;
@@ -140,7 +140,7 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 	float depth = texture(shadowMap, fragCoord.xy).r;
 
 	//Hard shadow
-	float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;        
+	float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
 
 	//PCF shadow
 	//float shadow = 0.0;
@@ -155,18 +155,15 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 	//}
 	//shadow *= 0.111111111f; //divided by 9
 
-	return shadow; 
+	return shadow;
 }
-//float ReadShadowMapCube(in vec3 fragPosWS, in vec3 lightPosWS, in samplerCube shadowMap)
-//{
-// 	vec3 fragToLight = fragPosWS - lightPosWS;
-//	float closestDepth = texture(shadowMap, fragToLight).r;
-//    closestDepth *= 10000.0f;
-//    float currentDepth = length(fragToLight);
-//    float bias = 0.05f;
-//    float shadow = currentDepth - bias > closestDepth ? 0.0f : 1.0f;
-//	return shadow; 
-//}
+float ReadShadowMapCube(in vec3 fragToLightWS, in float lightDist, in float NoL)
+{
+	float mapped = pow(10.0f, -NoL * 2.5f);
+    float bias = mix(0.05f, 4.0f, mapped);
+	float closestDepth = texture(PointShadowMap, fragToLightWS).r * 1000.0f;
+	return lightDist - bias > closestDepth ? 0.0f : 1.0f;
+}
 
 float Attenuate(in float dist, in float radius)
 {
@@ -220,8 +217,9 @@ vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpa
 }
 vec3 CalcPointLight(PointLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
 {
-    	vec3 L = light.Position - fragPosWS;
-	float attn = Attenuate(length(L) / light.Brightness, light.Radius);
+    vec3 L = light.Position - fragPosWS;
+	float lightDist = length(L);
+	float attn = Attenuate(lightDist / light.Brightness, light.Radius);
 	L = normalize(L);
 	vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
@@ -233,7 +231,7 @@ vec3 CalcPointLight(PointLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albed
 	vec3 ambient;
    	CalcColor(light.Base, NoL, NoH, NoV, HoV, attn, albedoOpacity, rmsi, color, ambient);
 
-	float shadow = 1.0f;//ReadShadowMapCube(fragPosWS, light.Position, light.ShadowMap);
+	float shadow = ReadShadowMapCube(-L, lightDist, NoL);
 	return ColorCombine(color, ambient, shadow, ambOcc);
 } 
 vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)

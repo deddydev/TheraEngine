@@ -27,12 +27,13 @@ namespace TheraEngine.Rendering.Models.Materials
         private ResultBasicFunc _editorMaterialEnd;
 #endif
 
-        private List<Shader> _geometryShaders;
-        private List<Shader> _tessEvalShaders;
-        private List<Shader> _tessCtrlShaders;
-        private List<Shader> _fragmentShaders;
+        private List<Shader> _geometryShaders = new List<Shader>();
+        private List<Shader> _tessEvalShaders = new List<Shader>();
+        private List<Shader> _tessCtrlShaders = new List<Shader>();
+        private List<Shader> _fragmentShaders = new List<Shader>();
+
         [TSerialize("Shaders")]
-        private Shader[] _shaders;
+        private List<Shader> _shaders = new List<Shader>();
 
         [TSerialize("FBOAttachments", Condition = "OverrideFBOAttachments")]
         private EDrawBuffersAttachment[] _fboAttachments;
@@ -291,18 +292,30 @@ namespace TheraEngine.Rendering.Models.Materials
             _parameters = parameters ?? new ShaderVar[0];
             Textures = textures ?? new BaseTexRef[0];
 
-            _shaders = shaders;
-            _fragmentShaders = new List<Shader>();
-            _geometryShaders = new List<Shader>();
-            _tessCtrlShaders = new List<Shader>();
-            _tessEvalShaders = new List<Shader>();
+            _shaders.AddRange(shaders);
 
+            ShadersChanged();
+        }
+
+        public void AddShader(Shader shader)
+        {
+            _shaders.Add(shader);
             ShadersChanged();
         }
 
         [PostDeserialize]
         private void ShadersChanged()
         {
+            _fragmentShaders.Clear();
+            _geometryShaders.Clear();
+            _tessCtrlShaders.Clear();
+            _tessEvalShaders.Clear();
+            if (_program != null)
+            {
+                _program.Generated -= _program_Generated;
+                _program = null;
+            }
+
             if (_shaders != null)
                 foreach (Shader s in _shaders)
                 {

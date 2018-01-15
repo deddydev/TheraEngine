@@ -58,6 +58,16 @@ namespace TheraEngine
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new RenderForm(game));
         }
+
+        public static Shader LoadEngineShader(string fileName, ShaderMode mode)
+        {
+            return new Shader(mode, new TextFile(EngineShaderPath(fileName)));
+        }
+        public static string EngineShaderPath(string fileName)
+        {
+            return Path.Combine(Settings.ShadersFolder, fileName);
+        }
+
         /// <summary>
         /// Call this to shut down the engine, deallocate all resources, and close the application.
         /// </summary>

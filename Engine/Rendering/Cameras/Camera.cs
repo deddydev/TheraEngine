@@ -531,6 +531,7 @@ namespace TheraEngine.Rendering.Cameras
             _projectionOrigin = new Vec3(Origin, 0.0f);
             _untransformedFrustum = CreateUntransformedFrustum();
             UpdateTransformedFrustum();
+            _matrixInvalidated = true;
             ProjectionChanged?.Invoke();
         }
 

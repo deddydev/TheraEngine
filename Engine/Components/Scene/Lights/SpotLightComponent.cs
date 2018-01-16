@@ -19,7 +19,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         private MaterialFrameBuffer _shadowMap;
         private PerspectiveCamera _shadowCamera;
         private IVec2 _shadowDims;
-        private Matrix4 _worldToLightSpaceProjMatrix;
         private ConeZ _innerCone, _outerCone;
 
         [Category("Spotlight Component")]
@@ -192,8 +191,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             _exponent = exponent;
             _rotation.SetRotations(rotation);
 
-            SetShadowMapResolution(1024, 1024);
-
             //_cullingVolume.State.Rotation.SyncFrom(_rotation);
             //_cullingVolume.State.Translation.SyncFrom(_translation);
         }
@@ -222,14 +219,25 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         public override void OnSpawned()
         {
             if (Type == LightType.Dynamic)
+            {
                 Engine.Scene.Lights.Add(this);
-            Engine.Scene.Add(this);
+                SetShadowMapResolution(1024, 1024);
+            }
+
+#if EDITOR
+            if (!Engine.EditorState.InGameMode)
+                Engine.Scene.Add(this);
+#endif
         }
         public override void OnDespawned()
         {
             if (Type == LightType.Dynamic)
                 Engine.Scene.Lights.Remove(this);
-            Engine.Scene.Remove(this);
+
+#if EDITOR
+            if (!Engine.EditorState.InGameMode)
+                Engine.Scene.Remove(this);
+#endif
         }
         public override void SetUniforms(int programBindingId)
         {
@@ -238,7 +246,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
             Engine.Renderer.Uniform(programBindingId, indexer + "OuterCutoff", _outerCutoff);
             Engine.Renderer.Uniform(programBindingId, indexer + "InnerCutoff", _innerCutoff);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Exponent", _exponent);
 
             Engine.Renderer.Uniform(programBindingId, indexer + "Position", Position);
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", _distance);
@@ -250,7 +257,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
             _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount + 
-                Engine.Scene.Lights.DirectionalLights.Count + LightIndex, indexer + "ShadowMap", programBindingId);
+                Engine.Scene.Lights.DirectionalLights.Count + LightIndex, string.Format("SpotShadowMaps[{0}]", LightIndex.ToString()), programBindingId);
         }
 
         public void SetShadowMapResolution(int width, int height)
@@ -329,17 +336,17 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             {
                 Engine.Scene.Add(OuterCone);
                 Engine.Scene.Add(InnerCone);
-#if DEBUG
-                Engine.Scene.Add(ShadowCamera);
-#endif
+//#if DEBUG
+//                Engine.Scene.Add(ShadowCamera);
+//#endif
             }
             else
             {
                 Engine.Scene.Remove(OuterCone);
                 Engine.Scene.Remove(InnerCone);
-#if DEBUG
-                Engine.Scene.Remove(ShadowCamera);
-#endif
+//#if DEBUG
+//                Engine.Scene.Remove(ShadowCamera);
+//#endif
             }
             base.OnSelectedChanged(selected);
         }

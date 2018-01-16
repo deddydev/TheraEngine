@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Tools;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -31,7 +32,20 @@ namespace TheraEditor.Windows.Forms
             return value1.Value == value2.Value;
         }
         protected override bool TryParse(string text, out Decimal value)
-            => Decimal.TryParse(text, out value);
+        {
+            try
+            {
+                value = ExpressionParser.Evaluate<Decimal>(text, null);
+                return true;
+            }
+            catch
+            {
+                value = DefaultValue;
+                return false;
+            }
+
+            //return Decimal.TryParse(text, out value);
+        }
         public override Decimal MinimumValue { get; set; } = Decimal.MinValue;
         public override Decimal MaximumValue { get; set; } = Decimal.MaxValue;
         public override bool Integral => false;

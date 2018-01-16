@@ -29,7 +29,6 @@ uniform mat4 WorldToCameraSpaceMatrix;
 uniform mat4 CameraToWorldSpaceMatrix;
 uniform mat4 ProjMatrix;
 uniform mat4 InvProjMatrix;
-uniform samplerCube PointShadowMap;
 
 struct BaseLight
 {
@@ -40,7 +39,6 @@ struct BaseLight
 struct DirLight
 {
 	BaseLight Base;
-	sampler2D ShadowMap;
 	mat4 WorldToLightSpaceProjMatrix;
 
 	vec3 Direction;
@@ -52,11 +50,11 @@ struct PointLight
 	vec3 Position;
 	float Radius;
 	float Brightness;
+	//float FarPlaneDist;
 };
 struct SpotLight
 {
 	BaseLight Base;
-	sampler2D ShadowMap;
 	mat4 WorldToLightSpaceProjMatrix;
 
 	vec3 Position;
@@ -65,22 +63,24 @@ struct SpotLight
 	float Brightness;
 	float InnerCutoff;
 	float OuterCutoff;
-	float Exponent;
 };
 
 uniform vec3 GlobalAmbient;
 
 uniform int DirLightCount; 
-uniform DirLight DirectionalLights[2];
+uniform DirLight DirLights[2];
+uniform sampler2D DirShadowMaps[2];
 
 uniform int SpotLightCount;
 uniform SpotLight SpotLights[16];
+uniform sampler2D SpotShadowMaps[16];
 
 uniform int PointLightCount;
-uniform PointLight PointLights[16];
+uniform PointLight PointLights[1];
+uniform samplerCube PointShadowMaps[1];
 
 //Trowbridge-Reitz GGX
-float SpecD_TRGGX(float NoH2, float a2)
+float SpecD_TRGGX(in float NoH2, in float a2)
 {
 	float num    = a2;
 	float denom  = (NoH2 * (a2 - 1.0f) + 1.0f);
@@ -88,20 +88,20 @@ float SpecD_TRGGX(float NoH2, float a2)
 
 	return num / denom;
 }
-float SpecG_SchlickGGX(float NoV, float k)
+float SpecG_SchlickGGX(in float NoV, in float k)
 {
 	float num   = NoV;
 	float denom = NoV * (1.0f - k) + k;
 
 	return num / denom;
 }
-float SpecG_Smith(float NoV, float NoL, float k)
+float SpecG_Smith(in float NoV, in float NoL, in float k)
 {
 	float ggx1 = SpecG_SchlickGGX(NoV, k);
 	float ggx2 = SpecG_SchlickGGX(NoL, k);
 	return ggx1 * ggx2;
 }
-vec3 SpecF_Schlick(float VoH, vec3 F0)
+vec3 SpecF_Schlick(in float VoH, in vec3 F0)
 {
 	//Regular implementation
 	//float pow = pow(1.0f - VoH, 5.0f);
@@ -112,7 +112,7 @@ vec3 SpecF_Schlick(float VoH, vec3 F0)
 
 	return F0 + (1.0f - F0) * pow;
 }
-vec3 Spec_CookTorrance(float D, float G, vec3 F, float NoV, float NoL)
+vec3 Spec_CookTorrance(in float D, in float G, in vec3 F, in float NoV, in float NoL)
 {
 	vec3 num = D * G * F;
 	float denom = 4.0f * NoV * NoL + 0.0001f;
@@ -125,7 +125,7 @@ float GetShadowBias(in float NoL, in float power, in float minBias, in float max
     return mix(minBias, maxBias, mapped);
 }
 //0 is fully in shadow, 1 is fully lit
-float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D shadowMap, mat4 lightMatrix)
+float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D shadowMap, in mat4 lightMatrix)
 {
 	//Move the fragment position into light space
 	vec4 fragPosLightSpace = lightMatrix * vec4(fragPosWS, 1.0f);
@@ -161,10 +161,10 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 	return shadow;
 }
 //0 is fully in shadow, 1 is fully lit
-float ReadShadowMapCube(in vec3 fragToLightWS, in float lightDist, in float NoL)
+float ReadPointShadowMap(in int lightIndex, in float farPlaneDist, in vec3 fragToLightWS, in float lightDist, in float NoL)
 {
     float bias = GetShadowBias(NoL, 2.5f, 0.15f, 5.0f);
-	float closestDepth = texture(PointShadowMap, fragToLightWS).r * 1000.0f;
+	float closestDepth = texture(PointShadowMaps[lightIndex], fragToLightWS).r * farPlaneDist;
 	return lightDist - bias > closestDepth ? 0.0f : 1.0f;
 }
 
@@ -174,7 +174,7 @@ float Attenuate(in float dist, in float radius)
 	return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
 }
 
-void CalcColor(BaseLight light, float NoL, float NoH, float NoV, float HoV, float attn, vec4 albedoOpacity, vec4 rmsi, out vec3 color, out vec3 ambient)
+void CalcColor(in BaseLight light, in float NoL, in float NoH, in float NoV, in float HoV, in float attn, in vec4 albedoOpacity, in vec4 rmsi, out vec3 color, out vec3 ambient)
 {
 	vec3 radiance = attn * light.Color * light.DiffuseIntensity;
 	
@@ -190,7 +190,7 @@ void CalcColor(BaseLight light, float NoL, float NoH, float NoV, float HoV, floa
 	float G = SpecG_Smith(NoV, NoL, k);
 	vec3  F = SpecF_Schlick(HoV, F0);
 	vec3 spec = rmsi.b * Spec_CookTorrance(D, G, F, NoV, NoL);
-     
+    
 	vec3 kS = F;
 	vec3 kD = vec3(1.0f) - kS;
 	kD *= 1.0f - rmsi.g;
@@ -202,8 +202,10 @@ vec3 ColorCombine(vec3 color, vec3 ambient, float shadow, float ambOcc)
 {
 	return (ambient + color * shadow) * ambOcc;
 }
-vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
+vec3 CalcDirLight(in int lightIndex, in vec3 N, in vec3 V, in vec3 fragPosWS, in vec4 albedoOpacity, in vec4 rmsi, in float ambOcc)
 {
+	DirLight light = DirLights[lightIndex];
+
 	vec3 L = -light.Direction;
 	vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
@@ -215,11 +217,13 @@ vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpa
 	vec3 ambient;
    	CalcColor(light.Base, NoL, NoH, NoV, HoV, 1.0f, albedoOpacity, rmsi, color, ambient);
 
-	float shadow = ReadShadowMap2D(fragPosWS, N, NoL, light.ShadowMap, light.WorldToLightSpaceProjMatrix);
+	float shadow = ReadShadowMap2D(fragPosWS, N, NoL, DirShadowMaps[lightIndex], light.WorldToLightSpaceProjMatrix);
 	return ColorCombine(color, ambient, shadow, ambOcc);
 }
-vec3 CalcPointLight(PointLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
+vec3 CalcPointLight(in int lightIndex, in vec3 N, in vec3 V, in vec3 fragPosWS, in vec4 albedoOpacity, in vec4 rmsi, in float ambOcc)
 {
+	PointLight light = PointLights[lightIndex];
+
     vec3 L = light.Position - fragPosWS;
 	float lightDist = length(L);
 	float attn = Attenuate(lightDist / light.Brightness, light.Radius / light.Brightness);
@@ -234,13 +238,15 @@ vec3 CalcPointLight(PointLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albed
 	vec3 ambient;
    	CalcColor(light.Base, NoL, NoH, NoV, HoV, attn, albedoOpacity, rmsi, color, ambient);
 
-	float shadow = ReadShadowMapCube(-L, lightDist, NoL);
+	float shadow = ReadPointShadowMap(lightIndex, light.Radius, -L, lightDist, NoL);
 	return ColorCombine(color, ambient, shadow, ambOcc);
 } 
-vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
+vec3 CalcSpotLight(in int lightIndex, in vec3 N, in vec3 V, in vec3 fragPosWS, in vec4 albedoOpacity, in vec4 rmsi, in float ambOcc)
 {
+	SpotLight light = SpotLights[lightIndex];
+
     vec3 L = light.Position - fragPosWS;
-	float distance = length(L);
+	float lightDist = length(L);
 	L = normalize(L);
 
 	//OuterCutoff is the smaller value, despite being a larger angle
@@ -259,10 +265,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoO
 
 	//Make transition smooth rather than linear
 	float spotAmt = smoothstep(0.0f, 1.0f, time);
-
-    float spotAttn = pow(clampedCosine, light.Exponent);
-    float distAttn = Attenuate(distance / light.Brightness, light.Radius);
-	float attn = spotAmt * spotAttn * distAttn;
+    float distAttn = Attenuate(lightDist / light.Brightness, light.Radius / light.Brightness);
+	float attn = spotAmt * distAttn;
 
     vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
@@ -274,26 +278,26 @@ vec3 CalcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 fragPosWS, vec4 albedoO
 	vec3 ambient;
    	CalcColor(light.Base, NoL, NoH, NoV, HoV, attn, albedoOpacity, rmsi, color, ambient);
 
-	float shadow = ReadShadowMap2D(fragPosWS, N, NoL, light.ShadowMap, light.WorldToLightSpaceProjMatrix);
+	float shadow = ReadShadowMap2D(fragPosWS, N, NoL, SpotShadowMaps[lightIndex], light.WorldToLightSpaceProjMatrix);
 	return ColorCombine(color, ambient, shadow, ambOcc);
 }
-vec3 CalcTotalLight(vec3 N, vec3 fragPosWS, vec4 albedoOpacity, vec4 rmsi, float ambOcc)
+vec3 CalcTotalLight(in vec3 N, in vec3 fragPosWS, in vec4 albedoOpacity, in vec4 rmsi, in float ambOcc)
 {
     vec3 totalLight = GlobalAmbient;
 	vec3 V = normalize(CameraPosition - fragPosWS);
 
     for (int i = 0; i < DirLightCount; ++i)
-       	totalLight += CalcDirLight(DirectionalLights[i], N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
+       	totalLight += CalcDirLight(i, N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
 
     for (int i = 0; i < PointLightCount; ++i)
-       	totalLight += CalcPointLight(PointLights[i], N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
+       	totalLight += CalcPointLight(i, N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
 
     for (int i = 0; i < SpotLightCount; ++i)
-       	totalLight += CalcSpotLight(SpotLights[i], N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
+       	totalLight += CalcSpotLight(i, N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
 
     return totalLight;
 }
-vec3 ViewPosFromDepth(float depth, vec2 uv)
+vec3 ViewPosFromDepth(in float depth, in vec2 uv)
 {
     float z = depth * 2.0f - 1.0f;
     vec4 clipSpacePosition = vec4(uv * 2.0f - 1.0f, z, 1.0f);

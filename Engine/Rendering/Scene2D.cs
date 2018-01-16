@@ -57,8 +57,11 @@ namespace TheraEngine.Rendering
         public void Render(ERenderPass2D pass)
         {
             var list = _passes[(int)pass];
-            foreach (I2DRenderable r in list.OrderBy(x => x, _sorter))
-                r.Render();
+            list.ForEach(x =>
+            {
+                x.Render();
+                x.RenderInfo.LastRenderedTime = DateTime.Now;
+            });
             list.Clear();
         }
 
@@ -66,6 +69,12 @@ namespace TheraEngine.Rendering
         {
             List<I2DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
             r.Add(item);
+        }
+
+        public void Sort()
+        {
+            foreach (var list in _passes)
+                list.Sort(_sorter);
         }
     }
     /// <summary>
@@ -180,7 +189,7 @@ namespace TheraEngine.Rendering
             }
             AbstractRenderer.PopCurrentCamera();
         }
-
+        
         public void Resize(Vec2 bounds)
         {
             RenderTree?.Resize(bounds);

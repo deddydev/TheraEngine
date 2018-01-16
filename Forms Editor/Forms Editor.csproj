@@ -147,6 +147,12 @@
     <Compile Include="Windows\Forms\BetterTableLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableContentCreator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableContentCreator.Designer.cs">
+      <DependentUpon>DockableContentCreator.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Editor Forms\DockableScriptEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -496,6 +502,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableContentCreator.resx">
+      <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableScriptEditor.resx">
       <DependentUpon>DockableScriptEditor.cs</DependentUpon>

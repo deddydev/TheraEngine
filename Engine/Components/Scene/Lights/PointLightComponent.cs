@@ -24,8 +24,13 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         [Category("Point Light Component")]
         public float Radius
         {
-            get => _radius;
-            set => _cullingVolume.Radius = (_radius = value);
+            get => _cullingVolume.Radius;
+            set
+            {
+                _cullingVolume.Radius = value;
+                foreach (PerspectiveCamera cam in ShadowCameras)
+                    cam.FarZ = value;
+            }
         }
         [Category("Point Light Component")]
         public int ShadowMapResolution
@@ -37,11 +42,9 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         public float Brightness
         {
             get => _brightness;
-            set
-            {
-                _brightness = value;
-            }
+            set => _brightness = value;
         }
+
         [Browsable(false)]
         [ReadOnly(true)]
         [Category("Point Light Component")]
@@ -62,13 +65,13 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         private Sphere _cullingVolume;
         private MaterialFrameBuffer _shadowMap;
         private int _shadowResolution;
-        private float _brightness = 1.0f, _radius = 100.0f;
+        private float _brightness = 1.0f;
 
         public PointLightComponent() : this(100.0f, 1.0f, new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
         public PointLightComponent(float radius, float brightness, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
             : base(color, diffuseIntensity, ambientIntensity)
         {
-            _cullingVolume = new Sphere((_radius = radius));
+            _cullingVolume = new Sphere(radius);
             _brightness = brightness;
 
             ShadowCameras = new PerspectiveCamera[6];
@@ -81,9 +84,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
                 new Rotator(0.0f, 180.0f, 180.0f), //+Z
                 new Rotator(0.0f,   0.0f, 180.0f), //-Z
             };
-            ShadowCameras.FillWith(i => new PerspectiveCamera(Vec3.Zero, rotations[i], 0.01f, 1000.0f, 90.0f, 1.0f));
-
-            SetShadowMapResolution(1024);
+            ShadowCameras.FillWith(i => new PerspectiveCamera(Vec3.Zero, rotations[i], 0.01f, radius, 90.0f, 1.0f));
         }
 
         protected override void OnWorldTransformChanged()
@@ -97,14 +98,25 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         public override void OnSpawned()
         {
             if (Type == LightType.Dynamic)
+            {
                 Engine.Scene.Lights.Add(this);
-            Engine.Scene.Add(this);
+                SetShadowMapResolution(1024);
+            }
+
+#if EDITOR
+            if (!Engine.EditorState.InGameMode)
+                Engine.Scene.Add(this);
+#endif
         }
         public override void OnDespawned()
         {
             if (Type == LightType.Dynamic)
                 Engine.Scene.Lights.Remove(this);
-            Engine.Scene.Remove(this);
+
+#if EDITOR
+            if (!Engine.EditorState.InGameMode)
+                Engine.Scene.Remove(this);
+#endif
         }
 
         /// <summary>
@@ -119,17 +131,18 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Position", _cullingVolume.Center);
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", Radius);
             Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
+            //Engine.Renderer.Uniform(programBindingId, indexer + "FarPlaneDist", _farPlaneDist);
 
             _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount +
                 Engine.Scene.Lights.DirectionalLights.Count + Engine.Scene.Lights.SpotLights.Count + LightIndex,
-                "PointShadowMap", programBindingId);
+                string.Format("PointShadowMaps[{0}]", LightIndex.ToString()), programBindingId);
         }
         /// <summary>
         /// This is to set special uniforms each time something is rendered with the shadow depth shader.
         /// </summary>
         private void SetShadowDepthUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform(programBindingId, "FarPlane", 1000.0f);
+            Engine.Renderer.Uniform(programBindingId, "FarPlaneDist", Radius);
             Engine.Renderer.Uniform(programBindingId, "LightPos", _cullingVolume.Center);
             for (int i = 0; i < ShadowCameras.Length; ++i)
                 Engine.Renderer.Uniform(programBindingId, string.Format("ShadowMatrices[{0}]", i), ShadowCameras[i].WorldToCameraProjSpaceMatrix);
@@ -187,7 +200,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             {
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
-
                 scene.CollectVisibleRenderables(_cullingVolume, true);
                 scene.Render(null, null);
             }

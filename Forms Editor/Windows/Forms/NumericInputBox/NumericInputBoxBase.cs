@@ -135,20 +135,42 @@ namespace TheraEditor.Windows.Forms
         {
             switch (e.KeyCode)
             {
+                case Keys.OemBackslash:
+                case Keys.OemPeriod:
+                case Keys.Oemcomma:
+                case Keys.Oemplus:
+                    if (!e.Shift)
+                    {
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        break;
+                    }
+                    break;
+                case Keys.OemQuestion:
+                case Keys.Subtract:
+                case Keys.OemMinus:
+                case Keys.D0:
+                case Keys.D6:
+                case Keys.D7:
+                case Keys.D8:
+                case Keys.D9:
+                    break;
+
                 case Keys.Back:
                 case Keys.Left:
                 case Keys.Right:
                     break;
-                case Keys.D0:
+
+                //case Keys.D0:
                 case Keys.D1:
                 case Keys.D2:
                 case Keys.D3:
                 case Keys.D4:
                 case Keys.D5:
-                case Keys.D6:
-                case Keys.D7:
-                case Keys.D8:
-                case Keys.D9:
+                //case Keys.D6:
+                //case Keys.D7:
+                //case Keys.D8:
+                //case Keys.D9:
                 case Keys.NumPad0:
                 case Keys.NumPad1:
                 case Keys.NumPad2:
@@ -159,11 +181,11 @@ namespace TheraEditor.Windows.Forms
                 case Keys.NumPad7:
                 case Keys.NumPad8:
                 case Keys.NumPad9:
-                    if (Signed && Text.IndexOf('-') >= SelectionStart)
-                    {
-                        e.Handled = true;
-                        e.SuppressKeyPress = true;
-                    }
+                    //if (Signed && Text.IndexOf('-') >= SelectionStart)
+                    //{
+                    //    e.Handled = true;
+                    //    e.SuppressKeyPress = true;
+                    //}
                     break;
                 case Keys.PageDown:
                 case Keys.PageUp:
@@ -179,17 +201,18 @@ namespace TheraEditor.Windows.Forms
                         e.SuppressKeyPress = true;
                     }
                     break;
-                case Keys.Subtract:
-                case Keys.OemMinus:
-                    if (!Signed || SelectionStart != 0 || Text.IndexOf('-') != -1)
-                        e.SuppressKeyPress = true;
-                    break;
 
-                case Keys.Decimal:
-                case Keys.OemPeriod:
-                    if (Integral || Text.IndexOf('.') != -1)
-                        e.SuppressKeyPress = true;
-                    break;
+                //case Keys.Subtract:
+                //case Keys.OemMinus:
+                //    if (!Signed || SelectionStart != 0 || Text.IndexOf('-') != -1)
+                //        e.SuppressKeyPress = true;
+                //    break;
+
+                //case Keys.Decimal:
+                //case Keys.OemPeriod:
+                //    if (Integral || Text.IndexOf('.') != -1)
+                //        e.SuppressKeyPress = true;
+                //    break;
 
                 case Keys.Escape:
                     //Reset text with current, unchanged value

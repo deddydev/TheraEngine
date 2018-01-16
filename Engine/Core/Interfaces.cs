@@ -51,6 +51,10 @@ namespace TheraEngine
             LayerIndex = layerIndex;
             OrderInLayer = orderInLayer;
         }
+
+        public DateTime LastRenderedTime { get; internal set; }
+
+        public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
     }
     public delegate float DelGetSortOrder(bool shadowPass);
     public class RenderInfo3D
@@ -67,6 +71,9 @@ namespace TheraEngine
         public bool CastsShadows { get; set; } = true;
         [TSerialize]
         public ERenderPass3D RenderPass { get; set; } = ERenderPass3D.OpaqueDeferredLit;
+
+        public DateTime LastRenderedTime { get; internal set; }
+        public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
 
         public DelGetSortOrder RenderOrderFunc;
 

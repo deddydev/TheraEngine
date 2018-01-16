@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Tools;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -25,7 +26,20 @@ namespace TheraEditor.Windows.Forms
             return value1.Value == value2.Value;
         }
         protected override bool TryParse(string text, out UInt16 value)
-            => UInt16.TryParse(text, out value);
+        {
+            try
+            {
+                value = ExpressionParser.Evaluate<UInt16>(text, null);
+                return true;
+            }
+            catch
+            {
+                value = DefaultValue;
+                return false;
+            }
+
+            //return UInt16.TryParse(text, out value);
+        }
         public override UInt16 MinimumValue { get; set; } = UInt16.MinValue;
         public override UInt16 MaximumValue { get; set; } = UInt16.MaxValue;
         public override bool Integral => true;

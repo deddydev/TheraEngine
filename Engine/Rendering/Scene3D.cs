@@ -84,7 +84,12 @@ namespace TheraEngine.Rendering
         public void Render(ERenderPass3D pass)
         {
             var list = _passes[(int)pass];
-            list.ForEach(x => x.Render());
+            list.ForEach(x =>
+            {
+                x.Render();
+                if (!_sorter.ShadowPass)
+                    x.RenderInfo.LastRenderedTime = DateTime.Now;
+            });
             list.Clear();
         }
 

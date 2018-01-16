@@ -136,14 +136,14 @@ namespace TheraEngine.Tests
             float upTrans = 20.0f;
             for (int i = 0; i < lightCount; i++)
             {
-                Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>();
-                pointLight.RootComponent.Radius = 200.0f;
-                pointLight.RootComponent.DiffuseIntensity = 2000.0f;
-                pointLight.RootComponent.AmbientIntensity = 0.0f;
-                pointLight.RootComponent.Translation = new Vec3(
-                    TMath.Cosf(i * lightAngle) * lightPosRadius,
-                    upTrans,
-                    TMath.Sinf(i * lightAngle) * lightPosRadius);
+                PointLightComponent comp = new PointLightComponent(100.0f, 4.0f, (ColorF3)Color.White, 2000.0f, 0.0f)
+                {
+                    Translation = new Vec3(
+                        TMath.Cosf(i * lightAngle) * lightPosRadius,
+                        upTrans,
+                        TMath.Sinf(i * lightAngle) * lightPosRadius)
+                };
+                Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
                 actors.Add(pointLight);
             }
 

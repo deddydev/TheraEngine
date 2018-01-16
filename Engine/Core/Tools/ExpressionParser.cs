@@ -19,8 +19,38 @@ namespace TheraEngine.Core.Tools
             Stack<String> stack = new Stack<String>();
             ConvertToPostFix(expression, queue, stack);
             string result = GetAnswer(provider, queue, stack);
-            T value = (T)GetValue(result, provider);
-            return value;
+            object value = GetValue(result, provider);
+            if (value is T tVal)
+                return tVal;
+            else
+            {
+                Type t = typeof(T);
+                if (t == typeof(float))
+                    return (T)(object)Convert.ToSingle(value);
+                else if (t == typeof(double))
+                    return (T)(object)Convert.ToDouble(value);
+                else if (t == typeof(decimal))
+                    return (T)(object)Convert.ToDecimal(value);
+                else if (t == typeof(byte))
+                    return (T)(object)Convert.ToByte(value);
+                else if (t == typeof(sbyte))
+                    return (T)(object)Convert.ToSByte(value);
+                else if (t == typeof(ushort))
+                    return (T)(object)Convert.ToUInt16(value);
+                else if (t == typeof(short))
+                    return (T)(object)Convert.ToInt16(value);
+                else if (t == typeof(uint))
+                    return (T)(object)Convert.ToUInt32(value);
+                else if (t == typeof(int))
+                    return (T)(object)Convert.ToInt32(value);
+                else if (t == typeof(ulong))
+                    return (T)(object)Convert.ToUInt64(value);
+                else if (t == typeof(long))
+                    return (T)(object)Convert.ToInt64(value);
+                else if (t == typeof(char))
+                    return (T)(object)Convert.ToChar(value);
+            }
+            throw new InvalidCastException();
         }
         private static string[] SplitInFix(string inFix)
         {

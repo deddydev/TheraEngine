@@ -69,7 +69,7 @@ namespace TheraEngine.Tests
             };
 
             //Create walls
-            for (int i = 0; i < 6; ++i)
+            for (int i = 0; i < 1; ++i)
             {
                 Rotator r = rotations[i];
                 actor = new BoxActor("Wall" + i,
@@ -79,41 +79,41 @@ namespace TheraEngine.Tests
             }
 
             //Create shape tracer
-            actor = new SphereTraceActor();
-            actors.Add(actor);
+            //actor = new SphereTraceActor();
+            //actors.Add(actor);
 
-            float rotationsPerSecond = 0.1f, testRadius = 30.0f, testHeight = 20.0f;
-            PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
-                1.0f / rotationsPerSecond, true, second =>
-            {
-                float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
-                //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
-                Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
-                return new Vec3(coord.X, testHeight, -coord.Y);
-            });
-            AnimationContainer anim = new AnimationContainer(
-                "RotationTrace", "Translation.Raw", false, animMethod);
-            actor.RootComponent.AddAnimation(anim, true, false, 
-                ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
+            //float rotationsPerSecond = 0.1f, testRadius = 30.0f, testHeight = 20.0f;
+            //PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
+            //    1.0f / rotationsPerSecond, true, second =>
+            //{
+            //    float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
+            //    //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
+            //    Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
+            //    return new Vec3(coord.X, testHeight, -coord.Y);
+            //});
+            //AnimationContainer anim = new AnimationContainer(
+            //    "RotationTrace", "Translation.Raw", false, animMethod);
+            //actor.RootComponent.AddAnimation(anim, true, false, 
+            //    ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create world light
             //Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
             //dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
             //dirlight.RootComponent.Rotation.Pitch = -35;
-            //dirlight.RootComponent.AmbientIntensity = 0.00f;
+            //dirlight.RootComponent.AmbientIntensity = 0.0f;
             //actors.Add(dirlight);
 
             //Create spot light
-            //Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>();
-            //spotlight.RootComponent.LightColor = (ColorF3)Color.Beige;
-            //spotlight.RootComponent.Rotation.Pitch = -90;
-            //spotlight.RootComponent.AmbientIntensity = 0.01f;
-            //spotlight.RootComponent.Translation.Raw = Vec3.Up * 70.0f;
-            //spotlight.RootComponent.Distance = 200.0f;
-            //spotlight.RootComponent.Brightness = 100.0f;
-            //spotlight.RootComponent.OuterCutoffAngleDegrees = 50.0f;
-            //spotlight.RootComponent.InnerCutoffAngleDegrees = 30.0f;
-            //actors.Add(spotlight);
+            Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>();
+            spotlight.RootComponent.LightColor = (ColorF3)Color.Beige;
+            spotlight.RootComponent.Rotation.Pitch = -90;
+            spotlight.RootComponent.AmbientIntensity = 0.01f;
+            spotlight.RootComponent.Translation.Raw = Vec3.Up * 70.0f;
+            spotlight.RootComponent.Distance = 200.0f;
+            spotlight.RootComponent.Brightness = 100.0f;
+            spotlight.RootComponent.OuterCutoffAngleDegrees = 50.0f;
+            spotlight.RootComponent.InnerCutoffAngleDegrees = 30.0f;
+            actors.Add(spotlight);
 
             //Create camera shake test
             //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
@@ -130,28 +130,34 @@ namespace TheraEngine.Tests
             //actors.Add(testScreenshake);
 
             //Create point lights
-            int lightCount = 1;
-            float lightAngle = 360.0f / lightCount * TMath.DegToRadMultf;
-            float lightPosRadius = 50.0f;
-            float upTrans = 20.0f;
-            for (int i = 0; i < lightCount; i++)
-            {
-                PointLightComponent comp = new PointLightComponent(100.0f, 4.0f, (ColorF3)Color.White, 2000.0f, 0.0f)
-                {
-                    Translation = new Vec3(
-                        TMath.Cosf(i * lightAngle) * lightPosRadius,
-                        upTrans,
-                        TMath.Sinf(i * lightAngle) * lightPosRadius)
-                };
-                Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
-                actors.Add(pointLight);
-            }
+            //int lightCount = 1;
+            //float lightAngle = 360.0f / lightCount * TMath.DegToRadMultf;
+            //float lightPosRadius = 50.0f;
+            //float upTrans = 20.0f;
+            //for (int i = 0; i < lightCount; i++)
+            //{
+            //    PointLightComponent comp = new PointLightComponent(400.0f, 5.0f, (ColorF3)Color.White, 2000.0f, 0.0f)
+            //    {
+            //        Translation = new Vec3(
+            //            TMath.Cosf(i * lightAngle) * lightPosRadius,
+            //            upTrans,
+            //            TMath.Sinf(i * lightAngle) * lightPosRadius)
+            //    };
+            //    Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
+            //    actors.Add(pointLight);
+            //}
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {
-                Bounds = new BoundingBox(500.0f),
+                Bounds = new BoundingBox(1000.0f),
                 OriginRebaseBounds = new BoundingBox(50.0f),
             };
+        }
+
+        public override void BeginPlay()
+        {
+            base.BeginPlay();
+            Engine.Scene.Add(Settings.OriginRebaseBounds);
         }
     }
 

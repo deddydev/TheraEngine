@@ -105,13 +105,17 @@ namespace TheraEngine.Worlds.Actors
         public override void OnSpawnedPreComponentSetup(World world)
         {
             HUD?.Spawned(world);
-            base.OnSpawnedPreComponentSetup(world);
+        }
+
+        public override void OnSpawnedPostComponentSetup(World world)
+        {
+            RootComponent.WorldTransformChanged += TryWorldRebase;
         }
 
         public override void OnDespawned()
         {
+            RootComponent.WorldTransformChanged -= TryWorldRebase;
             HUD?.Despawned();
-            base.OnDespawned();
         }
 
         public Pawn() : this(false) { }
@@ -141,6 +145,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         public virtual void RegisterInput(InputInterface input) { }
+        
         public void TryWorldRebase()
         {
             if (Engine.World == null)

@@ -115,10 +115,18 @@ namespace TheraEngine.Worlds
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
         /// Provide any world point and that point will become the new (0,0,0).
         /// </summary>
+
+        bool _isRebasing = false;
         public void RebaseOrigin(Vec3 newOrigin)
         {
-            foreach (IActor a in StateRef.File.SpawnedActors)
+            if (_isRebasing)
+                throw new Exception();
+            _isRebasing = true;
+
+            foreach (IActor a in State.SpawnedActors)
                 a.RebaseOrigin(newOrigin);
+
+            _isRebasing = false;
         }
 
         private void CreatePhysicsScene()

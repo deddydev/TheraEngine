@@ -15,10 +15,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             _translation = Vec3.Zero;
             _translation.Changed += RecalcLocalTransform;
         }
-        public PositionComponent(Vec3 translation)
-        {
-            Translation = translation;
-        }
+        public PositionComponent(Vec3 translation) : base()
+            => Translation = translation;
 
         [TSerialize("Translation")]
         protected EventVec3 _translation;

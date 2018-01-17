@@ -51,7 +51,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
         private int _shadowWidth, _shadowHeight;
         private MaterialFrameBuffer _shadowMap;
         private OrthographicCamera _shadowCamera;
-        private Matrix4 _worldToLightSpaceProjMatrix;
 
         private Vec3 _direction;
         public Vec3 Direction
@@ -86,7 +85,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
 
         public override void SetUniforms(int programBindingId)
         {
-            string indexer = Uniform.DirectionalLightsName + "[" + _lightIndex + "].";
+            string indexer = Uniform.DirectionalLightsName + "[" + LightIndex + "].";
 
             Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
 

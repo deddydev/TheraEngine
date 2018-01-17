@@ -105,15 +105,15 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
 
         protected override void PostConstruct()
         {
-            RootComponent.Translation = new Vec3(0.0f, 20.0f, -40.0f);
-            RootComponent.Rotation.Pitch = -10.0f;
+            //RootComponent.Translation = new Vec3(0.0f, 20.0f, -40.0f);
+            //RootComponent.Rotation.Pitch = -10.0f;
             Camera_TransformChanged();
             base.PostConstruct();
         }
 
         private void Camera_TransformChanged()
         {
-
+            
         }
 
         public override void RegisterInput(InputInterface input)
@@ -246,6 +246,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         public override void OnSpawnedPostComponentSetup(World world)
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+            base.OnSpawnedPostComponentSetup(world);
         }
         public override void OnDespawned()
         {

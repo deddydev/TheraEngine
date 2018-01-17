@@ -1,16 +1,23 @@
 #version 450
 
+#define MAX_DIR_LIGHTS 2
+#define MAX_SPOT_LIGHTS 8
+#define MAX_POINT_LIGHTS 8
+
 const float PI = 3.14159265359f;
 const float InvPI = 0.31831f;
 
-layout (location = 0) out vec4 OutColor;
-in vec3 FragPos;
+layout (location = 0) out vec4 OutColor; //Final Deferred Pass Color. Used later by the Post Process fragment shader.
+in vec3 FragPos; //
 
 uniform sampler2D Texture0; //AlbedoOpacity
 uniform sampler2D Texture1; //Normal
 uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
 uniform sampler2D Texture3; //SSAO Noise
 uniform sampler2D Texture4; //Depth
+uniform sampler2D DirShadowMaps[MAX_DIR_LIGHTS];
+uniform sampler2D SpotShadowMaps[MAX_SPOT_LIGHTS];
+uniform samplerCube PointShadowMaps[MAX_POINT_LIGHTS];
 
 uniform vec3 SSAOSamples[64];
 uniform float SSAORadius = 0.75f;
@@ -30,11 +37,17 @@ uniform mat4 CameraToWorldSpaceMatrix;
 uniform mat4 ProjMatrix;
 uniform mat4 InvProjMatrix;
 
+uniform vec3 GlobalAmbient;
+uniform int DirLightCount; 
+uniform int SpotLightCount;
+uniform int PointLightCount;
+
 struct BaseLight
 {
 	vec3 Color;
 	float DiffuseIntensity;
 	float AmbientIntensity;
+    //vec3 Padding;
 };
 struct DirLight
 {
@@ -42,6 +55,7 @@ struct DirLight
 	mat4 WorldToLightSpaceProjMatrix;
 
 	vec3 Direction;
+    //float Padding;
 };
 struct PointLight
 {
@@ -50,7 +64,7 @@ struct PointLight
 	vec3 Position;
 	float Radius;
 	float Brightness;
-	//float FarPlaneDist;
+    //vec3 Padding;
 };
 struct SpotLight
 {
@@ -61,23 +75,15 @@ struct SpotLight
 	vec3 Direction;
 	float Radius;
 	float Brightness;
+
 	float InnerCutoff;
 	float OuterCutoff;
+    //vec2 Padding;
 };
 
-uniform vec3 GlobalAmbient;
-
-uniform int DirLightCount; 
-uniform DirLight DirLights[2];
-uniform sampler2D DirShadowMaps[2];
-
-uniform int SpotLightCount;
-uniform SpotLight SpotLights[16];
-uniform sampler2D SpotShadowMaps[16];
-
-uniform int PointLightCount;
-uniform PointLight PointLights[1];
-uniform samplerCube PointShadowMaps[1];
+uniform DirLight DirLights[MAX_DIR_LIGHTS];
+uniform SpotLight SpotLights[MAX_SPOT_LIGHTS];
+uniform PointLight PointLights[MAX_POINT_LIGHTS];
 
 //Trowbridge-Reitz GGX
 float SpecD_TRGGX(in float NoH2, in float a2)
@@ -139,20 +145,18 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 	//Create bias depending on angle of normal to the light
 	float bias = GetShadowBias(NoL, 2.5f, 0.001f, 0.04f);
 
-	//Read depth value from shadow map rendered in light space
-	float depth = texture(shadowMap, fragCoord.xy).r;
-
 	//Hard shadow
+	float depth = texture(shadowMap, fragCoord.xy).r;
 	float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
 
 	//PCF shadow
 	//float shadow = 0.0;
-	//vec2 texelSize = 1.0f / textureSize(light.ShadowMap, 0);
+	//vec2 texelSize = 1.0f / textureSize(shadowMap, 0);
 	//for (int x = -1; x <= 1; ++x)
 	//{
 	//    for (int y = -1; y <= 1; ++y)
 	//    {
-	//        float pcfDepth = texture(light.ShadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
+	//        float pcfDepth = texture(shadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
 	//        shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;        
 	//    }    
 	//}
@@ -164,8 +168,28 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 float ReadPointShadowMap(in int lightIndex, in float farPlaneDist, in vec3 fragToLightWS, in float lightDist, in float NoL)
 {
     float bias = GetShadowBias(NoL, 2.5f, 0.15f, 5.0f);
+
+    //Hard shadow
 	float closestDepth = texture(PointShadowMaps[lightIndex], fragToLightWS).r * farPlaneDist;
-	return lightDist - bias > closestDepth ? 0.0f : 1.0f;
+	float shadow = lightDist - bias > closestDepth ? 0.0f : 1.0f;
+
+    //PCF shadow
+	//float shadow = 0.0;
+	//vec2 texelSize = 1.0f / textureSize(map, 0);
+	//for (int x = -1; x <= 1; ++x)
+	//{
+	//    for (int y = -1; y <= 1; ++y)
+	//    {
+ //           for (int z = -1; z <= 1; ++z)
+	//        {
+	//            float pcfDepth = texture(map, fragToLightWS + vec3(x, y, z) * texelSize).r * farPlaneDist;
+	//            shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;    
+ //           }
+	//    }    
+	//}
+	//shadow *= 0.111111111f; //divided by 9
+
+	return shadow;
 }
 
 float Attenuate(in float dist, in float radius)
@@ -286,13 +310,14 @@ vec3 CalcTotalLight(in vec3 N, in vec3 fragPosWS, in vec4 albedoOpacity, in vec4
     vec3 totalLight = GlobalAmbient;
 	vec3 V = normalize(CameraPosition - fragPosWS);
 
-    for (int i = 0; i < DirLightCount; ++i)
+    int i;
+    for (i = 0; i < DirLightCount; ++i)
        	totalLight += CalcDirLight(i, N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
 
-    for (int i = 0; i < PointLightCount; ++i)
+    for (i = 0; i < PointLightCount; ++i)
        	totalLight += CalcPointLight(i, N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
 
-    for (int i = 0; i < SpotLightCount; ++i)
+    for (i = 0; i < SpotLightCount; ++i)
        	totalLight += CalcSpotLight(i, N, V, fragPosWS, albedoOpacity, rmsi, ambOcc);
 
     return totalLight;

@@ -7,6 +7,7 @@ using TheraEngine.GameModes;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Worlds
 {
@@ -17,7 +18,7 @@ namespace TheraEngine.Worlds
     }
     [FileExt("world")]
     [FileDef("World")]
-    public unsafe class World : FileObject, IEnumerable<IActor>, IDisposable
+    public class World : FileObject, IEnumerable<IActor>, IDisposable
     {
         public World() : this(new WorldSettings(), new WorldState()) { }
         public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
@@ -117,15 +118,16 @@ namespace TheraEngine.Worlds
         /// </summary>
 
         bool _isRebasing = false;
-        public void RebaseOrigin(Vec3 newOrigin)
+        public async void RebaseOrigin(Vec3 newOrigin)
         {
             if (_isRebasing)
                 throw new Exception();
             _isRebasing = true;
 
             //Engine.PrintLine("Beginning origin rebase.");
-            foreach (IActor a in State.SpawnedActors)
-                a.RebaseOrigin(newOrigin);
+            await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
+            //foreach (IActor a in State.SpawnedActors)
+            //    a.RebaseOrigin(newOrigin);
             //Engine.PrintLine("Finished origin rebase.");
 
             _isRebasing = false;

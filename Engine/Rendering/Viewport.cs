@@ -227,7 +227,7 @@ namespace TheraEngine.Rendering
         
         public void Render(Scene scene, Camera camera, Frustum frustum)
         {
-            if (scene.Count == 0)
+            if (scene == null || scene.Count == 0)
                 return;
 
             CurrentlyRendering = this;

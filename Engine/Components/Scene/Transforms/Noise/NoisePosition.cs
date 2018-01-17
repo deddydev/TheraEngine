@@ -4,7 +4,7 @@ using TheraEngine.Input.Devices;
 namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
 {
     [FileDef("Translational Noise Component")]
-    public class NoisePositionComponent : PositionComponent
+    public class NoisePositionComponent : TranslationComponent
     {
         public override void OnSpawned()
         {

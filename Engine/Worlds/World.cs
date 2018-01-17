@@ -123,8 +123,10 @@ namespace TheraEngine.Worlds
                 throw new Exception();
             _isRebasing = true;
 
+            //Engine.PrintLine("Beginning origin rebase.");
             foreach (IActor a in State.SpawnedActors)
                 a.RebaseOrigin(newOrigin);
+            //Engine.PrintLine("Finished origin rebase.");
 
             _isRebasing = false;
         }

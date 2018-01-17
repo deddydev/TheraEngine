@@ -21,10 +21,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             Vec3 translation,
             Rotator rotation,
             Vec3 scale,
-            TRigidBodyConstructionInfo info)
+            TRigidBodyConstructionInfo info) : base(translation, rotation, scale, true)
         {
-            SetTRS(translation, rotation, scale);
-
             _modelRef = model ?? new GlobalFileRef<StaticModel>();
             _modelRef.RegisterLoadEvent(ModelLoaded);
 
@@ -35,15 +33,19 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
                 info.CollisionShape = model.File.Collision;
                 info.InitialWorldTransform = WorldMatrix;
                 _rigidBodyCollision = TRigidBody.New(this, info);
-                WorldTransformChanged += StaticMeshComponent_WorldTransformChanged;
-                _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged; 
+                _rigidBodyCollision.TransformChanged += RigidBodyTransformUpdated;
+
+                //WorldTransformChanged += ThisTransformUpdated;
+                //ThisTransformUpdated();
             }
+
+            RecalcLocalTransform();
         }
 
-        private void _rigidBodyCollision_TransformChanged(Matrix4 transform)
+        private void RigidBodyTransformUpdated(Matrix4 transform)
             => WorldMatrix = _rigidBodyCollision.WorldTransform;
-        private void StaticMeshComponent_WorldTransformChanged()
-            => _rigidBodyCollision.WorldTransform = WorldMatrix;
+        //private void ThisTransformUpdated()
+        //    => _rigidBodyCollision.WorldTransform = WorldMatrix;
 
         #region IMeshSocketOwner interface
         public MeshSocket this[string socketName]
@@ -181,10 +183,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             foreach (RenderableMesh m in _meshes)
                 m.Visible = false;
             base.OnDespawned();
-        }
-        protected internal override void OriginRebased(Vec3 newOrigin)
-        {
-            Translation.Raw -= newOrigin;
         }
     }
 }

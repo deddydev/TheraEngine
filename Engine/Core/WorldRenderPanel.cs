@@ -17,6 +17,9 @@ namespace TheraEngine
         protected override Scene3D GetScene(Viewport v) => Engine.Scene;
         protected override void PreRender()
         {
+            if (Engine.Scene == null)
+                return;
+
             Engine.Scene.Voxelize();
             Engine.Scene.RenderShadowMaps();
         }

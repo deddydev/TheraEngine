@@ -161,7 +161,10 @@ namespace TheraEngine.Worlds.Actors
             if (Engine.World == null)
                 return true;
 
-            BoundingBox bounds = Engine.World.Settings.Bounds;
+            return IsInBounds(Engine.World.Settings.Bounds);
+        }
+        public bool IsInBounds(BoundingBox bounds)
+        {
             Vec3 point = RootComponent.WorldMatrix.GetPoint();
             return bounds.Contains(point);
         }

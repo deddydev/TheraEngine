@@ -135,11 +135,7 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 {
 	//Move the fragment position into light space
 	vec4 fragPosLightSpace = lightMatrix * vec4(fragPosWS, 1.0f);
-
-	//Perspective divide
 	vec3 fragCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
-
-	//Scale and bias
 	fragCoord = fragCoord * 0.5f + 0.5f;
 
 	//Create bias depending on angle of normal to the light

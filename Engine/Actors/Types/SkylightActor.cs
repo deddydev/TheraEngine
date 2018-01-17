@@ -9,7 +9,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
-    public class SkylightActor : Actor<PositionComponent>
+    public class SkylightActor : Actor<TranslationComponent>
     {
         RenderTexCube _skyTexture;
         
@@ -61,7 +61,7 @@ namespace TheraEngine.Worlds.Actors.Types
             }
         }
 
-        protected override PositionComponent OnConstruct()
+        protected override TranslationComponent OnConstruct()
         {
             Rotator[] rotations = new Rotator[]
             {
@@ -72,7 +72,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 new Rotator(90.0f,  0.0f, 0.0f, RotationOrder.YPR), //up
                 new Rotator(-90.0f, 0.0f, 0.0f, RotationOrder.YPR), //down
             };
-            PositionComponent pos = new PositionComponent();
+            TranslationComponent pos = new TranslationComponent();
             for (int i = 0; i < 6; ++i)
             {
                 CameraComponent cam = new CameraComponent(new PerspectiveCamera(

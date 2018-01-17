@@ -198,6 +198,7 @@ For example, a logic component could give any actor health and/or allow it to ta
         }
         public void RebaseOrigin(Vec3 newOrigin)
         {
+            //Engine.PrintLine("Rebasing actor {0}", GetType().GetFriendlyName());
             RootComponent?.OriginRebased(newOrigin);
         }
 

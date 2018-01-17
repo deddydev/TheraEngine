@@ -4,7 +4,7 @@ using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
-    public class LandscapeActor : Actor<PositionComponent>
+    public class LandscapeActor : Actor<TranslationComponent>
     {
         Size _dimensions = new Size(100, 100);
 
@@ -20,9 +20,9 @@ namespace TheraEngine.Worlds.Actors.Types
             set { RootComponent.Translation = value; }
         }
 
-        protected override PositionComponent OnConstruct()
+        protected override TranslationComponent OnConstruct()
         {
-            return new PositionComponent();
+            return new TranslationComponent();
         }
     }
 }

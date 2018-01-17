@@ -8,7 +8,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
     /// Rotates first, then translates.
     /// </summary>
     [FileDef("Rotation-Translation Component")]
-    public class RTComponent : PositionComponent
+    public class RTComponent : TranslationComponent
     {
         public RTComponent() : base()
         {
@@ -18,6 +18,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         {
             SetRT(rotation, translation);
         }
+
         public void SetRT(Rotator rotation, Vec3 translation)
         {
             _rotation = rotation;
@@ -33,7 +34,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         [Category("Transform")]
         public Rotator Rotation
         {
-            get { return _rotation; }
+            get => _rotation;
             set
             {
                 _rotation = value;

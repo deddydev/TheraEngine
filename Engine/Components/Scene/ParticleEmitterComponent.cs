@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Worlds.Actors.Components.Scene
 {
-    public class ParticleEmitterComponent : PositionComponent
+    public class ParticleEmitterComponent : TranslationComponent
     {
         public ParticleEmitterComponent() : base() { }
     }

@@ -7,16 +7,17 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
     /// <summary>
     /// Contains a general translation.
     /// </summary>
-    [FileDef("Position Component")]
-    public class PositionComponent : SceneComponent
+    [FileDef("Translation Component")]
+    public class TranslationComponent : SceneComponent
     {
-        public PositionComponent() : base()
+        public TranslationComponent() : this(Vec3.Zero, true) { }
+        public TranslationComponent(Vec3 translation, bool deferLocalRecalc = false) : base()
         {
-            _translation = Vec3.Zero;
+            _translation = translation;
             _translation.Changed += RecalcLocalTransform;
+            if (!deferLocalRecalc)
+                RecalcLocalTransform();
         }
-        public PositionComponent(Vec3 translation) : base()
-            => Translation = translation;
 
         [TSerialize("Translation")]
         protected EventVec3 _translation;
@@ -27,7 +28,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             get => _translation;
             set
             {
-                _translation = value;
+                _translation = value ?? new EventVec3();
                 _translation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
@@ -44,11 +45,16 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         {
             localTransform = Matrix4.CreateTranslation(_translation.Raw);
             inverseLocalTransform = Matrix4.CreateTranslation(-_translation.Raw);
+
+            //Engine.PrintLine("Recalculated T.");
         }
-        
+
         protected internal override void OriginRebased(Vec3 newOrigin)
-            => HandleWorldTranslation(-newOrigin);
-        
+        {
+            //Engine.PrintLine("Rebasing {0}.", OwningActor.GetType().GetFriendlyName());
+            HandleWorldTranslation(-newOrigin);
+        }
+
         [Browsable(false)]
         public override bool IsTranslatable => true;
         public override void HandleWorldTranslation(Vec3 delta)

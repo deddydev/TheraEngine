@@ -56,14 +56,12 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             localTransform = _rotation.GetMatrix();
             inverseLocalTransform = _rotation.GetInverseMatrix();
         }
-
-#if EDITOR
+        
         public override bool IsRotatable => true;
         public override void HandleWorldRotation(Quat delta)
         {
-            delta.ToYawPitchRoll();
+            _rotation.SetRotations(delta.ToYawPitchRoll());
         }
-#endif
 
         protected internal override void OriginRebased(Vec3 newOrigin)
         {

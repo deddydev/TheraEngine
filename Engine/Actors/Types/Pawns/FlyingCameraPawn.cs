@@ -103,13 +103,13 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         [Category("Movement Parameters")]
         public float KeyboardTranslateSpeed { get => _keyboardTranslateSpeed; set => _keyboardTranslateSpeed = value; }
 
-        protected override void PostConstruct()
-        {
-            //RootComponent.Translation = new Vec3(0.0f, 20.0f, -40.0f);
-            //RootComponent.Rotation.Pitch = -10.0f;
-            Camera_TransformChanged();
-            base.PostConstruct();
-        }
+        //protected override void PostConstruct()
+        //{
+        //    //RootComponent.Translation = new Vec3(0.0f, 20.0f, -40.0f);
+        //    //RootComponent.Rotation.Pitch = -10.0f;
+        //    //Camera_TransformChanged();
+        //    base.PostConstruct();
+        //}
 
         private void Camera_TransformChanged()
         {
@@ -261,8 +261,6 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
                 RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
-            if (translate || rotate)
-                Camera_TransformChanged();
         }
 
         #region Customizable Input

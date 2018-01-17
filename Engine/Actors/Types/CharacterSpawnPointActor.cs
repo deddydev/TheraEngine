@@ -6,9 +6,9 @@ using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
-    public class CharacterSpawnPointActor : Actor<PositionComponent>
+    public class CharacterSpawnPointActor : Actor<TranslationComponent>
     {
-        protected override PositionComponent OnConstruct()
+        protected override TranslationComponent OnConstruct()
         {
             //TRigidBodyConstructionInfo info = new TRigidBodyConstructionInfo()
             //{
@@ -17,7 +17,7 @@ namespace TheraEngine.Worlds.Actors.Types
             //    CollisionEnabled = false,
             //    SimulatePhysics = false
             //};
-            return new PositionComponent(Vec3.Zero);
+            return new TranslationComponent(Vec3.Zero);
         }
         //TODO: test player's variable-sized capsule against space directly, not fixed-size root component capsule
         public virtual bool CanSpawnPlayer(PawnController c)

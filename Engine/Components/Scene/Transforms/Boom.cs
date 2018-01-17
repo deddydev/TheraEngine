@@ -63,7 +63,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
 
         private void Tick(float delta)
         {
-            Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.GetTranslationMatrix();
+            Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.AsTranslationMatrix();
             _startPoint = startMatrix.GetPoint();
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.GetPoint();

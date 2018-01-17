@@ -32,7 +32,7 @@ namespace TheraEngine.Tests
             List<IActor> actors = new List<IActor>();
             IActor actor;
 
-            int count = 5;
+            int count = 1;
             int y = 0;
 
             //Create spheres

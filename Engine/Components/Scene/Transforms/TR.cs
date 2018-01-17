@@ -8,17 +8,31 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
     /// Translates first, then rotates.
     /// </summary>
     [FileDef("Translate-Rotate Component")]
-    public class TRComponent : PositionComponent
+    public class TRComponent : TranslationComponent
     {
-        public TRComponent() : base()
+        public TRComponent() : this(Vec3.Zero, Rotator.GetZero(), true) { }
+        public TRComponent(Vec3 translation, Rotator rotation, bool deferLocalRecalc = false) : base(translation, true)
         {
-            _rotation = new Rotator();
+            _rotation = rotation;
             _rotation.Changed += RecalcLocalTransform;
+            if (!deferLocalRecalc)
+                RecalcLocalTransform();
         }
-        public TRComponent(Vec3 translation, Rotator rotation)
+        public TRComponent(Vec3 translation, bool deferLocalRecalc = false) : base(translation, true)
         {
-            SetTR(translation, rotation);
+            _rotation = Rotator.GetZero();
+            _rotation.Changed += RecalcLocalTransform;
+            if (!deferLocalRecalc)
+                RecalcLocalTransform();
         }
+        public TRComponent(Rotator rotation, bool deferLocalRecalc = false) : base()
+        {
+            _rotation = rotation;
+            _rotation.Changed += RecalcLocalTransform;
+            if (!deferLocalRecalc)
+                RecalcLocalTransform();
+        }
+
         public void SetTR(Vec3 translation, Rotator rotation)
         {
             _translation = translation;
@@ -37,7 +51,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             get => _rotation;
             set
             {
-                _rotation = value;
+                _rotation = value ?? new Rotator();
                 _rotation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
@@ -61,6 +75,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
 
             localTransform = t * r;
             inverseLocalTransform = ir * it;
+
+            //Engine.PrintLine("Recalculated TR.");
         }
         public void TranslateRelative(float x, float y, float z)
             => TranslateRelative(new Vec3(x, y, z));
@@ -68,7 +84,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         {
             _localTransform = LocalMatrix * Matrix4.CreateTranslation(translation);
             _inverseLocalTransform = Matrix4.CreateTranslation(-translation) * InverseLocalMatrix;
-            _translation = LocalMatrix.GetPoint();
+            _translation.SetRawNoUpdate(LocalMatrix.GetPoint());
             RecalcGlobalTransform();
         }
         

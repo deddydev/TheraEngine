@@ -737,7 +737,7 @@
     <Compile Include="Components\Scene\Transforms\Rotation.cs" />
     <Compile Include="Components\Scene\Transforms\RT.cs" />
     <Compile Include="Components\Scene\Transforms\TR.cs" />
-    <Compile Include="Components\Scene\Transforms\Position.cs" />
+    <Compile Include="Components\Scene\Transforms\Translation.cs" />
     <Compile Include="Components\Scene\Transforms\TRS.cs" />
     <Compile Include="Components\LogicComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Boom.cs" />

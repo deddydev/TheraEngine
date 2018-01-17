@@ -77,9 +77,9 @@ namespace System
         [Browsable(false)]
         public float* Data { get { return _data.Data; } }
 
-        public Matrix4 GetScaleMatrix()
+        public Matrix4 AsScaleMatrix()
             => _data.AsScaleMatrix();
-        public Matrix4 GetTranslationMatrix()
+        public Matrix4 AsTranslationMatrix()
             => _data.AsTranslationMatrix();
 
         [Browsable(false)]

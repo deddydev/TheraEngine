@@ -27,5 +27,10 @@ namespace TheraEditor.Wrappers
         #endregion
 
         public WorldWrapper() : base() { }
+
+        public override void EditResource()
+        {
+            Editor.Instance.CurrentWorld = Resource;
+        }
     }
 }

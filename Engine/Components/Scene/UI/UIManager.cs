@@ -14,7 +14,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
     /// Each viewport has a hud manager. 
     /// The main form also has a hud manager to overlay over everything if necessary.
     /// </summary>
-    public partial class UIManager : Pawn<UIDockableComponent>//, I3DRenderable
+    public partial class UIManager : Pawn<UIDockableComponent>, I3DRenderable
     {
         internal Scene2D _scene;
         private OrthographicCamera _camera;
@@ -112,6 +112,11 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         protected void OnChildAdded(UIComponent child)
         {
             child.OwningActor = this;
+        }
+
+        public void Render()
+        {
+            _scene.DoRender(AbstractRenderer.CurrentCamera, null);
         }
 
         internal void RemoveRenderableComponent(I2DRenderable component)

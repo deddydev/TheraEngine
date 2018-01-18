@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using TheraEngine;
 using TheraEngine.Files;
 
@@ -8,11 +9,13 @@ namespace TheraEditor
     public class EditorSettings : TSettings
     {
         [TSerialize]
-        public GlobalFileRef<EngineSettings> Engine { get; set; }
+        public GlobalFileRef<EngineSettings> EngineDefaults { get; set; }
         [TSerialize]
         public GlobalFileRef<PropertyGridSettings> PropertyGrid { get; set; }
         [TSerialize]
         public GlobalFileRef<ControlSettings> Controls { get; set; }
+        [TSerialize]
+        public List<string> RecentlyOpenedProjectPaths { get; } = new List<string>();
         
         [FileDef("Property Grid Settings")]
         public class PropertyGridSettings : TSettings
@@ -43,7 +46,7 @@ namespace TheraEditor
 
         public EditorSettings()
         {
-            Engine = new EngineSettings()
+            EngineDefaults = new EngineSettings()
             {
                 CapFPS = true,
                 TargetFPS = 15.0f,

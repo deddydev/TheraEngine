@@ -5,6 +5,7 @@ using TheraEngine.Files;
 using System.Collections.Generic;
 using System;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {

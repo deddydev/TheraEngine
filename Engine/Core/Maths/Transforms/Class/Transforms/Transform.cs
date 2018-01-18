@@ -1,9 +1,9 @@
 ﻿using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Core.Maths.Transforms;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Maths.Transforms
 {
     public enum TransformOrder
     {

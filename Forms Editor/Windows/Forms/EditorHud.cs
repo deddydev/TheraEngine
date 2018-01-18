@@ -15,6 +15,7 @@ using TheraEngine.Worlds.Actors.Components;
 using TheraEngine.Worlds.Actors.Types;
 using TheraEngine.Worlds.Actors.Types.Pawns;
 using TheraEngine.Physics;
+using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms
 {

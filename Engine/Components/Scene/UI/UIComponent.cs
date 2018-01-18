@@ -6,6 +6,7 @@ using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Worlds.Actors.Components;
 using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI
 {

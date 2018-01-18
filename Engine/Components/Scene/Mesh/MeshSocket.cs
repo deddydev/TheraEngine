@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
 {
@@ -92,6 +94,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
             //_owner?.GenerateSceneComponentCache();
         }
 
+        [TSerialize]
         public Transform Transform
         {
             get => _transform;

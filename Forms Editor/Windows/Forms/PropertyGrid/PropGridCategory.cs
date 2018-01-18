@@ -41,6 +41,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             string displayName = displayNameAttrib?.DisplayName;
             string propName = editors[0].Property?.Name;
             string name;
+
             if (!string.IsNullOrWhiteSpace(displayName))
             {
                 name = displayName;
@@ -121,12 +122,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void lblCategoryName_MouseEnter(object sender, EventArgs e)
         {
-            lblCategoryName.BackColor = panel1.BackColor = Color.FromArgb(14, 18, 34);
+            lblCategoryName.BackColor = pnlSide.BackColor = Color.FromArgb(14, 18, 34);
         }
 
         private void lblCategoryName_MouseLeave(object sender, EventArgs e)
         {
-            lblCategoryName.BackColor = panel1.BackColor = Color.FromArgb(54, 58, 74);
+            lblCategoryName.BackColor = pnlSide.BackColor = Color.FromArgb(54, 58, 74);
         }
 
         private void lblCategoryName_MouseDown(object sender, MouseEventArgs e)

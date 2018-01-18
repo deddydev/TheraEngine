@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace TheraEngine
+namespace TheraEngine.Editor
 {
 #if EDITOR
     public delegate void DelPropertyChange(EditorState state, string propertyValue, object oldValue, object newValue);

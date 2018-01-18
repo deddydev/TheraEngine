@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.tblProps = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.lblCategoryName = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.pnlSide = new System.Windows.Forms.Panel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
@@ -43,7 +43,7 @@
             this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tblProps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblProps.Location = new System.Drawing.Point(11, 31);
+            this.tblProps.Location = new System.Drawing.Point(10, 25);
             this.tblProps.Margin = new System.Windows.Forms.Padding(0);
             this.tblProps.Name = "tblProps";
             this.tblProps.RowCount = 1;
@@ -60,8 +60,8 @@
             this.lblCategoryName.Location = new System.Drawing.Point(0, 0);
             this.lblCategoryName.Margin = new System.Windows.Forms.Padding(0);
             this.lblCategoryName.Name = "lblCategoryName";
-            this.lblCategoryName.Padding = new System.Windows.Forms.Padding(11, 0, 0, 0);
-            this.lblCategoryName.Size = new System.Drawing.Size(11, 31);
+            this.lblCategoryName.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
+            this.lblCategoryName.Size = new System.Drawing.Size(10, 25);
             this.lblCategoryName.TabIndex = 0;
             this.lblCategoryName.Text = "Miscellaneous";
             this.lblCategoryName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -69,30 +69,33 @@
             this.lblCategoryName.MouseEnter += new System.EventHandler(this.lblCategoryName_MouseEnter);
             this.lblCategoryName.MouseLeave += new System.EventHandler(this.lblCategoryName_MouseLeave);
             // 
-            // panel1
+            // pnlSide
             // 
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panel1.Location = new System.Drawing.Point(0, 31);
-            this.panel1.Margin = new System.Windows.Forms.Padding(0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(11, 0);
-            this.panel1.TabIndex = 2;
+            this.pnlSide.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
+            this.pnlSide.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlSide.Location = new System.Drawing.Point(0, 25);
+            this.pnlSide.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlSide.Name = "pnlSide";
+            this.pnlSide.Size = new System.Drawing.Size(10, 0);
+            this.pnlSide.TabIndex = 2;
+            this.pnlSide.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblCategoryName_MouseDown);
+            this.pnlSide.MouseEnter += new System.EventHandler(this.lblCategoryName_MouseEnter);
+            this.pnlSide.MouseLeave += new System.EventHandler(this.lblCategoryName_MouseLeave);
             // 
             // PropGridCategory
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.Controls.Add(this.tblProps);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.pnlSide);
             this.Controls.Add(this.lblCategoryName);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "PropGridCategory";
-            this.Size = new System.Drawing.Size(11, 31);
+            this.Size = new System.Drawing.Size(10, 25);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -102,7 +105,7 @@
 
         public TheraEditor.Windows.Forms.BetterTableLayoutPanel tblProps;
         private System.Windows.Forms.Label lblCategoryName;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pnlSide;
         private System.Windows.Forms.ToolTip toolTip1;
     }
 }

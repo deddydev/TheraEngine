@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using TheraEngine.Animation;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;

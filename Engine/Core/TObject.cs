@@ -3,11 +3,8 @@ using System.ComponentModel;
 using TheraEngine.Animation;
 using System;
 using TheraEngine.Input.Devices;
-using System.Runtime.CompilerServices;
-using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
-using System.Collections;
 using TheraEngine.Scripting;
+using TheraEngine.Editor;
 
 namespace TheraEngine
 {

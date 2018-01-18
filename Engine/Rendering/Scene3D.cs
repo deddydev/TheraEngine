@@ -302,7 +302,7 @@ namespace TheraEngine.Rendering
                         Engine.Renderer.AllowDepthWrite(true);
                         Engine.Renderer.DepthFunc(EComparison.Lequal);
                         
-                        //v.HUD.Scene.RenderForward(v.Region, v);
+                        v.HUD.Scene.DoRender(v.Camera, v);
                         v.PostProcessFBO.Render();
                     }
                     Engine.Renderer.PopRenderArea();

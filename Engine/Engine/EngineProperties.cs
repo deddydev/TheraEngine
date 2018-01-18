@@ -17,6 +17,7 @@ using TheraEngine.GameModes;
 using TheraEngine.Physics;
 using TheraEngine.Physics.Bullet;
 using System.IO;
+using TheraEngine.Editor;
 
 namespace TheraEngine
 {

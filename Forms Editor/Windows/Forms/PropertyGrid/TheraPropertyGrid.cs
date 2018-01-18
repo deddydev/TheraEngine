@@ -53,6 +53,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public TheraPropertyGrid()
         {
             InitializeComponent();
+            TargetObject = null;
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -90,12 +91,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     obj.EditorState.Selected = true;
 
                 //If scene component, select it in the scene
-                if (_subObject is SceneComponent s && Engine.LocalPlayers.Count > 0)
+                if (Engine.LocalPlayers.Count > 0)
                 {
                     EditorHud hud = Engine.LocalPlayers[0]?.ControlledPawn?.HUD as EditorHud;
-                    hud.SelectedComponent = s;
+                    if (_subObject is SceneComponent sceneComp)
+                        hud.SelectedComponent = sceneComp;
+                    else
+                        hud.SelectedComponent = null;
                 }
-
+                
                 //Load the properties of the object
                 LoadProperties(_subObject);
             }
@@ -121,13 +125,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 _targetObject = value;
 
-                if (_targetObject == null)
-                {
-                    lblObjectName.Visible = false;
+                lblObjectName.Visible = Enabled = _targetObject != null;
+                if (!Enabled)
                     return;
-                }
 
-                lblObjectName.Text = _targetObject.ToString() + " [" + _targetObject.GetType().GetFriendlyName() + "]";
+                lblObjectName.Text = string.Format("{0} [{1}]",
+                    _targetObject.ToString(), 
+                    _targetObject.GetType().GetFriendlyName());
+
                 lblObjectName.Visible = true;
 
                 if (_targetObject is IActor actor)

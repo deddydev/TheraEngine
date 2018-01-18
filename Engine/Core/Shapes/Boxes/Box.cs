@@ -4,6 +4,7 @@ using System.Drawing;
 using System.ComponentModel;
 using System;
 using TheraEngine.Physics;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {

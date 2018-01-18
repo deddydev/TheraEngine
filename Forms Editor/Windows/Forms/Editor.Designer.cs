@@ -145,7 +145,7 @@
             // 
             this.btnNewProject.Image = ((System.Drawing.Image)(resources.GetObject("btnNewProject.Image")));
             this.btnNewProject.Name = "btnNewProject";
-            this.btnNewProject.Size = new System.Drawing.Size(185, 26);
+            this.btnNewProject.Size = new System.Drawing.Size(189, 30);
             this.btnNewProject.Text = "New Project";
             this.btnNewProject.Click += new System.EventHandler(this.BtnNewProject_Click);
             // 
@@ -153,7 +153,7 @@
             // 
             this.btnOpenProject.Image = ((System.Drawing.Image)(resources.GetObject("btnOpenProject.Image")));
             this.btnOpenProject.Name = "btnOpenProject";
-            this.btnOpenProject.Size = new System.Drawing.Size(185, 26);
+            this.btnOpenProject.Size = new System.Drawing.Size(189, 30);
             this.btnOpenProject.Text = "Open Project";
             this.btnOpenProject.Click += new System.EventHandler(this.BtnOpenProject_Click);
             // 
@@ -161,7 +161,7 @@
             // 
             this.btnSaveProject.Enabled = false;
             this.btnSaveProject.Name = "btnSaveProject";
-            this.btnSaveProject.Size = new System.Drawing.Size(185, 26);
+            this.btnSaveProject.Size = new System.Drawing.Size(189, 30);
             this.btnSaveProject.Text = "Save Project";
             this.btnSaveProject.Click += new System.EventHandler(this.BtnSaveProject_Click);
             // 
@@ -169,7 +169,7 @@
             // 
             this.btnSaveProjectAs.Enabled = false;
             this.btnSaveProjectAs.Name = "btnSaveProjectAs";
-            this.btnSaveProjectAs.Size = new System.Drawing.Size(185, 26);
+            this.btnSaveProjectAs.Size = new System.Drawing.Size(189, 30);
             this.btnSaveProjectAs.Text = "Save Project As";
             this.btnSaveProjectAs.Click += new System.EventHandler(this.BtnSaveProjectAs_Click);
             // 
@@ -247,34 +247,34 @@
             this.viewport4ToolStripMenuItem});
             this.btnViewViewport.Image = ((System.Drawing.Image)(resources.GetObject("btnViewViewport.Image")));
             this.btnViewViewport.Name = "btnViewViewport";
-            this.btnViewViewport.Size = new System.Drawing.Size(205, 30);
+            this.btnViewViewport.Size = new System.Drawing.Size(201, 26);
             this.btnViewViewport.Text = "Viewport";
             // 
             // viewport1ToolStripMenuItem
             // 
             this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
-            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
             this.viewport1ToolStripMenuItem.Text = "Viewport 1";
             this.viewport1ToolStripMenuItem.Click += new System.EventHandler(this.Viewport1ToolStripMenuItem_Click);
             // 
             // viewport2ToolStripMenuItem
             // 
             this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
-            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
             this.viewport2ToolStripMenuItem.Text = "Viewport 2";
             this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
             // 
             // viewport3ToolStripMenuItem
             // 
             this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
-            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
             this.viewport3ToolStripMenuItem.Text = "Viewport 3";
             this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
             // 
             // viewport4ToolStripMenuItem
             // 
             this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
-            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
             this.viewport4ToolStripMenuItem.Text = "Viewport 4";
             this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
             // 
@@ -282,7 +282,7 @@
             // 
             this.btnViewActorTree.Image = ((System.Drawing.Image)(resources.GetObject("btnViewActorTree.Image")));
             this.btnViewActorTree.Name = "btnViewActorTree";
-            this.btnViewActorTree.Size = new System.Drawing.Size(205, 30);
+            this.btnViewActorTree.Size = new System.Drawing.Size(201, 26);
             this.btnViewActorTree.Text = "Scene Actors Tree";
             this.btnViewActorTree.Click += new System.EventHandler(this.BtnViewActorTree_Click);
             // 
@@ -290,7 +290,7 @@
             // 
             this.btnViewFileTree.Image = ((System.Drawing.Image)(resources.GetObject("btnViewFileTree.Image")));
             this.btnViewFileTree.Name = "btnViewFileTree";
-            this.btnViewFileTree.Size = new System.Drawing.Size(205, 30);
+            this.btnViewFileTree.Size = new System.Drawing.Size(201, 26);
             this.btnViewFileTree.Text = "Project Files Tree";
             this.btnViewFileTree.Click += new System.EventHandler(this.btnViewFileTree_Click);
             // 
@@ -298,14 +298,14 @@
             // 
             this.btnViewTools.Image = ((System.Drawing.Image)(resources.GetObject("btnViewTools.Image")));
             this.btnViewTools.Name = "btnViewTools";
-            this.btnViewTools.Size = new System.Drawing.Size(205, 30);
+            this.btnViewTools.Size = new System.Drawing.Size(201, 26);
             this.btnViewTools.Text = "Tools";
             // 
             // btnViewPropertyGrid
             // 
             this.btnViewPropertyGrid.Image = ((System.Drawing.Image)(resources.GetObject("btnViewPropertyGrid.Image")));
             this.btnViewPropertyGrid.Name = "btnViewPropertyGrid";
-            this.btnViewPropertyGrid.Size = new System.Drawing.Size(205, 30);
+            this.btnViewPropertyGrid.Size = new System.Drawing.Size(201, 26);
             this.btnViewPropertyGrid.Text = "Property Grid";
             this.btnViewPropertyGrid.Click += new System.EventHandler(this.btnViewPropertyGrid_Click);
             // 
@@ -313,7 +313,7 @@
             // 
             this.btnViewOutput.Image = ((System.Drawing.Image)(resources.GetObject("btnViewOutput.Image")));
             this.btnViewOutput.Name = "btnViewOutput";
-            this.btnViewOutput.Size = new System.Drawing.Size(205, 30);
+            this.btnViewOutput.Size = new System.Drawing.Size(201, 26);
             this.btnViewOutput.Text = "Output";
             this.btnViewOutput.Click += new System.EventHandler(this.btnViewOutput_Click);
             // 
@@ -502,7 +502,7 @@
         private System.Windows.Forms.ToolStripMenuItem btPlay;
         private System.Windows.Forms.ToolStripMenuItem btnCompile;
         private System.Windows.Forms.Label TheraEngineText;
-        private WeifenLuo.WinFormsUI.Docking.DockPanel DockPanel;
+        public WeifenLuo.WinFormsUI.Docking.DockPanel DockPanel;
         private System.Windows.Forms.ToolStripMenuItem btnViewViewport;
         private System.Windows.Forms.ToolStripMenuItem btnViewActorTree;
         private System.Windows.Forms.ToolStripMenuItem btnViewFileTree;

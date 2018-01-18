@@ -141,7 +141,7 @@ namespace TheraEditor.Windows.Forms
             {
                 p = new Project()
                 {
-                    OpeningWorld = typeof(UnitTestingWorld),
+                    //OpeningWorld = typeof(UnitTestingWorld),
                     UserSettings = new UserSettings(),
                     EngineSettings = new EngineSettings(),
                 };
@@ -339,7 +339,9 @@ namespace TheraEditor.Windows.Forms
             get => Engine.World;
             set
             {
-                if (Engine.World != null && Engine.World.EditorState != null && Engine.World.EditorState.HasChanges)
+                if (Engine.World != null && 
+                    Engine.World.EditorState != null && 
+                    Engine.World.EditorState.HasChanges)
                 {
                     DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
                     if (r == DialogResult.Cancel)
@@ -372,7 +374,12 @@ namespace TheraEditor.Windows.Forms
             _project = null;
             return true;
         }
-        private void BtnNewProject_Click(object sender, EventArgs e)
+        private void BtnNewProject_Click(object sender, EventArgs e) => CreateNewProject();
+        /// <summary>
+        /// Asks the user to select a folder to create a new project in, creates it there, and then loads it for editing.
+        /// Closes the currently opened project if there is one.
+        /// </summary>
+        public void CreateNewProject()
         {
             if (CloseProject())
             {
@@ -382,9 +389,7 @@ namespace TheraEditor.Windows.Forms
                     Description = "",
                 };
                 if (fbd.ShowDialog() == DialogResult.OK)
-                {
                     Project = Project.Create(fbd.SelectedPath, "NewProject");
-                }
             }
         }
 

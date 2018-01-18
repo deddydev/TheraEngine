@@ -293,6 +293,7 @@
     <Compile Include="Components\Scene\UI\UIMaterialComponent.cs" />
     <Compile Include="Components\Scene\UI\UIRotatableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
+    <Compile Include="Core\EditorUndo\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
     <Compile Include="Core\Files\References\FileLoader.cs" />
@@ -437,7 +438,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Animation\Cutscenes\Cutscene.cs" />
-    <Compile Include="EditorState.cs" />
+    <Compile Include="Core\EditorUndo\EditorState.cs" />
     <Compile Include="Engine\EngineMethods.cs" />
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />

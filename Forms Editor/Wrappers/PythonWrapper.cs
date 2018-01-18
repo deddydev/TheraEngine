@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Scripting;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
@@ -33,7 +34,7 @@ namespace TheraEditor.Wrappers
         {
             DockableScriptEditor m = new DockableScriptEditor();
             m.TextBox.Text = ResourceRef.File.Text;
-            m.Show();
+            m.Show(Editor.Instance.DockPanel, DockState.Document);
         }
     }
 }

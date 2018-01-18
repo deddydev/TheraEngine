@@ -5,6 +5,7 @@ using TheraEngine.Worlds.Actors;
 using System.Threading.Tasks;
 using TheraEngine.Worlds.Actors.Types.Pawns;
 using TheraEngine.Worlds.Actors.Components.Logic.Animation;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Tests
 {

@@ -135,6 +135,7 @@
             this.lblObjectName.TabIndex = 6;
             this.lblObjectName.Text = "ObjectName";
             this.lblObjectName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblObjectName.Visible = false;
             this.lblObjectName.Click += new System.EventHandler(this.lblObjectName_Click);
             this.lblObjectName.MouseEnter += new System.EventHandler(this.lblObjectName_MouseEnter);
             this.lblObjectName.MouseLeave += new System.EventHandler(this.lblObjectName_MouseLeave);
@@ -152,6 +153,7 @@
             this.Controls.Add(this.treeViewSceneComps);
             this.Controls.Add(this.lblSceneComps);
             this.Controls.Add(this.lblObjectName);
+            this.Enabled = false;
             this.Name = "TheraPropertyGrid";
             this.Size = new System.Drawing.Size(561, 545);
             this.ResumeLayout(false);

@@ -53,7 +53,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public TheraPropertyGrid()
         {
             InitializeComponent();
-            TargetObject = null;
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -124,7 +123,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
 
                 _targetObject = value;
-
+                  
                 lblObjectName.Visible = Enabled = _targetObject != null;
                 if (!Enabled)
                     return;

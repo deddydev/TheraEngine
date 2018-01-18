@@ -2,12 +2,19 @@
 {
     public class FeetInches
     {
-        private float _feet, _inches;
-        public FeetInches(float feet, float inches)
+        private int _feet;
+        private float _inches;
+        public FeetInches(int feet, float inches)
         {
             _feet = feet;
             _inches = inches;
         }
+        //public static FeetInches FromInches(float inches)
+        //{
+        //    float feet = inches / 12.0f;
+        //    float f = Math.Floor(feet);
+        //    return new FeetInches();
+        //}
         public float ToFeet()
             => _feet + _inches / 12.0f;
         public float ToInches()

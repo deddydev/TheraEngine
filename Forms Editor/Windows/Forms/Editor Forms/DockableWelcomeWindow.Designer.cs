@@ -30,8 +30,8 @@
         {
             this.lstRecentProjects = new System.Windows.Forms.ListBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -48,7 +48,7 @@
             this.lstRecentProjects.Location = new System.Drawing.Point(10, 10);
             this.lstRecentProjects.Margin = new System.Windows.Forms.Padding(0);
             this.lstRecentProjects.Name = "lstRecentProjects";
-            this.lstRecentProjects.Size = new System.Drawing.Size(278, 223);
+            this.lstRecentProjects.Size = new System.Drawing.Size(278, 370);
             this.lstRecentProjects.TabIndex = 0;
             // 
             // panel1
@@ -60,8 +60,19 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(4);
-            this.panel1.Size = new System.Drawing.Size(306, 283);
+            this.panel1.Size = new System.Drawing.Size(306, 430);
             this.panel1.TabIndex = 1;
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.panel2.Controls.Add(this.lstRecentProjects);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(4, 36);
+            this.panel2.Name = "panel2";
+            this.panel2.Padding = new System.Windows.Forms.Padding(10);
+            this.panel2.Size = new System.Drawing.Size(298, 390);
+            this.panel2.TabIndex = 2;
             // 
             // label1
             // 
@@ -74,21 +85,10 @@
             this.label1.Text = "Recent Projects";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // panel2
-            // 
-            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.panel2.Controls.Add(this.lstRecentProjects);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(4, 36);
-            this.panel2.Name = "panel2";
-            this.panel2.Padding = new System.Windows.Forms.Padding(10);
-            this.panel2.Size = new System.Drawing.Size(298, 243);
-            this.panel2.TabIndex = 2;
-            // 
             // DockableWelcomeWindow
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.ClientSize = new System.Drawing.Size(623, 283);
+            this.ClientSize = new System.Drawing.Size(734, 430);
             this.Controls.Add(this.panel1);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.Name = "DockableWelcomeWindow";

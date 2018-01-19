@@ -55,8 +55,13 @@ namespace TheraEngine.Files
             {
                 //lock (file)
                 //{
-                File = file as T;
-                File.References.Add(this);
+                if (file is T casted)
+                {
+                    casted.References.Add(this);
+                    File = casted;
+                }
+                else
+                    throw new InvalidOperationException(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
                 //}
             }
 

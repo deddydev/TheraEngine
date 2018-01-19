@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using TheraEngine;
 using TheraEngine.Files;
 
@@ -15,8 +17,12 @@ namespace TheraEditor
         [TSerialize]
         public GlobalFileRef<ControlSettings> Controls { get; set; }
         [TSerialize]
-        public List<string> RecentlyOpenedProjectPaths { get; } = new List<string>();
-        
+        public string DockConfigPath { get; set; }
+
+        [TSerialize("RecentlyOpenedProjectPaths")]
+        private List<string> _recentlyOpenedProjectPaths = new List<string>();
+        public List<string> RecentlyOpenedProjectPaths => _recentlyOpenedProjectPaths;
+
         [FileDef("Property Grid Settings")]
         public class PropertyGridSettings : TSettings
         {
@@ -49,12 +55,21 @@ namespace TheraEditor
             EngineDefaults = new EngineSettings()
             {
                 CapFPS = true,
-                TargetFPS = 15.0f,
+                TargetFPS = 60.0f,
                 CapUPS = false,
-                TargetUPS = 30.0f,
+                TargetUPS = 90.0f,
             };
             PropertyGrid = new PropertyGridSettings();
             Controls = new ControlSettings();
+        }
+
+        public string GetFullDockConfigPath()
+        {
+            if (!string.IsNullOrWhiteSpace(DockConfigPath) &&
+                DockConfigPath[0] == '\\' &&
+                !string.IsNullOrWhiteSpace(FilePath))
+                return Path.Combine(Path.GetDirectoryName(FilePath), DockConfigPath);
+            return DockConfigPath;
         }
     }
 }

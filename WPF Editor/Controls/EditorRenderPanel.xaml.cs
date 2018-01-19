@@ -14,7 +14,7 @@ namespace TheraEditor.Controls
         {
             Game game = new Game()
             {
-                OpeningWorld = typeof(TestWorld),
+                OpeningWorldRef = typeof(TestWorld),
             };
             Engine.SetGame(game);
             InitializeComponent();

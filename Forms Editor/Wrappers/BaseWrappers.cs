@@ -133,7 +133,7 @@ namespace TheraEditor.Wrappers
                 Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
                 w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
             }
-            FileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt);
+            FileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             w.Text = name + "." + file.FileExtension.GetProperExtension((ProprietaryFileFormat)fmt);
             w.SingleInstance = file;
             return w;

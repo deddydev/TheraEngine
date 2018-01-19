@@ -100,11 +100,10 @@ namespace TheraEngine.Files
         /// and loaded with the parent file instead of being loaded on demand from the external file.
         /// </summary>
         [Category("File Reference")]
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool StoredInternally { get; private set; } = true;
 
         [Category("File Reference")]
-        [TSerialize(Condition = "!StoredInternally", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public override string ReferencePath
         {
             get => base.ReferencePath;
@@ -116,7 +115,7 @@ namespace TheraEngine.Files
         }
 
         FileObject IFileRef.File => File;
-
+        
         [Category("File Reference")]
         [BrowsableIf("_file != null")]
         public T File
@@ -177,11 +176,11 @@ namespace TheraEngine.Files
         }
 
         public void ExportReference() => _file?.Export();
-        public void ExportReference(string dir, string name, FileFormat format, bool setPath = true)
+        public void ExportReference(string dir, string name, FileFormat format, string thirdPartyExt = null, bool setPath = true)
         {
             if (_file == null)
                 return;
-            _file.Export(dir, name, format);
+            _file.Export(dir, name, format, thirdPartyExt);
             if (setPath)
                 ReferencePath = _file.FilePath;
         }

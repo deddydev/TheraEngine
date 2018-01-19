@@ -47,6 +47,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>..\Build\Release\Editor\x86\</OutputPath>
@@ -109,6 +110,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Thumbnails.cs" />
     <Compile Include="EditorGameMode.cs" />
     <Compile Include="EditorPlayerController.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -490,6 +492,9 @@
     </Compile>
     <Compile Include="Windows\Forms\Editor Forms\EditorWorldRenderPanel.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\TransparentPanel.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
     <Compile Include="Wrappers\PythonWrapper.cs" />

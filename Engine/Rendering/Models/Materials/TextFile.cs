@@ -11,8 +11,6 @@ namespace TheraEngine.Rendering.Models.Materials
     public class TextFile : FileObject
     {
         private string _text = null;
-
-        [TSerialize("Text", XmlNodeType = EXmlNodeType.ElementString)]
         public string Text
         {
             get => _text ?? Load();
@@ -37,7 +35,16 @@ namespace TheraEngine.Rendering.Models.Materials
             => textFile?.Text;
         public static implicit operator TextFile(string text)
             => FromText(text);
-        
+
+        protected internal override void Read3rdParty(string filePath)
+        {
+            FilePath = filePath;
+            Text = null;
+        }
+        protected internal override void Write3rdParty(string filePath)
+        {
+            File.WriteAllText(filePath, Text);
+        }
         public string Load()
         {
             _text = null;

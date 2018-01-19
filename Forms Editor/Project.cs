@@ -19,32 +19,58 @@ namespace TheraEditor
         public static readonly string ContentDirName = "Content" + Path.DirectorySeparatorChar.ToString();
 
         private GlobalFileRef<ProjectState> _state;
+        private GlobalFileRef<EditorSettings> _editorSettings;
 
-        [TSerialize]
         [Browsable(false)]
         public ProjectState ProjectState
+        {
+            get => _state.File;
+            set => _state.File = value;
+        }
+        [TSerialize]
+        [Browsable(false)]
+        public GlobalFileRef<ProjectState> ProjectStateRef
         {
             get => _state;
             set => _state = value;
         }
+        [Browsable(false)]
+        public EditorSettings EditorSettings
+        {
+            get => _editorSettings.File;
+            set => _editorSettings.File = value;
+        }
+        [TSerialize]
+        [Browsable(false)]
+        public GlobalFileRef<EditorSettings> EditorSettingsRef
+        {
+            get => _editorSettings;
+            set => _editorSettings = value;
+        }
+
         public void SetDirectory(string directory)
         {
             if (!directory.EndsWithDirectorySeparator())
                 directory += Path.DirectorySeparatorChar;
 
             FilePath = GetFilePath(directory, Name, ProprietaryFileFormat.XML, typeof(Project));
-            _state.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(ProjectState));
-            UserSettings.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(UserSettings));
-            EngineSettings.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EngineSettings));
+            ProjectStateRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(ProjectState));
+            UserSettingsRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(UserSettings));
+            EngineSettingsRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EngineSettings));
+            EditorSettingsRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EditorSettings));
         }
         public static Project Create(string name)
         {
             Project p = new Project()
             {
                 Name = name,
-                ProjectState = new ProjectState(),
-                UserSettings = new UserSettings(),
-                EngineSettings = new EngineSettings(),
+                ProjectStateRef = new ProjectState(),
+                UserSettingsRef = new UserSettings(),
+                EngineSettingsRef = new EngineSettings(),
+                EditorSettingsRef = new EditorSettings()
+                {
+
+                },
             };
             return p;
         }
@@ -66,14 +92,16 @@ namespace TheraEditor
             ProjectState state = new ProjectState();
             UserSettings userSettings = new UserSettings();
             EngineSettings engineSettings = new EngineSettings();
+            EditorSettings editorSettings = new EditorSettings();
 
             Project p = new Project()
             {
                 Name = name,
-                FilePath = GetFilePath(directory, name, ProprietaryFileFormat.XML, typeof(Project)),
-                ProjectState = new GlobalFileRef<ProjectState>(directory, name, ProprietaryFileFormat.XML, state, true),
-                UserSettings = new GlobalFileRef<UserSettings>(directory, name, ProprietaryFileFormat.XML, userSettings, true),
-                EngineSettings = new GlobalFileRef<EngineSettings>(directory, name, ProprietaryFileFormat.XML, engineSettings, true),
+                FilePath = GetFilePath<Project>(directory, name, ProprietaryFileFormat.XML),
+                ProjectStateRef = new GlobalFileRef<ProjectState>(directory, "ProjectState", ProprietaryFileFormat.XML, state, true),
+                UserSettingsRef = new GlobalFileRef<UserSettings>(directory, "UserSettings", ProprietaryFileFormat.XML, userSettings, true),
+                EngineSettingsRef = new GlobalFileRef<EngineSettings>(directory, "EngineSettings", ProprietaryFileFormat.XML, engineSettings, true),
+                EditorSettingsRef = new GlobalFileRef<EditorSettings>(directory, "EditorSettings", ProprietaryFileFormat.XML, editorSettings, true),
             };
             p.Export();
             return p;

@@ -26,21 +26,21 @@ namespace TheraEngine
         /// </summary>
         [Category("Game")]
         [TSerialize]
-        public GlobalFileRef<World> TransitionWorld { get; set; } = new GlobalFileRef<World>("TransitionWorld");
+        public GlobalFileRef<World> TransitionWorldRef { get; set; } = new GlobalFileRef<World>("TransitionWorld");
         /// <summary>
         /// The world the game starts with.
         /// </summary>
         [Category("Game")]
         [TSerialize]
-        public GlobalFileRef<World> OpeningWorld { get; set; } = new GlobalFileRef<World>("OpeningWorld");
+        public GlobalFileRef<World> OpeningWorldRef { get; set; } = new GlobalFileRef<World>("OpeningWorld");
         [Category("Engine")]
         [TSerialize]
         [Browsable(false)]
-        public GlobalFileRef<EngineSettings> EngineSettings { get; set; } = new EngineSettings();
+        public GlobalFileRef<EngineSettings> EngineSettingsRef { get; set; } = new EngineSettings();
         [Category("Engine")]
         [TSerialize]
         [Browsable(false)]
-        public GlobalFileRef<UserSettings> UserSettings { get; set; } = new UserSettings();
+        public GlobalFileRef<UserSettings> UserSettingsRef { get; set; } = new UserSettings();
         [Category("About")]
         [TSerialize]
         [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]

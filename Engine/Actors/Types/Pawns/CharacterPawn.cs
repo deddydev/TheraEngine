@@ -221,7 +221,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         }
         protected override CapsuleYComponent OnConstruct()
         {
-            float characterHeight = new FeetInches(5.0f, 8.0f).ToMeters();// 1.72f; //5'8" in m = 1.72f
+            float characterHeight = new FeetInches(5, 8.0f).ToMeters();// 1.72f; //5'8" in m = 1.72f
             float radius = 0.172f;
             float capsuleTotalHalfHeight = characterHeight / 2.0f;
             float halfHeight = capsuleTotalHalfHeight - radius;

@@ -731,7 +731,7 @@
     <Compile Include="Components\Scene\Lights\DirectionalLightComponent.cs" />
     <Compile Include="Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
     <Compile Include="Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
-    <Compile Include="Components\Scene\Transforms\PositionLag.cs" />
+    <Compile Include="Components\Scene\Transforms\Misc\PositionLag.cs" />
     <Compile Include="Components\Scene\SplineComponent.cs" />
     <Compile Include="Components\Scene\SoundComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoisePosition.cs" />
@@ -741,7 +741,7 @@
     <Compile Include="Components\Scene\Transforms\Translation.cs" />
     <Compile Include="Components\Scene\Transforms\TRS.cs" />
     <Compile Include="Components\LogicComponent.cs" />
-    <Compile Include="Components\Scene\Transforms\Boom.cs" />
+    <Compile Include="Components\Scene\Transforms\Misc\Boom.cs" />
     <Compile Include="Components\Scene\CameraComponent.cs" />
     <Compile Include="Components\Scene\DecalComponent.cs" />
     <Compile Include="Components\Logic\MovementComponents\TransformMovementComponent.cs" />

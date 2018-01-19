@@ -2,23 +2,25 @@
 {
     public class FeetInches
     {
-        private int _feet;
-        private float _inches;
+        public int Feet { get; set; }
+        public float Inches { get; set; }
+        
         public FeetInches(int feet, float inches)
         {
-            _feet = feet;
-            _inches = inches;
+            Feet = feet;
+            Inches = inches;
         }
-        //public static FeetInches FromInches(float inches)
-        //{
-        //    float feet = inches / 12.0f;
-        //    float f = Math.Floor(feet);
-        //    return new FeetInches();
-        //}
+        public static FeetInches FromInches(float inches)
+            => FromFeet(inches / 12.0f);
+        public static FeetInches FromFeet(float feet)
+        {
+            int ift = (int)Math.Floor(feet);
+            return new FeetInches(ift, (feet - ift) * 12.0f);
+        }
         public float ToFeet()
-            => _feet + _inches / 12.0f;
+            => Feet + Inches / 12.0f;
         public float ToInches()
-            => _feet * 12.0f + _inches;
+            => Feet * 12.0f + Inches;
         public float ToMeters()
             => ToFeet().FeetToMeters();
     }

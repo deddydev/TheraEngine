@@ -129,7 +129,7 @@ namespace TheraEngine.Files
             {
                 if (IsThirdPartyFormat())
                 {
-                    T file = Activator.CreateInstance(_subType) as T;
+                    T file = Activator.CreateInstance<T>();
                     file.FilePath = absolutePath;
                     file.Read3rdParty(absolutePath);
                     OnFileLoaded(file);

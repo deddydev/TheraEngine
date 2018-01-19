@@ -99,11 +99,11 @@ namespace TheraEngine
         /// <summary>
         /// The settings for the engine, specified by the game.
         /// </summary>
-        public static EngineSettings Settings => Game?.EngineSettings;
+        public static EngineSettings Settings => Game?.EngineSettingsRef;
         /// <summary>
         /// The settings for the engine, specified by the user.
         /// </summary>
-        public static UserSettings UserSettings => Game?.UserSettings;
+        public static UserSettings UserSettings => Game?.UserSettingsRef;
         
         /// <summary>
         /// The index of the currently ticking list of functions (group + order + pause)

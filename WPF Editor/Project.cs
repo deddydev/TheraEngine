@@ -40,8 +40,8 @@ namespace TheraEditor
             {
                 Name = name,
                 State = new GlobalFileRef<ProjectState>(new ProjectState()),
-                UserSettings = new GlobalFileRef<UserSettings>(new UserSettings()),
-                EngineSettings = new GlobalFileRef<EngineSettings>(new EngineSettings()),
+                UserSettingsRef = new GlobalFileRef<UserSettings>(new UserSettings()),
+                EngineSettingsRef = new GlobalFileRef<EngineSettings>(new EngineSettings()),
             };
             return p;
         }
@@ -62,8 +62,8 @@ namespace TheraEditor
                 Name = name,
                 FilePath = GetFilePath(directory, name, FileFormat.XML, typeof(Project)),
                 State = new GlobalFileRef<ProjectState>(new ProjectState(), directory, name, FileFormat.XML),
-                UserSettings = new GlobalFileRef<UserSettings>(new UserSettings(), directory, name, FileFormat.XML),
-                EngineSettings = new GlobalFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
+                UserSettingsRef = new GlobalFileRef<UserSettings>(new UserSettings(), directory, name, FileFormat.XML),
+                EngineSettingsRef = new GlobalFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
             };
             return p;
         }

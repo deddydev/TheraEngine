@@ -4,30 +4,20 @@
     {
         public const Single ZeroTolerance = 1e-6f;
         public static bool IsZero(this Single value, Single errorMargin = ZeroTolerance)
-        {
-            return Math.Abs(value) < errorMargin;
-        }
+            => Math.Abs(value) < errorMargin;
         public static bool EqualTo(this Single value, Single other)
-        {
-            return Math.Abs(other - value) < ZeroTolerance;
-        }
+            => Math.Abs(other - value) < ZeroTolerance;
         public static unsafe Single Reverse(this Single value)
         {
             *(uint*)(&value) = ((uint*)&value)->Reverse();
             return value;
         }
         public static Single Clamp(this Single value, Single min, Single max)
-        {
-            return value <= min ? min : value >= max ? max : value;
-        }
+            => value <= min ? min : value >= max ? max : value;
         public static Single ClampMin(this Single value, Single min)
-        {
-            return value <= min ? min : value;
-        }
+            => value <= min ? min : value;
         public static Single ClampMax(this Single value, Single max)
-        {
-            return value >= max ? max : value;
-        }
+            => value >= max ? max : value;
         /// <summary>
         /// Remaps values outside of a range into the first multiple of that range.
         /// When it comes to signed numbers, negative is farther from zero.
@@ -60,13 +50,9 @@
             return value;
         }
         public static bool EqualTo(this Single value, Single other, Single tolerance = 0.0001f)
-        {
-            return Math.Abs(value - other) < tolerance;
-        }
+            => Math.Abs(value - other) < tolerance;
         public static Single FeetToMeters(this Single value)
-        {
-            return value * 0.3048f;
-        }
+            => value * 0.3048f;
         /// <summary>
         /// Positive is to a bigger unit (ex Meters to Kilometers is 2 steps)
         /// Negative is to a smaller unit (ex Meters to Centimeters is -2 steps)
@@ -83,33 +69,19 @@
             return value * scale;
         }
         public static Single MetersToFeet(this Single value)
-        {
-            return value * 3.280839895f;
-        }
+            => value * 3.280839895f;
         public static Single FeetToYards(this Single value)
-        {
-            return value * 0.33333333333f;
-        }
+            => value * 0.33333333333f;
         public static Single YardsToFeet(this Single value)
-        {
-            return value * 3.0f;
-        }
+            => value * 3.0f;
         public static Single MilesToKilometers(this Single value)
-        {
-            return value * 1.60934f;
-        }
+            => value * 1.60934f;
         public static Single KilometersToMiles(this Single value)
-        {
-            return value * 0.6213727366498068f;
-        }
+            => value * 0.6213727366498068f;
         public static Single InchesToMeters(this Single value)
-        {
-            return value * 0.0254f;
-        }
+            => value * 0.0254f;
         public static Single MetersToInches(this Single value)
-        {
-            return value * 39.3701f;
-        }
+            => value * 39.3701f;
         /// <summary>
         /// Converts a float from the range 0.0-1.0 to 0-255.
         /// </summary>

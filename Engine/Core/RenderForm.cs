@@ -18,7 +18,7 @@ namespace TheraEngine
             if (!string.IsNullOrEmpty(game.IconPath) && File.Exists(game.IconPath))
                 Icon = new Icon(game.IconPath);
             
-            switch (game.UserSettings.File.WindowBorderStyle)
+            switch (game.UserSettingsRef.File.WindowBorderStyle)
             {
                 case WindowBorderStyle.None:
                     FormBorderStyle = FormBorderStyle.None;
@@ -33,7 +33,7 @@ namespace TheraEngine
 
             Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
 
-            if (game.UserSettings.File.FullScreen)
+            if (game.UserSettingsRef.File.FullScreen)
                 WindowState = FormWindowState.Maximized;
 
             Cursor.Hide();

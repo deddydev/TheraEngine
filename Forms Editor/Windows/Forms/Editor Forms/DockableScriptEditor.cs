@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Scripting;
 using TheraEngine.Worlds.Actors;
@@ -11,6 +12,8 @@ namespace TheraEditor.Windows.Forms
         public DockableScriptEditor()
         {
             InitializeComponent();
+            TextBox.SetWhitespaceBackColor(true, Color.FromArgb(82, 83, 90));
+            TextBox.SetWhitespaceForeColor(true, Color.FromArgb(224, 224, 224));
         }
 
         private PythonScript _script = null;

@@ -174,11 +174,15 @@ namespace TheraEngine.Files
         /// <param name="dir">The path to the folder that the file resides in.</param>
         /// <param name="name">The name of the file in the path.</param>
         /// <param name="fmt">The format the data is written in.</param>
-        public static void GetDirNameFmt(string path, out string dir, out string name, out FileFormat fmt)
+        public static void GetDirNameFmt(string path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt)
         {
             dir = Path.GetDirectoryName(path);
             name = Path.GetFileNameWithoutExtension(path);
             fmt = GetFormat(path);
+            if (fmt == FileFormat.ThirdParty)
+                thirdPartyExt = Path.GetExtension(path).Substring(1);
+            else
+                thirdPartyExt = null;
         }
 
         /// <summary>
@@ -191,9 +195,28 @@ namespace TheraEngine.Files
         /// <returns>An absolute path to the file.</returns>
         public static string GetFilePath(string dir, string name, ProprietaryFileFormat format, Type fileType)
         {
-            if (dir[dir.Length - 1] != Path.DirectorySeparatorChar)
-                dir += Path.DirectorySeparatorChar;
-            return dir + name + "." + GetFileExtension(fileType).GetProperExtension(format);
+            return Path.Combine(dir, name + "." + GetFileExtension(fileType).GetProperExtension(format));
+        }
+        public static string GetFilePath<T>(string dir, string name, ProprietaryFileFormat format) where T : FileObject
+        {
+            return Path.Combine(dir, name + "." + GetFileExtension(typeof(T)).GetProperExtension(format));
+        }
+        public static string GetFilePath(string dir, string name, string thirdPartyExtension)
+        {
+            if (thirdPartyExtension[0] != '.')
+                thirdPartyExtension = "." + thirdPartyExtension;
+            return Path.Combine(dir, name + thirdPartyExtension);
+        }
+        /// <summary>
+        /// Creates the full file path to a file given separate parameters.
+        /// </summary>
+        /// <param name="dir">The path to the folder the file resides in.</param>
+        /// <param name="name">The name of the file.</param>
+        /// <param name="format">The format the data is written in.</param>
+        /// <returns>An absolute path to the file.</returns>
+        public string GetFilePath(string dir, string name, ProprietaryFileFormat format)
+        {
+            return GetFilePath(dir, name, format, GetType());
         }
 
         public string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false)
@@ -334,20 +357,23 @@ namespace TheraEngine.Files
         {
             if (string.IsNullOrEmpty(_filePath))
                 throw new Exception("File has no path to export to.");
-            GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt);
-            Export(dir, name, fmt);
+            GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
+            Export(dir, name, fmt, thirdPartyExt);
         }
         public void Export(string path)
         {
             if (string.IsNullOrEmpty(path))
                 throw new Exception("File path is not valid.");
-            GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt);
-            Export(dir, name, fmt);
+            GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
+            Export(dir, name, fmt, thirdPartyExt);
         }
-        public void Export(string directory, string fileName, FileFormat format)
+        public void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null)
         {
             switch (format)
             {
+                case FileFormat.ThirdParty:
+                    To3rdParty(directory, fileName, thirdPartyExt);
+                    break;
                 case FileFormat.XML:
                     ToXML(directory, fileName);
                     break;
@@ -358,6 +384,7 @@ namespace TheraEngine.Files
                     throw new InvalidOperationException("Not a valid file format.");
             }
         }
+
         #endregion
 
         #region XML
@@ -563,6 +590,10 @@ namespace TheraEngine.Files
         #endregion
 
         #region 3rd Party
+        private void To3rdParty(string directory, string fileName, string thirdPartyExt)
+        {
+            Write3rdParty(GetFilePath(directory, fileName, thirdPartyExt));
+        }
         internal unsafe static T Read3rdParty<T>(string filePath) where T : FileObject
             => Read3rdParty(typeof(T), filePath) as T;
         internal unsafe static FileObject Read3rdParty(Type classType, string filePath)
@@ -625,7 +656,7 @@ namespace TheraEngine.Files
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to write the object to a path.
         /// </summary>
         /// <param name="filePath">The path of the file to write.</param>
-        internal protected virtual void WriteThirdParty(string filePath)
+        internal protected virtual void Write3rdParty(string filePath)
             => throw new NotImplementedException("Override of \"internal protected virtual void WriteThirdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
         /// <summary>
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to read the object from a path.

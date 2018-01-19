@@ -14,6 +14,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
+            OutputTextBox.Text = Engine.OutputString;
             Engine.DebugOutput += Engine_DebugOutput;
             IronPython.Initialize();
         }

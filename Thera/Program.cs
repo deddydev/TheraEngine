@@ -11,7 +11,7 @@ namespace Thera
         {
             Game g = new Game()
             {
-                OpeningWorld = typeof(TestWorld),
+                OpeningWorldRef = typeof(TestWorld),
             };
             //g.UserSettings.FullScreen = true;
             //g.UserSettings.WindowBorderStyle = WindowBorderStyle.None;

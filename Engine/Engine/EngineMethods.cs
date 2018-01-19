@@ -117,19 +117,19 @@ namespace TheraEngine
             //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
             
-            RenderLibrary = _game.UserSettings.File.RenderLibrary;
-            AudioLibrary = _game.UserSettings.File.AudioLibrary;
-            InputLibrary = _game.UserSettings.File.InputLibrary;
-            PhysicsLibrary = _game.UserSettings.File.PhysicsLibrary;
+            RenderLibrary = _game.UserSettingsRef.File.RenderLibrary;
+            AudioLibrary = _game.UserSettingsRef.File.AudioLibrary;
+            InputLibrary = _game.UserSettingsRef.File.InputLibrary;
+            PhysicsLibrary = _game.UserSettingsRef.File.PhysicsLibrary;
 
             //Set initial world (this would generally be a world for opening videos or the main menu)
-            SetCurrentWorld(Game.OpeningWorld, true, loadOpeningWorldGameMode);
+            SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
 
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
             //Preload transition world now
-            await Game.TransitionWorld.LoadNewInstanceAsync();
+            await Game.TransitionWorldRef.LoadNewInstanceAsync();
         }
 
         public static bool ShuttingDown { get; private set; }
@@ -153,6 +153,8 @@ namespace TheraEngine
             var contexts = new List<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in contexts)
                 c?.Dispose();
+
+            ShuttingDown = false;
         }
         #endregion
 
@@ -356,15 +358,17 @@ namespace TheraEngine
         //            throw new Exception(message);
         //#endif
         //        }
+        public static string OutputString { get; private set; }
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
         public static void Print(string message, params object[] args)
         {
-#if DEBUG
+#if DEBUG || EDITOR
             if (args.Length != 0)
                 message = string.Format(message, args);
             Debug.Write(message);
+            OutputString += message;
             DebugOutput?.Invoke(message);
 #endif
         }
@@ -372,53 +376,33 @@ namespace TheraEngine
         /// Prints a message for debugging purposes.
         /// </summary>
         public static void PrintLine(string message, params object[] args)
+            => Print(message + Environment.NewLine, args);
+        
+        public static void LogWarning(
+            string message,
+            [CallerMemberName] string callerName = "",
+            [CallerFilePath] string sourceFilePath = "",
+            [CallerLineNumber] int sourceLineNumber = 0)
         {
-#if DEBUG
-            if (args.Length != 0)
-                message = string.Format(message, args);
-            Debug.WriteLine(message);
-            DebugOutput?.Invoke(message + Environment.NewLine);
-            //RenderPanel panel = RenderPanel.CapturedPanel;
-            //if (panel == null)
-            //    return;
-            //if (viewport >= 0)
-            //{
-            //    Viewport v = panel.GetViewport(viewport);
-            //    if (v != null)
-            //    {
-            //        v.DebugPrint(message);
-            //        return;
-            //    }
-            //}
-            //else
-            //    panel.GlobalHud.DebugPrint(message);
-#endif
+            PrintLine("[{2} line {3}: {1} {4}] {0}", message ?? "<No Message>", callerName ?? "", sourceFilePath ?? "", sourceLineNumber, DateTime.Now);
         }
-        public static void LogWarning(string message, [CallerMemberName] string callerName = "")
-        {
-            string m = message;
-            if (!string.IsNullOrEmpty(callerName))
-                m = "[" + callerName + "] " + m;
-            PrintLine(m);
-        }
+
         #endregion
 
         #region Game Modes
         /// <summary>
         /// Retrieves the current world's overridden game mode or the game's game mode if not overriden.
         /// </summary>
-        /// <returns></returns>
         public static BaseGameMode GetGameMode()
             => World?.Settings?.GameModeOverrideRef?.File ?? Game.DefaultGameMode;
-        public static void SetGameMode(BaseGameMode mode) => SetGameMode(mode, null);
-        public static void SetGameMode(BaseGameMode mode, Action beforeBeginGameplay)
+        public static void SetActiveGameMode(BaseGameMode mode, bool beginGameplay = true)
         {
             if (Game != null)
             {
                 ActiveGameMode?.EndGameplay();
                 Game.State.GameMode.File = mode;
-                beforeBeginGameplay?.Invoke();
-                ActiveGameMode?.BeginGameplay();
+                if (beginGameplay)
+                    ActiveGameMode?.BeginGameplay();
             }
         }
         #endregion

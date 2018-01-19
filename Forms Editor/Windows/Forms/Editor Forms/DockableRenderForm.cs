@@ -20,6 +20,7 @@ namespace TheraEditor.Windows.Forms
             FormIndex = formIndex;
             PlayerIndex = playerIndex;
             InitializeComponent();
+            Text = "Viewport " + (FormIndex + 1).ToString();
             RenderPanel.AllowDrop = true;
             Engine.PreWorldChanged += Engine_WorldPreChanged;
             Engine.PostWorldChanged += Engine_WorldPostChanged;
@@ -113,8 +114,8 @@ namespace TheraEditor.Windows.Forms
         FileObject _dragInstance = null;
         private void RenderPanel_DragEnter(object sender, DragEventArgs e)
         {
-            BaseWrapper[] dragNodes = Editor.Instance.ContentTree.DraggedNodes;
-            if (dragNodes.Length != 1)
+            BaseWrapper[] dragNodes = Editor.Instance.ContentTree?.DraggedNodes;
+            if (dragNodes == null || dragNodes.Length != 1)
                 return;
             BaseFileWrapper wrapper = dragNodes[0] as BaseFileWrapper;
             if (wrapper == null)

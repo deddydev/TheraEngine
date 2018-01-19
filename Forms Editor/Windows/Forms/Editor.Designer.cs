@@ -54,7 +54,8 @@
             this.btnViewPropertyGrid = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewOutput = new System.Windows.Forms.ToolStripMenuItem();
             this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.btPlay = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnPlay = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnPlayDetached = new System.Windows.Forms.ToolStripMenuItem();
             this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxContentTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.BtnImportFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -145,7 +146,7 @@
             // 
             this.btnNewProject.Image = ((System.Drawing.Image)(resources.GetObject("btnNewProject.Image")));
             this.btnNewProject.Name = "btnNewProject";
-            this.btnNewProject.Size = new System.Drawing.Size(189, 30);
+            this.btnNewProject.Size = new System.Drawing.Size(185, 26);
             this.btnNewProject.Text = "New Project";
             this.btnNewProject.Click += new System.EventHandler(this.BtnNewProject_Click);
             // 
@@ -153,7 +154,7 @@
             // 
             this.btnOpenProject.Image = ((System.Drawing.Image)(resources.GetObject("btnOpenProject.Image")));
             this.btnOpenProject.Name = "btnOpenProject";
-            this.btnOpenProject.Size = new System.Drawing.Size(189, 30);
+            this.btnOpenProject.Size = new System.Drawing.Size(185, 26);
             this.btnOpenProject.Text = "Open Project";
             this.btnOpenProject.Click += new System.EventHandler(this.BtnOpenProject_Click);
             // 
@@ -161,7 +162,7 @@
             // 
             this.btnSaveProject.Enabled = false;
             this.btnSaveProject.Name = "btnSaveProject";
-            this.btnSaveProject.Size = new System.Drawing.Size(189, 30);
+            this.btnSaveProject.Size = new System.Drawing.Size(185, 26);
             this.btnSaveProject.Text = "Save Project";
             this.btnSaveProject.Click += new System.EventHandler(this.BtnSaveProject_Click);
             // 
@@ -169,7 +170,7 @@
             // 
             this.btnSaveProjectAs.Enabled = false;
             this.btnSaveProjectAs.Name = "btnSaveProjectAs";
-            this.btnSaveProjectAs.Size = new System.Drawing.Size(189, 30);
+            this.btnSaveProjectAs.Size = new System.Drawing.Size(185, 26);
             this.btnSaveProjectAs.Text = "Save Project As";
             this.btnSaveProjectAs.Click += new System.EventHandler(this.BtnSaveProjectAs_Click);
             // 
@@ -320,24 +321,32 @@
             // gameToolStripMenuItem
             // 
             this.gameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btPlay,
+            this.btnPlay,
+            this.btnPlayDetached,
             this.btnCompile});
             this.gameToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.gameToolStripMenuItem.Name = "gameToolStripMenuItem";
             this.gameToolStripMenuItem.Size = new System.Drawing.Size(60, 24);
             this.gameToolStripMenuItem.Text = "Game";
             // 
-            // btPlay
+            // btnPlay
             // 
-            this.btPlay.Name = "btPlay";
-            this.btPlay.Size = new System.Drawing.Size(140, 26);
-            this.btPlay.Text = "Play";
-            this.btPlay.Click += new System.EventHandler(this.BtPlay_Click);
+            this.btnPlay.Name = "btnPlay";
+            this.btnPlay.Size = new System.Drawing.Size(179, 26);
+            this.btnPlay.Text = "Play";
+            this.btnPlay.Click += new System.EventHandler(this.BtPlay_Click);
+            // 
+            // btnPlayDetached
+            // 
+            this.btnPlayDetached.Name = "btnPlayDetached";
+            this.btnPlayDetached.Size = new System.Drawing.Size(179, 26);
+            this.btnPlayDetached.Text = "Play Detached";
+            this.btnPlayDetached.Click += new System.EventHandler(this.btnPlayDetached_Click);
             // 
             // btnCompile
             // 
             this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(140, 26);
+            this.btnCompile.Size = new System.Drawing.Size(179, 26);
             this.btnCompile.Text = "Compile";
             // 
             // ctxContentTree
@@ -499,7 +508,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnUserSettings;
         private System.Windows.Forms.ToolStripMenuItem btnWorldSettings;
         private System.Windows.Forms.ToolStripMenuItem gameToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem btPlay;
+        private System.Windows.Forms.ToolStripMenuItem btnPlay;
         private System.Windows.Forms.ToolStripMenuItem btnCompile;
         private System.Windows.Forms.Label TheraEngineText;
         public WeifenLuo.WinFormsUI.Docking.DockPanel DockPanel;
@@ -514,6 +523,7 @@
         private System.Windows.Forms.ToolStripMenuItem viewport4ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem btnViewOutput;
         public System.Windows.Forms.ToolTip DecorationToolTip;
+        private System.Windows.Forms.ToolStripMenuItem btnPlayDetached;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

@@ -45,6 +45,7 @@ namespace System.ComponentModel
             { "gif", "Graphics Interchange Format" },
             { "rtf", "Rich Text File" },
             { "txt", "Text File" },
+            { "py", "Python Script" },
         };
 
         public static void Register3rdPartyExtension(string extension, string userFriendlyName)

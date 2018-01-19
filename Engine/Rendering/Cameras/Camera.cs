@@ -266,22 +266,23 @@ namespace TheraEngine.Rendering.Cameras
         }
 
         /// <summary>
-        /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
+        /// Returns an X, Y coordinate relative to the camera's Origin,
+        /// with Z being the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f).
         /// </summary>
         public Vec3 WorldToScreen(Vec3 point)
             => _projectionRange * (((point * (ProjectionMatrix * WorldToCameraSpaceMatrix)) + 1.0f) / 2.0f);
         /// <summary>
-        /// Takes an X, Y coordinate relative to the camera's Origin along with the normalized depth from NearDepth to FarDepth, and returns a position in the world.
+        /// Takes an X, Y coordinate relative to the camera's Origin along with the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f), and returns a position in the world.
         /// </summary>
         public Vec3 ScreenToWorld(Vec2 point, float depth)
             => ScreenToWorld(point.X, point.Y, depth);
         /// <summary>
-        /// Takes an X, Y coordinate relative to the camera's Origin along with the normalized depth from NearDepth to FarDepth, and returns a position in the world.
+        /// Takes an X, Y coordinate relative to the camera's Origin along with the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f), and returns a position in the world.
         /// </summary>
         public Vec3 ScreenToWorld(float x, float y, float depth)
             => ScreenToWorld(new Vec3(x, y, depth));
         /// <summary>
-        /// Takes an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth, and returns a position in the world.
+        /// Takes an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f), and returns a position in the world.
         /// </summary>
         public Vec3 ScreenToWorld(Vec3 screenPoint)
             => ((screenPoint / _projectionRange) * 2.0f - 1.0f) * (CameraToWorldSpaceMatrix * InverseProjectionMatrix);

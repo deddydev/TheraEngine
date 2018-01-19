@@ -8,26 +8,20 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
     [FileDef("Rotation Component")]
     public class RotationComponent : SceneComponent
     {
-        public RotationComponent() : base()
+        public RotationComponent() : this(Rotator.GetZero(), true) { }
+        public RotationComponent(Rotator rotation, bool deferLocalRecalc = false) : base()
         {
-            Rotation = Rotator.GetZero();
+            _rotation = rotation;
+            _rotation.Changed += RecalcLocalTransform;
+            if (!deferLocalRecalc)
+                RecalcLocalTransform();
         }
-        public RotationComponent(RotationOrder order) : base()
-        {
-            Rotation = Rotator.GetZero(order);
-        }
-        public RotationComponent(Rotator rotation)
-        {
-            Rotation = rotation;
-        }
-        public RotationComponent(float pitch, float yaw, float roll, RotationOrder order = RotationOrder.YPR) : base()
-        {
-            Rotation = new Rotator(pitch, yaw, roll, order);
-        }
-        public RotationComponent(Vec3 pitchYawRoll, RotationOrder order = RotationOrder.YPR) : base()
-        {
-            Rotation = new Rotator(pitchYawRoll, order);
-        }
+        public RotationComponent(RotationOrder order, bool deferLocalRecalc = false)
+            : this(Rotator.GetZero(order), deferLocalRecalc) { }
+        public RotationComponent(float pitch, float yaw, float roll, RotationOrder order = RotationOrder.YPR, bool deferLocalRecalc = false)
+              : this(new Rotator(pitch, yaw, roll, order), deferLocalRecalc) { }
+        public RotationComponent(Vec3 pitchYawRoll, RotationOrder order = RotationOrder.YPR, bool deferLocalRecalc = false)
+             : this(new Rotator(pitchYawRoll, order), deferLocalRecalc) { }
 
         [TSerialize("Rotation")]
         protected Rotator _rotation;
@@ -63,9 +57,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             _rotation.SetRotations(delta.ToYawPitchRoll());
         }
 
-        protected internal override void OriginRebased(Vec3 newOrigin)
-        {
-
-        }
+        protected internal override void OriginRebased(Vec3 newOrigin) { }
     }
 }

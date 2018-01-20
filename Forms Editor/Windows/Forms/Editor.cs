@@ -151,8 +151,8 @@ namespace TheraEditor.Windows.Forms
                     if (!CloseProject())
                         return;
                 }
-                else
-                    ClearDockPanel();
+
+                ClearDockPanel();
 
                 _project = value;
 
@@ -428,7 +428,8 @@ namespace TheraEditor.Windows.Forms
                         _project.Export();
                 }
 
-                string configFile = _project.EditorSettings.GetFullDockConfigPath();//Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
+                string configFile = _project.EditorSettings.GetFullDockConfigPath();
+                //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
                 DockPanel.SaveAsXml(configFile);
 
                 ClearDockPanel();
@@ -523,20 +524,10 @@ namespace TheraEditor.Windows.Forms
         
         private DockableRenderForm FocusViewport(int index)
         {
-            DockableRenderForm form = null;
-            switch (index)
-            {
-                case 0: form = RenderForm1; break;
-                case 1: form = RenderForm2; break;
-                case 2: form = RenderForm3; break;
-                case 3: form = RenderForm4; break;
-            }
-            if (form != null)
-            {
-                if (form.IsHidden)
-                    form.Show(DockPanel, DockState.Document);
-                form.Focus();
-            }
+            DockableRenderForm form = GetRenderForm(index);
+            if (form.IsHidden)
+                form.Show(DockPanel, DockState.Document);
+            form.Focus();
             return form;
         }
 

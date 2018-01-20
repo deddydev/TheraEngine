@@ -99,9 +99,9 @@ namespace TheraEditor
                 Name = name,
                 FilePath = GetFilePath<Project>(directory, name, ProprietaryFileFormat.XML),
                 ProjectStateRef = new GlobalFileRef<ProjectState>(directory, "ProjectState", ProprietaryFileFormat.XML, state, true),
-                UserSettingsRef = new GlobalFileRef<UserSettings>(directory, "UserSettings", ProprietaryFileFormat.XML, userSettings, true),
-                EngineSettingsRef = new GlobalFileRef<EngineSettings>(directory, "EngineSettings", ProprietaryFileFormat.XML, engineSettings, true),
-                EditorSettingsRef = new GlobalFileRef<EditorSettings>(directory, "EditorSettings", ProprietaryFileFormat.XML, editorSettings, true),
+                UserSettingsRef = new GlobalFileRef<UserSettings>(configDir, "UserSettings", ProprietaryFileFormat.XML, userSettings, true),
+                EngineSettingsRef = new GlobalFileRef<EngineSettings>(configDir, "EngineSettings", ProprietaryFileFormat.XML, engineSettings, true),
+                EditorSettingsRef = new GlobalFileRef<EditorSettings>(configDir, "EditorSettings", ProprietaryFileFormat.XML, editorSettings, true),
             };
             p.Export();
             return p;

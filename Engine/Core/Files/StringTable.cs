@@ -18,7 +18,6 @@ namespace TheraEngine.Files
             foreach (string s in values)
                 Add(s);
         }
-
         public int GetTotalSize()
         {
             int len = 0;
@@ -26,10 +25,7 @@ namespace TheraEngine.Files
                 len += s.Length + 1;
             return len.Align(4);
         }
-
-        public void Clear() 
-            => _table.Clear();
-
+        public void Clear() => _table.Clear();
         public int this[string s]
         {
             get

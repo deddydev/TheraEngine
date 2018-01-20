@@ -198,7 +198,7 @@ namespace TheraEditor.Windows.Forms
                     Engine.SetPaused(true, LocalPlayerIndex.One, true);
                     Engine.Run();
 
-                    CurrentWorld = _project.State?.WorldRef?.File ?? _project.OpeningWorldRef?.File;
+                    CurrentWorld = _project.OpeningWorldRef?.File;
                     Engine.SetActiveGameMode(_editorGameMode);
 
                     //Type visualStudioType = Type.GetTypeFromProgID("VisualStudio.DTE");

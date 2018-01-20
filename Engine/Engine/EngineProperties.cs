@@ -70,7 +70,7 @@ namespace TheraEngine
         /// </summary>
         public static event Action PostWorldChanged;
 
-        public static BaseGameMode ActiveGameMode => Game?.State.GameMode?.File;
+        public static BaseGameMode ActiveGameMode => Game?.State.GameModeRef?.File;
 
         /// <summary>
         /// Instances of files that are loaded only once and are accessable by all global references to that file.

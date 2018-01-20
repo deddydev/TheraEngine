@@ -84,6 +84,9 @@
     <Reference Include="Enums.NET">
       <HintPath>..\Libraries\Enums.NET.2.2.0\Bin\Net45\Enums.NET.dll</HintPath>
     </Reference>
+    <Reference Include="envdte, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="ScintillaNET">

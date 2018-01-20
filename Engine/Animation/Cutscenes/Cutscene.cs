@@ -8,7 +8,7 @@ namespace TheraEngine.Cutscenes
 {
     public class Cutscene : BaseAnimation
     {
-        public Cutscene() : base(0.0f, false, true) { }
+        public Cutscene() : base(0.0f, false, false) { }
         public Cutscene(float lengthInSeconds, bool looped, bool isBaked = false)
             : base(lengthInSeconds, looped, isBaked) { }
         public Cutscene(int frameCount, float FPS, bool looped, bool isBaked = false)

@@ -275,10 +275,12 @@
     <Compile Include="Components\Logic\ScriptComponent.cs" />
     <Compile Include="Components\Scene\InteractorComponent.cs" />
     <Compile Include="Components\Scene\Mesh\BaseRenderableMesh.cs" />
+    <Compile Include="Components\Scene\Transforms\Lagged\TranslationLagged.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake2D.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake3D.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoiseTR.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoiseRotation.cs" />
+    <Compile Include="Components\Scene\Transforms\Lagged\TRLagged.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIButtonComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIDropDownListComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIInteractableComponent.cs" />

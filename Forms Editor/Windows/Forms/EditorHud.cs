@@ -301,9 +301,12 @@ namespace TheraEditor.Windows.Forms
         }
         private void PostSelectedComponentChanged()
         {
+            if (Engine.World == null)
+                return;
+
             if (_selectedComponent != null)
             {
-                Engine.Scene.Remove(_highlightPoint);
+                Engine.Scene?.Remove(_highlightPoint);
                 if (_selectedComponent.OwningActor is TransformTool3D tool)
                 {
 

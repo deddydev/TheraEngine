@@ -129,9 +129,9 @@ namespace TheraEditor.Windows.Forms
             if (instance is IActor actor)
             {
                 Engine.World.SpawnActor(actor);
-                EditorHud hud = EditorPawn.HUD as EditorHud;
-                hud.HighlightedComponent = actor.RootComponent;
-                hud.MouseDown();
+                //EditorHud hud = EditorPawn.HUD as EditorHud;
+                //hud.HighlightedComponent = actor.RootComponent;
+                //hud.MouseDown();
             }
         }
 
@@ -141,8 +141,8 @@ namespace TheraEditor.Windows.Forms
             if (hud.DragComponent != null)
             {
                 Engine.World.DespawnActor(hud.DragComponent.OwningActor);
-                hud.DragComponent = null;
-                hud.MouseUp();
+                //hud.DragComponent = null;
+                //hud.MouseUp();
             }
         }
 

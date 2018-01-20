@@ -77,6 +77,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
             _currentPoint = _worldTransform.GetPoint();
             _destPoint = GetParentMatrix().GetPoint();
             _laggingDistance = _destPoint.DistanceToFast(_currentPoint);
+
             //if (_laggingDistance > _maxLagDistance)
             //    _interpPoint = CustomMath.InterpLinearTo(_destPoint, _currentPoint, _maxLagDistance / _laggingDistance);
             //else

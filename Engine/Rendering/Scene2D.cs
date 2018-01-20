@@ -169,7 +169,7 @@ namespace TheraEngine.Rendering
                     }
                     Engine.Renderer.PopRenderArea();
 
-                    AbstractRenderer.PopCurrentCamera();
+                    //AbstractRenderer.PopCurrentCamera();
                 }
                 else
                 {

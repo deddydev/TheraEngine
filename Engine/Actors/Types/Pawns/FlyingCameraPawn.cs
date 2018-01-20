@@ -44,14 +44,14 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         public EMouseButton _type;
         public ComboModifier _modifiers;
     }
-    public class FlyingCameraPawn : Pawn<TRComponent>
+    public class FlyingCameraPawn : Pawn<TRLaggedComponent>
     {
         public FlyingCameraPawn() : base() { }
         public FlyingCameraPawn(LocalPlayerIndex possessor) : base(false, possessor) { }
 
-        protected override TRComponent OnConstruct()
+        protected override TRLaggedComponent OnConstruct()
         {
-            TRComponent root = new TRComponent();
+            TRLaggedComponent root = new TRLaggedComponent();
             ScreenShakeComponent = new ScreenShake3DComponent();
             Camera = new PerspectiveCamera();
             CameraComponent cam = new CameraComponent(Camera);
@@ -219,7 +219,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                RootComponent.Rotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
+                RootComponent.DesiredRotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
                 Camera_TransformChanged();
             }
             else if (Translating)
@@ -231,7 +231,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
                     v.Y += y;
                     Vec3 newPoint = Camera.ScreenToWorld(v);
                     Vec3 diff = newPoint - _hitPoint.Value;
-                    RootComponent.Translation.Raw += diff;
+                    RootComponent.DesiredTranslation += diff;
                 }
                 else
                     RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
@@ -260,7 +260,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             if (translate)
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                RootComponent.DesiredRotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
         }
 
         #region Customizable Input

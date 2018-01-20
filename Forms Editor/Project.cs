@@ -93,7 +93,7 @@ namespace TheraEditor
             UserSettings userSettings = new UserSettings();
             EngineSettings engineSettings = new EngineSettings();
             EditorSettings editorSettings = new EditorSettings();
-
+            
             Project p = new Project()
             {
                 Name = name,

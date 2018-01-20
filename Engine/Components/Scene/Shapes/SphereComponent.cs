@@ -10,9 +10,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
     {
         private Sphere _sphere;
 
-        public SphereComponent(float radius)
-            => _sphere = new Sphere(radius, Vec3.Zero);
-        
+        public SphereComponent() : this(1.0f) { }
+        public SphereComponent(float radius) : this(radius, null) { }
         public SphereComponent(float radius, TRigidBodyConstructionInfo info)
         {
             _sphere = new Sphere(radius, Vec3.Zero);

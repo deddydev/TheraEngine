@@ -73,7 +73,7 @@ namespace TheraEngine.Animation
             Vec3 t, r, s;
             Vec3
                 bt = bindState.Translation.Raw,
-                br = bindState.Rotation.RawPitchYawRoll,
+                br = bindState.Rotation.PitchYawRoll,
                 bs = bindState.Scale.Raw;
             float* pt = (float*)&t;
             float* pr = (float*)&r;
@@ -140,7 +140,7 @@ namespace TheraEngine.Animation
             Vec3 t, r, s;
             Vec3
                 bt = defaultTransform.Translation.Raw,
-                br = defaultTransform.Rotation.RawPitchYawRoll,
+                br = defaultTransform.Rotation.PitchYawRoll,
                 bs = defaultTransform.Scale.Raw;
             float* pt = (float*)&t;
             float* pr = (float*)&r;

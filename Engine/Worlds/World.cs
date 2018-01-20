@@ -70,16 +70,17 @@ namespace TheraEngine.Worlds
             => Settings?.GameModeOverrideRef?.File as T;
 
         [Browsable(false)]
-        public int SpawnedActorCount => StateRef.File.SpawnedActors.Count;
+        public int SpawnedActorCount => State.SpawnedActors.Count;
 
         /// <summary>
         /// Adds an actor to the scene.
         /// </summary>
         public void SpawnActor(IActor actor)
         {
-            if (!StateRef.File.SpawnedActors.Contains(actor))
-                StateRef.File.SpawnedActors.Add(actor);
-
+            if (State.SpawnedActors.Contains(actor))
+                return;
+            
+            State.SpawnedActors.Add(actor);
             actor.Spawned(this);
             //Engine.PrintLine("Spawned " + actor.Name);
         }
@@ -88,8 +89,10 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor, Vec3 position)
         {
-            if (!StateRef.File.SpawnedActors.Contains(actor))
-                StateRef.File.SpawnedActors.Add(actor);
+            if (State.SpawnedActors.Contains(actor))
+                return;
+
+            State.SpawnedActors.Add(actor);
             actor.Spawned(this);
             actor.RebaseOrigin(-position);
         }
@@ -98,8 +101,10 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void DespawnActor(IActor actor)
         {
-            if (StateRef.File.SpawnedActors.Contains(actor))
-                StateRef.File.SpawnedActors.Remove(actor);
+            if (!State.SpawnedActors.Contains(actor))
+                return;
+
+            State.SpawnedActors.Remove(actor);
             actor.Despawned();
             //Engine.PrintLine("Despawned " + actor.Name);
         }
@@ -109,8 +114,8 @@ namespace TheraEngine.Worlds
         
         public IActor this[int index]
         {
-            get => StateRef.File.SpawnedActors[index];
-            set => StateRef.File.SpawnedActors[index] = value;
+            get => State.SpawnedActors[index];
+            set => State.SpawnedActors[index] = value;
         }
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.

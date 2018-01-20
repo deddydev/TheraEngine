@@ -29,7 +29,7 @@ namespace TheraEngine.Animation
             return Collada.Import(path, o)?.Models[0].Animation;
         }
         
-        public SkeletalAnimation() : base(0.0f, false, true) { }
+        public SkeletalAnimation() : base(0.0f, false, false) { }
         public SkeletalAnimation(float lengthInSeconds, bool looped, bool isBaked = false)
             : base(lengthInSeconds, looped, isBaked) { }
         public SkeletalAnimation(int frameCount, float FPS, bool looped, bool isBaked = false)
@@ -148,12 +148,12 @@ namespace TheraEngine.Animation
 
         protected override void BakedChanged()
         {
-            throw new NotImplementedException();
+
         }
 
         public override void Bake(float framesPerSecond)
         {
-            throw new NotImplementedException();
+
         }
     }
     public class BoneAnimation

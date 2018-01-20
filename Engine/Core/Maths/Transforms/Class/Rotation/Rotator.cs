@@ -51,7 +51,7 @@ namespace TheraEngine.Core.Maths.Transforms
         //private readonly object _lock = new object();
 
         [Browsable(false)]
-        public Vec3 RawPitchYawRoll
+        public Vec3 PitchYawRoll
         {
             get => _pyr;
             set
@@ -603,20 +603,20 @@ namespace TheraEngine.Core.Maths.Transforms
                 EndUpdate();
             }
         }
-        [Browsable(false)]
-        [XmlIgnore]
-        public Vec3 PitchYawRoll
-        {
-            get => new Vec3(Pitch, Yaw, Roll);
-            set
-            {
-                BeginUpdate();
-                Pitch = value.X;
-                Yaw = value.Y;
-                Roll = value.Z;
-                EndUpdate();
-            }
-        }
+        //[Browsable(false)]
+        //[XmlIgnore]
+        //public Vec3 PitchYawRoll
+        //{
+        //    get => new Vec3(Pitch, Yaw, Roll);
+        //    set
+        //    {
+        //        BeginUpdate();
+        //        Pitch = value.X;
+        //        Yaw = value.Y;
+        //        Roll = value.Z;
+        //        EndUpdate();
+        //    }
+        //}
         [Browsable(false)]
         [XmlIgnore]
         public Vec3 PitchRollYaw

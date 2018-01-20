@@ -9,6 +9,8 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class ObjectCreator : TheraForm
     {
+        Type[] _preSelectedGenericTypeArgs = null;
+        
         /// <summary>
         /// Returns true if the dialog needs to be shown.
         /// </summary>
@@ -21,6 +23,12 @@ namespace TheraEditor.Windows.Forms
 
             if (ArrayMode)
                 type = type.GetElementType();
+
+            if (type.IsGenericType)
+            {
+                _preSelectedGenericTypeArgs = type.GenericTypeArguments;
+                type = type.GetGenericTypeDefinition();
+            }
 
             if (allowDerivedTypes)
             {
@@ -132,7 +140,23 @@ namespace TheraEditor.Windows.Forms
 
         private void btnOkay_Click(object sender, EventArgs e)
         {
+            if (ClassType.ContainsGenericParameters)
+            {
+                if (_preSelectedGenericTypeArgs != null)
+                    ClassType = ClassType.MakeGenericType(_preSelectedGenericTypeArgs);
+                else
+                {
+                    GenericsSelector selector = new GenericsSelector(ClassType);
+                    DialogResult result = selector.ShowDialog();
+                    if (result == DialogResult.OK)
+                        ClassType = selector.FinalClassType;
+                    else
+                        return;
+                }
+            }
+
             DialogResult = DialogResult.OK;
+
             if (ArrayMode)
             {
                 ConstructedObject = Array.CreateInstance(ClassType, FinalArguments.GetLength(0));

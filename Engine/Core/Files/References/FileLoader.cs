@@ -127,7 +127,7 @@ namespace TheraEngine.Files
 
             try
             {
-                if (IsThirdPartyFormat())
+                if (IsPureThirdPartyFormat())
                 {
                     T file = Activator.CreateInstance<T>();
                     file.FilePath = absolutePath;
@@ -239,10 +239,11 @@ namespace TheraEngine.Files
         /// Returns true if the file needs special deserialization handling.
         /// If so, the class needs a constructor that takes the file's absolute path (string) as its only argument.
         /// </summary>
-        private bool IsThirdPartyFormat()
+        private bool IsPureThirdPartyFormat()
         {
+            FileExt extHdr = GetFileExtension(_subType);
             File3rdParty header = GetFile3rdPartyExtensions(_subType);
-            return header?.HasAnyExtensions ?? false;
+            return extHdr == null && (header?.HasAnyExtensions ?? false);
         }
         public override string ToString() => ReferencePath;
         

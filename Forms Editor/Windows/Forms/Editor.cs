@@ -14,6 +14,8 @@ using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 using WeifenLuo.WinFormsUI.Docking;
+using EnvDTE;
+using TheraEngine.Tests;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -94,7 +96,7 @@ namespace TheraEditor.Windows.Forms
             DockableRenderForm form = _renderForms[i];
             if (form == null || form.IsDisposed)
             {
-                Engine.PrintLine("Created viewport " + i.ToString());
+                Engine.PrintLine("Created viewport " + (i + 1).ToString());
                 form = _renderForms[i] = new DockableRenderForm(LocalPlayerIndex.One, i);
                 form.Show(DockPanel);
             }
@@ -146,11 +148,8 @@ namespace TheraEditor.Windows.Forms
 
                 GameState = EEditorGameplayState.Editing;
 
-                if (_project != null)
-                {
-                    if (!CloseProject())
-                        return;
-                }
+                if (!CloseProject())
+                    return;
 
                 ClearDockPanel();
 
@@ -170,8 +169,6 @@ namespace TheraEditor.Windows.Forms
 
                 if (projectOpened)
                 {
-                    _project.State.GameMode = _editorGameMode;
-
                     if (string.IsNullOrEmpty(_project.FilePath))
                         Text = "";
                     else
@@ -198,17 +195,15 @@ namespace TheraEditor.Windows.Forms
 
                     Engine.Initialize(false);
                     Engine.RegisterRenderTick(RenderTick);
-
-                    GenerateInitialActorList();
-                    if (Engine.World != null)
-                    {
-                        Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
-                        Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
-                    }
-                    PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
-
                     Engine.SetPaused(true, LocalPlayerIndex.One, true);
                     Engine.Run();
+
+                    CurrentWorld = _project.State?.WorldRef?.File ?? _project.OpeningWorldRef?.File;
+                    Engine.SetActiveGameMode(_editorGameMode);
+
+                    //Type visualStudioType = Type.GetTypeFromProgID("VisualStudio.DTE");
+                    //DTE dte = Activator.CreateInstance(visualStudioType) as DTE;
+                    //dte.MainWindow.Visible = true;
                 }
                 else
                 {
@@ -219,6 +214,38 @@ namespace TheraEditor.Windows.Forms
                     WelcomeForm.Show(DockPanel, DockState.Document);
                     DockPanel.ResumeLayout(true, true);
                 }
+            }
+        }
+
+        /// <summary>
+        /// The world that the editor is currently editing.
+        /// </summary>
+        public World CurrentWorld
+        {
+            get => Engine.World;
+            set
+            {
+                if (Engine.World != null &&
+                    Engine.World.EditorState != null &&
+                    Engine.World.EditorState.HasChanges)
+                {
+                    DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                    if (r == DialogResult.Cancel)
+                        return;
+                    else if (r == DialogResult.Yes)
+                        Engine.World.Export();
+                    Engine.World.EditorState = null;
+                }
+
+                Engine.SetCurrentWorld(value, true, false);
+
+                GenerateInitialActorList();
+                if (Engine.World != null)
+                {
+                    Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
+                    Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
+                }
+                PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
             }
         }
 
@@ -273,15 +300,14 @@ namespace TheraEditor.Windows.Forms
             }
             else
             {
-                Project = null;
-                //p = new Project()
-                //{
-                //    //OpeningWorld = typeof(UnitTestingWorld),
-                //    UserSettingsRef = new UserSettings(),
-                //    EngineSettingsRef = new EngineSettings(),
-                //    EditorSettingsRef = new EditorSettings(),
-                //    ProjectStateRef = new ProjectState(),
-                //};
+                Project = new Project() //null
+                {
+                    OpeningWorldRef = typeof(UnitTestingWorld),
+                    UserSettingsRef = new UserSettings(),
+                    EngineSettingsRef = new EngineSettings(),
+                    EditorSettingsRef = new EditorSettings(),
+                    ProjectStateRef = new ProjectState(),
+                };
             }
             
             //if (DesignMode)
@@ -386,30 +412,6 @@ namespace TheraEditor.Windows.Forms
         private void BtnNewWorld_Click(object sender, EventArgs e)
         {
             CurrentWorld = new World();
-        }
-
-        /// <summary>
-        /// The world that the editor is currently editing.
-        /// </summary>
-        public World CurrentWorld
-        {
-            get => Engine.World;
-            set
-            {
-                if (Engine.World != null && 
-                    Engine.World.EditorState != null && 
-                    Engine.World.EditorState.HasChanges)
-                {
-                    DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                    if (r == DialogResult.Cancel)
-                        return;
-                    else if (r == DialogResult.Yes)
-                        Engine.World.Export();
-                    Engine.World.EditorState = null;
-                }
-                
-                Engine.SetCurrentWorld(value, true, false);
-            }
         }
 
         public static GlobalFileRef<EditorSettings> Settings { get; }

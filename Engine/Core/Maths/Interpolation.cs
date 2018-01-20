@@ -44,7 +44,7 @@ namespace System
                 u += v;
                 v += w;
 
-                length += s.DistanceTo(OldPos);
+                length += s.DistanceToFast(OldPos);
                 OldPos = s;
 
                 points[i] = s;
@@ -363,6 +363,7 @@ namespace System
         /// </summary>
         public static float InterpLinearTo(float start, float end, float time, float speed = 1.0f)
             => Lerp(start, end, time * speed);
+
         public static Vec2 InterpLinearTo(Vec2 start, Vec2 end, float time, float speed = 1.0f)
             => Vec2.Lerp(start, end, time * speed);
         public static Vec3 InterpLinearTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)

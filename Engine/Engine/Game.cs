@@ -88,7 +88,28 @@ namespace TheraEngine
     [FileDef("Game State")]
     public class GameState : FileObject
     {
-        public GlobalFileRef<World> World { get; set; }
-        public GlobalFileRef<BaseGameMode> GameMode { get; set; }
+        private GlobalFileRef<World> _worldRef = new GlobalFileRef<World>();
+        private GlobalFileRef<BaseGameMode> _gameModeRef = new GlobalFileRef<BaseGameMode>();
+
+        public World World
+        {
+            get => _worldRef.File;
+            set => _worldRef.File = value;
+        }
+        public GlobalFileRef<World> WorldRef
+        {
+            get => _worldRef;
+            set => _worldRef = value ?? new GlobalFileRef<World>();
+        }
+        public BaseGameMode GameMode
+        {
+            get => _gameModeRef.File;
+            set => _gameModeRef.File = value;
+        }
+        public GlobalFileRef<BaseGameMode> GameModeRef
+        {
+            get => _gameModeRef;
+            set => _gameModeRef = value ?? new GlobalFileRef<BaseGameMode>();
+        }
     }
 }

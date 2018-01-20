@@ -400,15 +400,15 @@ namespace TheraEngine
             if (Game != null)
             {
                 ActiveGameMode?.EndGameplay();
-                Game.State.GameMode.File = mode;
+                Game.State.GameMode = mode;
                 if (beginGameplay)
                     ActiveGameMode?.BeginGameplay();
             }
         }
         #endregion
 
-        public static bool RayTrace(RayTrace result) => World.PhysicsWorld.RayTrace(result);
-        public static bool ShapeTrace(ShapeTrace result) => World.PhysicsWorld.ShapeTrace(result);
+        public static bool RayTrace(RayTrace result) => World?.PhysicsWorld.RayTrace(result) ?? false;
+        public static bool ShapeTrace(ShapeTrace result) => World?.PhysicsWorld.ShapeTrace(result) ?? false;
         
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
@@ -463,13 +463,13 @@ namespace TheraEngine
         /// <summary>
         /// Makes path relative to the application exe and returns only the relative part of the path.
         /// </summary>
-        public static string ModifyPath(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-                return path;
-            string startupPath = Application.StartupPath;
-            return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
-        }
+        //public static string ModifyPath(string path)
+        //{
+        //    if (string.IsNullOrEmpty(path))
+        //        return path;
+        //    string startupPath = Application.StartupPath;
+        //    return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
+        //}
 
         internal static bool AddLocalFileInstance<T>(string path, T file) where T : FileObject
         {
@@ -532,7 +532,7 @@ namespace TheraEngine
             //    Scene.Clear(new BoundingBox(0.5f, Vec3.Zero));
 
             if (loadWorldGameMode && Game != null)
-                Game.State.GameMode = World?.GetGameMode();
+                Game.State.GameModeRef = World?.GetGameMode();
 
             ActiveGameMode?.BeginGameplay();
 

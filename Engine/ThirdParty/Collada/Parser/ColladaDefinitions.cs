@@ -94,6 +94,9 @@ namespace TheraEngine.Rendering.Models
 
             public List<ISID> SIDChildren { get; } = new List<ISID>();
         }
+        /// <summary>
+        /// Indicates this class is an owner of an Annotate element.
+        /// </summary>
         public interface IAnnotate : IElement { }
         [Name("annotate")]
         public class Annotate : BaseElement<IAnnotate>
@@ -105,13 +108,54 @@ namespace TheraEngine.Rendering.Models
         /// </summary>
         public interface INewParam : IElement { }
         [Name("newparam")]
-        public class NewParam : BaseElement<INewParam>, ISID
+        [Child(typeof(Annotate), 0, -1)]
+        [Child(typeof(Semantic), 0, 1)]
+        [Child(typeof(Modifier), 0, 1)]
+        [MultiChild(EMultiChildType.OneOfOne, typeof(Sampler2D))]
+        public class NewParam : BaseElement<INewParam>, ISID, IAnnotate
         {
             [Attr("sid", true)]
             public string SID { get; set; }
 
             public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+            [Name("semantic")]
+            public class Semantic : BaseStringElement<NewParam, ElementString>
+            {
+                public string Value
+                {
+                    get => StringContent.Value;
+                    set => StringContent.Value = value;
+                }
+            }
+            [Name("modifier")]
+            public class Modifier : BaseStringElement<NewParam, StringNumeric<ELinkageModifier>>
+            {
+                public ELinkageModifier LinkageModifier
+                {
+                    get => StringContent.Value;
+                    set => StringContent.Value = value;
+                }
+            }
+            [Name("sampler2D")]
+            public class Sampler2D : BaseElement<NewParam>
+            {
+                
+            }
+
+            public enum ELinkageModifier
+            {
+                CONST,
+                UNIFORM,
+                VARYING,
+                STATIC,
+                VOLATILE,
+                EXTERN,
+                SHARED,
+            }
         }
+        
+        
         /// <summary>
         /// Indicates this class is an owner of a SetParam element.
         /// </summary>

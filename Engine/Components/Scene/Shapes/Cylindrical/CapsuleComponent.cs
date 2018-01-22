@@ -7,7 +7,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 using TheraEngine.Physics;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
 {
     public class CapsuleYComponent : ShapeComponent
     {

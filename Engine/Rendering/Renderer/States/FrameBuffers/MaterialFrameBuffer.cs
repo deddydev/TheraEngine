@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering
     public class MaterialFrameBuffer : FrameBuffer
     {
         public MaterialFrameBuffer() { }
-        public MaterialFrameBuffer(TMaterial m) { Material = m; }
+        public MaterialFrameBuffer(TMaterial m) => Material = m;
 
         private bool _compiled = false;
 
@@ -33,7 +33,13 @@ namespace TheraEngine.Rendering
             }
         }
         public BaseTexRef[] Textures => Material?.Textures;
-        public void ResizeTextures(int width, int height) => Material?.Resize2DTextures(width, height);
+        public void ResizeTextures(int width, int height)
+        {
+            Material?.Resize2DTextures(width, height);
+            //Bind(EFramebufferTarget.Framebuffer);
+
+            //Unbind(EFramebufferTarget.Framebuffer);
+        }
         public void Compile()
         {
             Compile(Material.FBODrawAttachments);
@@ -47,9 +53,7 @@ namespace TheraEngine.Rendering
             Material.GenerateTextures(true);
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             foreach (BaseTexRef tref in Material.Textures)
-            {
                 tref.AttachToFBO();
-            }
             Engine.Renderer.SetDrawBuffers(drawAttachments);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             CheckErrors();

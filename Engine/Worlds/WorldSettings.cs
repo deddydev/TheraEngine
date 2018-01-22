@@ -120,9 +120,9 @@ namespace TheraEngine.Worlds
         [TSerialize("DefaultHud")]
         private UIManager _defaultHud;
         [TSerialize("Bounds")]
-        private BoundingBox _bounds = BoundingBox.FromMinMax(-70.0f, 70.0f);
+        private BoundingBox _bounds = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
         [TSerialize("OriginRebaseBounds")]
-        private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(float.MinValue, float.MaxValue);
+        private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
         [TSerialize("Maps")]
         private List<LocalFileRef<Map>> _maps = new List<LocalFileRef<Map>>();
         [TSerialize("AmbientSound")]

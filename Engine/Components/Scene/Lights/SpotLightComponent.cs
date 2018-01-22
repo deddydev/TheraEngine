@@ -250,6 +250,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Position", Position);
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", _distance);
             Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Exponent", _exponent);
 
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);

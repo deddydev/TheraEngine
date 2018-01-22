@@ -460,7 +460,7 @@ namespace TheraEditor.Windows.Forms
             string projectFilePath = current.FilePath;
             string currentPath = projectFilePath;
             string relativePath = path.MakePathRelativeTo(projectFilePath);
-            string[] pathHierarchy = relativePath.Split(Path.DirectorySeparatorChar);
+            string[] pathHierarchy = relativePath.Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string name in pathHierarchy)
             {
                 currentPath += Path.DirectorySeparatorChar + name;

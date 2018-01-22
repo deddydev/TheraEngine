@@ -19,7 +19,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
                 RecalcLocalTransform();
         }
 
-        [TSerialize("Translation")]
+        [TSerialize("Translation", UseCategory = true, OverrideXmlCategory = "Transform")]
         protected EventVec3 _translation;
 
         [Category("Transform")]

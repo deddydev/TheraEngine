@@ -182,7 +182,16 @@
     <Compile Include="Windows\Forms\Class Creation\ObjectCreator.Designer.cs">
       <DependentUpon>ObjectCreator.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\File Navigation\FileFolderList.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Windows\Forms\EditorForAttribute.cs" />
+    <Compile Include="Windows\Forms\File Navigation\FileNavPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\File Navigation\FileNavPanel.Designer.cs">
+      <DependentUpon>FileNavPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -432,7 +441,10 @@
     <Compile Include="Windows\Forms\PropertyGrid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\TreeViewEx.cs" />
+    <None Include="Windows\Forms\File Navigation\ResourceListView.cs">
+      <SubType>Component</SubType>
+    </None>
+    <Compile Include="Windows\Forms\File Navigation\TreeViewEx.cs" />
     <Compile Include="Windows\Forms\Editor Forms\DockablePropertyGrid.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -490,10 +502,10 @@
     <Compile Include="Project.cs" />
     <Compile Include="ProjectState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Windows\Forms\ResourceTree.cs">
+    <Compile Include="Windows\Forms\File Navigation\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editor Forms\EditorWorldRenderPanel.cs">
+    <Compile Include="Windows\Forms\EditorWorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\TransparentPanel.cs">
@@ -549,6 +561,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Class Creation\GenericSelector.resx">
       <DependentUpon>GenericSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\File Navigation\FileNavPanel.resx">
+      <DependentUpon>FileNavPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.resx">
       <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>

@@ -30,8 +30,8 @@ namespace TheraEngine.Worlds.Actors.Components
 
                 //AABBs are not updated unless the physics world is ticking.
                 //Without an updated AABB, collision against traces will not work properly.
-                if (Engine.IsPaused)
-                    Engine.World?.PhysicsWorld.UpdateSingleAabb(p.RigidBodyCollision);
+                if (Engine.IsPaused && Engine.World != null && !Engine.World.IsRebasingOrigin)
+                    Engine.World.PhysicsWorld.UpdateSingleAabb(p.RigidBodyCollision);
             }
 
             if (this is I3DBoundable r)
@@ -46,20 +46,20 @@ namespace TheraEngine.Worlds.Actors.Components
 
         protected ISocket _ancestorSimulatingPhysics;
 
-        [TSerialize(Config = false)]
+        //[TSerialize(Config = false)]
         protected bool _simulatingPhysics = false;
-        [TSerialize(Config = false)]
+        //[TSerialize(Config = false)]
         protected Matrix4 _previousWorldTransform = Matrix4.Identity;
-        [TSerialize(Config = false)]
+        //[TSerialize(Config = false)]
         protected Matrix4 _previousInverseWorldTransform = Matrix4.Identity;
 
-        [TSerialize("WorldTransform")]
+        //[TSerialize("WorldTransform")]
         protected Matrix4 _worldTransform = Matrix4.Identity;
-        [TSerialize("InverseWorldTransform")]
+        //[TSerialize("InverseWorldTransform")]
         protected Matrix4 _inverseWorldTransform = Matrix4.Identity;
-        [TSerialize("LocalTransform")]
+        //[TSerialize("LocalTransform")]
         protected Matrix4 _localTransform = Matrix4.Identity;
-        [TSerialize("InverseLocalTransform")]
+        //[TSerialize("InverseLocalTransform")]
         protected Matrix4 _inverseLocalTransform = Matrix4.Identity;
         internal ISocket _parent;
         protected EventList<SceneComponent> _children;

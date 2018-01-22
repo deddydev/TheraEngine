@@ -38,8 +38,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
                 r = _rotation.GetMatrix(),
                 ir = _rotation.GetInverseMatrix();
             Matrix4
-                t = Matrix4.CreateTranslation(_translation),
-                it = Matrix4.CreateTranslation(-_translation);
+                t = _translation.AsTranslationMatrix(),
+                it = (-_translation).AsTranslationMatrix();
             Matrix4 
                 translation = Matrix4.CreateTranslation(0.0f, 0.0f, _currentLength),
                 invTranslation = Matrix4.CreateTranslation(0.0f, 0.0f, -_currentLength);

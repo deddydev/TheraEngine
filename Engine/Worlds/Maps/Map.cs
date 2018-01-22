@@ -27,8 +27,7 @@ namespace TheraEngine.Worlds
         {
             foreach (IActor actor in Settings.StaticActors)
                 OwningWorld.DespawnActor(actor);
-            //TODO: determine what dynamic actors lie within this map's bounds
-            //and ONLY despawn those actors if this 
+            OwningWorld = null;
         }
         public virtual void BeginPlay(World world)
         {

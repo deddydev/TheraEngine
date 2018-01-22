@@ -122,20 +122,24 @@ namespace TheraEngine.Worlds
         /// Provide any world point and that point will become the new (0,0,0).
         /// </summary>
 
-        bool _isRebasing = false;
+        public bool IsRebasingOrigin { get; private set; }
         public async void RebaseOrigin(Vec3 newOrigin)
         {
-            if (_isRebasing)
-                throw new Exception();
-            _isRebasing = true;
+            if (IsRebasingOrigin)
+                throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
+            IsRebasingOrigin = true;
 
             //Engine.PrintLine("Beginning origin rebase.");
+            _physicsWorld.AllowIndividualAabbUpdates = false;
             await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
             //foreach (IActor a in State.SpawnedActors)
             //    a.RebaseOrigin(newOrigin);
+            _physicsWorld.AllowIndividualAabbUpdates = true;
+            _physicsWorld.UpdateAabbs();
+            Scene.RenderTree.Remake();
             //Engine.PrintLine("Finished origin rebase.");
 
-            _isRebasing = false;
+            IsRebasingOrigin = false;
         }
 
         private void CreatePhysicsScene()
@@ -174,6 +178,9 @@ namespace TheraEngine.Worlds
                     m.BeginPlay(this);
                 }
             }
+            
+            Engine.Scene.Add(Settings.OriginRebaseBounds);
+            Engine.Scene.Add(Settings.Bounds);
         }
 
         //public event Action<LocalPlayerController> LocalPlayerAdded;

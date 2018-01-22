@@ -2,6 +2,7 @@
 using System;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
+using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 
 namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
 {

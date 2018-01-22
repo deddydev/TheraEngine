@@ -9,7 +9,7 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class ObjectCreator : TheraForm
     {
-        Type[] _preSelectedGenericTypeArgs = null;
+        internal Type[] _preSelectedGenericTypeArgs = null;
         
         /// <summary>
         /// Returns true if the dialog needs to be shown.
@@ -19,6 +19,12 @@ namespace TheraEditor.Windows.Forms
         /// <returns></returns>
         public bool Initialize(Type type, bool allowDerivedTypes)
         {
+            if (type.IsGenericTypeDefinition)
+                throw new InvalidOperationException("Cannot create an instance of a generic type definition. Pass in the type created with each generic parameter set.");
+
+            if (type.IsGenericParameter)
+                throw new InvalidOperationException("Cannot create an instance of a generic parameter. Pass in the type created from the parameter constraints.");
+
             ArrayMode = type.IsArray;
 
             if (ArrayMode)
@@ -342,10 +348,17 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        public static Control CreateControl(Type type, int columnIndex, int rowIndex, object[][] finalArguments)
+        public Control CreateControl(Type type, int columnIndex, int rowIndex, object[][] finalArguments)
         {
             Control paramTool = null;
             bool nullable = false;
+            if (type.IsGenericParameter)
+            {
+                TypeInfo info = IntrospectionExtensions.GetTypeInfo(ClassType);
+                int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == type);
+                if (_preSelectedGenericTypeArgs.IndexInArrayRange(argIndex))
+                    type = _preSelectedGenericTypeArgs[argIndex];
+            }
             ArgumentInfo arg = new ArgumentInfo()
             {
                 Type = type,
@@ -614,8 +627,15 @@ namespace TheraEditor.Windows.Forms
                         {
                             Label s = (Label)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
-
-                            object o = Editor.UserCreateInstanceOf(argInfo.Type, true);
+                            Type t = argInfo.Type;
+                            if (t.IsGenericParameter)
+                            {
+                                TypeInfo info = IntrospectionExtensions.GetTypeInfo(ClassType);
+                                int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == t);
+                                if (_preSelectedGenericTypeArgs.IndexInArrayRange(argIndex))
+                                    t = _preSelectedGenericTypeArgs[argIndex];
+                            }
+                            object o = Editor.UserCreateInstanceOf(t, true);
 
                             if (o == null && argInfo.Type.IsValueType)
                                 o = argInfo.Type.GetDefaultValue();

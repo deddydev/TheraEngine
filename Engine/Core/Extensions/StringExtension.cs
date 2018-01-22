@@ -110,6 +110,13 @@ namespace System
             => (T)value.ParseAs(typeof(T));
         public static object ParseAs(this string value, Type t)
         {
+            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    return null;
+                else
+                    return value.ParseAs(t.GetGenericArguments()[0]);
+            }
             if (t.GetInterface("IParsable") != null)
             {
                 IParsable o = (IParsable)Activator.CreateInstance(t);

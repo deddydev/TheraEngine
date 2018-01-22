@@ -161,7 +161,7 @@ namespace TheraEngine.Physics
         {
             _dynamicsWorld.UpdateAabbs();
         }
-        public override void UpdateSingleAabb(TCollisionObject collision)
+        protected override void OnUpdateSingleAabb(TCollisionObject collision)
         {
             _dynamicsWorld.UpdateSingleAabb(((IBulletCollisionObject)collision).CollisionObject);
         }

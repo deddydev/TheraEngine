@@ -21,6 +21,10 @@ namespace TheraEngine.Tests
     {
         protected internal override void OnLoaded()
         {
+            int pointLights = 0;
+            int dirLights = 1;
+            int spotLights = 0;
+
             float margin = 5.0f;
             float radius = 5.0f;
             ColorF4 sphereColor = Color.Red;
@@ -32,7 +36,7 @@ namespace TheraEngine.Tests
             List<IActor> actors = new List<IActor>();
             IActor actor;
 
-            int count = 1;
+            int count = 4;
             int y = 0;
 
             //Create spheres
@@ -97,23 +101,53 @@ namespace TheraEngine.Tests
             //    ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create world light
-            //Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
-            //dirlight.RootComponent.LightColor = (ColorF3)Color.Beige;
-            //dirlight.RootComponent.Rotation.Pitch = -35;
-            //dirlight.RootComponent.AmbientIntensity = 0.0f;
-            //actors.Add(dirlight);
+            if (dirLights > 0)
+            {
+                float lightAngle = 360.0f / dirLights;
+                for (int i = 0; i < dirLights; ++i)
+                {
+                    DirectionalLightComponent dir = new DirectionalLightComponent()
+                    {
+                        LightColor = (ColorF3)Color.White,
+                        DiffuseIntensity = 1.0f,
+                        AmbientIntensity = 0.0f,
+                    };
+                    dir.Rotation.Pitch = -35.0f;
+                    dir.Rotation.Yaw = lightAngle * i;
+                    Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>(dir);
+                    actors.Add(dirlight);
+                }
+            }
 
             //Create spot light
-            Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>();
-            spotlight.RootComponent.LightColor = (ColorF3)Color.Beige;
-            spotlight.RootComponent.Rotation.Pitch = -90;
-            spotlight.RootComponent.AmbientIntensity = 0.01f;
-            spotlight.RootComponent.Translation.Raw = Vec3.Up * 70.0f;
-            spotlight.RootComponent.Distance = 200.0f;
-            spotlight.RootComponent.Brightness = 100.0f;
-            spotlight.RootComponent.OuterCutoffAngleDegrees = 50.0f;
-            spotlight.RootComponent.InnerCutoffAngleDegrees = 30.0f;
-            actors.Add(spotlight);
+            if (spotLights > 0)
+            {
+                float lightAngle = 360.0f / spotLights;
+                float lightAngleRad = lightAngle * TMath.DegToRadMultf;
+                float lightPosRadius = 50.0f;
+                float upTrans = 70.0f;
+                for (int i = 0; i < spotLights; ++i)
+                {
+                    SpotLightComponent spot = new SpotLightComponent()
+                    {
+                        LightColor = (ColorF3)Color.White,
+                        AmbientIntensity = 0.0f,
+                        Distance = 2000.0f,
+                        Brightness = 100.0f,
+                        Exponent = 2.0f,
+                        OuterCutoffAngleDegrees = 50.0f,
+                        InnerCutoffAngleDegrees = 30.0f,
+                        Translation = new Vec3(
+                            TMath.Cosf(i * lightAngleRad) * lightPosRadius,
+                            upTrans,
+                            TMath.Sinf(i * lightAngleRad) * lightPosRadius)
+                    };
+                    spot.Rotation.Pitch = -60.0f;
+                    spot.Rotation.Yaw = lightAngle * ((spotLights - i) - spotLights + 1);
+                    Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>(spot);
+                    actors.Add(spotlight);
+                }
+            }
 
             //Create camera shake test
             //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
@@ -130,34 +164,30 @@ namespace TheraEngine.Tests
             //actors.Add(testScreenshake);
 
             //Create point lights
-            //int lightCount = 1;
-            //float lightAngle = 360.0f / lightCount * TMath.DegToRadMultf;
-            //float lightPosRadius = 50.0f;
-            //float upTrans = 20.0f;
-            //for (int i = 0; i < lightCount; i++)
-            //{
-            //    PointLightComponent comp = new PointLightComponent(400.0f, 5.0f, (ColorF3)Color.White, 2000.0f, 0.0f)
-            //    {
-            //        Translation = new Vec3(
-            //            TMath.Cosf(i * lightAngle) * lightPosRadius,
-            //            upTrans,
-            //            TMath.Sinf(i * lightAngle) * lightPosRadius)
-            //    };
-            //    Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
-            //    actors.Add(pointLight);
-            //}
+            if (pointLights > 0)
+            {
+                float lightAngle = 360.0f / pointLights * TMath.DegToRadMultf;
+                float lightPosRadius = 50.0f;
+                float upTrans = 20.0f;
+                for (int i = 0; i < pointLights; i++)
+                {
+                    PointLightComponent comp = new PointLightComponent(400.0f, 5.0f, (ColorF3)Color.White, 2000.0f, 0.0f)
+                    {
+                        Translation = new Vec3(
+                            TMath.Cosf(i * lightAngle) * lightPosRadius,
+                            upTrans,
+                            TMath.Sinf(i * lightAngle) * lightPosRadius)
+                    };
+                    Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
+                    actors.Add(pointLight);
+                }
+            }
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {
                 Bounds = new BoundingBox(1000.0f),
                 OriginRebaseBounds = new BoundingBox(50.0f),
             };
-        }
-
-        public override void BeginPlay()
-        {
-            base.BeginPlay();
-            Engine.Scene.Add(Settings.OriginRebaseBounds);
         }
     }
 

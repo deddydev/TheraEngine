@@ -115,7 +115,7 @@ namespace TheraEngine.Files.Serialization
                     if (GetString(value, member.VariableType, out string result))
                     {
                         if (nonAttributeCount == 1)
-                            writer.WriteElementString(member.Name, result);
+                            writer.WriteString(result);
                         else
                             writer.WriteAttributeString(member.Name, result);
                     }

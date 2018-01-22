@@ -7,6 +7,7 @@ namespace TheraEngine.Physics
     public abstract class AbstractPhysicsWorld : IDisposable
     {
         public virtual Vec3 Gravity { get; set; } = new Vec3(0.0f, -9.81f, 0.0f);
+        public bool AllowIndividualAabbUpdates { get; set; }
 
         public abstract void StepSimulation(float delta);
         public abstract void AddCollisionObject(TCollisionObject collision);
@@ -16,7 +17,12 @@ namespace TheraEngine.Physics
         public abstract bool RayTrace(RayTrace result);
         public abstract bool ShapeTrace(ShapeTrace result);
         public abstract void UpdateAabbs();
-        public abstract void UpdateSingleAabb(TCollisionObject collision);
+        public void UpdateSingleAabb(TCollisionObject collision)
+        {
+            if (AllowIndividualAabbUpdates)
+                OnUpdateSingleAabb(collision);
+        }
+        protected abstract void OnUpdateSingleAabb(TCollisionObject collision);
 
         public abstract void Dispose();
     }

@@ -13,6 +13,37 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
     [FileDef("Directional Light Component")]
     public class DirectionalLightComponent : LightComponent
     {
+        private float _worldRadius;
+        private int _shadowWidth, _shadowHeight;
+        private MaterialFrameBuffer _shadowMap;
+        private OrthographicCamera _shadowCamera;
+        private Vec3 _direction;
+
+        [Category("Directional Light Component")]
+        public int ShadowMapResolutionWidth
+        {
+            get => _shadowWidth;
+            set => SetShadowMapResolution(value, _shadowHeight);
+        }
+        [Category("Directional Light Component")]
+        public int ShadowMapResolutionHeight
+        {
+            get => _shadowHeight;
+            set => SetShadowMapResolution(_shadowWidth, value);
+        }
+        [Category("Directional Light Component")]
+        public Vec3 Direction
+        {
+            get => _direction;
+            set
+            {
+                _direction = value.NormalizedFast();
+                _rotation.SetDirection(_direction);
+            }
+        }
+        [Browsable(false)]
+        public OrthographicCamera ShadowCamera => _shadowCamera;
+
         public DirectionalLightComponent() 
             : this(new ColorF3(1.0f, 0.0f, 0.0f), 1.0f, 0.1f) { }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity)
@@ -47,24 +78,6 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             }
         }
 
-        private float _worldRadius;
-        private int _shadowWidth, _shadowHeight;
-        private MaterialFrameBuffer _shadowMap;
-        private OrthographicCamera _shadowCamera;
-
-        private Vec3 _direction;
-        public Vec3 Direction
-        {
-            get => _direction;
-            set
-            {
-                _direction = value.NormalizedFast();
-                _rotation.SetDirection(_direction);
-            }
-        }
-        
-        public OrthographicCamera ShadowCamera => _shadowCamera;
-
         public override void OnSpawned()
         {
             if (Type == LightType.Dynamic)
@@ -72,7 +85,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
                 Engine.Scene.Lights.Add(this);
 
                 _worldRadius = Engine.World.Settings.Bounds.HalfExtents.LengthFast;
-                SetShadowMapResolution(1024, 1024);
+                SetShadowMapResolution(4096, 4096);
                 _shadowCamera.LocalPoint.Raw = GetWorldPoint();
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius + 1.0f);
             }
@@ -111,8 +124,8 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
                 _shadowCamera.Resize(_worldRadius, _worldRadius);
                 _shadowCamera.LocalRotation.SyncFrom(_rotation);
             }
-            else
-                _shadowCamera.Resize(_worldRadius, _worldRadius);
+            //else
+            //    _shadowCamera.Resize(_worldRadius, _worldRadius);
         }
         
         private static EPixelInternalFormat GetFormat(EDepthPrecision precision)
@@ -125,7 +138,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
             }
             return EPixelInternalFormat.DepthComponent32f;
         }
-        private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
+        private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
         {
             //These are listed in order of appearance in the shader
             TexRef2D[] refs = new TexRef2D[]

@@ -62,7 +62,7 @@ namespace TheraEngine.Core.Maths.Transforms
             }
         }
 
-        [TSerialize("PitchYawRoll", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("PitchYawRoll", XmlNodeType = EXmlNodeType.ElementString)]
         private Vec3 _pyr;
         [TSerialize("Order", XmlNodeType = EXmlNodeType.Attribute)]
         private RotationOrder _rotationOrder = RotationOrder.YPR;

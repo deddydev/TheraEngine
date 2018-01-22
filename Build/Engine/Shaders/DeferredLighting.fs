@@ -1,8 +1,8 @@
 #version 450
 
-#define MAX_DIR_LIGHTS 2
-#define MAX_SPOT_LIGHTS 8
-#define MAX_POINT_LIGHTS 8
+#define MAX_DIR_LIGHTS 3
+#define MAX_SPOT_LIGHTS 16
+#define MAX_POINT_LIGHTS 16
 
 const float PI = 3.14159265359f;
 const float InvPI = 0.31831f;
@@ -75,6 +75,7 @@ struct SpotLight
 	vec3 Direction;
 	float Radius;
 	float Brightness;
+	float Exponent;
 
 	float InnerCutoff;
 	float OuterCutoff;
@@ -139,7 +140,7 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 	fragCoord = fragCoord * 0.5f + 0.5f;
 
 	//Create bias depending on angle of normal to the light
-	float bias = GetShadowBias(NoL, 2.5f, 0.001f, 0.04f);
+	float bias = GetShadowBias(NoL, 20.0f, 0.001f, 0.004f);
 
 	//Hard shadow
 	float depth = texture(shadowMap, fragCoord.xy).r;
@@ -190,7 +191,6 @@ float ReadPointShadowMap(in int lightIndex, in float farPlaneDist, in vec3 fragT
 
 float Attenuate(in float dist, in float radius)
 {
-	//return 1.0f / (dist * dist);
 	return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
 }
 
@@ -286,7 +286,7 @@ vec3 CalcSpotLight(in int lightIndex, in vec3 N, in vec3 V, in vec3 fragPosWS, i
 	//Make transition smooth rather than linear
 	float spotAmt = smoothstep(0.0f, 1.0f, time);
     float distAttn = Attenuate(lightDist / light.Brightness, light.Radius / light.Brightness);
-	float attn = spotAmt * distAttn;
+	float attn = spotAmt * distAttn * pow(clampedCosine, light.Exponent);
 
     vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
@@ -370,5 +370,5 @@ void main()
     occlusion = pow(1.0f - (occlusion / kernelSize), SSAOPower);
 
     vec3 totalLight = CalcTotalLight(Normal, FragPosWS, AlbedoOpacity, RMSI, occlusion);
-    OutColor = vec4(AlbedoOpacity.rgb * totalLight, 1.0f);//vec4(0.0f, 1.0f, 0.0f, 1.0f);//
+    OutColor = vec4(AlbedoOpacity.rgb * totalLight, 1.0f);
 }

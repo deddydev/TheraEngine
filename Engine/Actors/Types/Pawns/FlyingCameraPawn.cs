@@ -44,14 +44,14 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         public EMouseButton _type;
         public ComboModifier _modifiers;
     }
-    public class FlyingCameraPawn : Pawn<TRLaggedComponent>
+    public class FlyingCameraPawn : Pawn<TRComponent>
     {
         public FlyingCameraPawn() : base() { }
         public FlyingCameraPawn(LocalPlayerIndex possessor) : base(false, possessor) { }
 
-        protected override TRLaggedComponent OnConstruct()
+        protected override TRComponent OnConstruct()
         {
-            TRLaggedComponent root = new TRLaggedComponent();
+            TRComponent root = new TRComponent();
             ScreenShakeComponent = new ScreenShake3DComponent();
             Camera = new PerspectiveCamera();
             CameraComponent cam = new CameraComponent(Camera);
@@ -76,9 +76,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
         float _pitch = 0.0f, _yaw = 0.0f;
 
         bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false, _middleClickPressed = false, _leftClickPressed = false;
-
-        Vec3? _hitPoint;
-
+        
         [Browsable(false)]
         bool Rotating => _rightClickPressed && _ctrl;
         [Browsable(false)]
@@ -212,26 +210,29 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
 
             Segment s = v.GetWorldSegment(viewportPoint);
             RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
-            _hitPoint = c.Trace() ? (Vec3?)c.HitPointWorld : null;
+            if (_hasHit = c.Trace())
+                _screenPoint = Camera.WorldToScreen(c.HitPointWorld);
         }
         
+        bool _hasHit = false;
+        Vec3 _screenPoint;
         public void MouseMove(float x, float y)
         {
             if (Rotating)
             {
-                RootComponent.DesiredRotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
+                RootComponent.Rotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
                 Camera_TransformChanged();
             }
             else if (Translating)
             {
-                if (_hitPoint != null)
+                if (_hasHit)
                 {
-                    Vec3 v = Camera.WorldToScreen(_hitPoint.Value);
-                    v.X += -x;
-                    v.Y += y;
-                    Vec3 newPoint = Camera.ScreenToWorld(v);
-                    Vec3 diff = newPoint - _hitPoint.Value;
-                    RootComponent.DesiredTranslation += diff;
+                    Vec3 oldPoint = Camera.ScreenToWorld(_screenPoint);
+                    _screenPoint.X += -x;
+                    _screenPoint.Y += y;
+                    Vec3 newPoint = Camera.ScreenToWorld(_screenPoint);
+                    Vec3 diff = newPoint - oldPoint;
+                    RootComponent.Translation.Raw += diff;
                 }
                 else
                     RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
@@ -260,7 +261,7 @@ namespace TheraEngine.Worlds.Actors.Types.Pawns
             if (translate)
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                RootComponent.DesiredRotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
         }
 
         #region Customizable Input

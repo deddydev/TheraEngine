@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using TheraEngine;
 using TheraEngine.Core.Shapes;
@@ -44,12 +45,20 @@ namespace System
         public Octree(BoundingBox bounds) => _head = new Node(bounds, 0, 0, null, this);
         public Octree(BoundingBox bounds, List<T> items) : this(bounds) => _head.Add(items);
 
+        public void Remake()
+        {
+            _head = new Node(_head.Bounds, 0, 0, null, this);
+            var array = AllItems.ToArray();
+            AllItems.Clear();
+            foreach (T item in array)
+                _head.Add(item, -1);
+        }
         public void Add(T value)
         {
             if (!AllItems.Contains(value))
                 _head.Add(value, -1);
         }
-        public void Add(List<T> value)
+        public void Add(IEnumerable<T> value)
         {
             foreach (T item in value)
                 Add(item);

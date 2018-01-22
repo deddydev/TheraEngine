@@ -24,9 +24,9 @@ namespace TheraEngine.Files
     {
         #region Constructors
         public FileRef() : base() { }
-        public FileRef(Type type) : base(type) => StoredInternally = true;
-        public FileRef(string filePath) : base(filePath) => StoredInternally = false;
-        public FileRef(string filePath, Type type) : base(filePath, type) => StoredInternally = false;
+        public FileRef(Type type) : base(type) { }
+        public FileRef(string filePath) : base(filePath) { }
+        public FileRef(string filePath, Type type) : base(filePath, type) { }
         public FileRef(string filePath, T file, bool exportNow) : this(filePath)
         {
             if (file != null)
@@ -99,20 +99,17 @@ namespace TheraEngine.Files
         /// If true, the referenced file will be written within the parent file's data
         /// and loaded with the parent file instead of being loaded on demand from the external file.
         /// </summary>
+        [Browsable(false)]
         [Category("File Reference")]
-        public bool StoredInternally { get; private set; } = true;
+        public bool StoredInternally => string.IsNullOrWhiteSpace(ReferencePath);
 
-        [Category("File Reference")]
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public override string ReferencePath
-        {
-            get => base.ReferencePath;
-            set
-            {
-                base.ReferencePath = value;
-                StoredInternally = string.IsNullOrWhiteSpace(ReferencePath);
-            }
-        }
+        //[Category("File Reference")]
+        //[TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        //public override string ReferencePath
+        //{
+        //    get => base.ReferencePath;
+        //    set => base.ReferencePath = value;
+        //}
 
         FileObject IFileRef.File => File;
         

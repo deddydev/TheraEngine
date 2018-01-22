@@ -23,7 +23,7 @@ namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
         public RotationComponent(Vec3 pitchYawRoll, RotationOrder order = RotationOrder.YPR, bool deferLocalRecalc = false)
              : this(new Rotator(pitchYawRoll, order), deferLocalRecalc) { }
 
-        [TSerialize("Rotation")]
+        [TSerialize("Rotation", UseCategory = true, OverrideXmlCategory = "Transform")]
         protected Rotator _rotation;
 
         [Category("Transform")]

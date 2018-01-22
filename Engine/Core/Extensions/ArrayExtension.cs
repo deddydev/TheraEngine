@@ -4,6 +4,14 @@ namespace System
 {
     public static unsafe class ArrayExtension
     {
+        /// <summary>
+        /// Returns true if index >= 0 && index < length
+        /// Use this so you don't have to write that every time.
+        /// </summary>
+        public static bool IndexInArrayRange(this Array a, int value)
+        {
+            return value >= 0 && value < a.Length;
+        }
         public static int[] FindAllOccurences(this Array a, object o)
         {
             List<int> l = new List<int>();

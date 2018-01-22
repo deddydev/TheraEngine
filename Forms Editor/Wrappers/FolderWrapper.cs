@@ -238,11 +238,11 @@ namespace TheraEditor.Wrappers
                     FolderWrapper folderNode = GetInstance<FolderWrapper>();
                     string dir = folderNode.FilePath as string;
 
-                    folderNode.TreeView.WatchProjectDirectory = false;
+                    //folderNode.TreeView.WatchProjectDirectory = false;
                     file.Export(dir, file.Name, FileFormat.XML);
-                    folderNode.TreeView.WatchProjectDirectory = true;
+                    //folderNode.TreeView.WatchProjectDirectory = true;
 
-                    folderNode.Nodes.Add(Wrap(file));
+                    //folderNode.Nodes.Add(Wrap(file));
                 }
             }
         }
@@ -250,16 +250,8 @@ namespace TheraEditor.Wrappers
         {
             if (sender is ToolStripDropDownButton button)
             {
-                FileObject file = null;
                 Type fileType = button.Tag as Type;
-                if (fileType.ContainsGenericParameters)
-                {
-                    GenericsSelector gs = new GenericsSelector(fileType);
-                    if (gs.ShowDialog() == DialogResult.OK)
-                        file = Editor.UserCreateInstanceOf(gs.FinalClassType, true) as FileObject;
-                }
-                else
-                    file = Editor.UserCreateInstanceOf(fileType, true) as FileObject;
+                FileObject file = Editor.UserCreateInstanceOf(fileType, true) as FileObject;
 
                 if (file == null)
                     return;
@@ -267,11 +259,11 @@ namespace TheraEditor.Wrappers
                 FolderWrapper folderNode = GetInstance<FolderWrapper>();
                 string dir = folderNode.FilePath as string;
 
-                folderNode.TreeView.WatchProjectDirectory = false;
+                //folderNode.TreeView.WatchProjectDirectory = false;
                 file.Export(dir, file.Name, FileFormat.XML);
-                folderNode.TreeView.WatchProjectDirectory = true;
+                //folderNode.TreeView.WatchProjectDirectory = true;
 
-                folderNode.Nodes.Add(Wrap(file) as BaseWrapper);
+                //folderNode.Nodes.Add(Wrap(file) as BaseWrapper);
             }
         }
         #endregion

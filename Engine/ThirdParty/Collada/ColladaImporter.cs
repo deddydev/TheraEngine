@@ -352,7 +352,9 @@ namespace TheraEngine.Rendering.Models
                         if (tex != null)
                         {
                             var image = tex.Root.GetIDEntry(tex.TextureID);
-                            TexRef2D texRef = null;
+                            if (image == null)
+                                continue;
+                            TexRef2D texRef = new TexRef2D();
                             if (image is Image14X img14x)
                             {
                                 var source = img14x.GetChild<Image14X.ISource>();

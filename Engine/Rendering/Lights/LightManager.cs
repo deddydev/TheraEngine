@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering
     {
         public const int MaxPointLights = 16;
         public const int MaxSpotLights = 16;
-        public const int MaxDirectionalLights = 2;
+        public const int MaxDirectionalLights = 3;
 
         private ColorF3 _globalAmbient;
         private HashSet<DirectionalLightComponent> _directionalLights = new HashSet<DirectionalLightComponent>();
@@ -30,9 +30,9 @@ namespace TheraEngine.Rendering
         internal void SetUniforms(int programBindingId)
         {
             Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", _globalAmbient);
-            Engine.Renderer.Uniform(programBindingId, "DirLightCount", _directionalLights.Count.Clamp(0, MaxDirectionalLights));
-            Engine.Renderer.Uniform(programBindingId, "PointLightCount", _pointLights.Count.Clamp(0, MaxPointLights));
-            Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count.Clamp(0, MaxSpotLights));
+            Engine.Renderer.Uniform(programBindingId, "DirLightCount", _directionalLights.Count);
+            Engine.Renderer.Uniform(programBindingId, "PointLightCount", _pointLights.Count);
+            Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count);
 
             foreach (DirectionalLightComponent l in _directionalLights)
                 l.SetUniforms(programBindingId);
@@ -44,7 +44,10 @@ namespace TheraEngine.Rendering
         internal void Add(DirectionalLightComponent light)
         {
             if (_directionalLights.Count >= MaxDirectionalLights)
+            {
+                Engine.LogWarning("Exceeded maximum directional lights.");
                 return;
+            }
             light.LightIndex = _directionalLights.Count;
             _directionalLights.Add(light);
 
@@ -62,7 +65,10 @@ namespace TheraEngine.Rendering
         internal void Add(SpotLightComponent light)
         {
             if (_spotLights.Count >= MaxSpotLights)
+            {
+                Engine.LogWarning("Exceeded maximum spotlights.");
                 return;
+            }
             light.LightIndex = _spotLights.Count;
             _spotLights.Add(light);
 
@@ -86,7 +92,10 @@ namespace TheraEngine.Rendering
         internal void Add(PointLightComponent light)
         {
             if (_pointLights.Count >= MaxPointLights)
+            {
+                Engine.LogWarning("Exceeded maximum point lights.");
                 return;
+            }
             light.LightIndex = _pointLights.Count;
             _pointLights.Add(light);
 

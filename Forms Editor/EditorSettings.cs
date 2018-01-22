@@ -67,9 +67,11 @@ namespace TheraEditor
         public string GetFullDockConfigPath()
         {
             if (!string.IsNullOrWhiteSpace(DockConfigPath) &&
-                DockConfigPath[0] == Path.DirectorySeparatorChar &&
-                !string.IsNullOrWhiteSpace(FilePath))
-                return Path.Combine(Path.GetDirectoryName(FilePath), DockConfigPath);
+                DockConfigPath[0] == Path.DirectorySeparatorChar)
+            {
+                if (!string.IsNullOrWhiteSpace(FilePath))
+                    return Path.Combine(Path.GetDirectoryName(FilePath), DockConfigPath);
+            }
             return DockConfigPath;
         }
     }

@@ -232,7 +232,8 @@ namespace TheraEngine.Rendering.Models
             {
                 if (_data._utilizedBones == null || _data._utilizedBones.Length == 1)
                 {
-                    if (!string.IsNullOrEmpty(_data.SingleBindBone) && skeleton.BoneNameCache.ContainsKey(_data.SingleBindBone))
+                    if (!string.IsNullOrEmpty(_data.SingleBindBone) &&
+                        skeleton.BoneNameCache.ContainsKey(_data.SingleBindBone))
                         _singleBind = skeleton.BoneNameCache[_data.SingleBindBone];
                     else
                         _singleBind = null;
@@ -389,13 +390,10 @@ namespace TheraEngine.Rendering.Models
         /// Use this to set uniform values to be passed to the shader.
         /// </summary>
         public T2 Parameter<T2>(string name) where T2 : ShaderVar
-        {
-            return Material.Parameters.FirstOrDefault(x => x.Name == name) as T2;
-        }
+            => Material.Parameters.FirstOrDefault(x => x.Name == name) as T2;
         public void Render()
-        {
-            Render(Matrix4.Identity, Matrix3.Identity);
-        }
+            => Render(Matrix4.Identity, Matrix3.Identity);
+        
         public unsafe void Render(Matrix4 modelMatrix)
         {
             //TODO: don't invert, transpose, and get rotation matrix here
@@ -407,12 +405,10 @@ namespace TheraEngine.Rendering.Models
         {
             if (_data == null)
                 return;
-
-            Engine.Renderer.CheckErrors();
+            
             if (!IsActive)
                 Generate();
-
-            Engine.Renderer.CheckErrors();
+            
             if (_singleBind != null)
             {
                 modelMatrix = modelMatrix * _singleBind.VertexMatrix;
@@ -439,8 +435,7 @@ namespace TheraEngine.Rendering.Models
             }
             
             SetSkinningUniforms(vtxId);
-
-            Engine.Renderer.CheckErrors();
+            
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ModelMatrix), modelMatrix);
             //Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.PrevModelMatrix), _lastRenderedModelMatrix);
             Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
@@ -463,10 +458,8 @@ namespace TheraEngine.Rendering.Models
             mat.SetUniforms(fragId);
 
             OnSettingUniforms();
-
-            Engine.Renderer.CheckErrors();
+            
             Engine.Renderer.RenderPrimitiveManager(this, false);
-            Engine.Renderer.CheckErrors();
             _lastRenderedModelMatrix = modelMatrix;
         }
         private void OnSettingUniforms() => SettingUniforms?.Invoke();

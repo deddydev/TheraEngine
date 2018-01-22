@@ -13,6 +13,7 @@ using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
 using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
 using TheraEngine.Worlds.Actors.Components.Scene;
 using TheraEngine.Physics;
+using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 
 namespace TheraEngine.Worlds.Actors.Types.Pawns
 {

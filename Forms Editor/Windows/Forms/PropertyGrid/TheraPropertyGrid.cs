@@ -90,9 +90,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     obj.EditorState.Selected = true;
 
                 //If scene component, select it in the scene
-                if (Engine.LocalPlayers.Count > 0)
+                if (Engine.LocalPlayers.Count > 0 && 
+                    Engine.LocalPlayers[0]?.ControlledPawn?.HUD is EditorHud hud)
                 {
-                    EditorHud hud = Engine.LocalPlayers[0]?.ControlledPawn?.HUD as EditorHud;
                     if (_subObject is SceneComponent sceneComp)
                         hud.SelectedComponent = sceneComp;
                     else

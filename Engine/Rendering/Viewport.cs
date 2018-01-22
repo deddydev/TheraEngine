@@ -183,7 +183,6 @@ namespace TheraEngine.Rendering
 
             _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
             HUD?.Resize(_internalResolution.Bounds);
-
         }
         internal void Resize(
             float parentWidth,
@@ -644,7 +643,7 @@ namespace TheraEngine.Rendering
             ShaderVar[] postProcessParameters = new ShaderVar[] { };
             TMaterial postProcessMat = new TMaterial("PostProcessMat",
                 postProcessParameters, postProcessRefs,
-                new Shader(ShaderMode.Fragment, new TextFile(Path.Combine(Engine.Settings.ShadersFolder, "PostProcess.fs"))));
+                Engine.LoadEngineShader("PostProcess.fs", ShaderMode.Fragment));
 
             postProcessMat.RenderParams.DepthTest.Enabled = true;
             postProcessMat.RenderParams.DepthTest.UpdateDepth = false;

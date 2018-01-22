@@ -151,8 +151,6 @@ namespace TheraEditor.Windows.Forms
                 if (!CloseProject())
                     return;
 
-                ClearDockPanel();
-
                 _project = value;
 
                 Engine.ShutDown();
@@ -167,16 +165,10 @@ namespace TheraEditor.Windows.Forms
                 btnCompile.Enabled = 
                 projectOpened;
 
+                ClearDockPanel();
+
                 if (projectOpened)
                 {
-                    if (string.IsNullOrEmpty(_project.FilePath))
-                        Text = "";
-                    else
-                    {
-                        Text = _project.FilePath;
-                        ContentTree.OpenPath(_project.FilePath);
-                    }
-
                     string configFile = _project.EditorSettings.GetFullDockConfigPath();
                     //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
 
@@ -193,13 +185,22 @@ namespace TheraEditor.Windows.Forms
                         DockPanel.ResumeLayout(true, true);
                     }
 
+                    if (string.IsNullOrEmpty(_project.FilePath))
+                        Text = "";
+                    else
+                    {
+                        Text = _project.FilePath;
+                        ContentTree.OpenPath(_project.FilePath);
+                    }
+
+                    Engine.SetGamePanel(RenderForm1.RenderPanel, false);
+                    Engine.SetActiveGameMode(_editorGameMode);
                     Engine.Initialize(false);
                     Engine.RegisterRenderTick(RenderTick);
                     Engine.SetPaused(true, LocalPlayerIndex.One, true);
                     Engine.Run();
 
                     CurrentWorld = _project.OpeningWorldRef?.File;
-                    Engine.SetActiveGameMode(_editorGameMode);
 
                     //Type visualStudioType = Type.GetTypeFromProgID("VisualStudio.DTE");
                     //DTE dte = Activator.CreateInstance(visualStudioType) as DTE;
@@ -253,7 +254,8 @@ namespace TheraEditor.Windows.Forms
         public Editor() : base()
         {
             _instance = this;
-            
+
+            OnRedrawn = Redraw;
             _editorGameMode = new EditorGameMode();
             InitializeComponent();
 
@@ -280,9 +282,19 @@ namespace TheraEditor.Windows.Forms
         /// <returns>A newly created instance of elementType.</returns>
         public static object UserCreateInstanceOf(Type type, bool allowDerivedTypes)
         {
+            if (type.IsGenericTypeDefinition)
+            {
+                GenericsSelector gs = new GenericsSelector(type);
+                if (gs.ShowDialog() == DialogResult.OK)
+                    type = gs.FinalClassType;
+                else
+                    return null;
+            }
+            
             ObjectCreator creator = new ObjectCreator();
             if (creator.Initialize(type, allowDerivedTypes))
                 creator.ShowDialog();
+
             return creator.ConstructedObject;
         }
 
@@ -290,32 +302,33 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
-            OnRedrawn = Redraw;
-
             //TODO: read editor state file instead
-            string lastOpened = Properties.Settings.Default.LastOpened;//"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
+            string lastOpened = Properties.Settings.Default.LastOpened;
+            //"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
             if (!string.IsNullOrEmpty(lastOpened))
-            {
                 Project = FileObject.Load<Project>(lastOpened);
-            }
             else
             {
-                Project = new Project() //null
-                {
-                    OpeningWorldRef = typeof(UnitTestingWorld),
-                    UserSettingsRef = new UserSettings(),
-                    EngineSettingsRef = new EngineSettings(),
-                    EditorSettingsRef = new EditorSettings(),
-                    ProjectStateRef = new ProjectState(),
-                };
+                Project = null;//new Project() //null
+            //    {
+            //        OpeningWorldRef = typeof(UnitTestingWorld),
+            //        UserSettingsRef = new UserSettings(),
+            //        EngineSettingsRef = new EngineSettings(),
+            //        EditorSettingsRef = new EditorSettings(),
+            //        ProjectStateRef = new ProjectState(),
+            //    };
             }
             
             //if (DesignMode)
             //    return;
-
         }
         protected override void OnClosing(CancelEventArgs e)
         {
+            if (Project != null && !string.IsNullOrWhiteSpace(Project.FilePath))
+            {
+                Properties.Settings.Default.LastOpened = Project.FilePath;
+                Properties.Settings.Default.Save();
+            }
             if (CloseProject())
             {
                 Engine.UnregisterRenderTick(RenderTick);
@@ -373,6 +386,12 @@ namespace TheraEditor.Windows.Forms
         public Action OnRedrawn;
         private void Redraw()
         {
+            if (Engine.Scene != null)
+            {
+                Engine.Scene.Voxelize();
+                Engine.Scene.RenderShadowMaps();
+            }
+
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
@@ -432,7 +451,7 @@ namespace TheraEditor.Windows.Forms
 
                 string configFile = _project.EditorSettings.GetFullDockConfigPath();
                 //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
-                DockPanel.SaveAsXml(configFile);
+                //DockPanel.SaveAsXml(configFile);
 
                 ClearDockPanel();
 
@@ -443,7 +462,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void ClearDockPanel()
         {
-            foreach (IDockContent document in DockPanel.DocumentsToArray())
+            foreach (IDockContent document in DockPanel.Contents.ToArray())
             {
                 document.DockHandler.DockPanel = null;
                 document.DockHandler.Close();

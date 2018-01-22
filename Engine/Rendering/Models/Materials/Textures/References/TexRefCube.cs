@@ -199,7 +199,7 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureWrapT, (int)_vWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.TextureCubeMap, ETexParamName.TextureWrapR, (int)_wWrapMode);
-
+            //AttachToFBO();
             //if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
             //    OpenTK.Graphics.OpenGL.GL.FramebufferTexture(
             //        OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,

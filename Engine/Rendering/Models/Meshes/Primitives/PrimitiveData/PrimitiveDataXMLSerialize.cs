@@ -35,19 +35,19 @@ namespace TheraEngine.Rendering.Models
         private void DeserializeTriangles(XMLReader reader)
         {
             string str = reader.ReadElementString();
-            _triangles = str.Split(' ').SelectEvery(3, x => new IndexTriangle(int.Parse(x[0]), int.Parse(x[1]), int.Parse(x[2]))).ToList();
+            _triangles = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).SelectEvery(3, x => new IndexTriangle(int.Parse(x[0]), int.Parse(x[1]), int.Parse(x[2]))).ToList();
         }
         [CustomXMLDeserializeMethod("Lines")]
         private void DeserializeLines(XMLReader reader)
         {
             string str = reader.ReadElementString();
-            _lines = str.Split(' ').SelectEvery(2, x => new IndexLine(int.Parse(x[0]), int.Parse(x[1]))).ToList();
+            _lines = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).SelectEvery(2, x => new IndexLine(int.Parse(x[0]), int.Parse(x[1]))).ToList();
         }
         [CustomXMLDeserializeMethod("Points")]
         private void DeserializePoints(XMLReader reader)
         {
             string str = reader.ReadElementString();
-            _points = str.Split(' ').Select(x => new IndexPoint(int.Parse(x))).ToList();
+            _points = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => new IndexPoint(int.Parse(x))).ToList();
         }
         [CustomXMLSerializeMethod("FacePoints")]
         private bool SerializeFacePoints(XmlWriter writer)
@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering.Models
             int bufferCount = _buffers.Count;
             int valuesPerPoint = bufferCount + (hasInfs ? 1 : 0);
             string values = reader.ReadElementString();
-            int[] points = values.Split(' ').Select(x => int.Parse(x)).ToArray();
+            int[] points = values.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
             _facePoints = new List<FacePoint>(points.Length / valuesPerPoint);
             for (int i = 0, x = 0; x < points.Length; ++i)
             {

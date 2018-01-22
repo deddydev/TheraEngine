@@ -7,6 +7,7 @@ namespace TheraEngine.Worlds
 {
     public class Map : FileObject
     {
+        public Map() :this(new MapSettings()) { }
         public Map(MapSettings settings)
         {
             _settings = settings;

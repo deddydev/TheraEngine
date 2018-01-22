@@ -3,7 +3,6 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderBVec4 : ShaderVar
     {
         [Browsable(false)]
@@ -13,6 +12,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private BoolVec4 _value;
 
         public ShaderBVec4(BoolVec4 defaultValue, string name, IShaderVarOwner owner) 
@@ -25,7 +25,6 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("w", new ShaderBool(defaultValue.W, "W", this));
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderVec4 : ShaderVar
     {
         [Browsable(false)]
@@ -35,6 +34,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private Vec4 _value;
 
         public ShaderVec4(Vec4 defaultValue, string name)
@@ -49,7 +49,6 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("w", new ShaderFloat(defaultValue.W, "W", this));
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderDVec4 : ShaderVar
     {
         [Browsable(false)]
@@ -59,6 +58,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private DVec4 _value;
 
         public ShaderDVec4(DVec4 defaultValue, string name, IShaderVarOwner owner)
@@ -71,7 +71,6 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("w", new ShaderDouble(defaultValue.W, "W", this));
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderIVec4 : ShaderVar
     {
         [Browsable(false)]
@@ -81,6 +80,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private IVec4 _value;
 
         public ShaderIVec4(IVec4 defaultValue, string name, IShaderVarOwner owner)
@@ -93,7 +93,6 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("w", new ShaderInt(defaultValue.W, "W", this));
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderUVec4 : ShaderVar
     {
         [Browsable(false)]
@@ -103,6 +102,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private UVec4 _value;
 
         public ShaderUVec4(UVec4 defaultValue, string name, IShaderVarOwner owner)

@@ -72,11 +72,16 @@ namespace TheraEngine
         [TSerialize]
         public ERenderPass3D RenderPass { get; set; } = ERenderPass3D.OpaqueDeferredLit;
 
+        [Browsable(false)]
         public DateTime LastRenderedTime { get; internal set; }
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
 
         public DelGetSortOrder RenderOrderFunc;
 
+        public RenderInfo3D()
+        {
+
+        }
         public RenderInfo3D(ERenderPass3D pass, DelGetSortOrder renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
         {
             RenderPass = pass;

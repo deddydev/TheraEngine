@@ -2,7 +2,6 @@
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderBool : ShaderVar, IUniformable1Bool
     {
         [Browsable(false)]
@@ -14,6 +13,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe bool* Data { get { fixed (bool* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private bool _value;
 
         public ShaderBool(bool defaultValue, string name)
@@ -24,7 +24,6 @@ namespace TheraEngine.Rendering.Models.Materials
             _value = defaultValue;
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderFloat : ShaderVar, IUniformable1Float
     {
         [Browsable(false)]
@@ -36,6 +35,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe float* Data { get { fixed (float* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private float _value;
 
         public ShaderFloat(float defaultValue, string name) 
@@ -46,7 +46,6 @@ namespace TheraEngine.Rendering.Models.Materials
             _value = defaultValue;
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderDouble : ShaderVar, IUniformable1Double
     {
         [Browsable(false)]
@@ -58,6 +57,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe double* Data { get { fixed (double* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private double _value;
 
         public ShaderDouble(double defaultValue, string name)
@@ -68,7 +68,6 @@ namespace TheraEngine.Rendering.Models.Materials
             _value = defaultValue;
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderInt : ShaderVar, IUniformable1Int
     {
         [Browsable(false)]
@@ -80,6 +79,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe int* Data { get { fixed (int* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private int _value;
 
         public ShaderInt(int defaultValue, string name)
@@ -90,7 +90,6 @@ namespace TheraEngine.Rendering.Models.Materials
             _value = defaultValue;
         }
     }
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderUInt : ShaderVar, IUniformable1UInt
     {
         [Browsable(false)]
@@ -102,6 +101,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe uint* Data { get { fixed (uint* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
+        [TSerialize("Value")]
         private uint _value;
 
         public ShaderUInt(uint defaultValue, string name) 

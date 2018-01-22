@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Files.Serialization
@@ -219,8 +220,15 @@ namespace TheraEngine.Files.Serialization
         /// </summary>
         public static object CreateObject(Type t)
         {
-            //return FormatterServices.GetUninitializedObject(t);
-            return Activator.CreateInstance(t);
+            try
+            {
+                return Activator.CreateInstance(t);
+            }
+            catch (Exception ex)
+            {
+                Engine.PrintLine("Problem constructing " + t.GetType().GetFriendlyName() + "." + Environment.NewLine + ex.ToString());
+                return FormatterServices.GetUninitializedObject(t);
+            }
         }
         public enum ValueType
         {

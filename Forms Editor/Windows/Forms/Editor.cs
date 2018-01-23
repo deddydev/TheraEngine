@@ -16,6 +16,9 @@ using TheraEngine.Worlds.Actors;
 using WeifenLuo.WinFormsUI.Docking;
 using EnvDTE;
 using TheraEngine.Tests;
+using System.Collections;
+using TheraEngine.Editor;
+using System.Collections.Generic;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -43,8 +46,6 @@ namespace TheraEditor.Windows.Forms
         /// <param name="control">The editor control that the user is focused on.</param>
         public static void SetActiveEditorControl(IEditorControl control)
         {
-            //TODO: change game mode back to editor game mode if editing detached from active gameplay
-
             if (ActiveRenderForm == control)
                 return;
 
@@ -76,8 +77,10 @@ namespace TheraEditor.Windows.Forms
         public static Color TurquoiseColor => Color.FromArgb(150, 192, 192);
         public static Color TextColor => Color.FromArgb(224, 224, 224);
 
+        public UndoManager UndoManager { get; } = new UndoManager();
+
         private static Editor _instance;
-        public static Editor Instance => _instance ?? (_instance = new Editor());
+        public static Editor Instance => _instance/* ?? (_instance = new Editor())*/;
         
         private Project _project;
         private Assembly _gameProgram;
@@ -769,6 +772,16 @@ namespace TheraEditor.Windows.Forms
                 }
                 return null;
             }
+        }
+
+        private void btnUndo_Click(object sender, EventArgs e)
+        {
+            UndoManager.Undo();
+        }
+
+        private void btnRedo_Click(object sender, EventArgs e)
+        {
+            UndoManager.Redo();
         }
     }
 }

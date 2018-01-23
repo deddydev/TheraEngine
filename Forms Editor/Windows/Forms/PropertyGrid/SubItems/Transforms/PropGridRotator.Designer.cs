@@ -50,12 +50,14 @@
             this.numericInputBoxPitch.LargerIncrement = 90F;
             this.numericInputBoxPitch.Location = new System.Drawing.Point(0, 1);
             this.numericInputBoxPitch.Margin = new System.Windows.Forms.Padding(0, 1, 2, 1);
+            this.numericInputBoxPitch.MaximumValue = 3.402823E+38F;
             this.numericInputBoxPitch.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxPitch.MinimumValue = -3.402823E+38F;
             this.numericInputBoxPitch.Name = "numericInputBoxPitch";
             this.numericInputBoxPitch.Nullable = false;
             this.numericInputBoxPitch.NumberPrefix = "Pitch: ";
             this.numericInputBoxPitch.NumberSuffix = "°";
-            this.numericInputBoxPitch.Size = new System.Drawing.Size(1, 31);
+            this.numericInputBoxPitch.Size = new System.Drawing.Size(1, 27);
             this.numericInputBoxPitch.SmallerIncrement = 0.1F;
             this.numericInputBoxPitch.SmallIncrement = 1F;
             this.numericInputBoxPitch.TabIndex = 0;
@@ -73,14 +75,16 @@
             this.numericInputBoxYaw.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxYaw.LargeIncrement = 15F;
             this.numericInputBoxYaw.LargerIncrement = 90F;
-            this.numericInputBoxYaw.Location = new System.Drawing.Point(-41, 1);
+            this.numericInputBoxYaw.Location = new System.Drawing.Point(-36, 1);
             this.numericInputBoxYaw.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.numericInputBoxYaw.MaximumValue = 3.402823E+38F;
             this.numericInputBoxYaw.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxYaw.MinimumValue = -3.402823E+38F;
             this.numericInputBoxYaw.Name = "numericInputBoxYaw";
             this.numericInputBoxYaw.Nullable = false;
             this.numericInputBoxYaw.NumberPrefix = "Yaw: ";
             this.numericInputBoxYaw.NumberSuffix = "°";
-            this.numericInputBoxYaw.Size = new System.Drawing.Size(1, 31);
+            this.numericInputBoxYaw.Size = new System.Drawing.Size(1, 27);
             this.numericInputBoxYaw.SmallerIncrement = 0.1F;
             this.numericInputBoxYaw.SmallIncrement = 1F;
             this.numericInputBoxYaw.TabIndex = 1;
@@ -98,14 +102,16 @@
             this.numericInputBoxRoll.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxRoll.LargeIncrement = 15F;
             this.numericInputBoxRoll.LargerIncrement = 90F;
-            this.numericInputBoxRoll.Location = new System.Drawing.Point(-84, 1);
+            this.numericInputBoxRoll.Location = new System.Drawing.Point(-74, 1);
             this.numericInputBoxRoll.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.numericInputBoxRoll.MaximumValue = 3.402823E+38F;
             this.numericInputBoxRoll.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxRoll.MinimumValue = -3.402823E+38F;
             this.numericInputBoxRoll.Name = "numericInputBoxRoll";
             this.numericInputBoxRoll.Nullable = false;
             this.numericInputBoxRoll.NumberPrefix = "Roll: ";
             this.numericInputBoxRoll.NumberSuffix = "°";
-            this.numericInputBoxRoll.Size = new System.Drawing.Size(1, 31);
+            this.numericInputBoxRoll.Size = new System.Drawing.Size(1, 27);
             this.numericInputBoxRoll.SmallerIncrement = 0.1F;
             this.numericInputBoxRoll.SmallIncrement = 1F;
             this.numericInputBoxRoll.TabIndex = 2;
@@ -134,7 +140,7 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 33);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 29);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // cboOrder
@@ -144,10 +150,10 @@
             this.cboOrder.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.cboOrder.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.cboOrder.FormattingEnabled = true;
-            this.cboOrder.Location = new System.Drawing.Point(-127, 0);
+            this.cboOrder.Location = new System.Drawing.Point(-112, 0);
             this.cboOrder.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.cboOrder.Name = "cboOrder";
-            this.cboOrder.Size = new System.Drawing.Size(65, 33);
+            this.cboOrder.Size = new System.Drawing.Size(58, 28);
             this.cboOrder.TabIndex = 4;
             this.cboOrder.SelectedIndexChanged += new System.EventHandler(this.cboOrder_SelectedIndexChanged);
             // 
@@ -155,21 +161,22 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.checkBox1.Location = new System.Drawing.Point(-60, 0);
+            this.checkBox1.Location = new System.Drawing.Point(-52, 0);
             this.checkBox1.Margin = new System.Windows.Forms.Padding(0);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(61, 33);
+            this.checkBox1.Size = new System.Drawing.Size(54, 29);
             this.checkBox1.TabIndex = 3;
             this.checkBox1.Text = "Null";
             this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // PropGridRotator
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "PropGridRotator";
-            this.Size = new System.Drawing.Size(0, 33);
+            this.Size = new System.Drawing.Size(0, 29);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

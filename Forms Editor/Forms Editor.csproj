@@ -508,6 +508,7 @@
     <Compile Include="Windows\Forms\EditorWorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Windows\Forms\UndoManager.cs" />
     <Compile Include="Windows\TransparentPanel.cs">
       <SubType>Component</SubType>
     </Compile>

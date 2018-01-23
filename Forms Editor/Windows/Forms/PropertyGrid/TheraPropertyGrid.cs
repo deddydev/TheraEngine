@@ -249,14 +249,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             if (!info.ContainsKey(i))
                                 continue;
                             PropertyData p = info[i];
-                            CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly);
+                            CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
                         }
 
-                        for (int i = 0; i < methods.Length; ++i)
-                        {
-                            MethodInfo p = methods[i];
-                            //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
-                        }
+                        //TODO: show methods in grid
+                        //for (int i = 0; i < methods.Length; ++i)
+                        //{
+                        //    MethodInfo p = methods[i];
+                        //    //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
+                        //}
 
                         if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
@@ -298,7 +299,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             return controlTypes;
         }
 
-        public static List<PropGridItem> CreateControls(Deque<Type> controlTypes, PropertyInfo prop, object obj)
+        public static List<PropGridItem> CreateControls(Deque<Type> controlTypes, PropertyInfo prop, object obj, TheraPropertyGrid grid)
         {
             return controlTypes.Select(x =>
             {
@@ -306,6 +307,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 control.SetProperty(prop, obj);
                 control.Dock = DockStyle.Fill;
                 control.Visible = true;
+                control.PropertyGrid = grid;
                 control.Show();
                 return control;
             }).ToList();
@@ -330,9 +332,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Dictionary<string, PropGridCategory> categories,
             object obj,
             object[] attribs,
-            bool readOnly)
+            bool readOnly,
+            TheraPropertyGrid grid)
         {
-            var controls = CreateControls(controlTypes, prop, obj);
+            var controls = CreateControls(controlTypes, prop, obj, grid);
             
             var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
             string catName = category == null ? MiscName : category.Category;
@@ -450,7 +453,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             TargetObject.Export();
             btnSave.Visible = false;
-            TargetObject.EditorState.ClearChanges();
+            TargetObject.EditorState.IsDirty = false;
         }
 
         //protected override void OnMouseEnter(EventArgs e)

@@ -51,5 +51,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             checkBox1.Enabled = enabled;
         }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!_updating)
+                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true));
+        }
     }
 }

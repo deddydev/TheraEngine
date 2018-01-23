@@ -37,6 +37,8 @@
             this.btnSaveProject = new System.Windows.Forms.ToolStripMenuItem();
             this.btnSaveProjectAs = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnUndo = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnRedo = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEditorSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnProjectSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEngineSettings = new System.Windows.Forms.ToolStripMenuItem();
@@ -100,9 +102,9 @@
             // 
             // FormTitle
             // 
-            this.FormTitle.Location = new System.Drawing.Point(402, 0);
+            this.FormTitle.Location = new System.Drawing.Point(517, 0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.FormTitle.Size = new System.Drawing.Size(574, 36);
+            this.FormTitle.Size = new System.Drawing.Size(459, 36);
             this.FormTitle.Text = "";
             // 
             // MiddlePanel
@@ -125,7 +127,7 @@
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(218, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(333, 36);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -177,6 +179,8 @@
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnUndo,
+            this.btnRedo,
             this.btnEditorSettings,
             this.btnProjectSettings,
             this.btnEngineSettings,
@@ -186,6 +190,20 @@
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(47, 24);
             this.editToolStripMenuItem.Text = "Edit";
+            // 
+            // btnUndo
+            // 
+            this.btnUndo.Name = "btnUndo";
+            this.btnUndo.Size = new System.Drawing.Size(187, 26);
+            this.btnUndo.Text = "Undo";
+            this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
+            // 
+            // btnRedo
+            // 
+            this.btnRedo.Name = "btnRedo";
+            this.btnRedo.Size = new System.Drawing.Size(187, 26);
+            this.btnRedo.Text = "Redo";
+            this.btnRedo.Click += new System.EventHandler(this.btnRedo_Click);
             // 
             // btnEditorSettings
             // 
@@ -524,6 +542,8 @@
         private System.Windows.Forms.ToolStripMenuItem btnViewOutput;
         public System.Windows.Forms.ToolTip DecorationToolTip;
         private System.Windows.Forms.ToolStripMenuItem btnPlayDetached;
+        public System.Windows.Forms.ToolStripMenuItem btnUndo;
+        public System.Windows.Forms.ToolStripMenuItem btnRedo;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

@@ -49,7 +49,9 @@
             this.numericInputBoxX.LargerIncrement = 90F;
             this.numericInputBoxX.Location = new System.Drawing.Point(0, 0);
             this.numericInputBoxX.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            this.numericInputBoxX.MaximumValue = 3.402823E+38F;
             this.numericInputBoxX.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxX.MinimumValue = -3.402823E+38F;
             this.numericInputBoxX.Name = "numericInputBoxX";
             this.numericInputBoxX.Nullable = false;
             this.numericInputBoxX.NumberPrefix = "X: ";
@@ -74,7 +76,9 @@
             this.numericInputBoxY.LargerIncrement = 90F;
             this.numericInputBoxY.Location = new System.Drawing.Point(-15, 0);
             this.numericInputBoxY.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.numericInputBoxY.MaximumValue = 3.402823E+38F;
             this.numericInputBoxY.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxY.MinimumValue = -3.402823E+38F;
             this.numericInputBoxY.Name = "numericInputBoxY";
             this.numericInputBoxY.Nullable = false;
             this.numericInputBoxY.NumberPrefix = "Y: ";
@@ -99,7 +103,9 @@
             this.numericInputBoxZ.LargerIncrement = 90F;
             this.numericInputBoxZ.Location = new System.Drawing.Point(-32, 0);
             this.numericInputBoxZ.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
+            this.numericInputBoxZ.MaximumValue = 3.402823E+38F;
             this.numericInputBoxZ.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxZ.MinimumValue = -3.402823E+38F;
             this.numericInputBoxZ.Name = "numericInputBoxZ";
             this.numericInputBoxZ.Nullable = false;
             this.numericInputBoxZ.NumberPrefix = "Z: ";
@@ -145,6 +151,7 @@
             this.checkBox1.TabIndex = 3;
             this.checkBox1.Text = "Null";
             this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // PropGridEventVec3
             // 

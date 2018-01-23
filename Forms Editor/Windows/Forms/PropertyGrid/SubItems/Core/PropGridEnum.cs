@@ -13,7 +13,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridEnum()
         {
             InitializeComponent();
+            comboBox1.GotFocus += comboBox1_GotFocus;
+            comboBox1.LostFocus += comboBox1_LostFocus;
         }
+        private void comboBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
+        private void comboBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();

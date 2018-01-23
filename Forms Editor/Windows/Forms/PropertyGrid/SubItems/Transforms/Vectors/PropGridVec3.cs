@@ -10,8 +10,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     [PropGridControlFor(typeof(Vec3))]
     public partial class PropGridVec3 : PropGridItem
     {
-        public PropGridVec3() => InitializeComponent();
-        
+        public PropGridVec3()
+        {
+            InitializeComponent();
+            numericInputBoxX.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxY.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxZ.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxX.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxY.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxZ.LostFocus += NumericInputBoxX_LostFocus;
+        }
+        private void NumericInputBoxX_LostFocus(object sender, EventArgs e) => IsEditing = false;
+        private void NumericInputBoxX_GotFocus(object sender, EventArgs e) => IsEditing = true;
+
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();

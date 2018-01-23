@@ -43,11 +43,44 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 SetControlsEnabled(!_readOnly && (Property != null ? Property.CanWrite : (IListOwner != null ? !IListOwner.IsReadOnly : true)));
             }
         }
-         
+
         /// <summary>
         /// When true, disallows UpdateDisplay() from doing anything until set to false.
         /// </summary>
-        public bool IsEditing { get; protected set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public bool IsEditing
+        {
+            get => _isEditing;
+            protected set
+            {
+                if (_isEditing == value)
+                    return;
+                _isEditing = value;
+                if (_isEditing)
+                {
+                    _oldValue = _newValue = GetValue();
+                }
+                else if (!ReferenceEquals(_oldValue, _newValue))
+                {
+                    if (IListOwner != null)
+                    {
+                        Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+                            _oldValue, _newValue, IListOwner, IListIndex);
+                    }
+                    else if (Property != null && Property.CanWrite)
+                    {
+                        Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+                            _oldValue, _newValue, PropertyOwner, Property);
+                    }
+                }
+            }
+        }
+        private bool _isEditing = false;
+        private object _oldValue, _newValue;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public TheraPropertyGrid PropertyGrid { get; internal set; }
 
         protected bool _updating = false;
 
@@ -81,16 +114,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (IListOwner != null)
             {
                 IListOwner[IListIndex] = newValue;
+                if (_isEditing)
+                    _newValue = newValue;
             }
-            else if (Property != null)
+            else if (Property != null && Property.CanWrite)
             {
-                if (Property.CanWrite)
-                {
-                    Property.SetValue(PropertyOwner, newValue);
+                Property.SetValue(PropertyOwner, newValue);
+                if (_isEditing)
+                    _newValue = Property.GetValue(PropertyOwner);
 
-                    //Update the display in case the property's set method modifies the submitted data
-                    UpdateDisplay();
-                }
+                //Update the display in case the property's set method modifies the submitted data
+                UpdateDisplay();
             }
             else
                 throw new InvalidOperationException();

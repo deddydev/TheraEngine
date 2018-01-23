@@ -8,7 +8,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridEventVec3()
         {
             InitializeComponent();
+            numericInputBoxX.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxY.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxZ.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxX.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxY.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxZ.LostFocus += NumericInputBoxX_LostFocus;
         }
+
+        private void NumericInputBoxX_LostFocus(object sender, EventArgs e) => IsEditing = false;
+        private void NumericInputBoxX_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
         public EventVec3 _eventVec3;
         protected override void UpdateDisplayInternal()
@@ -46,6 +55,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void SetControlsEnabled(bool enabled)
         {
             checkBox1.Enabled = enabled;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!_updating)
+                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true));
         }
     }
 }

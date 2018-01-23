@@ -81,6 +81,7 @@
             this.checkBox1.Text = "Null";
             this.checkBox1.UseMnemonic = false;
             this.checkBox1.UseVisualStyleBackColor = false;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // pnlHeader
             // 

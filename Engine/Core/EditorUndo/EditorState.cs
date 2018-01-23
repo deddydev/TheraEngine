@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace TheraEngine.Editor
@@ -62,7 +64,6 @@ namespace TheraEngine.Editor
         private bool _highlighted = false, _selected = false;
 
         public bool HasChanges => _changedProperties.Count > 0;
-
         public bool Highlighted
         {
             get => _highlighted;
@@ -83,21 +84,151 @@ namespace TheraEngine.Editor
                 SelectedState = value ? this : null;
             }
         }
-
-        public Dictionary<string, List<object>> ChangedProperties { get => _changedProperties; set => _changedProperties = value; }
-        public TreeNode TreeNode { get => _treeNode; set => _treeNode = value; }
-
-        public void AddChange(string propertyName, object oldValue, object newValue)
+        
+        public TreeNode TreeNode
         {
-            if (_changedProperties.ContainsKey(propertyName))
-                _changedProperties[propertyName].Add(newValue);
-            else
-                _changedProperties.Add(propertyName, new List<object>() { oldValue, newValue });
-            PropertyChanged?.Invoke(this, propertyName, oldValue, newValue);
+            get => _treeNode;
+            set => _treeNode = value;
         }
-        public void ClearChanges()
-        {
 
+        public bool IsDirty { get; set; }
+        public List<LocalValueChange> ChangedValues { get; } = new List<LocalValueChange>();
+        public abstract class LocalValueChange
+        {
+            public GlobalValueChange GlobalChange { get; set; }
+            public object OldValue { get; set; }
+            public object NewValue { get; set; }
+
+            public abstract void ApplyNewValue();
+            public abstract void ApplyOldValue();
+            public abstract string DisplayChangeAsUndo();
+            public abstract string DisplayChangeAsRedo();
+        }
+        public class ListValueChange : LocalValueChange
+        {
+            public IList List { get; set; }
+            public int Index { get; set; }
+
+            public override void ApplyNewValue()
+            {
+                List[Index] = NewValue;
+            }
+            public override void ApplyOldValue()
+            {
+                List[Index] = OldValue;
+            }
+
+            public override string DisplayChangeAsRedo()
+            {
+                return string.Format("{0}[{1}] {2} -> {3}",
+                    List.ToString(), Index.ToString(),
+                    OldValue.ToString(), NewValue.ToString());
+            }
+
+            public override string DisplayChangeAsUndo()
+            {
+                return string.Format("{0}[{1}] {3} -> {2}",
+                    List.ToString(), Index.ToString(),
+                    OldValue.ToString(), NewValue.ToString());
+            }
+
+            public override string ToString()
+            {
+                return DisplayChangeAsRedo();
+            }
+        }
+        public class PropertyValueChange : LocalValueChange
+        {
+            public object PropertyOwner { get; set; }
+            public PropertyInfo PropertyInfo { get; set; }
+
+            public override void ApplyNewValue()
+            {
+                PropertyInfo.SetValue(PropertyOwner, NewValue);
+            }
+            public override void ApplyOldValue()
+            {
+                PropertyInfo.SetValue(PropertyOwner, OldValue);
+            }
+
+            public override string DisplayChangeAsRedo()
+            {
+                return string.Format("{0}.{1} {2} -> {3}",
+                  PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
+                  OldValue.ToString(), NewValue.ToString());
+            }
+
+            public override string DisplayChangeAsUndo()
+            {
+                return string.Format("{0}.{1} {3} -> {2}",
+                  PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
+                  OldValue.ToString(), NewValue.ToString());
+            }
+
+            public override string ToString()
+            {
+                return DisplayChangeAsRedo();
+            }
+        }
+        public class GlobalValueChange
+        {
+            public EditorState State { get; set; }
+            public int ChangeIndex { get; set; }
+
+            public void ApplyNewValue()
+                => State.ChangedValues[ChangeIndex].ApplyNewValue();
+            public void ApplyOldValue()
+                => State.ChangedValues[ChangeIndex].ApplyOldValue();
+
+            public void Clear()
+            {
+                State.ChangedValues.RemoveAt(ChangeIndex);
+
+                //Update all local changes after the one that was just removed
+                //Their global state's change index needs to be decremented to match the new index
+                for (int i = ChangeIndex; i < State.ChangedValues.Count; ++i)
+                {
+                    --State.ChangedValues[i].GlobalChange.ChangeIndex;
+                }
+            }
+
+            public string AsUndoString()
+            {
+                return State.ChangedValues[ChangeIndex].DisplayChangeAsUndo();
+            }
+            public string AsRedoString()
+            {
+                return State.ChangedValues[ChangeIndex].DisplayChangeAsRedo();
+            }
+            public override string ToString()
+            {
+                return State.ChangedValues[ChangeIndex].DisplayChangeAsRedo();
+            }
+        }
+
+        public void AddChange(object oldValue, object newValue, IList list, int index, GlobalValueChange change)
+        {
+            ChangedValues.Add(new ListValueChange()
+            {
+                GlobalChange = change,
+                OldValue = oldValue,
+                NewValue = newValue,
+                List = list,
+                Index = index,
+            });
+            IsDirty = true;
+        }
+        public void AddChange(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo, GlobalValueChange change)
+        {
+            ChangedValues.Add(new PropertyValueChange()
+            {
+                GlobalChange = change,
+                OldValue = oldValue,
+                NewValue = newValue,
+                PropertyOwner = propertyOwner,
+                PropertyInfo = propertyInfo,
+            });
+            IsDirty = true;
         }
     }
     public class EngineEditorState

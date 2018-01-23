@@ -11,6 +11,7 @@ namespace TheraEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {
+        public const string TypeIdent = "AssemblyType";
         public static unsafe Type DetermineType(string filePath)
         {
             Type t = null;
@@ -19,7 +20,7 @@ namespace TheraEngine.Files.Serialization
                 using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                 {
-                    if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals("Type", true))
+                    if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
                         t = Type.GetType(reader.Value, false, false);
                 }
             }
@@ -38,7 +39,7 @@ namespace TheraEngine.Files.Serialization
             using (FileMap map = FileMap.FromFile(filePath))
             using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
             {
-                if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals("Type", true))
+                if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
                 {
                     Type t = Type.GetType(reader.Value.ToString(), false, false);
                     obj = ReadObject(t, reader);
@@ -58,6 +59,21 @@ namespace TheraEngine.Files.Serialization
         }
         private static object ReadObject(Type objType, List<VarInfo> members, XMLReader reader)
         {
+            if (reader.ReadAttribute())
+            {
+                if (string.Equals(reader.Name.ToString(), TypeIdent, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Type subType = Type.GetType(reader.Value.ToString(), false, false);
+                    //if (subType != null)
+                    //{
+                        if (objType.IsAssignableFrom(subType))
+                            objType = subType;
+                        else
+                            Engine.LogWarning(string.Format("Type mismatch: {0} and {1}", objType.GetFriendlyName(), subType.GetFriendlyName()));
+                    //}
+                }
+            }
+
             //Create the object
             object obj = SerializationCommon.CreateObject(objType);
 

@@ -16,13 +16,11 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private bool _value;
 
+        public ShaderBool() : this(false, NoName) { }
         public ShaderBool(bool defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderBool(bool defaultValue, string name, IShaderVarOwner owner)
-            : base(name, owner)
-        {
-            _value = defaultValue;
-        }
+            : base(name, owner) => _value = defaultValue;
     }
     public class ShaderFloat : ShaderVar, IUniformable1Float
     {
@@ -38,13 +36,11 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private float _value;
 
+        public ShaderFloat() : this(0.0f, NoName) { }
         public ShaderFloat(float defaultValue, string name) 
             : this(defaultValue, name, null) { }
         public ShaderFloat(float defaultValue, string name, IShaderVarOwner owner)
-            : base(name, owner)
-        {
-            _value = defaultValue;
-        }
+            : base(name, owner) => _value = defaultValue;
     }
     public class ShaderDouble : ShaderVar, IUniformable1Double
     {
@@ -60,13 +56,11 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private double _value;
 
+        public ShaderDouble() : this(0.0, NoName) { }
         public ShaderDouble(double defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderDouble(double defaultValue, string name, IShaderVarOwner owner)
-            : base(name, owner)
-        {
-            _value = defaultValue;
-        }
+            : base(name, owner) => _value = defaultValue;
     }
     public class ShaderInt : ShaderVar, IUniformable1Int
     {
@@ -82,13 +76,11 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private int _value;
 
+        public ShaderInt() : this(0, NoName) { }
         public ShaderInt(int defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderInt(int defaultValue, string name, IShaderVarOwner owner)
-            : base(name, owner)
-        {
-            _value = defaultValue;
-        }
+            : base(name, owner) => _value = defaultValue;
     }
     public class ShaderUInt : ShaderVar, IUniformable1UInt
     {
@@ -103,13 +95,11 @@ namespace TheraEngine.Rendering.Models.Materials
 
         [TSerialize("Value")]
         private uint _value;
-
+        
+        public ShaderUInt() : this(0u, NoName) { }
         public ShaderUInt(uint defaultValue, string name) 
             : this(defaultValue, name, null) { }
         public ShaderUInt(uint defaultValue, string name, IShaderVarOwner owner) 
-            : base(name, owner)
-        {
-            _value = defaultValue;
-        }
+            : base(name, owner) => _value = defaultValue;
     }
 }

@@ -70,7 +70,7 @@ namespace TheraEngine.Files.Serialization
             writer.WriteStartElement(string.IsNullOrEmpty(name) ? SerializationCommon.GetTypeName(objType) : name);
             {
                 if (writeTypeDefinition)
-                    writer.WriteAttributeString("Type", objType.AssemblyQualifiedName);
+                    writer.WriteAttributeString(TypeIdent, objType.AssemblyQualifiedName);
                 
                 //Attributes are already sorted to come first, then elements
                 WriteMembers(obj, members, categorized.Count, customMethods, writer);
@@ -154,7 +154,7 @@ namespace TheraEngine.Files.Serialization
             return false;
             //throw new InvalidOperationException(t.Name + " cannot be written as a string.");
         }
-        private static void WriteElement(object value, VarInfo member, XmlWriter writer)
+        private static void WriteElement(object value, VarInfo member, XmlWriter writer, bool writeTypeDefinition = false)
         {
             switch (SerializationCommon.GetValueType(member.VariableType))
             {
@@ -177,7 +177,7 @@ namespace TheraEngine.Files.Serialization
                 case SerializationCommon.ValueType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(member.VariableType);
                     if (structFields.Count > 0)
-                        WriteObject(value, structFields, member.Name, writer, false);
+                        WriteObject(value, structFields, member.Name, writer, writeTypeDefinition);
                     else
                     {
                         if (SerializationCommon.IsPrimitiveType(member.VariableType))
@@ -196,7 +196,7 @@ namespace TheraEngine.Files.Serialization
                     }
                     break;
                 case SerializationCommon.ValueType.Pointer:
-                    WriteObject(value, member.Name, writer, false);
+                    WriteObject(value, member.Name, writer, writeTypeDefinition);
                     break;
             }
         }
@@ -222,7 +222,7 @@ namespace TheraEngine.Files.Serialization
                     writer.WriteStartElement("KeyValuePair");
                     writer.WriteAttributeString("Index", i.ToString());
                     WriteElement(dicKeys[i], vKeys, writer);
-                    WriteElement(dicVals[i], vVals, writer);
+                    WriteElement(dicVals[i], vVals, writer, true);
                     writer.WriteEndElement();
                 }
             }
@@ -234,7 +234,7 @@ namespace TheraEngine.Files.Serialization
             writer.WriteAttributeString("Count", array.Count.ToString());
             Type type = array.GetType();
             if (type != arrayType)
-                writer.WriteAttributeString("Type", type.AssemblyQualifiedName);
+                writer.WriteAttributeString(TypeIdent, type.AssemblyQualifiedName);
             if (array.Count > 0)
             {
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];

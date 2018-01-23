@@ -177,22 +177,13 @@ namespace System
                 *addr++ = (sbyte)s[i];
             *addr++ = 0;
         }
+
         /// <summary>
         /// Finds the first instance that is not the character passed.
         /// </summary>
         public static int FindFirstNot(this string str, int begin, char chr)
         {
             for (int i = begin; i < str.Length; ++i)
-                if (str[i] != chr)
-                    return i;
-            return -1;
-        }
-        /// <summary>
-        /// Finds the first instance that is not the character passed, searching backward in the string.
-        /// </summary>
-        public static int FindFirstNotReverse(this string str, int begin, char chr)
-        {
-            for (int i = begin; i >= 0; --i)
                 if (str[i] != chr)
                     return i;
             return -1;
@@ -208,6 +199,132 @@ namespace System
             return -1;
         }
         /// <summary>
+        /// Finds the first instance that is the string passed, searching backward in the string.
+        /// </summary>
+        public static int FindFirst(this string str, int begin, string searchStr)
+        {
+            int firstIndex = 0;
+            for (int i = begin; i < str.Length; ++i)
+            {
+                bool found = true;
+                firstIndex = i;
+                for (int x = 0; x < searchStr.Length && i < str.Length; ++x, ++i)
+                {
+                    if (str[i] != searchStr[x])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    return firstIndex;
+            }
+            return -1;
+        }
+
+        #region Find Occurrence
+        /// <summary>
+        /// Finds a specific instance that is the character passed.
+        /// </summary>
+        public static int FindOccurence(this string str, int begin, int occurrenceIndex, char chr)
+        {
+            int occurrence = 0;
+            for (int i = begin; i < str.Length; ++i)
+                if (str[i] == chr)
+                {
+                    if (occurrenceIndex == occurrence)
+                        return i;
+                    ++occurrence;
+                }
+            return -1;
+        }
+        /// <summary>
+        /// Finds a specific instance that is the character passed.
+        /// </summary>
+        public static int FindOccurenceNot(this string str, int begin, int occurrenceIndex, char chr)
+        {
+            int occurrence = 0;
+            for (int i = begin; i < str.Length; ++i)
+                if (str[i] != chr)
+                {
+                    if (occurrenceIndex == occurrence)
+                        return i;
+                    ++occurrence;
+                }
+            return -1;
+        }
+        /// <summary>
+        /// Finds the first instance that is the string passed, searching backward in the string.
+        /// </summary>
+        public static int FindOccurrence(this string str, int begin, int occurrenceIndex, string searchStr)
+        {
+            int occurrence = 0;
+            int firstIndex = 0;
+            for (int i = begin; i < str.Length; ++i)
+            {
+                bool found = true;
+                firstIndex = i;
+                for (int x = 0; x < searchStr.Length && i < str.Length; ++x, ++i)
+                {
+                    if (str[i] != searchStr[x])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                {
+                    if (occurrenceIndex == occurrence)
+                        return firstIndex;
+                    ++occurrence;
+                }
+            }
+            return -1;
+        }
+        /// <summary>
+        /// Finds the first instance that is the string passed, searching backward in the string.
+        /// </summary>
+        public static int FindOccurrenceReverse(this string str, int begin, int occurrenceIndex, string searchStr)
+        {
+            int occurrence = 0;
+            for (int i = begin; i >= 0; --i)
+            {
+                bool found = true;
+                for (int x = searchStr.Length - 1; x >= 0 && i >= 0; --x, --i)
+                {
+                    if (str[i] != searchStr[x])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                {
+                    if (occurrenceIndex == occurrence)
+                        return i + 1;
+                    ++occurrence;
+                }
+            }
+            return -1;
+        }
+        #endregion
+
+        #region Find First Reverse
+        /// <summary>
+        /// Finds the first instance that is the character passed, searching backward in the string.
+        /// </summary>
+        public static int FindFirstReverse(this string str, char chr)
+        {
+            return str.FindFirstReverse(str.Length - 1, chr);
+        }
+        /// <summary>
+        /// Finds the first instance that is the string passed, searching backward in the string.
+        /// </summary>
+        public static int FindFirstReverse(this string str, string searchStr)
+        {
+            return str.FindFirstReverse(str.Length - 1, searchStr);
+        }
+        /// <summary>
         /// Finds the first instance that is the character passed, searching backward in the string.
         /// </summary>
         public static int FindFirstReverse(this string str, int begin, char chr)
@@ -217,6 +334,39 @@ namespace System
                     return i;
             return -1;
         }
+        /// <summary>
+        /// Finds the first instance that is the string passed, searching backward in the string.
+        /// </summary>
+        public static int FindFirstReverse(this string str, int begin, string searchStr)
+        {
+            for (int i = begin; i >= 0; --i)
+            {
+                bool found = true;
+                for (int x = searchStr.Length - 1; x >= 0 && i >= 0; --x, --i)
+                {
+                    if (str[i] != searchStr[x])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    return i + 1;
+            }
+            return -1;
+        }
+        /// <summary>
+        /// Finds the first instance that is not the character passed, searching backward in the string.
+        /// </summary>
+        public static int FindFirstNotReverse(this string str, int begin, char chr)
+        {
+            for (int i = begin; i >= 0; --i)
+                if (str[i] != chr)
+                    return i;
+            return -1;
+        }
+        #endregion
+
         /// <summary>
         /// Prints this string to the engine's output logs.
         /// </summary>

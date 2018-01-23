@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
 using TheraEngine.GameModes;
@@ -378,13 +379,35 @@ namespace TheraEngine
         public static void PrintLine(string message, params object[] args)
             => Print(message + Environment.NewLine, args);
         
-        public static void LogWarning(
-            string message,
-            [CallerMemberName] string callerName = "",
-            [CallerFilePath] string sourceFilePath = "",
-            [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogWarning(string message, params object[] args)
         {
-            PrintLine("[{2} line {3}: {1} {4}] {0}", message ?? "<No Message>", callerName ?? "", sourceFilePath ?? "", sourceLineNumber, DateTime.Now);
+#if DEBUG || EDITOR
+            //Format and print message
+            message = message ?? "<No Message>";
+            if (args != null && args.Length > 0)
+                message = string.Format(message, args);
+            PrintLine("[{1}] {0}", message, DateTime.Now);
+
+            //Format and print stack trace
+            string stackTrace = Environment.StackTrace;
+            string atStr = "   at ";
+
+            //Most 3 recent calls don't matter
+            int at4th = stackTrace.FindOccurrence(0, 3, atStr);
+            if (at4th > 0)
+                stackTrace = stackTrace.Substring(at4th);
+
+            //Everything before wndProc is almost always irrelevant
+            int wndProc = stackTrace.IndexOf("WndProc(Message& m)");
+            if (wndProc > 0)
+            {
+                int at = stackTrace.FindFirstReverse(wndProc, atStr);
+                if (at > 0)
+                    stackTrace = stackTrace.Substring(0, at);
+            }
+            
+            PrintLine(stackTrace);
+#endif
         }
 
         #endregion

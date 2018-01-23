@@ -1,41 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditorSettings Type="TheraEditor.EditorSettings, Forms Editor, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null">
-	<Engine StoreInternally="True">
-		<EditorState />
+<EditorSettings AssemblyType="TheraEditor.EditorSettings, Forms Editor, Version=1.3.0.0, Culture=neutral, PublicKeyToken=null">
+	<EngineDefaults ReferencePath="">
 		<File>
-			<ShadingStyle>Deferred</ShadingStyle>
+			<ShadingStyle3D>Deferred</ShadingStyle3D>
 			<SkinOnGPU>False</SkinOnGPU>
 			<UseIntegerWeightingIds>True</UseIntegerWeightingIds>
 			<AllowShaderPipelines>True</AllowShaderPipelines>
-			<RenderCameraFrustums>False</RenderCameraFrustums>
-			<RenderSkeletons>True</RenderSkeletons>
 			<RenderQuadtree>True</RenderQuadtree>
 			<RenderOctree>False</RenderOctree>
-			<RenderSplines>True</RenderSplines>
 			<RenderCullingVolumes>False</RenderCullingVolumes>
-			<RenderLights>False</RenderLights>
+			<RenderPhysicsWorld>False</RenderPhysicsWorld>
 			<Capped>True</Capped>
-			<Target>15</Target>
+			<Target>60</Target>
 			<Capped>False</Capped>
 			<HoldInputDelay>0</HoldInputDelay>
 			<DoubleClickInputDelay>0</DoubleClickInputDelay>
-			<EditorState />
+			<ScriptsFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Scripts</ScriptsFolder>
+			<ShadersFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Shaders</ShadersFolder>
+			<TexturesFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Textures</TexturesFolder>
 		</File>
-	</Engine>
-	<PropertyGrid StoreInternally="True">
-		<EditorState />
+	</EngineDefaults>
+	<PropertyGrid ReferencePath="">
 		<File>
 			<SplitCamelCase>True</SplitCamelCase>
 			<UpdateRateInSeconds>0.2</UpdateRateInSeconds>
 			<IgnoreLoneSubCategories>True</IgnoreLoneSubCategories>
-			<EditorState />
 		</File>
 	</PropertyGrid>
-	<Controls StoreInternally="True">
-		<EditorState />
-		<File>
-			<EditorState />
-		</File>
+	<Controls ReferencePath="">
+		<File />
 	</Controls>
-	<EditorState />
+	<DockConfigPath>\DockPanel.config</DockConfigPath>
+	<RecentlyOpenedProjectPaths Count="0" />
 </EditorSettings>

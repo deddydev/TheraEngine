@@ -4,12 +4,13 @@ using System.Text;
 using System.Threading.Tasks;
 using TheraEngine.Files;
 
-namespace TheraEngine.Rendering.Models.Materials
+namespace TheraEngine.Core.Files
 {
     [File3rdParty("txt", "rtf")]
     [FileDef("Text File")]
     public class TextFile : FileObject
     {
+        [TSerialize("Text", IsXmlElementString = true)]
         private string _text = null;
         public string Text
         {

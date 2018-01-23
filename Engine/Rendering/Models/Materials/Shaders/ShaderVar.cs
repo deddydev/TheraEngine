@@ -39,6 +39,7 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public abstract class ShaderVar : TObject, IShaderVarOwner
     {
+        public const string NoName = "NoName";
         internal static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
         {
             { typeof(ShaderBool),   ShaderVarType._bool   },

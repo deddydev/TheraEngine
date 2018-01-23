@@ -412,8 +412,6 @@ namespace TheraEditor.Windows.Forms
 
     internal class Win32
     {
-        
-
         static class FILE_ATTRIBUTE
         {
             public const uint FILE_ATTRIBUTE_NORMAL = 0x80;

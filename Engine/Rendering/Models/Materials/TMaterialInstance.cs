@@ -3,7 +3,7 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public class MaterialInstance
+    public class TMaterialInstance
     {
         [TSerialize]
         GlobalFileRef<TMaterial> _material = new GlobalFileRef<TMaterial>();

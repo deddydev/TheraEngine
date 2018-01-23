@@ -22,7 +22,7 @@ namespace TheraEditor.Windows.Forms
             {
                 IActor t = e.Node.Tag as IActor;
                 t.EditorState.Selected = true;
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = e.Node.Tag;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = t;
 
                 if (Engine.LocalPlayers.Count > 0)
                 {

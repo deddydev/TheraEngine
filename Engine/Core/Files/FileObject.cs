@@ -23,7 +23,17 @@ namespace TheraEngine.Files
     }
     public interface IFileObject : IObjectBase
     {
-
+        string FilePath { get; set; }
+        List<IFileRef> References { get; set; }
+        FileDef FileDefinition { get; }
+        FileExt FileExtension { get; }
+        File3rdParty File3rdPartyExtensions { get; }
+        void Unload();
+        void Export();
+        void Export(string path);
+        void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null);
+        string GetFilePath(string dir, string name, ProprietaryFileFormat format);
+        string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
     }
     [FileExt("tasset")]
     [FileDef("Thera Engine Asset")]
@@ -135,12 +145,9 @@ namespace TheraEngine.Files
             FileFormat f = GetFormat(path);
             switch (f)
             {
-                case FileFormat.XML:
-                    return CustomXmlSerializer.DetermineType(path);
-                case FileFormat.Binary:
-                    return CustomBinarySerializer.DetermineType(path);
-                default:
-                    return DetermineTypeThirdParty(path);
+                case FileFormat.XML: return CustomXmlSerializer.DetermineType(path);
+                case FileFormat.Binary: return CustomBinarySerializer.DetermineType(path);
+                default: return DetermineTypeThirdParty(path);
             }
         }
 

@@ -57,10 +57,7 @@ namespace TheraEngine.Files.Serialization
         public InterfaceType Interface;
         public MemberTreeNode[] IListMembers;
 
-        public override string ToString()
-        {
-            return Info.Name;
-        }
+        public override string ToString() => Info.Name;
     }
     /// <summary>
     /// Stores a field/property's information.
@@ -213,8 +210,7 @@ namespace TheraEngine.Files.Serialization
             }
             return fields;
         }
-
-        //TODO: run constructor or not?
+        
         /// <summary>
         /// Creates an object of the given type.
         /// </summary>
@@ -226,7 +222,7 @@ namespace TheraEngine.Files.Serialization
             }
             catch (Exception ex)
             {
-                Engine.PrintLine("Problem constructing " + t.GetType().GetFriendlyName() + "." + Environment.NewLine + ex.ToString());
+                Engine.PrintLine("Problem constructing " + t.GetFriendlyName() + "." + Environment.NewLine + ex.ToString());
                 return FormatterServices.GetUninitializedObject(t);
             }
         }
@@ -277,9 +273,7 @@ namespace TheraEngine.Files.Serialization
             }
         }
         public static bool IsEnum(Type t)
-        {
-            return string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture);
-        }
+            => string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture);
         public static bool IsPrimitiveType(Type t)
         {
             switch (t.Name)
@@ -305,11 +299,12 @@ namespace TheraEngine.Files.Serialization
 
         public static string FixElementName(string name)
         {
-            //Element names are case-sensitive
-            //Element names must start with a letter or underscore
-            //Element names cannot start with the letters xml(or XML, or Xml, etc)
-            //Element names can contain letters, digits, hyphens, underscores, and periods
-            //Element names cannot contain spaces
+            //Element names:
+            //- are case-sensitive
+            //- must start with a letter or underscore
+            //- cannot start with the letters xml(or XML, or Xml, etc)
+            //- can contain letters, digits, hyphens, underscores, and periods
+            //- cannot contain spaces
 
             name = name.Replace(" ", "");
             if (name.ToLowerInvariant().StartsWith("xml"))

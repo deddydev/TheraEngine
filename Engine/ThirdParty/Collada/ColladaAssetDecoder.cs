@@ -323,14 +323,31 @@ namespace TheraEngine.Rendering.Models
                         facePrimitives.Add(new VertexTriangleStrip(vertices.Select(x => x[setIndex]).ToArray()));
 
                         break;
+                    case EColladaPrimitiveType.Polygons:
+                    case EColladaPrimitiveType.Polylist:
+                        if (facePrimitives == null)
+                            facePrimitives = new List<VertexPolygon>();
+                        Engine.LogWarning("Primitive type {0} not supported. Mesh will be empty.", prim.Type.ToString());
+                        break;
                 }
             }
             
-            List<VertexTriangle> triangles = new List<VertexTriangle>();
-            foreach (VertexPolygon p in facePrimitives)
-                triangles.AddRange(p.ToTriangles());
+            if (facePrimitives != null && facePrimitives.Count > 0)
+            {
+                if (linePrimitives != null && linePrimitives.Count > 0)
+                    Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
 
-            return PrimitiveData.FromTriangleList(Culling.None, info, triangles);
+                return PrimitiveData.FromTriangleList(Culling.None, info, facePrimitives.SelectMany(x => x.ToTriangles()));
+            }
+            else if (linePrimitives != null && linePrimitives.Count > 0)
+            {
+                return PrimitiveData.FromLineList(info, linePrimitives.SelectMany(
+                    x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
+            }
+
+            Engine.LogWarning("Mesh has no primitives.");
+
+            return PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions());
         }
     }
 }

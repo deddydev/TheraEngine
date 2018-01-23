@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using TheraEngine.Core.Files;
 using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
@@ -29,6 +30,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Sources")]
         private GlobalFileRef<TextFile>[] _sources;
 
+        public Shader() { }
         public Shader(ShaderMode type)
         {
             _type = type;

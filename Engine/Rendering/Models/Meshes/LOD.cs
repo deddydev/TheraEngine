@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering.Models
         [Category("LOD")]
         public GlobalFileRef<PrimitiveData> Primitives => _primitives;
         [Category("LOD")]
-        [TSerialize]
+        [TSerialize(IsXmlAttribute = true)]
         public float VisibleDistance { get; set; } = 0.0f;
         
         [TSerialize("Primitives")]

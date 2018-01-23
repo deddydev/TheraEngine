@@ -70,6 +70,10 @@ namespace TheraEngine.Rendering.Models
             return new PrimitiveData(Culling.None, VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
         }
 
+        public PrimitiveData()
+        {
+
+        }
         public PrimitiveData(Culling culling, VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
         {
             _bufferInfo = info;

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Files;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Components;
@@ -105,8 +106,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         private bool _updating;
-        private object _targetObject;
-        public object TargetObject
+        private IFileObject _targetObject;
+        public IFileObject TargetObject
         {
             get => _targetObject;
             set
@@ -443,6 +444,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 SceneComponent s = node.Tag as SceneComponent;
                 SubObject = node.Tag;
             }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            TargetObject.Export();
+            btnSave.Visible = false;
+            TargetObject.EditorState.ClearChanges();
         }
 
         //protected override void OnMouseEnter(EventArgs e)

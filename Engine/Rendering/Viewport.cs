@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using System.IO;
 using TheraEngine.Physics;
 using TheraEngine.Physics.RayTracing;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering
 {

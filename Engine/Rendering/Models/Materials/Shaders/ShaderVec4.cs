@@ -15,6 +15,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private BoolVec4 _value;
 
+        public ShaderBVec4() : this(new BoolVec4(), NoName) { }
+        public ShaderBVec4(BoolVec4 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderBVec4(BoolVec4 defaultValue, string name, IShaderVarOwner owner) 
             : base(name, owner)
         {
@@ -37,6 +40,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private Vec4 _value;
 
+        public ShaderVec4() : this(new Vec4(), NoName) { }
         public ShaderVec4(Vec4 defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderVec4(Vec4 defaultValue, string name, IShaderVarOwner owner)
@@ -61,6 +65,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private DVec4 _value;
 
+        public ShaderDVec4() : this(new DVec4(), NoName) { }
+        public ShaderDVec4(DVec4 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderDVec4(DVec4 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {
@@ -83,6 +90,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private IVec4 _value;
 
+        public ShaderIVec4() : this(new IVec4(), NoName) { }
+        public ShaderIVec4(IVec4 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderIVec4(IVec4 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {
@@ -105,6 +115,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Value")]
         private UVec4 _value;
 
+        public ShaderUVec4() : this(new UVec4(), NoName) { }
+        public ShaderUVec4(UVec4 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderUVec4(UVec4 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {

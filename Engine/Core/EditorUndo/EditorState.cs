@@ -95,6 +95,10 @@ namespace TheraEngine.Editor
                 _changedProperties.Add(propertyName, new List<object>() { oldValue, newValue });
             PropertyChanged?.Invoke(this, propertyName, oldValue, newValue);
         }
+        public void ClearChanges()
+        {
+
+        }
     }
     public class EngineEditorState
     {

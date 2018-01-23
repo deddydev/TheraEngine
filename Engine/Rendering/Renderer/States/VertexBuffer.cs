@@ -213,6 +213,7 @@ namespace TheraEngine.Rendering.Models
             set => _type = value;
         }
 
+        public VertexBuffer() : base(EObjectType.Buffer) { }
         public VertexBuffer(
             int index,
             VertexAttribInfo info,

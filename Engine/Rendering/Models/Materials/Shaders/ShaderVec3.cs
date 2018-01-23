@@ -6,14 +6,15 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderBVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName { get { return ShaderVarType._bvec3; } }
+        public override ShaderVarType TypeName => ShaderVarType._bvec3;
         public BoolVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        internal override string GetValueString() => _value.ToString();
 
         [TSerialize("Value")]
         private BoolVec3 _value;
 
+        public ShaderBVec3() : this(new BoolVec3(), NoName) { }
         public ShaderBVec3(BoolVec3 defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderBVec3(BoolVec3 defaultValue, string name, IShaderVarOwner owner) 
@@ -28,14 +29,15 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName { get { return ShaderVarType._vec3; } }
+        public override ShaderVarType TypeName => ShaderVarType._vec3;
         public Vec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        internal override string GetValueString() => _value.ToString();
 
         [TSerialize("Value")]
         private Vec3 _value;
 
+        public ShaderVec3() : this(new Vec3(), NoName) { }
         public ShaderVec3(Vec3 defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderVec3(Vec3 defaultValue, string name, IShaderVarOwner owner)
@@ -50,14 +52,15 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderDVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName { get { return ShaderVarType._dvec3; } }
+        public override ShaderVarType TypeName => ShaderVarType._dvec3;
         public DVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        internal override string GetValueString() => _value.ToString();
 
         [TSerialize("Value")]
         private DVec3 _value;
 
+        public ShaderDVec3() : this(new DVec3(), NoName) { }
         public ShaderDVec3(DVec3 defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderDVec3(DVec3 defaultValue, string name, IShaderVarOwner owner)
@@ -72,14 +75,15 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderIVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName { get { return ShaderVarType._ivec3; } }
+        public override ShaderVarType TypeName => ShaderVarType._ivec3;
         public IVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        internal override string GetValueString() => _value.ToString();
 
         [TSerialize("Value")]
         private IVec3 _value;
 
+        public ShaderIVec3() : this(new IVec3(), NoName) { }
         public ShaderIVec3(IVec3 defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderIVec3(IVec3 defaultValue, string name, IShaderVarOwner owner)
@@ -94,14 +98,15 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderUVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName { get { return ShaderVarType._uvec3; } }
+        public override ShaderVarType TypeName => ShaderVarType._uvec3;
         public UVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        internal override string GetValueString() => _value.ToString();
 
         [TSerialize("Value")]
         private UVec3 _value;
 
+        public ShaderUVec3() : this(new UVec3(), NoName) { }
         public ShaderUVec3(UVec3 defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderUVec3(UVec3 defaultValue, string name, IShaderVarOwner owner)

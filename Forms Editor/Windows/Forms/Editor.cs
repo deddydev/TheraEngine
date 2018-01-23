@@ -340,7 +340,7 @@ namespace TheraEditor.Windows.Forms
             base.OnClosing(e);
         }
 
-        public static void SetPropertyGridObject(object obj)
+        public static void SetPropertyGridObject(IFileObject obj)
         {
             Instance.PropertyGridForm.PropertyGrid.TargetObject = obj;
         }

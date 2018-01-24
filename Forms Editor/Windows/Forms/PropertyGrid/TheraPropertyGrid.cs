@@ -453,7 +453,32 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            TargetObject.Export();
+            if (!string.IsNullOrWhiteSpace(TargetObject.FilePath))
+            {
+                TargetObject.Export();
+            }
+            else if (TargetObject.References.Count == 1)
+            {
+
+            }
+            else if (TargetObject.References.Count > 1)
+            {
+                foreach (IFileRef r in TargetObject.References)
+                {
+
+                }
+            }
+            else
+            {
+                SaveFileDialog sfd = new SaveFileDialog
+                {
+                    Filter = TargetObject.GetFilter()
+                };
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    TargetObject.Export(sfd.FileName);
+                }
+            }
             btnSave.Visible = false;
             TargetObject.EditorState.IsDirty = false;
         }

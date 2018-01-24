@@ -15,6 +15,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 throw new Exception(DataType.GetFriendlyName() + " is not a boolean type.");
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
-            => UpdateValue(checkBox1.Checked);
+            => UpdateValue(checkBox1.Checked, true);
     }
 }

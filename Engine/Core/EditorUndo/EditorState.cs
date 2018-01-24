@@ -108,13 +108,9 @@ namespace TheraEngine.Editor
             public int Index { get; set; }
 
             public override void ApplyNewValue()
-            {
-                List[Index] = NewValue;
-            }
+                => List[Index] = NewValue;
             public override void ApplyOldValue()
-            {
-                List[Index] = OldValue;
-            }
+                => List[Index] = OldValue;
 
             public override string DisplayChangeAsRedo()
             {
@@ -141,13 +137,9 @@ namespace TheraEngine.Editor
             public PropertyInfo PropertyInfo { get; set; }
 
             public override void ApplyNewValue()
-            {
-                PropertyInfo.SetValue(PropertyOwner, NewValue);
-            }
+                => PropertyInfo.SetValue(PropertyOwner, NewValue);
             public override void ApplyOldValue()
-            {
-                PropertyInfo.SetValue(PropertyOwner, OldValue);
-            }
+                => PropertyInfo.SetValue(PropertyOwner, OldValue);
 
             public override string DisplayChangeAsRedo()
             {

@@ -59,7 +59,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            UpdateValue(Enum.Parse(DataType, (string)comboBox1.SelectedItem));
+            UpdateValue(Enum.Parse(DataType, (string)comboBox1.SelectedItem), true);
         }
 
         private void BitSet_CheckedChanged(object sender, EventArgs e)
@@ -71,7 +71,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 newValue = oldValue + ", " + box.Tag.ToString();
             else
                 newValue = string.Join(", ", oldValue.Replace(box.Tag.ToString(), "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
-            UpdateValue(Enum.Parse(DataType, newValue));
+            UpdateValue(Enum.Parse(DataType, newValue), true);
         }
 
         protected internal override void SetProperty(PropertyInfo propertyInfo, object propertyOwner)

@@ -14,6 +14,7 @@ using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Files;
 using TheraEngine.Actors;
 using TheraEngine.Components;
+using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -55,15 +56,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             InitializeComponent();
         }
 
+        internal static GameTimer UpdateTimer = new GameTimer();
         protected override void OnHandleCreated(EventArgs e)
         {
-            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.DefaultSettingsRef.File.PropertyGrid.File.UpdateRateInSeconds);
+            UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.DefaultSettingsRef.File.PropertyGrid.File.UpdateRateInSeconds);
             base.OnHandleCreated(e);
         }
-
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            PropGridItem.UpdateTimer.Stop();
+            UpdateTimer.Stop();
             base.OnHandleDestroyed(e);
         }
 

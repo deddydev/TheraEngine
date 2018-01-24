@@ -22,8 +22,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             };
             for (int r = 0; r < 4; ++r)
                 for (int c = 0; c < 4; ++c)
-                    _boxes[r, c].ValueChanged += PropGridMatrix4_ValueChanged;
+                {
+                    NumericInputBoxSingle box = _boxes[r, c];
+                    box.ValueChanged += PropGridMatrix4_ValueChanged;
+                    box.GotFocus += Box_GotFocus;
+                    box.LostFocus += Box_LostFocus;
+                }
         }
+
+        private void Box_LostFocus(object sender, EventArgs e) => IsEditing = false;
+        private void Box_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
         private void PropGridMatrix4_ValueChanged(NumericInputBoxBase<float> box, float? previous, float? current)
             => UpdateValue(new Matrix4(

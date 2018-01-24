@@ -13,7 +13,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridItem : UserControl
     {
         private bool _readOnly = false;
+        private bool _isEditing = false;
+        private object _oldValue, _newValue;
+        protected bool _updating = false;
 
+        public PropGridItem() => InitializeComponent();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public TheraPropertyGrid PropertyGrid { get; internal set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type DataType { get; set; }
@@ -43,7 +51,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 SetControlsEnabled(!_readOnly && (Property != null ? Property.CanWrite : (IListOwner != null ? !IListOwner.IsReadOnly : true)));
             }
         }
-
         /// <summary>
         /// When true, disallows UpdateDisplay() from doing anything until set to false.
         /// </summary>
@@ -58,35 +65,31 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     return;
                 _isEditing = value;
                 if (_isEditing)
-                {
                     _oldValue = _newValue = GetValue();
-                }
                 else if (_oldValue != _newValue)
-                {
-                    if (IListOwner != null)
-                    {
-                        PropertyGrid.btnSave.Visible = true;
-                        Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
-                            _oldValue, _newValue, IListOwner, IListIndex);
-                    }
-                    else if (Property != null && Property.CanWrite)
-                    {
-                        PropertyGrid.btnSave.Visible = true;
-                        Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
-                            _oldValue, _newValue, PropertyOwner, Property);
-                    }
-                }
+                    SubmitStateChange(_oldValue, _newValue);
             }
         }
-        private bool _isEditing = false;
-        private object _oldValue, _newValue;
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public TheraPropertyGrid PropertyGrid { get; internal set; }
 
-        protected bool _updating = false;
+        /// <summary>
+        /// Records that a value has changed to the undo buffer and enables saving the owning file.
+        /// </summary>
+        protected void SubmitStateChange(object oldValue, object newValue)
+        {
+            if (IListOwner != null)
+            {
+                PropertyGrid.btnSave.Visible = true;
+                Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+                    oldValue, newValue, IListOwner, IListIndex);
+            }
+            else if (Property != null && Property.CanWrite)
+            {
+                PropertyGrid.btnSave.Visible = true;
+                Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+                    oldValue, newValue, PropertyOwner, Property);
+            }
+        }
 
-        public PropGridItem() => InitializeComponent();
         public object GetValue()
         {
             try
@@ -109,27 +112,54 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        public void UpdateValue(object newValue)
+        public void UpdateValue(object newValue, bool submitStateChange = false)
         {
             if (_updating)
                 return;
             if (IListOwner != null)
             {
-                IListOwner[IListIndex] = newValue;
+                if (submitStateChange)
+                {
+                    object oldValue = IListOwner[IListIndex];
+                    IListOwner[IListIndex] = newValue;
+                    SubmitStateChange(oldValue, newValue);
+                }
+                else
+                    IListOwner[IListIndex] = newValue;
+
                 if (_isEditing)
                     _newValue = newValue;
             }
             else if (Property != null && Property.CanWrite)
             {
-                Property.SetValue(PropertyOwner, newValue);
-                if (_isEditing)
-                    _newValue = Property.GetValue(PropertyOwner);
-
-                //Update the display in case the property's set method modifies the submitted data
+                if (submitStateChange)
+                {
+                    object oldValue = Property.GetValue(PropertyOwner);
+                    Property.SetValue(PropertyOwner, newValue);
+                    newValue = Property.GetValue(PropertyOwner);
+                    SubmitStateChange(oldValue, newValue);
+                    if (_isEditing)
+                        _newValue = newValue;
+                }
+                else
+                {
+                    Property.SetValue(PropertyOwner, newValue);
+                    if (_isEditing)
+                        _newValue = Property.GetValue(PropertyOwner);
+                }
+                //Update the display in case the property's set method modified the submitted data
                 UpdateDisplay();
             }
             else
                 throw new InvalidOperationException();
+        }
+        protected void SubmitPostManualStateChange(object classType, string propertyName)
+        {
+
+        }
+        protected void SubmitPreManualStateChange(object classType, string propertyName)
+        {
+
         }
         internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
         {
@@ -165,8 +195,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected virtual void UpdateDisplayInternal() { }
         protected virtual void OnLabelSet() { }
 
-        internal static GameTimer UpdateTimer = new GameTimer();
-
         /// <summary>
         /// List of all visible PropGridItems that need to be updated.
         /// </summary>
@@ -190,8 +218,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.OnHandleDestroyed(e);
         }
         public override string ToString()
-        {
-            return DataType?.ToString() + " - " + Property.Name;
-        }
+            => DataType?.ToString() + " - " + Property.Name;
     }
 }

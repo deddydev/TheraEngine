@@ -10,7 +10,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             InitializeComponent();
             cboOrder.DataSource = Enum.GetValues(typeof(RotationOrder));
+            numericInputBoxPitch.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxYaw.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxRoll.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxPitch.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxYaw.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxRoll.LostFocus += NumericInputBoxX_LostFocus;
         }
+        private void NumericInputBoxX_LostFocus(object sender, EventArgs e) => IsEditing = false;
+        private void NumericInputBoxX_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
         public Rotator _rotator;
         protected override void UpdateDisplayInternal()
@@ -47,8 +55,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void cboOrder_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_rotator != null && !_updating)
+            {
+                SubmitPreManualStateChange(_rotator, "Order");
                 _rotator.Order = (RotationOrder)cboOrder.SelectedIndex;
+                SubmitPostManualStateChange(_rotator, "Order");
+            }
         }
+
         protected override void SetControlsEnabled(bool enabled)
         {
             checkBox1.Enabled = enabled;

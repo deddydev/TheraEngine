@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
+namespace TheraEngine.Components.Scene.Shapes
 {
     public class ComplexConeComponent : ShapeComponent
     {

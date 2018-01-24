@@ -1,10 +1,9 @@
 ﻿using System;
 using TheraEngine.Animation;
 using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds.Actors;
 using System.Threading.Tasks;
-using TheraEngine.Worlds.Actors.Types.Pawns;
-using TheraEngine.Worlds.Actors.Components.Logic.Animation;
+using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Tests

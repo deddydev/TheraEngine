@@ -1,6 +1,4 @@
-﻿using TheraEngine.Files;
-using System.ComponentModel;
-using TheraEngine.Properties;
+﻿using System.ComponentModel;
 
 namespace TheraEngine
 {

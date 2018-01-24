@@ -3,12 +3,10 @@ using System.Windows.Forms;
 using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Files;
-using TheraEngine.Input;
 using TheraEngine.Rendering;
 using TheraEngine.Timers;
-using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Actors;
+using TheraEngine.Actors.Types.Pawns;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms

@@ -4,26 +4,20 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
-using TheraEngine.Physics;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Textures;
-using TheraEngine.Scripting;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 
 namespace TheraEngine
 {
@@ -100,7 +94,7 @@ namespace TheraEngine
         {
             if (_typeCache == null || resetTypeCache)
                 _typeCache = AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes());
-            return _typeCache.Where(x => matchPredicate(x));
+            return _typeCache.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
         }
 
         public static void SetGamePanel(BaseRenderPanel panel, bool registerTickNow = true)

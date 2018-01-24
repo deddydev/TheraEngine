@@ -1,10 +1,8 @@
 ﻿using System;
 using TheraEngine.Input;
-using TheraEngine.Physics;
-using TheraEngine.Rendering;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Types
+namespace TheraEngine.Actors.Types
 {
     public class CharacterSpawnPointActor : Actor<TranslationComponent>
     {

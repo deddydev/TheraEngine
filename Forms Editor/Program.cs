@@ -4,11 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Scripting;
 
 namespace TheraEditor
 {

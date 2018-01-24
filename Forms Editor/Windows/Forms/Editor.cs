@@ -12,13 +12,8 @@ using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using WeifenLuo.WinFormsUI.Docking;
-using EnvDTE;
-using TheraEngine.Tests;
-using System.Collections;
-using TheraEngine.Editor;
-using System.Collections.Generic;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -242,6 +237,7 @@ namespace TheraEditor.Windows.Forms
                 }
 
                 Engine.SetCurrentWorld(value, true, false);
+                btnWorldSettings.Enabled = Engine.World != null;
 
                 GenerateInitialActorList();
                 if (Engine.World != null)
@@ -436,7 +432,7 @@ namespace TheraEditor.Windows.Forms
             CurrentWorld = new World();
         }
 
-        public static GlobalFileRef<EditorSettings> Settings { get; }
+        public static GlobalFileRef<EditorSettings> SettingsRef { get; }
             = new GlobalFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
         
         private bool CloseProject()
@@ -531,7 +527,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void BtnEditorSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.TargetObject = Settings;
+            PropertyGridForm.PropertyGrid.TargetObject = SettingsRef;
         }
         private void BtnUserSettings_Click(object sender, EventArgs e)
         {
@@ -539,7 +535,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void BtnWorldSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
+            PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.SettingsRef;
         }
         private void CboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
         {

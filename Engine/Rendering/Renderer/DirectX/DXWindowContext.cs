@@ -4,7 +4,6 @@
 //using SlimDX;
 //using Device = SlimDX.Direct3D11.Device;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace TheraEngine.Rendering.DirectX
 {

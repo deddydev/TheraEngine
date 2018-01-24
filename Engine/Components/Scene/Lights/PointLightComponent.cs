@@ -3,14 +3,12 @@ using TheraEngine.Rendering.Models.Materials;
 using System.ComponentModel;
 using TheraEngine.Rendering;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Maths.Transforms;
-using System.IO;
 using System.Drawing;
 using TheraEngine.Rendering.Models;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
+namespace TheraEngine.Components.Scene.Lights
 {
     [FileDef("Point Light Component")]
     public class PointLightComponent : LightComponent, I3DRenderable

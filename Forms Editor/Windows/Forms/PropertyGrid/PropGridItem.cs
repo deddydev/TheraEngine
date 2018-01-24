@@ -61,15 +61,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 {
                     _oldValue = _newValue = GetValue();
                 }
-                else if (!ReferenceEquals(_oldValue, _newValue))
+                else if (_oldValue != _newValue)
                 {
                     if (IListOwner != null)
                     {
+                        PropertyGrid.btnSave.Visible = true;
                         Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
                             _oldValue, _newValue, IListOwner, IListIndex);
                     }
                     else if (Property != null && Property.CanWrite)
                     {
+                        PropertyGrid.btnSave.Visible = true;
                         Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
                             _oldValue, _newValue, PropertyOwner, Property);
                     }

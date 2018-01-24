@@ -1,7 +1,7 @@
 ﻿using TheraEngine.Rendering.Cameras;
-using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Components.Scene;
 
-namespace TheraEngine.Worlds.Actors.Types
+namespace TheraEngine.Actors.Types
 {
     public class PerspectiveCameraActor : Actor<CameraComponent>
     {

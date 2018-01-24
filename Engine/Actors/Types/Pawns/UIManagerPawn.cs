@@ -1,5 +1,4 @@
 ﻿using TheraEngine.Input.Devices;
-using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +6,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Rendering.UI;
 
-namespace TheraEngine.Worlds.Actors.Types.Pawns
+namespace TheraEngine.Actors.Types.Pawns
 {
     public partial class UIManager : Pawn<UIDockableComponent>
     {

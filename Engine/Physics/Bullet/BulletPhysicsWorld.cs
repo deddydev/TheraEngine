@@ -1,16 +1,9 @@
 ﻿using BulletSharp;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Physics.Bullet;
 using TheraEngine.Physics.Bullet.Shapes;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
-using TheraEngine.Rendering;
-using TheraEngine.Worlds;
 
 namespace TheraEngine.Physics
 {

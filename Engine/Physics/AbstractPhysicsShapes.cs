@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Physics.Bullet;
 
 namespace TheraEngine.Physics
 {

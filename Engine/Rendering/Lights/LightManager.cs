@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Components.Scene.Lights;
+using TheraEngine.Components.Scene.Lights;
 
 namespace TheraEngine.Rendering
 {

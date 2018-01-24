@@ -1,5 +1,4 @@
 ﻿using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +7,7 @@ using System.Linq;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Animation;
 
-namespace TheraEngine.Worlds.Actors.Components.Logic.Animation
+namespace TheraEngine.Components.Logic.Animation
 {
     [FileDef("Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent

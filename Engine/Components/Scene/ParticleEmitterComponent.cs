@@ -1,6 +1,6 @@
-﻿using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+﻿using TheraEngine.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene
+namespace TheraEngine.Components.Scene
 {
     public class ParticleEmitterComponent : TranslationComponent
     {

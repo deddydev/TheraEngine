@@ -1,8 +1,7 @@
 ﻿using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering.Models.Materials;
 using System;
-using TheraEngine.Worlds.Actors.Types.Pawns;
-using TheraEngine.Worlds;
+using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Input.Devices;
 using TheraEngine;
 using TheraEngine.Rendering.Models.Materials.Functions;

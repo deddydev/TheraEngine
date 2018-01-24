@@ -6,7 +6,7 @@ using TheraEngine.Physics;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models;
 
-namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
+namespace TheraEngine.Actors.Types.ComponentActors.Shapes
 {
     public class BoxActor : ShapeActor
     {

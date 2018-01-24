@@ -1,8 +1,5 @@
 ﻿using System.Drawing;
-using System.Windows.Forms;
-using TheraEngine;
 using TheraEngine.Scripting;
-using TheraEngine.Worlds.Actors;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms

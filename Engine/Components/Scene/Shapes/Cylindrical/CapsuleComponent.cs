@@ -1,13 +1,11 @@
-﻿using TheraEngine.Rendering;
-using System;
+﻿using System;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
 using TheraEngine.Physics;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
+namespace TheraEngine.Components.Scene.Shapes
 {
     public class CapsuleYComponent : ShapeComponent
     {

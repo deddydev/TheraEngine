@@ -3,10 +3,10 @@ using TheraEngine.Rendering.UI;
 using System;
 using System.Collections.Generic;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Components.Scene.Mesh;
 
-namespace TheraEngine.Worlds.Actors.Types
+namespace TheraEngine.Actors.Types
 {
     public class TransformTool2D : UIComponent
     {

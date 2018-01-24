@@ -4,46 +4,47 @@ using System;
 using System.ComponentModel;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Components.Scene;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Worlds;
 
-namespace TheraEngine.Worlds.Actors.Types.Pawns
+namespace TheraEngine.Actors.Types.Pawns
 {
-    public enum CameraInputType
-    {
-        TranslateXY,
-        RotateYP,
-        Select,
-        ContextMenu,
-    }
-    [Flags]
-    public enum ComboModifier
-    {
-        None        = 0x0,
-        Ctrl        = 0x1,
-        Alt         = 0x2,
-        Shift       = 0x4,
-        LeftClick   = 0x8,
-        MiddleClick = 0x10,
-        RightClick  = 0x20,
-    }
-    public class CameraInputCombo
-    {
-        public CameraInputCombo(EMouseButton type, ComboModifier modifiers)
-        {
-            _type = type;
-            _modifiers = modifiers;
-        }
-        public CameraInputCombo(EMouseButton type)
-        {
-            _type = type;
-            _modifiers = ComboModifier.None;
-        }
-        public EMouseButton _type;
-        public ComboModifier _modifiers;
-    }
+    //public enum CameraInputType
+    //{
+    //    TranslateXY,
+    //    RotateYP,
+    //    Select,
+    //    ContextMenu,
+    //}
+    //[Flags]
+    //public enum ComboModifier
+    //{
+    //    None        = 0x0,
+    //    Ctrl        = 0x1,
+    //    Alt         = 0x2,
+    //    Shift       = 0x4,
+    //    LeftClick   = 0x8,
+    //    MiddleClick = 0x10,
+    //    RightClick  = 0x20,
+    //}
+    //public class CameraInputCombo
+    //{
+    //    public CameraInputCombo(EMouseButton type, ComboModifier modifiers)
+    //    {
+    //        _type = type;
+    //        _modifiers = modifiers;
+    //    }
+    //    public CameraInputCombo(EMouseButton type)
+    //    {
+    //        _type = type;
+    //        _modifiers = ComboModifier.None;
+    //    }
+    //    public EMouseButton _type;
+    //    public ComboModifier _modifiers;
+    //}
     public class FlyingCameraPawn : Pawn<TRComponent>
     {
         public FlyingCameraPawn() : base() { }

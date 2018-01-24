@@ -1,14 +1,13 @@
 ﻿using TheraEngine.Rendering.Models;
 using System;
-using TheraEngine.Rendering;
 using System.ComponentModel;
 using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Files;
 using TheraEngine.Physics;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
+namespace TheraEngine.Components.Scene.Mesh
 {
     public partial class StaticMeshComponent : TRSComponent, IRigidCollidable, IMeshSocketOwner
     {

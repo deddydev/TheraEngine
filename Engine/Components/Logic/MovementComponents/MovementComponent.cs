@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TheraEngine.Worlds.Actors.Components.Logic.Movement
+namespace TheraEngine.Components.Logic.Movement
 {
     public class MovementComponent : LogicComponent
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using TheraEngine.Input;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 
 namespace Thera.GameModes
 {

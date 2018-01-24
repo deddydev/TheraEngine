@@ -2,13 +2,12 @@
 using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
-using TheraEngine.Worlds.Actors;
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Components.Scene;
 
 namespace TheraEngine.Rendering.Cameras
 {

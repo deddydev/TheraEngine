@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {

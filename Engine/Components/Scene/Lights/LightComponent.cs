@@ -1,12 +1,10 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.ComponentModel;
 using TheraEngine.Rendering;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
-using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
+namespace TheraEngine.Components.Scene.Lights
 {
     public enum LightType
     {

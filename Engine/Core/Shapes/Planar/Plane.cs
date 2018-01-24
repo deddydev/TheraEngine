@@ -1,5 +1,4 @@
-﻿using TheraEngine.Files;
-using TheraEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System.ComponentModel;
 using System;
 using System.Runtime.InteropServices;

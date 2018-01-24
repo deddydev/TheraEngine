@@ -1,7 +1,7 @@
 ﻿using System;
 using TheraEngine;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms

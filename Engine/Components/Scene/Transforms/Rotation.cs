@@ -3,7 +3,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
+namespace TheraEngine.Components.Scene.Transforms
 {
     [FileDef("Rotation Component")]
     public class RotationComponent : SceneComponent

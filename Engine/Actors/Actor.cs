@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System;
-using TheraEngine.Worlds.Actors;
 using System.Collections.ObjectModel;
 using System.Linq;
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds.Actors.Components;
-using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Components;
+using TheraEngine.Worlds;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Actors
 {
     public interface IActor : IFileObject
     {

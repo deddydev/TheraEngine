@@ -1,11 +1,10 @@
 ﻿using System;
-using TheraEngine.Rendering;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
 using System.ComponentModel;
 using TheraEngine.Physics;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Shapes
+namespace TheraEngine.Components.Scene.Shapes
 {
     [FileDef("Box Component")]
     public class BoxComponent : ShapeComponent

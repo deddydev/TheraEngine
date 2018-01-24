@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 
- 
+
 /* Copyright (c) 2008-2014 DI Zimmermann Stephan (stefan.zimmermann@tele2.at)
  *   
  * Permission is hereby granted, free of charge, to any person obtaining a copy 
@@ -28,7 +22,7 @@ using System.Windows.Forms;
  * THE SOFTWARE.
  */
 
- 
+
 namespace ClassLibrary1
 {
     public partial class SelectCurvesForm : UserControl

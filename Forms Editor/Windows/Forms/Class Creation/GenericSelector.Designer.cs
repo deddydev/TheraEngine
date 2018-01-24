@@ -122,8 +122,8 @@ namespace TheraEditor.Windows.Forms
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "GenericsSelector";
-            this.ShowInTaskbar = false;
             this.Text = "Class Generics Selector";
+            this.TopMost = true;
             this.BodyPanel.ResumeLayout(false);
             this.MainPanel.ResumeLayout(false);
             this.TitlePanel.ResumeLayout(false);

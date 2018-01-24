@@ -12,9 +12,8 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Files;
-using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Components;
+using TheraEngine.Actors;
+using TheraEngine.Components;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -58,7 +57,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         protected override void OnHandleCreated(EventArgs e)
         {
-            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.Settings.File.PropertyGrid.File.UpdateRateInSeconds);
+            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.SettingsRef.File.PropertyGrid.File.UpdateRateInSeconds);
             base.OnHandleCreated(e);
         }
 
@@ -128,6 +127,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 lblObjectName.Visible = Enabled = _targetObject != null;
                 if (!Enabled)
                     return;
+
+                btnSave.Visible = _targetObject.EditorState.IsDirty;
 
                 lblObjectName.Text = string.Format("{0} [{1}]",
                     _targetObject.ToString(), 
@@ -259,7 +260,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         //    //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
                         //}
 
-                        if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                        if (Editor.SettingsRef.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
 
                         //pnlProps.ResumeLayout(true);

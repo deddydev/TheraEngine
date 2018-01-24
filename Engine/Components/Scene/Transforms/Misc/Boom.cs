@@ -5,7 +5,7 @@ using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
+namespace TheraEngine.Components.Scene.Transforms
 {
     public delegate void LengthChange(float newLength);
     [FileDef("Boom Component")]

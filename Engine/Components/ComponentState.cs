@@ -1,4 +1,4 @@
-﻿namespace TheraEngine.Worlds.Actors.Components
+﻿namespace TheraEngine.Components
 {
     public class ComponentState
     {

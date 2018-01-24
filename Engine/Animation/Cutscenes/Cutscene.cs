@@ -1,7 +1,7 @@
 ﻿using TheraEngine.Worlds;
 using System.Collections.Generic;
 using TheraEngine.Animation;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using System;
 
 namespace TheraEngine.Cutscenes

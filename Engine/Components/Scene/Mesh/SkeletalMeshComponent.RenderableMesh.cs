@@ -1,15 +1,8 @@
 ﻿using TheraEngine.Rendering.Models;
-using System;
 using System.ComponentModel;
-using TheraEngine.Rendering;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
-using System.Linq;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models.Materials;
-using System.Collections.Generic;
+using TheraEngine.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
+namespace TheraEngine.Components.Scene.Mesh
 {
     public partial class SkeletalMeshComponent : TRSComponent
     {

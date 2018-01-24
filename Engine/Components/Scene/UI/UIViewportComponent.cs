@@ -1,10 +1,7 @@
-﻿using System.ComponentModel;
-using TheraEngine.Core.Shapes;
+﻿using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using static TheraEngine.Worlds.Actors.Components.Scene.Mesh.SkeletalMeshComponent;
 
 namespace TheraEngine.Rendering.UI
 {

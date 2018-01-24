@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.IO;
-using System;
 
 namespace TheraEngine
 {

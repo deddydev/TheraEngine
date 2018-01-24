@@ -1,15 +1,9 @@
-﻿using TheraEngine.Rendering.Models;
-using System;
-using TheraEngine.Rendering;
-using System.ComponentModel;
+﻿using System;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
-using TheraEngine.Rendering.Cameras;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Physics;
-using TheraEngine.Rendering.Models.Materials;
-using System.IO;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
+namespace TheraEngine.Components.Scene.Mesh
 {
     public partial class StaticMeshComponent : TRSComponent, IRigidCollidable
     {

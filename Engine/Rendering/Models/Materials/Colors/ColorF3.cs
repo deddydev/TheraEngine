@@ -1,6 +1,4 @@
-﻿using TheraEngine;
-using TheraEngine.Rendering.Models;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Globalization;

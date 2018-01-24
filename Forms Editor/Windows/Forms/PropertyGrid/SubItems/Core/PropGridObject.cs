@@ -99,7 +99,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
 
-            if (Editor.Settings.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
+            if (Editor.SettingsRef.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
                 _categories.Values.ToArray()[0].CategoryName = null;
 
             pnlProps.ResumeLayout(true);

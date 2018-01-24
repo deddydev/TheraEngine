@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using TheraEngine.Input.Devices;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
+namespace TheraEngine.Components.Scene.Transforms
 {
     [FileDef("Translational & Rotational Noise Component")]
     public class NoiseTRComponent : TRComponent

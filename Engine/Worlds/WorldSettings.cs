@@ -7,8 +7,7 @@ using System.Linq;
 using TheraEngine.Audio;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors.Types.Pawns;
-using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Actors.Types.Pawns;
 
 namespace TheraEngine.Worlds
 {

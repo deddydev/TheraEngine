@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
-using TheraEngine.Worlds.Actors.Components;
+using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Components;
 using TheraEngine.Physics;
 
 namespace TheraEngine.Rendering.Models

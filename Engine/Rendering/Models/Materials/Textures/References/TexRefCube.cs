@@ -3,11 +3,9 @@ using TheraEngine.Rendering.Textures;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 using System;
 using TheraEngine.Rendering.Models.Materials.Textures;
-using System.IO;
 using System.Drawing.Drawing2D;
 
 namespace TheraEngine.Rendering.Models.Materials

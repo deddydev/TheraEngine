@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Threading;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,15 +7,12 @@ using System.Windows.Forms;
 using System.Security.Permissions;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering.DirectX;
 using TheraEngine.Rendering.OpenGL;
 using TheraEngine.Timers;
-using System.ComponentModel;
-using TheraEngine.Worlds.Actors.Types.Pawns;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 
 namespace TheraEngine
 {

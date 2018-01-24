@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using TheraEngine.Rendering.Textures;
 using System.Drawing.Text;
 using System.Drawing.Drawing2D;
 using TheraEngine.Core.Shapes;

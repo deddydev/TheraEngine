@@ -1,7 +1,6 @@
 ﻿using TheraEditor.Windows.Forms;
 using TheraEngine.GameModes;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Actors.Types.Pawns;
 
 namespace TheraEditor
 {

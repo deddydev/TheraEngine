@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel;
+using TheraEngine.Actors;
 using TheraEngine.Files;
 
-namespace TheraEngine.Worlds.Actors.Components
+namespace TheraEngine.Components
 {
     [FileExt("comp")]
     public abstract class Component : FileObject

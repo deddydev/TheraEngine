@@ -1,6 +1,6 @@
 ﻿using TheraEngine.Worlds.Maps;
 using TheraEngine.Files;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using System.ComponentModel;
 
 namespace TheraEngine.Worlds

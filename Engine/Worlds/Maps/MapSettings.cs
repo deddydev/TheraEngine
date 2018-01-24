@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.GameModes;
 using System.ComponentModel;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 
 namespace TheraEngine.Worlds.Maps
 {

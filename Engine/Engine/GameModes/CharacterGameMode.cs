@@ -1,10 +1,8 @@
 ﻿using System;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using TheraEngine.Input;
-using TheraEngine.Worlds.Actors.Types;
-using TheraEngine.Worlds;
-using TheraEngine.Rendering;
-using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Actors.Types;
+using TheraEngine.Actors.Types.Pawns;
 
 namespace TheraEngine.GameModes
 {

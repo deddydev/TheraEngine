@@ -1,8 +1,7 @@
 ﻿using TheraEngine;
-using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
-using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
+using TheraEngine.Components.Scene.Shapes;
 
 namespace Thera.Worlds.Actors.Components.Scene
 {

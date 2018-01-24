@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Textures;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryControllers.Controller;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries.Geometry.Mesh;

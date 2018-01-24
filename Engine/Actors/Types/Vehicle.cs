@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using TheraEngine.Worlds.Actors.Components;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
-using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Components;
+using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Actors.Types.Pawns;
 
-namespace TheraEngine.Worlds.Actors.Types
+namespace TheraEngine.Actors.Types
 {
     public class Vehicle : Pawn<SkeletalMeshComponent>
     {

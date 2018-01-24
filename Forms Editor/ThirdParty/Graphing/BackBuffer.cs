@@ -1,7 +1,6 @@
-using System;
 using System.Drawing;
 
- 
+
 
 /* Copyright (c) 2008-2014 DI Zimmermann Stephan (stefan.zimmermann@tele2.at)
  *   
@@ -24,9 +23,9 @@ using System.Drawing;
  * THE SOFTWARE.
  */
 
- 
+
 namespace GraphLib
-{    
+{
     public class BackBuffer
     {
         private Graphics graphics;

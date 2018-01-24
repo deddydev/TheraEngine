@@ -45,9 +45,9 @@
             this.lblSceneComps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblSceneComps.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSceneComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblSceneComps.Location = new System.Drawing.Point(0, 47);
+            this.lblSceneComps.Location = new System.Drawing.Point(0, 59);
             this.lblSceneComps.Name = "lblSceneComps";
-            this.lblSceneComps.Size = new System.Drawing.Size(561, 20);
+            this.lblSceneComps.Size = new System.Drawing.Size(631, 25);
             this.lblSceneComps.TabIndex = 0;
             this.lblSceneComps.Text = "Scene Components";
             this.lblSceneComps.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -57,9 +57,9 @@
             this.lblLogicComps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblLogicComps.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblLogicComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblLogicComps.Location = new System.Drawing.Point(0, 92);
+            this.lblLogicComps.Location = new System.Drawing.Point(0, 115);
             this.lblLogicComps.Name = "lblLogicComps";
-            this.lblLogicComps.Size = new System.Drawing.Size(561, 20);
+            this.lblLogicComps.Size = new System.Drawing.Size(631, 25);
             this.lblLogicComps.TabIndex = 1;
             this.lblLogicComps.Text = "Logic Components";
             this.lblLogicComps.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -71,9 +71,9 @@
             this.lblProperties.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblProperties.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblProperties.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblProperties.Location = new System.Drawing.Point(0, 137);
+            this.lblProperties.Location = new System.Drawing.Point(0, 171);
             this.lblProperties.Name = "lblProperties";
-            this.lblProperties.Size = new System.Drawing.Size(561, 20);
+            this.lblProperties.Size = new System.Drawing.Size(631, 25);
             this.lblProperties.TabIndex = 2;
             this.lblProperties.Text = "Properties";
             this.lblProperties.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -89,9 +89,10 @@
             this.treeViewSceneComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.treeViewSceneComps.HideSelection = false;
             this.treeViewSceneComps.HotTracking = true;
-            this.treeViewSceneComps.Location = new System.Drawing.Point(0, 67);
+            this.treeViewSceneComps.Location = new System.Drawing.Point(0, 84);
+            this.treeViewSceneComps.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.treeViewSceneComps.Name = "treeViewSceneComps";
-            this.treeViewSceneComps.Size = new System.Drawing.Size(561, 25);
+            this.treeViewSceneComps.Size = new System.Drawing.Size(631, 31);
             this.treeViewSceneComps.TabIndex = 3;
             this.treeViewSceneComps.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewSceneComps_BeforeSelect);
             this.treeViewSceneComps.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSceneComps_MouseDown);
@@ -105,10 +106,11 @@
             this.lstLogicComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lstLogicComps.FormattingEnabled = true;
             this.lstLogicComps.IntegralHeight = false;
-            this.lstLogicComps.ItemHeight = 20;
-            this.lstLogicComps.Location = new System.Drawing.Point(0, 112);
+            this.lstLogicComps.ItemHeight = 25;
+            this.lstLogicComps.Location = new System.Drawing.Point(0, 140);
+            this.lstLogicComps.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.lstLogicComps.Name = "lstLogicComps";
-            this.lstLogicComps.Size = new System.Drawing.Size(561, 25);
+            this.lstLogicComps.Size = new System.Drawing.Size(631, 31);
             this.lstLogicComps.TabIndex = 4;
             this.lstLogicComps.SelectedIndexChanged += new System.EventHandler(this.lstLogicComps_SelectedIndexChanged);
             // 
@@ -121,10 +123,10 @@
             this.pnlProps.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlProps.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.pnlProps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.pnlProps.Location = new System.Drawing.Point(0, 157);
+            this.pnlProps.Location = new System.Drawing.Point(0, 196);
             this.pnlProps.Margin = new System.Windows.Forms.Padding(0);
             this.pnlProps.Name = "pnlProps";
-            this.pnlProps.Size = new System.Drawing.Size(561, 388);
+            this.pnlProps.Size = new System.Drawing.Size(631, 485);
             this.pnlProps.TabIndex = 5;
             // 
             // lblObjectName
@@ -134,7 +136,7 @@
             this.lblObjectName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lblObjectName.Location = new System.Drawing.Point(0, 0);
             this.lblObjectName.Name = "lblObjectName";
-            this.lblObjectName.Size = new System.Drawing.Size(486, 47);
+            this.lblObjectName.Size = new System.Drawing.Size(547, 59);
             this.lblObjectName.TabIndex = 6;
             this.lblObjectName.Text = "ObjectName";
             this.lblObjectName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -150,8 +152,9 @@
             this.panel1.Controls.Add(this.btnSave);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(561, 47);
+            this.panel1.Size = new System.Drawing.Size(631, 59);
             this.panel1.TabIndex = 7;
             // 
             // btnSave
@@ -159,9 +162,10 @@
             this.btnSave.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSave.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.btnSave.Location = new System.Drawing.Point(486, 0);
+            this.btnSave.Location = new System.Drawing.Point(547, 0);
+            this.btnSave.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 47);
+            this.btnSave.Size = new System.Drawing.Size(84, 59);
             this.btnSave.TabIndex = 7;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
@@ -170,7 +174,7 @@
             // 
             // TheraPropertyGrid
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
@@ -182,8 +186,9 @@
             this.Controls.Add(this.lblSceneComps);
             this.Controls.Add(this.panel1);
             this.Enabled = false;
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "TheraPropertyGrid";
-            this.Size = new System.Drawing.Size(561, 545);
+            this.Size = new System.Drawing.Size(631, 681);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -200,6 +205,6 @@
         public System.Windows.Forms.Panel pnlProps;
         private System.Windows.Forms.Label lblObjectName;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button btnSave;
+        public System.Windows.Forms.Button btnSave;
     }
 }

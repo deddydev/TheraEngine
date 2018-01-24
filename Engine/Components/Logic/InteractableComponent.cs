@@ -1,4 +1,4 @@
-﻿namespace TheraEngine.Worlds.Actors.Components.Logic
+﻿namespace TheraEngine.Components.Logic
 {
     /// <summary>
     /// Specifies that this actor can be interacted with.

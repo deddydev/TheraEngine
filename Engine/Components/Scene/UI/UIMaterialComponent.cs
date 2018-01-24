@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Textures;
 using TheraEngine.Core.Shapes;
-using System.Threading.Tasks;
 using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.UI

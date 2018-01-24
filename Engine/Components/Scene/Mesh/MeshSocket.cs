@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Actors;
 using TheraEngine.Core.Maths.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
+namespace TheraEngine.Components.Scene.Mesh
 {
     public interface IMeshSocketOwner : ISocket
     {

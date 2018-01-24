@@ -1,5 +1,4 @@
 ﻿using TheraEngine.Rendering.Models;
-using System.ComponentModel;
 using System;
 
 namespace TheraEngine.Core.Shapes

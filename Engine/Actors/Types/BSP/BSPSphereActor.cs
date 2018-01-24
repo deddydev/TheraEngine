@@ -1,4 +1,4 @@
-﻿namespace TheraEngine.Worlds.Actors.Types.BSP
+﻿namespace TheraEngine.Actors.Types.BSP
 {
     public class BSPSphereActor : BSPShapeActor
     {

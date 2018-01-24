@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using TheraEngine.Animation;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Components.Scene.Lights;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
-using TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes;
+using TheraEngine.Actors;
+using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Worlds.Maps;
 
 namespace TheraEngine.Tests

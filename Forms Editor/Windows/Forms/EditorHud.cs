@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Shapes;
@@ -10,10 +9,9 @@ using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Components;
-using TheraEngine.Worlds.Actors.Types;
-using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Components;
+using TheraEngine.Actors.Types;
+using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Physics;
 using TheraEngine.Editor;
 

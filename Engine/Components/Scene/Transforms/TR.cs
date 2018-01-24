@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
+namespace TheraEngine.Components.Scene.Transforms
 {
     /// <summary>
     /// Translates first, then rotates.

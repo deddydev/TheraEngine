@@ -1,18 +1,8 @@
 ﻿using TheraEngine.Rendering.Cameras;
 using System;
 using System.Collections.Generic;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds.Actors;
 using TheraEngine.Rendering.Particles;
-using TheraEngine.Worlds.Actors.Components.Scene;
-using TheraEngine.Worlds.Actors.Components.Scene.Lights;
-using System.Drawing;
-using TheraEngine.Files;
-using TheraEngine.Rendering.Textures;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering.Models.Materials.Textures;
-using TheraEngine.Rendering.Models;
-using System.Linq;
 
 namespace TheraEngine.Rendering
 {

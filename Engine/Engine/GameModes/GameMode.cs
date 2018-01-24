@@ -1,12 +1,10 @@
 ﻿using TheraEngine.Files;
 using TheraEngine.Input;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using System;
 using System.Collections.Generic;
 using TheraEngine.Input.Devices;
 using System.Linq;
-using TheraEngine.Rendering;
-using System.ComponentModel;
 
 namespace TheraEngine.GameModes
 {

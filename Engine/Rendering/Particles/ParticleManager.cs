@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Particles
 {

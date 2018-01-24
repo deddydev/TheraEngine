@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Mesh
+namespace TheraEngine.Components.Scene.Mesh
 {
     public class RenderableLOD : TObject
     {

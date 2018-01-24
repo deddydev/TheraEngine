@@ -9,7 +9,7 @@ using TheraEngine.Input.Devices;
 using TheraEngine.Input.Devices.OpenTK;
 using TheraEngine.Input.Devices.DirectX;
 using TheraEngine.Files;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using System.Drawing.Text;
 using System.Collections.Concurrent;
 using TheraEngine.Timers;

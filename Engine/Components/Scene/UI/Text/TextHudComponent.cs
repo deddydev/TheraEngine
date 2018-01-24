@@ -1,5 +1,4 @@
 ﻿using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Text;
 using TheraEngine.Core.Shapes;
 

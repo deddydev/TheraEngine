@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Drawing;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Types
+namespace TheraEngine.Actors.Types
 {
     public class LandscapeActor : Actor<TranslationComponent>
     {

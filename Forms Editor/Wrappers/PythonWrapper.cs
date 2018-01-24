@@ -1,7 +1,6 @@
 ﻿using System.Windows.Forms;
 using System.ComponentModel;
 using TheraEditor.Windows.Forms;
-using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
 

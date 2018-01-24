@@ -8,7 +8,6 @@ using System.Xml;
 using System.IO;
 using System;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Files;
 
 namespace TheraEngine.Core.Shapes
 {

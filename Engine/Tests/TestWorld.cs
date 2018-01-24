@@ -4,17 +4,15 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Types;
+using TheraEngine.Actors;
+using TheraEngine.Actors.Types;
 using TheraEngine.Worlds.Maps;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes;
-using TheraEngine.Worlds.Actors.Components.Scene.Lights;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
-using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Actors.Types.ComponentActors.Shapes;
+using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Physics;
 using System.Threading.Tasks;
-using TheraEngine.Animation;
 using System.Collections.Generic;
 
 namespace TheraEngine.Tests

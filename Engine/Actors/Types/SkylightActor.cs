@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Drawing;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials.Textures;
-using TheraEngine.Worlds.Actors.Components.Scene;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
-using TheraEngine.Rendering;
+using TheraEngine.Components.Scene;
+using TheraEngine.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Types
+namespace TheraEngine.Actors.Types
 {
     public class SkylightActor : Actor<TranslationComponent>
     {

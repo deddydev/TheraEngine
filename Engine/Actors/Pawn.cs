@@ -2,14 +2,14 @@
 using TheraEngine.Input.Devices;
 using System;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.UI;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors.Components.Scene;
-using TheraEngine.Worlds.Actors.Components;
-using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Components.Scene;
+using TheraEngine.Components;
+using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Worlds;
 
-namespace TheraEngine.Worlds.Actors
+namespace TheraEngine.Actors
 {
     public enum LocalPlayerIndex
     {

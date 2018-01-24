@@ -1,5 +1,4 @@
 ﻿using TheraEngine.Files;
-using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -8,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Mesh;
 
 namespace TheraEngine.Rendering.Models
 {

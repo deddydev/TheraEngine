@@ -1,6 +1,5 @@
 ﻿using BulletSharp;
 using System;
-using System.Collections.Generic;
 using TheraEngine.Physics.Bullet.Shapes;
 
 namespace TheraEngine.Physics.Bullet

@@ -1,6 +1,5 @@
-﻿using TheraEngine.Worlds.Actors;
-using Thera.GameModes;
-using TheraEngine.Worlds.Actors.Types.Pawns;
+﻿using Thera.GameModes;
+using TheraEngine.Actors.Types.Pawns;
 
 namespace Thera.Worlds.Actors
 {

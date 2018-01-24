@@ -1,14 +1,11 @@
 ﻿using TheraEngine.Rendering.Cameras;
 using System;
-using System.Collections.Generic;
-using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering;
-using System.Drawing;
 
-namespace TheraEngine.Worlds.Actors.Types.Pawns
+namespace TheraEngine.Actors.Types.Pawns
 {
     /// <summary>
     /// Each viewport has a hud manager. 

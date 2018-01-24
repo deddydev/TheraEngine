@@ -8,7 +8,6 @@ using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering
 {

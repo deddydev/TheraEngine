@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
-using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace System.Windows.Forms

@@ -1,21 +1,20 @@
 ﻿using System;
-using TheraEngine.Rendering;
 using TheraEngine.GameModes;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Animation;
 using TheraEngine.Timers;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Worlds.Actors.Components.Logic.Movement;
-using TheraEngine.Worlds.Actors.Components.Logic.Animation;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
-using TheraEngine.Worlds.Actors.Components.Scene;
+using TheraEngine.Components.Logic.Movement;
+using TheraEngine.Components.Logic.Animation;
+using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Components.Scene;
 using TheraEngine.Physics;
-using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
+using TheraEngine.Components.Scene.Shapes;
+using TheraEngine.Worlds;
 
-namespace TheraEngine.Worlds.Actors.Types.Pawns
+namespace TheraEngine.Actors.Types.Pawns
 {
     /// <summary>
     /// Use this interface for interaction with pawns.

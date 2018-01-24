@@ -2,10 +2,9 @@
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using System;
 
 namespace TheraEngine.Input
 {

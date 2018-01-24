@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Rendering;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Physics;
+using TheraEngine.Actors;
 
-namespace TheraEngine.Worlds.Actors.Components
+namespace TheraEngine.Components
 {
     [FileExt("scomp")]
     public abstract class SceneComponent : Component, ISocket

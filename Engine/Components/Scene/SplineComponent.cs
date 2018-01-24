@@ -6,9 +6,9 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene
+namespace TheraEngine.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {

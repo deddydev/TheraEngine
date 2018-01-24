@@ -1,12 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using TheraEngine;
 using TheraEngine.Input;
-using TheraEngine.Input.Devices;
-using TheraEngine.Tests;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Components.Scene;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Actors;
 
 namespace TheraEditor
 {

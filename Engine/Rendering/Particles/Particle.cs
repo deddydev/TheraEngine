@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Particles
 {

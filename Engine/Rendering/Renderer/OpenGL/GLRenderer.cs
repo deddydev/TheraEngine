@@ -6,8 +6,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering.Models.Materials.Textures;
-using EnumsNET;
 
 namespace TheraEngine.Rendering.OpenGL
 {

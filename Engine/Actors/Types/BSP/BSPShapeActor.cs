@@ -2,10 +2,9 @@
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
-using TheraEngine.Worlds.Actors.Components.Scene.Transforms;
+using TheraEngine.Components.Scene.Transforms;
 
-namespace TheraEngine.Worlds.Actors.Types.BSP
+namespace TheraEngine.Actors.Types.BSP
 {
     public class BSPMeshComponent : TRSComponent, I3DRenderable
     {

@@ -1,5 +1,5 @@
 ﻿using TheraEngine.Players;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 using System.Collections.Generic;
 
 namespace TheraEngine.Input

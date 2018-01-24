@@ -5,11 +5,10 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Models.Materials.Textures;
 using System.Drawing;
 using TheraEngine.Rendering.Models;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
+namespace TheraEngine.Components.Scene.Lights
 {
     [FileDef("Spot Light Component")]
     public class SpotLightComponent : LightComponent, I3DRenderable

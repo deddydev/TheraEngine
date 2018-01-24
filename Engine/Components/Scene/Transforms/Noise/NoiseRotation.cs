@@ -4,7 +4,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.ThirdParty;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
+namespace TheraEngine.Components.Scene.Transforms
 {
     [FileDef("Rotational Noise Component")]
     public class NoiseRotationComponent : SceneComponent

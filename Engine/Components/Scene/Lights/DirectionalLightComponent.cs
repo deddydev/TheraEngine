@@ -5,10 +5,9 @@ using TheraEngine.Rendering;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Models;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Lights
+namespace TheraEngine.Components.Scene.Lights
 {
     [FileDef("Directional Light Component")]
     public class DirectionalLightComponent : LightComponent

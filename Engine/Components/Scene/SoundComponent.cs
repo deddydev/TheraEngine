@@ -1,10 +1,9 @@
 ﻿using TheraEngine.Audio;
-using TheraEngine.Rendering;
 using TheraEngine.Files;
-using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
+using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Physics;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene
+namespace TheraEngine.Components.Scene
 {
     public class SoundComponent : SphereComponent
     {

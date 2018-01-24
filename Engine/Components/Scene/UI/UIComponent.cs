@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
-using TheraEngine.Worlds.Actors;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Worlds.Actors.Components;
-using TheraEngine.Worlds.Actors.Types.Pawns;
+using TheraEngine.Components;
+using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI

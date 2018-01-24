@@ -5,7 +5,7 @@ using System.Linq;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Files;
 using TheraEngine.Rendering;
-using TheraEngine.Worlds.Actors;
+using TheraEngine.Actors;
 
 namespace TheraEngine.Worlds
 {

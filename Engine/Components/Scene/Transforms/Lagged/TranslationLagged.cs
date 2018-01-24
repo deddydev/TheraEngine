@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
+namespace TheraEngine.Components.Scene.Transforms
 {
     /// <summary>
     /// Contains a general translation.

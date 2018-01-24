@@ -1,13 +1,12 @@
 ﻿using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
 using System;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Worlds.Actors.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Physics;
 using System.Collections.Generic;
 
-namespace TheraEngine.Worlds.Actors.Types.ComponentActors.Shapes
+namespace TheraEngine.Actors.Types.ComponentActors.Shapes
 {
     public abstract class ShapeActor : Actor<StaticMeshComponent>
     {

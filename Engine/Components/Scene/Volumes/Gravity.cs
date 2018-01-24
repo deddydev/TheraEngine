@@ -1,10 +1,9 @@
-﻿using TheraEngine.Rendering;
-using System;
-using TheraEngine.Worlds.Actors.Components.Scene.Shapes;
+﻿using System;
+using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Physics;
 using System.ComponentModel;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Volumes
+namespace TheraEngine.Components.Scene.Volumes
 {
     public class GravityVolumeComponent : BoxComponent
     {

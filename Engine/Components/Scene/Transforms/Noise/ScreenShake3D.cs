@@ -1,8 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using TheraEngine.Input.Devices;
 
-namespace TheraEngine.Worlds.Actors.Components.Scene.Transforms
+namespace TheraEngine.Components.Scene.Transforms
 {
     [FileDef("3D Screen Shake Component")]
     public class ScreenShake3DComponent : NoiseRotationComponent

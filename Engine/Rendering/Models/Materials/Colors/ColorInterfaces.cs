@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEngine.Rendering.Models.Materials;
+﻿using System.Drawing;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

@@ -1,8 +1,4 @@
-﻿using FreeImageAPI;
-using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using TheraEngine.Rendering.Models.Materials.Textures;
+﻿using System;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {

@@ -125,7 +125,7 @@ namespace TheraEngine.Editor
 
             public override string DisplayChangeAsUndo()
             {
-                return string.Format("{0}[{1}] {3} -> {2}",
+                return string.Format("{0}[{1}] {2} <- {3}",
                     List.ToString(), Index.ToString(),
                     OldValue.ToString(), NewValue.ToString());
             }
@@ -158,7 +158,7 @@ namespace TheraEngine.Editor
 
             public override string DisplayChangeAsUndo()
             {
-                return string.Format("{0}.{1} {3} -> {2}",
+                return string.Format("{0}.{1} {2} <- {3}",
                   PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
                   OldValue.ToString(), NewValue.ToString());
             }
@@ -178,7 +178,7 @@ namespace TheraEngine.Editor
             public void ApplyOldValue()
                 => State.ChangedValues[ChangeIndex].ApplyOldValue();
 
-            public void Clear()
+            public void DestroySelf()
             {
                 State.ChangedValues.RemoveAt(ChangeIndex);
 
@@ -188,6 +188,9 @@ namespace TheraEngine.Editor
                 {
                     --State.ChangedValues[i].GlobalChange.ChangeIndex;
                 }
+
+                if (State.ChangedValues.Count == 0)
+                    State.IsDirty = false;
             }
 
             public string AsUndoString()

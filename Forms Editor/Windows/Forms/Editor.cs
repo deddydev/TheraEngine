@@ -14,6 +14,7 @@ using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using TheraEngine.Actors;
 using WeifenLuo.WinFormsUI.Docking;
+using System.Collections.Generic;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -32,7 +33,7 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         IPawn EditorPawn { get; }
     }
-    public partial class Editor : TheraForm
+    public partial class Editor : TheraForm, IMappableShortcutControl
     {
         public static IEditorControl ActiveRenderForm { get; private set; } = null;
         /// <summary>
@@ -76,7 +77,7 @@ namespace TheraEditor.Windows.Forms
 
         private static Editor _instance;
         public static Editor Instance => _instance/* ?? (_instance = new Editor())*/;
-        
+
         private Project _project;
         private Assembly _gameProgram;
         private DeserializeDockContent _deserializeDockContent;
@@ -135,7 +136,7 @@ namespace TheraEditor.Windows.Forms
 
         public ResourceTree ContentTree => FileTreeForm.ContentTree;
         public TreeView ActorTree => ActorTreeForm.ActorTree;
-        
+
         public Project Project
         {
             get => _project;
@@ -155,12 +156,12 @@ namespace TheraEditor.Windows.Forms
                 Engine.SetGame(_project);
 
                 bool projectOpened = _project != null;
-                btnEngineSettings.Enabled = 
-                btnProjectSettings.Enabled = 
-                btnUserSettings.Enabled = 
+                btnEngineSettings.Enabled =
+                btnProjectSettings.Enabled =
+                btnUserSettings.Enabled =
                 btnPlay.Enabled =
-                btnPlayDetached.Enabled = 
-                btnCompile.Enabled = 
+                btnPlayDetached.Enabled =
+                btnCompile.Enabled =
                 projectOpened;
 
                 ClearDockPanel();
@@ -253,8 +254,7 @@ namespace TheraEditor.Windows.Forms
         public Editor() : base()
         {
             _instance = this;
-
-            OnRedrawn = Redraw;
+            
             _editorGameMode = new EditorGameMode();
             InitializeComponent();
 
@@ -265,6 +265,30 @@ namespace TheraEditor.Windows.Forms
 
             AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
+
+            MappableActions = new Dictionary<Keys, Func<bool>>()
+            {
+                { Keys.Control | Keys.Z, Undo },
+                { Keys.Control | Keys.Y, Redo },
+                //{ Keys.Delete,           DeleteSelectedNodes    },
+                //{ Keys.Control | Keys.C, CopySelectedNodes      },
+                //{ Keys.Control | Keys.X, CutSelectedNodes       },
+                //{ Keys.Control | Keys.V, Paste                  },
+                //{ Keys.Control | Keys.A, SelectAllVisibleNodes  },
+            };
+        }
+
+        private bool Undo()
+        {
+            bool canUndo = UndoManager.CanUndo;
+            UndoManager.Undo();
+            return canUndo;
+        }
+        private bool Redo()
+        {
+            bool canRedo = UndoManager.CanRedo;
+            UndoManager.Redo();
+            return canRedo;
         }
 
         /// <summary>
@@ -289,7 +313,7 @@ namespace TheraEditor.Windows.Forms
                 else
                     return null;
             }
-            
+
             ObjectCreator creator = new ObjectCreator();
             if (creator.Initialize(type, allowDerivedTypes))
                 creator.ShowDialog();
@@ -309,15 +333,15 @@ namespace TheraEditor.Windows.Forms
             else
             {
                 Project = null;//new Project() //null
-            //    {
-            //        OpeningWorldRef = typeof(UnitTestingWorld),
-            //        UserSettingsRef = new UserSettings(),
-            //        EngineSettingsRef = new EngineSettings(),
-            //        EditorSettingsRef = new EditorSettings(),
-            //        ProjectStateRef = new ProjectState(),
-            //    };
+                               //    {
+                               //        OpeningWorldRef = typeof(UnitTestingWorld),
+                               //        UserSettingsRef = new UserSettings(),
+                               //        EngineSettingsRef = new EngineSettings(),
+                               //        EditorSettingsRef = new EditorSettings(),
+                               //        ProjectStateRef = new ProjectState(),
+                               //    };
             }
-            
+
             //if (DesignMode)
             //    return;
         }
@@ -381,8 +405,11 @@ namespace TheraEditor.Windows.Forms
                 item.EditorState.TreeNode = null;
             }
         }
-        
-        public Action OnRedrawn;
+
+        private void RenderTick(object sender, FrameEventArgs e)
+        {
+            try { Invoke((Action)Redraw); } catch { }
+        }
         private void Redraw()
         {
             if (Engine.Scene != null)
@@ -394,12 +421,8 @@ namespace TheraEditor.Windows.Forms
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
-            
+
             Application.DoEvents();
-        }
-        private void RenderTick(object sender, FrameEventArgs e)
-        {
-            try { Invoke(OnRedrawn); } catch { }
         }
         //protected override void OnResizeBegin(EventArgs e)
         //{
@@ -432,9 +455,9 @@ namespace TheraEditor.Windows.Forms
             CurrentWorld = new World();
         }
 
-        public static GlobalFileRef<EditorSettings> SettingsRef { get; }
+        public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; }
             = new GlobalFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
-        
+
         private bool CloseProject()
         {
             if (_project != null)
@@ -476,7 +499,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (!CloseProject())
                 return;
-            
+
             FolderBrowserDialog fbd = new FolderBrowserDialog()
             {
                 ShowNewFolderButton = true,
@@ -527,7 +550,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void BtnEditorSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.TargetObject = SettingsRef;
+            PropertyGridForm.PropertyGrid.TargetObject = DefaultSettingsRef;
         }
         private void BtnUserSettings_Click(object sender, EventArgs e)
         {
@@ -541,7 +564,7 @@ namespace TheraEditor.Windows.Forms
         {
 
         }
-        
+
         private DockableRenderForm FocusViewport(int index)
         {
             DockableRenderForm form = GetRenderForm(index);
@@ -555,7 +578,7 @@ namespace TheraEditor.Windows.Forms
         {
             input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
         }
-        
+
         public enum EEditorGameplayState
         {
             /// <summary>
@@ -660,6 +683,25 @@ namespace TheraEditor.Windows.Forms
                 _gameState = value;
             }
         }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
+        public Dictionary<Keys, Func<bool>> MappableActions { get; private set; }
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (MappableActions.ContainsKey(e.KeyData))
+            {
+                e.SuppressKeyPress = false;
+                var func = MappableActions[e.KeyData];
+                e.Handled = func();
+                if (e.Handled)
+                {
+                    Engine.PrintLine(e.KeyData.ToString() + ": " + func.Method.Name);
+                }
+                return;
+            }
+            base.OnKeyDown(e);
+        }
         private void BtPlay_Click(object sender, EventArgs e)
         {
             GameState = EEditorGameplayState.Attached;
@@ -737,6 +779,7 @@ namespace TheraEditor.Windows.Forms
         {
 
         }
+        
         private IDockContent GetContentFromPersistString(string persistString)
         {
             if (persistString == typeof(DockableActorTree).ToString())
@@ -770,14 +813,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void btnUndo_Click(object sender, EventArgs e)
-        {
-            UndoManager.Undo();
-        }
-
-        private void btnRedo_Click(object sender, EventArgs e)
-        {
-            UndoManager.Redo();
-        }
+        private void btnUndo_Click(object sender, EventArgs e) => UndoManager.Undo();
+        private void btnRedo_Click(object sender, EventArgs e) => UndoManager.Redo();
     }
 }

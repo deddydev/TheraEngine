@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms
         private void CheckChangeSize()
         {
             while (Changes.Count > _maxChanges)
-                Changes.PopFront().Clear();
+                Changes.PopFront().DestroySelf();
         }
         public void AddChange(EditorState editorState, object oldValue, object newValue, IList listOwner, int listIndex)
         {
@@ -51,6 +51,11 @@ namespace TheraEditor.Windows.Forms
         }
         private void OnChangeAdded(GlobalValueChange change)
         {
+            while (CanRedo)
+                Changes.PopBack().DestroySelf();
+            ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
+            redoColl.Clear();
+
             Changes.PushBack(change);
             (++_stateIndex).ClampMax(_maxChanges);
             CheckChangeSize();
@@ -66,20 +71,18 @@ namespace TheraEditor.Windows.Forms
         {
             ToolStripButton item = sender as ToolStripButton;
             GlobalValueChange change = item.Tag as GlobalValueChange;
-            
+            ToolStripMenuItem menu = item.OwnerItem as ToolStripMenuItem;
+            int changeIndex = menu.DropDownItems.IndexOf(item);
+            Undo(changeIndex + 1);
         }
         private void RedoStateClicked(object sender, EventArgs e)
         {
             ToolStripButton item = sender as ToolStripButton;
             GlobalValueChange change = item.Tag as GlobalValueChange;
+            ToolStripMenuItem menu = item.OwnerItem as ToolStripMenuItem;
+            int changeIndex = menu.DropDownItems.IndexOf(item);
+            Redo(changeIndex + 1);
         }
-        /*
-        | old 0 new | old 1 new | old 2 new |
-                                      ^ current
-                          ^ current
-              ^ current
-
-        */
         public bool CanUndo => Changes.Count > 0 && (_moveToOldVal ? 
             _stateIndex >= 0 :
             _stateIndex > 0);
@@ -96,6 +99,16 @@ namespace TheraEditor.Windows.Forms
 
                 Changes[(uint)_stateIndex].ApplyOldValue();
                 --_stateIndex;
+
+                ToolStripItemCollection undoColl = Editor.Instance.btnUndo.DropDownItems;
+                ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
+                ToolStripButton item = undoColl[0] as ToolStripButton;
+                GlobalValueChange change = item.Tag as GlobalValueChange;
+                undoColl.RemoveAt(0);
+
+                item = new ToolStripButton(
+                    change.AsRedoString(), null, RedoStateClicked) { Tag = change };
+                redoColl.Insert(0, item);
             }
 
             Editor.Instance.btnRedo.Enabled = CanRedo;
@@ -111,6 +124,16 @@ namespace TheraEditor.Windows.Forms
 
                 Changes[(uint)_stateIndex].ApplyNewValue();
                 ++_stateIndex;
+
+                ToolStripItemCollection undoColl = Editor.Instance.btnUndo.DropDownItems;
+                ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
+                ToolStripButton item = redoColl[0] as ToolStripButton;
+                GlobalValueChange change = item.Tag as GlobalValueChange;
+                redoColl.RemoveAt(0);
+
+                item = new ToolStripButton(
+                    change.AsUndoString(), null, UndoStateClicked) { Tag = change };
+                undoColl.Insert(0, item);
             }
 
             Editor.Instance.btnRedo.Enabled = CanRedo;

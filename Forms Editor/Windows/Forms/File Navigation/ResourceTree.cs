@@ -248,7 +248,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (MappableActions.ContainsKey(e.KeyData))
             {
-                e.SuppressKeyPress = true;
+                e.SuppressKeyPress = false;
                 var func = MappableActions[e.KeyData];
                 e.Handled = func();
                 if (e.Handled)

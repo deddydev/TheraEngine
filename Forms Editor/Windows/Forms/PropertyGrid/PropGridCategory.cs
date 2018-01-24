@@ -48,7 +48,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else if (!string.IsNullOrWhiteSpace(propName))
             {
-                name = Editor.SettingsRef.File.PropertyGrid.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
+                name = Editor.DefaultSettingsRef.File.PropertyGrid.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
             }
             else
             {

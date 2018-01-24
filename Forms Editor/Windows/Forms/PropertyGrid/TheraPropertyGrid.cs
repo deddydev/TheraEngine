@@ -57,7 +57,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         protected override void OnHandleCreated(EventArgs e)
         {
-            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.SettingsRef.File.PropertyGrid.File.UpdateRateInSeconds);
+            PropGridItem.UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.DefaultSettingsRef.File.PropertyGrid.File.UpdateRateInSeconds);
             base.OnHandleCreated(e);
         }
 
@@ -260,7 +260,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         //    //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
                         //}
 
-                        if (Editor.SettingsRef.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                        if (Editor.DefaultSettingsRef.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
 
                         //pnlProps.ResumeLayout(true);

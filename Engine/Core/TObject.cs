@@ -43,7 +43,7 @@ namespace TheraEngine
         bool RemoveAnimation(AnimationContainer anim);
         #endregion
     }
-   
+
     public delegate void ResourceEventHandler(TObject node);
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);

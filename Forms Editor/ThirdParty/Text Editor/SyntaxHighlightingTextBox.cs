@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Text;
 using System.Runtime.InteropServices;
 using Core.Win32.Native;
+using System.Collections.Generic;
 
 namespace TheraEditor.Core.SyntaxHighlightingTextBox
 {
@@ -49,11 +50,11 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 		[Category("Behavior")]
         public int MaxUndoRedoSteps { get; set; }
 
-		/// <summary>
-		/// A collection of characters. a token is every string between two seperators.
-		/// </summary>
-		public SeparatorCollection Separators { get; }
-            = new SeparatorCollection();
+        /// <summary>
+        /// A collection of characters. A token is every string between two separators.
+        /// </summary>
+        public List<char> Separators { get; }
+            = new List<char>();
 		/// <summary>
 		/// The collection of highlight descriptors.
 		/// </summary>
@@ -121,7 +122,7 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 			sb.Append("}\n").Append(@"\viewkind4\uc1\pard\ltrpar");
 			SetDefaultSettings(sb, colors, fonts);
 
-			char[] sperators = Separators.GetAsCharArray();
+			char[] separators = Separators.ToArray();
 
 			//Replacing "\" to "\\" for RTF...
 			string[] lines = Text.Replace("\\","\\\\").Replace("{", "\\{").Replace("}", "\\}").Split('\n');
@@ -131,7 +132,7 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 					AddNewLine(sb);
 				
 				string line = lines[lineCounter];
-				string[] tokens = CaseSensitive ? line.Split(sperators) : line.ToUpper().Split(sperators);
+				string[] tokens = CaseSensitive ? line.Split(separators) : line.ToUpperInvariant().Split(separators);
 				if (tokens.Length == 0)
 				{
 					sb.Append(line);
@@ -154,22 +155,22 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 						bool bAddToken = true;
 						foreach	(HighlightDescriptor hd in HighlightDescriptors)
 						{
-							string compareStr = CaseSensitive ? hd.Token : hd.Token.ToUpper();
+							string compareStr = CaseSensitive ? hd.Token : hd.Token.ToUpperInvariant();
 							bool match = false;
 
 							//Check if the highlight descriptor matches the current toker according to the DescriptoRecognision property.
 							switch (hd.DescriptorRecognition)
 							{
 								case DescriptorRecognition.WholeWord:
-									if (curToken == compareStr)
+									if (string.Equals(curToken, compareStr, StringComparison.InvariantCulture))
                                         match = true;
 									break;
 								case DescriptorRecognition.StartsWith:
-									if (curToken.StartsWith(compareStr))
+									if (curToken.StartsWith(compareStr, StringComparison.InvariantCulture))
 										match = true;
 									break;
 								case DescriptorRecognition.Contains:
-									if (curToken.IndexOf(compareStr) != -1)
+									if (curToken.IndexOf(compareStr, StringComparison.InvariantCulture) != -1)
 										match = true;
 									break;
 							}
@@ -219,7 +220,7 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 										sb.Append(line.Substring(i, line.IndexOf(hd.CloseToken, i) + hd.CloseToken.Length - i) );
 										line = line.Remove(0, line.IndexOf(hd.CloseToken, i) + hd.CloseToken.Length);
 										tokenCounter = 0;
-										tokens = CaseSensitive ? line.Split(sperators) : line.ToUpper().Split(sperators);
+										tokens = CaseSensitive ? line.Split(separators) : line.ToUpperInvariant().Split(separators);
 										SetDefaultSettings(sb, colors, fonts);
 										i = 0;
 									}
@@ -472,18 +473,19 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 		/// </summary>
 		private void CompleteWord()
 		{
-			int curTokenStartIndex = Text.LastIndexOfAny(Separators.GetAsCharArray(), Math.Min(SelectionStart, Text.Length - 1))+1;
-			int curTokenEndIndex= Text.IndexOfAny(Separators.GetAsCharArray(), SelectionStart);
+            char[] sep = Separators.ToArray();
+			int curTokenStartIndex = Text.LastIndexOfAny(sep, Math.Min(SelectionStart, Text.Length - 1))+1;
+			int curTokenEndIndex= Text.IndexOfAny(sep, SelectionStart);
 			if (curTokenEndIndex == -1) 
 			{
 				curTokenEndIndex = Text.Length;
 			}
-			string curTokenString = Text.Substring(curTokenStartIndex, Math.Max(curTokenEndIndex - curTokenStartIndex,0)).ToUpper();
+			string curTokenString = Text.Substring(curTokenStartIndex, Math.Max(curTokenEndIndex - curTokenStartIndex,0)).ToUpperInvariant();
 			
 			string token = null;
 			foreach (HighlightDescriptor hd in HighlightDescriptors)
 			{
-				if (hd.UseForAutoComplete && hd.Token.ToUpper().StartsWith(curTokenString))
+				if (hd.UseForAutoComplete && hd.Token.ToUpperInvariant().StartsWith(curTokenString))
 				{
 					if (token == null)
 					{
@@ -521,9 +523,10 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 			{
 				return false;
 			}
-			
-			int curTokenStartIndex = Text.LastIndexOfAny(Separators.GetAsCharArray(), Math.Min(SelectionStart, Text.Length - 1)) + 1;
-			int curTokenEndIndex= Text.IndexOfAny(Separators.GetAsCharArray(), SelectionStart);
+
+            char[] sep = Separators.ToArray();
+            int curTokenStartIndex = Text.LastIndexOfAny(sep, Math.Min(SelectionStart, Text.Length - 1)) + 1;
+			int curTokenEndIndex= Text.IndexOfAny(sep, SelectionStart);
 			if (curTokenEndIndex == -1) 
 			{
 				curTokenEndIndex = Text.Length;
@@ -544,17 +547,18 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 		/// Finds the and sets the best matching token as the selected item in the AutoCompleteForm.
 		/// </summary>
 		private void SetBestSelectedAutoCompleteItem()
-		{
-			int curTokenStartIndex = Text.LastIndexOfAny(Separators.GetAsCharArray(), Math.Min(SelectionStart, Text.Length - 1))+1;
-			int curTokenEndIndex= Text.IndexOfAny(Separators.GetAsCharArray(), SelectionStart);
+        {
+            char[] sep = Separators.ToArray();
+            int curTokenStartIndex = Text.LastIndexOfAny(sep, Math.Min(SelectionStart, Text.Length - 1))+1;
+			int curTokenEndIndex= Text.IndexOfAny(sep, SelectionStart);
 			if (curTokenEndIndex == -1) 
 			{
 				curTokenEndIndex = Text.Length;
 			}
-			string curTokenString = Text.Substring(curTokenStartIndex, Math.Max(curTokenEndIndex - curTokenStartIndex,0)).ToUpper();
+			string curTokenString = Text.Substring(curTokenStartIndex, Math.Max(curTokenEndIndex - curTokenStartIndex,0)).ToUpperInvariant();
 			
 			if ((_autoCompleteForm.SelectedItem != null) && 
-				_autoCompleteForm.SelectedItem.ToUpper().StartsWith(curTokenString))
+				_autoCompleteForm.SelectedItem.ToUpperInvariant().StartsWith(curTokenString))
 			{
 				return;
 			}
@@ -567,7 +571,7 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 				bool isWholeItemMatching = true;
 				for (int i = 0 ; i < Math.Min(item.Length, curTokenString.Length); i++)
 				{
-					if (char.ToUpper(item[i]) != char.ToUpper(curTokenString[i]))
+					if (char.ToUpperInvariant(item[i]) != char.ToUpperInvariant(curTokenString[i]))
 					{
 						isWholeItemMatching = false;
 						if (i-1 > matchingChars)
@@ -602,18 +606,19 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 			_autoCompleteForm.Items.Clear();
 			string filterString = "";
 			if (FilterAutoComplete)
-			{
-				int filterTokenStartIndex = Text.LastIndexOfAny(Separators.GetAsCharArray(), Math.Min(SelectionStart, Text.Length - 1))+1;
-				int filterTokenEndIndex= Text.IndexOfAny(Separators.GetAsCharArray(), SelectionStart);
+            {
+                char[] sep = Separators.ToArray();
+                int filterTokenStartIndex = Text.LastIndexOfAny(sep, Math.Min(SelectionStart, Text.Length - 1))+1;
+				int filterTokenEndIndex= Text.IndexOfAny(sep, SelectionStart);
 				if (filterTokenEndIndex == -1) 
 				{
 					filterTokenEndIndex = Text.Length;
 				}
-				filterString = Text.Substring(filterTokenStartIndex, filterTokenEndIndex - filterTokenStartIndex).ToUpper();
+				filterString = Text.Substring(filterTokenStartIndex, filterTokenEndIndex - filterTokenStartIndex).ToUpperInvariant();
 			}
 
 			foreach (HighlightDescriptor hd in HighlightDescriptors)
-				if (hd.Token.ToUpper().StartsWith(filterString) && hd.UseForAutoComplete)
+				if (hd.Token.ToUpperInvariant().StartsWith(filterString) && hd.UseForAutoComplete)
 					_autoCompleteForm.Items.Add(hd.Token);
 			
 			_autoCompleteForm.UpdateView();

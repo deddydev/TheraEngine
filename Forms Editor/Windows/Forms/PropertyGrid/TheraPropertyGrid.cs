@@ -80,25 +80,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //Do nothing if target object is the same
                 if (_subObject == value)
                     return;
-
-                //Destroy old properties
-                if (_subObject != null)
-                    LoadProperties(null);
-
+                
                 _subObject = value;
+
+                Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
 
                 if (_subObject is TObject obj)
                     obj.EditorState.Selected = true;
 
-                //If scene component, select it in the scene
-                if (Engine.LocalPlayers.Count > 0 && 
-                    Engine.LocalPlayers[0]?.ControlledPawn?.HUD is EditorHud hud)
-                {
-                    if (_subObject is SceneComponent sceneComp)
-                        hud.SelectedComponent = sceneComp;
-                    else
-                        hud.SelectedComponent = null;
-                }
+                ////If scene component, select it in the scene
+                //if (Engine.LocalPlayers.Count > 0 && 
+                //    Engine.LocalPlayers[0]?.ControlledPawn?.HUD is EditorHud hud)
+                //{
+                //    if (_subObject is SceneComponent sceneComp)
+                //        hud.SelectedComponent = sceneComp;
+                //    else
+                //        hud.SelectedComponent = null;
+                //}
                 
                 //Load the properties of the object
                 LoadProperties(_subObject);
@@ -182,7 +180,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             public object[] Attribs { get; set; }
             public bool ReadOnly { get; set; }
         }
-        
+        private class MethodData
+        {
+            public MethodInfo Method { get; set; }
+            public object[] Attribs { get; set; }
+            public bool ReadOnly { get; set; }
+        }
+
         private void LoadProperties(object obj)
         {
             if (Disposing || IsDisposed)
@@ -203,7 +207,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             PropertyInfo[] props = null;
             MethodInfo[] methods = null;
-            ConcurrentDictionary<int, PropertyData> info = new ConcurrentDictionary<int, PropertyData>();
+            ConcurrentDictionary<int, PropertyData> propInfo = new ConcurrentDictionary<int, PropertyData>();
+            ConcurrentDictionary<int, MethodData> methodInfo = new ConcurrentDictionary<int, MethodData>();
             Task.Run(() =>
             {
                 Type targetObjectType = obj.GetType();
@@ -239,7 +244,33 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         ReadOnly = readOnly,
                     };
 
-                    info.TryAdd(i, p);
+                    propInfo.TryAdd(i, p);
+                });
+                Parallel.For(0, methods.Length, i =>
+                {
+                    MethodInfo method = methods[i];
+                    
+                    var attribs = method.GetCustomAttributes(true);
+                    bool readOnly = false;
+
+                    foreach (var attrib in attribs)
+                    {
+                        if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
+                            return;
+                        if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(obj))
+                            return;
+                        if (attrib is ReadOnlyAttribute readOnlyAttrib)
+                            readOnly = readOnlyAttrib.IsReadOnly;
+                    }
+
+                    MethodData m = new MethodData()
+                    {
+                        Method = method,
+                        Attribs = attribs,
+                        ReadOnly = readOnly,
+                    };
+                    
+                    methodInfo.TryAdd(i, m);
                 });
             }).ContinueWith(t =>
             {
@@ -248,18 +279,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     {
                         for (int i = 0; i < props.Length; ++i)
                         {
-                            if (!info.ContainsKey(i))
+                            if (!propInfo.ContainsKey(i))
                                 continue;
-                            PropertyData p = info[i];
+                            PropertyData p = propInfo[i];
                             CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
                         }
 
                         //TODO: show methods in grid
-                        //for (int i = 0; i < methods.Length; ++i)
-                        //{
-                        //    MethodInfo p = methods[i];
-                        //    //CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs);
-                        //}
+                        for (int i = 0; i < methods.Length; ++i)
+                        {
+                            if (!methodInfo.ContainsKey(i))
+                                continue;
+                            MethodData m = methodInfo[i];
+                            CreateMethodControl(m);
+                        }
 
                         if (Editor.DefaultSettingsRef.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
@@ -295,7 +328,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             if (controlTypes.Count == 0)
             {
-                Engine.LogWarning("Unable to find control for " + propertyType == null ? "null" : propertyType.GetFriendlyName());
+                Engine.LogWarning("Unable to find control for " + (propertyType == null ? "null" : propertyType.GetFriendlyName()));
                 controlTypes.PushBack(typeof(PropGridText));
             }
             return controlTypes;

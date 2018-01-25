@@ -120,7 +120,7 @@ namespace TheraEngine.Files
         public FileObject() { }
         internal protected virtual void OnLoaded() { }
 
-        [Category("File Object")]
+        [Category("Object")]
         public string FilePath
         {
             get => _filePath;

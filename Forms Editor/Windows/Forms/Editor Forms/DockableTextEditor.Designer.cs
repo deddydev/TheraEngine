@@ -28,88 +28,66 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripComboBox1 = new System.Windows.Forms.ToolStripComboBox();
-            this.syntaxHighlightingTextBox1 = new TheraEditor.Core.SyntaxHighlightingTextBox.SyntaxHighlightingTextBox();
-            this.toolStripContainer1.ContentPanel.SuspendLayout();
-            this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
-            this.toolStripContainer1.SuspendLayout();
+            this.cboMode = new System.Windows.Forms.ToolStripComboBox();
+            this.TextBox = new TheraEditor.Core.SyntaxHighlightingTextBox.SyntaxHighlightingTextBox();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // toolStripContainer1
-            // 
-            this.toolStripContainer1.BottomToolStripPanelVisible = false;
-            // 
-            // toolStripContainer1.ContentPanel
-            // 
-            this.toolStripContainer1.ContentPanel.Controls.Add(this.syntaxHighlightingTextBox1);
-            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(728, 557);
-            this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolStripContainer1.LeftToolStripPanelVisible = false;
-            this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
-            this.toolStripContainer1.Name = "toolStripContainer1";
-            this.toolStripContainer1.RightToolStripPanelVisible = false;
-            this.toolStripContainer1.Size = new System.Drawing.Size(728, 585);
-            this.toolStripContainer1.TabIndex = 0;
-            this.toolStripContainer1.Text = "toolStripContainer1";
-            // 
-            // toolStripContainer1.TopToolStripPanel
-            // 
-            this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
-            // 
             // toolStrip1
             // 
-            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
+            this.toolStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(93)))), ((int)(((byte)(100)))));
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripComboBox1});
-            this.toolStrip1.Location = new System.Drawing.Point(3, 0);
+            this.cboMode});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(135, 28);
+            this.toolStrip1.Size = new System.Drawing.Size(728, 33);
             this.toolStrip1.TabIndex = 0;
             // 
-            // toolStripComboBox1
+            // cboMode
             // 
-            this.toolStripComboBox1.Name = "toolStripComboBox1";
-            this.toolStripComboBox1.Size = new System.Drawing.Size(121, 28);
+            this.cboMode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(93)))), ((int)(((byte)(100)))));
+            this.cboMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMode.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.cboMode.Name = "cboMode";
+            this.cboMode.Size = new System.Drawing.Size(121, 33);
+            this.cboMode.SelectedIndexChanged += new System.EventHandler(this.cboMode_SelectedIndexChanged);
             // 
-            // syntaxHighlightingTextBox1
+            // TextBox
             // 
-            this.syntaxHighlightingTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.syntaxHighlightingTextBox1.CaseSensitive = false;
-            this.syntaxHighlightingTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.syntaxHighlightingTextBox1.FilterAutoComplete = false;
-            this.syntaxHighlightingTextBox1.Location = new System.Drawing.Point(0, 0);
-            this.syntaxHighlightingTextBox1.MaxUndoRedoSteps = 0;
-            this.syntaxHighlightingTextBox1.Name = "syntaxHighlightingTextBox1";
-            this.syntaxHighlightingTextBox1.Size = new System.Drawing.Size(728, 557);
-            this.syntaxHighlightingTextBox1.TabIndex = 0;
-            this.syntaxHighlightingTextBox1.Text = "";
+            this.TextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.TextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TextBox.CaseSensitive = false;
+            this.TextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TextBox.FilterAutoComplete = false;
+            this.TextBox.Font = new System.Drawing.Font("Consolas", 9F);
+            this.TextBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.TextBox.Location = new System.Drawing.Point(0, 33);
+            this.TextBox.MaxUndoRedoSteps = 0;
+            this.TextBox.Name = "TextBox";
+            this.TextBox.Size = new System.Drawing.Size(728, 552);
+            this.TextBox.TabIndex = 0;
+            this.TextBox.Text = "";
             // 
             // DockableTextEditor
             // 
             this.ClientSize = new System.Drawing.Size(728, 585);
-            this.Controls.Add(this.toolStripContainer1);
+            this.Controls.Add(this.TextBox);
+            this.Controls.Add(this.toolStrip1);
             this.Name = "DockableTextEditor";
-            this.Text = "Script Editor";
-            this.toolStripContainer1.ContentPanel.ResumeLayout(false);
-            this.toolStripContainer1.TopToolStripPanel.ResumeLayout(false);
-            this.toolStripContainer1.TopToolStripPanel.PerformLayout();
-            this.toolStripContainer1.ResumeLayout(false);
-            this.toolStripContainer1.PerformLayout();
+            this.Text = "Text Editor";
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.ToolStripContainer toolStripContainer1;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripComboBox toolStripComboBox1;
-        private Core.SyntaxHighlightingTextBox.SyntaxHighlightingTextBox syntaxHighlightingTextBox1;
+        private System.Windows.Forms.ToolStripComboBox cboMode;
+        public Core.SyntaxHighlightingTextBox.SyntaxHighlightingTextBox TextBox;
     }
 }

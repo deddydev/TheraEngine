@@ -91,7 +91,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             DockableTextEditor textEditor = new DockableTextEditor();
             textEditor.Show(Editor.Instance.DockPanel, DockState.Document);
-            //textEditor.TextBox.Text = GetValue().ToString();
+            textEditor.TextBox.Text = GetValue().ToString();
         }
     }
 }

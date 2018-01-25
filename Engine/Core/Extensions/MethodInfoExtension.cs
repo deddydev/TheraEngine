@@ -67,10 +67,20 @@ namespace System
                 friendlyName += typeName + " " + p.Name;
                 if (p.HasDefaultValue)
                 {
-                    if (p.ParameterType == typeof(string))
-                        friendlyName += " = \"" + p.DefaultValue.ToString() + "\"";
+                    friendlyName += " = ";
+                    if (p.DefaultValue == null)
+                    {
+                        friendlyName += "null";
+                    }
                     else
-                        friendlyName += " = " + p.DefaultValue.ToString();
+                    {
+                        if (p.ParameterType == typeof(string))
+                            friendlyName += "\"" + p.DefaultValue.ToString() + "\"";
+                        else if(p.ParameterType == typeof(char))
+                            friendlyName += "\'" + p.DefaultValue.ToString() + "\'";
+                        else
+                            friendlyName += p.DefaultValue.ToString();
+                    }
                 }
             }
             friendlyName += ")";

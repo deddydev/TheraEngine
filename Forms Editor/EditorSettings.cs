@@ -9,12 +9,29 @@ namespace TheraEditor
     [FileDef("Editor Settings")]
     public class EditorSettings : TSettings
     {
+        private GlobalFileRef<EngineSettings> _engineSettingsRef = new GlobalFileRef<EngineSettings>();
+        private GlobalFileRef<PropertyGridSettings> _propertyGridRef = new GlobalFileRef<PropertyGridSettings>();
+        private GlobalFileRef<ControlSettings> _controlSettingsRef = new GlobalFileRef<ControlSettings>();
+
         [TSerialize]
-        public GlobalFileRef<EngineSettings> EngineDefaults { get; set; }
+        public GlobalFileRef<EngineSettings> EngineSettingsRef
+        {
+            get => _engineSettingsRef;
+            set => _engineSettingsRef = value ?? new GlobalFileRef<EngineSettings>();
+        }
         [TSerialize]
-        public GlobalFileRef<PropertyGridSettings> PropertyGrid { get; set; }
+        public GlobalFileRef<PropertyGridSettings> PropertyGridRef
+        {
+            get => _propertyGridRef;
+            set => _propertyGridRef = value ?? new GlobalFileRef<PropertyGridSettings>();
+        }
         [TSerialize]
-        public GlobalFileRef<ControlSettings> Controls { get; set; }
+        public GlobalFileRef<ControlSettings> ControlSettingsRef
+        {
+            get => _controlSettingsRef;
+            set => _controlSettingsRef = value ?? new GlobalFileRef<ControlSettings>();
+        }
+
         [TSerialize]
         public string DockConfigPath { get; set; }
 
@@ -52,15 +69,15 @@ namespace TheraEditor
         public EditorSettings()
         {
             DockConfigPath = Path.DirectorySeparatorChar + "DockPanel.config";
-            EngineDefaults = new EngineSettings()
+            EngineSettingsRef = new EngineSettings()
             {
                 CapFPS = true,
                 TargetFPS = 60.0f,
                 CapUPS = false,
                 TargetUPS = 90.0f,
             };
-            PropertyGrid = new PropertyGridSettings();
-            Controls = new ControlSettings();
+            PropertyGridRef = new PropertyGridSettings();
+            ControlSettingsRef = new ControlSettings();
         }
 
         public string GetFullDockConfigPath()

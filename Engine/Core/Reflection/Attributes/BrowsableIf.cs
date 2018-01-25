@@ -3,6 +3,7 @@ using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Reflection.Attributes
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class BrowsableIf : Attribute
     {
         private string _condition;

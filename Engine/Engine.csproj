@@ -301,6 +301,7 @@
     <Compile Include="Core\Files\References\FileLoader.cs" />
     <Compile Include="Core\Files\References\LocalFileRef.cs" />
     <Compile Include="Core\Files\References\GlobalFileRef.cs" />
+    <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\FileExtension.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\File3rdParty.cs" />
     <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />

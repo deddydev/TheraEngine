@@ -2,62 +2,47 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections;
+using System.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class PropGridMethod : PropGridItem
     {
+        private MethodInfo _method;
+        public MethodInfo Method
+        {
+            get => _method;
+            internal set
+            {
+                _method = value;
+                string fName = _method.GetFriendlyName();
+                int paren = fName.IndexOf('(');
+                lblMethod.Text = fName.Substring(paren + 1, fName.Length - paren - 2);
+                //if (Label != null)
+                //    Label.Text = _method.Name;//fName.Substring(0, paren);
+            }
+        }
+        
         public PropGridMethod() => InitializeComponent();
 
         protected override void UpdateDisplayInternal()
         {
-            object value = GetValue();
-            lblObjectTypeName.Text = DataType.GetFriendlyName();
-            checkBox1.Visible = DataType.IsValueType;
-            if (typeof(IList).IsAssignableFrom(DataType))
-            {
 
-            }
-            else if (value is Exception ex)
-            {
-                
-            }
-            else
-            {
-                throw new Exception(DataType.GetFriendlyName() + " is not an IList type.");
-            }
-        }
-
-        private void pnlHeader_MouseDown(object sender, MouseEventArgs e)
-        {
-        }
-
-        private void pnlHeader_MouseLeave(object sender, EventArgs e)
-        {
-        }
-
-        private void pnlHeader_MouseEnter(object sender, EventArgs e)
-        {
-        }
-
-        private void pnlElements_VisibleChanged(object sender, EventArgs e)
-        {
-            
         }
         
-        private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
-            => pnlHeader.BackColor = Color.FromArgb(14, 18, 34);
-        private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
-            => pnlHeader.BackColor = Color.FromArgb(75, 120, 160);
+        private void lblMethod_MouseEnter(object sender, EventArgs e)
+            => lblMethod.BackColor = Color.FromArgb(14, 34, 18);
+        private void lblMethod_MouseLeave(object sender, EventArgs e)
+            => lblMethod.BackColor = Color.DarkGreen;
         
-        private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
+        private void lblMethod_MouseDown(object sender, MouseEventArgs e)
         {
-            propGridCategory1.Visible = !propGridCategory1.Visible;
-            Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
+            //TODO: retrieve parameters from the user
+            //Method.Invoke(PropertyOwner, );
         }
         protected override void SetControlsEnabled(bool enabled)
         {
-            checkBox1.Enabled = enabled;
+            Enabled = enabled;
         }
     }
 }

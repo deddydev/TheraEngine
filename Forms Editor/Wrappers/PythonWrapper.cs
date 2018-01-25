@@ -32,8 +32,8 @@ namespace TheraEditor.Wrappers
         public override void EditResource()
         {
             DockableTextEditor m = new DockableTextEditor();
-            //m.TextBox.Text = ResourceRef.File.Text;
             m.Show(Editor.Instance.DockPanel, DockState.Document);
+            m.Script = ResourceRef.File;
         }
     }
 }

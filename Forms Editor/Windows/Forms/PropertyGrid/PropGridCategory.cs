@@ -33,6 +33,40 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             tblProps.RowStyles.Clear();
             tblProps.RowCount = 0;
         }
+        public Label AddMethod(PropGridMethod methodControl, object[] attributes, string displayName)
+        {
+            var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
+
+            //string fName = methodControl.Method.GetFriendlyName();
+            //int paren = fName.IndexOf('(');
+            //string methodName = fName.Substring(0, paren);
+
+            string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
+            Label label = new Label()
+            {
+                Text = displayName,
+                TextAlign = ContentAlignment.MiddleRight,
+                AutoSize = true,
+                ForeColor = Color.FromArgb(200, 200, 220),
+                Dock = DockStyle.Fill,
+                Padding = new Padding(3, 0, 3, 0),
+                Margin = new Padding(0),
+                Tag = desc,
+            };
+            label.MouseEnter += Label_MouseEnter;
+            label.MouseLeave += Label_MouseLeave;
+            tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tblProps.RowCount = tblProps.RowStyles.Count;
+            tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
+
+            methodControl.SetLabel(label);
+            methodControl.Dock = DockStyle.Fill;
+            methodControl.Margin = new Padding(0);
+            methodControl.Padding = new Padding(0);
+            tblProps.Controls.Add(methodControl, 1, tblProps.RowCount - 1);
+            
+            return label;
+        }
         public Label AddProperty(List<PropGridItem> editors, object[] attributes, bool readOnly)
         {
             var displayNameAttrib = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
@@ -48,7 +82,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else if (!string.IsNullOrWhiteSpace(propName))
             {
-                name = Editor.DefaultSettingsRef.File.PropertyGrid.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
+                name = Editor.DefaultSettingsRef.File.PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
             }
             else
             {

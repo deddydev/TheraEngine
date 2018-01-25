@@ -6,6 +6,7 @@ using System.IO;
 using System;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Files
 {
@@ -35,8 +36,8 @@ namespace TheraEngine.Files
         string GetFilePath(string dir, string name, ProprietaryFileFormat format);
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
     }
-    [FileExt("tasset")]
-    [FileDef("Thera Engine Asset")]
+    //[FileExt("tasset")]
+    //[FileDef("Thera Engine Asset")]
     public abstract class FileObject : TObject, IFileObject
     {
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
@@ -159,8 +160,7 @@ namespace TheraEngine.Files
 
         public static FileFormat GetFormat(string path)
         {
-            //TODO: implement a more dependable method for this?
-            string ext = Path.GetExtension(path).Substring(1);
+            string ext = path.Substring(path.LastIndexOf('.') + 1);
             if (File3rdParty.Has3rdPartyExtension(ext))
                 return FileFormat.ThirdParty;
             switch (ext.ToLowerInvariant()[0])
@@ -360,6 +360,7 @@ namespace TheraEngine.Files
             }
             return null;
         }
+        [GridCallable("Save")]
         public void Export()
         {
             if (string.IsNullOrEmpty(_filePath))
@@ -367,6 +368,7 @@ namespace TheraEngine.Files
             GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt);
         }
+        [GridCallable("Save")]
         public void Export(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -374,6 +376,34 @@ namespace TheraEngine.Files
             GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt);
         }
+        [GridCallable("Save")]
+        public void Export(string directory, string fileName)
+        {
+            string ext = null;
+            FileExt fileExt = FileExtension;
+            if (fileExt != null)
+            {
+                ext = fileExt.GetProperExtension((ProprietaryFileFormat)fileExt.PreferredFormat);
+            }
+            else
+            {
+                File3rdParty tp = File3rdPartyExtensions;
+                if (tp != null && 
+                    tp.ExportableExtensions != null && 
+                    tp.ExportableExtensions.Length > 0)
+                {
+                    ext = tp.ExportableExtensions[0];
+                }
+            }
+            if (ext != null)
+            {
+                FileFormat format = GetFormat(ext);
+                Export(directory, fileName, format, ext);
+            }
+            else
+                Engine.LogWarning("Cannot assume extension for " + GetType().GetFriendlyName());
+        }
+        [GridCallable("Save")]
         public void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null)
         {
             switch (format)

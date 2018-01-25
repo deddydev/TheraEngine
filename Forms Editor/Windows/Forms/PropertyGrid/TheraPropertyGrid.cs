@@ -59,7 +59,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         internal static GameTimer UpdateTimer = new GameTimer();
         protected override void OnHandleCreated(EventArgs e)
         {
-            UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.DefaultSettingsRef.File.PropertyGrid.File.UpdateRateInSeconds);
+            UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.DefaultSettingsRef.File.PropertyGridRef.File.UpdateRateInSeconds);
             base.OnHandleCreated(e);
         }
         protected override void OnHandleDestroyed(EventArgs e)
@@ -69,6 +69,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         private const string MiscName = "Miscellaneous";
+        private const string MethodName = "Methods";
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
 
         private object _subObject;
@@ -184,7 +185,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             public MethodInfo Method { get; set; }
             public object[] Attribs { get; set; }
-            public bool ReadOnly { get; set; }
+            public string DisplayName { get; set; }
         }
 
         private void LoadProperties(object obj)
@@ -213,7 +214,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 Type targetObjectType = obj.GetType();
                 props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+                methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance).
+                    Where(x => !x.IsSpecialName && (x.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false)).ToArray();
                 Parallel.For(0, props.Length, i =>
                 {
                     PropertyInfo prop = props[i];
@@ -249,25 +251,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Parallel.For(0, methods.Length, i =>
                 {
                     MethodInfo method = methods[i];
-                    
-                    var attribs = method.GetCustomAttributes(true);
-                    bool readOnly = false;
-
-                    foreach (var attrib in attribs)
-                    {
-                        if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
-                            return;
-                        if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(obj))
-                            return;
-                        if (attrib is ReadOnlyAttribute readOnlyAttrib)
-                            readOnly = readOnlyAttrib.IsReadOnly;
-                    }
-
+                    object[] attribs = method.GetCustomAttributes(true);
                     MethodData m = new MethodData()
                     {
                         Method = method,
                         Attribs = attribs,
-                        ReadOnly = readOnly,
+                        DisplayName = (attribs.FirstOrDefault(x => x is GridCallable) as GridCallable)?.DisplayName ?? method.Name,
                     };
                     
                     methodInfo.TryAdd(i, m);
@@ -284,17 +273,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             PropertyData p = propInfo[i];
                             CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
                         }
-
-                        //TODO: show methods in grid
+                        
                         for (int i = 0; i < methods.Length; ++i)
                         {
                             if (!methodInfo.ContainsKey(i))
                                 continue;
                             MethodData m = methodInfo[i];
-                            CreateMethodControl(m);
+                            CreateMethodControl(m.Method, m.DisplayName, m.Attribs, pnlProps, _categories, obj, this);
                         }
 
-                        if (Editor.DefaultSettingsRef.File.PropertyGrid.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                        if (Editor.DefaultSettingsRef.File.PropertyGridRef.File.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
 
                         //pnlProps.ResumeLayout(true);
@@ -334,7 +322,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             return controlTypes;
         }
 
-        public static List<PropGridItem> CreateControls(Deque<Type> controlTypes, PropertyInfo prop, object obj, TheraPropertyGrid grid)
+        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, PropertyInfo prop, object obj, TheraPropertyGrid grid)
         {
             return controlTypes.Select(x =>
             {
@@ -347,7 +335,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return control;
             }).ToList();
         }
-        public static List<PropGridItem> CreateControls(Deque<Type> controlTypes, IList list, int listIndex)
+        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, IList list, int listIndex)
         {
             Type elementType = list.DetermineElementType();
             return controlTypes.Select(x =>
@@ -360,6 +348,37 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return control;
             }).ToList();
         }
+        public static PropGridMethod CreateMethodControl(
+            MethodInfo m,
+            string displayName,
+            object[] attribs,
+            Panel panel,
+            Dictionary<string, PropGridCategory> categories, 
+            object obj,
+            TheraPropertyGrid grid)
+        {
+            PropGridMethod control = new PropGridMethod()
+            {
+                Method = m
+            };
+            //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
+            string catName = MethodName;//category == null ? MethodName : category.Category;
+            if (categories.ContainsKey(catName))
+                categories[catName].AddMethod(control, attribs, displayName);
+            else
+            {
+                PropGridCategory methods = new PropGridCategory()
+                {
+                    CategoryName = catName,
+                    Dock = DockStyle.Top,
+                };
+                methods.AddMethod(control, attribs, displayName);
+                categories.Add(catName, methods);
+                panel.Controls.Add(methods);
+            }
+            
+            return control;
+        }
         public static void CreateControls(
             Deque<Type> controlTypes,
             PropertyInfo prop,
@@ -370,7 +389,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             bool readOnly,
             TheraPropertyGrid grid)
         {
-            var controls = CreateControls(controlTypes, prop, obj, grid);
+            var controls = InstantiatePropertyEditors(controlTypes, prop, obj, grid);
             
             var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
             string catName = category == null ? MiscName : category.Category;

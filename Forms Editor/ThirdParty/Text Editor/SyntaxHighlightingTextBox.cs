@@ -132,7 +132,10 @@ namespace TheraEditor.Core.SyntaxHighlightingTextBox
 					AddNewLine(sb);
 				
 				string line = lines[lineCounter];
-				string[] tokens = CaseSensitive ? line.Split(separators) : line.ToUpperInvariant().Split(separators);
+                string modLine = line;
+                if (!CaseSensitive)
+                    modLine = modLine.ToUpperInvariant();
+                string[] tokens = separators.Length == 0 ? new string[] { modLine } : modLine.Split(separators);
 				if (tokens.Length == 0)
 				{
 					sb.Append(line);

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using TheraEngine.Core.Reflection.Attributes;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -53,7 +54,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected override void SetControlsEnabled(bool enabled)
         {
-            if (textBox1.ReadOnly = !enabled)
+            if (textBox1.ReadOnly = !(btnEdit.Enabled = enabled))
             {
                 textBox1.BackColor = Color.FromArgb(94, 94, 114);
                 textBox1.ForeColor = Color.FromArgb(180, 180, 200);
@@ -84,6 +85,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
                 SetControlsEnabled(true);
             }
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            DockableTextEditor textEditor = new DockableTextEditor();
+            textEditor.Show(Editor.Instance.DockPanel, DockState.Document);
+            //textEditor.TextBox.Text = GetValue().ToString();
         }
     }
 }

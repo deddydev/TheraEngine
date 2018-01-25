@@ -241,7 +241,7 @@ namespace Core.Win32.Native
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct POINTS
+    public struct POINT
     {
         public short X;
         public short Y;
@@ -304,6 +304,11 @@ namespace Core.Win32.Native
 
     public static class NativeMethods
     {
+        [DllImport("user32.dll")]
+        public static extern short GetKeyState(int nVirtKey);
+        [DllImport("user32.dll")]
+        public static extern int LockWindowUpdate(IntPtr hwnd);
+
         [DllImport("shell32.dll")]
         public static extern IntPtr SHGetFileInfo(
             string pszPath,
@@ -335,8 +340,9 @@ namespace Core.Win32.Native
         public static extern IntPtr SetActiveWindow(IntPtr hWnd);
 
         [DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr hwnd, int wMsg, int wParam, IntPtr lParam);
+        [DllImport("user32.dll")]
         public static extern int SendMessage(IntPtr hwnd, int msg, int wparam, int lparam);
-
         [DllImport("user32.dll")]
         public static extern int PostMessage(IntPtr hwnd, int msg, int wparam, int lparam);
 
@@ -354,13 +360,13 @@ namespace Core.Win32.Native
         public static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
-        public static extern IntPtr SendMessage(IntPtr hwnd, int msg, int wparam, POINTS pos);
+        public static extern IntPtr SendMessage(IntPtr hwnd, int msg, int wparam, POINT pos);
 
         [DllImport("user32.dll")]
         public static extern int PostMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
-        public static extern int PostMessage(IntPtr hwnd, int msg, int wparam, POINTS pos);
+        public static extern int PostMessage(IntPtr hwnd, int msg, int wparam, POINT pos);
 
         [DllImport("user32.dll")]
         public static extern int SetWindowRgn(IntPtr hWnd, IntPtr hRgn, bool bRedraw);
@@ -431,6 +437,17 @@ namespace Core.Win32.Native
     }
     public static class NativeConstants
     {
+        public const int EM_GETSCROLLPOS = (WM_USER + 221);
+        public const int EM_SETSCROLLPOS = (WM_USER + 222);
+
+        public const int VK_CONTROL = 0x11;
+        public const int VK_UP = 0x26;
+        public const int VK_DOWN = 0x28;
+        public const int VK_NUMLOCK = 0x90;
+
+        public const short KS_ON = 0x01;
+        public const short KS_KEYDOWN = 0x80;
+
         public const uint SHGFI_ICON = 0x100;
         public const uint SHGFI_LARGEICON = 0x0;    // 'Large icon
         public const uint SHGFI_SMALLICON = 0x1;    // 'Small icon
@@ -444,11 +461,14 @@ namespace Core.Win32.Native
         public const int GWL_EXSTYLE = -20;
 
         public const int WM_SETTEXT = 0xC;
+        public const int WM_PAINT = 0xF;
         public const int WM_NCLBUTTONDOWN = 0x00A1;
         public const int WM_NCRBUTTONUP = 0x00A5;
         public const int WM_KEYDOWN = 0x100;
         public const int WM_KEYUP = 0x101;
+        public const int WM_CHAR = 0x102;
         public const int WM_SYSKEYDOWN = 0x104;
+        public const int WM_USER = 0x400;
 
         public const uint TPM_LEFTBUTTON = 0x0000;
         public const uint TPM_RIGHTBUTTON = 0x0002;

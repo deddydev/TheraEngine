@@ -4,13 +4,13 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableScriptEditor : DockContent
+    public partial class DockableTextEditor : DockContent
     {
-        public DockableScriptEditor()
+        public DockableTextEditor()
         {
             InitializeComponent();
-            TextBox.SetWhitespaceBackColor(true, Color.FromArgb(82, 83, 90));
-            TextBox.SetWhitespaceForeColor(true, Color.FromArgb(224, 224, 224));
+            //TextBox.SetWhitespaceBackColor(true, Color.FromArgb(82, 83, 90));
+            //TextBox.SetWhitespaceForeColor(true, Color.FromArgb(224, 224, 224));
         }
 
         private PythonScript _script = null;
@@ -20,7 +20,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _script = value;
-                TextBox.Text = _script == null ? string.Empty : _script.Text;
+                //TextBox.Text = _script == null ? string.Empty : _script.Text;
             }
         }
     }

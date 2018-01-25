@@ -89,9 +89,6 @@
     </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="ScintillaNET">
-      <HintPath>..\Libraries\ScintillaNET.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
@@ -143,6 +140,15 @@
       <DependentUpon>SelectCurvesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ThirdParty\Graphing\Utils.cs" />
+    <Compile Include="ThirdParty\Text Editor\AutoCompleteForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ThirdParty\Text Editor\HighlightDescriptor.cs" />
+    <Compile Include="ThirdParty\Text Editor\HighlightDescriptorCollection.cs" />
+    <Compile Include="ThirdParty\Text Editor\SeparatorCollection.cs" />
+    <Compile Include="ThirdParty\Text Editor\SyntaxHighlightingTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Windows\BorderlessForm\TheraForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -164,11 +170,11 @@
     <Compile Include="Windows\Forms\Editor Forms\DockableContentCreator.Designer.cs">
       <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editor Forms\DockableScriptEditor.cs">
+    <Compile Include="Windows\Forms\Editor Forms\DockableTextEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editor Forms\DockableScriptEditor.Designer.cs">
-      <DependentUpon>DockableScriptEditor.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Editor Forms\DockableTextEditor.Designer.cs">
+      <DependentUpon>DockableTextEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.cs">
       <SubType>Form</SubType>
@@ -527,6 +533,12 @@
       <DependentUpon>PlotterGraphPaneEx.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="ThirdParty\Text Editor\AutoCompleteForm.resx">
+      <DependentUpon>AutoCompleteForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ThirdParty\Text Editor\SyntaxHighlightingTextBox.resx">
+      <DependentUpon>SyntaxHighlightingTextBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -536,8 +548,8 @@
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableContentCreator.resx">
       <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableScriptEditor.resx">
-      <DependentUpon>DockableScriptEditor.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableTextEditor.resx">
+      <DependentUpon>DockableTextEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableOutputWindow.resx">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>

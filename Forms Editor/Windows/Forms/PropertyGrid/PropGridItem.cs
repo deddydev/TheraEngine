@@ -116,6 +116,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (_updating)
                 return;
+            Type valueType = newValue.GetType();
+            if (valueType.IsClass && valueType != typeof(string))
+            {
+                throw new InvalidOperationException();
+            }
             if (IListOwner != null)
             {
                 if (submitStateChange)
@@ -153,11 +158,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 throw new InvalidOperationException();
         }
-        protected void SubmitPostManualStateChange(object classType, string propertyName)
+        protected void SubmitPreManualStateChange(object classType, string propertyName)
         {
 
         }
-        protected void SubmitPreManualStateChange(object classType, string propertyName)
+        protected void SubmitPostManualStateChange(object classType, string propertyName)
         {
 
         }

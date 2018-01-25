@@ -33,6 +33,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.chkNull = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnEdit = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,7 +47,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.textBox1.Location = new System.Drawing.Point(0, 0);
             this.textBox1.Margin = new System.Windows.Forms.Padding(0);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(0, 31);
+            this.textBox1.Size = new System.Drawing.Size(0, 27);
             this.textBox1.TabIndex = 0;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
@@ -56,10 +57,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.chkNull.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
             this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
             this.chkNull.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
-            this.chkNull.Location = new System.Drawing.Point(-61, 0);
+            this.chkNull.Location = new System.Drawing.Point(-54, 0);
             this.chkNull.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkNull.Name = "chkNull";
-            this.chkNull.Size = new System.Drawing.Size(61, 0);
+            this.chkNull.Size = new System.Drawing.Size(54, 0);
             this.chkNull.TabIndex = 1;
             this.chkNull.Text = "Null";
             this.chkNull.UseVisualStyleBackColor = false;
@@ -68,6 +69,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // panel1
             // 
             this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Controls.Add(this.btnEdit);
             this.panel1.Controls.Add(this.chkNull);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
@@ -76,9 +78,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.panel1.Size = new System.Drawing.Size(0, 0);
             this.panel1.TabIndex = 2;
             // 
+            // btnEdit
+            // 
+            this.btnEdit.AutoSize = true;
+            this.btnEdit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.btnEdit.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnEdit.FlatAppearance.BorderSize = 0;
+            this.btnEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
+            this.btnEdit.Location = new System.Drawing.Point(-100, 0);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(46, 0);
+            this.btnEdit.TabIndex = 2;
+            this.btnEdit.Text = "Edit";
+            this.btnEdit.UseVisualStyleBackColor = false;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
+            // 
             // PropGridText
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
             this.Controls.Add(this.panel1);
@@ -94,5 +112,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private TextBox textBox1;
         private CheckBox chkNull;
         private Panel panel1;
+        private Button btnEdit;
     }
 }

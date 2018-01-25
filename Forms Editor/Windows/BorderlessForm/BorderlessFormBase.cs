@@ -15,7 +15,7 @@ namespace BorderlessForm
         public void DecorationMouseDown(HitTestValues hit, Point p)
         {
             NativeMethods.ReleaseCapture();
-            var pt = new POINTS { X = (short)p.X, Y = (short)p.Y };
+            var pt = new POINT { X = (short)p.X, Y = (short)p.Y };
             NativeMethods.SendMessage(FindForm().Handle, (int)WindowMessages.WM_NCLBUTTONDOWN, (int)hit, pt);
         }
 
@@ -27,7 +27,7 @@ namespace BorderlessForm
         public void DecorationMouseUp(HitTestValues hit, Point p)
         {
             NativeMethods.ReleaseCapture();
-            var pt = new POINTS { X = (short)p.X, Y = (short)p.Y };
+            var pt = new POINT { X = (short)p.X, Y = (short)p.Y };
             NativeMethods.SendMessage(FindForm().Handle, (int)WindowMessages.WM_NCLBUTTONUP, (int)hit, pt);
         }
 

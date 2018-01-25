@@ -26,18 +26,12 @@ namespace TheraEditor.Windows.Forms
             cboMode.SelectedIndex = 0;
         }
 
-        private PythonScript _script = null;
-        public PythonScript Script
+        public void SetText(string text, ETextEditorMode mode)
         {
-            get => _script;
-            set
-            {
-                _script = value;
-                Mode = ETextEditorMode.Python;
-                TextBox.Text = _script == null ? string.Empty : _script.Text;
-            }
+            Mode = mode;
+            TextBox.Text = text;
         }
-
+        
         private ETextEditorMode _mode = ETextEditorMode.Text;
         public ETextEditorMode Mode
         {
@@ -47,23 +41,38 @@ namespace TheraEditor.Windows.Forms
                 if (_mode == value)
                     return;
                 _mode = value;
-                TextBox.HighlightDescriptors.Clear();
+                //System.Windows.Forms.TextBox.HighlightDescriptors.Clear();
                 switch (_mode)
                 {
                     case ETextEditorMode.Text:
-                        TextBox.CaseSensitive = false;
+                        TextBox.Language = FastColoredTextBoxNS.Language.Custom;
+                        //System.Windows.Forms.TextBox.CaseSensitive = false;
                         break;
                     case ETextEditorMode.Python:
-                        TextBox.CaseSensitive = true;
-                        TextBox.Separators.AddRange(new char[] { ' ', '(', ')', '[', ']', '"', '\'', '=', '#', '<', '>', '/', '\\', '-', '+', '*', ':', ';', ',', '\t', '\r', '\n' });
-                        foreach (string kw in PythonKeywords)
-                            TextBox.HighlightDescriptors.Add(new HighlightDescriptor(kw, Color.Turquoise, TextBox.Font, DescriptorType.Word, DescriptorRecognition.WholeWord, true));
-                        TextBox.HighlightDescriptors.Add(new HighlightDescriptor("#", Color.Green, TextBox.Font, DescriptorType.ToEOL, DescriptorRecognition.StartsWith, true));
-                        TextBox.HighlightDescriptors.Add(new HighlightDescriptor("'''", "'''", Color.Green, TextBox.Font, DescriptorType.ToCloseToken, DescriptorRecognition.Contains, true));
+                        TextBox.Language = FastColoredTextBoxNS.Language.Custom;
+                        TextBox.BracketsHighlightStrategy = FastColoredTextBoxNS.BracketsHighlightStrategy.Strategy1;
+                        TextBox.CommentPrefix = "#";
+                        TextBox.LeftBracket = '\x0';
+                        TextBox.LeftBracket2 = '\x0';
+                        TextBox.AutoCompleteBrackets = true;
+                        //System.Windows.Forms.TextBox.CaseSensitive = true;
+                        //System.Windows.Forms.TextBox.Separators.AddRange(new char[] { ' ', '(', ')', '[', ']', '"', '\'', '=', '#', '<', '>', '/', '\\', '-', '+', '*', ':', ';', ',', '\t', '\r', '\n' });
+                        //foreach (string kw in PythonKeywords)
+                        //    System.Windows.Forms.TextBox.HighlightDescriptors.Add(new HighlightDescriptor(kw, Color.Turquoise, System.Windows.Forms.TextBox.Font, DescriptorType.Word, DescriptorRecognition.WholeWord, true));
+                        //System.Windows.Forms.TextBox.HighlightDescriptors.Add(new HighlightDescriptor("#", Color.Green, System.Windows.Forms.TextBox.Font, DescriptorType.ToEOL, DescriptorRecognition.StartsWith, true));
+                        //System.Windows.Forms.TextBox.HighlightDescriptors.Add(new HighlightDescriptor("'''", "'''", Color.Green, System.Windows.Forms.TextBox.Font, DescriptorType.ToCloseToken, DescriptorRecognition.Contains, true));
+                        break;
+                    case ETextEditorMode.CSharp:
+                        TextBox.Language = FastColoredTextBoxNS.Language.CSharp;
+                        break;
+                    case ETextEditorMode.Lua:
+                        TextBox.Language = FastColoredTextBoxNS.Language.Lua;
                         break;
                 }
             }
         }
+
+        public event Action Saved;
 
         private static string[] PythonKeywords =
         {
@@ -126,7 +135,7 @@ namespace TheraEditor.Windows.Forms
                 prevFont = fd.Font;
                 prevColor = fd.Color;
             }
-            
+
             TextBox.Font = prevFont;
             TextBox.ForeColor = prevColor;
             btnFont.Text = string.Format("{0} {1} pt", TextBox.Font.Name, Math.Round(TextBox.Font.SizeInPoints));
@@ -135,7 +144,7 @@ namespace TheraEditor.Windows.Forms
         private void Fd_Apply(object sender, EventArgs e)
         {
             FontDialog fd = sender as FontDialog;
-            TextBox.Font = fd.Font;
+            Font = fd.Font;
             TextBox.ForeColor = fd.Color;
             btnFont.Text = string.Format("{0} {1} pt", fd.Font.Name, Math.Round(fd.Font.SizeInPoints));
         }
@@ -158,7 +167,7 @@ namespace TheraEditor.Windows.Forms
 
         private void btnSave_Click_1(object sender, EventArgs e)
         {
-
+            Saved?.Invoke();
         }
 
         private void btnSaveAs_Click(object sender, EventArgs e)

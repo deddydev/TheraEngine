@@ -5,7 +5,7 @@ namespace System
     public static unsafe class ArrayExtension
     {
         /// <summary>
-        /// Returns true if index >= 0 && index < length
+        /// Returns true if index >= 0 && index is less than length.
         /// Use this so you don't have to write that every time.
         /// </summary>
         public static bool IndexInArrayRange(this Array a, int value)
@@ -27,6 +27,13 @@ namespace System
         public static int IndexOf(this Array a, object value)
         {
             return Array.IndexOf(a, value);
+        }
+        public static bool Contains(this string[] a, string value, StringComparison comp)
+        {
+            for (int i = 0; i < a.Length; ++i)
+                if (string.Equals(a[i], value, comp))
+                    return true;
+            return false;
         }
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {

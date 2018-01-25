@@ -3,6 +3,9 @@ using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Reflection.Attributes
 {
+    /// <summary>
+    /// Informs the editor that this method can be called by the user.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class GridCallable : Attribute
     {

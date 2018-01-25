@@ -11,7 +11,8 @@ namespace System
             => !string.IsNullOrEmpty(str) && str[str.Length - 1] == Path.DirectorySeparatorChar;
         public static string SplitCamelCase(this string str)
             => Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
-        public static bool? IsDirectory(this string path)
+        public static bool IsValidPath(this string path) => path.IsDirectoryPath() != null;
+        public static bool? IsDirectoryPath(this string path)
         {
             if (Directory.Exists(path)) return true; //Is a folder 
             else if (File.Exists(path)) return false; //Is a file

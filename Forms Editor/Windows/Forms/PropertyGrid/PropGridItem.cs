@@ -116,10 +116,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (_updating)
                 return;
-            Type valueType = newValue.GetType();
-            if (valueType.IsClass && valueType != typeof(string))
+            if (DataType.IsClass && DataType != typeof(string))
             {
-                throw new InvalidOperationException();
+                if (ReferenceEquals(newValue, GetValue()))
+                {
+                    Engine.LogWarning("Tried setting class object to the same reference. Are you sure you didn't mean to update a property within?");
+                    return;
+                }
             }
             if (IListOwner != null)
             {

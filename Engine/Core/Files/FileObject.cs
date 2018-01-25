@@ -143,34 +143,40 @@ namespace TheraEngine.Files
 
         public static Type DetermineType(string path)
         {
-            FileFormat f = GetFormat(path);
+            FileFormat f = GetFormat(path, out string ext);
             switch (f)
             {
-                case FileFormat.XML: return CustomXmlSerializer.DetermineType(path);
-                case FileFormat.Binary: return CustomBinarySerializer.DetermineType(path);
-                default: return DetermineTypeThirdParty(path);
+                case FileFormat.XML:
+                    return CustomXmlSerializer.DetermineType(path);
+                case FileFormat.Binary:
+                    return CustomBinarySerializer.DetermineType(path);
+                default:
+                    Type[] types = DetermineThirdPartyTypes(ext);
+                    return types.Length > 0 ? types[0] : null;
             }
         }
 
-        private static Type DetermineTypeThirdParty(string path)
+        public static Type[] DetermineThirdPartyTypes(string ext)
         {
-            //TODO: finish
-            return null;
+            return Engine.FindTypes(t => 
+            typeof(FileObject).IsAssignableFrom(t) && 
+            (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false)).ToArray();
         }
 
-        public static FileFormat GetFormat(string path)
+        public static FileFormat GetFormat(string path, out string ext)
         {
-            string ext = path.Substring(path.LastIndexOf('.') + 1);
+            int index = path.LastIndexOf('.') + 1;
+            if (index != 0)
+                ext = path.Substring(index).ToLowerInvariant();
+            else
+                ext = path.ToLowerInvariant();
             if (File3rdParty.Has3rdPartyExtension(ext))
                 return FileFormat.ThirdParty;
-            switch (ext.ToLowerInvariant()[0])
+            switch (ext[0])
             {
-                default:
-                    return FileFormat.ThirdParty;
-                case 'b':
-                    return FileFormat.Binary;
-                case 'x':
-                    return FileFormat.XML;
+                default: return FileFormat.ThirdParty;
+                case 'b': return FileFormat.Binary;
+                case 'x': return FileFormat.XML;
             }
         }
 
@@ -181,15 +187,12 @@ namespace TheraEngine.Files
         /// <param name="dir">The path to the folder that the file resides in.</param>
         /// <param name="name">The name of the file in the path.</param>
         /// <param name="fmt">The format the data is written in.</param>
-        public static void GetDirNameFmt(string path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt)
+        /// <param name="ext">The extension of the file.</param>
+        public static void GetDirNameFmt(string path, out string dir, out string name, out FileFormat fmt, out string ext)
         {
             dir = Path.GetDirectoryName(path);
             name = Path.GetFileNameWithoutExtension(path);
-            fmt = GetFormat(path);
-            if (fmt == FileFormat.ThirdParty)
-                thirdPartyExt = Path.GetExtension(path).Substring(1);
-            else
-                thirdPartyExt = null;
+            fmt = GetFormat(path, out ext);
         }
 
         /// <summary>
@@ -330,7 +333,7 @@ namespace TheraEngine.Files
         /// <returns>A new instance of the file.</returns>
         public static T Load<T>(string filePath) where T : FileObject
         {
-            switch (GetFormat(filePath))
+            switch (GetFormat(filePath, out string ext))
             {
                 case FileFormat.ThirdParty:
                     return Read3rdParty<T>(filePath);
@@ -349,7 +352,7 @@ namespace TheraEngine.Files
         /// <returns>A new instance of the file.</returns>
         public static FileObject Load(Type type, string filePath)
         {
-            switch (GetFormat(filePath))
+            switch (GetFormat(filePath, out string ext))
             {
                 case FileFormat.ThirdParty:
                     return Read3rdParty(type, filePath);
@@ -363,7 +366,7 @@ namespace TheraEngine.Files
         [GridCallable("Save")]
         public void Export()
         {
-            if (string.IsNullOrEmpty(_filePath))
+            if (string.IsNullOrEmpty(_filePath) || !_filePath.IsValidPath())
                 throw new Exception("File has no path to export to.");
             GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt);
@@ -371,7 +374,7 @@ namespace TheraEngine.Files
         [GridCallable("Save")]
         public void Export(string path)
         {
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path) || !path.IsValidPath())
                 throw new Exception("File path is not valid.");
             GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt);
@@ -397,11 +400,11 @@ namespace TheraEngine.Files
             }
             if (ext != null)
             {
-                FileFormat format = GetFormat(ext);
+                FileFormat format = GetFormat(ext, out string ext2);
                 Export(directory, fileName, format, ext);
             }
             else
-                Engine.LogWarning("Cannot assume extension for " + GetType().GetFriendlyName());
+                Engine.LogWarning("Cannot assume extension for {0}. File was not exported.", GetType().GetFriendlyName());
         }
         [GridCallable("Save")]
         public void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null)

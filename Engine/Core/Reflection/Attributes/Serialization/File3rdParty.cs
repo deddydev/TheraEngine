@@ -54,5 +54,12 @@ namespace System.ComponentModel
             else
                 ExtensionNames3rdParty[extension] = userFriendlyName;
         }
+
+        public bool HasExtension(string ext)
+        {
+            return 
+                ExportableExtensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ||
+                ImportableExtensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 }

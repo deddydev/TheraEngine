@@ -1240,7 +1240,7 @@ namespace TheraEditor.Windows.Forms
         //    return singleNode.MultiSelectMenuStrip;
         //}
         #endregion
-
+        
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
             ((BaseWrapper)e.Node).OnExpand();

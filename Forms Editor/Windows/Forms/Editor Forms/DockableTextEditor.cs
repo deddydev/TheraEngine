@@ -146,6 +146,7 @@ namespace TheraEditor.Windows.Forms
                 ShowEffects = false,
                 ShowColor = true,
                 Color = TextBox.ForeColor,
+                AllowScriptChange = false,
             };
             fd.Apply += Fd_Apply;
             Font prevFont = TextBox.Font;
@@ -181,7 +182,8 @@ namespace TheraEditor.Windows.Forms
                 string text = "";
                 foreach (string path in ofd.FileNames)
                     text += File.ReadAllText(path, TextFile.GetEncoding(path));
-                TextBox.Text += text;
+                TextBox.Text = text;
+                TextBox.IsChanged = false;
             }
         }
 

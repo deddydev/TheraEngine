@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms
                         TextBox.LeftBracket = '\x0';
                         TextBox.LeftBracket2 = '\x0';
                         TextBox.AutoCompleteBrackets = true;
-                        TextBox.DescriptionFile = Path.Combine(Engine.Settings.ScriptsFolder, "PythonHighlighting.xml");
+                        //TextBox.DescriptionFile = Path.Combine(Engine.Settings.ScriptsFolder, "PythonHighlighting.xml");
                         //System.Windows.Forms.TextBox.CaseSensitive = true;
                         //System.Windows.Forms.TextBox.Separators.AddRange(new char[] { ' ', '(', ')', '[', ']', '"', '\'', '=', '#', '<', '>', '/', '\\', '-', '+', '*', ':', ';', ',', '\t', '\r', '\n' });
                         //foreach (string kw in PythonKeywords)
@@ -134,6 +134,7 @@ namespace TheraEditor.Windows.Forms
                 ShowEffects = false,
                 ShowColor = true,
                 Color = TextBox.ForeColor,
+                AllowScriptChange = false,
             };
             fd.Apply += Fd_Apply;
             Font prevFont = TextBox.Font;
@@ -169,7 +170,8 @@ namespace TheraEditor.Windows.Forms
                 string text = "";
                 foreach (string path in ofd.FileNames)
                     text += File.ReadAllText(path, TextFile.GetEncoding(path));
-                TextBox.Text += text;
+                TextBox.Text = text;
+                TextBox.IsChanged = false;
             }
         }
 

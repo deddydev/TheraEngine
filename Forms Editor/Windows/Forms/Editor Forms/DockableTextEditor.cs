@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using TheraEditor.Core.SyntaxHighlightingTextBox;
+using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Files;
 using TheraEngine.Scripting;
@@ -26,10 +27,11 @@ namespace TheraEditor.Windows.Forms
             cboMode.SelectedIndex = 0;
         }
 
-        public void SetText(string text, ETextEditorMode mode)
+        public void InitText(string text, ETextEditorMode mode = ETextEditorMode.Text)
         {
             Mode = mode;
             TextBox.Text = text;
+            TextBox.IsChanged = false;
         }
         
         private ETextEditorMode _mode = ETextEditorMode.Text;
@@ -40,7 +42,9 @@ namespace TheraEditor.Windows.Forms
             {
                 if (_mode == value)
                     return;
+                _updating = true;
                 _mode = value;
+                cboMode.SelectedIndex = (int)_mode;
                 //System.Windows.Forms.TextBox.HighlightDescriptors.Clear();
                 switch (_mode)
                 {
@@ -50,11 +54,11 @@ namespace TheraEditor.Windows.Forms
                         break;
                     case ETextEditorMode.Python:
                         TextBox.Language = FastColoredTextBoxNS.Language.Custom;
-                        TextBox.BracketsHighlightStrategy = FastColoredTextBoxNS.BracketsHighlightStrategy.Strategy1;
                         TextBox.CommentPrefix = "#";
                         TextBox.LeftBracket = '\x0';
                         TextBox.LeftBracket2 = '\x0';
                         TextBox.AutoCompleteBrackets = true;
+                        TextBox.DescriptionFile = Path.Combine(Engine.Settings.ScriptsFolder, "PythonHighlighting.xml");
                         //System.Windows.Forms.TextBox.CaseSensitive = true;
                         //System.Windows.Forms.TextBox.Separators.AddRange(new char[] { ' ', '(', ')', '[', ']', '"', '\'', '=', '#', '<', '>', '/', '\\', '-', '+', '*', ':', ';', ',', '\t', '\r', '\n' });
                         //foreach (string kw in PythonKeywords)
@@ -69,9 +73,11 @@ namespace TheraEditor.Windows.Forms
                         TextBox.Language = FastColoredTextBoxNS.Language.Lua;
                         break;
                 }
+                _updating = false;
             }
         }
 
+        public string GetText() => TextBox.Text;
         public event Action<DockableTextEditor> Saved;
 
         private static string[] PythonKeywords =
@@ -111,9 +117,11 @@ namespace TheraEditor.Windows.Forms
             "raise",
         };
 
+        private bool _updating = false;
         private void cboMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Mode = (ETextEditorMode)cboMode.SelectedIndex;
+            if (!_updating)
+                Mode = (ETextEditorMode)cboMode.SelectedIndex;
         }
 
         private void btnFont_Click(object sender, EventArgs e)
@@ -168,6 +176,7 @@ namespace TheraEditor.Windows.Forms
         private void btnSave_Click_1(object sender, EventArgs e)
         {
             Saved?.Invoke(this);
+            TextBox.IsChanged = false;
         }
 
         private void btnSaveAs_Click(object sender, EventArgs e)

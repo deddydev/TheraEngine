@@ -86,14 +86,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             DockableTextEditor textEditor = new DockableTextEditor();
             textEditor.Show(Editor.Instance.DockPanel, DockState.Document);
-            textEditor.TextBox.Text = GetValue().ToString();
-            textEditor.TextBox.IsChanged = false;
+            textEditor.InitText(GetValue().ToString());
             textEditor.Saved += TextEditor_Saved;
         }
 
         private void TextEditor_Saved(DockableTextEditor obj)
         {
-            UpdateValue(obj.TextBox.Text, true);
+            UpdateValue(obj.GetText(), true);
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)

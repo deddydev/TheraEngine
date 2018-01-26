@@ -54,7 +54,7 @@
             this.btnFont});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(728, 33);
+            this.toolStrip1.Size = new System.Drawing.Size(728, 28);
             this.toolStrip1.TabIndex = 0;
             // 
             // toolStripDropDownButton1
@@ -69,34 +69,34 @@
             this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
             this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(56, 30);
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(46, 25);
             this.toolStripDropDownButton1.Text = "File";
             // 
             // btnOpen
             // 
             this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(199, 30);
+            this.btnOpen.Size = new System.Drawing.Size(172, 26);
             this.btnOpen.Text = "Open";
             this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
             // 
             // btnSave
             // 
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(199, 30);
+            this.btnSave.Size = new System.Drawing.Size(172, 26);
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click_1);
             // 
             // btnSaveAs
             // 
             this.btnSaveAs.Name = "btnSaveAs";
-            this.btnSaveAs.Size = new System.Drawing.Size(199, 30);
+            this.btnSaveAs.Size = new System.Drawing.Size(172, 26);
             this.btnSaveAs.Text = "Save As";
             this.btnSaveAs.Click += new System.EventHandler(this.btnSaveAs_Click);
             // 
             // btnSelectPaths
             // 
             this.btnSelectPaths.Name = "btnSelectPaths";
-            this.btnSelectPaths.Size = new System.Drawing.Size(199, 30);
+            this.btnSelectPaths.Size = new System.Drawing.Size(172, 26);
             this.btnSelectPaths.Text = "Select Path(s)";
             this.btnSelectPaths.Click += new System.EventHandler(this.btnSelectPaths_Click);
             // 
@@ -107,7 +107,7 @@
             this.cboMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cboMode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.cboMode.Name = "cboMode";
-            this.cboMode.Size = new System.Drawing.Size(121, 33);
+            this.cboMode.Size = new System.Drawing.Size(121, 28);
             this.cboMode.SelectedIndexChanged += new System.EventHandler(this.cboMode_SelectedIndexChanged);
             // 
             // btnFont
@@ -117,7 +117,7 @@
             this.btnFont.Image = ((System.Drawing.Image)(resources.GetObject("btnFont.Image")));
             this.btnFont.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnFont.Name = "btnFont";
-            this.btnFont.Size = new System.Drawing.Size(125, 30);
+            this.btnFont.Size = new System.Drawing.Size(102, 25);
             this.btnFont.Text = "Consolas 9 pt";
             this.btnFont.Click += new System.EventHandler(this.btnFont_Click);
             // 
@@ -137,13 +137,13 @@
         '\''};
             this.TextBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;]+);\r\n^\\s*(case|default)\\s*[^:]" +
     "*(?<range>:)\\s*(?<range>[^;]+);\r\n";
-            this.TextBox.AutoScrollMinSize = new System.Drawing.Size(56, 31);
+            this.TextBox.AutoScrollMinSize = new System.Drawing.Size(52, 27);
             this.TextBox.BackBrush = null;
             this.TextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
             this.TextBox.CaretColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.TextBox.ChangedLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.TextBox.CharHeight = 21;
-            this.TextBox.CharWidth = 10;
+            this.TextBox.ChangedLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(100)))));
+            this.TextBox.CharHeight = 17;
+            this.TextBox.CharWidth = 8;
             this.TextBox.CurrentLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(50)))));
             this.TextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.TextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
@@ -155,7 +155,7 @@
             this.TextBox.LeftBracket = '(';
             this.TextBox.LeftBracket2 = '{';
             this.TextBox.LeftPadding = 15;
-            this.TextBox.Location = new System.Drawing.Point(0, 33);
+            this.TextBox.Location = new System.Drawing.Point(0, 28);
             this.TextBox.Name = "TextBox";
             this.TextBox.Paddings = new System.Windows.Forms.Padding(5);
             this.TextBox.RightBracket = ')';
@@ -163,7 +163,7 @@
             this.TextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(0)))), ((int)(((byte)(240)))), ((int)(((byte)(255)))));
             this.TextBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("TextBox.ServiceColors")));
             this.TextBox.ShowFoldingLines = true;
-            this.TextBox.Size = new System.Drawing.Size(728, 552);
+            this.TextBox.Size = new System.Drawing.Size(728, 557);
             this.TextBox.TabIndex = 1;
             this.TextBox.TextAreaBorderColor = System.Drawing.Color.Transparent;
             this.TextBox.Zoom = 100;
@@ -192,6 +192,6 @@
         private System.Windows.Forms.ToolStripMenuItem btnSave;
         private System.Windows.Forms.ToolStripMenuItem btnSaveAs;
         private System.Windows.Forms.ToolStripMenuItem btnSelectPaths;
-        public FastColoredTextBoxNS.FastColoredTextBox TextBox;
+        private FastColoredTextBoxNS.FastColoredTextBox TextBox;
     }
 }

@@ -33,14 +33,14 @@ namespace TheraEditor.Wrappers
         {
             DockableTextEditor m = new DockableTextEditor();
             m.Show(Editor.Instance.DockPanel, DockState.Document);
-            m.SetText(ResourceRef.File.Text, ETextEditorMode.Python);
-            m.TextBox.TextChanged += TextBox_TextChanged;
-            //m.Saved +=
+            m.InitText(ResourceRef.File.Text, ETextEditorMode.Python);
+            m.Saved += M_Saved;
         }
 
-        private void TextBox_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
+        private void M_Saved(DockableTextEditor obj)
         {
-            
+            ResourceRef.File.Text = obj.GetText();
+            ResourceRef.ExportReference();
         }
     }
 }

@@ -39,8 +39,11 @@
             this.cboMode = new System.Windows.Forms.ToolStripComboBox();
             this.btnFont = new System.Windows.Forms.ToolStripButton();
             this.TextBox = new FastColoredTextBoxNS.FastColoredTextBox();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.StatusText = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TextBox)).BeginInit();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -123,6 +126,7 @@
             // 
             // TextBox
             // 
+            this.TextBox.AllowSeveralTextStyleDrawing = true;
             this.TextBox.AutoCompleteBrackets = true;
             this.TextBox.AutoCompleteBracketsList = new char[] {
         '(',
@@ -135,13 +139,14 @@
         '\"',
         '\'',
         '\''};
+            this.TextBox.AutoIndentChars = false;
             this.TextBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;]+);\r\n^\\s*(case|default)\\s*[^:]" +
     "*(?<range>:)\\s*(?<range>[^;]+);\r\n";
-            this.TextBox.AutoScrollMinSize = new System.Drawing.Size(52, 27);
+            this.TextBox.AutoScrollMinSize = new System.Drawing.Size(47, 27);
             this.TextBox.BackBrush = null;
             this.TextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
             this.TextBox.CaretColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.TextBox.ChangedLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(100)))));
+            this.TextBox.ChangedLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(140)))));
             this.TextBox.CharHeight = 17;
             this.TextBox.CharWidth = 8;
             this.TextBox.CurrentLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(50)))));
@@ -154,7 +159,7 @@
             this.TextBox.IsReplaceMode = false;
             this.TextBox.LeftBracket = '(';
             this.TextBox.LeftBracket2 = '{';
-            this.TextBox.LeftPadding = 15;
+            this.TextBox.LeftPadding = 10;
             this.TextBox.Location = new System.Drawing.Point(0, 28);
             this.TextBox.Name = "TextBox";
             this.TextBox.Paddings = new System.Windows.Forms.Padding(5);
@@ -163,21 +168,48 @@
             this.TextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(0)))), ((int)(((byte)(240)))), ((int)(((byte)(255)))));
             this.TextBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("TextBox.ServiceColors")));
             this.TextBox.ShowFoldingLines = true;
-            this.TextBox.Size = new System.Drawing.Size(728, 557);
+            this.TextBox.Size = new System.Drawing.Size(728, 533);
             this.TextBox.TabIndex = 1;
             this.TextBox.TextAreaBorderColor = System.Drawing.Color.Transparent;
             this.TextBox.Zoom = 100;
+            this.TextBox.SelectionChanged += new System.EventHandler(this.TextBox_SelectionChanged);
+            this.TextBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.TextBox_MouseDoubleClick);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(100)))), ((int)(((byte)(180)))));
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.StatusText});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 561);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(728, 24);
+            this.statusStrip1.TabIndex = 2;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // StatusText
+            // 
+            this.StatusText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.StatusText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.StatusText.Name = "StatusText";
+            this.StatusText.Padding = new System.Windows.Forms.Padding(3);
+            this.StatusText.Size = new System.Drawing.Size(713, 17);
+            this.StatusText.Spring = true;
+            this.StatusText.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // DockableTextEditor
             // 
             this.ClientSize = new System.Drawing.Size(728, 585);
             this.Controls.Add(this.TextBox);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
             this.Name = "DockableTextEditor";
             this.Text = "Text Editor";
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TextBox)).EndInit();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -193,5 +225,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnSaveAs;
         private System.Windows.Forms.ToolStripMenuItem btnSelectPaths;
         private FastColoredTextBoxNS.FastColoredTextBox TextBox;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel StatusText;
     }
 }

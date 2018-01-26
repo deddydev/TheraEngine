@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FastColoredTextBoxNS;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -58,7 +59,8 @@ namespace TheraEditor.Windows.Forms
                         TextBox.LeftBracket = '\x0';
                         TextBox.LeftBracket2 = '\x0';
                         TextBox.AutoCompleteBrackets = true;
-                        TextBox.DescriptionFile = Path.Combine(Engine.Settings.ScriptsFolder, "PythonHighlighting.xml");
+                        //TextBox.DescriptionFile = Path.Combine(Engine.Settings.ScriptsFolder, "PythonHighlighting.xml");
+                        TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded;
                         //System.Windows.Forms.TextBox.CaseSensitive = true;
                         //System.Windows.Forms.TextBox.Separators.AddRange(new char[] { ' ', '(', ')', '[', ']', '"', '\'', '=', '#', '<', '>', '/', '\\', '-', '+', '*', ':', ';', ',', '\t', '\r', '\n' });
                         //foreach (string kw in PythonKeywords)
@@ -74,6 +76,16 @@ namespace TheraEditor.Windows.Forms
                         break;
                 }
                 _updating = false;
+            }
+        }
+
+        private void TextBox_AutoIndentNeeded(object sender, FastColoredTextBoxNS.AutoIndentEventArgs e)
+        {
+            string line = e.LineText.Trim();
+            if (line.EndsWith(":"))
+            {
+                e.ShiftNextLines = e.TabLength;
+                return;
             }
         }
 
@@ -195,6 +207,35 @@ namespace TheraEditor.Windows.Forms
             {
                 TextBox.Text = TextBox.Text.Insert(TextBox.SelectionStart, string.Join(Environment.NewLine, ofd.FileNames));
             }
+        }
+
+        private void TextBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Range sel = TextBox.Selection;
+            //if (sel.Start.iChar < TextBox.Text.Length)
+            //{
+            //    char c = TextBox.Text[i];
+            //    if (c == '\r')
+            //        TextBox.Selection = new FastColoredTextBoxNS.Range(TextBox, new Place())
+            //}
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            bool processed = base.ProcessCmdKey(ref msg, keyData);
+            if (keyData == Keys.Insert)
+            {
+                TextBox_SelectionChanged(null, null);
+            }
+            return processed;
+        }
+
+        private void TextBox_SelectionChanged(object sender, EventArgs e)
+        {
+            bool insert = IsKeyLocked(Keys.Insert);
+            Range r = TextBox.Selection;
+            StatusText.Text = string.Format("Ln {0} Col {1} {2}", 
+                r.Start.iLine + 1, r.Start.iChar + 1, insert ? "OVR" : "INS");
         }
     }
 }

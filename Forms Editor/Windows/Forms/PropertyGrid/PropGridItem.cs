@@ -64,11 +64,30 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (_isEditing == value)
                     return;
                 _isEditing = value;
+
+                if (IsReferenceType)
+                    return;
+
                 if (_isEditing)
                     _oldValue = _newValue = GetValue();
                 else if (_oldValue != _newValue)
                     SubmitStateChange(_oldValue, _newValue);
             }
+        }
+        public bool IsReferenceType => DataType.IsClass && DataType != typeof(string);
+        
+        protected virtual object ClassObject => null;
+        protected void InputLostFocus(object sender, EventArgs e)
+        {
+            if (sender is Control ctrl && ctrl.Tag is string propName && ClassObject != null)
+                SubmitPostManualStateChange(ClassObject, propName);
+            IsEditing = false;
+        }
+        protected void InputGotFocus(object sender, EventArgs e)
+        {
+            IsEditing = true;
+            if (sender is Control ctrl && ctrl.Tag is string propName && ClassObject != null)
+                SubmitPreManualStateChange(ClassObject, propName);
         }
 
         /// <summary>
@@ -116,14 +135,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (_updating)
                 return;
-            if (DataType.IsClass && DataType != typeof(string))
+
+            if (IsReferenceType && ReferenceEquals(newValue, GetValue()))
             {
-                if (ReferenceEquals(newValue, GetValue()))
-                {
-                    Engine.LogWarning("Tried setting class object to the same reference. Are you sure you didn't mean to update a property within?");
-                    return;
-                }
+                Engine.LogWarning("Tried setting class object to the same reference. Are you sure you didn't mean to update a property within?");
+                return;
             }
+
             if (IListOwner != null)
             {
                 if (submitStateChange)
@@ -161,13 +179,31 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 throw new InvalidOperationException();
         }
-        protected void SubmitPreManualStateChange(object classType, string propertyName)
-        {
 
+        /// <summary>
+        /// Use if DataType is a class and not a string.
+        /// </summary>
+        /// <param name="classObject"></param>
+        /// <param name="propertyName"></param>
+        protected void SubmitPreManualStateChange(object classObject, string propertyName)
+        {
+            _oldValue = DataType.GetProperty(propertyName).GetValue(classObject);
         }
-        protected void SubmitPostManualStateChange(object classType, string propertyName)
+        /// <summary>
+        /// Use if DataType is a class and not a string.
+        /// </summary>
+        /// <param name="classObject"></param>
+        /// <param name="propertyName"></param>
+        protected void SubmitPostManualStateChange(object classObject, string propertyName)
         {
-
+            PropertyInfo info = DataType.GetProperty(propertyName);
+            _newValue = info.GetValue(classObject);
+            if (_newValue != _oldValue)
+            {
+                PropertyGrid.btnSave.Visible = true;
+                Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+                    _oldValue, _newValue, classObject, info);
+            }
         }
         internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
         {

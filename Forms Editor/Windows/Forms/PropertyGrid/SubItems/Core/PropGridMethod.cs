@@ -37,8 +37,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         private void lblMethod_MouseDown(object sender, MouseEventArgs e)
         {
-            //TODO: retrieve parameters from the user
-            //Method.Invoke(PropertyOwner, );
+            if (Method.GetParameters().Length == 0)
+                Method.Invoke(PropertyOwner, new object[0]);
+            else
+            {
+                //TODO: retrieve parameters from the user
+            }
         }
         protected override void SetControlsEnabled(bool enabled)
         {

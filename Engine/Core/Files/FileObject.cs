@@ -121,6 +121,7 @@ namespace TheraEngine.Files
         public FileObject() { }
         internal protected virtual void OnLoaded() { }
 
+        [TString(false, true, false)]
         [Category("Object")]
         public string FilePath
         {
@@ -367,7 +368,10 @@ namespace TheraEngine.Files
         public void Export()
         {
             if (string.IsNullOrEmpty(_filePath) || !_filePath.IsValidPath())
-                throw new Exception("File has no path to export to.");
+            {
+                Engine.LogWarning("File was not exported; no path to export to.");
+                return;
+            }
             GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt);
         }
@@ -375,7 +379,10 @@ namespace TheraEngine.Files
         public void Export(string path)
         {
             if (string.IsNullOrEmpty(path) || !path.IsValidPath())
-                throw new Exception("File path is not valid.");
+            {
+                Engine.LogWarning("File was not exported; file path is not valid.");
+                return;
+            }
             GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt);
         }
@@ -404,7 +411,7 @@ namespace TheraEngine.Files
                 Export(directory, fileName, format, ext);
             }
             else
-                Engine.LogWarning("Cannot assume extension for {0}. File was not exported.", GetType().GetFriendlyName());
+                Engine.LogWarning("File was not exported; cannot assume extension for {0}.", GetType().GetFriendlyName());
         }
         [GridCallable("Save")]
         public void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null)

@@ -72,7 +72,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public event Action Saved;
+        public event Action<DockableTextEditor> Saved;
 
         private static string[] PythonKeywords =
         {
@@ -167,7 +167,7 @@ namespace TheraEditor.Windows.Forms
 
         private void btnSave_Click_1(object sender, EventArgs e)
         {
-            Saved?.Invoke();
+            Saved?.Invoke(this);
         }
 
         private void btnSaveAs_Click(object sender, EventArgs e)

@@ -145,20 +145,19 @@ namespace TheraEngine.Editor
             {
                 return string.Format("{0}.{1} {2} -> {3}",
                   PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
-                  OldValue.ToString(), NewValue.ToString());
+                  OldValue == null ? "null" : OldValue.ToString(),
+                  NewValue == null ? "null" : NewValue.ToString());
             }
 
             public override string DisplayChangeAsUndo()
             {
                 return string.Format("{0}.{1} {2} <- {3}",
                   PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
-                  OldValue.ToString(), NewValue.ToString());
+                  OldValue == null ? "null" : OldValue.ToString(),
+                  NewValue == null ? "null" : NewValue.ToString());
             }
 
-            public override string ToString()
-            {
-                return DisplayChangeAsRedo();
-            }
+            public override string ToString() => DisplayChangeAsRedo();
         }
         public class GlobalValueChange
         {

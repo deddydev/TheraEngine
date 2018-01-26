@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Files
 {
@@ -52,6 +53,7 @@ namespace TheraEngine.Files
         protected string _absolutePath = null;
         protected Type _subType = null;
 
+        [TString(false, true, false)]
         [Category("File Reference")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public virtual string ReferencePath

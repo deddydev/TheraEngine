@@ -2,19 +2,12 @@
 
 namespace TheraEngine.Core.Reflection.Attributes
 {
-    public enum StringType
-    {
-        SingleLine,
-        MultiLine,
-        SinglePath,
-        MultiPath,
-    }
-    public class StringAttribute : Attribute
+    public class TStringAttribute : Attribute
     {
         public bool MultiLine { get; set; }
         public bool Path { get; set; }
         public bool Unicode { get; set; }
-        public StringAttribute(bool multiLine, bool path, bool unicode)
+        public TStringAttribute(bool multiLine = false, bool path = false, bool unicode = false)
         {
             MultiLine = multiLine;
             Path = path;

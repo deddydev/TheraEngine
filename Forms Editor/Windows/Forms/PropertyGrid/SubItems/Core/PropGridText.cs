@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 using TheraEngine.Core.Reflection.Attributes;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -19,6 +20,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void TextBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void TextBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
+        private bool _multiLine = true;
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
@@ -26,17 +28,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (Property != null)
             {
                 object[] attribs = Property.GetCustomAttributes(true);
-                StringAttribute s = attribs.FirstOrDefault(x => x is StringAttribute) as StringAttribute;
-                if (s != null)
+                if (attribs.FirstOrDefault(x => x is TStringAttribute) is TStringAttribute s)
                 {
-                    if (s.MultiLine)
-                    {
-
-                    }
-                    if (s.Path)
-                    {
-
-                    }
+                    btnEdit.Visible = _multiLine = s.MultiLine;
+                    btnBrowse.Visible = s.Path;
                     if (s.Unicode)
                     {
 
@@ -71,17 +66,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             if (chkNull.Checked)
             {
-                UpdateValue(null);
+                UpdateValue(null, true);
                 SetControlsEnabled(false);
             }
             else
             {
                 if (DataType == typeof(string))
-                    UpdateValue("");
+                    UpdateValue("", true);
                 else
                 {
                     object o = Editor.UserCreateInstanceOf(DataType, true);
-                    UpdateValue(o);
+                    UpdateValue(o, true);
                 }
                 SetControlsEnabled(true);
             }
@@ -92,6 +87,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             DockableTextEditor textEditor = new DockableTextEditor();
             textEditor.Show(Editor.Instance.DockPanel, DockState.Document);
             textEditor.TextBox.Text = GetValue().ToString();
+            textEditor.TextBox.IsChanged = false;
+            textEditor.Saved += TextEditor_Saved;
+        }
+
+        private void TextEditor_Saved(DockableTextEditor obj)
+        {
+            UpdateValue(obj.TextBox.Text, true);
+        }
+
+        private void btnBrowse_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = "All files (*.*)|*.*",
+                Multiselect = _multiLine
+            };
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                UpdateValue(string.Join(Environment.NewLine, ofd.FileNames), true);
+            }
         }
     }
 }

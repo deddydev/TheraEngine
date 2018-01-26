@@ -5,6 +5,7 @@ using System;
 using TheraEngine.Input.Devices;
 using TheraEngine.Scripting;
 using TheraEngine.Editor;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine
 {
@@ -59,6 +60,7 @@ namespace TheraEngine
             OnConstructed?.Invoke(this);
         }
         
+        [TString(false, false, false)]
         [TSerialize("Name", XmlNodeType = EXmlNodeType.Attribute)]
         protected string _name = null;
         private object _userData = null;
@@ -120,7 +122,7 @@ namespace TheraEngine
         [TSerialize("EditorState")]
         private EditorState _editorState = null;
 
-        [Browsable(false)]
+        [BrowsableIf("_editorState != null")]
         public EditorState EditorState
         {
             get => _editorState ?? (_editorState = new EditorState(this));

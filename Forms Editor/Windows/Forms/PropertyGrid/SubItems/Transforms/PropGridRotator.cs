@@ -10,15 +10,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             InitializeComponent();
             cboOrder.DataSource = Enum.GetValues(typeof(RotationOrder));
-            numericInputBoxPitch.GotFocus += NumericInputBoxX_GotFocus;
-            numericInputBoxYaw.GotFocus += NumericInputBoxX_GotFocus;
-            numericInputBoxRoll.GotFocus += NumericInputBoxX_GotFocus;
-            numericInputBoxPitch.LostFocus += NumericInputBoxX_LostFocus;
-            numericInputBoxYaw.LostFocus += NumericInputBoxX_LostFocus;
-            numericInputBoxRoll.LostFocus += NumericInputBoxX_LostFocus;
+
+            numericInputBoxPitch.Tag = "Pitch";
+            numericInputBoxYaw.Tag = "Yaw";
+            numericInputBoxRoll.Tag = "Roll";
+
+            numericInputBoxPitch.GotFocus += InputGotFocus;
+            numericInputBoxYaw.GotFocus += InputGotFocus;
+            numericInputBoxRoll.GotFocus += InputGotFocus;
+
+            numericInputBoxPitch.LostFocus += InputLostFocus;
+            numericInputBoxYaw.LostFocus += InputLostFocus;
+            numericInputBoxRoll.LostFocus += InputLostFocus;
         }
-        private void NumericInputBoxX_LostFocus(object sender, EventArgs e) => IsEditing = false;
-        private void NumericInputBoxX_GotFocus(object sender, EventArgs e) => IsEditing = true;
+        protected override object ClassObject => _rotator;
 
         public Rotator _rotator;
         protected override void UpdateDisplayInternal()
@@ -70,7 +75,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true));
+                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
         }
     }
 }

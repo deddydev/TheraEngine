@@ -8,16 +8,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridEventVec3()
         {
             InitializeComponent();
-            numericInputBoxX.GotFocus += NumericInputBoxX_GotFocus;
-            numericInputBoxY.GotFocus += NumericInputBoxX_GotFocus;
-            numericInputBoxZ.GotFocus += NumericInputBoxX_GotFocus;
-            numericInputBoxX.LostFocus += NumericInputBoxX_LostFocus;
-            numericInputBoxY.LostFocus += NumericInputBoxX_LostFocus;
-            numericInputBoxZ.LostFocus += NumericInputBoxX_LostFocus;
-        }
 
-        private void NumericInputBoxX_LostFocus(object sender, EventArgs e) => IsEditing = false;
-        private void NumericInputBoxX_GotFocus(object sender, EventArgs e) => IsEditing = true;
+            numericInputBoxX.Tag = "X";
+            numericInputBoxY.Tag = "Y";
+            numericInputBoxZ.Tag = "Z";
+
+            numericInputBoxX.GotFocus += InputGotFocus;
+            numericInputBoxY.GotFocus += InputGotFocus;
+            numericInputBoxZ.GotFocus += InputGotFocus;
+
+            numericInputBoxX.LostFocus += InputLostFocus;
+            numericInputBoxY.LostFocus += InputLostFocus;
+            numericInputBoxZ.LostFocus += InputLostFocus;
+        }
+        protected override object ClassObject => _eventVec3;
 
         public EventVec3 _eventVec3;
         protected override void UpdateDisplayInternal()
@@ -57,10 +61,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             checkBox1.Enabled = enabled;
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true));
+                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
         }
     }
 }

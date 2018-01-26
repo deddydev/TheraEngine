@@ -424,7 +424,7 @@
     <None Include="Core\Maths\Transforms\Class\Transforms\WorldRotTransform.cs" />
     <None Include="Core\Maths\Transforms\Struct\Rotation\QuatRotator.cs" />
     <Compile Include="Core\Reflection\Attributes\DragRange.cs" />
-    <Compile Include="Core\Reflection\Attributes\String.cs" />
+    <Compile Include="Core\Reflection\Attributes\TString.cs" />
     <Compile Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
     <Compile Include="Audio\ALAudioManager.cs" />

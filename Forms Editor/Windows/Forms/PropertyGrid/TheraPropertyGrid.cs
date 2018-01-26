@@ -359,7 +359,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             PropGridMethod control = new PropGridMethod()
             {
-                Method = m
+                Method = m,
+                PropertyOwner = obj,
             };
             //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
             string catName = MethodName;//category == null ? MethodName : category.Category;

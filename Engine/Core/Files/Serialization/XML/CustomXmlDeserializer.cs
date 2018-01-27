@@ -144,8 +144,25 @@ namespace TheraEngine.Files.Serialization
             IEnumerable<IGrouping<string, VarInfo>> categorized,
             IEnumerable<MethodInfo> customMethods)
         {
-            List<VarInfo> attribs = members.Where(x => x.Attrib.IsXmlAttribute).ToList();
-            List<VarInfo> elements = members.Where(x => !x.Attrib.IsXmlAttribute).ToList();
+            List<VarInfo> attribs = new List<VarInfo>();
+            List<VarInfo> elements = new List<VarInfo>();
+            List<VarInfo> elementStrings = new List<VarInfo>();
+
+            foreach (VarInfo info in members)
+            {
+                switch (info.Attrib.XmlNodeType)
+                {
+                    case EXmlNodeType.Attribute:
+                        attribs.Add(info);
+                        break;
+                    case EXmlNodeType.ChildElement:
+                        elements.Add(info);
+                        break;
+                    case EXmlNodeType.ElementString:
+                        elementStrings.Add(info);
+                        break;
+                }
+            }
 
             //Read attributes first
             while (reader.ReadAttribute())

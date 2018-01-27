@@ -41,8 +41,9 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public void InitText(string text, ETextEditorMode mode = ETextEditorMode.Text)
+        public void InitText(string text, string fileName, ETextEditorMode mode = ETextEditorMode.Text)
         {
+            Text = string.IsNullOrWhiteSpace(fileName) ? "Text Editor" : fileName;
             Mode = mode;
             TextBox.Text = text;
             TextBox.IsChanged = false;
@@ -202,8 +203,11 @@ namespace TheraEditor.Windows.Forms
 
         private void btnSave_Click_1(object sender, EventArgs e)
         {
-            Saved?.Invoke(this);
-            TextBox.IsChanged = false;
+            if (TextBox.IsChanged)
+            {
+                Saved?.Invoke(this);
+                TextBox.IsChanged = false;
+            }
         }
 
         private void btnSaveAs_Click(object sender, EventArgs e)

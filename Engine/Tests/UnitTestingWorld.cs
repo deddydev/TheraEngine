@@ -222,12 +222,12 @@ namespace TheraEngine.Tests
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        public override void OnSpawnedPostComponentSetup(World world)
+        public override void OnSpawnedPostComponentSetup()
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
             RootComponent.Rotation.Pitch = -90.0f;
-            Engine.Scene.Add(this);
+            OwningWorld.Scene.Add(this);
         }
 
         private void RootComponent_WorldTransformChanged()
@@ -239,7 +239,7 @@ namespace TheraEngine.Tests
         public override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            Engine.Scene.Remove(this);
+            OwningWorld.Scene.Remove(this);
         }
 
         private void Tick(float delta)

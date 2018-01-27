@@ -99,7 +99,6 @@ namespace TheraEngine.Actors
         private bool _isConstructing;
         private List<I2DRenderable> _renderableComponentCache = new List<I2DRenderable>();
         public int _spawnIndex = -1;
-        private World _owningWorld;
         private ReadOnlyCollection<SceneComponent> _sceneComponentCache;
         private T _rootComponent;
 
@@ -137,7 +136,7 @@ namespace TheraEngine.Actors
         [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0;
         [Browsable(false)]
-        public World OwningWorld => _owningWorld;
+        public World OwningWorld { get; private set; } = null;
 
         [Browsable(false)]
         public ReadOnlyCollection<SceneComponent> SceneComponentCache => _sceneComponentCache;
@@ -215,15 +214,15 @@ For example, a logic component could give any actor health and/or allow it to ta
 
             //OnSpawned is called just after the actor is added to the actor list
             _spawnIndex = world.SpawnedActorCount - 1;
-            _owningWorld = world;
+            OwningWorld = world;
 
-            OnSpawnedPreComponentSetup(world);
+            OnSpawnedPreComponentSetup();
 
             _rootComponent.OnSpawned();
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnSpawned();
 
-            OnSpawnedPostComponentSetup(world);
+            OnSpawnedPostComponentSetup();
         }
         public void Despawned()
         {
@@ -237,18 +236,16 @@ For example, a logic component could give any actor health and/or allow it to ta
             _rootComponent.OnDespawned();
 
             _spawnIndex = -1;
-            _owningWorld = null;
+            OwningWorld = null;
         }
         /// <summary>
         /// Called before OnSpawned() is called for all logic and scene components.
         /// </summary>
-        /// <param name="world">The world this actor has been spawned in.</param>
-        public virtual void OnSpawnedPreComponentSetup(World world) { }
+        public virtual void OnSpawnedPreComponentSetup() { }
         /// <summary>
         /// Called after OnSpawned() is called for all logic and scene components.
         /// </summary>
-        /// <param name="world">The world this actor has been spawned in.</param>
-        public virtual void OnSpawnedPostComponentSetup(World world) { }
+        public virtual void OnSpawnedPostComponentSetup() { }
         /// <summary>
         /// Called when this actor is removed from the world.
         /// </summary>

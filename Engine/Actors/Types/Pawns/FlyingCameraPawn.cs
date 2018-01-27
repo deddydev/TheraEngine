@@ -245,10 +245,10 @@ namespace TheraEngine.Actors.Types.Pawns
 
         }
 
-        public override void OnSpawnedPostComponentSetup(World world)
+        public override void OnSpawnedPostComponentSetup()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
-            base.OnSpawnedPostComponentSetup(world);
+            base.OnSpawnedPostComponentSetup();
         }
         public override void OnDespawned()
         {

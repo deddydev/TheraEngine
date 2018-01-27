@@ -188,9 +188,9 @@ namespace TheraEditor.Windows.Forms
             else
                 MouseDown();
         }
-        public override void OnSpawnedPostComponentSetup(World world)
+        public override void OnSpawnedPostComponentSetup()
         {
-            base.OnSpawnedPostComponentSetup(world);
+            base.OnSpawnedPostComponentSetup();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
         }
         public override void OnDespawned()

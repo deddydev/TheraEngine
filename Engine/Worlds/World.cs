@@ -55,10 +55,7 @@ namespace TheraEngine.Worlds
         public Scene3D Scene
         {
             get => State.Scene;
-            set
-            {
-                State.Scene = value;
-            }
+            set => State.Scene = value;
         }
 
         private AbstractPhysicsWorld _physicsWorld;
@@ -125,6 +122,9 @@ namespace TheraEngine.Worlds
         public bool IsRebasingOrigin { get; private set; }
         public async void RebaseOrigin(Vec3 newOrigin)
         {
+            if (!Settings.EnableOriginRebasing)
+                return;
+
             if (IsRebasingOrigin)
                 throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
             IsRebasingOrigin = true;
@@ -179,7 +179,7 @@ namespace TheraEngine.Worlds
                 }
             }
             
-            Engine.Scene.Add(Settings.OriginRebaseBounds);
+            //Engine.Scene.Add(Settings.OriginRebaseBounds);
             Engine.Scene.Add(Settings.Bounds);
         }
 

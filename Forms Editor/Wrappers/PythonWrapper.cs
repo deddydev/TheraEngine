@@ -3,6 +3,8 @@ using System.ComponentModel;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
+using TheraEngine;
+using System.IO;
 
 namespace TheraEditor.Wrappers
 {
@@ -33,14 +35,16 @@ namespace TheraEditor.Wrappers
         {
             DockableTextEditor m = new DockableTextEditor();
             m.Show(Editor.Instance.DockPanel, DockState.Document);
-            m.InitText(ResourceRef.File.Text, ETextEditorMode.Python);
+            m.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.ReferencePath), ETextEditorMode.Python);
             m.Saved += M_Saved;
         }
 
         private void M_Saved(DockableTextEditor obj)
         {
             ResourceRef.File.Text = obj.GetText();
+            Editor.Instance.ContentTree.WatchProjectDirectory = false;
             ResourceRef.ExportReference();
+            Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
     }
 }

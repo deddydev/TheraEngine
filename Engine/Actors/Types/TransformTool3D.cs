@@ -416,7 +416,7 @@ namespace TheraEngine.Actors.Types
         {
             Instance.Despawn();
         }
-        public override void OnSpawnedPreComponentSetup(World world)
+        public override void OnSpawnedPreComponentSetup()
         {
             //Engine.Scene.Add(this);
         }

@@ -74,7 +74,8 @@ namespace TheraEngine.Worlds
         private GlobalFileRef<BaseGameMode> _gameMode;
         [TSerialize("TimeDilation")]
         private float _timeSpeed = 1.0f;
-        
+
+        public bool EnableOriginRebasing { get; set; } = false;
         public BoundingBox OriginRebaseBounds
         {
             get => _originRebaseBounds;

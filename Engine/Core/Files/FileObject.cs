@@ -504,6 +504,8 @@ namespace TheraEngine.Files
             }
             else
                 CustomXmlSerializer.Serialize(this, _filePath);
+
+            Engine.PrintLine("Saved XML file to {0}", FilePath);
         }
         /// <summary>
         /// Writes this object to an xml file using the given xml writer.
@@ -597,6 +599,8 @@ namespace TheraEngine.Files
             {
                 CustomBinarySerializer.Serialize(this, _filePath, Endian.EOrder.Big, true, true, "test", out byte[] encryptionSalt, out byte[] integrityHash, null);
             }
+
+            Engine.PrintLine("Saved binary file to {0}", FilePath);
         }
 
         /// <summary>
@@ -639,7 +643,11 @@ namespace TheraEngine.Files
         #region 3rd Party
         private void To3rdParty(string directory, string fileName, string thirdPartyExt)
         {
-            Write3rdParty(GetFilePath(directory, fileName, thirdPartyExt));
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+            FilePath = GetFilePath(directory, fileName, thirdPartyExt);
+            Write3rdParty(FilePath);
+            Engine.PrintLine("Saved third party file to {0}", FilePath);
         }
         internal unsafe static T Read3rdParty<T>(string filePath) where T : FileObject
             => Read3rdParty(typeof(T), filePath) as T;

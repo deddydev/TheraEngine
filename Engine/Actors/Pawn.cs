@@ -102,19 +102,21 @@ namespace TheraEngine.Actors
             }
         }
 
-        public override void OnSpawnedPreComponentSetup(World world)
+        public override void OnSpawnedPreComponentSetup()
         {
-            HUD?.Spawned(world);
+            HUD?.Spawned(OwningWorld);
         }
 
-        public override void OnSpawnedPostComponentSetup(World world)
+        public override void OnSpawnedPostComponentSetup()
         {
-            RootComponent.WorldTransformChanged += TryWorldRebase;
+            if (OwningWorld.Settings.EnableOriginRebasing)
+                RootComponent.WorldTransformChanged += TryWorldRebase;
         }
 
         public override void OnDespawned()
         {
-            RootComponent.WorldTransformChanged -= TryWorldRebase;
+            if (OwningWorld.Settings.EnableOriginRebasing)
+                RootComponent.WorldTransformChanged -= TryWorldRebase;
             HUD?.Despawned();
         }
 
@@ -148,20 +150,20 @@ namespace TheraEngine.Actors
         
         public void TryWorldRebase()
         {
-            if (Engine.World == null)
+            if (OwningWorld == null)
                 return;
 
-            BoundingBox bounds = Engine.World.Settings.OriginRebaseBounds;
+            BoundingBox bounds = OwningWorld.Settings.OriginRebaseBounds;
             Vec3 point = RootComponent.WorldMatrix.GetPoint();
             if (!bounds.Contains(point))
-                Engine.World.RebaseOrigin(point);
+                OwningWorld.RebaseOrigin(point);
         }
         public bool IsInWorldBounds()
         {
-            if (Engine.World == null)
+            if (OwningWorld == null)
                 return true;
 
-            return IsInBounds(Engine.World.Settings.Bounds);
+            return IsInBounds(OwningWorld.Settings.Bounds);
         }
         public bool IsInBounds(BoundingBox bounds)
             => bounds.Contains(RootComponent.WorldMatrix.GetPoint());

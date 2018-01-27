@@ -19,8 +19,8 @@
     }
     public enum EXmlNodeType
     {
-        ChildElement,
         Attribute,
+        ChildElement,
         ElementString,
     }
     /// <summary>

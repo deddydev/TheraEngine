@@ -181,10 +181,24 @@ namespace TheraEngine.Files.Serialization
                 Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).
                 Select(x => new VarInfo(x)).
                 //False comes first, so negate the bool so attributes are first
-                OrderBy(x => x.Attrib.XmlNodeType != EXmlNodeType.Attribute).ToList();
+                OrderBy(x => (int)x.Attrib.XmlNodeType).ToList();
 
-            int attribCount = fields.Count(x => x.Attrib.XmlNodeType == EXmlNodeType.Attribute);
-            int elementCount = fields.Count - attribCount;
+            int attribCount = 0, elementCount = 0, elementStringCount = 0;
+            foreach (VarInfo info in fields)
+            {
+                switch (info.Attrib.XmlNodeType)
+                {
+                    case EXmlNodeType.Attribute:
+                        ++attribCount;
+                        break;
+                    case EXmlNodeType.ChildElement:
+                        ++elementCount;
+                        break;
+                    case EXmlNodeType.ElementString:
+                        ++elementStringCount;
+                        break;
+                }
+            }
 
             for (int i = 0; i < fields.Count; ++i)
             {

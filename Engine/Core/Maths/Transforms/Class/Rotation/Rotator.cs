@@ -446,6 +446,15 @@ namespace TheraEngine.Core.Maths.Transforms
                 _pyr.Z += roll;
         }
 
+        public void RemapToRange(float min, float max)
+        {
+            BeginUpdate();
+            Pitch = Pitch.RemapToRange(min, max);
+            Yaw = Yaw.RemapToRange(min, max);
+            Roll = Roll.RemapToRange(min, max);
+            EndUpdate();
+        }
+
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 YawPitch

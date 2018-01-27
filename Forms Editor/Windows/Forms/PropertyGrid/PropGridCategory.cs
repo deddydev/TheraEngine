@@ -180,10 +180,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             tblProps.Visible = !tblProps.Visible;
 
+            List<string> cats = Editor.GetSettings().PropertyGridRef.File.CollapsedCategories;
+
             if (tblProps.Visible)
-                Editor.GetSettings().PropertyGridRef.File.CollapsedCategories.Remove(CategoryName);
+                cats.Remove(CategoryName);
             else
-                Editor.GetSettings().PropertyGridRef.File.CollapsedCategories.Add(CategoryName);
+                cats.Add(CategoryName);
 
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
         }

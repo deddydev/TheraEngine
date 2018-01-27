@@ -83,23 +83,23 @@ namespace TheraEngine.Actors.Types.Pawns
         [Browsable(false)]
         bool Translating => _rightClickPressed && !_ctrl;
 
-        [DisplayName("Scroll Speed")]
-        [Category("Movement Parameters")]
+        [TSerialize]
+        [Category("Movement")]
         public float ScrollSpeed { get => _scrollSpeed; set => _scrollSpeed = value; }
-        [DisplayName("Mouse Rotate Speed")]
-        [Category("Movement Parameters")]
+        [TSerialize]
+        [Category("Movement")]
         public float MouseRotateSpeed { get => _mouseRotateSpeed; set => _mouseRotateSpeed = value; }
-        [DisplayName("Mouse Translate Speed")]
-        [Category("Movement Parameters")]
+        [TSerialize]
+        [Category("Movement")]
         public float MouseTranslateSpeed { get => _mouseTranslateSpeed; set => _mouseTranslateSpeed = value; }
-        [DisplayName("Gamepad Rotate Speed")]
-        [Category("Movement Parameters")]
+        [TSerialize]
+        [Category("Movement")]
         public float GamepadRotateSpeed { get => _gamepadRotateSpeed; set => _gamepadRotateSpeed = value; }
-        [DisplayName("Gamepad Translate Speed")]
-        [Category("Movement Parameters")]
+        [TSerialize]
+        [Category("Movement")]
         public float GamepadTranslateSpeed { get => _gamepadTranslateSpeed; set => _gamepadTranslateSpeed = value; }
-        [DisplayName("Keyboard Translate Speed")]
-        [Category("Movement Parameters")]
+        [TSerialize]
+        [Category("Movement")]
         public float KeyboardTranslateSpeed { get => _keyboardTranslateSpeed; set => _keyboardTranslateSpeed = value; }
 
         //protected override void PostConstruct()
@@ -222,6 +222,7 @@ namespace TheraEngine.Actors.Types.Pawns
             if (Rotating)
             {
                 RootComponent.Rotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
+                RootComponent.Rotation.RemapToRange(-180.0f, 180.0f);
                 Camera_TransformChanged();
             }
             else if (Translating)
@@ -262,7 +263,10 @@ namespace TheraEngine.Actors.Types.Pawns
             if (translate)
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
+            {
                 RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                RootComponent.Rotation.RemapToRange(-180.0f, 180.0f);
+            }
         }
 
         #region Customizable Input

@@ -66,12 +66,12 @@ namespace TheraEngine.Components.Scene.Transforms
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Matrix4 
-                r = Matrix4.CreateFromRotator(_rotation), 
-                ir = Matrix4.CreateFromRotator(_rotation.Inverted());
+                r = _rotation.GetMatrix(), 
+                ir = _rotation.Inverted().GetMatrix();
 
             Matrix4
-                t = Matrix4.CreateTranslation(_translation), 
-                it = Matrix4.CreateTranslation(-_translation);
+                t = _translation.AsTranslationMatrix(), 
+                it = (-_translation).AsTranslationMatrix();
 
             localTransform = t * r;
             inverseLocalTransform = ir * it;
@@ -82,8 +82,8 @@ namespace TheraEngine.Components.Scene.Transforms
             => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
         {
-            _localTransform = LocalMatrix * Matrix4.CreateTranslation(translation);
-            _inverseLocalTransform = Matrix4.CreateTranslation(-translation) * InverseLocalMatrix;
+            _localTransform = LocalMatrix * translation.AsTranslationMatrix();
+            _inverseLocalTransform = (-translation).AsTranslationMatrix() * InverseLocalMatrix;
             _translation.SetRawNoUpdate(LocalMatrix.GetPoint());
             RecalcGlobalTransform();
         }

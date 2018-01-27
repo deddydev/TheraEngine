@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheraEngine;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -13,6 +14,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             InitializeComponent();
             DestroyProperties();
+
+            bool invalid = string.IsNullOrWhiteSpace(CategoryName);
+            if (lblCategoryName.Visible = !invalid)
+                tblProps.Visible = !Editor.GetSettings().PropertyGridRef.File.CollapsedCategories.Contains(CategoryName);
+            else
+                tblProps.Visible = true;
         }
 
         public string CategoryName
@@ -21,7 +28,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             set
             {
                 lblCategoryName.Text = value;
-                lblCategoryName.Visible = !string.IsNullOrWhiteSpace(value);
+
+                bool invalid = string.IsNullOrWhiteSpace(value);
+                if (lblCategoryName.Visible = !invalid)
+                    tblProps.Visible = !Editor.GetSettings().PropertyGridRef.File.CollapsedCategories.Contains(CategoryName);
+                else
+                    tblProps.Visible = true;
             }
         }
 
@@ -82,7 +94,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else if (!string.IsNullOrWhiteSpace(propName))
             {
-                name = Editor.DefaultSettingsRef.File.PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
+                name = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
             }
             else
             {
@@ -167,6 +179,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblCategoryName_MouseDown(object sender, MouseEventArgs e)
         {
             tblProps.Visible = !tblProps.Visible;
+
+            if (tblProps.Visible)
+                Editor.GetSettings().PropertyGridRef.File.CollapsedCategories.Remove(CategoryName);
+            else
+                Editor.GetSettings().PropertyGridRef.File.CollapsedCategories.Add(CategoryName);
+
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
         }
 

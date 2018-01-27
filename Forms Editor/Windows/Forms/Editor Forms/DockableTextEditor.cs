@@ -26,6 +26,19 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             cboMode.Items.AddRange(Enum.GetNames(typeof(ETextEditorMode)));
             cboMode.SelectedIndex = 0;
+            TextBox.CustomAction += TextBox_CustomAction;
+            TextBox.HotkeysMapping.Add(Keys.Control | Keys.S, FCTBAction.CustomAction1);
+            TextBox.HotkeysMapping.Add(Keys.OemPeriod, FCTBAction.AutocompleteMenu);
+        }
+
+        private void TextBox_CustomAction(object sender, CustomActionEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case FCTBAction.CustomAction1:
+                    btnSave_Click_1(null, null);
+                    break;
+            }
         }
 
         public void InitText(string text, ETextEditorMode mode = ETextEditorMode.Text)
@@ -195,7 +208,14 @@ namespace TheraEditor.Windows.Forms
 
         private void btnSaveAs_Click(object sender, EventArgs e)
         {
-
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                Filter = FileObject.GetFilter<TextFile>(false, true, true) + "|All files (*.*)|*.*",
+            };
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                File.WriteAllText(sfd.FileName, TextBox.Text);
+            }
         }
 
         private void btnSelectPaths_Click(object sender, EventArgs e)

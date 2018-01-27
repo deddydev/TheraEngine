@@ -12,6 +12,22 @@ namespace TheraEditor
         private GlobalFileRef<EngineSettings> _engineSettingsRef = new GlobalFileRef<EngineSettings>();
         private GlobalFileRef<PropertyGridSettings> _propertyGridRef = new GlobalFileRef<PropertyGridSettings>();
         private GlobalFileRef<ControlSettings> _controlSettingsRef = new GlobalFileRef<ControlSettings>();
+        
+        public EngineSettings EngineSettings
+        {
+            get => _engineSettingsRef.File;
+            set => _engineSettingsRef.File = value;
+        }
+        public PropertyGridSettings PropertyGrid
+        {
+            get => _propertyGridRef.File;
+            set => _propertyGridRef.File = value;
+        }
+        public ControlSettings Controls
+        {
+            get => _controlSettingsRef.File;
+            set => _controlSettingsRef.File = value;
+        }
 
         [TSerialize]
         public GlobalFileRef<EngineSettings> EngineSettingsRef
@@ -42,12 +58,20 @@ namespace TheraEditor
         [FileDef("Property Grid Settings")]
         public class PropertyGridSettings : TSettings
         {
+            private List<string> _collapsedCategories = new List<string>();
+
             [TSerialize]
             public bool SplitCamelCase { get; set; }
             [TSerialize]
             public float UpdateRateInSeconds { get; set; }
             [TSerialize]
             public bool IgnoreLoneSubCategories { get; set; }
+            [TSerialize]
+            public List<string> CollapsedCategories
+            {
+                get => _collapsedCategories;
+                set => _collapsedCategories = value ?? new List<string>();
+            }
 
             public PropertyGridSettings()
             {

@@ -9,10 +9,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             InitializeComponent();
 
-            numericInputBoxX.Tag = "X";
-            numericInputBoxY.Tag = "Y";
-            numericInputBoxZ.Tag = "Z";
-            numericInputBoxW.Tag = "W";
+            numericInputBoxX.Tag = nameof(EventVec4.X);
+            numericInputBoxY.Tag = nameof(EventVec4.Y);
+            numericInputBoxZ.Tag = nameof(EventVec4.Z);
+            numericInputBoxW.Tag = nameof(EventVec4.W);
 
             numericInputBoxX.GotFocus += InputGotFocus;
             numericInputBoxY.GotFocus += InputGotFocus;
@@ -40,7 +40,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 numericInputBoxW.Value = _eventVec4?.W;
             }
             else
-                throw new Exception(DataType.GetFriendlyName() + " is not an EventVec4 type.");
+                throw new Exception(string.Format("{0} is not {1}.", DataType.GetFriendlyName(), nameof(EventVec4)));
         }
 
         private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)

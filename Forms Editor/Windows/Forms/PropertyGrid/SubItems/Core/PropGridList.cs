@@ -18,11 +18,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             lblObjectTypeName.Text = DataType.GetFriendlyName();
-            checkBox1.Visible = DataType.IsValueType;
+            chkNull.Visible = DataType.IsValueType;
             if (typeof(IList).IsAssignableFrom(DataType))
             {
                 IList list = value as IList;
-                if (!(checkBox1.Checked = list == null))
+                chkNull.Visible = DataType.IsClass;
+                if (!(chkNull.Checked = list == null))
                 {
                     btnAdd.Visible = !list.IsFixedSize;
                     _elementType = list.DetermineElementType();
@@ -131,7 +132,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected override void SetControlsEnabled(bool enabled)
         {
-            checkBox1.Enabled = enabled;
+            chkNull.Enabled = enabled;
+        }
+
+        private void chkNull_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!_updating)
+                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
         }
     }
 }

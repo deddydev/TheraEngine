@@ -11,9 +11,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             InitializeComponent();
             cboOrder.DataSource = Enum.GetValues(typeof(RotationOrder));
 
-            numericInputBoxPitch.Tag = "Pitch";
-            numericInputBoxYaw.Tag = "Yaw";
-            numericInputBoxRoll.Tag = "Roll";
+            numericInputBoxPitch.Tag = nameof(Rotator.Pitch);
+            numericInputBoxYaw.Tag = nameof(Rotator.Yaw);
+            numericInputBoxRoll.Tag = nameof(Rotator.Roll);
 
             numericInputBoxPitch.GotFocus += InputGotFocus;
             numericInputBoxYaw.GotFocus += InputGotFocus;

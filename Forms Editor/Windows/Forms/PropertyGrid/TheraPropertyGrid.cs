@@ -51,15 +51,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
         }
-        public TheraPropertyGrid()
-        {
-            InitializeComponent();
-        }
 
+        public TheraPropertyGrid() => InitializeComponent();
+        
         internal static GameTimer UpdateTimer = new GameTimer();
         protected override void OnHandleCreated(EventArgs e)
         {
-            UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.DefaultSettingsRef.File.PropertyGridRef.File.UpdateRateInSeconds);
+            UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
             base.OnHandleCreated(e);
         }
         protected override void OnHandleDestroyed(EventArgs e)
@@ -282,7 +280,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             CreateMethodControl(m.Method, m.DisplayName, m.Attribs, pnlProps, _categories, obj, this);
                         }
 
-                        if (Editor.DefaultSettingsRef.File.PropertyGridRef.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                        if (Editor.Instance.Project.EditorSettings.PropertyGridRef.File.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
 
                         //pnlProps.ResumeLayout(true);

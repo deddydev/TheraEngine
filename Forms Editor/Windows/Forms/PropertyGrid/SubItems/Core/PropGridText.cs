@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEngine.Core.Reflection.Attributes;
@@ -39,7 +40,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
             SetControlsEnabled(DataType == typeof(string) && !chkNull.Checked);
-            textBox1.Text = value?.ToString() ?? "";
+            textBox1.Text = value?.ToString() ?? string.Empty;
         }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
@@ -72,7 +73,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
             {
                 if (DataType == typeof(string))
-                    UpdateValue("", true);
+                    UpdateValue(string.Empty, true);
                 else
                 {
                     object o = Editor.UserCreateInstanceOf(DataType, true);
@@ -86,7 +87,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             DockableTextEditor textEditor = new DockableTextEditor();
             textEditor.Show(Editor.Instance.DockPanel, DockState.Document);
-            textEditor.InitText(GetValue().ToString());
+            textEditor.InitText(GetValue()?.ToString() ?? string.Empty);
             textEditor.Saved += TextEditor_Saved;
         }
 
@@ -97,11 +98,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {
+            string path = GetValue()?.ToString() ?? string.Empty;
             OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = "All files (*.*)|*.*",
-                Multiselect = _multiLine
+                Multiselect = _multiLine,
+                FileName = path,
             };
+
+            if (path.IsValidPath())
+                ofd.InitialDirectory = Path.GetDirectoryName(path);
+
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 UpdateValue(string.Join(Environment.NewLine, ofd.FileNames), true);

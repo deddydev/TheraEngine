@@ -9,9 +9,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             InitializeComponent();
 
-            numericInputBoxX.Tag = "X";
-            numericInputBoxY.Tag = "Y";
-            numericInputBoxZ.Tag = "Z";
+            numericInputBoxX.Tag = nameof(EventVec3.X);
+            numericInputBoxY.Tag = nameof(EventVec3.Y);
+            numericInputBoxZ.Tag = nameof(EventVec3.Z);
 
             numericInputBoxX.GotFocus += InputGotFocus;
             numericInputBoxY.GotFocus += InputGotFocus;

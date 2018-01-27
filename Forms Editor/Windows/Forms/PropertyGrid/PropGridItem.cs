@@ -79,14 +79,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected virtual object ClassObject => null;
         protected void InputLostFocus(object sender, EventArgs e)
         {
-            if (sender is Control ctrl && ctrl.Tag is string propName && ClassObject != null)
+            if (ClassObject != null && sender is Control ctrl && ctrl.Tag is string propName)
                 SubmitPostManualStateChange(ClassObject, propName);
             IsEditing = false;
         }
         protected void InputGotFocus(object sender, EventArgs e)
         {
             IsEditing = true;
-            if (sender is Control ctrl && ctrl.Tag is string propName && ClassObject != null)
+            if (ClassObject != null && sender is Control ctrl && ctrl.Tag is string propName)
                 SubmitPreManualStateChange(ClassObject, propName);
         }
 

@@ -105,6 +105,9 @@ namespace TheraEditor.Windows.Forms
         public DockableRenderForm RenderForm2 => GetRenderForm(1);
         public DockableRenderForm RenderForm3 => GetRenderForm(2);
         public DockableRenderForm RenderForm4 => GetRenderForm(3);
+        
+        public static GlobalFileRef<EditorSettings> GetSettingsRef() => Instance.Project?.EditorSettingsRef ?? DefaultSettingsRef;
+        public static EditorSettings GetSettings() => GetSettingsRef()?.File;
 
         public T GetForm<T>(ref T value) where T : DockContent, new()
         {

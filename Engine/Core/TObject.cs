@@ -61,7 +61,7 @@ namespace TheraEngine
         }
         
         [TString(false, false, false)]
-        [TSerialize("Name", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(nameof(Name), XmlNodeType = EXmlNodeType.Attribute)]
         protected string _name = null;
         private object _userData = null;
         
@@ -76,10 +76,11 @@ namespace TheraEngine
         }
 
         #region Name
+        [TString(false, false, false)]
         [Category("Object")]
         public virtual string Name
         {
-            get => string.IsNullOrEmpty(_name) ? GetType().GetFriendlyName().Replace("<", "[").Replace(">", "]") : _name;
+            get => string.IsNullOrEmpty(_name) ? GetType().GetFriendlyName("[", "]") : _name;
             set
             {
                 string oldName = _name;
@@ -119,10 +120,11 @@ namespace TheraEngine
 
 #if EDITOR
 
-        [TSerialize("EditorState")]
+        [TSerialize(nameof(EditorState))]
         private EditorState _editorState = null;
 
-        [BrowsableIf("_editorState != null")]
+        [Browsable(false)]
+        //[BrowsableIf("_editorState != null")]
         public EditorState EditorState
         {
             get => _editorState ?? (_editorState = new EditorState(this));

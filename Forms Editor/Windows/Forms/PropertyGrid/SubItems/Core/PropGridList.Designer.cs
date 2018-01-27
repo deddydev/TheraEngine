@@ -33,7 +33,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.components = new System.ComponentModel.Container();
             this.propGridListItems = new TheraEditor.Windows.Forms.PropertyGrid.PropGridCategory();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.chkNull = new System.Windows.Forms.CheckBox();
             this.lblObjectTypeName = new System.Windows.Forms.Label();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.btnAdd = new System.Windows.Forms.Button();
@@ -56,19 +56,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.propGridListItems.Visible = false;
             this.propGridListItems.VisibleChanged += new System.EventHandler(this.pnlElements_VisibleChanged);
             // 
-            // checkBox1
+            // chkNull
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.BackColor = System.Drawing.Color.Transparent;
-            this.checkBox1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.checkBox1.Location = new System.Drawing.Point(-50, 0);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(61, 31);
-            this.checkBox1.TabIndex = 2;
-            this.checkBox1.Text = "Null";
-            this.checkBox1.UseMnemonic = false;
-            this.checkBox1.UseVisualStyleBackColor = false;
+            this.chkNull.AutoSize = true;
+            this.chkNull.BackColor = System.Drawing.Color.Transparent;
+            this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
+            this.chkNull.Location = new System.Drawing.Point(-50, 0);
+            this.chkNull.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.chkNull.Name = "chkNull";
+            this.chkNull.Size = new System.Drawing.Size(61, 31);
+            this.chkNull.TabIndex = 2;
+            this.chkNull.Text = "Null";
+            this.chkNull.UseMnemonic = false;
+            this.chkNull.UseVisualStyleBackColor = false;
+            this.chkNull.CheckedChanged += new System.EventHandler(this.chkNull_CheckedChanged);
             // 
             // lblObjectTypeName
             // 
@@ -93,7 +94,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(75)))), ((int)(((byte)(120)))), ((int)(((byte)(160)))));
             this.pnlHeader.Controls.Add(this.lblObjectTypeName);
             this.pnlHeader.Controls.Add(this.btnAdd);
-            this.pnlHeader.Controls.Add(this.checkBox1);
+            this.pnlHeader.Controls.Add(this.chkNull);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -132,7 +133,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         #endregion
         private ToolTip toolTip1;
-        private CheckBox checkBox1;
+        private CheckBox chkNull;
         private Label lblObjectTypeName;
         private Panel pnlHeader;
         private Button btnAdd;

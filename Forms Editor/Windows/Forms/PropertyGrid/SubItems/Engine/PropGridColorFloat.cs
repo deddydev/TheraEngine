@@ -12,7 +12,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         typeof(EventColorF3))]
     public partial class PropGridFloatColor : PropGridItem
     {
-        public PropGridFloatColor() => InitializeComponent();
+        public PropGridFloatColor()
+        {
+            InitializeComponent();
+        }
         
         object _previousColor;
         EventColorF3 _colorF3;
@@ -78,24 +81,28 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 {
                     Color color = colorControl1.Color;
                     panel1.BackColor = color;
-                    UpdateValue((ColorF3)color);
+                    UpdateValue((ColorF3)color, true);
                 }
                 else if (DataType == typeof(ColorF4))
                 {
                     Color color = colorControl1.Color;
                     panel1.BackColor = color;
-                    UpdateValue((ColorF4)color);
+                    UpdateValue((ColorF4)color, true);
                 }
                 else if (DataType == typeof(EventColorF3))
                 {
                     Color color = colorControl1.Color;
+                    SubmitPreManualStateChange(_colorF3, nameof(_colorF3.Raw));
                     _colorF3.Color = color;
+                    SubmitPostManualStateChange(_colorF3, nameof(_colorF3.Raw));
                     panel1.BackColor = color;
                 }
                 else if (DataType == typeof(EventColorF4))
                 {
                     Color color = colorControl1.Color;
+                    SubmitPreManualStateChange(_colorF4, nameof(_colorF4.Raw));
                     _colorF4.Color = color;
+                    SubmitPostManualStateChange(_colorF4, nameof(_colorF4.Raw));
                     panel1.BackColor = color;
                 }
             }

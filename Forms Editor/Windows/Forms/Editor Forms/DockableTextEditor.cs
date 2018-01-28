@@ -29,6 +29,8 @@ namespace TheraEditor.Windows.Forms
             TextBox.CustomAction += TextBox_CustomAction;
             TextBox.HotkeysMapping.Add(Keys.Control | Keys.S, FCTBAction.CustomAction1);
             TextBox.HotkeysMapping.Add(Keys.OemPeriod, FCTBAction.AutocompleteMenu);
+            toolStrip1.RenderMode = ToolStripRenderMode.Professional;
+            toolStrip1.Renderer =  new TheraForm.TheraToolstripRenderer();
         }
 
         private void TextBox_CustomAction(object sender, CustomActionEventArgs e)

@@ -324,12 +324,14 @@ namespace TheraEngine.Rendering
             RenderTree?.Add(obj);
             if (obj is I3DRenderable r && r.CullingVolume != null)
                 RegisterCullingVolume(r.CullingVolume);
+            Engine.PrintLine("Added {0} to the scene.", obj.ToString());
         }
         public void Remove(I3DBoundable obj)
         {
             RenderTree?.Remove(obj);
             if (obj is I3DRenderable r && r.CullingVolume != null)
                 UnregisterCullingVolume(r.CullingVolume);
+            Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
         }
         private void RegisterCullingVolume(Shape cullingVolume)
         {

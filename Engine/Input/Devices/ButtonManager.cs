@@ -12,30 +12,28 @@ namespace TheraEngine.Input.Devices
             int count = 12;
             _actions = new List<Action>[count];
             _usedActions = new List<int>(count);
-            _name = name;
+            Name = name;
         }
 
         internal protected List<DelButtonState>[] _onStateChanged = new List<DelButtonState>[3];
 
         const float TimerMax = 0.5f;
 
-        public string Name { get { return _name; } }
-        public bool IsPressed { get { return _isPressed; } }
+        public string Name { get; protected set; }
+        public bool IsPressed { get; protected set; }
 
         protected float _holdDelaySeconds = 0.2f;
         protected float _maxSecondsBetweenPresses = 0.2f;
         protected float _timer;
-        protected bool _isPressed;
 
-        protected string _name;
         protected List<Action>[] _actions;
         internal protected List<int> _usedActions;
 
         internal void Tick(bool isPressed, float delta)
         {
-            if (_isPressed != isPressed)
+            if (IsPressed != isPressed)
             {
-                if (_isPressed = isPressed)
+                if (IsPressed = isPressed)
                 {
                     if (_timer <= _maxSecondsBetweenPresses)
                         OnDoublePressed();
@@ -49,7 +47,7 @@ namespace TheraEngine.Input.Devices
             else if (_timer < TimerMax)
             {
                 _timer += delta;
-                if (_isPressed && _timer >= _holdDelaySeconds)
+                if (IsPressed && _timer >= _holdDelaySeconds)
                 {
                     _timer = TimerMax;
                     OnHeld();

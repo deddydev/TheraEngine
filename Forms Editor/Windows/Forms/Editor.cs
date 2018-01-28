@@ -188,7 +188,7 @@ namespace TheraEditor.Windows.Forms
                     }
 
                     if (string.IsNullOrEmpty(_project.FilePath))
-                        Text = "";
+                        Text = string.Empty;
                     else
                     {
                         Text = _project.FilePath;
@@ -210,7 +210,7 @@ namespace TheraEditor.Windows.Forms
                 }
                 else
                 {
-                    Text = "";
+                    Text = string.Empty;
 
                     DockPanel.SuspendLayout(true);
                     OutputForm.Show(DockPanel, DockState.DockBottom);
@@ -347,6 +347,17 @@ namespace TheraEditor.Windows.Forms
 
             //if (DesignMode)
             //    return;
+
+            Application.AddMessageFilter(new MessageFilter());
+        }
+        private class MessageFilter : IMessageFilter
+        {
+            public bool PreFilterMessage(ref Message m)
+            {
+                if (m.Msg != 0xF && m.Msg != 0x200)
+                    Engine.PrintLine(m.ToString());
+                return true;
+            }
         }
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -426,6 +437,7 @@ namespace TheraEditor.Windows.Forms
                     GetRenderForm(i).RenderPanel.Invalidate();
 
             Application.DoEvents();
+            //Engine.PrintLine(DateTime.Now.TimeOfDay.ToString());
         }
         //protected override void OnResizeBegin(EventArgs e)
         //{

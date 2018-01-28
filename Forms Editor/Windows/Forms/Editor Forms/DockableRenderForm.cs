@@ -8,6 +8,7 @@ using TheraEngine.Timers;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using WeifenLuo.WinFormsUI.Docking;
+using TheraEngine.Actors.Types;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -126,10 +127,11 @@ namespace TheraEditor.Windows.Forms
             FileObject instance = _dragInstance ?? (_dragInstance = wrapper.GetNewInstance());
             if (instance is IActor actor)
             {
+                BaseRenderPanel.HoveredPanel = RenderPanel;
                 Engine.World.SpawnActor(actor);
-                //EditorHud hud = EditorPawn.HUD as EditorHud;
-                //hud.HighlightedComponent = actor.RootComponent;
-                //hud.MouseDown();
+                EditorHud hud = EditorPawn.HUD as EditorHud;
+                hud.SetTransformMode(TransformType.DragDrop);
+                hud.SelectedComponent = actor.RootComponent;
             }
         }
 
@@ -139,14 +141,15 @@ namespace TheraEditor.Windows.Forms
             if (hud.DragComponent != null)
             {
                 Engine.World.DespawnActor(hud.DragComponent.OwningActor);
-                //hud.DragComponent = null;
-                //hud.MouseUp();
+                hud.DragComponent = null;
+                hud.DoMouseUp();
             }
         }
 
         private void RenderPanel_DragOver(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Move;
+            //RenderPanel.Invalidate();
         }
 
         private void RenderPanel_DragDrop(object sender, DragEventArgs e)

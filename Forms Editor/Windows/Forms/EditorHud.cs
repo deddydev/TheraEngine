@@ -31,7 +31,10 @@ namespace TheraEditor.Windows.Forms
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
-        private bool _mouseDown;
+        private bool MouseDown
+        {
+            get => OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
+        }
 
         public bool UseTransformTool { get; set; } = true;
         public SceneComponent DragComponent
@@ -154,11 +157,11 @@ namespace TheraEditor.Windows.Forms
             else
                 _transformType++;
         }
-        private void SetTranslationMode() => SetMode(TransformType.Translate);
-        private void SetRotationMode() => SetMode(TransformType.Rotate);
-        private void SetScaleMode() => SetMode(TransformType.Scale);
-        private void SetDragDropMode() => SetMode(TransformType.DragDrop);
-        public void SetMode(TransformType type)
+        private void SetTranslationMode() => SetTransformMode(TransformType.Translate);
+        private void SetRotationMode() => SetTransformMode(TransformType.Rotate);
+        private void SetScaleMode() => SetTransformMode(TransformType.Scale);
+        private void SetDragDropMode() => SetTransformMode(TransformType.DragDrop);
+        public void SetTransformMode(TransformType type)
         {
             _transformType = type;
             if (UseTransformTool = _transformType != TransformType.DragDrop)
@@ -173,20 +176,20 @@ namespace TheraEditor.Windows.Forms
         
         protected void OnMouseDown()
         {
-            if (!_mouseDown)
-                MouseDown();
+            if (!MouseDown)
+                DoMouseDown();
         }
         protected void OnMouseUp()
         {
-            if (_mouseDown)
-                MouseUp();
+            if (MouseDown)
+                DoMouseUp();
         }
         protected void OnGamepadSelect()
         {
-            if (_mouseDown)
-                MouseUp();
+            if (MouseDown)
+                DoMouseUp();
             else
-                MouseDown();
+                DoMouseDown();
         }
         public override void OnSpawnedPostComponentSetup()
         {
@@ -216,9 +219,9 @@ namespace TheraEditor.Windows.Forms
             if (TransformTool3D.Instance.IsSpawned)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
-                if (TransformTool3D.Instance.MouseMove(cursor, v.Camera, _mouseDown))
+                if (TransformTool3D.Instance.MouseMove(cursor, v.Camera, MouseDown))
                 {
-                    if (!_mouseDown)
+                    if (!MouseDown)
                         HighlightedComponent = TransformTool3D.Instance.RootComponent;
                 }
                 else
@@ -274,10 +277,8 @@ namespace TheraEditor.Windows.Forms
                 HighlightedComponent = comp;
             }
         }
-        public void MouseUp()
+        public void DoMouseUp()
         {
-            _mouseDown = false;
-
             if (_currentConstraint != null)
             {
                 Engine.World.PhysicsWorld.RemoveConstraint(_currentConstraint);
@@ -361,9 +362,8 @@ namespace TheraEditor.Windows.Forms
                 TransformTool3D.DestroyInstance();
             }
         }
-        public void MouseDown()
+        public void DoMouseDown()
         {
-            _mouseDown = true;
             SelectedComponent = HighlightedComponent;
         }
         public class HighlightPoint : I3DRenderable

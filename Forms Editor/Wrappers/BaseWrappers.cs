@@ -59,7 +59,11 @@ namespace TheraEditor.Wrappers
         public bool IsPopulated => _isPopulated;
 
         public BaseWrapper(ContextMenuStrip menu)
-            => ContextMenuStrip = menu;
+        {
+            ContextMenuStrip = menu;
+            ContextMenuStrip.RenderMode = ToolStripRenderMode.Professional;
+            ContextMenuStrip.Renderer = new TheraForm.TheraToolstripRenderer();
+        }
         
         protected static ResourceTree GetTree()
             => Editor.Instance.ContentTree;

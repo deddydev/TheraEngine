@@ -232,7 +232,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        protected class TheraToolstripRenderer : ToolStripProfessionalRenderer
+        public class TheraToolstripRenderer : ToolStripProfessionalRenderer
         {
             public TheraToolstripRenderer() : base(new TheraColorTable())
             {

@@ -185,10 +185,38 @@ namespace TheraEngine.Files.Serialization
                 attrib.SetValue(obj, attrib.VariableType.GetDefaultValue());
 
             //Now read elements
+            if (elements.Count == 0)
+            {
+                if (elementStrings.Count == 1)
+                {
+                    VarInfo elemStr = elementStrings[0];
+                    if (CanParseAsString(elemStr.VariableType))
+                    {
+                        MethodInfo customMethod = customMethods.FirstOrDefault(
+                            x => string.Equals(elemStr.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
+
+                        string s = reader.ReadElementString();
+                        if (customMethod != null)
+                            customMethod.Invoke(obj, new object[] { s });
+                        else
+                            elemStr.SetValue(obj, ParseString(s, elemStr.VariableType));
+                    }
+                    else
+                        ReadMember(obj, elemStr, reader, customMethods, false);
+
+                    return;
+                }
+                else
+                {
+                    elements.AddRange(elementStrings);
+                    elementStrings.Clear();
+                }
+            }
+            
             while (reader.BeginElement())
             {
                 string elemName = reader.Name.ToString();
-                
+
                 //Categorized key is the name of the category
                 //So match element name to the key
                 var categoryMembers = categorized?.Where(x => string.Equals(elemName, x.Key, StringComparison.InvariantCultureIgnoreCase))?.SelectMany(x => x).ToArray();
@@ -211,6 +239,10 @@ namespace TheraEngine.Files.Serialization
             foreach (VarInfo element in elements)
                 element.SetValue(obj, element.VariableType.GetDefaultValue());
         }
+        private static bool CanParseAsString(Type t)
+            => t.GetInterface(nameof(IParsable)) != null ||
+                SerializationCommon.IsPrimitiveType(t) ||
+                SerializationCommon.IsEnum(t);
         private static void ReadMember(object obj, VarInfo member, XMLReader reader, IEnumerable<MethodInfo> customMethods, bool isAttribute)
         {
             MethodInfo customMethod = customMethods.FirstOrDefault(

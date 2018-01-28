@@ -135,7 +135,7 @@ namespace TheraEngine.Files.Serialization
         }
         private static bool GetString(object value, Type t, out string result)
         {
-            if (t.GetInterface("IParsable") != null)
+            if (t.GetInterface(nameof(IParsable)) != null)
             {
                 result = ((IParsable)value).WriteToString();
                 return true;

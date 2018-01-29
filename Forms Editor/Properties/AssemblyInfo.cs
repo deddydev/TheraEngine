@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("TheraDev")]
 [assembly: AssemblyProduct("Thera Engine WinForms Editor")]
-[assembly: AssemblyCopyright("Copyright © David Eddy 2017")]
+[assembly: AssemblyCopyright("Copyright © David Eddy 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

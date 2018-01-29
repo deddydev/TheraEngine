@@ -332,21 +332,24 @@ namespace TheraEngine.Components.Scene.Lights
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (selected)
+            if (IsSpawned)
             {
-                Engine.Scene.Add(OuterCone);
-                Engine.Scene.Add(InnerCone);
-//#if DEBUG
-//                Engine.Scene.Add(ShadowCamera);
-//#endif
-            }
-            else
-            {
-                Engine.Scene.Remove(OuterCone);
-                Engine.Scene.Remove(InnerCone);
-//#if DEBUG
-//                Engine.Scene.Remove(ShadowCamera);
-//#endif
+                if (selected)
+                {
+                    Engine.Scene.Add(OuterCone);
+                    Engine.Scene.Add(InnerCone);
+                    //#if DEBUG
+                    //                Engine.Scene.Add(ShadowCamera);
+                    //#endif
+                }
+                else
+                {
+                    Engine.Scene.Remove(OuterCone);
+                    Engine.Scene.Remove(InnerCone);
+                    //#if DEBUG
+                    //                Engine.Scene.Remove(ShadowCamera);
+                    //#endif
+                }
             }
             base.OnSelectedChanged(selected);
         }

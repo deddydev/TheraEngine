@@ -20,28 +20,23 @@ namespace TheraEngine.Components.Scene.Volumes
         {
             RenderInfo.CastsShadows = false;
             RenderInfo.ReceivesShadows = false;
-            RenderInfo.RenderPass = ERenderPass3D.OpaqueDeferredLit;
-            RenderParams.DepthTest.Enabled = false;
+            RenderInfo.RenderPass = ERenderPass3D.OpaqueForward;
+            //RenderParams.DepthTest.Enabled = false;
 
             Translation.Raw = translation;
             Rotation.SetRotations(rotation);
         }
 
-        public override void OnSpawned()
+        protected internal override void OnSelectedChanged(bool selected)
         {
-#if EDITOR
-            if (!Engine.EditorState.InGameMode)
-                Engine.Scene.Add(this);
-#endif
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-#if EDITOR
-            if (!Engine.EditorState.InGameMode)
-                Engine.Scene.Remove(this);
-#endif
-            base.OnDespawned();
+            if (IsSpawned)
+            {
+                if (selected)
+                    Engine.Scene.Add(this);
+                else
+                    Engine.Scene.Remove(this);
+            }
+            base.OnSelectedChanged(selected);
         }
     }
 }

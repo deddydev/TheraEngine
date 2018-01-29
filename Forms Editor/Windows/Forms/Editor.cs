@@ -328,6 +328,8 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
+            //xcopy /Y "$(SolutionDir)Libraries\$(Platform)\FreeImage.dll" "$(TargetDir)"
+
             //TODO: read editor state file instead
             string lastOpened = Properties.Settings.Default.LastOpened;
             //"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
@@ -348,7 +350,7 @@ namespace TheraEditor.Windows.Forms
             //if (DesignMode)
             //    return;
 
-            Application.AddMessageFilter(new MessageFilter());
+            //Application.AddMessageFilter(new MessageFilter());
         }
         private class MessageFilter : IMessageFilter
         {

@@ -19,7 +19,11 @@ namespace TheraEditor.Windows.Forms
             FormIndex = formIndex;
             PlayerIndex = playerIndex;
             InitializeComponent();
-            Text = "Viewport " + (FormIndex + 1).ToString();
+            EditorPawn = new FlyingCameraPawn(PlayerIndex)
+            {
+                HUD = new EditorHud(RenderPanel.ClientSize),
+            };
+            Text = string.Format("Viewport {0}", (FormIndex + 1).ToString());
             RenderPanel.AllowDrop = true;
             Engine.PreWorldChanged += Engine_WorldPreChanged;
             Engine.PostWorldChanged += Engine_WorldPostChanged;
@@ -35,14 +39,25 @@ namespace TheraEditor.Windows.Forms
         private void Engine_WorldPreChanged()
         {
             if (Engine.World == null || EditorPawn == null)
-                return;
-            Engine.World.DespawnActor(EditorPawn);
+            {
+
+            }
+            else
+            {
+                Engine.World.DespawnActor(EditorPawn);
+            }
         }
         private void Engine_WorldPostChanged()
         {
             if (Engine.World == null || EditorPawn == null)
-                return;
-            Engine.World.SpawnActor(EditorPawn);
+            {
+                Text = string.Format("Viewport {0}", (FormIndex + 1).ToString());
+            }
+            else
+            {
+                Engine.World.SpawnActor(EditorPawn);
+                Text = string.Format("{0} (Viewport {1})", Engine.World.Name, (FormIndex + 1).ToString());
+            }
         }
         
         public int FormIndex { get; private set; }
@@ -64,11 +79,6 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnShown(EventArgs e)
         {
-            EditorPawn = new FlyingCameraPawn(PlayerIndex)
-            {
-                HUD = new EditorHud(RenderPanel.ClientSize),
-            };
-
             Engine.World?.SpawnActor(EditorPawn);
 
             Viewport v = RenderPanel.GetOrAddViewport(PlayerIndex);

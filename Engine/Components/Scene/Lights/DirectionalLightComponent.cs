@@ -182,10 +182,13 @@ namespace TheraEngine.Components.Scene.Lights
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (selected)
-                Engine.Scene.Add(_shadowCamera);
-            else
-                Engine.Scene.Remove(_shadowCamera);
+            if (IsSpawned)
+            {
+                if (selected)
+                    Engine.Scene.Add(_shadowCamera);
+                else
+                    Engine.Scene.Remove(_shadowCamera);
+            }
             base.OnSelectedChanged(selected);
         }
 #endif

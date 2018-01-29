@@ -120,8 +120,8 @@ namespace TheraEngine
             //Set initial world (this would generally be a world for opening videos or the main menu)
             SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
 
-            TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
-            TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
+            TargetRenderFreq = 20.0f;//Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
+            TargetUpdateFreq = 30.0f;//Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
             //Preload transition world now
             await Game.TransitionWorldRef.LoadNewInstanceAsync();

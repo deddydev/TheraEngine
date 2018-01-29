@@ -10,10 +10,9 @@ namespace TheraEngine.Components.Scene.Shapes
 {
     public abstract class ShapeComponent : TRComponent, I3DRenderable, IRigidCollidable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, false);
-
         [Category("Rendering")]
-        public RenderInfo3D RenderInfo => _renderInfo;
+        public RenderInfo3D RenderInfo { get; } 
+            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
 
         [Browsable(false)]
         public abstract Shape CullingVolume { get; }
@@ -117,5 +116,19 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public abstract void Render();
         protected abstract TCollisionShape GetCollisionShape();
+
+#if EDITOR
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            if (IsSpawned)
+            {
+                if (selected)
+                    OwningActor.OwningWorld.Scene.Add(this);
+                else
+                    OwningActor.OwningWorld.Scene.Remove(this);
+            }
+            base.OnSelectedChanged(selected);
+        }
+#endif
     }
 }

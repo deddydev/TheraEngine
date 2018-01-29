@@ -31,11 +31,8 @@ namespace TheraEditor.Windows.Forms
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
-        private bool MouseDown
-        {
-            get => OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
-        }
-
+        private bool MouseDown => OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
+        
         public bool UseTransformTool { get; set; } = true;
         public SceneComponent DragComponent
         {
@@ -155,7 +152,7 @@ namespace TheraEditor.Windows.Forms
             if (_transformType == TransformType.DragDrop)
                 _transformType = TransformType.Scale;
             else
-                _transformType++;
+                ++_transformType;
         }
         private void SetTranslationMode() => SetTransformMode(TransformType.Translate);
         private void SetRotationMode() => SetTransformMode(TransformType.Rotate);
@@ -245,10 +242,12 @@ namespace TheraEditor.Windows.Forms
                 float upDist = 0.0f;
                 if (comp == null)
                 {
-                    hitNormal = Vec3.Up;// v.Camera.GetUpVector();
                     _hitDistance = prevHitDist;
-                    Vec3 forwardCameraVector = v.Camera.GetForwardVector();
-                    _hitPoint = v.Camera.WorldPoint + forwardCameraVector * _hitDistance;
+                    hitNormal = Vec3.Up;// v.Camera.GetUpVector();
+                    float normalizedDist = (_hitDistance - v.Camera.NearZ) / (v.Camera.FarZ - v.Camera.NearZ);
+                    _hitPoint = v.ScreenToWorld(v.ToInternalResCoords(viewportPoint), normalizedDist);
+                    //Vec3 forwardCameraVector = v.Camera.GetForwardVector();
+                    //_hitPoint = v.Camera.WorldPoint + forwardCameraVector * _hitDistance;
                 }
                 else if (p != null)
                 {

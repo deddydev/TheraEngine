@@ -333,7 +333,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return control;
             }).ToList();
         }
-        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, IList list, int listIndex)
+        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, IList list, int listIndex, TheraPropertyGrid grid)
         {
             Type elementType = list.DetermineElementType();
             return controlTypes.Select(x =>
@@ -342,6 +342,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 control.SetIListOwner(list, elementType, listIndex);
                 control.Dock = DockStyle.Fill;
                 control.Visible = true;
+                control.PropertyGrid = grid;
                 control.Show();
                 return control;
             }).ToList();

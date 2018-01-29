@@ -69,7 +69,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 await Task.Run(() => Parallel.For(0, list.Count, i =>
                 {
                     Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(list[i]?.GetType());
-                    List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, list, i);
+                    List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, list, i, PropertyGrid);
                     controls.TryAdd(i, items);
                 }));
                 propGridListItems.tblProps.SuspendLayout();
@@ -115,7 +115,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             _list.Add(value);
-            var items = TheraPropertyGrid.InstantiatePropertyEditors(TheraPropertyGrid.GetControlTypes(value?.GetType()), _list, i);
+            var items = TheraPropertyGrid.InstantiatePropertyEditors(TheraPropertyGrid.GetControlTypes(value?.GetType()), _list, i, PropertyGrid);
             propGridListItems.AddProperty(items, new object[0], false);
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(items[items.Count - 1]);
         }

@@ -12,7 +12,7 @@ namespace TheraEngine.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
         [Browsable(false)]
@@ -142,5 +142,19 @@ namespace TheraEngine.Components.Scene
             if (_renderKeyframeTangentPoints)
                 _tangentPrimitive?.Render(WorldMatrix, Matrix3.Identity);
         }
+
+#if EDITOR
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            if (IsSpawned)
+            {
+                if (selected)
+                    Engine.Scene.Add(this);
+                else
+                    Engine.Scene.Remove(this);
+            }
+            base.OnSelectedChanged(selected);
+        }
+#endif
     }
 }

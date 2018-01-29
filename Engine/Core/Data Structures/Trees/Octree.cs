@@ -211,7 +211,7 @@ namespace System
                 Color color = Color.Red;
                 if (recurse)
                 {
-                    EContainment containment = f.Contains(_bounds);
+                    EContainment containment = f?.Contains(_bounds) ?? EContainment.Contains;
                     color = containment == EContainment.Intersects ? Color.Green : containment == EContainment.Contains ? Color.White : Color.Red;
                     if (containment != EContainment.Disjoint)
                         foreach (Node n in _subNodes)

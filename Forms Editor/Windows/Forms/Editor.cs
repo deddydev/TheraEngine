@@ -308,6 +308,12 @@ namespace TheraEditor.Windows.Forms
         /// <returns>A newly created instance of elementType.</returns>
         public static object UserCreateInstanceOf(Type type, bool allowDerivedTypes)
         {
+            if (type.IsPrimitive)
+                return type.GetDefaultValue();
+
+            if (type == typeof(string))
+                return string.Empty;
+
             if (type.IsGenericTypeDefinition)
             {
                 GenericsSelector gs = new GenericsSelector(type);

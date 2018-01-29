@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Components.Scene.Transforms
@@ -8,7 +9,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// Contains a general translation.
     /// </summary>
     [FileDef("Translation Component")]
-    public class TranslationComponent : SceneComponent
+    public class TranslationComponent : OriginRebasableComponent
     {
         public TranslationComponent() : this(Vec3.Zero, true) { }
         public TranslationComponent(Vec3 translation, bool deferLocalRecalc = false) : base()
@@ -21,17 +22,50 @@ namespace TheraEngine.Components.Scene.Transforms
 
         [TSerialize("Translation", UseCategory = true, OverrideXmlCategory = "Transform")]
         protected EventVec3 _translation;
+        protected bool _matrixChanged = false;
 
         [Category("Transform")]
         public EventVec3 Translation
         {
-            get => _translation;
+            get
+            {
+                if (_matrixChanged)
+                    DeriveMatrix();
+                return _translation;
+            }
             set
             {
                 _translation = value ?? new EventVec3();
                 _translation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
+        }
+
+        [Browsable(false)]
+        public override Matrix4 WorldMatrix
+        {
+            get => base.WorldMatrix;
+            set
+            {
+                base.WorldMatrix = value;
+                _matrixChanged = true;
+            }
+        }
+        [Browsable(false)]
+        public override Matrix4 InverseWorldMatrix
+        {
+            get => base.InverseWorldMatrix;
+            set
+            {
+                base.InverseWorldMatrix = value;
+                _matrixChanged = true;
+            }
+        }
+
+        protected virtual void DeriveMatrix()
+        {
+            Transform.DeriveT(LocalMatrix, out Vec3 t);
+            _translation.SetRawNoUpdate(t);
         }
 
         [PostDeserialize]
@@ -43,8 +77,8 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.CreateTranslation(_translation.Raw);
-            inverseLocalTransform = Matrix4.CreateTranslation(-_translation.Raw);
+            localTransform = _translation.AsTranslationMatrix();
+            inverseLocalTransform = (-_translation.Raw).AsTranslationMatrix();
 
             //Engine.PrintLine("Recalculated T.");
         }

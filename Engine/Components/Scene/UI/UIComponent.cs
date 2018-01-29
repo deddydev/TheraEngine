@@ -6,10 +6,11 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Components;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIComponent : SceneComponent, IPanel, I2DBoundable, IEnumerable<UIComponent>
+    public class UIComponent : OriginRebasableComponent, IPanel, I2DBoundable, IEnumerable<UIComponent>
     {
         public UIComponent() : base()
         {

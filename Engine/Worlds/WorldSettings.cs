@@ -25,6 +25,7 @@ namespace TheraEngine.Worlds
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
 
         //[TypeConverter(typeof(Vec3StringConverter))]
+        [Category("World")]
         public Vec3 Gravity
         {
             get => _gravity;
@@ -35,6 +36,7 @@ namespace TheraEngine.Worlds
                 OnGravityChanged(oldGravity);
             }
         }
+        [Category("Gameplay")]
         /// <summary>
         /// Overrides the default game mode specified by the game.
         /// </summary>
@@ -57,6 +59,7 @@ namespace TheraEngine.Worlds
             "How fast the game moves. " +
             "A value of 2 will make the game 2x faster, " +
             "while a value of 0.5 will make it 2x slower.")]
+        [Category("World")]
         public float TimeDilation
         {
             get => _timeSpeed;
@@ -75,23 +78,30 @@ namespace TheraEngine.Worlds
         [TSerialize("TimeDilation")]
         private float _timeSpeed = 1.0f;
 
+        [Description("Determines if the origin of the world should be moved to keep the local players closest to it." +
+            "This is useful for open-world games as the player will be moving far from the original origin" +
+            " and floating-point precision will become very poor at large distances.")]
+        [Category("World Origin Rebasing")]
         public bool EnableOriginRebasing { get; set; } = false;
+        [Category("World Origin Rebasing")]
         public BoundingBox OriginRebaseBounds
         {
             get => _originRebaseBounds;
             set => _originRebaseBounds = value;
         }
+        [Category("World")]
         public BoundingBox Bounds
         {
             get => _bounds;
             set => _bounds = value;
         }
+        [Category("Audio")]
         public SoundFile AmbientSound
         {
             get => _ambientSound;
             set => _ambientSound = value;
         }
-        [Browsable(false)]
+        [Category("World")]
         public List<LocalFileRef<Map>> Maps
         {
             get => _maps;
@@ -109,25 +119,26 @@ namespace TheraEngine.Worlds
             get => _defaultHud;
             set => _defaultHud = value;
         }
+        [Category("Lighting")]
         public ColorF3 GlobalAmbient
         {
             get => _globalAmbient;
             set => _globalAmbient = value;
         }
 
-        [TSerialize("GlobalAmbient")]
+        [TSerialize(nameof(GlobalAmbient))]
         private ColorF3 _globalAmbient;
-        [TSerialize("DefaultHud")]
+        [TSerialize(nameof(DefaultHud))]
         private UIManager _defaultHud;
-        [TSerialize("Bounds")]
+        [TSerialize(nameof(Bounds))]
         private BoundingBox _bounds = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
-        [TSerialize("OriginRebaseBounds")]
+        [TSerialize(nameof(OriginRebaseBounds))]
         private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
-        [TSerialize("Maps")]
+        [TSerialize(nameof(Maps))]
         private List<LocalFileRef<Map>> _maps = new List<LocalFileRef<Map>>();
-        [TSerialize("AmbientSound")]
+        [TSerialize(nameof(AmbientSound))]
         private SoundFile _ambientSound;
-        [TSerialize("AmbientParams")]
+        [TSerialize(nameof(AmbientParams))]
         private AudioSourceParameters _ambientParams = new AudioSourceParameters()
         {
             SourceRelative = new UsableValue<bool>(true, false, true),

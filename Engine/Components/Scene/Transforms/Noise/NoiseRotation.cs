@@ -57,7 +57,6 @@ namespace TheraEngine.Components.Scene.Transforms
             _rotation.Roll = MaxRoll * ShakeIntensity * _noise.GetPerlin(22.0f, _time);
             RecalcLocalTransform();
         }
-        protected internal override void OriginRebased(Vec3 newOrigin) { }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             localTransform = _rotation.GetMatrix();

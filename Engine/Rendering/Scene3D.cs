@@ -266,7 +266,7 @@ namespace TheraEngine.Rendering
                             //Engine.Renderer.AllowDepthWrite(false);
 
                             //Render the deferred pass result
-                            v.GBufferFBO.Render();
+                            //v.GBufferFBO.Render();
 
                             //Engine.Renderer.AllowDepthWrite(true);
 

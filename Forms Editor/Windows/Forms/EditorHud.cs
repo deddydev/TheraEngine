@@ -244,8 +244,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     _hitDistance = prevHitDist;
                     hitNormal = Vec3.Up;// v.Camera.GetUpVector();
-                    float normalizedDist = (_hitDistance - v.Camera.NearZ) / (v.Camera.FarZ - v.Camera.NearZ);
-                    _hitPoint = v.ScreenToWorld(v.ToInternalResCoords(viewportPoint), normalizedDist);
+                    float depth = TMath.DistanceToDepth(_hitDistance, v.Camera.NearZ, v.Camera.FarZ);
+                    _hitPoint = v.ScreenToWorld(v.ToInternalResCoords(viewportPoint), depth);
                     //Vec3 forwardCameraVector = v.Camera.GetForwardVector();
                     //_hitPoint = v.Camera.WorldPoint + forwardCameraVector * _hitDistance;
                 }
@@ -288,8 +288,10 @@ namespace TheraEditor.Windows.Forms
             }
 
             _selectedComponent = null;
-            _dragComponent = null;
-
+            if (_dragComponent != null)
+            {
+                _dragComponent = null;
+            }
             if (HighlightedComponent != null)
                 Engine.Scene.Add(_highlightPoint);
         }

@@ -5,7 +5,7 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Components.Scene
 {
-    public class SoundComponent : SphereComponent
+    public class SoundComponent : SphereComponent, I3DRenderable
     {
         public GlobalFileRef<SoundFile> File
         {

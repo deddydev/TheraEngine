@@ -48,13 +48,25 @@ namespace TheraEngine.Components.Scene.Transforms
         [Category("Transform")]
         public Rotator Rotation
         {
-            get => _rotation;
+            get
+            {
+                if (_matrixChanged)
+                    DeriveMatrix();
+                return _rotation;
+            }
             set
             {
                 _rotation = value ?? new Rotator();
                 _rotation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
+        }
+
+        protected override void DeriveMatrix()
+        {
+            Transform.DeriveTR(LocalMatrix, out Vec3 t, out Quat r);
+            _translation.SetRawNoUpdate(t);
+            _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
         }
 
         protected internal override void OnDeserialized()

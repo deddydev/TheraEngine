@@ -7,6 +7,7 @@ using System.ComponentModel;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Components;
 using TheraEngine.Worlds;
+using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Actors
 {
@@ -32,10 +33,10 @@ namespace TheraEngine.Actors
     [Description("An actor with a generic scene component as the root. " +
         "Generally used for actors which manage their own world matrix or do not need one, " +
         "but provide traits that affect the scene.")]
-    public class Actor : Actor<SceneComponent>
+    public class Actor : Actor<OriginRebasableComponent>
     {
         public Actor() : base() { }
-        public Actor(SceneComponent root, params LogicComponent[] logicComponents)
+        public Actor(OriginRebasableComponent root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
     }
     #endregion
@@ -43,7 +44,7 @@ namespace TheraEngine.Actors
     [File3rdParty(new string[] { "dae" }, null)]
     [FileExt("actor")]
     [FileDef("Actor")]
-    public class Actor<T> : FileObject, IActor where T : SceneComponent
+    public class Actor<T> : FileObject, IActor where T : OriginRebasableComponent
     {
         static Actor()
         {

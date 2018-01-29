@@ -114,6 +114,7 @@ namespace TheraEngine.Core.Maths.Transforms
         private EventVec3 _scale;
         [TSerialize("Order", XmlNodeType = EXmlNodeType.Attribute)]
         private TransformOrder _transformOrder = TransformOrder.TRS;
+        private bool _matrixChanged = false;
 
         private Matrix4 _transform = Matrix4.Identity;
         private Matrix4 _inverseTransform = Matrix4.Identity;
@@ -141,10 +142,7 @@ namespace TheraEngine.Core.Maths.Transforms
             {
                 _transform = value;
                 _inverseTransform = _transform.Inverted();
-                //DeriveTRS(_transform, out Vec3 t, out Vec3 s, out Quat r);
-                //_translation = t;
-                //_scale = s;
-                //Quaternion = r;
+                _matrixChanged = true;
             }
         }
 
@@ -156,12 +154,28 @@ namespace TheraEngine.Core.Maths.Transforms
             {
                 _inverseTransform = value;
                 _transform = _inverseTransform.Inverted();
+                _matrixChanged = true;
             }
+        }
+
+        private void MatrixUpdated()
+        {
+            _matrixChanged = false;
+            DeriveTRS(_transform, out Vec3 t, out Vec3 s, out Quat r);
+            _translation.SetRawNoUpdate(t);
+            _scale.SetRawNoUpdate(s);
+            _quaternion = r;
+            Rotation.SetRotationsNoUpdate(_quaternion.ToYawPitchRoll());
         }
 
         public EventVec3 Translation
         {
-            get => _translation;
+            get
+            {
+                if (_matrixChanged)
+                    MatrixUpdated();
+                return _translation;
+            }
             set
             {
                 _translation = value;
@@ -171,24 +185,44 @@ namespace TheraEngine.Core.Maths.Transforms
         [Browsable(false)]
         public float Yaw
         {
-            get => _rotation.Yaw;
+            get
+            {
+                if (_matrixChanged)
+                    MatrixUpdated();
+                return _rotation.Yaw;
+            }
             set => _rotation.Yaw = value;
         }
         [Browsable(false)]
         public float Pitch
         {
-            get => _rotation.Pitch;
+            get
+            {
+                if (_matrixChanged)
+                    MatrixUpdated();
+                return _rotation.Pitch;
+            }
             set => _rotation.Pitch = value;
         }
         [Browsable(false)]
         public float Roll
         {
-            get => _rotation.Roll;
+            get
+            {
+                if (_matrixChanged)
+                    MatrixUpdated();
+                return _rotation.Roll;
+            }
             set => _rotation.Roll = value;
         }
         public EventVec3 Scale
         {
-            get => _scale;
+            get
+            {
+                if (_matrixChanged)
+                    MatrixUpdated();
+                return _scale;
+            }
             set
             {
                 _scale = value;
@@ -212,7 +246,12 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public Rotator Rotation
         {
-            get => _rotation;
+            get
+            {
+                if (_matrixChanged)
+                    MatrixUpdated();
+                return _rotation;
+            }
             set
             {
                 _rotation = value;
@@ -221,7 +260,12 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public Quat Quaternion
         {
-            get => _quaternion;
+            get
+            {
+                if (_matrixChanged)
+                    MatrixUpdated();
+                return _quaternion;
+            }
             set
             {
                 _quaternion = value;
@@ -404,8 +448,17 @@ namespace TheraEngine.Core.Maths.Transforms
             translation = m.Row3.Xyz;
             scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
             rotation = m.ExtractRotation(true);
-            translation.Round(5);
-            scale.Round(5);
+            //translation.Round(5);
+            //scale.Round(5);
+        }
+        public static void DeriveTR(Matrix4 m, out Vec3 translation, out Quat rotation)
+        {
+            translation = m.Row3.Xyz;
+            rotation = m.ExtractRotation(true);
+        }
+        public static void DeriveT(Matrix4 m, out Vec3 translation)
+        {
+            translation = m.Row3.Xyz;
         }
         public static unsafe Transform DeriveTRS(Matrix4 m)
         {

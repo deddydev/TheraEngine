@@ -8,6 +8,7 @@ using TheraEngine.Components.Scene;
 using TheraEngine.Components;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Worlds;
+using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Actors
 {
@@ -38,10 +39,10 @@ namespace TheraEngine.Actors
     /// <summary>
     /// A pawn is an actor that can be controlled by either a player or AI.
     /// </summary>
-    public class Pawn : Pawn<SceneComponent>
+    public class Pawn : Pawn<OriginRebasableComponent>
     {
         public Pawn() : base() { }
-        public Pawn(SceneComponent root, params LogicComponent[] logicComponents)
+        public Pawn(OriginRebasableComponent root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
     }
     /// <summary>
@@ -49,7 +50,7 @@ namespace TheraEngine.Actors
     /// </summary>
     [FileExt("pawn")]
     [FileDef("Pawn Actor")]
-    public class Pawn<T> : Actor<T>, IPawn where T : SceneComponent
+    public class Pawn<T> : Actor<T>, IPawn where T : OriginRebasableComponent
     {
         private PawnController _controller;
         private CameraComponent _currentCameraComponent;

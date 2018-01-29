@@ -6,11 +6,12 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using TheraEngine.Files;
 using TheraEngine.Actors;
+using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Components.Scene
 {
     [FileDef("Camera Component")]
-    public class CameraComponent : SceneComponent
+    public class CameraComponent : OriginRebasableComponent
     {
         #region Constructors
         public CameraComponent() : this(null) { }

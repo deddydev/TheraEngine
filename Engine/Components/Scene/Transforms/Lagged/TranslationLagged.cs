@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
@@ -8,7 +9,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// Contains a general translation.
     /// </summary>
     [FileDef("Translation Component")]
-    public class TranslationLaggedComponent : SceneComponent
+    public class TranslationLaggedComponent : OriginRebasableComponent
     {
         public TranslationLaggedComponent() : this(Vec3.Zero, true) { }
         public TranslationLaggedComponent(Vec3 translation, bool deferLocalRecalc = false) : base()
@@ -59,12 +60,12 @@ namespace TheraEngine.Components.Scene.Transforms
 
         public override void OnSpawned()
         {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick, EInputPauseType.TickAlways);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick, EInputPauseType.TickAlways);
             base.OnDespawned();
         }
 
@@ -75,8 +76,8 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.CreateTranslation(_currentTranslation.Raw);
-            inverseLocalTransform = Matrix4.CreateTranslation(-_currentTranslation.Raw);
+            localTransform = _currentTranslation.AsTranslationMatrix();
+            inverseLocalTransform = (-_currentTranslation.Raw).AsTranslationMatrix();
 
             //Engine.PrintLine("Recalculated T.");
         }

@@ -56,7 +56,5 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             _rotation.SetRotations(delta.ToYawPitchRoll());
         }
-
-        protected internal override void OriginRebased(Vec3 newOrigin) { }
     }
 }

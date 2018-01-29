@@ -81,7 +81,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected override void Tick(float delta)
         {
-            _currentTranslation.SetRawNoUpdate(Interp.InterpCosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec));
+            _currentTranslation.Raw = (Interp.InterpCosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec));
             _currentRotation.PitchYawRoll = Interp.InterpCosineTo(_currentRotation.PitchYawRoll, _desiredRotation.PitchYawRoll, delta, _invRotInterpSec);
         }
 
@@ -105,8 +105,9 @@ namespace TheraEngine.Components.Scene.Transforms
             => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
         {
-            _localTransform = LocalMatrix * Matrix4.CreateTranslation(translation);
-            _inverseLocalTransform = Matrix4.CreateTranslation(-translation) * InverseLocalMatrix;
+            Matrix4 r = _desiredRotation.GetMatrix();
+            Matrix4 t = _desiredTranslation.AsTranslationMatrix();
+            Matrix4 mtx = t * r * translation.AsTranslationMatrix();
             _desiredTranslation = LocalMatrix.GetPoint();
         }
         

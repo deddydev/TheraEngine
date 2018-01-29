@@ -34,13 +34,26 @@ namespace TheraEngine.Components.Scene.Transforms
         [Category("Transform")]
         public EventVec3 Scale
         {
-            get => _scale;
+            get
+            {
+                if (_matrixChanged)
+                    DeriveMatrix();
+                return _scale;
+            }
             set
             {
                 _scale = value;
                 _scale.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
+        }
+
+        protected override void DeriveMatrix()
+        {
+            Transform.DeriveTRS(LocalMatrix, out Vec3 t, out Vec3 s, out Quat r);
+            _translation.SetRawNoUpdate(t);
+            _scale.SetRawNoUpdate(s);
+            _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
         }
 
         protected internal override void OnDeserialized()

@@ -272,8 +272,9 @@
     <Compile Include="Animation\Property\BasePropAnim.cs" />
     <Compile Include="Animation\Property\BasePropAnimKeyframed.cs" />
     <Compile Include="Components\Logic\ScriptComponent.cs" />
-    <Compile Include="Components\Scene\InteractorComponent.cs" />
+    <Compile Include="Components\Logic\InteractorComponent.cs" />
     <Compile Include="Components\Scene\Mesh\BaseRenderableMesh.cs" />
+    <Compile Include="Components\Scene\Transforms\Misc\OriginRebasableComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Lagged\TranslationLagged.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake2D.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake3D.cs" />
@@ -737,10 +738,10 @@
     <Compile Include="Components\Scene\SplineComponent.cs" />
     <Compile Include="Components\Scene\SoundComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoisePosition.cs" />
-    <Compile Include="Components\Scene\Transforms\Rotation.cs" />
+    <Compile Include="Components\Scene\Transforms\R.cs" />
     <Compile Include="Components\Scene\Transforms\RT.cs" />
     <Compile Include="Components\Scene\Transforms\TR.cs" />
-    <Compile Include="Components\Scene\Transforms\Translation.cs" />
+    <Compile Include="Components\Scene\Transforms\T.cs" />
     <Compile Include="Components\Scene\Transforms\TRS.cs" />
     <Compile Include="Components\LogicComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\Boom.cs" />

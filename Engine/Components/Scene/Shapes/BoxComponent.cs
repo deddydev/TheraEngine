@@ -50,7 +50,7 @@ namespace TheraEngine.Components.Scene.Shapes
             get => _box.HalfExtents;
             set => _box.HalfExtents = value;
         }
-
+        
         public override void Render()
         {
             Engine.Renderer.ApplyRenderParams(RenderParams);

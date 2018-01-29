@@ -151,7 +151,6 @@ namespace TheraEditor.Windows.Forms
             if (hud.DragComponent != null)
             {
                 Engine.World.DespawnActor(hud.DragComponent.OwningActor);
-                hud.DragComponent = null;
                 hud.DoMouseUp();
             }
         }
@@ -166,6 +165,11 @@ namespace TheraEditor.Windows.Forms
         {
             _dragInstance = null;
             _lastDraggedNode = null;
+            EditorHud hud = EditorPawn.HUD as EditorHud;
+            if (hud.DragComponent != null)
+            {
+                hud.DoMouseUp();
+            }
         }
     }
 }

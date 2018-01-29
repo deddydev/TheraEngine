@@ -45,14 +45,14 @@ namespace TheraEngine.Actors.Types.Pawns
     //    public EMouseButton _type;
     //    public ComboModifier _modifiers;
     //}
-    public class FlyingCameraPawn : Pawn<TRComponent>
+    public class FlyingCameraPawn : Pawn<TRLaggedComponent>
     {
         public FlyingCameraPawn() : base() { }
         public FlyingCameraPawn(LocalPlayerIndex possessor) : base(false, possessor) { }
 
-        protected override TRComponent OnConstruct()
+        protected override TRLaggedComponent OnConstruct()
         {
-            TRComponent root = new TRComponent();
+            TRLaggedComponent root = new TRLaggedComponent();
             ScreenShakeComponent = new ScreenShake3DComponent();
             Camera = new PerspectiveCamera();
             CameraComponent cam = new CameraComponent(Camera);
@@ -109,12 +109,7 @@ namespace TheraEngine.Actors.Types.Pawns
         //    //Camera_TransformChanged();
         //    base.PostConstruct();
         //}
-
-        private void Camera_TransformChanged()
-        {
-            
-        }
-
+        
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolled, EInputPauseType.TickAlways);
@@ -199,7 +194,6 @@ namespace TheraEngine.Actors.Types.Pawns
             else
             {
                 RootComponent.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
-                Camera_TransformChanged();
             }
         }
         
@@ -221,9 +215,8 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                RootComponent.Rotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
-                RootComponent.Rotation.RemapToRange(-180.0f, 180.0f);
-                Camera_TransformChanged();
+                RootComponent.DesiredRotation.AddRotationsNoUpdate(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
+                RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
             }
             else if (Translating)
             {
@@ -234,11 +227,10 @@ namespace TheraEngine.Actors.Types.Pawns
                     _screenPoint.Y += y;
                     Vec3 newPoint = Camera.ScreenToWorld(_screenPoint);
                     Vec3 diff = newPoint - oldPoint;
-                    RootComponent.Translation.Raw += diff;
+                    RootComponent.DesiredTranslation += diff;
                 }
                 else
                     RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
-                Camera_TransformChanged();
             }
         }
         public void ShowContextMenu()
@@ -264,8 +256,8 @@ namespace TheraEngine.Actors.Types.Pawns
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
             {
-                RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
-                RootComponent.Rotation.RemapToRange(-180.0f, 180.0f);
+                RootComponent.DesiredRotation.AddRotationsNoUpdate(_pitch * delta, _yaw * delta, 0.0f);
+                RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
             }
         }
 

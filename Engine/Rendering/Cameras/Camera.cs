@@ -322,8 +322,8 @@ namespace TheraEngine.Rendering.Cameras
         /// </summary>
         public void TranslateRelative(Vec3 translation)
         {
-            _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * Matrix4.CreateTranslation(translation);
-            _worldToCameraSpaceMatrix = Matrix4.CreateTranslation(-translation) * _worldToCameraSpaceMatrix;
+            _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * translation.AsTranslationMatrix();
+            _worldToCameraSpaceMatrix = (-translation).AsTranslationMatrix() * _worldToCameraSpaceMatrix;
             _localPoint.SetRawNoUpdate(_cameraToWorldSpaceMatrix.GetPoint());
             if (_viewTarget != null)
                 SetRotationWithTarget(_viewTarget.Raw);

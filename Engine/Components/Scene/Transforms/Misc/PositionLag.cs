@@ -6,7 +6,7 @@ using TheraEngine.Rendering;
 namespace TheraEngine.Components.Scene.Transforms
 {
     [FileDef("Position Lag Component")]
-    public class PositionLagComponent : SceneComponent, I3DRenderable
+    public class PositionLagComponent : OriginRebasableComponent, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
 

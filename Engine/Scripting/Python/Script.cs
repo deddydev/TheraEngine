@@ -11,5 +11,10 @@ namespace TheraEngine.Scripting
         public PythonScript(string path) : base(path) { }
         public static new PythonScript FromText(string text)
             => new PythonScript() { Text = text };
+
+        public void Run(string methodName, params object[] args)
+        {
+            IronPython.Initialize();
+        }
     }
 }

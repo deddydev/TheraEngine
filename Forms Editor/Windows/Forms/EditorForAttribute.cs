@@ -7,8 +7,6 @@ namespace TheraEditor.Windows.Forms
     {
         public Type[] DataTypes { get; set; }
         public EditorForAttribute(params Type[] dataTypes)
-        {
-            DataTypes = dataTypes;
-        }
+            => DataTypes = dataTypes;
     }
 }

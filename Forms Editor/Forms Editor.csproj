@@ -112,6 +112,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Thumbnails.cs" />
     <Compile Include="EditorGameMode.cs" />
     <Compile Include="EditorPlayerController.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="Windows\Forms\BetterTableLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Windows\Forms\DragDropFilter.cs" />
     <Compile Include="Windows\Forms\Editor Forms\DockableWelcomeWindow.cs">
       <SubType>Form</SubType>
     </Compile>

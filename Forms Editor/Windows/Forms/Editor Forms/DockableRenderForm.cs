@@ -80,13 +80,6 @@ namespace TheraEditor.Windows.Forms
         protected override void OnShown(EventArgs e)
         {
             Engine.World?.SpawnActor(EditorPawn);
-
-            Viewport v = RenderPanel.GetOrAddViewport(PlayerIndex);
-            v.HUD = EditorPawn.HUD;
-            v.Camera = EditorPawn.CurrentCameraComponent.Camera;
-
-            //Engine.RegisterRenderTick(RenderTick);
-
             base.OnShown(e);
         }
 
@@ -98,7 +91,6 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnClosed(EventArgs e)
         {
-            //Engine.UnregisterRenderTick(RenderTick);
             Engine.World?.DespawnActor(EditorPawn);
             base.OnClosed(e);
         }
@@ -115,9 +107,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         protected override string GetPersistString()
-        {
-            return GetType().ToString() + "," + FormIndex;
-        }
+            => GetType().ToString() + "," + FormIndex;
 
         BaseFileWrapper _lastDraggedNode = null;
         FileObject _dragInstance = null;
@@ -138,11 +128,11 @@ namespace TheraEditor.Windows.Forms
             FileObject instance = _dragInstance ?? (_dragInstance = wrapper.GetNewInstance());
             if (instance is IActor actor)
             {
-                Editor.Instance.DoEvents = false;
-                _preRenderFreq = Engine.TargetRenderFreq;
-                _preUpdateFreq = Engine.TargetUpdateFreq;
-                Engine.TargetRenderFreq = 20.0f;
-                Engine.TargetUpdateFreq = 20.0f;
+                //Editor.Instance.DoEvents = false;
+                //_preRenderFreq = Engine.TargetRenderFreq;
+                //_preUpdateFreq = Engine.TargetUpdateFreq;
+                //Engine.TargetRenderFreq = 20.0f;
+                //Engine.TargetUpdateFreq = 20.0f;
                 BaseRenderPanel.HoveredPanel = RenderPanel;
                 Engine.World.SpawnActor(actor);
                 EditorHud hud = EditorPawn.HUD as EditorHud;
@@ -159,9 +149,9 @@ namespace TheraEditor.Windows.Forms
                 Engine.World.DespawnActor(hud.DragComponent.OwningActor);
                 hud.DoMouseUp();
             }
-            Engine.TargetUpdateFreq = _preUpdateFreq;
-            Engine.TargetRenderFreq = _preRenderFreq;
-            Editor.Instance.DoEvents = true;
+            //Engine.TargetUpdateFreq = _preUpdateFreq;
+            //Engine.TargetRenderFreq = _preRenderFreq;
+            //Editor.Instance.DoEvents = true;
         }
 
         private void RenderPanel_DragOver(object sender, DragEventArgs e)
@@ -179,9 +169,9 @@ namespace TheraEditor.Windows.Forms
             {
                 hud.DoMouseUp();
             }
-            Engine.TargetUpdateFreq = _preUpdateFreq;
-            Engine.TargetRenderFreq = _preRenderFreq;
-            Editor.Instance.DoEvents = true;
+            //Engine.TargetUpdateFreq = _preUpdateFreq;
+            //Engine.TargetRenderFreq = _preRenderFreq;
+            //Editor.Instance.DoEvents = true;
         }
     }
 }

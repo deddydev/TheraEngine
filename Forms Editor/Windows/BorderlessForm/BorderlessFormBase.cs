@@ -16,7 +16,7 @@ namespace BorderlessForm
         {
             NativeMethods.ReleaseCapture();
             var pt = new POINT { X = (short)p.X, Y = (short)p.Y };
-            NativeMethods.SendMessage(FindForm().Handle, (int)WindowMessages.WM_NCLBUTTONDOWN, (int)hit, pt);
+            NativeMethods.SendMessage(FindForm().Handle, (int)WindowsMessage.WM_NCLBUTTONDOWN, (int)hit, pt);
         }
 
         public void DecorationMouseDown(HitTestValues hit)
@@ -28,7 +28,7 @@ namespace BorderlessForm
         {
             NativeMethods.ReleaseCapture();
             var pt = new POINT { X = (short)p.X, Y = (short)p.Y };
-            NativeMethods.SendMessage(FindForm().Handle, (int)WindowMessages.WM_NCLBUTTONUP, (int)hit, pt);
+            NativeMethods.SendMessage(FindForm().Handle, (int)WindowsMessage.WM_NCLBUTTONUP, (int)hit, pt);
         }
 
         public void DecorationMouseUp(HitTestValues hit)
@@ -56,7 +56,7 @@ namespace BorderlessForm
         
         protected void ShowSystemMenu(MouseButtons buttons, Point pos)
         {
-            NativeMethods.SendMessage(Handle, (int)WindowMessages.WM_SYSMENU, 0, MakeLong((short)pos.X, (short)pos.Y));
+            NativeMethods.SendMessage(Handle, (int)WindowsMessage.WM_SYSMENU, 0, MakeLong((short)pos.X, (short)pos.Y));
         }
         
         protected override void WndProc(ref Message m)
@@ -69,32 +69,32 @@ namespace BorderlessForm
 
             switch (m.Msg)
             {
-                case (int)WindowMessages.WM_NCCALCSIZE:
+                case (int)WindowsMessage.WM_NCCALCSIZE:
                     {
                         // Provides new coordinates for the window client area.
                         WmNCCalcSize(ref m);
                         break;
                     }
-                case (int)WindowMessages.WM_NCPAINT:
+                case (int)WindowsMessage.WM_NCPAINT:
                     {
                         // Here should all our painting occur, but...
                         WmNCPaint(ref m);
                         break;
                     }
-                case (int)WindowMessages.WM_NCACTIVATE:
+                case (int)WindowsMessage.WM_NCACTIVATE:
                     {
                         // ... WM_NCACTIVATE does some painting directly 
                         // without bothering with WM_NCPAINT ...
                         WmNCActivate(ref m);
                         break;
                     }
-                case (int)WindowMessages.WM_SETTEXT:
+                case (int)WindowsMessage.WM_SETTEXT:
                     {
                         // ... and some painting is required in here as well
                         WmSetText(ref m);
                         break;
                     }
-                case (int)WindowMessages.WM_WINDOWPOSCHANGED:
+                case (int)WindowsMessage.WM_WINDOWPOSCHANGED:
                     {
                         WmWindowPosChanged(ref m);
                         break;

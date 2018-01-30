@@ -364,7 +364,7 @@ namespace TheraEngine
             //Sometimes this method is accessed by separate threads at the same time.
             //Lock to ensure one viewport is added before the other thread checks for its existence.
             //This method probably won't be called every frame so this shouldn't be a speed issue.
-            lock (_viewports)
+            //lock (_viewports)
             {
                 return GetViewport(index) ?? AddViewport();
             }

@@ -15,6 +15,7 @@ using System.Linq;
 using Core.Win32.Native;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Reflection;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -36,18 +37,21 @@ namespace TheraEditor.Windows.Forms
         LogicComponent,
         Settings,
     }
+    [Flags]
+    public enum KeyStateFlags : int
+    {
+        LeftMouse = 0b000001,
+        RightMouse = 0b000010,
+        Shift = 0b000100,
+        Ctrl = 0b001000,
+        MiddleMouse = 0b010000,
+        Alt = 0b100000,
+    }
     /// <summary>
     /// Extended TreeView made specifically for synchronization with file directories.
     /// </summary>
     public class ResourceTree : TreeViewEx<BaseWrapper>, IMappableShortcutControl
     {
-        const int LEFT_MOUSE_BIT = 1;
-        const int RIGHT_MOUSE_BIT = 2;
-        const int SHIFT_BIT = 4;
-        const int CTRL_BIT = 8;
-        const int MIDDLE_MOUSE_BIT = 16;
-        const int ALT_BIT = 32;
-
         private ToolTip _labelToolTip;
         private FileSystemWatcher _contentWatcher;
         private bool _allowIcons = true;
@@ -713,6 +717,7 @@ namespace TheraEditor.Windows.Forms
         private BaseWrapper _previousDropNode = null;
         private System.Windows.Forms.Timer _dragTimer = new System.Windows.Forms.Timer();
         private ImageList _draggingImageList = new ImageList();
+        private DragDropFilter _dragFilter = null;
         
         private void TreeView_ItemDrag(object sender, ItemDragEventArgs e)
         {
@@ -756,48 +761,22 @@ namespace TheraEditor.Windows.Forms
                 //This is a synchronous operation
                 //DoDragDrop(bmp, DragDropEffects.Move | DragDropEffects.Copy);
 
-                Task.Run(() =>
-                {
-                    while (!Editor.Instance.IsDisposed)
-                    {
-                        Point pointerPos = Cursor.Position;
-                        Control[] c = (Control[])Editor.Instance.Invoke(new Func<Control>(() =>
-                        {
-                            Control[] controls = new Control[Application.OpenForms.Count];
-                            for (int i = 0; i < Application.OpenForms.Count; ++i)
-                            {
-                                Form f = Application.OpenForms[i];
-                                pointerPos = Editor.Instance.PointToClient(pointerPos);
-                                Control ctrl = Editor.Instance;
-                                Control prevCtrl = ctrl;
-                                while (ctrl != null)
-                                {
-                                    prevCtrl = ctrl;
-                                    ctrl = ctrl.GetChildAtPoint(pointerPos);
-                                }
-                                return prevCtrl;
-                            }
-                            return null;
-                        }));
-                        //Engine.PrintLine(c.GetType().GetFriendlyName());
-                        //if (c.AllowDrop)
-                        //{
-
-                        //}
-                        
-                        Thread.Sleep(0);
-                    }
-                });
-
-                DragHelper.ImageList_EndDrag();
+                _dragFilter = new DragDropFilter(bmp, DragDropEffects.Move | DragDropEffects.Copy);
+                _dragFilter.Done += _dragFilter_Done;
+                Application.AddMessageFilter(_dragFilter);
             }
+        }
 
+        private void _dragFilter_Done(object sender, EventArgs e)
+        {
+            DragHelper.ImageList_EndDrag();
             _dragTimer.Enabled = false;
             _dropNode = null;
             _draggedNodes = null;
             _previousDropNode = null;
             _draggingImageList.Images.Clear();
         }
+
         private void TreeView1_DragOver(object sender, DragEventArgs e)
         {
             Point formP = PointToClient(new Point(e.X, e.Y));
@@ -828,7 +807,7 @@ namespace TheraEditor.Windows.Forms
                 tmpNode = tmpNode.Parent;
             }
 
-            e.Effect = (e.KeyState & CTRL_BIT) == 0 ? 
+            e.Effect = (e.KeyState & (int)KeyStateFlags.Ctrl) == 0 ? 
                 DragDropEffects.Move : 
                 DragDropEffects.Copy;
 
@@ -941,27 +920,7 @@ namespace TheraEditor.Windows.Forms
         private void TreeView1_DragDrop(object sender, DragEventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
-            /*
-                1 (bit 0)
-                The left mouse button.
-
-                2 (bit 1)
-                The right mouse button.
-
-                4 (bit 2)
-                The SHIFT key.
-
-                8 (bit 3)
-                The CTRL key.
-
-                16 (bit 4)
-                The middle mouse button.
-
-                32 (bit 5)
-                The ALT key.
-            */
-
-            bool copy = (e.KeyState & CTRL_BIT) != 0;
+            bool copy = (e.KeyState & (int)KeyStateFlags.Ctrl) != 0;
             if (_dropNode != null && e.Effect != DragDropEffects.None)
             {
                 if (e.Data.GetData(DataFormats.FileDrop) is string[] paths)

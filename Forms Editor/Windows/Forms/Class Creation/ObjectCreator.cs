@@ -120,6 +120,7 @@ namespace TheraEditor.Windows.Forms
         public ConstructorInfo[] PublicInstanceConstructors { get; private set; }
         public MethodInfo[] PublicStaticConstructors { get; private set; }
         public object[][] FinalArguments;
+        public ParameterInfo[] Parameters;
         public object ConstructedObject { get; private set; } = null;
         private bool _arrayMode = false;
         private bool ArrayMode
@@ -172,9 +173,13 @@ namespace TheraEditor.Windows.Forms
                 object[] paramData = FinalArguments[ConstructorIndex];
                 if (ConstructorIndex < PublicInstanceConstructors.Length)
                 {
-                    ConstructedObject = paramData.Length == 0 ?
-                        Activator.CreateInstance(ClassType) :
-                        Activator.CreateInstance(ClassType, paramData);
+                    if (paramData.Length == 0)
+                        ConstructedObject = Activator.CreateInstance(ClassType);
+                    else
+                    {
+                        ConstructorInfo constructor = ClassType.GetConstructor(Parameters.Select(x => x.ParameterType).ToArray());
+                        ConstructedObject = constructor.Invoke(paramData);
+                    }
                 }
                 else
                 {
@@ -248,7 +253,8 @@ namespace TheraEditor.Windows.Forms
             //Second row: input object editors
             tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tblConstructors.RowCount = tblConstructors.RowStyles.Count;
-            
+
+            Parameters = parameters;
             FinalArguments[index] = new object[parameters.Length];
 
             //Update column count if the number of parameters exceeds current count

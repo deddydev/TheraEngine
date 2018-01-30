@@ -8,13 +8,13 @@ namespace TheraEditor
     {
         public EditorPlayerController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base(index, possessionQueue)
         {
-            SetViewportCamera = false;
-            SetViewportHUD = false;
+            SetViewportCamera = true;
+            SetViewportHUD = true;
         }
         public EditorPlayerController(LocalPlayerIndex index) : base(index)
         {
-            SetViewportCamera = false;
-            SetViewportHUD = false;
+            SetViewportCamera = true;
+            SetViewportHUD = true;
         }
 
         //protected override void RegisterInput(InputInterface input)

@@ -16,7 +16,6 @@ namespace TheraEditor.Windows.Forms
             base.OnShown(e);
             OutputTextBox.Text = Engine.OutputString;
             Engine.DebugOutput += Engine_DebugOutput;
-            IronPython.Initialize();
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {
@@ -26,6 +25,9 @@ namespace TheraEditor.Windows.Forms
         
         private void Engine_DebugOutput(string message)
         {
+            if (Disposing || IsDisposed)
+                return;
+
             if (InvokeRequired)
             {
                 Invoke(new Action<string>(Engine_DebugOutput), message);

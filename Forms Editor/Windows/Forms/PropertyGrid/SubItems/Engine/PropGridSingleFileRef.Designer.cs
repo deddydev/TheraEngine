@@ -60,7 +60,7 @@
             this.textBox1.Size = new System.Drawing.Size(85, 22);
             this.textBox1.TabIndex = 1;
             this.textBox1.WordWrap = false;
-            this.textBox1.Enter += new System.EventHandler(this.textBox1_Enter);
+            //this.textBox1.Enter += new System.EventHandler(this.textBox1_Enter);
             // 
             // label1
             // 
@@ -82,7 +82,7 @@
             this.btnBrowse.TabIndex = 3;
             this.btnBrowse.Text = "...";
             this.btnBrowse.UseVisualStyleBackColor = true;
-            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
+            //this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // panel1
             // 
@@ -105,7 +105,7 @@
             this.Controls.Add(this.pictureBox1);
             this.Name = "PropGridFileRef";
             this.Size = new System.Drawing.Size(121, 78);
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.PropGridFileRef_DragDrop);
+            //this.DragDrop += new System.Windows.Forms.DragEventHandler(this.PropGridFileRef_DragDrop);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

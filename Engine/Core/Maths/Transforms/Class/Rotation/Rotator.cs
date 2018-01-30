@@ -37,6 +37,14 @@ namespace TheraEngine.Core.Maths.Transforms
             _pyr = pyr;
             _rotationOrder = rotationOrder;
         }
+        public Rotator(Rotator rotation)
+        {
+            if (rotation != null)
+            {
+                _pyr = rotation._pyr;
+                _rotationOrder = rotation._rotationOrder;
+            }
+        }
 
         public event FloatChange PitchChanged;
         public event FloatChange YawChanged;

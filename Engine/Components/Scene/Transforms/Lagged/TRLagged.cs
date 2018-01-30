@@ -5,7 +5,7 @@ using TheraEngine.Core.Maths.Transforms;
 namespace TheraEngine.Components.Scene.Transforms
 {
     /// <summary>
-    /// Translates first, then rotates.
+    /// Translates first, then rotates. Lags behind by a specified amount for smooth movement.
     /// </summary>
     [FileDef("Lagging Translate-Rotate Component")]
     public class TRLaggedComponent : TranslationLaggedComponent
@@ -13,22 +13,25 @@ namespace TheraEngine.Components.Scene.Transforms
         public TRLaggedComponent() : this(Vec3.Zero, Rotator.GetZero(), true) { }
         public TRLaggedComponent(Vec3 translation, Rotator rotation, bool deferLocalRecalc = false) : base(translation, true)
         {
-            _currentRotation = _desiredRotation = rotation;
-            _currentRotation.Changed += RecalcLocalTransform;
+            _currentRotation = new Rotator(rotation);
+            _desiredRotation = new Rotator(rotation);
+            //_currentRotation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
         public TRLaggedComponent(Vec3 translation, bool deferLocalRecalc = false) : base(translation, true)
         {
-            _currentRotation = _desiredRotation = Rotator.GetZero();
-            _currentRotation.Changed += RecalcLocalTransform;
+            _currentRotation = Rotator.GetZero();
+            _desiredRotation = Rotator.GetZero();
+            //_currentRotation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
         public TRLaggedComponent(Rotator rotation, bool deferLocalRecalc = false) : base()
         {
-            _currentRotation = _desiredRotation = rotation;
-            _currentRotation.Changed += RecalcLocalTransform;
+            _currentRotation = new Rotator(rotation);
+            _desiredRotation = new Rotator(rotation);
+            //_currentRotation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
@@ -36,9 +39,9 @@ namespace TheraEngine.Components.Scene.Transforms
         public void SetTR(Vec3 translation, Rotator rotation)
         {
             _currentTranslation = _desiredTranslation = translation;
-            _currentTranslation.Changed += RecalcLocalTransform;
+            //_currentTranslation.Changed += RecalcLocalTransform;
             _currentRotation = _desiredRotation = rotation;
-            _currentRotation.Changed += RecalcLocalTransform;
+            //_currentRotation.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }
 
@@ -46,7 +49,7 @@ namespace TheraEngine.Components.Scene.Transforms
         protected Rotator _currentRotation;
         [TSerialize("DesiredRotation")]
         protected Rotator _desiredRotation;
-        protected float _invRotInterpSec = 1.0f;
+        protected float _invRotInterpSec = 5.0f;
 
         [Category("Transform")]
         public Rotator DesiredRotation
@@ -61,7 +64,7 @@ namespace TheraEngine.Components.Scene.Transforms
             set
             {
                 _currentRotation = value ?? new Rotator();
-                _currentRotation.Changed += RecalcLocalTransform;
+                //_currentRotation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
         }
@@ -75,14 +78,15 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected internal override void OnDeserialized()
         {
-            _currentRotation.Changed += RecalcLocalTransform;
+            //_currentRotation.Changed += RecalcLocalTransform;
             base.OnDeserialized();
         }
 
         protected override void Tick(float delta)
         {
-            _currentTranslation.Raw = (Interp.InterpCosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec));
+            _currentTranslation.Raw = Interp.InterpCosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec);
             _currentRotation.PitchYawRoll = Interp.InterpCosineTo(_currentRotation.PitchYawRoll, _desiredRotation.PitchYawRoll, delta, _invRotInterpSec);
+            RecalcLocalTransform();
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
@@ -108,7 +112,7 @@ namespace TheraEngine.Components.Scene.Transforms
             Matrix4 r = _desiredRotation.GetMatrix();
             Matrix4 t = _desiredTranslation.AsTranslationMatrix();
             Matrix4 mtx = t * r * translation.AsTranslationMatrix();
-            _desiredTranslation = LocalMatrix.GetPoint();
+            _desiredTranslation = mtx.GetPoint();
         }
         
         [Browsable(false)]

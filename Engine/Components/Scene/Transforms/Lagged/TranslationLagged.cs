@@ -15,7 +15,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public TranslationLaggedComponent(Vec3 translation, bool deferLocalRecalc = false) : base()
         {
             _currentTranslation = translation;
-            _currentTranslation.Changed += RecalcLocalTransform;
+            //_currentTranslation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Transforms
         [TSerialize("CurrentTranslation")]
         protected EventVec3 _currentTranslation;
         protected Vec3 _desiredTranslation;
-        protected float _invTransInterpSec = 1.0f;
+        protected float _invTransInterpSec = 5.0f;
 
         [Category("Transform")]
         public EventVec3 CurrentTranslation
@@ -32,7 +32,7 @@ namespace TheraEngine.Components.Scene.Transforms
             set
             {
                 _currentTranslation = value ?? new EventVec3();
-                _currentTranslation.Changed += RecalcLocalTransform;
+                //_currentTranslation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
         }
@@ -54,7 +54,7 @@ namespace TheraEngine.Components.Scene.Transforms
         [PostDeserialize]
         protected internal virtual void OnDeserialized()
         {
-            _currentTranslation.Changed += RecalcLocalTransform;
+            //_currentTranslation.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }
 
@@ -72,6 +72,7 @@ namespace TheraEngine.Components.Scene.Transforms
         protected virtual void Tick(float delta)
         {
             _currentTranslation.Raw = Interp.InterpCosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec);
+            RecalcLocalTransform();
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

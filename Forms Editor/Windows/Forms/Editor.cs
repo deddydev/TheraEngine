@@ -444,7 +444,8 @@ namespace TheraEditor.Windows.Forms
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
 
-            //Application.DoEvents();
+            if (DoEvents)
+                Application.DoEvents();
             //Engine.PrintLine(DateTime.Now.TimeOfDay.ToString());
         }
         //protected override void OnResizeBegin(EventArgs e)
@@ -710,6 +711,8 @@ namespace TheraEditor.Windows.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
         public Dictionary<Keys, Func<bool>> MappableActions { get; private set; }
+        internal bool DoEvents { get; set; } = true;
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (MappableActions.ContainsKey(e.KeyData))

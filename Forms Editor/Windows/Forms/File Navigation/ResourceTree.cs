@@ -13,6 +13,8 @@ using Microsoft.VisualBasic.FileIO;
 using System.Collections;
 using System.Linq;
 using Core.Win32.Native;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -709,7 +711,7 @@ namespace TheraEditor.Windows.Forms
         private BaseWrapper _dropNode = null;
         private BaseWrapper[] _draggedNodes;
         private BaseWrapper _previousDropNode = null;
-        private Timer _dragTimer = new Timer();
+        private System.Windows.Forms.Timer _dragTimer = new System.Windows.Forms.Timer();
         private ImageList _draggingImageList = new ImageList();
         
         private void TreeView_ItemDrag(object sender, ItemDragEventArgs e)
@@ -740,18 +742,53 @@ namespace TheraEditor.Windows.Forms
             }
 
             Graphics gfx = Graphics.FromImage(bmp);
-                
+            
             gfx.DrawString(text, Font, new SolidBrush(ForeColor), Indent, 0.0f);
 
             _draggingImageList.Images.Add(bmp);
-
+            
             Point p = PointToClient(MousePosition);
             int dx = p.X + Indent - _draggedNodes[0].Bounds.Left;
             int dy = p.Y - _draggedNodes[0].Bounds.Top;
 
             if (DragHelper.ImageList_BeginDrag(_draggingImageList.Handle, 0, dx, dy))
             {
-                DoDragDrop(bmp, DragDropEffects.Move | DragDropEffects.Copy);
+                //This is a synchronous operation
+                //DoDragDrop(bmp, DragDropEffects.Move | DragDropEffects.Copy);
+
+                Task.Run(() =>
+                {
+                    while (!Editor.Instance.IsDisposed)
+                    {
+                        Point pointerPos = Cursor.Position;
+                        Control[] c = (Control[])Editor.Instance.Invoke(new Func<Control>(() =>
+                        {
+                            Control[] controls = new Control[Application.OpenForms.Count];
+                            for (int i = 0; i < Application.OpenForms.Count; ++i)
+                            {
+                                Form f = Application.OpenForms[i];
+                                pointerPos = Editor.Instance.PointToClient(pointerPos);
+                                Control ctrl = Editor.Instance;
+                                Control prevCtrl = ctrl;
+                                while (ctrl != null)
+                                {
+                                    prevCtrl = ctrl;
+                                    ctrl = ctrl.GetChildAtPoint(pointerPos);
+                                }
+                                return prevCtrl;
+                            }
+                            return null;
+                        }));
+                        //Engine.PrintLine(c.GetType().GetFriendlyName());
+                        //if (c.AllowDrop)
+                        //{
+
+                        //}
+                        
+                        Thread.Sleep(0);
+                    }
+                });
+
                 DragHelper.ImageList_EndDrag();
             }
 
@@ -803,50 +840,50 @@ namespace TheraEditor.Windows.Forms
                 _previousDropNode = _dropNode;
             }
         }
-        private static bool CompareToType(Type compared, Type to)
-        {
-            Type bType;
-            if (compared == to)
-                return true;
-            else
-            {
-                bType = compared.BaseType;
-                while (bType != null && bType != typeof(FileObject))
-                {
-                    if (to == bType)
-                        return true;
+        //private static bool CompareToType(Type compared, Type to)
+        //{
+        //    Type bType;
+        //    if (compared == to)
+        //        return true;
+        //    else
+        //    {
+        //        bType = compared.BaseType;
+        //        while (bType != null && bType != typeof(FileObject))
+        //        {
+        //            if (to == bType)
+        //                return true;
 
-                    bType = bType.BaseType;
-                }
-            }
-            return false;
-        }
-        private static bool CompareTypes(FileObject r1, FileObject r2)
-        {
-            return CompareTypes(r1.GetType(), r2.GetType());
-        }
-        private static bool CompareTypes(Type type1, Type type2)
-        {
-            Type bType1, bType2;
-            if (type1 == type2)
-                return true;
-            else
-            {
-                bType2 = type2.BaseType;
-                while (bType2 != null && bType2 != typeof(FileObject))
-                {
-                    bType1 = type1.BaseType;
-                    while (bType1 != null && bType1 != typeof(FileObject))
-                    {
-                        if (bType1 == bType2)
-                            return true;
-                        bType1 = bType1.BaseType;
-                    }
-                    bType2 = bType2.BaseType;
-                }
-            }
-            return false;
-        }
+        //            bType = bType.BaseType;
+        //        }
+        //    }
+        //    return false;
+        //}
+        //private static bool CompareTypes(FileObject r1, FileObject r2)
+        //{
+        //    return CompareTypes(r1.GetType(), r2.GetType());
+        //}
+        //private static bool CompareTypes(Type type1, Type type2)
+        //{
+        //    Type bType1, bType2;
+        //    if (type1 == type2)
+        //        return true;
+        //    else
+        //    {
+        //        bType2 = type2.BaseType;
+        //        while (bType2 != null && bType2 != typeof(FileObject))
+        //        {
+        //            bType1 = type1.BaseType;
+        //            while (bType1 != null && bType1 != typeof(FileObject))
+        //            {
+        //                if (bType1 == bType2)
+        //                    return true;
+        //                bType1 = bType1.BaseType;
+        //            }
+        //            bType2 = bType2.BaseType;
+        //        }
+        //    }
+        //    return false;
+        //}
 
         //private static bool TryDrop(FileObject dragging, FileObject dropping)
         //{

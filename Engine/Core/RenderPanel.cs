@@ -360,7 +360,15 @@ namespace TheraEngine
 
         #region Viewports
         public Viewport GetOrAddViewport(LocalPlayerIndex index)
-            => GetViewport(index) ?? AddViewport();
+        {
+            //Sometimes this method is accessed by separate threads at the same time.
+            //Lock to ensure one viewport is added before the other thread checks for its existence.
+            //This method probably won't be called every frame so this shouldn't be a speed issue.
+            lock (_viewports)
+            {
+                return GetViewport(index) ?? AddViewport();
+            }
+        }
         public Viewport GetViewport(LocalPlayerIndex index)
         {
             int i = (int)index;
@@ -374,7 +382,7 @@ namespace TheraEngine
             Viewport newViewport = new Viewport(this, _viewports.Count);
             _viewports.Add(newViewport);
 
-            Engine.PrintLine("Added new viewport to " + GetType().GetFriendlyName());
+            Engine.LogWarning("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
 
             //Fix the regions of the rest of the viewports
             for (int i = 0; i < _viewports.Count - 1; ++i)

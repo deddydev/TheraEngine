@@ -121,6 +121,7 @@ namespace TheraEditor.Windows.Forms
 
         BaseFileWrapper _lastDraggedNode = null;
         FileObject _dragInstance = null;
+        private float _preRenderFreq, _preUpdateFreq;
         private void RenderPanel_DragEnter(object sender, DragEventArgs e)
         {
             BaseWrapper[] dragNodes = Editor.Instance.ContentTree?.DraggedNodes;
@@ -137,6 +138,11 @@ namespace TheraEditor.Windows.Forms
             FileObject instance = _dragInstance ?? (_dragInstance = wrapper.GetNewInstance());
             if (instance is IActor actor)
             {
+                Editor.Instance.DoEvents = false;
+                _preRenderFreq = Engine.TargetRenderFreq;
+                _preUpdateFreq = Engine.TargetUpdateFreq;
+                Engine.TargetRenderFreq = 20.0f;
+                Engine.TargetUpdateFreq = 20.0f;
                 BaseRenderPanel.HoveredPanel = RenderPanel;
                 Engine.World.SpawnActor(actor);
                 EditorHud hud = EditorPawn.HUD as EditorHud;
@@ -153,6 +159,9 @@ namespace TheraEditor.Windows.Forms
                 Engine.World.DespawnActor(hud.DragComponent.OwningActor);
                 hud.DoMouseUp();
             }
+            Engine.TargetUpdateFreq = _preUpdateFreq;
+            Engine.TargetRenderFreq = _preRenderFreq;
+            Editor.Instance.DoEvents = true;
         }
 
         private void RenderPanel_DragOver(object sender, DragEventArgs e)
@@ -170,6 +179,9 @@ namespace TheraEditor.Windows.Forms
             {
                 hud.DoMouseUp();
             }
+            Engine.TargetUpdateFreq = _preUpdateFreq;
+            Engine.TargetRenderFreq = _preRenderFreq;
+            Editor.Instance.DoEvents = true;
         }
     }
 }

@@ -63,20 +63,21 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public PerspectiveCamera Camera { get; private set; }
         public ScreenShake3DComponent ScreenShakeComponent { get; private set; }
+        
+        float 
+            _linearRight = 0.0f,
+            _linearForward = 0.0f,
+            _linearUp = 0.0f,
+            _pitch = 0.0f,
+            _yaw = 0.0f;
 
-        //Movement parameters
-        float
-            _scrollSpeed = 5.0f,
-            _mouseRotateSpeed = 0.2f,
-            _mouseTranslateSpeed = 0.2f,
-            _gamepadRotateSpeed = 150.0f,
-            _gamepadTranslateSpeed = 30.0f,
-            _keyboardTranslateSpeed = 30.0f;
-
-        float _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
-        float _pitch = 0.0f, _yaw = 0.0f;
-
-        bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false, _middleClickPressed = false, _leftClickPressed = false;
+        bool 
+            _ctrl = false,
+            _alt = false,
+            _shift = false,
+            _rightClickPressed = false, 
+            _middleClickPressed = false,
+            _leftClickPressed = false;
         
         [Browsable(false)]
         bool Rotating => _rightClickPressed && _ctrl;
@@ -85,22 +86,22 @@ namespace TheraEngine.Actors.Types.Pawns
 
         [TSerialize]
         [Category("Movement")]
-        public float ScrollSpeed { get => _scrollSpeed; set => _scrollSpeed = value; }
+        public float ScrollSpeed { get; set; } = 5.0f;
         [TSerialize]
         [Category("Movement")]
-        public float MouseRotateSpeed { get => _mouseRotateSpeed; set => _mouseRotateSpeed = value; }
+        public float MouseRotateSpeed { get; set; } = 0.2f;
         [TSerialize]
         [Category("Movement")]
-        public float MouseTranslateSpeed { get => _mouseTranslateSpeed; set => _mouseTranslateSpeed = value; }
+        public float MouseTranslateSpeed { get; set; } = 1.7f;
         [TSerialize]
         [Category("Movement")]
-        public float GamepadRotateSpeed { get => _gamepadRotateSpeed; set => _gamepadRotateSpeed = value; }
+        public float GamepadRotateSpeed { get; set; } = 150.0f;
         [TSerialize]
         [Category("Movement")]
-        public float GamepadTranslateSpeed { get => _gamepadTranslateSpeed; set => _gamepadTranslateSpeed = value; }
+        public float GamepadTranslateSpeed { get; set; } = 30.0f;
         [TSerialize]
         [Category("Movement")]
-        public float KeyboardTranslateSpeed { get => _keyboardTranslateSpeed; set => _keyboardTranslateSpeed = value; }
+        public float KeyboardTranslateSpeed { get; set; } = 70.0f;
 
         //protected override void PostConstruct()
         //{
@@ -109,7 +110,7 @@ namespace TheraEngine.Actors.Types.Pawns
         //    //Camera_TransformChanged();
         //    base.PostConstruct();
         //}
-        
+
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolled, EInputPauseType.TickAlways);

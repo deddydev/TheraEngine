@@ -120,8 +120,8 @@ namespace TheraEngine
             //Set initial world (this would generally be a world for opening videos or the main menu)
             SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
 
-            TargetRenderFreq = 20.0f;//Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
-            TargetUpdateFreq = 30.0f;//Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
+            TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
+            TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
             //Preload transition world now
             await Game.TransitionWorldRef.LoadNewInstanceAsync();
@@ -380,7 +380,6 @@ namespace TheraEngine
             message = message ?? "<No Message>";
             if (args != null && args.Length > 0)
                 message = string.Format(message, args);
-            PrintLine("[{1}] {0}", message, DateTime.Now);
 
             //Format and print stack trace
             string stackTrace = Environment.StackTrace;
@@ -400,7 +399,8 @@ namespace TheraEngine
                     stackTrace = stackTrace.Substring(0, at);
             }
             
-            PrintLine(stackTrace);
+            message += Environment.NewLine + stackTrace;
+            PrintLine("[{1}] {0}", message, DateTime.Now);
 #endif
         }
 

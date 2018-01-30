@@ -5,47 +5,71 @@ using TheraEditor.Wrappers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    //[PropGridItem(typeof(IFileRef))]
-    public partial class PropGridFileRef : PropGridItem
+    [PropGridControlFor(typeof(IFileRef))]
+    public partial class PropGridFileRef : PropGridObject
     {
-        public PropGridFileRef() => InitializeComponent();
-        
-        public IFileRef _fileRef;
-        protected override void UpdateDisplayInternal()
+        public PropGridFileRef() : base()
         {
-            object value = GetValue();
-            
-            if (typeof(IFileRef).IsAssignableFrom(DataType))
-            {
-                _fileRef = value as IFileRef;
-                label1.Text = _fileRef?.ReferencedType.GetFriendlyName();
-                textBox1.Text = _fileRef?.ReferencePath;
-            }
-            else
-                throw new Exception(DataType.GetFriendlyName() + " is not an IFileRef type.");
+            //InitializeComponent();
+            AllowDrop = true;
         }
 
-        private void PropGridFileRef_DragDrop(object sender, DragEventArgs e)
+        protected override void OnDragDrop(DragEventArgs drgevent)
         {
-            Type treeNodeType = typeof(BaseFileWrapper);
-            if (e.Data.GetDataPresent(treeNodeType))
-            {
-                BaseFileWrapper node = (BaseFileWrapper)e.Data.GetData(treeNodeType);
-                if (_fileRef.ReferencedType.IsAssignableFrom(node.FileType))
-                {
-                    
-                }
-            }
+            base.OnDragDrop(drgevent);
         }
 
-        private void textBox1_Enter(object sender, EventArgs e)
+        protected override void OnDragEnter(DragEventArgs drgevent)
         {
-            btnBrowse.PerformClick();
+            base.OnDragEnter(drgevent);
         }
 
-        private void btnBrowse_Click(object sender, EventArgs e)
+        protected override void OnDragLeave(EventArgs e)
         {
-
+            base.OnDragLeave(e);
         }
+
+        protected override void OnDragOver(DragEventArgs drgevent)
+        {
+            base.OnDragOver(drgevent);
+        }
+
+        //public IFileRef _fileRef;
+        //protected override void UpdateDisplayInternal()
+        //{
+        //    object value = GetValue();
+
+        //    if (typeof(IFileRef).IsAssignableFrom(DataType))
+        //    {
+        //        _fileRef = value as IFileRef;
+        //        label1.Text = _fileRef?.ReferencedType.GetFriendlyName();
+        //        textBox1.Text = _fileRef?.ReferencePath;
+        //    }
+        //    else
+        //        throw new Exception(DataType.GetFriendlyName() + " is not an IFileRef type.");
+        //}
+
+        //private void PropGridFileRef_DragDrop(object sender, DragEventArgs e)
+        //{
+        //    Type treeNodeType = typeof(BaseFileWrapper);
+        //    if (e.Data.GetDataPresent(treeNodeType))
+        //    {
+        //        BaseFileWrapper node = (BaseFileWrapper)e.Data.GetData(treeNodeType);
+        //        if (_fileRef.ReferencedType.IsAssignableFrom(node.FileType))
+        //        {
+
+        //        }
+        //    }
+        //}
+
+        //private void textBox1_Enter(object sender, EventArgs e)
+        //{
+        //    btnBrowse.PerformClick();
+        //}
+
+        //private void btnBrowse_Click(object sender, EventArgs e)
+        //{
+
+        //}
     }
 }

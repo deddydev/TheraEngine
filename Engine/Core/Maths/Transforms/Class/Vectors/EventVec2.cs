@@ -8,10 +8,9 @@ using System.ComponentModel;
 namespace System
 {
     [Serializable]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public unsafe class EventVec2 : IEquatable<EventVec2>, IUniformable2Float, IBufferable, IParsable
     {
-        private int _updating = 0;
+        //private int _updating = 0;
         private float _oldX, _oldY;
         private Vec2 _data;
 
@@ -96,23 +95,26 @@ namespace System
 
         private void BeginUpdate()
         {
-            ++_updating;
+            //++_updating;
             _oldX = X;
             _oldY = Y;
         }
         private void EndUpdate()
         {
-            --_updating;
-            if (_updating > 0)
-                return;
+            float x = X, y = Y;
+            float ox = _oldX, oy = _oldY;
+
+            //--_updating;
+            //if (_updating > 0)
+            //    return;
             bool anyChanged = false;
-            if (X != _oldX)
+            if (*(int*)&x != *(int*)&ox)
             {
                 XChanged?.Invoke();
                 XValueChanged?.Invoke(_oldX, X);
                 anyChanged = true;
             }
-            if (Y != _oldY)
+            if (*(int*)&y != *(int*)&oy)
             {
                 YChanged?.Invoke();
                 YValueChanged?.Invoke(_oldY, Y);

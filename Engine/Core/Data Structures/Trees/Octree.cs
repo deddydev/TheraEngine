@@ -344,9 +344,9 @@ namespace System
 
                 if (item.CullingVolume != null)
                 {
-                    //if (item.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
-                    //    return false;
-                    
+                    if (item.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
+                        return false;
+
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         if (i == ignoreSubNode)

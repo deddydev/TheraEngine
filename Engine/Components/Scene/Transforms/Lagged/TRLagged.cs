@@ -49,7 +49,7 @@ namespace TheraEngine.Components.Scene.Transforms
         protected Rotator _currentRotation;
         [TSerialize("DesiredRotation")]
         protected Rotator _desiredRotation;
-        protected float _invRotInterpSec = 5.0f;
+        protected float _invRotInterpSec = 40.0f;
 
         [Category("Transform")]
         public Rotator DesiredRotation
@@ -70,10 +70,10 @@ namespace TheraEngine.Components.Scene.Transforms
         }
         [TSerialize]
         [Category("Transform")]
-        public float RotationInterpSeconds
+        public float InverseRotationInterpSeconds
         {
-            get => 1.0f / _invRotInterpSec;
-            set => _invRotInterpSec = 1.0f / value;
+            get => _invRotInterpSec;
+            set => _invRotInterpSec = value;
         }
 
         protected internal override void OnDeserialized()
@@ -124,5 +124,9 @@ namespace TheraEngine.Components.Scene.Transforms
             _desiredRotation.SetRotations(q.ToYawPitchRoll());
             base.HandleWorldRotation(delta);
         }
+        
+        public Vec3 GetForwardDir() => _currentRotation.TransformVector(Vec3.Forward);
+        public Vec3 GetRightDir() => _currentRotation.TransformVector(Vec3.Right);
+        public Vec3 GetUpDir() => _currentRotation.TransformVector(Vec3.Up);
     }
 }

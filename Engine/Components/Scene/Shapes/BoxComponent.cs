@@ -48,7 +48,11 @@ namespace TheraEngine.Components.Scene.Shapes
         public Vec3 HalfExtents
         {
             get => _box.HalfExtents;
-            set => _box.HalfExtents = value;
+            set
+            {
+                _box.HalfExtents = value;
+                OctreeNode?.ItemMoved(this);
+            }
         }
         
         public override void Render()
@@ -70,10 +74,10 @@ namespace TheraEngine.Components.Scene.Shapes
         public Vec3[] GetTransformedCorners() => _box.GetCorners();
         public Vec3[] GetUntransformedCorners() => BoundingBox.GetCorners(_box.HalfExtents, Matrix4.Identity);
 
-        internal override void RecalcGlobalTransform()
+        protected override void OnWorldTransformChanged()
         {
-            base.RecalcGlobalTransform();
             _box.WorldMatrix = WorldMatrix;
+            base.OnWorldTransformChanged();
         }
     }
 }

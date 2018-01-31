@@ -52,5 +52,7 @@
             int count = value % range;
             return value - count * range;
         }
+        public static int SetBit(this int value, int bitIndex, bool set)
+            => set ? value | (1 << bitIndex) : value & ~(1 << bitIndex);
     }
 }

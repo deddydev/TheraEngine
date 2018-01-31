@@ -233,11 +233,11 @@ namespace System
         }
 
         [Browsable(false)]
-        public float LengthSquared { get { return _data.LengthSquared; } }
+        public float LengthSquared => _data.LengthSquared;
         [Browsable(false)]
-        public float LengthFast { get { return _data.LengthFast; } }
+        public float LengthFast => _data.LengthFast;
         [Browsable(false)]
-        public float Length { get { return _data.Length; } }
+        public float Length => _data.Length;
 
         public float DistanceTo(Vec3 point) => _data.DistanceTo(point);
         public float DistanceToFast(Vec3 point) => _data.DistanceToFast(point);
@@ -252,23 +252,26 @@ namespace System
         }
         private void EndUpdate()
         {
+            float x = X, y = Y, z = Z;
+            float ox = _oldX, oy = _oldY, oz = _oldZ;
+
             //--_updating;
             //if (_updating > 0)
             //    return;
             bool anyChanged = false;
-            if (X != _oldX)
+            if (*(int*)&x != *(int*)&ox)
             {
                 XChanged?.Invoke();
                 XValueChanged?.Invoke(_oldX, X);
                 anyChanged = true;
             }
-            if (Y != _oldY)
+            if (*(int*)&y != *(int*)&oy)
             {
                 YChanged?.Invoke();
                 YValueChanged?.Invoke(_oldY, Y);
                 anyChanged = true;
             }
-            if (Z != _oldZ)
+            if (*(int*)&z != *(int*)&oz)
             {
                 ZChanged?.Invoke();
                 ZValueChanged?.Invoke(_oldZ, Z);

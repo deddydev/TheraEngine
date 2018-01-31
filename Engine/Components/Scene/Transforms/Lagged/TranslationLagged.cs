@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Transforms
         [TSerialize("CurrentTranslation")]
         protected EventVec3 _currentTranslation;
         protected Vec3 _desiredTranslation;
-        protected float _invTransInterpSec = 5.0f;
+        protected float _invTransInterpSec = 40.0f;
 
         [Category("Transform")]
         public EventVec3 CurrentTranslation
@@ -45,10 +45,10 @@ namespace TheraEngine.Components.Scene.Transforms
         }
         [TSerialize]
         [Category("Transform")]
-        public float TranslationInterpSeconds
+        public float InverseTranslationInterpSeconds
         {
-            get => 1.0f / _invTransInterpSec;
-            set => _invTransInterpSec = 1.0f / value;
+            get => _invTransInterpSec;
+            set => _invTransInterpSec = value;
         }
 
         [PostDeserialize]

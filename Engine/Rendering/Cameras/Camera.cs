@@ -303,13 +303,6 @@ namespace TheraEngine.Rendering.Cameras
         protected void UpdateTransformedFrustum()
             => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, CameraToWorldSpaceMatrix);
 
-        /// <summary>
-        /// Returns a uniform scale that will keep the given radius the same size on the screen at the given point.
-        /// </summary>
-        /// <param name="point">The location of the sphere.</param>
-        /// <param name="radius">The radius of the sphere.</param>
-        /// <returns>The scale on the screen.</returns>
-        public abstract float DistanceScale(Vec3 point, float radius);
         public abstract void Zoom(float amount);
 
         /// <summary>
@@ -572,6 +565,40 @@ namespace TheraEngine.Rendering.Cameras
             _transformedFrustum.Render();
             if (_viewTarget != null)
                 Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, 10.0f);
+        }
+        public Plane GetScreenPlane()
+        {
+            Vec3 forward = GetForwardVector();
+            return new Plane(forward, Plane.ComputeDistance(WorldPoint, forward));
+        }
+
+        public Vec3 GetScreenPlaneOriginDistance()
+            => Plane.ComputeDistance(WorldPoint, GetForwardVector());
+
+        public float DistanceFromScreenPlane(Vec3 point)
+        {
+            Vec3 forward = GetForwardVector();
+            return Collision.DistancePlanePoint(forward, Plane.ComputeDistance(WorldPoint, forward), point);
+        }
+        public float DistanceFromWorldPoint(Vec3 point)
+            => WorldPoint.DistanceTo(point);
+        public float DistanceFromWorldPointFast(Vec3 point)
+            => WorldPoint.DistanceToFast(point);
+
+        /// <summary>
+        /// Returns a uniform scale that will keep the given radius the same size on the screen at the given point.
+        /// </summary>
+        /// <param name="point">The location of the sphere.</param>
+        /// <param name="radius">The radius of the sphere.</param>
+        /// <returns>The scale on the screen.</returns>
+        public virtual float DistanceScale(Vec3 point, float radius = 1.0f)
+        {
+            //Using distance to the screen plane
+            //instead of distance to the camera's world point
+            //returns expected results.
+            //Otherwise scale will increase on edges of screen
+            float distance = DistanceFromScreenPlane(point);
+            return distance * radius * 0.1f;
         }
     }
 }

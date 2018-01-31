@@ -86,7 +86,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         [TSerialize]
         [Category("Movement")]
-        public float ScrollSpeed { get; set; } = 5.0f;
+        public float ScrollSpeed { get; set; } = 20.0f;
         [TSerialize]
         [Category("Movement")]
         public float MouseRotateSpeed { get; set; } = 0.2f;
@@ -190,6 +190,9 @@ namespace TheraEngine.Actors.Types.Pawns
 
         private void OnScrolled(bool up)
         {
+            if (_alt)
+                return;
+
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else
@@ -216,8 +219,8 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                RootComponent.DesiredRotation.AddRotationsNoUpdate(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
-                RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
+                RootComponent.DesiredRotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
+                //RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
             }
             else if (Translating)
             {
@@ -257,8 +260,8 @@ namespace TheraEngine.Actors.Types.Pawns
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
             {
-                RootComponent.DesiredRotation.AddRotationsNoUpdate(_pitch * delta, _yaw * delta, 0.0f);
-                RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
+                RootComponent.DesiredRotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                //RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
             }
         }
 

@@ -21,13 +21,13 @@ namespace System
         public event ValueChange WValueChanged;
         public event Action Changed;
 
-        private int _updating = 0;
+        //private int _updating = 0;
         private float _oldX, _oldY, _oldZ, _oldW;
         private Vec4 _data;
         
         public float X
         {
-            get { return _data.X; }
+            get => _data.X;
             set
             {
                 BeginUpdate();
@@ -37,7 +37,7 @@ namespace System
         }
         public float Y
         {
-            get { return _data.Y; }
+            get => _data.Y;
             set
             {
                 BeginUpdate();
@@ -47,7 +47,7 @@ namespace System
         }
         public float Z
         {
-            get { return _data.Z; }
+            get => _data.Z;
             set
             {
                 BeginUpdate();
@@ -57,7 +57,7 @@ namespace System
         }
         public float W
         {
-            get { return _data.W; }
+            get => _data.W;
             set
             {
                 BeginUpdate();
@@ -66,11 +66,11 @@ namespace System
             }
         }
 
-        public float* Data { get { return _data.Data; } }
-        public VoidPtr Address { get { return _data.Address; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 4; } }
-        bool IBufferable.Normalize { get { return false; } }
+        public float* Data => _data.Data;
+        public VoidPtr Address => _data.Address;
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        public int ComponentCount => 4;
+        bool IBufferable.Normalize => false;
         public void Write(VoidPtr address)
         {
             _data.Write(address);
@@ -137,7 +137,7 @@ namespace System
 
         private void BeginUpdate()
         {
-            ++_updating;
+            //++_updating;
             _oldX = X;
             _oldY = Y;
             _oldZ = Z;
@@ -145,29 +145,32 @@ namespace System
         }
         private void EndUpdate()
         {
-            --_updating;
-            if (_updating > 0)
-                return;
+            float x = X, y = Y, z = Z, w = W;
+            float ox = _oldX, oy = _oldY, oz = _oldZ, ow = _oldW;
+
+            //--_updating;
+            //if (_updating > 0)
+            //    return;
             bool anyChanged = false;
-            if (X != _oldX)
+            if (*(int*)&x != *(int*)&ox)
             {
                 XChanged?.Invoke();
                 XValueChanged?.Invoke(_oldX, X);
                 anyChanged = true;
             }
-            if (Y != _oldY)
+            if (*(int*)&y != *(int*)&oy)
             {
                 YChanged?.Invoke();
                 YValueChanged?.Invoke(_oldY, Y);
                 anyChanged = true;
             }
-            if (Z != _oldZ)
+            if (*(int*)&z != *(int*)&oz)
             {
                 ZChanged?.Invoke();
                 ZValueChanged?.Invoke(_oldZ, Z);
                 anyChanged = true;
             }
-            if (W != _oldW)
+            if (*(int*)&w != *(int*)&ow)
             {
                 WChanged?.Invoke();
                 WValueChanged?.Invoke(_oldW, W);

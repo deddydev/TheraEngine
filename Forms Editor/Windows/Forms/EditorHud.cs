@@ -14,6 +14,7 @@ using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Physics;
 using TheraEngine.Editor;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -27,7 +28,7 @@ namespace TheraEditor.Windows.Forms
         private HighlightPoint _highlightPoint;
         TRigidBody _pickedBody;
         TPointPointConstraint _currentConstraint;
-        private float _hitDistance;
+        private float _draggingTestDistance;
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
@@ -39,18 +40,15 @@ namespace TheraEditor.Windows.Forms
             get => _dragComponent;
             set => _dragComponent = value;
         }
-        public SceneComponent SelectedComponent
+        public SceneComponent SelectedComponent => _selectedComponent;
+        public void SetSelectedComponent(bool selectedByViewport, SceneComponent comp)
         {
-            get => _selectedComponent;
-            set
-            {
-                if (_selectedComponent == value)
-                    return;
+            if (_selectedComponent == comp)
+                return;
 
-                PreSelectedComponentChanged();
-                _selectedComponent = value;
-                PostSelectedComponentChanged();
-            }
+            PreSelectedComponentChanged(selectedByViewport);
+            _selectedComponent = comp;
+            PostSelectedComponentChanged(selectedByViewport);
         }
         public SceneComponent HighlightedComponent
         {
@@ -127,8 +125,52 @@ namespace TheraEditor.Windows.Forms
             input.RegisterButtonEvent(EKey.Number6, ButtonInputType.Pressed, SetParentSpace, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EKey.Number7, ButtonInputType.Pressed, SetLocalSpace, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EKey.Number8, ButtonInputType.Pressed, SetScreenSpace, EInputPauseType.TickAlways);
-        }
 
+            //void SetAlt(bool set) => _modifierKeys = _modifierKeys.SetBit(0, set);
+            //void SetCtrl(bool set) => _modifierKeys = _modifierKeys.SetBit(1, set);
+            //void SetShift(bool set) => _modifierKeys = _modifierKeys.SetBit(2, set);
+
+            //input.RegisterButtonPressed(EKey.AltLeft, SetAlt, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.AltRight, SetAlt, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.LAlt, SetAlt, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.RAlt, SetAlt, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.ControlLeft, SetCtrl, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.ControlRight, SetCtrl, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.LControl, SetCtrl, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.RControl, SetCtrl, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.ShiftLeft, SetShift, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.ShiftRight, SetShift, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.LShift, SetShift, EInputPauseType.TickAlways);
+            //input.RegisterButtonPressed(EKey.RShift, SetShift, EInputPauseType.TickAlways);
+
+            input.RegisterMouseScroll(OnMouseScroll, EInputPauseType.TickAlways);
+        }
+        //private byte _modifierKeys;
+        //public byte ModifierKeys => _modifierKeys;
+        //public const byte AltKey = 0b001;
+        //public const byte CtrlKey = 0b010;
+        //public const byte ShiftKey = 0b100;
+        //public bool OnlyAltPressed => _modifierKeys == AltKey;
+        //public bool OnlyCtrlPressed => _modifierKeys == CtrlKey;
+        //public bool OnlyShiftPressed => _modifierKeys == ShiftKey;
+        //public bool AtLeastAltPressed => (_modifierKeys & AltKey) != 0;
+        //public bool AtLeastCtrlPressed => (_modifierKeys & CtrlKey) != 0;
+        //public bool AtLeastShiftPressed => (_modifierKeys & ShiftKey) != 0;
+
+        private float _draggingUniformScale = 1.0f;
+        private float _spawnRotation = 0.0f;
+        private void OnMouseScroll(bool up)
+        {
+            if (_dragComponent != null)
+            {
+                if (Control.ModifierKeys == Keys.Alt)
+                    _draggingTestDistance *= up ? 1.2f : 0.8f;
+                if (Control.ModifierKeys == Keys.Shift)
+                    _draggingUniformScale *= up ? 1.2f : 0.8f;
+                if (Control.ModifierKeys == Keys.Control)
+                    _spawnRotation += up ? 5.0f : -5.0f;
+            }
+        }
         private void SetWorldSpace()
         {
             TransformTool3D.Instance.TransformSpace = ESpace.World;
@@ -223,7 +265,7 @@ namespace TheraEditor.Windows.Forms
                 }
                 else
                 {
-                    SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance);
+                    SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _draggingTestDistance);
                     _highlightPoint.Transform = Matrix4.CreateTranslation(_hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(_hitPoint, _toolSize));
                     HighlightedComponent = comp;
                 }
@@ -231,20 +273,20 @@ namespace TheraEditor.Windows.Forms
             else if (_currentConstraint != null)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
-                _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * _hitDistance;
+                _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * _draggingTestDistance;
             }
             else if (_dragComponent != null)
             {
-                float prevHitDist = _hitDistance;
+                float prevHitDist = _draggingTestDistance;
                 IRigidCollidable p = _dragComponent as IRigidCollidable;
-                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
+                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _draggingTestDistance, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 float upDist = 0.0f;
                 if (comp == null)
                 {
-                    _hitDistance = prevHitDist;
+                    _draggingTestDistance = prevHitDist;
                     hitNormal = Vec3.Up;// v.Camera.GetUpVector();
-                    float depth = TMath.DistanceToDepth(_hitDistance, v.Camera.NearZ, v.Camera.FarZ);
+                    float depth = TMath.DistanceToDepth(_draggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
                     _hitPoint = v.ScreenToWorld(v.ToInternalResCoords(viewportPoint), depth);
                     //Vec3 forwardCameraVector = v.Camera.GetForwardVector();
                     //_hitPoint = v.Camera.WorldPoint + forwardCameraVector * _hitDistance;
@@ -271,7 +313,7 @@ namespace TheraEditor.Windows.Forms
             }
             else if (_selectedComponent == null)
             {
-                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance);
+                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _draggingTestDistance);
                 _highlightPoint.Transform = Matrix4.CreateTranslation(_hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(_hitPoint, _toolSize));
                 HighlightedComponent = comp;
             }
@@ -288,22 +330,19 @@ namespace TheraEditor.Windows.Forms
             }
 
             _selectedComponent = null;
-            if (_dragComponent != null)
-            {
-                _dragComponent = null;
-            }
+            _dragComponent = null;
             if (HighlightedComponent != null)
                 Engine.Scene.Add(_highlightPoint);
         }
-        private void PreSelectedComponentChanged()
+        private void PreSelectedComponentChanged(bool selectedByViewport)
         {
 
         }
-        private void PostSelectedComponentChanged()
+        private void PostSelectedComponentChanged(bool selectedByViewport)
         {
             if (Engine.World == null)
                 return;
-
+            
             if (_selectedComponent != null)
             {
                 Engine.Scene?.Remove(_highlightPoint);
@@ -343,8 +382,15 @@ namespace TheraEditor.Windows.Forms
                         else
                         {
                             TransformTool3D.DestroyInstance();
-                            _dragComponent = _selectedComponent;
-                            _hitDistance = 20.0f;
+                            if (selectedByViewport)
+                            {
+                                _dragComponent = _selectedComponent;
+                                if (_dragComponent != null)
+                                {
+                                    Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
+                                    _draggingTestDistance =/* c != null ? c.DistanceFromScreenPlane(_dragComponent.GetWorldPoint()) : */20.0f;
+                                }
+                            }
                         }
                     }
 
@@ -365,7 +411,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void DoMouseDown()
         {
-            SelectedComponent = HighlightedComponent;
+            SetSelectedComponent(true, HighlightedComponent);
         }
         public class HighlightPoint : I3DRenderable
         {

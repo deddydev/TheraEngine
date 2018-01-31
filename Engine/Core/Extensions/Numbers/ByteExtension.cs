@@ -41,5 +41,7 @@
         {
             return (byte)(value + (value % 2));
         }
+        public static byte SetBit(this byte value, int bitIndex, bool set)
+            => (byte)(set ? value | (1 << bitIndex) : value & ~(1 << bitIndex));
     }
 }

@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms
                     EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn.HUD;
                     if (hud != null)
                     {
-                        hud.SelectedComponent = t.RootComponent;
+                        hud.SetSelectedComponent(false, t.RootComponent);
                     }
                 }
             }

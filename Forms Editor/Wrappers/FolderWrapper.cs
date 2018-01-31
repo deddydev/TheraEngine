@@ -290,7 +290,9 @@ namespace TheraEditor.Wrappers
         protected internal override void FixPath(string parentFolderPath)
         {
             string folderName = Text;
-            if (parentFolderPath[parentFolderPath.Length - 1] != Path.DirectorySeparatorChar)
+            if (parentFolderPath != null && 
+                parentFolderPath.Length > 0 && 
+                parentFolderPath[parentFolderPath.Length - 1] != Path.DirectorySeparatorChar)
                 parentFolderPath += Path.DirectorySeparatorChar;
             FilePath = parentFolderPath + folderName;
             if (_isPopulated)

@@ -76,6 +76,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnDragEnter(DragEventArgs e)
         {
             _wasVisible = pnlProps.Visible;
+            if (_object == null)
+            {
+                _object = DataType.GetInterface(nameof(ILocalFileRef)) != null ? DataType.GetGenericTypeDefinition().MakeGenericType();
+            }
             if (_object != null && !pnlProps.Visible)
                 pnlProps.Visible = true;
         }

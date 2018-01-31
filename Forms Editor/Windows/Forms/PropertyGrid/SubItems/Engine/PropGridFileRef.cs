@@ -14,17 +14,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //InitializeComponent();
             AllowDrop = true;
         }
-
-        public IFileRef _fileRef;
+        
         protected override void UpdateDisplayInternal()
         {
-            object value = GetValue();
-
+            base.UpdateDisplayInternal();
             if (typeof(IFileRef).IsAssignableFrom(DataType))
             {
-                _fileRef = value as IFileRef;
-                label1.Text = _fileRef?.ReferencedType.GetFriendlyName();
-                textBox1.Text = _fileRef?.ReferencePath;
+                //_fileRef = _object as IFileRef;
+                //label1.Text = _fileRef?.ReferencedType?.GetFriendlyName();
+                //textBox1.Text = _fileRef?.ReferencePath;
             }
             else
                 throw new Exception(DataType.GetFriendlyName() + " is not an IFileRef type.");
@@ -32,14 +30,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnDragDrop(DragEventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
+            if (_object == null)
+            {
+                return;
+            }
             bool copy = (e.KeyState & (int)KeyStateFlags.Ctrl) != 0;
             if (e.Effect != DragDropEffects.None)
             {
+                IFileRef r = _object as IFileRef;
                 if (e.Data.GetData(DataFormats.FileDrop) is string[] paths)
                 {
                     if (paths.Length > 0)
                     {
                         string path = paths[0];
+                        if (path.IsDirectoryPath() == false && !string.IsNullOrWhiteSpace(path))
+                        {
+                            r.ReferencePath = path;
+                            r.IsLoaded = false;
+                        }
                     }
                 }
                 else
@@ -48,23 +56,38 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (nodes.Length > 0)
                     {
                         BaseWrapper node = nodes[0];
+                        if (node != null &&
+                            node is BaseFileWrapper file && 
+                            !string.IsNullOrWhiteSpace(node.FilePath) && 
+                            file.FileType.IsAssignableFrom(r.ReferencedType))
+                        {
+                            r.ReferencePath = file.FilePath;
+                            if (r is IGlobalFileRef)
+                                r.IsLoaded = file.IsLoaded;
+                            else
+                                r.IsLoaded = false;
+                        }
                     }
                 }
             }
         }
 
+        bool _wasVisible;
         protected override void OnDragEnter(DragEventArgs e)
         {
-            base.OnDragEnter(e);
+            _wasVisible = pnlProps.Visible;
+            if (_object != null && !pnlProps.Visible)
+                pnlProps.Visible = true;
         }
 
         protected override void OnDragLeave(EventArgs e)
         {
-            base.OnDragLeave(e);
+            pnlProps.Visible = _wasVisible;
         }
 
         protected override void OnDragOver(DragEventArgs e)
         {
+            e.Effect = DragDropEffects.Move;
             Point screenPoint = new Point(e.X, e.Y);
             Point clientPoint = PointToClient(screenPoint);
             DragHelper.ImageList_DragMove(clientPoint.X - Left, clientPoint.Y - Top);

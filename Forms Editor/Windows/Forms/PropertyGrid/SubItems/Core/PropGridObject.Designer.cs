@@ -113,7 +113,7 @@
 
         #endregion
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.Panel pnlProps;
+        protected System.Windows.Forms.Panel pnlProps;
         private System.Windows.Forms.Label lblObjectTypeName;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Panel pnlHeader;

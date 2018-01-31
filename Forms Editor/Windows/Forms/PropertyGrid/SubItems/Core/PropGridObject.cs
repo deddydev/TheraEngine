@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         private const string MiscName = "Miscellaneous";
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
-        private object _object;
+        protected object _object;
 
         protected override void UpdateDisplayInternal()
         {

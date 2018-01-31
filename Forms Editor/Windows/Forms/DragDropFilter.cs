@@ -53,6 +53,8 @@ namespace TheraEditor.Windows.Forms
                     //short x = (short)((int)m.LParam & 0xFFFF);
                     //short y = (short)(((int)m.LParam >> 16) & 0xFFFF);
                     _mousePoint = Cursor.Position;//new Point(x, y);
+                    while (c != null && !c.AllowDrop)
+                        c = c.Parent;
                     bool canDrop = c != null && c.AllowDrop;
                     if (canDrop)
                     {

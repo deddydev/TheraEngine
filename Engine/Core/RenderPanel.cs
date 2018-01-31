@@ -382,7 +382,7 @@ namespace TheraEngine
             Viewport newViewport = new Viewport(this, _viewports.Count);
             _viewports.Add(newViewport);
 
-            Engine.LogWarning("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
+            Engine.PrintLine("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
 
             //Fix the regions of the rest of the viewports
             for (int i = 0; i < _viewports.Count - 1; ++i)

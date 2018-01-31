@@ -163,6 +163,7 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_DragDrop(object sender, DragEventArgs e)
         {
+            DragHelper.ImageList_DragLeave(Handle);
             _dragInstance = null;
             _lastDraggedNode = null;
             EditorHud hud = EditorPawn.HUD as EditorHud;

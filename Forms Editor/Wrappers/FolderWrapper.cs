@@ -13,8 +13,10 @@ namespace TheraEditor.Wrappers
     {
         #region Menu
         private static ContextMenuStrip _menu;
-        public FolderWrapper() : base(_menu)
+        public FolderWrapper(string path) : base(_menu)
         {
+            Text = Path.GetFileName(path);
+            FilePath = Name = path;
             ImageIndex = 1;
             SelectedImageIndex = 1;
         }
@@ -281,7 +283,10 @@ namespace TheraEditor.Wrappers
             set
             {
                 base.Text = value;
-                FilePath = Path.GetDirectoryName(FilePath) + Path.DirectorySeparatorChar + value;
+                if (FilePath != null && FilePath.IsDirectoryPath() == true)
+                    FilePath = Path.GetDirectoryName(FilePath) + Path.DirectorySeparatorChar + value;
+                else
+                    FilePath = Path.DirectorySeparatorChar + value;
                 if (_isPopulated)
                     foreach (BaseWrapper b in Nodes)
                         b.FixPath(FilePath + Path.DirectorySeparatorChar);

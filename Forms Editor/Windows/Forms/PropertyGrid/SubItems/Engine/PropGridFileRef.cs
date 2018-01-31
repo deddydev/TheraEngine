@@ -30,10 +30,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnDragDrop(DragEventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
-            if (_object == null)
-            {
-                return;
-            }
             bool copy = (e.KeyState & (int)KeyStateFlags.Ctrl) != 0;
             if (e.Effect != DragDropEffects.None)
             {
@@ -47,6 +43,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         {
                             r.ReferencePath = path;
                             r.IsLoaded = false;
+                            if (_wasNull)
+                                UpdateValue(_object, false);
+                            UpdateDisplay();
+                            return;
                         }
                     }
                 }
@@ -58,35 +58,48 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         BaseWrapper node = nodes[0];
                         if (node != null &&
                             node is BaseFileWrapper file && 
-                            !string.IsNullOrWhiteSpace(node.FilePath) && 
-                            file.FileType.IsAssignableFrom(r.ReferencedType))
+                            !string.IsNullOrWhiteSpace(node.FilePath))
                         {
-                            r.ReferencePath = file.FilePath;
-                            if (r is IGlobalFileRef)
-                                r.IsLoaded = file.IsLoaded;
-                            else
-                                r.IsLoaded = false;
+                            if (file.FileType == null || (file.FileType != null && file.FileType.IsAssignableFrom(r.ReferencedType)))
+                            {
+                                r.ReferencePath = file.FilePath;
+                                if (r is IGlobalFileRef)
+                                    r.IsLoaded = file.IsLoaded;
+                                else
+                                    r.IsLoaded = false;
+                                if (_wasNull)
+                                    UpdateValue(_object, false);
+                                UpdateDisplay();
+                                return;
+                            }
                         }
                     }
                 }
             }
+            if (_wasNull)
+                _object = null;
+            UpdateDisplay();
         }
 
-        bool _wasVisible;
+        bool _wasVisible, _wasNull;
         protected override void OnDragEnter(DragEventArgs e)
         {
             _wasVisible = pnlProps.Visible;
-            if (_object == null)
-            {
-                _object = DataType.GetInterface(nameof(ILocalFileRef)) != null ? DataType.GetGenericTypeDefinition().MakeGenericType();
-            }
-            if (_object != null && !pnlProps.Visible)
+            if (_wasNull = _object == null)
+                _object = Activator.CreateInstance(DataType);
+            if (!pnlProps.Visible)
                 pnlProps.Visible = true;
+            UpdateDisplay();
+            DragHelper.ImageList_DragEnter(Handle, e.X - Left, e.Y - Top);
         }
 
         protected override void OnDragLeave(EventArgs e)
         {
+            DragHelper.ImageList_DragLeave(Handle);
             pnlProps.Visible = _wasVisible;
+            if (_wasNull)
+                _object = null;
+            UpdateDisplay();
         }
 
         protected override void OnDragOver(DragEventArgs e)

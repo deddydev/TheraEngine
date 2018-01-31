@@ -6,6 +6,7 @@ using TheraEngine.Files;
 using Microsoft.VisualBasic.FileIO;
 using TheraEditor.Windows.Forms;
 using System.Diagnostics;
+using TheraEngine;
 
 namespace TheraEditor.Wrappers
 {
@@ -102,6 +103,7 @@ namespace TheraEditor.Wrappers
         public bool ExternallyModified { get; set; } = false;
         public abstract FileObject SingleInstance { get; set; }
         public abstract FileObject GetNewInstance();
+        public abstract IGlobalFileRef SingleInstanceRef { get; }
         
         public void Reload()
         {
@@ -146,9 +148,11 @@ namespace TheraEditor.Wrappers
     }
     public class UnidentifiedFileWrapper : BaseFileWrapper
     {
-        public UnidentifiedFileWrapper() : base()
+        public UnidentifiedFileWrapper(string path) : base()
         {
-
+            Text = Path.GetFileName(path);
+            FilePath = Name = path;
+            Engine.PrintLine("File not identified: " + path);
         }
         
         public override bool IsLoaded => false;
@@ -168,6 +172,8 @@ namespace TheraEditor.Wrappers
         }
 
         public override Type FileType => null;
+
+        public override IGlobalFileRef SingleInstanceRef => throw new NotImplementedException();
 
         public override FileObject GetNewInstance()
         {
@@ -217,6 +223,8 @@ namespace TheraEditor.Wrappers
                 Name = FilePath;
             }
         }
+
+        public override IGlobalFileRef SingleInstanceRef => ResourceRef;
 
         protected internal override void FixPath(string parentFolderPath)
         {

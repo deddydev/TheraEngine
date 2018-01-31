@@ -97,7 +97,7 @@ namespace TheraEditor.Wrappers
                 return null;
             if (isDir.Value)
             {
-                w = new FolderWrapper();
+                w = new FolderWrapper(path);
                 if (Directory.GetFileSystemEntries(path).Length > 0)
                     w.Nodes.Add("...");
             }
@@ -114,12 +114,12 @@ namespace TheraEditor.Wrappers
                         Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
                         w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
                     }
+                    w.Text = Path.GetFileName(path);
+                    w.FilePath = w.Name = path;
                 }
                 else
-                    w = new UnidentifiedFileWrapper();
+                    w = new UnidentifiedFileWrapper(path);
             }
-            w.Text = Path.GetFileName(path);
-            w.FilePath = w.Name = path;
             return w;
         }
         public static BaseFileWrapper Wrap(FileObject file)

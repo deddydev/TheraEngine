@@ -263,12 +263,12 @@ namespace TheraEngine.Rendering
                             //color will be fully overwritten by the previous pass, 
                             //and we need depth from the previous pass
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                            //Engine.Renderer.AllowDepthWrite(false);
+                            Engine.Renderer.AllowDepthWrite(false);
 
                             //Render the deferred pass result
-                            //v.GBufferFBO.Render();
+                            v.GBufferFBO.Render();
 
-                            //Engine.Renderer.AllowDepthWrite(true);
+                            Engine.Renderer.AllowDepthWrite(true);
 
                             RenderTree.DebugRender(c?.Frustum, true);
 

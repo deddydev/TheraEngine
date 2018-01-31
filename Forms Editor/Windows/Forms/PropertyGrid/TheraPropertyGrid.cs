@@ -280,7 +280,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             CreateMethodControl(m.Method, m.DisplayName, m.Attribs, pnlProps, _categories, obj, this);
                         }
 
-                        if (Editor.Instance.Project.EditorSettings.PropertyGridRef.File.IgnoreLoneSubCategories && _categories.Count == 1)
+                        if (Editor.Instance.Project.EditorSettings.PropertyGrid.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
 
                         //pnlProps.ResumeLayout(true);
@@ -317,6 +317,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Engine.LogWarning("Unable to find control for " + (propertyType == null ? "null" : propertyType.GetFriendlyName()));
                 controlTypes.PushBack(typeof(PropGridText));
             }
+            else if (controlTypes.Count > 1)
+            {
+                if (mainControlType == typeof(PropGridObject))
+                {
+                    controlTypes.PopFront();
+                }
+            }
+
             return controlTypes;
         }
 

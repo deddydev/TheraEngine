@@ -301,11 +301,11 @@
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorFloat.Designer.cs">
       <DependentUpon>PropGridColorFloat.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.cs">
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridFileRef.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.Designer.cs">
-      <DependentUpon>PropGridSingleFileRef.cs</DependentUpon>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridFileRef.Designer.cs">
+      <DependentUpon>PropGridFileRef.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridDouble.cs">
       <SubType>UserControl</SubType>
@@ -617,8 +617,8 @@
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorFloat.resx">
       <DependentUpon>PropGridColorFloat.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridSingleFileRef.resx">
-      <DependentUpon>PropGridSingleFileRef.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridFileRef.resx">
+      <DependentUpon>PropGridFileRef.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridDouble.resx">
       <DependentUpon>PropGridDouble.cs</DependentUpon>

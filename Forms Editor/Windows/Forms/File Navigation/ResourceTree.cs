@@ -779,10 +779,11 @@ namespace TheraEditor.Windows.Forms
 
         private void TreeView1_DragOver(object sender, DragEventArgs e)
         {
-            Point formP = PointToClient(new Point(e.X, e.Y));
-            DragHelper.ImageList_DragMove(formP.X - Left, formP.Y - Top);
+            Point screenPoint = new Point(e.X, e.Y);
+            Point clientPoint = PointToClient(screenPoint);
+            DragHelper.ImageList_DragMove(clientPoint.X - Left, clientPoint.Y - Top);
             
-            _dropNode = GetNodeAt(PointToClient(new Point(e.X, e.Y))) as BaseWrapper;
+            _dropNode = GetNodeAt(PointToClient(screenPoint)) as BaseWrapper;
 
             string[] paths = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (_dropNode == null && (paths == null || paths.Length == 0))
@@ -807,9 +808,8 @@ namespace TheraEditor.Windows.Forms
                 tmpNode = tmpNode.Parent;
             }
 
-            e.Effect = (e.KeyState & (int)KeyStateFlags.Ctrl) == 0 ? 
-                DragDropEffects.Move : 
-                DragDropEffects.Copy;
+            bool ctrl = (e.KeyState & (int)KeyStateFlags.Ctrl) != 0;
+            e.Effect = ctrl ? DragDropEffects.Copy : DragDropEffects.Move;
 
             if (_previousDropNode != _dropNode)
             {

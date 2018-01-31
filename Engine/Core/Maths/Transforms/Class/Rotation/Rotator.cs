@@ -100,18 +100,21 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         private void EndUpdate()
         {
+            float ox = _prevPyr.X, oy = _prevPyr.Y, oz = _prevPyr.Z;
+            float x = _pyr.X, y = _pyr.Y, z = _pyr.Z;
+
             bool anyChanged = false;
-            if (!_prevPyr.X.EqualTo(_pyr.X))
+            if (*(int*)&x != *(int*)&ox)
             {
                 anyChanged = true;
                 PitchChanged?.Invoke(_pyr.X, _prevPyr.X);
             }
-            if (!_prevPyr.Y.EqualTo(_pyr.Y))
+            if (*(int*)&y != *(int*)&oy)
             {
                 anyChanged = true;
                 YawChanged?.Invoke(_pyr.Y, _prevPyr.Y);
             }
-            if (!_prevPyr.Z.EqualTo(_pyr.Z))
+            if (*(int*)&z != *(int*)&oz)
             {
                 anyChanged = true;
                 RollChanged?.Invoke(_pyr.Z, _prevPyr.Z);

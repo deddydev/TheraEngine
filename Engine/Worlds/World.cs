@@ -129,7 +129,7 @@ namespace TheraEngine.Worlds
                 throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
             IsRebasingOrigin = true;
 
-            //Engine.PrintLine("Beginning origin rebase.");
+            Engine.PrintLine("Beginning origin rebase.");
             _physicsWorld.AllowIndividualAabbUpdates = false;
             await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
             //foreach (IActor a in State.SpawnedActors)
@@ -137,7 +137,7 @@ namespace TheraEngine.Worlds
             _physicsWorld.AllowIndividualAabbUpdates = true;
             _physicsWorld.UpdateAabbs();
             Scene.RenderTree.Remake();
-            //Engine.PrintLine("Finished origin rebase.");
+            Engine.PrintLine("Finished origin rebase.");
 
             IsRebasingOrigin = false;
         }

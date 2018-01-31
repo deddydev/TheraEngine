@@ -33,7 +33,7 @@ namespace TheraEditor.Windows.Forms
             _mousePoint = Cursor.Position;
             _data = new DataObject(DataFormats.FileDrop, data);
             _allowed = allowedEffects;
-            _current = DragDropEffects.None;
+            _current = DragDropEffects.Move & allowedEffects;
             _dragDrop = ControlType.GetMethod("OnDragDrop", BindingFlags.NonPublic | BindingFlags.Instance);
             _dragEnter = ControlType.GetMethod("OnDragEnter", BindingFlags.NonPublic | BindingFlags.Instance);
             _dragLeave = ControlType.GetMethod("OnDragLeave", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -50,9 +50,9 @@ namespace TheraEditor.Windows.Forms
                 case WindowsMessage.WM_MOUSEMOVE:
                     int keyState = (int)m.WParam;
                     Control c = Control.FromHandle(m.HWnd);
-                    short x = (short)((int)m.LParam & 0xFFFF);
-                    short y = (short)(((int)m.LParam >> 16) & 0xFFFF);
-                    _mousePoint = new Point(x, y);
+                    //short x = (short)((int)m.LParam & 0xFFFF);
+                    //short y = (short)(((int)m.LParam >> 16) & 0xFFFF);
+                    _mousePoint = Cursor.Position;//new Point(x, y);
                     bool canDrop = c != null && c.AllowDrop;
                     if (canDrop)
                     {
@@ -109,12 +109,15 @@ namespace TheraEditor.Windows.Forms
                     {
                         DragEventArgs dragArgs = new DragEventArgs(_data, 0, _mousePoint.X, _mousePoint.Y, _allowed, _current);
                         _dragDrop.Invoke(_hoveredControl, new object[] { dragArgs });
-                        Application.RemoveMessageFilter(this);
-                        Done?.Invoke(null, EventArgs.Empty);
                     }
+                    Done?.Invoke(null, EventArgs.Empty);
                     break;
                 case WindowsMessage.WM_KEYDOWN:
-                    QueryContinueDragEventArgs queryArgs = new QueryContinueDragEventArgs(0, false, DragAction.Continue);
+                    if (_hoveredControl != null)
+                    {
+                        QueryContinueDragEventArgs queryArgs = new QueryContinueDragEventArgs(0, false, DragAction.Continue);
+                        _queryContinue.Invoke(_hoveredControl, new object[] { queryArgs });
+                    }
                     break;
             }
             return false;

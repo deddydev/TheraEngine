@@ -313,7 +313,7 @@ namespace TheraEngine.Rendering.Models
         {
             Engine.Renderer.InitializeBuffer(this);
         }
-        internal const bool MapData = false;
+        internal const bool MapData = true;
         private void PushData()
         {
             Engine.Renderer.PushBufferData(this);

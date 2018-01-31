@@ -60,7 +60,8 @@ namespace TheraEditor.Windows.Forms
 
                 if (value == null && HighlightedComponent != null)
                 {
-                    Engine.Scene.Remove(_highlightPoint);
+                    if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
+                        Engine.Scene.Remove(_highlightPoint);
                     BaseRenderPanel.CheckedInvoke(new Action(() => 
                     {
                         if (BaseRenderPanel.CapturedPanel != null)
@@ -72,7 +73,8 @@ namespace TheraEditor.Windows.Forms
                 }
                 else if (value != null && HighlightedComponent == null)
                 {
-                    Engine.Scene.Add(_highlightPoint);
+                    if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
+                        Engine.Scene.Add(_highlightPoint);
                     BaseRenderPanel.CheckedInvoke(new Action(() =>
                     {
                         if (BaseRenderPanel.CapturedPanel != null)
@@ -297,6 +299,8 @@ namespace TheraEditor.Windows.Forms
                 }
 
                 Vec3 rightCameraVector = v.Camera.GetRightVector();
+                Quat rotation = Quat.FromAxisAngle(hitNormal, _spawnRotation);
+                rightCameraVector = rotation * rightCameraVector;
                 Vec3
                     forward = rightCameraVector ^ hitNormal,
                     up = hitNormal,

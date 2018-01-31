@@ -113,6 +113,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 control.SetProperty(prop, obj);
                 control.Dock = DockStyle.Fill;
                 control.Visible = true;
+                control.PropertyGrid = PropertyGrid;
                 control.Show();
                 return control;
             }).ToList();

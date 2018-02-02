@@ -98,7 +98,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         protected IShaderVarOwner _owner;
 
-        [TSerialize("Fields")]
+        //[TSerialize("Fields")]
         protected Dictionary<string, ShaderVar> _fields = new Dictionary<string, ShaderVar>();
 
         internal IShaderVarOwner Owner => _owner;

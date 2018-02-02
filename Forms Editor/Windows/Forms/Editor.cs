@@ -198,7 +198,7 @@ namespace TheraEditor.Windows.Forms
                     Engine.SetGamePanel(RenderForm1.RenderPanel, false);
                     Engine.SetActiveGameMode(_editorGameMode);
                     Engine.Initialize(false);
-                    Engine.RegisterRenderTick(RenderTick);
+                    SetRenderTicking(true);
                     Engine.SetPaused(true, LocalPlayerIndex.One, true);
                     Engine.Run();
 
@@ -217,6 +217,21 @@ namespace TheraEditor.Windows.Forms
                     WelcomeForm.Show(DockPanel, DockState.Document);
                     DockPanel.ResumeLayout(true, true);
                 }
+            }
+        }
+
+        public bool IsRenderTicking { get; private set; }
+        public void SetRenderTicking(bool isRendering)
+        {
+            if (isRendering && !IsRenderTicking)
+            {
+                IsRenderTicking = true;
+                Engine.RegisterRenderTick(RenderTick);
+            }
+            else if (!isRendering && IsRenderTicking)
+            {
+                IsRenderTicking = false;
+                Engine.UnregisterRenderTick(RenderTick);
             }
         }
 
@@ -329,7 +344,6 @@ namespace TheraEditor.Windows.Forms
 
             return creator.ConstructedObject;
         }
-
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -365,7 +379,7 @@ namespace TheraEditor.Windows.Forms
             }
             if (CloseProject())
             {
-                Engine.UnregisterRenderTick(RenderTick);
+                SetRenderTicking(false);
                 Engine.ShutDown();
             }
             else
@@ -433,7 +447,7 @@ namespace TheraEditor.Windows.Forms
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
 
-            if (DoEvents)
+            //if (DoEvents)
                 Application.DoEvents();
             //Engine.PrintLine(DateTime.Now.TimeOfDay.ToString());
         }
@@ -700,7 +714,7 @@ namespace TheraEditor.Windows.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
         public Dictionary<Keys, Func<bool>> MappableActions { get; private set; }
-        internal bool DoEvents { get; set; } = true;
+        //internal bool DoEvents { get; set; } = true;
 
         protected override void OnKeyDown(KeyEventArgs e)
         {

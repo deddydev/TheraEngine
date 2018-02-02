@@ -73,7 +73,7 @@ namespace TheraEngine.Rendering.Models
             while (reader.ReadAttribute())
             {
                 if (reader.Name.Equals("Count", true))
-                    count = reader.Value;
+                    count = int.Parse(reader.Value);
             }
             bool hasInfs = _influences != null && _influences.Length > 0;
             int bufferCount = _buffers.Count;
@@ -88,6 +88,7 @@ namespace TheraEngine.Rendering.Models
                     p._influenceIndex = points[x++];
                 for (int r = 0; r < bufferCount; ++r)
                     p.BufferIndices.Add(points[x++]);
+                _facePoints.Add(p);
             }
             return true;
         }

@@ -8,6 +8,9 @@ namespace System.IO
         private const int _valueMax = 384;
 
         internal byte* _base, _ptr, _ceil;
+        /// <summary>
+        /// True if within tge brackets of an element.
+        /// </summary>
         internal bool _inTag;
 
         private DataSource _stringBuffer;

@@ -1,4 +1,6 @@
-﻿namespace TheraEngine.Rendering.Models
+﻿using System.ComponentModel;
+
+namespace TheraEngine.Rendering.Models
 {
     public class VertexShaderDesc
     {
@@ -8,11 +10,20 @@
         public static readonly int MaxOtherBuffers = 10;
         public static readonly int TotalBufferCount = (MaxMorphs + 1) * 6 + MaxColors + MaxTexCoords + MaxOtherBuffers;
 
+        [TSerialize("MorphCount", IsXmlAttribute = true)]
         public int _morphCount = 0;
+        [TSerialize("TexCoordCount", IsXmlAttribute = true)]
         public int _texcoordCount = 0;
+        [TSerialize("ColorCount", IsXmlAttribute = true)]
         public int _colorCount = 0;
+        [TSerialize("BoneCount", IsXmlAttribute = true)]
         public int _boneCount = 0;
-        public bool _hasNormals = false, _hasBinormals = false, _hasTangents = false;
+        [TSerialize("HasNormals", IsXmlAttribute = true)]
+        public bool _hasNormals = false;
+        [TSerialize("HasBinormals", IsXmlAttribute = true)]
+        public bool _hasBinormals = false;
+        [TSerialize("HasTangents", IsXmlAttribute = true)]
+        public bool _hasTangents = false;
 
         //Note: if there's only one bone, we can just multiply the model matrix by the bone's frame matrix. No need for weighting.
         public bool IsWeighted => _boneCount > 1;
@@ -25,7 +36,7 @@
         public bool HasTexCoords => _texcoordCount > 0;
         public bool HasColors => _colorCount > 0;
 
-        private VertexShaderDesc() { }
+        public VertexShaderDesc() { }
 
         public static VertexShaderDesc PosColor(int colorCount = 1)
         {

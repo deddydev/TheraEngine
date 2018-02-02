@@ -102,11 +102,23 @@
             set => _state = value;
         }
 
+        /// <summary>
+        /// Creates a new TSerialize attribute definition.
+        /// </summary>
         public TSerialize() { }
+        /// <summary>
+        /// Creates a new TSerialize attribute definition.
+        /// </summary>
+        /// <param name="nameOverride">The name this property or field should go by in the file. If null, empty or whitespace, uses the field or property's name.</param>
         public TSerialize(string nameOverride)
         {
             _nameOverride = nameOverride;
         }
+        /// <summary>
+        ///  Creates a new TSerialize attribute definition.
+        /// </summary>
+        /// <param name="nameOverride">The name this property or field should go by in the file. If null, empty or whitespace, uses the field or property's name.</param>
+        /// <param name="order">Defines the order that this field or property should be written in in relation to the others, where 0 is first.</param>
         public TSerialize(string nameOverride, int order)
         {
             _order = order;

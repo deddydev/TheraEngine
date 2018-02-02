@@ -7,7 +7,7 @@ namespace TheraEngine.Physics.Bullet
     internal class BulletSphere : TCollisionSphere, IBulletShape
     {
         public SphereShape Shape { get; }
-        ConvexShape IBulletShape.Shape => Shape;
+        CollisionShape IBulletShape.Shape => Shape;
 
         public override float Radius
         {

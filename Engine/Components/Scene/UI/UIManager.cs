@@ -4,6 +4,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
@@ -33,7 +34,7 @@ namespace TheraEngine.Actors.Types.Pawns
             set
             {
                 InputInterface input;
-
+                
                 if (_owningPawn != null)
                 {
                     if (_owningPawn.IsSpawned)
@@ -53,7 +54,7 @@ namespace TheraEngine.Actors.Types.Pawns
                 if (_owningPawn != null)
                 {
                     if (_owningPawn.IsSpawned)
-                        Spawned(Engine.World);
+                        Spawned(_owningPawn.OwningWorld);
 
                     if (_owningPawn != this && _owningPawn.LocalPlayerController != null)
                     {

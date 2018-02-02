@@ -7,7 +7,7 @@ namespace TheraEngine.Physics.Bullet
     internal class BulletBox : TCollisionBox, IBulletShape
     {
         public BoxShape Shape { get; }
-        ConvexShape IBulletShape.Shape => Shape;
+        CollisionShape IBulletShape.Shape => Shape;
 
         public override Vec3 HalfExtents => Shape.HalfExtentsWithoutMargin;
         public override float Margin

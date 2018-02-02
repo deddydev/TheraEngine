@@ -164,12 +164,13 @@ namespace TheraEngine.Files.Serialization
                 }
             }
 
-            //Read attributes first
-            while (reader.ReadAttribute())
+            //Read attributes first.
+            //First attribute has already been read when checking for the assembly type name
+            do
             {
                 string attribName = reader.Name.ToString();
                 string attribValue = reader.Value.ToString();
-                
+
                 //Look for matching attribute member with the same name
                 int index = attribs.FindIndex(x => string.Equals(attribName, x.Name, StringComparison.InvariantCultureIgnoreCase));
                 if (index >= 0)
@@ -178,11 +179,15 @@ namespace TheraEngine.Files.Serialization
                     attribs.RemoveAt(index);
                     ReadMember(obj, attrib, reader, customMethods, true);
                 }
-            }
+            } while (reader.ReadAttribute());
 
             //For all unwritten remaining attributes, set them to default (null for non-primitive types)
-            foreach (VarInfo attrib in attribs)
-                attrib.SetValue(obj, attrib.VariableType.GetDefaultValue());
+            if (attribs.Count > 0)
+            {
+                //Engine.PrintLine("Unread attributes: " + string.Join(", ", attribs));
+                foreach (VarInfo attrib in attribs)
+                    attrib.SetValue(obj, attrib.VariableType.GetDefaultValue());
+            }
 
             //Now read elements
             if (elements.Count == 0)

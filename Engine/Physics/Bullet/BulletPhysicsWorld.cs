@@ -168,9 +168,9 @@ namespace TheraEngine.Physics
         {
             TConvexResultCallback callback = new TConvexResultCallback(trace);
             if (trace.AllowedCcdPenetration >= 0.0f)
-                _dynamicsWorld.ConvexSweepTest(((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, callback, trace.AllowedCcdPenetration);
+                _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, callback, trace.AllowedCcdPenetration);
             else
-                _dynamicsWorld.ConvexSweepTest(((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, callback);
+                _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, callback);
             return trace.HasHit;
         }
         public override void AddConstraint(TConstraint constraint)

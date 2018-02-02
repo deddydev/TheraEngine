@@ -104,12 +104,16 @@ namespace TheraEngine.Files.Serialization
         }
         private static void WriteMember(object obj, VarInfo member, XmlWriter writer, int nonAttributeCount)
         {
-            if (member.Attrib.Condition != null && !ExpressionParser.Evaluate<bool>(member.Attrib.Condition, obj))
+            if (!string.IsNullOrWhiteSpace(member.Attrib.Condition) &&
+                !ExpressionParser.Evaluate<bool>(member.Attrib.Condition, obj))
                 return;
 
             object value = member.GetValue(obj);
             if (value != null)
             {
+                Type valueType = value.GetType();
+                bool writeTypeDef = valueType != member.VariableType;
+
                 if (member.Attrib.IsXmlElementString)
                 {
                     if (GetString(value, member.VariableType, out string result))
@@ -120,17 +124,17 @@ namespace TheraEngine.Files.Serialization
                             writer.WriteAttributeString(member.Name, result);
                     }
                     else
-                        WriteElement(value, member, writer);
+                        WriteElement(value, member, writer, writeTypeDef);
                 }
                 else if (member.Attrib.IsXmlAttribute)
                 {
                     if (GetString(value, member.VariableType, out string result))
                         writer.WriteAttributeString(member.Name, result);
                     else
-                        WriteElement(value, member, writer);
+                        WriteElement(value, member, writer, writeTypeDef);
                 }
                 else
-                    WriteElement(value, member, writer);
+                    WriteElement(value, member, writer, writeTypeDef);
             }
         }
         private static bool GetString(object value, Type t, out string result)

@@ -162,11 +162,29 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\DragDropFilter.cs" />
-    <Compile Include="Windows\Forms\Editor Forms\DockableModelEditor.cs">
+    <Compile Include="Windows\Forms\Model Editor\DockableMeshList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editor Forms\DockableModelEditor.Designer.cs">
-      <DependentUpon>DockableModelEditor.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Model Editor\DockableMeshList.Designer.cs">
+      <DependentUpon>DockableMeshList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableBoneTree.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableBoneTree.Designer.cs">
+      <DependentUpon>DockableBoneTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableModelEditorRenderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableModelEditorRenderForm.Designer.cs">
+      <DependentUpon>DockableModelEditorRenderForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\ModelEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\ModelEditorForm.Designer.cs">
+      <DependentUpon>ModelEditorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Editor Forms\DockableWelcomeWindow.cs">
       <SubType>Form</SubType>
@@ -198,7 +216,7 @@
     <Compile Include="Windows\Forms\Class Creation\ObjectCreator.Designer.cs">
       <DependentUpon>ObjectCreator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\ModelEditorRenderPanel.cs">
+    <Compile Include="Windows\Forms\Model Editor\ModelEditorRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\File Navigation\FileFolderList.cs">
@@ -211,6 +229,7 @@
     <Compile Include="Windows\Forms\File Navigation\FileNavPanel.Designer.cs">
       <DependentUpon>FileNavPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Model Editor\ModelEditorWorld.cs" />
     <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -524,7 +543,7 @@
     <Compile Include="Windows\Forms\File Navigation\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\EditorWorldRenderPanel.cs">
+    <Compile Include="Windows\Forms\Editor Forms\EditorWorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\UndoManager.cs" />
@@ -557,8 +576,17 @@
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableModelEditor.resx">
-      <DependentUpon>DockableModelEditor.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMeshList.resx">
+      <DependentUpon>DockableMeshList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableBoneTree.resx">
+      <DependentUpon>DockableBoneTree.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableModelEditorRenderForm.resx">
+      <DependentUpon>DockableModelEditorRenderForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\ModelEditorForm.resx">
+      <DependentUpon>ModelEditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableWelcomeWindow.resx">
       <DependentUpon>DockableWelcomeWindow.cs</DependentUpon>

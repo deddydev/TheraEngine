@@ -7,7 +7,7 @@ namespace TheraEngine.Physics.Bullet
     internal class BulletCylinderX : TCollisionCylinderX, IBulletShape
     {
         public CylinderShapeX Shape { get; }
-        ConvexShape IBulletShape.Shape => Shape;
+        CollisionShape IBulletShape.Shape => Shape;
         
         public override float Radius => Shape.Radius;
         public override float Height => Shape.HalfExtentsWithMargin.X * 2.0f;
@@ -46,7 +46,7 @@ namespace TheraEngine.Physics.Bullet
     internal class BulletCylinderY : TCollisionCylinderY, IBulletShape
     {
         public CylinderShape Shape { get; }
-        ConvexShape IBulletShape.Shape => Shape;
+        CollisionShape IBulletShape.Shape => Shape;
 
         public override float Radius => Shape.Radius;
         public override float Height => Shape.HalfExtentsWithMargin.Y * 2.0f;
@@ -85,7 +85,7 @@ namespace TheraEngine.Physics.Bullet
     internal class BulletCylinderZ : TCollisionCylinderZ, IBulletShape
     {
         public CylinderShapeZ Shape { get; }
-        ConvexShape IBulletShape.Shape => Shape;
+        CollisionShape IBulletShape.Shape => Shape;
 
         public override float Radius => Shape.Radius;
         public override float Height => Shape.HalfExtentsWithMargin.Z * 2.0f;

@@ -27,6 +27,8 @@ namespace TheraEngine.Components.Scene.Volumes
             Rotation.SetRotations(rotation);
         }
 
+#if EDITOR
+
         protected internal override void OnSelectedChanged(bool selected)
         {
             if (IsSpawned)
@@ -38,5 +40,6 @@ namespace TheraEngine.Components.Scene.Volumes
             }
             base.OnSelectedChanged(selected);
         }
+#endif
     }
 }

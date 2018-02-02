@@ -1,6 +1,7 @@
 ﻿using BulletSharp;
 using BulletSharp.SoftBody;
 using System;
+using System.IO;
 using TheraEngine.Physics.Bullet.Constraints;
 using TheraEngine.Physics.Bullet.Shapes;
 
@@ -8,9 +9,7 @@ namespace TheraEngine.Physics.Bullet
 {
     public class BulletPhysicsInterface : AbstractPhysicsInterface
     {
-        public override AbstractPhysicsWorld NewScene() 
-            => new BulletPhysicsWorld();
-
+        public override AbstractPhysicsWorld NewScene()  => new BulletPhysicsWorld();
         public override TRigidBody NewRigidBody(IRigidCollidable owner, TRigidBodyConstructionInfo info)
         {
             TBulletMotionState state = null;
@@ -49,7 +48,6 @@ namespace TheraEngine.Physics.Bullet
 
             return rigidBody;
         }
-
         public override TSoftBody NewSoftBody(ISoftCollidable owner, TSoftBodyConstructionInfo info)
         {
             SoftBodyWorldInfo bulletInfo = new SoftBodyWorldInfo()
@@ -67,11 +65,14 @@ namespace TheraEngine.Physics.Bullet
             return softBody;
         }
 
+        #region Constraints
         public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, TRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB)
             => new BulletPointPointConstraint((BulletRigidBody)rigidBodyA, (BulletRigidBody)rigidBodyB, pivotInA, pivotInB);
         public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, Vec3 pivotInA)
             => new BulletPointPointConstraint((BulletRigidBody)rigidBodyA, pivotInA);
-        
+        #endregion
+
+        #region Shapes
         public override TCollisionBox NewBox(Vec3 halfExtents)
             => new BulletBox(halfExtents);
         public override TCollisionSphere NewSphere(float radius)
@@ -94,5 +95,8 @@ namespace TheraEngine.Physics.Bullet
             => new BulletCapsuleY(radius, height);
         public override TCollisionCapsuleZ NewCapsuleZ(float radius, float height)
             => new BulletCapsuleZ(radius, height);
+        public override TCollisionHeightField NewHeightField(int heightStickWidth, int heightStickLength, Stream heightfieldData, float heightScale, float minHeight, float maxHeight, int upAxis, TCollisionHeightField.EHeightValueType heightDataType, bool flipQuadEdges)
+            => new BulletHeightField(heightStickLength, heightStickLength, heightfieldData, heightScale, minHeight, maxHeight, upAxis, (PhyScalarType)(int)heightDataType, flipQuadEdges);
+        #endregion
     }
 }

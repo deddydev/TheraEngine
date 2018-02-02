@@ -355,17 +355,6 @@ namespace TheraEditor.Windows.Forms
 
             //if (DesignMode)
             //    return;
-
-            //Application.AddMessageFilter(new MessageFilter());
-        }
-        private class MessageFilter : IMessageFilter
-        {
-            public bool PreFilterMessage(ref Message m)
-            {
-                if (m.Msg != 0xF && m.Msg != 0x200)
-                    Engine.PrintLine(m.ToString());
-                return true;
-            }
         }
         protected override void OnClosing(CancelEventArgs e)
         {

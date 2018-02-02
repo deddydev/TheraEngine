@@ -449,6 +449,8 @@ namespace TheraEngine.Rendering.Models
             }
             else
             {
+                //No camera? Everything will be rendered in world space instead of camera space.
+                //This is used by point lights to render depth cubemaps, for example.
                 Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix),
                     Matrix4.Identity);
                 Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix),

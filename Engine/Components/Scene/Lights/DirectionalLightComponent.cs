@@ -81,7 +81,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             if (Type == LightType.Dynamic)
             {
-                Engine.Scene.Lights.Add(this);
+                OwningScene.Lights.Add(this);
 
                 _worldRadius = Engine.World.Settings.Bounds.HalfExtents.LengthFast;
                 SetShadowMapResolution(4096, 4096);
@@ -92,7 +92,7 @@ namespace TheraEngine.Components.Scene.Lights
         public override void OnDespawned()
         {
             if (Type == LightType.Dynamic)
-                Engine.Scene.Lights.Remove(this);
+                OwningScene.Lights.Remove(this);
         }
 
         public override void SetUniforms(int programBindingId)

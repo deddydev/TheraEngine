@@ -31,6 +31,9 @@ namespace TheraEngine.Physics
         public float LinearSleepingThreshold = 0.8f;
         public float AdditionalAngularDampingFactor = 0.01f;
 
+        /// <summary>
+        /// The shape this rigid body will use to collide.
+        /// </summary>
         public TCollisionShape CollisionShape
         {
             get => _collisionShape;

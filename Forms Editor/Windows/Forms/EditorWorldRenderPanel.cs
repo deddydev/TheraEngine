@@ -1,4 +1,4 @@
-﻿namespace TheraEngine
+﻿namespace TheraEngine.Windows.Forms
 {
     public class EditorWorldRenderPanel : WorldRenderPanel
     {

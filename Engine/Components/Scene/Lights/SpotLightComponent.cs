@@ -219,23 +219,23 @@ namespace TheraEngine.Components.Scene.Lights
         {
             if (Type == LightType.Dynamic)
             {
-                Engine.Scene.Lights.Add(this);
+                OwningScene.Lights.Add(this);
                 SetShadowMapResolution(1024, 1024);
             }
 
 #if EDITOR
             if (!Engine.EditorState.InGameMode)
-                Engine.Scene.Add(this);
+                OwningScene.Add(this);
 #endif
         }
         public override void OnDespawned()
         {
             if (Type == LightType.Dynamic)
-                Engine.Scene.Lights.Remove(this);
+                OwningScene.Lights.Remove(this);
 
 #if EDITOR
             if (!Engine.EditorState.InGameMode)
-                Engine.Scene.Remove(this);
+                OwningScene.Remove(this);
 #endif
         }
         public override void SetUniforms(int programBindingId)
@@ -256,8 +256,8 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
-            _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount + 
-                Engine.Scene.Lights.DirectionalLights.Count + LightIndex, string.Format("SpotShadowMaps[{0}]", LightIndex.ToString()), programBindingId);
+            _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount +
+                OwningScene.Lights.DirectionalLights.Count + LightIndex, string.Format("SpotShadowMaps[{0}]", LightIndex.ToString()), programBindingId);
         }
 
         public void SetShadowMapResolution(int width, int height)
@@ -336,16 +336,16 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 if (selected)
                 {
-                    Engine.Scene.Add(OuterCone);
-                    Engine.Scene.Add(InnerCone);
+                    OwningScene.Add(OuterCone);
+                    OwningScene.Add(InnerCone);
                     //#if DEBUG
                     //                Engine.Scene.Add(ShadowCamera);
                     //#endif
                 }
                 else
                 {
-                    Engine.Scene.Remove(OuterCone);
-                    Engine.Scene.Remove(InnerCone);
+                    OwningScene.Remove(OuterCone);
+                    OwningScene.Remove(InnerCone);
                     //#if DEBUG
                     //                Engine.Scene.Remove(ShadowCamera);
                     //#endif

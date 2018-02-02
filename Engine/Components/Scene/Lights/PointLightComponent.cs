@@ -97,23 +97,23 @@ namespace TheraEngine.Components.Scene.Lights
         {
             if (Type == LightType.Dynamic)
             {
-                Engine.Scene.Lights.Add(this);
+                OwningScene.Lights.Add(this);
                 SetShadowMapResolution(1024);
             }
 
 #if EDITOR
             if (!Engine.EditorState.InGameMode)
-                Engine.Scene.Add(this);
+                OwningScene.Add(this);
 #endif
         }
         public override void OnDespawned()
         {
             if (Type == LightType.Dynamic)
-                Engine.Scene.Lights.Remove(this);
+                OwningScene.Lights.Remove(this);
 
 #if EDITOR
             if (!Engine.EditorState.InGameMode)
-                Engine.Scene.Remove(this);
+                OwningScene.Remove(this);
 #endif
         }
 
@@ -132,7 +132,7 @@ namespace TheraEngine.Components.Scene.Lights
             //Engine.Renderer.Uniform(programBindingId, indexer + "FarPlaneDist", _farPlaneDist);
 
             _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount +
-                Engine.Scene.Lights.DirectionalLights.Count + Engine.Scene.Lights.SpotLights.Count + LightIndex,
+                OwningScene.Lights.DirectionalLights.Count + OwningScene.Lights.SpotLights.Count + LightIndex,
                 string.Format("PointShadowMaps[{0}]", LightIndex.ToString()), programBindingId);
         }
         /// <summary>

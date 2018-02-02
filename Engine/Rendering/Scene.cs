@@ -28,17 +28,17 @@ namespace TheraEngine.Rendering
 
         }
         
-        public int AddActiveMaterial(TMaterial material)
-        {
-            int id = _removedIds.Count > 0 ? _removedIds.Dequeue() : _activeMaterials.Count;
-            _activeMaterials.Add(material);
-            return id;
-        }
-        public void RemoveActiveMaterial(TMaterial material)
-        {
-            _removedIds.Enqueue(material.UniqueID);
-            _activeMaterials.RemoveAt(material.UniqueID);
-        }
+        //public int AddActiveMaterial(TMaterial material)
+        //{
+        //    int id = _removedIds.Count > 0 ? _removedIds.Dequeue() : _activeMaterials.Count;
+        //    _activeMaterials.Add(material);
+        //    return id;
+        //}
+        //public void RemoveActiveMaterial(TMaterial material)
+        //{
+        //    _removedIds.Enqueue(material.UniqueID);
+        //    _activeMaterials.RemoveAt(material.UniqueID);
+        //}
 
         public void AddPreRenderedObject(IPreRenderNeeded obj)
         {

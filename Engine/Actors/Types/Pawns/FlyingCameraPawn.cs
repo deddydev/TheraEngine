@@ -219,7 +219,12 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                RootComponent.DesiredRotation.AddRotations(-y * MouseRotateSpeed, -x * MouseRotateSpeed, 0.0f);
+                float pitch = -y * MouseRotateSpeed;
+                float yaw = -x * MouseRotateSpeed;
+                if (_hasHit)
+                    RootComponent.Pivot(pitch, yaw, Camera.ScreenToWorld(_screenPoint));
+                else
+                    RootComponent.DesiredRotation.AddRotations(pitch, yaw, 0.0f);
                 //RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
             }
             else if (Translating)
@@ -237,11 +242,6 @@ namespace TheraEngine.Actors.Types.Pawns
                     RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
             }
         }
-        public void ShowContextMenu()
-        {
-
-        }
-
         public override void OnSpawnedPostComponentSetup()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);

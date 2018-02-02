@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace TheraEngine.Physics
 {
@@ -21,9 +22,15 @@ namespace TheraEngine.Physics
         public abstract TCollisionCapsuleX NewCapsuleX(float radius, float height);
         public abstract TCollisionCapsuleY NewCapsuleY(float radius, float height);
         public abstract TCollisionCapsuleZ NewCapsuleZ(float radius, float height);
+        public abstract TCollisionHeightField NewHeightField(
+            int heightStickWidth, int heightStickLength, Stream heightfieldData,
+            float heightScale, float minHeight, float maxHeight,
+            int upAxis, TCollisionHeightField.EHeightValueType heightDataType, bool flipQuadEdges);
         #endregion
 
+        #region Constraints
         public abstract TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, TRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB);
         public abstract TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, Vec3 pivotInA);
+        #endregion
     }
 }

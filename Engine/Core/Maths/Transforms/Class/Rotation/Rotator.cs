@@ -258,7 +258,7 @@ namespace TheraEngine.Core.Maths.Transforms
             => SetRotations(value.LookatAngles());
 
         public Rotator HardCopy()
-            => new Rotator(Pitch, Yaw, Roll, _rotationOrder);
+            => new Rotator(this);
 
         public Rotator WithNegatedRotations()
             => new Rotator(-Pitch, -Yaw, -Roll, _rotationOrder);

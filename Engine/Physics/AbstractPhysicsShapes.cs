@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Physics
@@ -155,4 +156,38 @@ namespace TheraEngine.Physics
             => Engine.Physics.NewCapsuleZ(radius, height);
     }
     #endregion
+
+    public abstract class TCollisionHeightField : TCollisionShape
+    {
+        public enum EHeightValueType
+        {
+            Single = 0,
+            Double = 1,
+            Int32 = 2,
+            Int16 = 3,
+            FixedPoint88 = 4,
+            Byte = 5
+        }
+        
+        public static TCollisionHeightField New(
+            int heightStickWidth,
+            int heightStickLength,
+            Stream heightfieldData,
+            float heightScale,
+            float minHeight,
+            float maxHeight,
+            int upAxis,
+            EHeightValueType heightDataType,
+            bool flipQuadEdges)
+            => Engine.Physics.NewHeightField(
+                heightStickWidth,
+                heightStickLength,
+                heightfieldData,
+                heightScale,
+                minHeight,
+                maxHeight,
+                upAxis,
+                heightDataType,
+                flipQuadEdges);
+    }
 }

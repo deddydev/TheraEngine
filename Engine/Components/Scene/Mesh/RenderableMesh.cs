@@ -17,6 +17,9 @@ namespace TheraEngine.Components.Scene.Mesh
 
         public ShaderVar[] Parameters => Manager.Material.Parameters;
     }
+    /// <summary>
+    /// Mesh generated at runtime for internal use.
+    /// </summary>
     public abstract class BaseRenderableMesh : I3DRenderable
     {
         public BaseRenderableMesh(List<LOD> lods, RenderInfo3D renderInfo, SceneComponent component)
@@ -58,9 +61,9 @@ namespace TheraEngine.Components.Scene.Mesh
                     return;
                 _visible = value;
                 if (_visible)
-                    Engine.Scene.Add(this);
+                    _component?.OwningScene?.Add(this);
                 else
-                    Engine.Scene.Remove(this);
+                    _component?.OwningScene?.Remove(this);
             }
         }
         public bool VisibleInEditorOnly { get; set; } = false;
@@ -80,7 +83,7 @@ namespace TheraEngine.Components.Scene.Mesh
         public float GetDistance(Camera camera)
         {
             Vec3 camPoint = camera == null ? Vec3.Zero : camera.WorldPoint;
-            Vec3 meshPoint = _component.WorldMatrix.GetPoint();
+            Vec3 meshPoint = (_component != null ? _component.WorldMatrix.GetPoint() : Vec3.Zero);
             return meshPoint.DistanceToFast(camPoint);
         }
 
@@ -123,5 +126,73 @@ namespace TheraEngine.Components.Scene.Mesh
             //Therefore this code will never be run in those circumstances
             _currentLOD.Value.Manager?.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
         }
+    }
+    public class StaticRenderableMesh : BaseRenderableMesh
+    {
+        public IStaticSubMesh Mesh { get; set; }
+        public override Shape CullingVolume => _cullingVolume;
+
+        public void SetCullingVolume(Shape shape)
+        {
+            if (_cullingVolume != null)
+                _component.WorldTransformChanged -= _component_WorldTransformChanged;
+            _cullingVolume = shape.HardCopy();
+            if (_cullingVolume != null)
+            {
+                _initialCullingVolumeMatrix = _cullingVolume.GetTransformMatrix();
+                _component.WorldTransformChanged += _component_WorldTransformChanged;
+            }
+            else
+                _initialCullingVolumeMatrix = Matrix4.Identity;
+        }
+
+        private Shape _cullingVolume;
+        private Matrix4 _initialCullingVolumeMatrix;
+        
+        public StaticRenderableMesh(IStaticSubMesh mesh, SceneComponent component)
+            : base(mesh.LODs, mesh.RenderInfo, component)
+        {
+            Mesh = mesh;
+            SetCullingVolume(mesh.CullingVolume);
+
+            //PrimitiveManager m = LODs.First.Value.Manager;
+            //if (m.Data.BufferInfo.HasNormals)
+            //    m.Material.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", ShaderMode.Geometry));
+        }
+        private void _component_WorldTransformChanged()
+        {
+            _cullingVolume.SetRenderTransform(_component.WorldMatrix * _initialCullingVolumeMatrix);
+            OctreeNode?.ItemMoved(this);
+        }
+        public override string ToString() => Mesh.Name;
+    }
+    public class SkeletalRenderableMesh : BaseRenderableMesh
+    {
+        public SkeletalRenderableMesh(ISkeletalSubMesh mesh, Skeleton skeleton, SceneComponent component)
+            : base(mesh.LODs, mesh.RenderInfo, component)
+        {
+            Mesh = mesh;
+            Skeleton = skeleton;
+        }
+        
+        //private Bone _singleBind;
+        private Skeleton _skeleton;
+
+        //public Bone SingleBind => _singleBind;
+
+        public ISkeletalSubMesh Mesh { get; set; }
+
+        [Browsable(false)]
+        public Skeleton Skeleton
+        {
+            get => _skeleton;
+            set
+            {
+                _skeleton = value;
+                foreach (RenderableLOD m in LODs)
+                    m.Manager?.SkeletonChanged(_skeleton);
+            }
+        }
+        public override string ToString() => Mesh.Name;
     }
 }

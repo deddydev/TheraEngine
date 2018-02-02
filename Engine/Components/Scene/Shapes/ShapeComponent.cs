@@ -123,9 +123,9 @@ namespace TheraEngine.Components.Scene.Shapes
             if (IsSpawned)
             {
                 if (selected)
-                    OwningActor.OwningWorld.Scene.Add(this);
+                    OwningScene.Add(this);
                 else
-                    OwningActor.OwningWorld.Scene.Remove(this);
+                    OwningScene.Remove(this);
             }
             base.OnSelectedChanged(selected);
         }

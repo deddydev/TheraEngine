@@ -265,7 +265,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actors\Types\SkylightActor.cs" />
+    <Compile Include="Actors\Types\SceneCaptureComponent.cs" />
     <Compile Include="Animation\Property\AnimationFolder.cs" />
     <Compile Include="Animation\Property\PropAnimInt.cs" />
     <Compile Include="Animation\Property\PropAnimMethod.cs" />
@@ -273,7 +273,7 @@
     <Compile Include="Animation\Property\BasePropAnimKeyframed.cs" />
     <Compile Include="Components\Logic\ScriptComponent.cs" />
     <Compile Include="Components\Logic\InteractorComponent.cs" />
-    <Compile Include="Components\Scene\Mesh\BaseRenderableMesh.cs" />
+    <Compile Include="Components\Scene\Mesh\RenderableMesh.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\OriginRebasableComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Lagged\TranslationLagged.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\ScreenShake2D.cs" />
@@ -310,6 +310,7 @@
     <Compile Include="Physics\AbstractPhysicsShapes.cs" />
     <Compile Include="Physics\AbstractPhysicsWorld.cs" />
     <Compile Include="Physics\Bullet\BulletPhysicsInterface.cs" />
+    <Compile Include="Physics\Bullet\Shapes\BulletHeightField.cs" />
     <Compile Include="Physics\Bullet\Shapes\BulletCylinder.cs" />
     <Compile Include="Physics\Bullet\Shapes\BulletCapsule.cs" />
     <Compile Include="Physics\Bullet\Shapes\BulletCone.cs" />
@@ -732,8 +733,6 @@
     <Compile Include="Components\Scene\Lights\SpotLightComponent.cs" />
     <Compile Include="Components\Scene\Lights\PointLightComponent.cs" />
     <Compile Include="Components\Scene\Lights\DirectionalLightComponent.cs" />
-    <Compile Include="Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
-    <Compile Include="Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\PositionLag.cs" />
     <Compile Include="Components\Scene\SplineComponent.cs" />
     <Compile Include="Components\Scene\SoundComponent.cs" />
@@ -809,7 +808,7 @@
     <Compile Include="Actors\Types\Pawns\CharacterPawn.cs" />
     <Compile Include="Actors\Types\Pawns\UIManagerPawn.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawn.cs" />
-    <Compile Include="Actors\Types\LandscapeActor.cs" />
+    <Compile Include="Components\Scene\LandscapeComponent.cs" />
     <Compile Include="Actors\Pawn.cs" />
     <Compile Include="Actors\Types\TransformTool3D.cs" />
     <Compile Include="Actors\Types\CharacterSpawnPointActor.cs" />

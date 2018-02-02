@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.IO;
+using System.Runtime.InteropServices;
 using TheraEngine;
 
 namespace System
@@ -12,6 +13,10 @@ namespace System
         private int _length;
         private VoidPtr _address;
 
+        /// <summary>
+        /// If true, this data source references memory that was allocated somewhere else.
+        /// </summary>
+        public bool External => _external;
         public int Length
         {
             get => _length;
@@ -40,6 +45,7 @@ namespace System
                 _external = true;
             }
         }
+
         public DataSource(int length, bool zeroMemory = false)
         {
             if (length < 0)
@@ -53,7 +59,10 @@ namespace System
 
         public static DataSource Allocate(int size, bool zeroMemory = false)
             => new DataSource(size, zeroMemory);
- 
+
+        public unsafe UnmanagedMemoryStream AsStream()
+            => new UnmanagedMemoryStream((byte*)Address, Length);
+
         public void NotifyModified()
             => Modified?.Invoke();
 

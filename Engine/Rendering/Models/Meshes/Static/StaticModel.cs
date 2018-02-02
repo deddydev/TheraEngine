@@ -65,6 +65,7 @@ namespace TheraEngine.Rendering.Models
             //TODO: serialize convex shape collision using bullet serializer
             //int size = _collision.CalculateSerializeBufferSize();
         }
+        
         [TSerialize("RigidChildren")]
         protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();
         [TSerialize("SoftChildren")]

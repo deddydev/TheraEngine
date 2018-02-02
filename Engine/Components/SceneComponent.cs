@@ -6,6 +6,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Physics;
 using TheraEngine.Actors;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Components
 {
@@ -178,6 +179,16 @@ namespace TheraEngine.Components
         }
         [Browsable(false)]
         protected bool SimulatingPhysics => _simulatingPhysics;
+
+        private Scene3D _owningScene;
+        [Browsable(false)]
+        public Scene3D OwningScene
+        {
+            get => OwningWorld?.Scene ?? _owningScene;
+            set => _owningScene = value;
+        }
+        [Browsable(false)]
+        public World OwningWorld => OwningActor?.OwningWorld;
 
         [Browsable(false)]
         public override IActor OwningActor

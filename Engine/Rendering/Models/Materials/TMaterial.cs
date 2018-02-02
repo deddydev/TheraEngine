@@ -210,18 +210,18 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         internal void AddReference(PrimitiveManager user)
         {
-            if (_references.Count == 0)
-                _uniqueID = Engine.Scene.AddActiveMaterial(this);
+            //if (_references.Count == 0)
+            //    _uniqueID = Engine.Scene.AddActiveMaterial(this);
             _references.Add(user);
         }
         internal void RemoveReference(PrimitiveManager user)
         {
             _references.Add(user);
-            if (_references.Count == 0)
-            {
-                Engine.Scene.RemoveActiveMaterial(this);
-                _uniqueID = -1;
-            }
+            //if (_references.Count == 0)
+            //{
+            //    Engine.Scene.RemoveActiveMaterial(this);
+            //    _uniqueID = -1;
+            //}
         }
         public void SetUniforms(int programBindingId = 0)
         {

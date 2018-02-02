@@ -162,6 +162,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\DragDropFilter.cs" />
+    <Compile Include="Windows\Forms\Editor Forms\DockableModelEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableModelEditor.Designer.cs">
+      <DependentUpon>DockableModelEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Editor Forms\DockableWelcomeWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -191,6 +197,9 @@
     </Compile>
     <Compile Include="Windows\Forms\Class Creation\ObjectCreator.Designer.cs">
       <DependentUpon>ObjectCreator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\ModelEditorRenderPanel.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\File Navigation\FileFolderList.cs">
       <SubType>Component</SubType>
@@ -523,6 +532,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
+    <Compile Include="Wrappers\SkeletalModelWrapper.cs" />
+    <Compile Include="Wrappers\StaticModelWrapper.cs" />
     <Compile Include="Wrappers\PythonWrapper.cs" />
     <Compile Include="Wrappers\PropertyAnimationWrapper.cs" />
     <Compile Include="Wrappers\MaterialWrapper.cs" />
@@ -545,6 +556,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableModelEditor.resx">
+      <DependentUpon>DockableModelEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableWelcomeWindow.resx">
       <DependentUpon>DockableWelcomeWindow.cs</DependentUpon>

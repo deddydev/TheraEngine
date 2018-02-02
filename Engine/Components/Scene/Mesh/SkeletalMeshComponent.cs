@@ -10,12 +10,13 @@ namespace TheraEngine.Components.Scene.Mesh
 {
     public partial class SkeletalMeshComponent : TRSComponent, IPreRenderNeeded, IMeshSocketOwner
     {
-        public SkeletalMeshComponent(SkeletalModel mesh, Skeleton skeleton)
+        public SkeletalMeshComponent(GlobalFileRef<SkeletalModel> mesh, LocalFileRef<Skeleton> skeleton)
         {
             if (skeleton != null)
             {
                 _skeletonRef = skeleton;
-                _skeletonRef_Loaded(skeleton);
+                if (skeleton.IsLoaded)
+                    _skeletonRef_Loaded(skeleton);
             }
             else
             {
@@ -40,7 +41,7 @@ namespace TheraEngine.Components.Scene.Mesh
         private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
 
         //For internal runtime use
-        private RenderableMesh[] _meshes;
+        private SkeletalRenderableMesh[] _meshes;
 
         #region IMeshSocketOwner interface
         public MeshSocket this[string socketName] 
@@ -103,23 +104,23 @@ namespace TheraEngine.Components.Scene.Mesh
 
                 if (_meshes != null)
                 {
-                    foreach (RenderableMesh mesh in _meshes)
+                    foreach (SkeletalRenderableMesh mesh in _meshes)
                         mesh.Visible = false;
                     _meshes = null;
                 }
 
                 if (_modelRef.IsLoaded || IsSpawned)
                 {
-                    _meshes = new RenderableMesh[Model.RigidChildren.Count + Model.SoftChildren.Count];
+                    _meshes = new SkeletalRenderableMesh[Model.RigidChildren.Count + Model.SoftChildren.Count];
                     for (int i = 0; i < Model.RigidChildren.Count; ++i)
                     {
-                        RenderableMesh mesh = new RenderableMesh(Model.RigidChildren[i], Skeleton, this);
+                        SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(Model.RigidChildren[i], Skeleton, this);
                         mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
                         _meshes[i] = mesh;
                     }
                     for (int i = 0; i < Model.SoftChildren.Count; ++i)
                     {
-                        RenderableMesh mesh = new RenderableMesh(Model.SoftChildren[i], Skeleton, this);
+                        SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(Model.SoftChildren[i], Skeleton, this);
                         mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
                         _meshes[Model.RigidChildren.Count + i] = mesh;
                     }
@@ -158,12 +159,12 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             skel.OwningComponent = this;
             if (_meshes != null)
-                foreach (RenderableMesh m in _meshes)
+                foreach (SkeletalRenderableMesh m in _meshes)
                     m.Skeleton = skel;
         }
         
         [Category("Skeletal Mesh Component")]
-        public RenderableMesh[] Meshes => _meshes;
+        public SkeletalRenderableMesh[] Meshes => _meshes;
         
         public void SetAllSimulatingPhysics(bool doSimulation)
         {
@@ -174,7 +175,7 @@ namespace TheraEngine.Components.Scene.Mesh
         public override void OnSpawned()
         {
             if (_meshes != null)
-                foreach (RenderableMesh m in _meshes)
+                foreach (SkeletalRenderableMesh m in _meshes)
                     m.Visible = m.Mesh.VisibleByDefault;
             
             base.OnSpawned();
@@ -182,7 +183,7 @@ namespace TheraEngine.Components.Scene.Mesh
         public override void OnDespawned()
         {
             if (_meshes != null)
-                foreach (RenderableMesh m in _meshes)
+                foreach (SkeletalRenderableMesh m in _meshes)
                     m.Visible = false;
 
             base.OnDespawned();

@@ -95,7 +95,7 @@ namespace TheraEngine.Components.Scene.Mesh
         //}
 
         //For internal runtime use
-        private RenderableMesh[] _meshes = null;
+        private StaticRenderableMesh[] _meshes = null;
 
         private GlobalFileRef<StaticModel> _modelRef;
 
@@ -116,7 +116,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 if (_meshes != null)
                 {
                     if (IsSpawned)
-                        foreach (RenderableMesh mesh in _meshes)
+                        foreach (StaticRenderableMesh mesh in _meshes)
                             mesh.Visible = false;
                     _meshes = null;
                 }
@@ -130,21 +130,21 @@ namespace TheraEngine.Components.Scene.Mesh
         public TRigidBody RigidBodyCollision => _rigidBodyCollision;
 
         [Category("Static Mesh Component")]
-        public RenderableMesh[] Meshes => _meshes;
+        public StaticRenderableMesh[] Meshes => _meshes;
         
         //TODO: make lod loading async
         private void ModelLoaded(StaticModel model)
         {
-            _meshes = new RenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
+            _meshes = new StaticRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {
-                RenderableMesh m = new RenderableMesh(model.RigidChildren[i], this);
+                StaticRenderableMesh m = new StaticRenderableMesh(model.RigidChildren[i], this);
                 m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
                 _meshes[i] = m;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
-                RenderableMesh m = new RenderableMesh(model.SoftChildren[i], this);
+                StaticRenderableMesh m = new StaticRenderableMesh(model.SoftChildren[i], this);
                 m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
                 _meshes[model.RigidChildren.Count + i] = m;
             }
@@ -172,14 +172,14 @@ namespace TheraEngine.Components.Scene.Mesh
             }
             else
             {
-                foreach (RenderableMesh m in _meshes)
+                foreach (StaticRenderableMesh m in _meshes)
                     m.Visible = m.Mesh.VisibleByDefault;
             }
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            foreach (RenderableMesh m in _meshes)
+            foreach (StaticRenderableMesh m in _meshes)
                 m.Visible = false;
             base.OnDespawned();
         }

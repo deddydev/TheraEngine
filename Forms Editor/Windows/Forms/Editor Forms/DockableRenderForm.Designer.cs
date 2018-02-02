@@ -1,4 +1,6 @@
-﻿namespace TheraEditor.Windows.Forms
+﻿using TheraEngine.Windows.Forms;
+
+namespace TheraEditor.Windows.Forms
 {
     partial class DockableRenderForm
     {
@@ -28,7 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.RenderPanel = new TheraEngine.EditorWorldRenderPanel();
+            this.RenderPanel = new EditorWorldRenderPanel();
             this.SuspendLayout();
             // 
             // RenderPanel
@@ -58,6 +60,6 @@
 
         #endregion
 
-        public TheraEngine.EditorWorldRenderPanel RenderPanel;
+        public EditorWorldRenderPanel RenderPanel;
     }
 }

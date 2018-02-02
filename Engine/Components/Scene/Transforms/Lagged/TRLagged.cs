@@ -40,7 +40,8 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             _currentTranslation = _desiredTranslation = translation;
             //_currentTranslation.Changed += RecalcLocalTransform;
-            _currentRotation = _desiredRotation = rotation;
+            _currentRotation = new Rotator(rotation);
+            _desiredRotation = new Rotator(rotation);
             //_currentRotation.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }
@@ -114,7 +115,14 @@ namespace TheraEngine.Components.Scene.Transforms
             Matrix4 mtx = t * r * translation.AsTranslationMatrix();
             _desiredTranslation = mtx.GetPoint();
         }
-        
+        public void Pivot(float pitch, float yaw, float distance)
+            => Pivot(pitch, yaw, _desiredTranslation + GetDesiredForwardDir() * distance);
+        public void Pivot(float pitch, float yaw, Vec3 point)
+        {
+            _desiredTranslation = TMath.RotateAboutPoint(_desiredTranslation, point, new Rotator(pitch, yaw, 0.0f));
+            _desiredRotation.AddRotations(pitch, yaw, 0.0f);
+        }
+
         [Browsable(false)]
         public override bool IsRotatable => true;
         public override void HandleWorldRotation(Quat delta)
@@ -128,5 +136,8 @@ namespace TheraEngine.Components.Scene.Transforms
         public Vec3 GetForwardDir() => _currentRotation.TransformVector(Vec3.Forward);
         public Vec3 GetRightDir() => _currentRotation.TransformVector(Vec3.Right);
         public Vec3 GetUpDir() => _currentRotation.TransformVector(Vec3.Up);
+        public Vec3 GetDesiredForwardDir() => _desiredRotation.TransformVector(Vec3.Forward);
+        public Vec3 GetDesiredRightDir() => _desiredRotation.TransformVector(Vec3.Right);
+        public Vec3 GetDesiredUpDir() => _desiredRotation.TransformVector(Vec3.Up);
     }
 }

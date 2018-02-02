@@ -1,4 +1,7 @@
-﻿using WeifenLuo.WinFormsUI.Docking;
+﻿using System;
+using TheraEngine.Actors;
+using TheraEngine.Components.Scene.Mesh;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -7,6 +10,15 @@ namespace TheraEditor.Windows.Forms
         public DockableMeshList()
         {
             InitializeComponent();
+        }
+
+        public void DisplayMeshes(Actor<StaticMeshComponent> staticActor)
+        {
+
+        }
+        public void DisplayMeshes(Actor<SkeletalMeshComponent> skeletalActor)
+        {
+
         }
     }
 }

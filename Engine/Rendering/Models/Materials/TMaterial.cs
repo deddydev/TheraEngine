@@ -232,7 +232,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (Requirements == UniformRequirements.NeedsLightsAndCamera)
             {
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
-                Engine.Scene.Lights.SetUniforms(programBindingId);
+                AbstractRenderer.Rendering3DScene.Lights.SetUniforms(programBindingId);
             }
             else if (Requirements == UniformRequirements.NeedsCamera)
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);

@@ -136,7 +136,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             if (_cullingVolume != null)
                 _component.WorldTransformChanged -= _component_WorldTransformChanged;
-            _cullingVolume = shape.HardCopy();
+            _cullingVolume = shape?.HardCopy();
             if (_cullingVolume != null)
             {
                 _initialCullingVolumeMatrix = _cullingVolume.GetTransformMatrix();

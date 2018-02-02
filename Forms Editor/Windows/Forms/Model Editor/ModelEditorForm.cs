@@ -68,10 +68,16 @@ namespace TheraEditor.Windows.Forms
         
         private DockablePropertyGrid _propertyGridForm;
         public DockablePropertyGrid PropertyGridForm => GetForm(ref _propertyGridForm);
-        
+
         #endregion
-        
-        public ModelEditorWorld World { get; private set; } = new ModelEditorWorld();
+
+        private Lazy<ModelEditorWorld> _world = new Lazy<ModelEditorWorld>(() =>
+        {
+            ModelEditorWorld world = new ModelEditorWorld();
+            world.BeginPlay();
+            return world;
+        });
+        public ModelEditorWorld World => _world.Value;
 
         private Actor<StaticMeshComponent> _static;
         private Actor<SkeletalMeshComponent> _skeletal;
@@ -87,6 +93,8 @@ namespace TheraEditor.Windows.Forms
             Model = stm;
             _static = new Actor<StaticMeshComponent>(new StaticMeshComponent(stm));
             World.SpawnActor(_static);
+
+            MeshesForm.DisplayMeshes(_static);
         }
         public void SetModel(SkeletalModel skm, Skeleton skel)
         {
@@ -98,13 +106,15 @@ namespace TheraEditor.Windows.Forms
             Model = skm;
             _skeletal = new Actor<SkeletalMeshComponent>(new SkeletalMeshComponent(skm, skel));
             World.SpawnActor(_skeletal);
+
+            MeshesForm.DisplayMeshes(_skeletal);
         }
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            SetRenderTicking(true);
             Editor.Instance.SetRenderTicking(false);
             GetRenderForm(0);
+            SetRenderTicking(true);
         }
         protected override void OnClosed(EventArgs e)
         {

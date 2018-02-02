@@ -22,15 +22,22 @@ namespace System
                 friendlyName += "sealed ";
             if (method.IsStatic)
                 friendlyName += "static ";
-            if (method.IsHideBySig)
-                friendlyName += "new ";
+
+            //There is no way to know if new should be included or not 
+            //without the class type passed in as well to check if it is a derived type
+            //if (method.IsHideBySig && method.DeclaringType.IsAssignableFrom(classType))
+            //    friendlyName += "new ";
+
             if (method.IsVirtual)
                 friendlyName += "virtual ";
             if (method.GetBaseDefinition() != method)
                 friendlyName += "override ";
             if (method.IsAbstract)
                 friendlyName += "abstract ";
+
+            friendlyName += method.ReturnType.GetFriendlyName() + " ";
             friendlyName += method.Name;
+
             bool first = true;
             if (method.IsGenericMethod)
             {

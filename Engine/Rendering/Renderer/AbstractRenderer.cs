@@ -51,6 +51,8 @@ namespace TheraEngine.Rendering
 
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
 
+        internal static Scene3D Rendering3DScene { get; set; }
+        internal static Scene2D Rendering2DScene { get; set; }
         internal static void PushCurrentCamera(Camera camera)
         {
             Camera c = CurrentCamera;
@@ -262,7 +264,7 @@ namespace TheraEngine.Rendering
             m.Parameter<ShaderVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);
         }
-
+        
         public virtual void RenderAABB(Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
             => RenderBox(halfExtents, translation.AsTranslationMatrix(), solid, color, lineWidth);
         public virtual void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)

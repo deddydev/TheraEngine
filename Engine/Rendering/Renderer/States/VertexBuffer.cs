@@ -94,7 +94,7 @@ namespace TheraEngine.Rendering.Models
         internal bool _normalize;
         [TSerialize("Integral", Order = 2, XmlNodeType = EXmlNodeType.Attribute)]
         internal bool _integral = false;
-        [TSerialize("Data", Order = 2)]
+        [TSerialize("Data", Order = 2, IsXmlElementString = true)]
         internal DataSource _data;
         internal int _bufferIndex;
         internal int _location, _vaoId = 0;
@@ -162,34 +162,42 @@ namespace TheraEngine.Rendering.Models
             switch (_componentType)
             {
                 case ComponentType.SByte:
+                    _data = DataSource.Allocate(count * sizeof(sbyte));
                     sbyte* ptr1 = (sbyte*)_data.Address;
                     for (int k = 0; k < count && reader.ReadValue(ptr1++); ++k) ;
                     break;
                 case ComponentType.Byte:
+                    _data = DataSource.Allocate(count * sizeof(byte));
                     byte* ptr2 = (byte*)_data.Address;
                     for (int k = 0; k < count && reader.ReadValue(ptr2++); ++k) ;
                     break;
                 case ComponentType.Short:
+                    _data = DataSource.Allocate(count * sizeof(short));
                     short* ptr3 = (short*)_data.Address;
                     for (int k = 0; k < count && reader.ReadValue(ptr3++); ++k) ;
                     break;
                 case ComponentType.UShort:
+                    _data = DataSource.Allocate(count * sizeof(ushort));
                     ushort* ptr4 = (ushort*)_data.Address;
                     for (int k = 0; k < count && reader.ReadValue(ptr4++); ++k) ;
                     break;
                 case ComponentType.Int:
+                    _data = DataSource.Allocate(count * sizeof(int));
                     int* ptr5 = (int*)_data.Address;
                     for (int k = 0; k < count && reader.ReadValue(ptr5++); ++k) ;
                     break;
                 case ComponentType.UInt:
+                    _data = DataSource.Allocate(count * sizeof(uint));
                     uint* ptr6 = (uint*)_data.Address;
                     for (int k = 0; k < count && reader.ReadValue(ptr6++); ++k) ;
                     break;
                 case ComponentType.Float:
+                    _data = DataSource.Allocate(count * sizeof(float));
                     float* ptr7 = (float*)_data.Address;
                     for (int k = 0; k < count && reader.ReadValue(ptr7++); ++k) ;
                     break;
                 case ComponentType.Double:
+                    _data = DataSource.Allocate(count * sizeof(double));
                     double* ptr8 = (double*)_data.Address;
                     for (int k = 0; k < count && reader.ReadValue(ptr8++); ++k) ;
                     break;

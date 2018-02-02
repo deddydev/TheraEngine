@@ -230,6 +230,12 @@
       <DependentUpon>FileNavPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\ModelEditorWorld.cs" />
+    <Compile Include="Windows\Forms\Model Editor\GenericDropDownControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\GenericDropDownControl.Designer.cs">
+      <DependentUpon>GenericDropDownControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -623,6 +629,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\File Navigation\FileNavPanel.resx">
       <DependentUpon>FileNavPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\GenericDropDownControl.resx">
+      <DependentUpon>GenericDropDownControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.resx">
       <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>

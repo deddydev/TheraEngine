@@ -499,7 +499,10 @@ namespace System.IO
         public string ReadElementString()
         {
             if (!LeaveTag())
-                return null;
+            {
+                _inTag = false;
+                while (*(_ptr - 1) != '>' && _ptr > _base) --_ptr;
+            }
 
             byte* start = _ptr;
             while (*_ptr != '<' && _ptr < _ceil) ++_ptr;

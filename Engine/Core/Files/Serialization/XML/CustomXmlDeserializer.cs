@@ -164,6 +164,10 @@ namespace TheraEngine.Files.Serialization
                 }
             }
 
+            //Engine.PrintLine("Attribs: " + string.Join(", ", attribs));
+            //Engine.PrintLine("Elems: " + string.Join(", ", elements));
+            //Engine.PrintLine("Strings: " + string.Join(", ", elementStrings));
+
             //Read attributes first.
             //First attribute has already been read when checking for the assembly type name
             do
@@ -190,36 +194,10 @@ namespace TheraEngine.Files.Serialization
             }
 
             //Now read elements
-            if (elements.Count == 0)
-            {
-                if (elementStrings.Count == 1)
-                {
-                    VarInfo elemStr = elementStrings[0];
-                    if (CanParseAsString(elemStr.VariableType))
-                    {
-                        MethodInfo customMethod = customMethods.FirstOrDefault(
-                            x => string.Equals(elemStr.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
-
-                        string s = reader.ReadElementString();
-                        if (customMethod != null)
-                            customMethod.Invoke(obj, new object[] { s });
-                        else
-                            elemStr.SetValue(obj, ParseString(s, elemStr.VariableType));
-                    }
-                    else
-                        ReadMember(obj, elemStr, reader, customMethods, false);
-
-                    return;
-                }
-                else
-                {
-                    elements.AddRange(elementStrings);
-                    elementStrings.Clear();
-                }
-            }
-            
+            bool allElementsNull = true;
             while (reader.BeginElement())
             {
+                allElementsNull = false;
                 string elemName = reader.Name.ToString();
 
                 //Categorized key is the name of the category
@@ -229,13 +207,25 @@ namespace TheraEngine.Files.Serialization
                     ReadObjectElement(obj, reader, categoryMembers, null, customMethods);
                 else
                 {
+                    VarInfo element = null;
                     int elementIndex = elements.FindIndex(elemMem => string.Equals(elemName, elemMem.Name, StringComparison.InvariantCultureIgnoreCase));
-                    if (elementIndex >= 0)
+                    if (elementIndex < 0)
                     {
-                        VarInfo element = elements[elementIndex];
-                        elements.RemoveAt(elementIndex);
-                        ReadMember(obj, element, reader, customMethods, false);
+                        elementIndex = elementStrings.FindIndex(elemMem => string.Equals(elemName, elemMem.Name, StringComparison.InvariantCultureIgnoreCase));
+                        if (elementIndex >= 0)
+                        {
+                            element = elementStrings[elementIndex];
+                            elementStrings.RemoveAt(elementIndex);
+                        }
                     }
+                    else
+                    {
+                        element = elements[elementIndex];
+                        elements.RemoveAt(elementIndex);
+                    }
+
+                    if (element != null)
+                        ReadMember(obj, element, reader, customMethods, false);
                 }
                 reader.EndElement();
             }
@@ -243,6 +233,30 @@ namespace TheraEngine.Files.Serialization
             //For all unwritten remaining elements, set them to default (null for non-primitive types)
             foreach (VarInfo element in elements)
                 element.SetValue(obj, element.VariableType.GetDefaultValue());
+
+            if (allElementsNull && elementStrings.Count == 1)
+            {
+                VarInfo elemStr = elementStrings[0];
+                //Engine.PrintLine("Reading element string for {0}", elemStr.Name);
+                if (CanParseAsString(elemStr.VariableType))
+                {
+                    MethodInfo customMethod = customMethods.FirstOrDefault(
+                        x => string.Equals(elemStr.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
+
+                    if (customMethod != null)
+                    {
+                        Engine.PrintLine("Invoking custom deserialization method for {0}: {1}", elemStr.Name, customMethod.GetFriendlyName());
+                        customMethod.Invoke(obj, new object[] { reader });
+                    }
+                    else
+                    {
+                        string s = reader.ReadElementString();
+                        elemStr.SetValue(obj, ParseString(s, elemStr.VariableType));
+                    }
+                }
+                else
+                    ReadMember(obj, elemStr, reader, customMethods, false);
+            }
         }
         private static bool CanParseAsString(Type t)
             => t.GetInterface(nameof(IParsable)) != null ||
@@ -254,11 +268,14 @@ namespace TheraEngine.Files.Serialization
                 x => string.Equals(member.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
 
             if (customMethod != null)
+            {
+                Engine.PrintLine("Invoking custom deserialization method for {0}: {1}", member.Name, customMethod.GetFriendlyName());
                 customMethod.Invoke(obj, new object[] { reader });
+            }
             else
             {
-                object value = isAttribute ? 
-                    ParseString(reader.Value.ToString(), member.VariableType) : 
+                object value = isAttribute ?
+                    ParseString(reader.Value.ToString(), member.VariableType) :
                     ReadMemberElement(member.VariableType, reader);
                 member.SetValue(obj, value);
             }

@@ -227,6 +227,7 @@ namespace TheraEngine.Rendering
         public void RenderDeferred(Camera c, Viewport v)
         {
             AbstractRenderer.PushCurrentCamera(c);
+            AbstractRenderer.Rendering3DScene = this;
             {
                 foreach (IPreRenderNeeded p in _preRenderList)
                     p.PreRender();
@@ -317,6 +318,7 @@ namespace TheraEngine.Rendering
                     _passes.Render(ERenderPass3D.OnTopForward);
                 }
             }
+            AbstractRenderer.Rendering3DScene = null;
             AbstractRenderer.PopCurrentCamera();
         }
         public void Add(I3DBoundable obj)

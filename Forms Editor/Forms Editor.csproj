@@ -180,6 +180,18 @@
     <Compile Include="Windows\Forms\Model Editor\DockableModelEditorRenderForm.Designer.cs">
       <DependentUpon>DockableModelEditorRenderForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Model Editor\LODControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\LODControl.Designer.cs">
+      <DependentUpon>LODControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\MeshControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\MeshControl.Designer.cs">
+      <DependentUpon>MeshControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Model Editor\ModelEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -590,6 +602,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableModelEditorRenderForm.resx">
       <DependentUpon>DockableModelEditorRenderForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\LODControl.resx">
+      <DependentUpon>LODControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\MeshControl.resx">
+      <DependentUpon>MeshControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\ModelEditorForm.resx">
       <DependentUpon>ModelEditorForm.cs</DependentUpon>

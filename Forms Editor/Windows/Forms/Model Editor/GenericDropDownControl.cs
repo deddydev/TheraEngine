@@ -14,7 +14,25 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
             DestroyChildControls();
+            Collabsible = true;
             tblControls.Visible = false;
+        }
+        private bool _collapsible;
+        public bool Collabsible
+        {
+            get => _collapsible;
+            set
+            {
+                _collapsible = value;
+                if (!_collapsible)
+                {
+                    tblControls.Visible = true;
+                }
+                else
+                {
+                    
+                }
+            }
         }
         public string DropDownName
         {
@@ -53,6 +71,12 @@ namespace TheraEditor.Windows.Forms
             tblControls.Controls.Remove(control);
             tblControls.RowStyles.RemoveAt(row);
             tblControls.RowCount = tblControls.RowStyles.Count;
+        }
+        public void ClearControls()
+        {
+            tblControls.Controls.Clear();
+            tblControls.RowStyles.Clear();
+            tblControls.RowCount = 0;
         }
     }
 }

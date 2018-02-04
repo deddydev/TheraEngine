@@ -21,6 +21,11 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             _raw = rgb;
         }
+        public EventColorF3(float r, float g, float b)
+        {
+            _raw = new ColorF3(r, g, b);
+        }
+        public EventColorF3(Vec3 rgb) : this((ColorF3)rgb) { }
 
         public void SetRawNoUpdate(ColorF3 raw)
         {

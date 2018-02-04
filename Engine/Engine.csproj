@@ -265,6 +265,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actors\Types\Lights\PointLightActor.cs" />
+    <Compile Include="Actors\Types\Lights\SpotLightActor.cs" />
+    <Compile Include="Actors\Types\Lights\DirectionalLightActor.cs" />
     <Compile Include="Actors\Types\SceneCaptureComponent.cs" />
     <Compile Include="Animation\Property\AnimationFolder.cs" />
     <Compile Include="Animation\Property\PropAnimInt.cs" />

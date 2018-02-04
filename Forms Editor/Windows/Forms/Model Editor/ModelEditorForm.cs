@@ -20,6 +20,9 @@ namespace TheraEditor.Windows.Forms
         public ModelEditorForm()
         {
             InitializeComponent();
+            DockPanel.Theme = new TheraEditorTheme();
+            AutoScaleMode = AutoScaleMode.Font;
+            DoubleBuffered = false;
         }
 
         #region Instanced Dock Forms
@@ -143,6 +146,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void Redraw()
         {
+            BaseRenderPanel.WorldPanel.CaptureContext();
+
             World.Scene.Voxelize();
             World.Scene.RenderShadowMaps();
 

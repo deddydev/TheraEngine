@@ -31,7 +31,7 @@
             this.propGridSingle1 = new TheraEditor.Windows.Forms.PropertyGrid.PropGridSingle();
             this.pnlVisDist = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.materialControl1 = new TheraEditor.Windows.Forms.Model_Editor.Mesh_List.MaterialControl();
+            this.materialControl1 = new TheraEditor.Windows.Forms.MaterialControl();
             this.pnlMain.SuspendLayout();
             this.pnlVisDist.SuspendLayout();
             this.SuspendLayout();
@@ -115,6 +115,6 @@
         private System.Windows.Forms.Panel pnlVisDist;
         private PropertyGrid.PropGridSingle propGridSingle1;
         private System.Windows.Forms.Label label1;
-        private Model_Editor.Mesh_List.MaterialControl materialControl1;
+        private MaterialControl materialControl1;
     }
 }

@@ -194,7 +194,7 @@ namespace TheraEngine
             {
                 //try
                 //{
-                    _context.Capture();
+                    _context.Capture(true);
                     OnRender();
                     _context.Swap();
                     _context.ErrorCheck();

@@ -263,7 +263,7 @@ namespace TheraEngine.Rendering
                             //No need to clear anything, 
                             //color will be fully overwritten by the previous pass, 
                             //and we need depth from the previous pass
-                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                            //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                             Engine.Renderer.AllowDepthWrite(false);
 
                             //Render the deferred pass result

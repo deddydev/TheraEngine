@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Rendering.Models.Materials;
 
-namespace TheraEditor.Windows.Forms.Model_Editor.Mesh_List
+namespace TheraEditor.Windows.Forms
 {
     public partial class MaterialControl : UserControl
     {

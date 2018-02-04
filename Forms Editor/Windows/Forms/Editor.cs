@@ -437,6 +437,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void Redraw()
         {
+            BaseRenderPanel.WorldPanel.CaptureContext();
+
             if (Engine.Scene != null)
             {
                 Engine.Scene.Voxelize();

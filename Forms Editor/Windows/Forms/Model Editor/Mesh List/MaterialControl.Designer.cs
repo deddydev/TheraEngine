@@ -1,4 +1,4 @@
-﻿namespace TheraEditor.Windows.Forms.Model_Editor.Mesh_List
+﻿namespace TheraEditor.Windows.Forms
 {
     partial class MaterialControl
     {

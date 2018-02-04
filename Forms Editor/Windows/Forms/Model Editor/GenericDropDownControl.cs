@@ -20,7 +20,10 @@ namespace TheraEditor.Windows.Forms
 
         private Color 
             _dropDownColor = Color.FromArgb(54, 58, 74), 
-            _dropDownHighlightColor = Color.FromArgb(14, 18, 34);
+            _dropDownHighlightColor = Color.FromArgb(14, 18, 34),
+            _dropDownMouseDownColor = Color.DarkOrange,
+            _expandedDropDownColor = Color.FromArgb(54, 58, 74),
+            _expandedDropDownHighlightColor = Color.FromArgb(14, 18, 34);
 
         public Color DropDownColor
         {
@@ -28,8 +31,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _dropDownColor = value;
-                if (_highlighted)
-                    lblDropDownName.BackColor = pnlSide.BackColor = _dropDownColor;
+                UpdateColors();
             }
         }
         public Color DropDownHighlightColor
@@ -38,8 +40,34 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _dropDownHighlightColor = value;
-                if (_highlighted)
-                    lblDropDownName.BackColor = pnlSide.BackColor = _dropDownHighlightColor;
+                UpdateColors();
+            }
+        }
+        public Color ExpandedDropDownColor
+        {
+            get => _expandedDropDownColor;
+            set
+            {
+                _expandedDropDownColor = value;
+                UpdateColors();
+            }
+        }
+        public Color ExpandedDropDownHighlightColor
+        {
+            get => _expandedDropDownHighlightColor;
+            set
+            {
+                _expandedDropDownHighlightColor = value;
+                UpdateColors();
+            }
+        }
+        public Color DropDownMouseDownColor
+        {
+            get => _dropDownMouseDownColor;
+            set
+            {
+                _dropDownMouseDownColor = value;
+                UpdateColors();
             }
         }
         private bool _collapsible;
@@ -51,8 +79,8 @@ namespace TheraEditor.Windows.Forms
                 _collapsible = value;
                 if (!_collapsible)
                 {
-                    lblDropDownName.BackColor = pnlSide.BackColor = _dropDownColor;
                     pnlMain.Visible = true;
+                    UpdateColors();
                 }
                 else
                 {
@@ -60,7 +88,7 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        private bool _highlighted;
+        private bool _highlighted, _mouseDown;
         public string DropDownName
         {
             get => lblDropDownName.Text;
@@ -71,7 +99,7 @@ namespace TheraEditor.Windows.Forms
             if (Collapsible)
             {
                 _highlighted = true;
-                lblDropDownName.BackColor = pnlSide.BackColor = _dropDownHighlightColor;
+                UpdateColors();
             }
         }
         private void lblCategoryName_MouseLeave(object sender, EventArgs e)
@@ -79,20 +107,45 @@ namespace TheraEditor.Windows.Forms
             if (Collapsible)
             {
                 _highlighted = false;
-                lblDropDownName.BackColor = pnlSide.BackColor = _dropDownColor;
+                UpdateColors();
             }
         }
 
         private void lblDropDownName_MouseUp(object sender, MouseEventArgs e)
         {
-
+            if (Collapsible)
+            {
+                _mouseDown = false;
+                pnlMain.Visible = !pnlMain.Visible;
+                UpdateColors();
+            }
         }
 
         private void lblCategoryName_MouseDown(object sender, MouseEventArgs e)
         {
             if (Collapsible)
-                pnlMain.Visible = !pnlMain.Visible;
+            {
+                _mouseDown = true;
+                UpdateColors();
+            }
         }
+
+        private void UpdateColors()
+        {
+            if (_mouseDown)
+            {
+                lblDropDownName.BackColor = pnlSide.BackColor = _dropDownMouseDownColor;
+            }
+            else if (pnlMain.Visible)
+            {
+                lblDropDownName.BackColor = pnlSide.BackColor = _highlighted ? _expandedDropDownHighlightColor : _expandedDropDownColor;
+            }
+            else
+            {
+                lblDropDownName.BackColor = pnlSide.BackColor = _highlighted ? _dropDownHighlightColor : _dropDownColor;
+            }
+        }
+
         //public void DestroyChildControls()
         //{
         //    foreach (Control control in tblControls.Controls)

@@ -4,6 +4,9 @@ using System.Runtime.InteropServices;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    /// <summary>
+    /// The alpha component is unused and exists purely for padding purposes.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RGBXPixel
     {
@@ -20,9 +23,39 @@ namespace TheraEngine.Rendering.Models.Materials
         //0000 0000 1111 0000 half B
         //0000 0000 0000 1111 half A
 
-        //Conversion: C26F -> FFCC2266 (ARGB)
+        //Conversion: C26F -> CC2266FF (RGBA)
 
-        bushort _data;
+        Bin16 _data;
+
+        public byte this[int index]
+        {
+            get
+            {
+                ushort val = _data[(3 - index) * 4, 4];
+                return (byte)(val | (val << 4));
+            }
+            set => _data[(3 - index) * 4, 4] = (ushort)((value & 0xFF) >> 4);
+        }
+        public byte R
+        {
+            get => this[0];
+            set => this[0] = value;
+        }
+        public byte G
+        {
+            get => this[1];
+            set => this[1] = value;
+        }
+        public byte B
+        {
+            get => this[2];
+            set => this[2] = value;
+        }
+        public byte A
+        {
+            get => this[3];
+            set => this[3] = value;
+        }
 
         public static explicit operator ARGBPixel(RGBA4Pixel p)
         {
@@ -38,6 +71,9 @@ namespace TheraEngine.Rendering.Models.Materials
             return new ARGBPixel((byte)a, (byte)r, (byte)g, (byte)b);
         }
     }
+    /// <summary>
+    /// Each component uses 6 bits.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RGBA6Pixel
     {

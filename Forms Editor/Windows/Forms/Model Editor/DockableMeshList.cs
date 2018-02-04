@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Mesh;
 using WeifenLuo.WinFormsUI.Docking;
@@ -14,36 +15,60 @@ namespace TheraEditor.Windows.Forms
 
         public void DisplayMeshes(Actor<StaticMeshComponent> staticActor)
         {
-            RigidMeshes.ClearControls();
-            SoftMeshes.ClearControls();
-            foreach (var r in staticActor.RootComponent.ModelRef.File.RigidChildren)
+            RigidMeshes.pnlMain.Controls.Clear();
+            SoftMeshes.pnlMain.Controls.Clear();
+            var rigidMeshes = staticActor.RootComponent.ModelRef.File.RigidChildren;
+            for (int i = 0; i < rigidMeshes.Count; ++i)
             {
-                MeshControl c = new MeshControl();
-                c.SetMesh(r);
-                RigidMeshes.AddControl(c);
+                MeshControl c = new MeshControl()
+                {
+                    Dock = DockStyle.Top,
+                    Margin = new Padding(0),
+                    Padding = new Padding(0),
+                };
+                c.SetMesh(rigidMeshes[i], i);
+                RigidMeshes.pnlMain.Controls.Add(c);
             }
-            foreach (var r in staticActor.RootComponent.ModelRef.File.SoftChildren)
+            var softMeshes = staticActor.RootComponent.ModelRef.File.SoftChildren;
+            for (int i = 0; i < softMeshes.Count; ++i)
             {
-                MeshControl c = new MeshControl();
-                c.SetMesh(r);
-                SoftMeshes.AddControl(c);
+                MeshControl c = new MeshControl()
+                {
+                    Dock = DockStyle.Top,
+                    Margin = new Padding(0),
+                    Padding = new Padding(0),
+                };
+                c.SetMesh(softMeshes[i], i);
+                SoftMeshes.pnlMain.Controls.Add(c);
             }
         }
         public void DisplayMeshes(Actor<SkeletalMeshComponent> skeletalActor)
         {
-            RigidMeshes.ClearControls();
-            SoftMeshes.ClearControls();
-            foreach (var r in skeletalActor.RootComponent.ModelRef.File.RigidChildren)
+            RigidMeshes.pnlMain.Controls.Clear();
+            SoftMeshes.pnlMain.Controls.Clear();
+            var rigidMeshes = skeletalActor.RootComponent.ModelRef.File.RigidChildren;
+            for (int i = 0; i < rigidMeshes.Count; ++i)
             {
-                MeshControl c = new MeshControl();
-                c.SetMesh(r);
-                RigidMeshes.AddControl(c);
+                MeshControl c = new MeshControl()
+                {
+                    Dock = DockStyle.Top,
+                    Margin = new Padding(0),
+                    Padding = new Padding(0),
+                };
+                c.SetMesh(rigidMeshes[i], i);
+                RigidMeshes.pnlMain.Controls.Add(c);
             }
-            foreach (var r in skeletalActor.RootComponent.ModelRef.File.SoftChildren)
+            var softMeshes = skeletalActor.RootComponent.ModelRef.File.SoftChildren;
+            for (int i = 0; i < softMeshes.Count; ++i)
             {
-                MeshControl c = new MeshControl();
-                c.SetMesh(r);
-                SoftMeshes.AddControl(c);
+                MeshControl c = new MeshControl()
+                {
+                    Dock = DockStyle.Top,
+                    Margin = new Padding(0),
+                    Padding = new Padding(0),
+                };
+                c.SetMesh(softMeshes[i], i);
+                SoftMeshes.pnlMain.Controls.Add(c);
             }
         }
     }

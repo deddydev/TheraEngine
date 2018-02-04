@@ -295,6 +295,9 @@
     <Compile Include="Components\Scene\UI\UIMaterialComponent.cs" />
     <Compile Include="Components\Scene\UI\UIRotatableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
+    <Compile Include="Core\Controls\BasicRenderPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Core\EditorUndo\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
@@ -305,6 +308,7 @@
     <Compile Include="Core\Reflection\Attributes\Serialization\FileExtension.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\File3rdParty.cs" />
     <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
+    <Compile Include="Core\Controls\BaseRenderPanel.cs" />
     <Compile Include="Input\ServerPlayerController.cs" />
     <Compile Include="Physics\AbstractPhysicsInterface.cs" />
     <Compile Include="Physics\AbstractPhysicsShapes.cs" />
@@ -438,7 +442,7 @@
     <Compile Include="Core\Tools\GLSLParser.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
     <Compile Include="Core\Files\XMLSchemeReader.cs" />
-    <Compile Include="Core\WorldRenderPanel.cs">
+    <Compile Include="Core\Controls\WorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Animation\Cutscenes\Cutscene.cs" />
@@ -687,11 +691,13 @@
     <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="Core\Files\FileObject.cs" />
     <Compile Include="Core\Time\EngineTimer.cs" />
-    <Compile Include="Core\RenderPanel.cs" />
-    <Compile Include="Core\RenderForm.cs">
+    <Compile Include="Core\Controls\RenderPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Core\Controls\RenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Core\RenderForm.Designer.cs">
+    <Compile Include="Core\Controls\RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\Tools\ExpressionParser.cs" />
@@ -851,7 +857,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Core\RenderForm.resx">
+    <EmbeddedResource Include="Core\Controls\RenderForm.resx">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />

@@ -28,27 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.tblControls = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.lblDropDownName = new System.Windows.Forms.Label();
             this.pnlSide = new System.Windows.Forms.Panel();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.pnlMain = new System.Windows.Forms.Panel();
             this.SuspendLayout();
-            // 
-            // tblControls
-            // 
-            this.tblControls.AutoSize = true;
-            this.tblControls.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tblControls.ColumnCount = 1;
-            this.tblControls.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblControls.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblControls.Location = new System.Drawing.Point(10, 25);
-            this.tblControls.Margin = new System.Windows.Forms.Padding(0);
-            this.tblControls.Name = "tblControls";
-            this.tblControls.RowCount = 1;
-            this.tblControls.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tblControls.Size = new System.Drawing.Size(0, 0);
-            this.tblControls.TabIndex = 0;
             // 
             // lblDropDownName
             // 
@@ -60,13 +43,14 @@
             this.lblDropDownName.Margin = new System.Windows.Forms.Padding(0);
             this.lblDropDownName.Name = "lblDropDownName";
             this.lblDropDownName.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this.lblDropDownName.Size = new System.Drawing.Size(10, 25);
+            this.lblDropDownName.Size = new System.Drawing.Size(393, 25);
             this.lblDropDownName.TabIndex = 0;
             this.lblDropDownName.Text = "Miscellaneous";
             this.lblDropDownName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblDropDownName.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblCategoryName_MouseDown);
             this.lblDropDownName.MouseEnter += new System.EventHandler(this.lblCategoryName_MouseEnter);
             this.lblDropDownName.MouseLeave += new System.EventHandler(this.lblCategoryName_MouseLeave);
+            this.lblDropDownName.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lblDropDownName_MouseUp);
             // 
             // pnlSide
             // 
@@ -75,36 +59,40 @@
             this.pnlSide.Location = new System.Drawing.Point(0, 25);
             this.pnlSide.Margin = new System.Windows.Forms.Padding(0);
             this.pnlSide.Name = "pnlSide";
-            this.pnlSide.Size = new System.Drawing.Size(10, 0);
+            this.pnlSide.Size = new System.Drawing.Size(10, 198);
             this.pnlSide.TabIndex = 2;
             this.pnlSide.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblCategoryName_MouseDown);
             this.pnlSide.MouseEnter += new System.EventHandler(this.lblCategoryName_MouseEnter);
             this.pnlSide.MouseLeave += new System.EventHandler(this.lblCategoryName_MouseLeave);
+            this.pnlSide.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lblDropDownName_MouseUp);
+            // 
+            // pnlMain
+            // 
+            this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlMain.Location = new System.Drawing.Point(10, 25);
+            this.pnlMain.Name = "pnlMain";
+            this.pnlMain.Size = new System.Drawing.Size(383, 198);
+            this.pnlMain.TabIndex = 0;
             // 
             // GenericDropDownControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.Controls.Add(this.tblControls);
+            this.Controls.Add(this.pnlMain);
             this.Controls.Add(this.pnlSide);
             this.Controls.Add(this.lblDropDownName);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "GenericDropDownControl";
-            this.Size = new System.Drawing.Size(10, 25);
+            this.Size = new System.Drawing.Size(393, 223);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-
-        private TheraEditor.Windows.Forms.BetterTableLayoutPanel tblControls;
         private System.Windows.Forms.Label lblDropDownName;
         private System.Windows.Forms.Panel pnlSide;
-        private System.Windows.Forms.ToolTip toolTip1;
+        public System.Windows.Forms.Panel pnlMain;
     }
 }

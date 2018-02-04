@@ -13,12 +13,37 @@ namespace TheraEditor.Windows.Forms
         public GenericDropDownControl()
         {
             InitializeComponent();
-            DestroyChildControls();
-            Collabsible = true;
-            tblControls.Visible = false;
+            //DestroyChildControls();
+            Collapsible = true;
+            //tblControls.Visible = false;
+        }
+
+        private Color 
+            _dropDownColor = Color.FromArgb(54, 58, 74), 
+            _dropDownHighlightColor = Color.FromArgb(14, 18, 34);
+
+        public Color DropDownColor
+        {
+            get => _dropDownColor;
+            set
+            {
+                _dropDownColor = value;
+                if (_highlighted)
+                    lblDropDownName.BackColor = pnlSide.BackColor = _dropDownColor;
+            }
+        }
+        public Color DropDownHighlightColor
+        {
+            get => _dropDownHighlightColor;
+            set
+            {
+                _dropDownHighlightColor = value;
+                if (_highlighted)
+                    lblDropDownName.BackColor = pnlSide.BackColor = _dropDownHighlightColor;
+            }
         }
         private bool _collapsible;
-        public bool Collabsible
+        public bool Collapsible
         {
             get => _collapsible;
             set
@@ -26,7 +51,8 @@ namespace TheraEditor.Windows.Forms
                 _collapsible = value;
                 if (!_collapsible)
                 {
-                    tblControls.Visible = true;
+                    lblDropDownName.BackColor = pnlSide.BackColor = _dropDownColor;
+                    pnlMain.Visible = true;
                 }
                 else
                 {
@@ -34,49 +60,65 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
+        private bool _highlighted;
         public string DropDownName
         {
             get => lblDropDownName.Text;
             set => lblDropDownName.Text = value;
         }
-        public void DestroyChildControls()
-        {
-            foreach (Control control in tblControls.Controls)
-                control.Dispose();
-            tblControls.Controls.Clear();
-            tblControls.RowStyles.Clear();
-            tblControls.RowCount = 0;
-        }
         private void lblCategoryName_MouseEnter(object sender, EventArgs e)
         {
-            lblDropDownName.BackColor = pnlSide.BackColor = Color.FromArgb(14, 18, 34);
+            if (Collapsible)
+            {
+                _highlighted = true;
+                lblDropDownName.BackColor = pnlSide.BackColor = _dropDownHighlightColor;
+            }
         }
         private void lblCategoryName_MouseLeave(object sender, EventArgs e)
         {
-            lblDropDownName.BackColor = pnlSide.BackColor = Color.FromArgb(54, 58, 74);
+            if (Collapsible)
+            {
+                _highlighted = false;
+                lblDropDownName.BackColor = pnlSide.BackColor = _dropDownColor;
+            }
         }
+
+        private void lblDropDownName_MouseUp(object sender, MouseEventArgs e)
+        {
+
+        }
+
         private void lblCategoryName_MouseDown(object sender, MouseEventArgs e)
         {
-            tblControls.Visible = !tblControls.Visible;
+            if (Collapsible)
+                pnlMain.Visible = !pnlMain.Visible;
         }
-        public void AddControl(Control control)
-        {
-            tblControls.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tblControls.RowCount = tblControls.RowStyles.Count;
-            tblControls.Controls.Add(control, 0, tblControls.RowCount - 1);
-        }
-        public void RemoveControl(Control control)
-        {
-            int row = tblControls.GetRow(control);
-            tblControls.Controls.Remove(control);
-            tblControls.RowStyles.RemoveAt(row);
-            tblControls.RowCount = tblControls.RowStyles.Count;
-        }
-        public void ClearControls()
-        {
-            tblControls.Controls.Clear();
-            tblControls.RowStyles.Clear();
-            tblControls.RowCount = 0;
-        }
+        //public void DestroyChildControls()
+        //{
+        //    foreach (Control control in tblControls.Controls)
+        //        control.Dispose();
+        //    tblControls.Controls.Clear();
+        //    tblControls.RowStyles.Clear();
+        //    tblControls.RowCount = 0;
+        //}
+        //public void AddControl(Control control)
+        //{
+        //    //tblControls.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        //    //tblControls.RowCount = tblControls.RowStyles.Count;
+        //    //tblControls.Controls.Add(control, 0, tblControls.RowCount - 1);
+        //}
+        //public void RemoveControl(Control control)
+        //{
+        //    //int row = tblControls.GetRow(control);
+        //    //tblControls.Controls.Remove(control);
+        //    //tblControls.RowStyles.RemoveAt(row);
+        //    //tblControls.RowCount = tblControls.RowStyles.Count;
+        //}
+        //public void ClearControls()
+        //{
+        //    //tblControls.Controls.Clear();
+        //    //tblControls.RowStyles.Clear();
+        //    //tblControls.RowCount = 0;
+        //}
     }
 }

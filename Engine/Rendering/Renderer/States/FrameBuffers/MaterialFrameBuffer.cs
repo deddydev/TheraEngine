@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering
         {
             if (Material == null)
                 return;
-            if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.Game))
+            if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.World))
                 return;
             Material.GenerateTextures(true);
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);

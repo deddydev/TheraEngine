@@ -23,6 +23,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public bool NeedsCompile => _sourceChanged;
         public ShaderMode ShaderType => _type;
+        public GlobalFileRef<TextFile>[] Sources => _sources;
 
         private bool _sourceChanged = false;
         [TSerialize("Type", XmlNodeType = EXmlNodeType.Attribute)]

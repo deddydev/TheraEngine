@@ -112,6 +112,7 @@ namespace TheraEditor.Windows.Forms
         BaseFileWrapper _lastDraggedNode = null;
         FileObject _dragInstance = null;
         //private float _preRenderFreq, _preUpdateFreq;
+        private TransformType _prevTransformType;
         private void RenderPanel_DragEnter(object sender, DragEventArgs e)
         {
             BaseWrapper[] dragNodes = Editor.Instance.ContentTree?.DraggedNodes;
@@ -137,7 +138,8 @@ namespace TheraEditor.Windows.Forms
                 EditorHud hud = EditorPawn.HUD as EditorHud;
                 Engine.World.SpawnActor(actor/*, EditorPawn.RootComponent.GetWorldPoint() +
                     EditorPawn.RootComponent.GetForwardDir() * hud._hitDistance*/);
-                hud.SetTransformMode(TransformType.DragDrop);
+                _prevTransformType = hud.TransformMode;
+                hud.TransformMode = TransformType.DragDrop;
                 hud.SetSelectedComponent(true, actor.RootComponent);
             }
         }
@@ -149,6 +151,7 @@ namespace TheraEditor.Windows.Forms
             {
                 Engine.World.DespawnActor(hud.DragComponent.OwningActor);
                 hud.DoMouseUp();
+                hud.TransformMode = _prevTransformType;
             }
             //Engine.TargetUpdateFreq = _preUpdateFreq;
             //Engine.TargetRenderFreq = _preRenderFreq;
@@ -170,6 +173,7 @@ namespace TheraEditor.Windows.Forms
             if (hud.DragComponent != null)
             {
                 hud.DoMouseUp();
+                hud.TransformMode = _prevTransformType;
             }
             //Engine.TargetUpdateFreq = _preUpdateFreq;
             //Engine.TargetRenderFreq = _preRenderFreq;

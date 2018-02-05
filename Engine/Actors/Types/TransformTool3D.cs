@@ -416,15 +416,14 @@ namespace TheraEngine.Actors.Types
         {
             Instance.Despawn();
         }
-        public override void OnSpawnedPreComponentSetup()
-        {
-            //Engine.Scene.Add(this);
-        }
-        public override void OnDespawned()
-        {
-            //Engine.Scene.Remove(this);
-            base.OnDespawned();
-        }
+        //public override void OnSpawnedPreComponentSetup()
+        //{
+        //    //OwningWorld.Scene.Add(this);
+        //}
+        //public override void OnDespawned()
+        //{
+        //    //OwningWorld.Scene.Remove(this);
+        //}
 
         private BoolVec3 _hiAxis;
         private bool _hiCam, _hiSphere;

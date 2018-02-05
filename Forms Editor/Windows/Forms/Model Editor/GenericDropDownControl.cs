@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
         private Color 
             _dropDownColor = Color.FromArgb(54, 58, 74), 
             _dropDownHighlightColor = Color.FromArgb(14, 18, 34),
-            _dropDownMouseDownColor = Color.DarkOrange,
+            _dropDownMouseDownColor = Color.FromArgb(50, 55, 80),
             _expandedDropDownColor = Color.FromArgb(54, 58, 74),
             _expandedDropDownHighlightColor = Color.FromArgb(14, 18, 34);
 

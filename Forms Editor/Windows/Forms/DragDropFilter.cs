@@ -59,7 +59,7 @@ namespace TheraEditor.Windows.Forms
                     bool canDrop = c != null && c.AllowDrop;
                     if (canDrop)
                     {
-                        Engine.PrintLine(c.GetType().GetFriendlyName());
+                        //Engine.PrintLine(c.GetType().GetFriendlyName());
                         GiveFeedbackEventArgs feedback = new GiveFeedbackEventArgs(_current, true);
                         _giveFeedback.Invoke(c, new object[] { feedback });
                         _current = feedback.Effect;

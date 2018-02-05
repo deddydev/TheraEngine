@@ -114,7 +114,8 @@ namespace TheraEngine.Rendering
             AbstractRenderer.PushCurrentCamera(c);
             {
                 foreach (IPreRenderNeeded p in _preRenderList)
-                    p.PreRender();
+                    p.PreRender(c);
+
                 if (v != null)
                 {
                     //Enable internal resolution

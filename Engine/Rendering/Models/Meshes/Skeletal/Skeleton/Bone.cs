@@ -176,7 +176,9 @@ namespace TheraEngine.Rendering.Models
                 Matrix4 frameMatrix = OwningComponent.InverseWorldMatrix * value;
                 Matrix4 localMatrix = Parent == null ? frameMatrix : Parent.InverseFrameMatrix * frameMatrix;
                 _frameState.Matrix = localMatrix;
-                _rigidBodyCollision?.ProceedToTransform(value);
+
+                if (_rigidBodyCollision != null)
+                    _rigidBodyCollision.WorldTransform = value;
             }
         }
         [Browsable(false)]
@@ -625,6 +627,13 @@ namespace TheraEngine.Rendering.Models
                         Vec4.UnitW);
 
                     break;
+            }
+
+            //Fix rotation in relation to parent component
+            if (OwningComponent != null)
+            {
+                angles = OwningComponent.InverseWorldMatrix.GetRotationMatrix4() * angles;
+                invAngles = invAngles * OwningComponent.WorldMatrix.GetRotationMatrix4();
             }
 
             //Multiply translation, rotation and scale parts together

@@ -426,8 +426,14 @@ namespace TheraEditor.Windows.Forms
                     Invoke(new Action<IActor>(SpawnedActors_PostRemoved), item);
                     return;
                 }
-                ActorTreeForm.ActorTree.Nodes.Remove(item.EditorState.TreeNode);
-                item.EditorState.TreeNode = null;
+                if (item?.EditorState?.TreeNode != null)
+                {
+                    if (_actorTreeForm != null &&
+                        !_actorTreeForm.IsDisposed &&
+                        _actorTreeForm.ActorTree.Nodes.Count > 0)
+                        ActorTreeForm.ActorTree.Nodes.Remove(item.EditorState.TreeNode);
+                    item.EditorState.TreeNode = null;
+                }
             }
         }
 

@@ -182,12 +182,12 @@ namespace TheraEngine.Rendering
             _passes.Sort(shadowPass);
         }
 
-        public void RenderForward(Camera camera, Viewport v)
+        public void RenderForward(Camera c, Viewport v)
         {
-            AbstractRenderer.PushCurrentCamera(camera);
+            AbstractRenderer.PushCurrentCamera(c);
             {
                 foreach (IPreRenderNeeded p in _preRenderList)
-                    p.PreRender();
+                    p.PreRender(c);
 
                 //Enable internal resolution
                 Engine.Renderer.PushRenderArea(v.InternalResolution);
@@ -230,7 +230,7 @@ namespace TheraEngine.Rendering
             AbstractRenderer.Rendering3DScene = this;
             {
                 foreach (IPreRenderNeeded p in _preRenderList)
-                    p.PreRender();
+                    p.PreRender(c);
 
                 if (v != null)
                 {
@@ -277,10 +277,10 @@ namespace TheraEngine.Rendering
                             //Render forward transparent objects next
                             _passes.Render(ERenderPass3D.TransparentForward);
                             
-                            //Engine.Renderer.Clear(EBufferClear.Depth);
-
                             //Render forward on-top objects last
+                            Engine.Renderer.EnableDepthTest(false);
                             _passes.Render(ERenderPass3D.OnTopForward);
+                            Engine.Renderer.EnableDepthTest(true);
                         }
                         v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
                     }
@@ -323,17 +323,21 @@ namespace TheraEngine.Rendering
         }
         public void Add(I3DBoundable obj)
         {
-            RenderTree?.Add(obj);
-            if (obj is I3DRenderable r && r.CullingVolume != null)
-                RegisterCullingVolume(r.CullingVolume);
-            Engine.PrintLine("Added {0} to the scene.", obj.ToString());
+            if (RenderTree?.Add(obj) == true)
+            {
+                if (obj is I3DRenderable r && r.CullingVolume != null)
+                    RegisterCullingVolume(r.CullingVolume);
+                Engine.PrintLine("Added {0} to the scene.", obj.ToString());
+            }
         }
         public void Remove(I3DBoundable obj)
         {
-            RenderTree?.Remove(obj);
-            if (obj is I3DRenderable r && r.CullingVolume != null)
-                UnregisterCullingVolume(r.CullingVolume);
-            Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
+            if (RenderTree?.Remove(obj) == true)
+            {
+                if (obj is I3DRenderable r && r.CullingVolume != null)
+                    UnregisterCullingVolume(r.CullingVolume);
+                Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
+            }
         }
         private void RegisterCullingVolume(Shape cullingVolume)
         {

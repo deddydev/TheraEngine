@@ -31,7 +31,12 @@
             this.basicRenderPanel1 = new TheraEngine.BasicRenderPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblMaterialName = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.betterTableLayoutPanel1 = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // basicRenderPanel1
@@ -39,7 +44,7 @@
             this.basicRenderPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.basicRenderPanel1.Location = new System.Drawing.Point(5, 5);
             this.basicRenderPanel1.Name = "basicRenderPanel1";
-            this.basicRenderPanel1.Size = new System.Drawing.Size(140, 138);
+            this.basicRenderPanel1.Size = new System.Drawing.Size(140, 139);
             this.basicRenderPanel1.TabIndex = 0;
             this.basicRenderPanel1.VsyncMode = TheraEngine.VSyncMode.Disabled;
             // 
@@ -50,7 +55,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(5);
-            this.panel1.Size = new System.Drawing.Size(150, 148);
+            this.panel1.Size = new System.Drawing.Size(150, 149);
             this.panel1.TabIndex = 1;
             // 
             // lblMaterialName
@@ -62,20 +67,55 @@
             this.lblMaterialName.TabIndex = 2;
             this.lblMaterialName.Text = "Material Name";
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.panel1);
+            this.panel2.Controls.Add(this.lblMaterialName);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 0);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(479, 149);
+            this.panel2.TabIndex = 3;
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.betterTableLayoutPanel1);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel3.Location = new System.Drawing.Point(0, 149);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(479, 228);
+            this.panel3.TabIndex = 3;
+            // 
+            // betterTableLayoutPanel1
+            // 
+            this.betterTableLayoutPanel1.ColumnCount = 2;
+            this.betterTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.betterTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.betterTableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.betterTableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.betterTableLayoutPanel1.Name = "betterTableLayoutPanel1";
+            this.betterTableLayoutPanel1.RowCount = 1;
+            this.betterTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.betterTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.betterTableLayoutPanel1.Size = new System.Drawing.Size(479, 228);
+            this.betterTableLayoutPanel1.TabIndex = 0;
+            // 
             // MaterialControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.Controls.Add(this.lblMaterialName);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel3);
+            this.Controls.Add(this.panel2);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Name = "MaterialControl";
-            this.Size = new System.Drawing.Size(479, 148);
+            this.Size = new System.Drawing.Size(479, 377);
             this.panel1.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.panel3.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -84,5 +124,8 @@
         private TheraEngine.BasicRenderPanel basicRenderPanel1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label lblMaterialName;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel panel3;
+        private BetterTableLayoutPanel betterTableLayoutPanel1;
     }
 }

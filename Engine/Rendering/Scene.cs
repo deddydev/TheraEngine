@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering
     /// </summary>
     public interface IPreRenderNeeded
     {
-        void PreRender();
+        void PreRender(Camera camera);
     }
     public abstract class Scene
     {

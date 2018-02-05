@@ -549,5 +549,10 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void EnableDepthTest(bool enabled)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

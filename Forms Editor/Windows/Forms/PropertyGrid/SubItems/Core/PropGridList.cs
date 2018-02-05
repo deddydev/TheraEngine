@@ -12,7 +12,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridList : PropGridItem
     {
         public PropGridList() => InitializeComponent();
-        private IList _list;
+        private IList _list = null;
         private Type _elementType;
         protected override void UpdateDisplayInternal()
         {
@@ -21,13 +21,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             chkNull.Visible = DataType.IsValueType;
             if (typeof(IList).IsAssignableFrom(DataType))
             {
-                IList list = value as IList;
+                _list = value as IList;
                 chkNull.Visible = DataType.IsClass;
-                if (!(chkNull.Checked = list == null))
+                if (!(chkNull.Checked = _list == null))
                 {
-                    btnAdd.Visible = !list.IsFixedSize;
-                    _elementType = list.DetermineElementType();
-                    _list = list;
+                    lblObjectTypeName.Enabled = _list.Count > 0;
+                    btnAdd.Visible = !_list.IsFixedSize;
+                    _elementType = _list.DetermineElementType();
+                }
+                else
+                {
+                    lblObjectTypeName.Enabled = false;
+                    btnAdd.Visible = false;
                 }
             }
             else if (value is Exception ex)
@@ -97,12 +102,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void Label_MouseLeave(object sender, EventArgs e)
         {
+            if (_list == null || _list.Count == 0)
+                return;
             Label label = (Label)sender;
             label.BackColor = Color.FromArgb(82, 83, 90);
         }
 
         private void Label_MouseEnter(object sender, EventArgs e)
         {
+            if (_list == null || _list.Count == 0)
+                return;
             Label label = (Label)sender;
             label.BackColor = Color.FromArgb(14, 18, 34);
         }
@@ -121,14 +130,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
-            => pnlHeader.BackColor = Color.FromArgb(14, 18, 34);
+        {
+            if (_list != null)
+                pnlHeader.BackColor = Color.FromArgb(14, 18, 34);
+        }
         private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
-            => pnlHeader.BackColor = Color.FromArgb(75, 120, 160);
+        {
+            if (_list != null)
+                pnlHeader.BackColor = Color.FromArgb(75, 120, 160);
+        }
         
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {
-            propGridListItems.Visible = !propGridListItems.Visible;
-            Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
+            if (_list != null)
+            {
+                propGridListItems.Visible = !propGridListItems.Visible;
+                Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
+            }
         }
         protected override void SetControlsEnabled(bool enabled)
         {

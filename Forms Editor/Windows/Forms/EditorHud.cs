@@ -198,20 +198,21 @@ namespace TheraEditor.Windows.Forms
             else
                 ++_transformType;
         }
-        private void SetTranslationMode() => SetTransformMode(TransformType.Translate);
-        private void SetRotationMode() => SetTransformMode(TransformType.Rotate);
-        private void SetScaleMode() => SetTransformMode(TransformType.Scale);
-        private void SetDragDropMode() => SetTransformMode(TransformType.DragDrop);
-        public void SetTransformMode(TransformType type)
+        private void SetTranslationMode() => TransformMode = TransformType.Translate;
+        private void SetRotationMode() => TransformMode = TransformType.Rotate;
+        private void SetScaleMode() => TransformMode = TransformType.Scale;
+        private void SetDragDropMode() => TransformMode = TransformType.DragDrop;
+
+        public TransformType TransformMode
         {
-            _transformType = type;
-            if (UseTransformTool = _transformType != TransformType.DragDrop)
+            get => _transformType;
+            set
             {
-                TransformTool3D.Instance.TransformMode = _transformType;
-            }
-            else
-            {
-                TransformTool3D.DestroyInstance();
+                _transformType = value;
+                if (UseTransformTool = _transformType != TransformType.DragDrop)
+                    TransformTool3D.Instance.TransformMode = _transformType;
+                else
+                    TransformTool3D.DestroyInstance();
             }
         }
         

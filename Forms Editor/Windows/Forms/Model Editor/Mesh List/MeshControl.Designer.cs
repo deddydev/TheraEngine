@@ -36,22 +36,31 @@
             this.MeshDropdown.AutoSize = true;
             this.MeshDropdown.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.MeshDropdown.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.MeshDropdown.Collapsible = true;
             this.MeshDropdown.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MeshDropdown.DropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
+            this.MeshDropdown.DropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
+            this.MeshDropdown.DropDownMouseDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(55)))), ((int)(((byte)(80)))));
             this.MeshDropdown.DropDownName = "Mesh";
+            this.MeshDropdown.ExpandedDropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
+            this.MeshDropdown.ExpandedDropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
             this.MeshDropdown.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.MeshDropdown.Location = new System.Drawing.Point(0, 0);
             this.MeshDropdown.Margin = new System.Windows.Forms.Padding(0);
             this.MeshDropdown.Name = "MeshDropdown";
-            this.MeshDropdown.Size = new System.Drawing.Size(639, 196);
+            this.MeshDropdown.Size = new System.Drawing.Size(10, 25);
             this.MeshDropdown.TabIndex = 0;
             // 
             // MeshControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.MeshDropdown);
+            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MeshControl";
-            this.Size = new System.Drawing.Size(639, 196);
+            this.Size = new System.Drawing.Size(10, 25);
             this.ResumeLayout(false);
             this.PerformLayout();
 

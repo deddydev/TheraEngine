@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private BoolVec2 _value;
 
         public ShaderBVec2() : this(new BoolVec2(), NoName) { }
@@ -33,7 +33,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private Vec2 _value;
 
         public ShaderVec2() : this(new Vec2(), NoName) { }
@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private DVec2 _value;
 
         public ShaderDVec2() : this(new DVec2(), NoName) { }
@@ -77,7 +77,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private IVec2 _value;
 
         public ShaderIVec2() : this(new IVec2(), NoName) { }
@@ -99,7 +99,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private UVec2 _value;
 
         public ShaderUVec2() : this(new UVec2(), NoName) { }

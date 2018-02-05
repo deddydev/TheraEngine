@@ -97,6 +97,7 @@ namespace TheraEditor.Windows.Forms
             _static = new Actor<StaticMeshComponent>(new StaticMeshComponent(stm));
             World.SpawnActor(_static);
 
+            MeshesForm.DockTo(RenderForm1.Pane, DockStyle.Left, 0);
             MeshesForm.DisplayMeshes(_static);
         }
         public void SetModel(SkeletalModel skm, Skeleton skel)
@@ -110,6 +111,7 @@ namespace TheraEditor.Windows.Forms
             _skeletal = new Actor<SkeletalMeshComponent>(new SkeletalMeshComponent(skm, skel));
             World.SpawnActor(_skeletal);
 
+            MeshesForm.DockTo(RenderForm1.Pane, DockStyle.Left, 0);
             MeshesForm.DisplayMeshes(_skeletal);
         }
         protected override void OnShown(EventArgs e)
@@ -146,7 +148,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void Redraw()
         {
-            BaseRenderPanel.WorldPanel.CaptureContext();
+            RenderForm1.RenderPanel.CaptureContext();
 
             World.Scene.Voxelize();
             World.Scene.RenderShadowMaps();

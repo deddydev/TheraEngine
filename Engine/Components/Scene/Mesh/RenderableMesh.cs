@@ -57,8 +57,8 @@ namespace TheraEngine.Components.Scene.Mesh
             get => _visible;
             set
             {
-                if (_visible == value)
-                    return;
+                //if (_visible == value)
+                //    return;
                 _visible = value;
                 if (_visible)
                     _component?.OwningScene?.Add(this);

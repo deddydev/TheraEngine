@@ -395,10 +395,16 @@ namespace TheraEngine.Core.Maths.Transforms
         public void SetRotations(Rotator other)
         {
             BeginUpdate();
-            Pitch = other.Pitch;
-            Yaw = other.Yaw;
-            Roll = other.Roll;
-            _rotationOrder = other._rotationOrder;
+            if (other != null)
+            {
+                _pyr = other._pyr;
+                _rotationOrder = other._rotationOrder;
+            }
+            else
+            {
+                _pyr = Vec3.Zero;
+                _rotationOrder = RotationOrder.PYR;
+            }
             EndUpdate();
         }
         public void SetRotations(float pitch, float yaw, float roll, RotationOrder order)
@@ -421,13 +427,21 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public void SetRotationsNoUpdate(Rotator other)
         {
-            if (!_lockPitch)
-                _pyr.X = other.Pitch;
-            if (!_lockYaw)
-                _pyr.Y = other.Yaw;
-            if (!_lockRoll)
-                _pyr.Z = other.Roll;
-            _rotationOrder = other._rotationOrder;
+            if (other != null)
+            {
+                if (!_lockPitch)
+                    _pyr.X = other.Pitch;
+                if (!_lockYaw)
+                    _pyr.Y = other.Yaw;
+                if (!_lockRoll)
+                    _pyr.Z = other.Roll;
+                _rotationOrder = other._rotationOrder;
+            }
+            else
+            {
+                _pyr = Vec3.Zero;
+                _rotationOrder = RotationOrder.PYR;
+            }
         }
         public void SetRotationsNoUpdate(float pitch, float yaw, float roll, RotationOrder order)
         {

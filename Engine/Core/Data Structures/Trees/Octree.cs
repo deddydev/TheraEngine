@@ -53,20 +53,36 @@ namespace System
             foreach (T item in array)
                 _head.Add(item, -1);
         }
-        public void Add(T value)
+        /// <summary>
+        /// Returns true if the item was added, and false if it was already in the tree.
+        /// </summary>
+        public bool Add(T value)
         {
             if (!AllItems.Contains(value))
+            {
                 _head.Add(value, -1);
+                return true;
+            }
+            return false;
         }
         public void Add(IEnumerable<T> value)
         {
             foreach (T item in value)
                 Add(item);
         }
-        public void Remove(T value)
+        /// <summary>
+        /// Returns true if the item was found and removed, and false if it wasn't found.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool Remove(T value)
         {
             if (AllItems.Contains(value))
+            {
                 _head.Remove(value);
+                return true;
+            }
+            return false;
         }
 
         public ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment)

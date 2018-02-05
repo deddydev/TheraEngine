@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe bool* Data { get { fixed (bool* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private bool _value;
 
         public ShaderBool() : this(false, NoName) { }
@@ -33,7 +33,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe float* Data { get { fixed (float* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private float _value;
 
         public ShaderFloat() : this(0.0f, NoName) { }
@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe double* Data { get { fixed (double* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private double _value;
 
         public ShaderDouble() : this(0.0, NoName) { }
@@ -73,7 +73,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe int* Data { get { fixed (int* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private int _value;
 
         public ShaderInt() : this(0, NoName) { }
@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe uint* Data { get { fixed (uint* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value")]
+        [TSerialize("Value", IsXmlElementString = true)]
         private uint _value;
         
         public ShaderUInt() : this(0u, NoName) { }

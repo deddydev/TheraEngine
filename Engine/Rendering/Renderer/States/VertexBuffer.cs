@@ -86,25 +86,29 @@ namespace TheraEngine.Rendering.Models
             Double  = 10
         }
 
+        internal EBufferTarget _target = EBufferTarget.DataArray;
         internal BufferUsage _usage = BufferUsage.StaticDraw;
+        internal int _vaoId = 0;
 
-        [TSerialize("ComponentType", Order = 0, XmlNodeType = EXmlNodeType.Attribute)]
-        internal ComponentType _componentType;
-        [TSerialize("Normalize", Order = 1, XmlNodeType = EXmlNodeType.Attribute)]
-        internal bool _normalize;
-        [TSerialize("Integral", Order = 2, XmlNodeType = EXmlNodeType.Attribute)]
-        internal bool _integral = false;
-        [TSerialize("Data", Order = 2, IsXmlElementString = true)]
-        internal DataSource _data;
+        [TSerialize("Index", XmlNodeType = EXmlNodeType.Attribute)]
         internal int _bufferIndex;
-        internal int _location, _vaoId = 0;
+        [TSerialize("BindLocation", XmlNodeType = EXmlNodeType.Attribute)]
+        internal int _location;
+        [TSerialize("ComponentType", XmlNodeType = EXmlNodeType.Attribute)]
+        internal ComponentType _componentType;
+        [TSerialize("Normalize", XmlNodeType = EXmlNodeType.Attribute)]
+        internal bool _normalize;
+        [TSerialize("Integral", XmlNodeType = EXmlNodeType.Attribute)]
+        internal bool _integral = false;
         [TSerialize("ComponentCount", XmlNodeType = EXmlNodeType.Attribute)]
         internal int _componentCount;
         [TSerialize("ElementCount", XmlNodeType = EXmlNodeType.Attribute)]
         internal int _elementCount;
-        internal EBufferTarget _target;
         [TSerialize("Type", XmlNodeType = EXmlNodeType.Attribute)]
         internal BufferType _type = BufferType.Other;
+
+        [TSerialize("Data", IsXmlElementString = true)]
+        internal DataSource _data;
 
         [CustomXMLSerializeMethod("Data")]
         private unsafe bool CustomDataSerialize(XmlWriter writer)

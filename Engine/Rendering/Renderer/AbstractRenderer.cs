@@ -232,6 +232,9 @@ namespace TheraEngine.Rendering
                 m.Render(modelMatrix);
             //}
         }
+
+        public abstract void EnableDepthTest(bool enabled);
+
         public virtual unsafe void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Line);
@@ -355,13 +358,13 @@ namespace TheraEngine.Rendering
         public void RenderPrimitiveManager(IPrimitiveManager manager, bool preservePreviouslyBound = true)
         {
             IPrimitiveManager prev = _currentPrimitiveManager;
-            CheckErrors();
+            //CheckErrors();
             BindPrimitiveManager(manager);
-            CheckErrors();
+            //CheckErrors();
             RenderCurrentPrimitiveManager();
-            CheckErrors();
+            //CheckErrors();
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
-            CheckErrors();
+            //CheckErrors();
         }
         public abstract void RenderCurrentPrimitiveManager();
         public abstract void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer);

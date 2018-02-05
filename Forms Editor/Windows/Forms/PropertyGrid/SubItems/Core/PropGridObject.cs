@@ -24,11 +24,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             _object = GetValue();
 
-            if ((checkBox1.Checked = _object == null) && pnlProps.Visible == true)
-                pnlProps.Visible = false;
-            
             string typeName = DataType.GetFriendlyName();
             lblObjectTypeName.Text = IListOwner != null ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
+
+            if ((checkBox1.Checked = _object == null))
+            {
+                pnlProps.Visible = false;
+                lblObjectTypeName.Enabled = false;
+            }
+            else
+            {
+                lblObjectTypeName.Enabled = true;
+            }
         }
 
         protected override void DestroyHandle()
@@ -140,12 +147,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {
-            lblObjectTypeName.BackColor = Color.FromArgb(14, 18, 34);
+            if (_object != null)
+                lblObjectTypeName.BackColor = Color.FromArgb(14, 18, 34);
         }
 
         private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
         {
-            lblObjectTypeName.BackColor = Color.Transparent;
+            if (_object != null)
+                lblObjectTypeName.BackColor = Color.Transparent;
         }
 
         protected internal override void SetIListOwner(IList list, Type elementType, int index)
@@ -199,7 +208,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             pnlProps.Visible = !pnlProps.Visible;
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(pnlProps);
         }
-        private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e) => _mouseDown();
+        private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (_object != null)
+                _mouseDown();
+        }
         
         private void pnlProps_VisibleChanged(object sender, EventArgs e)
         {

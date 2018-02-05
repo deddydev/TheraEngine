@@ -53,12 +53,6 @@ namespace TheraEngine.Files.Serialization
         }
         private static object ReadObject(Type objType, XMLReader reader)
         {
-            //Collect the members of this object's type that are serialized
-            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(objType);
-            return ReadObject(objType, members, reader);
-        }
-        private static object ReadObject(Type objType, List<VarInfo> members, XMLReader reader)
-        {
             if (reader.ReadAttribute())
             {
                 if (string.Equals(reader.Name.ToString(), TypeIdent, StringComparison.InvariantCultureIgnoreCase))
@@ -66,14 +60,20 @@ namespace TheraEngine.Files.Serialization
                     Type subType = Type.GetType(reader.Value.ToString(), false, false);
                     //if (subType != null)
                     //{
-                        if (objType.IsAssignableFrom(subType))
-                            objType = subType;
-                        else
-                            Engine.LogWarning(string.Format("Type mismatch: {0} and {1}", objType.GetFriendlyName(), subType.GetFriendlyName()));
+                    if (objType.IsAssignableFrom(subType))
+                        objType = subType;
+                    else
+                        Engine.LogWarning(string.Format("Type mismatch: {0} and {1}", objType.GetFriendlyName(), subType.GetFriendlyName()));
                     //}
                 }
             }
 
+            //Collect the members of this object's type that are serialized
+            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(objType);
+            return ReadObject(objType, members, reader);
+        }
+        private static object ReadObject(Type objType, List<VarInfo> members, XMLReader reader)
+        {
             //Create the object
             object obj = SerializationCommon.CreateObject(objType);
 
@@ -237,7 +237,7 @@ namespace TheraEngine.Files.Serialization
             if (allElementsNull && elementStrings.Count == 1)
             {
                 VarInfo elemStr = elementStrings[0];
-                //Engine.PrintLine("Reading element string for {0}", elemStr.Name);
+                Engine.PrintLine("Reading element string for {0}", elemStr.Name);
                 if (CanParseAsString(elemStr.VariableType))
                 {
                     MethodInfo customMethod = customMethods.FirstOrDefault(
@@ -507,7 +507,9 @@ namespace TheraEngine.Files.Serialization
         }
         private static object ParseString(string value, Type t)
         {
-            if (t.GetInterface("IParsable") != null)
+            //Engine.PrintLine(value.ToString());
+
+            if (t.GetInterface(nameof(IParsable)) != null)
             {
                 IParsable o = (IParsable)Activator.CreateInstance(t);
                 o.ReadFromString(value);

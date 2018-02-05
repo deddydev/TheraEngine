@@ -338,6 +338,13 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.UseProgram(programBindingId);
         }
+        public override void EnableDepthTest(bool enabled)
+        {
+            if (enabled)
+                GL.Enable(EnableCap.DepthTest);
+            else
+                GL.Disable(EnableCap.DepthTest);
+        }
         public override void ApplyRenderParams(RenderingParameters r)
         {
             Engine.Renderer.ColorMask(r.WriteRed, r.WriteGreen, r.WriteBlue, r.WriteAlpha);

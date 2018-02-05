@@ -5,6 +5,7 @@ using TheraEngine.Files;
 using System.Collections.Generic;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
@@ -115,13 +116,13 @@ namespace TheraEngine.Components.Scene.Mesh
                     for (int i = 0; i < Model.RigidChildren.Count; ++i)
                     {
                         SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(Model.RigidChildren[i], Skeleton, this);
-                        mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
+                        //mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
                         _meshes[i] = mesh;
                     }
                     for (int i = 0; i < Model.SoftChildren.Count; ++i)
                     {
                         SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(Model.SoftChildren[i], Skeleton, this);
-                        mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
+                        //mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
                         _meshes[Model.RigidChildren.Count + i] = mesh;
                     }
                 }
@@ -196,7 +197,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         //private void Tick(float delta) => PreRender();
 
-        public void PreRender()
+        public void PreRender(Camera camera)
         {
             Skeleton.UpdateBones(AbstractRenderer.CurrentCamera);
         }

@@ -52,25 +52,25 @@ namespace TheraEditor.Windows.Forms
         //public static GlobalFileRef<ModelEditorSettings> GetSettingsRef() => Instance.Project?.EditorSettingsRef ?? DefaultSettingsRef;
         //public static ModelEditorSettings GetSettings() => GetSettingsRef()?.File;
         
-        public T GetForm<T>(ref T value) where T : DockContent, new()
+        public T GetForm<T>(ref T value, DockPane pane, DockAlignment align, double prop) where T : DockContent, new()
         {
             if (value == null || value.IsDisposed)
             {
                 value = new T();
                 Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
-                value.Show(DockPanel);
+                value.Show(pane, align, prop);
             }
             return value;
         }
         
         private DockableBoneTree _boneTreeForm;
-        public DockableBoneTree BoneTreeForm => GetForm(ref _boneTreeForm);
+        public DockableBoneTree BoneTreeForm => GetForm(ref _boneTreeForm, RenderForm1.Pane, DockAlignment.Right, 0.1);
         
         private DockableMeshList _meshesForm;
-        public DockableMeshList MeshesForm => GetForm(ref _meshesForm);
+        public DockableMeshList MeshesForm => GetForm(ref _meshesForm, RenderForm1.Pane, DockAlignment.Left, 0.2);
         
         private DockablePropertyGrid _propertyGridForm;
-        public DockablePropertyGrid PropertyGridForm => GetForm(ref _propertyGridForm);
+        public DockablePropertyGrid PropertyGridForm => GetForm(ref _propertyGridForm, MeshesForm.Pane, DockAlignment.Bottom, 0.6);
 
         #endregion
 
@@ -99,6 +99,8 @@ namespace TheraEditor.Windows.Forms
 
             MeshesForm.DockTo(RenderForm1.Pane, DockStyle.Left, 0);
             MeshesForm.DisplayMeshes(_static);
+
+            PropertyGridForm.PropertyGrid.TargetObject = stm;
         }
         public void SetModel(SkeletalModel skm, Skeleton skel)
         {
@@ -111,8 +113,10 @@ namespace TheraEditor.Windows.Forms
             _skeletal = new Actor<SkeletalMeshComponent>(new SkeletalMeshComponent(skm, skel));
             World.SpawnActor(_skeletal);
 
-            MeshesForm.DockTo(RenderForm1.Pane, DockStyle.Left, 0);
+            MeshesForm.Show(RenderForm1.Pane, DockAlignment.Left, 0.2);
             MeshesForm.DisplayMeshes(_skeletal);
+
+            PropertyGridForm.PropertyGrid.TargetObject = skm;
         }
         protected override void OnShown(EventArgs e)
         {

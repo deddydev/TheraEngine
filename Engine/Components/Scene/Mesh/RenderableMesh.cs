@@ -12,9 +12,9 @@ namespace TheraEngine.Components.Scene.Mesh
 {
     public class RenderableLOD : TObject
     {
-        public float VisibleDistance { get; set; }
+        [Browsable(false)]
         public PrimitiveManager Manager { get; set; }
-
+        public float VisibleDistance { get; set; }
         public ShaderVar[] Parameters => Manager.Material.Parameters;
     }
     /// <summary>
@@ -108,17 +108,6 @@ namespace TheraEngine.Components.Scene.Mesh
                         break;
                 }
             }
-
-            //Start with the lowest, farthest away LOD and work toward higher quality
-            //Most renderables will be farther rather than closer, so this is fastest
-            //for (int i = LODs.Length - 1; i >= 0; --i)
-            //{
-            //    _currentLOD = LODs[i];
-            //    if (_currentLOD?.Manager == null || viewDist >= _currentLOD.VisibleDistance)
-            //        break;
-            //}
-
-            //Visible = _currentLOD.Value.Manager != null;
         }
         public void Render()
         {
@@ -129,7 +118,9 @@ namespace TheraEngine.Components.Scene.Mesh
     }
     public class StaticRenderableMesh : BaseRenderableMesh
     {
+        [Browsable(false)]
         public IStaticSubMesh Mesh { get; set; }
+
         public override Shape CullingVolume => _cullingVolume;
 
         public void SetCullingVolume(Shape shape)
@@ -180,6 +171,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         //public Bone SingleBind => _singleBind;
 
+        [Browsable(false)]
         public ISkeletalSubMesh Mesh { get; set; }
 
         [Browsable(false)]

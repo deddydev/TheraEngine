@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering
         public static Camera CurrentCamera => _cameraStack.Count == 0 ? null : _cameraStack.Peek();
 
         public abstract RenderLibrary RenderLibrary { get; }
-        public RenderContext CurrentContext => RenderContext.Current;
+        public RenderContext CurrentContext => RenderContext.Captured;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
         
         public TMaterial MaterialOverride

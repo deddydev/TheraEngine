@@ -116,13 +116,15 @@ namespace TheraEngine.Components.Scene.Mesh
                     for (int i = 0; i < Model.RigidChildren.Count; ++i)
                     {
                         SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(Model.RigidChildren[i], Skeleton, this);
-                        //mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
+                        if (IsSpawned)
+                            mesh.Visible = mesh.Mesh.VisibleByDefault;
                         _meshes[i] = mesh;
                     }
                     for (int i = 0; i < Model.SoftChildren.Count; ++i)
                     {
                         SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(Model.SoftChildren[i], Skeleton, this);
-                        //mesh.Visible = IsSpawned && mesh.Mesh.VisibleByDefault;
+                        if (IsSpawned)
+                            mesh.Visible = mesh.Mesh.VisibleByDefault;
                         _meshes[Model.RigidChildren.Count + i] = mesh;
                     }
                 }

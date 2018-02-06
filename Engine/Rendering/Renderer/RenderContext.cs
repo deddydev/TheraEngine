@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering
 
         private VSyncMode _vsyncMode;
         private static RenderContext _current;
-        public static RenderContext Current
+        public static RenderContext Captured
         {
             get => _current;
             set
@@ -130,11 +130,11 @@ namespace TheraEngine.Rendering
         {
             try
             {
-                if (force || Current != this)
+                if (force || Captured != this)
                 {
                     if (force)
-                        Current = null;
-                    Current = this;
+                        Captured = null;
+                    Captured = this;
                 }
             }
             catch { Reset(); }
@@ -143,9 +143,9 @@ namespace TheraEngine.Rendering
         {
             try
             {
-                if (Current == this)
+                if (Captured == this)
                 {
-                    Current = null;
+                    Captured = null;
                     ContextChanged?.Invoke(false);
                 }
             }
@@ -178,7 +178,7 @@ namespace TheraEngine.Rendering
         }
         public void Update()
         {
-            if (Current == this)
+            if (Captured == this)
                 OnUpdated();
         }
         protected abstract void OnUpdated();

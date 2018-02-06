@@ -98,7 +98,7 @@ namespace TheraEngine.Files
                 return;
             Loaded -= onLoaded;
         }
-        protected virtual T LoadNewInstance(bool allowConstruct = true, params object[] constructionArgs)
+        public virtual T LoadNewInstance(bool allowConstruct, Type[] constructorTypes, object[] constructionArgs)
         {
             string absolutePath = ReferencePath;
 
@@ -106,7 +106,7 @@ namespace TheraEngine.Files
             {
                 if (allowConstruct)
                 {
-                    T file = CreateNewInstance_Internal(false, constructionArgs);
+                    T file = DynamicConstructNewInstance_Internal(false, constructorTypes, constructionArgs);
                     if (file != null)
                     {
                         file.FilePath = absolutePath;
@@ -202,30 +202,38 @@ namespace TheraEngine.Files
             => LoadNewInstanceAsync(options).ContinueWith(task => onLoaded(task.Result));
         public void LoadNewInstanceAsync(Action<T> onLoaded)
             => LoadNewInstanceAsync().ContinueWith(task => onLoaded(task.Result));
-        public async Task<T> LoadNewInstanceAsync() => await Task.Run(() => LoadNewInstance());
-        public async Task<T> LoadNewInstanceAsync(TaskCreationOptions options) => await Task.Factory.StartNew(() => LoadNewInstance(), options);
+        public async Task<T> LoadNewInstanceAsync() => await Task.Run(() => LoadNewInstance(true, null, null));
+        public async Task<T> LoadNewInstanceAsync(TaskCreationOptions options) => await Task.Factory.StartNew(() => LoadNewInstance(true, null, null), options);
 
-        public T CreateNewInstance(params object[] args) => CreateNewInstance_Internal(true, args);
-        protected T CreateNewInstance_Internal(bool callLoadedEvent, params object[] args)
+        /// <summary>
+        /// Constructs a new instance of the referenced type using the constructor with the given parameters, if it exists.
+        /// If it does not exist, or the type is abstract or an interface, returns null.
+        /// Does NOT load from the reference path.
+        /// </summary>
+        public T DynamicConstructNewInstance(Type[] types, object[] args) => DynamicConstructNewInstance_Internal(true, types, args);
+        public T DynamicConstructNewInstance(params object[] args) => DynamicConstructNewInstance_Internal(true, args?.Select(x => x.GetType())?.ToArray(), args);
+        protected T DynamicConstructNewInstance_Internal(bool callLoadedEvent, Type[] types, object[] args)
         {
             if (_subType.IsAbstract)
             {
-                //Engine.LogWarning("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
+                Engine.LogWarning("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
                 return null;
             }
             else if (_subType.IsInterface)
             {
-                //Engine.LogWarning("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
+                Engine.LogWarning("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
                 return null;
             }
             else
             {
-                var types = args.Select(x => x.GetType()).ToArray();
+                if (args == null)
+                    args = new object[0];
+                if (types == null)
+                    types = args?.Select(x => x.GetType())?.ToArray();
                 if (_subType.GetConstructor(types) == null)
                 {
                     Engine.LogWarning("Can't automatically instantiate '" + _subType.GetFriendlyName() + "' with " + (types.Length == 0 ?
-                        "no parameters." :
-                        "these parameters: " + string.Join(", ", types.Select(x => x.GetFriendlyName()))));
+                        "no parameters." : "these parameters: " + string.Join(", ", types.Select(x => x.GetFriendlyName()))));
                     return null;
                 }
             }
@@ -247,7 +255,7 @@ namespace TheraEngine.Files
         }
         public override string ToString() => ReferencePath;
         
-        public static implicit operator T(FileLoader<T> fileRef) => fileRef?.CreateNewInstance();
+        public static implicit operator T(FileLoader<T> fileRef) => fileRef?.LoadNewInstance(true, null, null);
         public static implicit operator FileLoader<T>(string filePath) => new FileLoader<T>(filePath);
     }
 }

@@ -213,8 +213,7 @@ For example, a logic component could give any actor health and/or allow it to ta
             if (IsSpawned)
                 return;
 
-            //OnSpawned is called just after the actor is added to the actor list
-            _spawnIndex = world.SpawnedActorCount - 1;
+            _spawnIndex = -1;
             OwningWorld = world;
 
             OnSpawnedPreComponentSetup();
@@ -224,6 +223,9 @@ For example, a logic component could give any actor health and/or allow it to ta
                 comp.OnSpawned();
 
             OnSpawnedPostComponentSetup();
+
+            //OnSpawned is called just after the actor is added to the actor list
+            _spawnIndex = world.SpawnedActorCount - 1;
         }
         public void Despawned()
         {

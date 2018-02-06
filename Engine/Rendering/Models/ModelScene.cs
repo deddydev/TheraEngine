@@ -46,9 +46,9 @@ namespace TheraEngine.Rendering.Models
         [Category("Import")]
         public Transform InitialTransform { get; set; } = Transform.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
         [Category("Import")]
-        public bool UseForwardShaders { get; set; }
+        public bool UseForwardShaders { get; set; } = false;
         [Category("Import")]
-        public IgnoreFlags IgnoreFlags { get; set; }
+        public IgnoreFlags IgnoreFlags { get; set; } = IgnoreFlags.None;
         
         private uint _minStripLen = 2;
         private float _weightPrecision = 0.0001f;

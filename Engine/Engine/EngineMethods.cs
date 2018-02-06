@@ -110,9 +110,6 @@ namespace TheraEngine
         /// </summary>
         public static async void Initialize(bool loadOpeningWorldGameMode = true)
         {
-            //Analyze computer and determine if it can run what the game wants.
-            _computerInfo = ComputerInfo.Analyze();
-            
             RenderLibrary = _game.UserSettingsRef.File.RenderLibrary;
             AudioLibrary = _game.UserSettingsRef.File.AudioLibrary;
             InputLibrary = _game.UserSettingsRef.File.InputLibrary;

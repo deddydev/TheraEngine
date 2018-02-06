@@ -139,13 +139,15 @@ namespace TheraEngine.Components.Scene.Mesh
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {
                 StaticRenderableMesh m = new StaticRenderableMesh(model.RigidChildren[i], this);
-                //m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
+                if (IsSpawned)
+                    m.Visible = m.Mesh.VisibleByDefault;
                 _meshes[i] = m;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
                 StaticRenderableMesh m = new StaticRenderableMesh(model.SoftChildren[i], this);
-                //m.Visible = IsSpawned && m.Mesh.VisibleByDefault;
+                if (IsSpawned)
+                    m.Visible = m.Mesh.VisibleByDefault;
                 _meshes[model.RigidChildren.Count + i] = m;
             }
         }
@@ -163,18 +165,13 @@ namespace TheraEngine.Components.Scene.Mesh
                     StaticModel m = _modelRef.GetInstance();
                     if (m != null)
                         ModelLoaded(m);
-                    else
-                    {
-                        base.OnSpawned();
-                        return;
-                    }
                 }
             }
-            else
-            {
+            
+            if (_meshes != null)
                 foreach (StaticRenderableMesh m in _meshes)
                     m.Visible = m.Mesh.VisibleByDefault;
-            }
+            
             base.OnSpawned();
         }
         public override void OnDespawned()

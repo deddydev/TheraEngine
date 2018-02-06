@@ -111,18 +111,18 @@ namespace TheraEngine.Rendering
 
         private void GetCurrentBind()
         {
-            if (RenderContext.Current == null)
+            if (RenderContext.Captured == null)
             {
-                //throw new Exception("No context bound.");
                 _currentBind = new ContextBind(null, this, -1);
+                throw new Exception("No context bound.");
             }
-            if (_currentBind == null || _currentBind._context != RenderContext.Current)
+            if (_currentBind == null || _currentBind._context != RenderContext.Captured)
             {
-                int index = _owners.FindIndex(x => x._context == RenderContext.Current);
+                int index = _owners.FindIndex(x => x._context == RenderContext.Captured);
                 if (index >= 0)
                     _currentBind = _owners[index];
                 else
-                    _owners.Add(_currentBind = new ContextBind(RenderContext.Current, this, _owners.Count));
+                    _owners.Add(_currentBind = new ContextBind(RenderContext.Captured, this, _owners.Count));
             }
         }
 
@@ -160,16 +160,16 @@ namespace TheraEngine.Rendering
         /// </summary>
         protected void Delete()
         {
-            if (RenderContext.Current == null)
+            if (RenderContext.Captured == null)
                 return;
 
             if (BaseRenderPanel.NeedsInvoke(Delete, BaseRenderPanel.PanelType.Rendering))
                 return;
 
             //Remove current bind from owners list
-            if (_currentBind == null || _currentBind._context != RenderContext.Current)
+            if (_currentBind == null || _currentBind._context != RenderContext.Captured)
             {
-                int index = _owners.FindIndex(x => x._context == RenderContext.Current);
+                int index = _owners.FindIndex(x => x._context == RenderContext.Captured);
                 if (index >= 0)
                 {
                     _currentBind = _owners[index];

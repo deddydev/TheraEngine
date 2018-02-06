@@ -126,8 +126,6 @@ namespace TheraEngine
         private static EngineTimer _timer = new EngineTimer();
         private static List<DateTime> _debugTimers = new List<DateTime>();
 
-        private static ComputerInfo _computerInfo;
-
         //Continually scans for and processes new input devices.
         //TODO: allow disabling
         private static InputAwaiter _inputAwaiter;
@@ -140,7 +138,6 @@ namespace TheraEngine
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
 
         public static int MainThreadID;
-        internal static int MaxTextureUnits;
 
         /// <summary>
         /// The world that is currently being rendered and played in.
@@ -151,7 +148,8 @@ namespace TheraEngine
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine performance accordingly.
         /// </summary>
-        public static ComputerInfo ComputerInfo => _computerInfo;
+        public static ComputerInfo ComputerInfo => _computerInfo.Value;
+        private static Lazy<ComputerInfo> _computerInfo = new Lazy<ComputerInfo>(() => ComputerInfo.Analyze());
 
 #if EDITOR
         public static EngineEditorState EditorState = new EngineEditorState();

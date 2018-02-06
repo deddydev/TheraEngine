@@ -59,7 +59,7 @@ namespace TheraEngine.Files
                 //}
             }
 
-            return File = LoadNewInstance();
+            return File = LoadNewInstance(true, null, null);
         }
         
         public static implicit operator GlobalFileRef<T>(T file) => file == null ? null : new GlobalFileRef<T>(file);

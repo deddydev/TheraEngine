@@ -69,7 +69,7 @@ namespace TheraEngine
         /// <summary>
         /// The render panel that is currently being rendered to.
         /// </summary>
-        public static BaseRenderPanel RenderingPanel => RenderContext.Current?.Control;
+        public static BaseRenderPanel RenderingPanel => RenderContext.Captured?.Control;
 
         public BaseRenderPanel()
         {

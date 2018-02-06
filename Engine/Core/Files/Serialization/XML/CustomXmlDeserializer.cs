@@ -237,7 +237,7 @@ namespace TheraEngine.Files.Serialization
             if (allElementsNull && elementStrings.Count == 1)
             {
                 VarInfo elemStr = elementStrings[0];
-                Engine.PrintLine("Reading element string for {0}", elemStr.Name);
+                //Engine.PrintLine("Reading element string for {0}", elemStr.Name);
                 if (CanParseAsString(elemStr.VariableType))
                 {
                     MethodInfo customMethod = customMethods.FirstOrDefault(
@@ -245,7 +245,7 @@ namespace TheraEngine.Files.Serialization
 
                     if (customMethod != null)
                     {
-                        Engine.PrintLine("Invoking custom deserialization method for {0}: {1}", elemStr.Name, customMethod.GetFriendlyName());
+                        //Engine.PrintLine("Invoking custom deserialization method for {0}: {1}", elemStr.Name, customMethod.GetFriendlyName());
                         customMethod.Invoke(obj, new object[] { reader });
                     }
                     else
@@ -267,9 +267,11 @@ namespace TheraEngine.Files.Serialization
             MethodInfo customMethod = customMethods.FirstOrDefault(
                 x => string.Equals(member.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
 
+            //Engine.PrintLine("Reading {0} [{1}]", member.Name, member.VariableType.GetFriendlyName());
+
             if (customMethod != null)
             {
-                Engine.PrintLine("Invoking custom deserialization method for {0}: {1}", member.Name, customMethod.GetFriendlyName());
+                //Engine.PrintLine("Invoking custom deserialization method for {0}: {1}", member.Name, customMethod.GetFriendlyName());
                 customMethod.Invoke(obj, new object[] { reader });
             }
             else

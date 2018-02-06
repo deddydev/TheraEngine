@@ -212,7 +212,7 @@ namespace TheraEditor.Wrappers
             }
         }
         public override FileObject GetNewInstance()
-            => _fileRef.CreateNewInstance();
+            => _fileRef.LoadNewInstance(true, null, null);
         public override FileObject SingleInstance
         {
             get => ResourceRef.File;
@@ -223,9 +223,7 @@ namespace TheraEditor.Wrappers
                 Name = FilePath;
             }
         }
-
         public override IGlobalFileRef SingleInstanceRef => ResourceRef;
-
         protected internal override void FixPath(string parentFolderPath)
         {
             string fileName = Text;

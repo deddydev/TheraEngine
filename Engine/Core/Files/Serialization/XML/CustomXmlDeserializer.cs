@@ -236,6 +236,8 @@ namespace TheraEngine.Files.Serialization
 
             if (allElementsNull && elementStrings.Count == 1)
             {
+                reader.MoveBackToElementClose();
+
                 VarInfo elemStr = elementStrings[0];
                 //Engine.PrintLine("Reading element string for {0}", elemStr.Name);
                 if (CanParseAsString(elemStr.VariableType))

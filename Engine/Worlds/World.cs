@@ -180,7 +180,7 @@ namespace TheraEngine.Worlds
             }
             
             //Engine.Scene.Add(Settings.OriginRebaseBounds);
-            State.Scene.Add(Settings.Bounds);
+            //State.Scene.Add(Settings.Bounds);
         }
 
         //public event Action<LocalPlayerController> LocalPlayerAdded;

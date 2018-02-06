@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using TheraEngine;
 
 namespace System.IO
 {
@@ -495,14 +496,17 @@ namespace System.IO
 
             return false;
         }
-
-        public string ReadElementString()
+        public void MoveBackToElementClose()
         {
             if (!LeaveTag())
             {
                 _inTag = false;
                 while (*(_ptr - 1) != '>' && _ptr > _base) --_ptr;
             }
+        }
+        public string ReadElementString()
+        {
+            MoveBackToElementClose();
 
             byte* start = _ptr;
             while (*_ptr != '<' && _ptr < _ceil) ++_ptr;

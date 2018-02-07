@@ -44,7 +44,7 @@ namespace TheraEngine.Components.Scene.Lights
         public OrthographicCamera ShadowCamera => _shadowCamera;
 
         public DirectionalLightComponent() 
-            : this(new ColorF3(1.0f, 0.0f, 0.0f), 1.0f, 0.1f) { }
+            : this(new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity)
             : base(color, diffuseIntensity, ambientIntensity)
         {

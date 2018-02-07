@@ -102,7 +102,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         Engine.PrintLine("Unable to find control for " + prop.PropertyType.GetFriendlyName());
                         controlTypes.PushBack(typeof(PropGridText));
                     }
-                    CreateControl(controlTypes, prop, obj, attribs);
+
+                    TheraPropertyGrid.CreateControls(
+                        controlTypes, prop, pnlProps, _categories, obj, attribs, false, Control_PropertyObjectChanged);
                 }
             }
 
@@ -112,39 +114,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             pnlProps.ResumeLayout(true);
         }
 
-        private void CreateControl(Deque<Type> controlTypes, PropertyInfo prop, object obj, object[] attribs)
-        {
-            var controls = controlTypes.Select(x =>
-            {
-                var control = Activator.CreateInstance(x) as PropGridItem;
-                control.SetProperty(prop, obj);
-                control.Dock = DockStyle.Fill;
-                control.Visible = true;
-                control.PropertyGrid = PropertyGrid;
-                control.Show();
-                return control;
-            }).ToList();
-
-            var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
-            string catName = category == null ? MiscName : category.Category;
-            if (_categories.ContainsKey(catName))
-                _categories[catName].AddProperty(controls, attribs, false);
-            else
-            {
-                PropGridCategory catCtrl = new PropGridCategory()
-                {
-                    CategoryName = catName,
-                    Dock = DockStyle.Top,
-                };
-                catCtrl.AddProperty(controls, attribs, false);
-                pnlProps.Controls.Add(catCtrl);
-                _categories.Add(catName, catCtrl);
-            }
-            //}
-            //else
-            //    Engine.PrintLine("Unable to find control for " + subType);
-        }
-
+        private void Control_PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
+            => OnPropertyObjectChanged(oldValue, newValue, propertyOwner, propertyInfo);
+        
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {
             if (_object != null)

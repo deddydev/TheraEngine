@@ -269,7 +269,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             if (!propInfo.ContainsKey(i))
                                 continue;
                             PropertyData p = propInfo[i];
-                            CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
+                            CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, Control_PropertyObjectChanged);
                         }
                         
                         for (int i = 0; i < methods.Length; ++i)
@@ -328,20 +328,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             return controlTypes;
         }
 
-        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, PropertyInfo prop, object obj, TheraPropertyGrid grid)
+        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, PropertyInfo prop, object propertyOwner, PropGridItem.PropertyStateChange stateChangeMethod)
         {
             return controlTypes.Select(x =>
             {
                 PropGridItem control = Activator.CreateInstance(x) as PropGridItem;
-                control.SetProperty(prop, obj);
+                control.SetProperty(prop, propertyOwner);
                 control.Dock = DockStyle.Fill;
                 control.Visible = true;
-                control.PropertyGrid = grid;
+
+                if (stateChangeMethod != null)
+                    control.PropertyObjectChanged += stateChangeMethod;
+
                 control.Show();
                 return control;
             }).ToList();
         }
-        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, IList list, int listIndex, TheraPropertyGrid grid)
+        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, IList list, int listIndex, PropGridItem.IListStateChange stateChangeMethod)
         {
             Type elementType = list.DetermineElementType();
             return controlTypes.Select(x =>
@@ -350,11 +353,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 control.SetIListOwner(list, elementType, listIndex);
                 control.Dock = DockStyle.Fill;
                 control.Visible = true;
-                control.PropertyGrid = grid;
+
+                if (stateChangeMethod != null)
+                    control.ListObjectChanged += stateChangeMethod;
+
                 control.Show();
                 return control;
             }).ToList();
         }
+
+        private void Control_PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
+        {
+            btnSave.Visible = true;
+            Editor.Instance.UndoManager.AddChange(TargetObject.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
+        }
+        private void Control_ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
+        {
+            btnSave.Visible = true;
+            Editor.Instance.UndoManager.AddChange(TargetObject.EditorState, oldValue, newValue, listOwner, listIndex);
+        }
+
         public static PropGridMethod CreateMethodControl(
             MethodInfo m,
             string displayName,
@@ -395,9 +413,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             object obj,
             object[] attribs,
             bool readOnly,
-            TheraPropertyGrid grid)
+            PropGridItem.PropertyStateChange propertyChangeMethod)
         {
-            var controls = InstantiatePropertyEditors(controlTypes, prop, obj, grid);
+            var controls = InstantiatePropertyEditors(controlTypes, prop, obj, propertyChangeMethod);
             
             var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
             string catName = category == null ? MiscName : category.Category;

@@ -107,13 +107,9 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 float bias = 0.0001f;
                 if (settingOuter)
-                {
                     innerDegrees = outerDegrees - bias;
-                }
                 else
-                {
                     outerDegrees = innerDegrees + bias;
-                }
             }
             
             float radOuter = TMath.DegToRad(outerDegrees);

@@ -103,17 +103,26 @@ namespace TheraEditor.Wrappers
             }
             else
             {
-                Type type = FileObject.DetermineType(path);
-                if (type != null)
+                Type mainType = FileObject.DetermineType(path);
+                if (mainType != null)
                 {
-                    if (NodeWrapperAttribute.Wrappers.ContainsKey(type))
-                        w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type]) as BaseWrapper;
-                    else
+                    //Try to find wrapper for type or any inherited type, in order
+                    Type tempType = mainType;
+                    while (tempType != null && w == null)
+                    {
+                        if (NodeWrapperAttribute.Wrappers.ContainsKey(tempType))
+                            w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[tempType]) as BaseWrapper;
+                        else
+                            tempType = tempType.BaseType;
+                    }
+                    
+                    if (w == null)
                     {
                         //Make wrapper for whatever file type this is
-                        Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
+                        Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(mainType);
                         w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
                     }
+
                     w.Text = Path.GetFileName(path);
                     w.FilePath = w.Name = path;
                 }

@@ -19,9 +19,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public PropGridItem() => InitializeComponent();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public TheraPropertyGrid PropertyGrid { get; internal set; }
+        //[EditorBrowsable(EditorBrowsableState.Never)]
+        //[Browsable(false)]
+        //public TheraPropertyGrid PropertyGrid { get; internal set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type DataType { get; set; }
@@ -90,6 +90,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 SubmitPreManualStateChange(ClassObject, propName);
         }
 
+        public delegate void IListStateChange(object oldValue, object newValue, IList listOwner, int listIndex);
+        public delegate void PropertyStateChange(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo);
+
+        public event IListStateChange ListObjectChanged;
+        public event PropertyStateChange PropertyObjectChanged;
+
+        public void OnPropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
+            => PropertyObjectChanged?.Invoke(oldValue, newValue, propertyOwner, propertyInfo);
+        public void OnListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
+            => ListObjectChanged?.Invoke(oldValue, newValue, listOwner, listIndex);
+        
         /// <summary>
         /// Records that a value has changed to the undo buffer and enables saving the owning file.
         /// </summary>
@@ -97,15 +108,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (IListOwner != null)
             {
-                PropertyGrid.btnSave.Visible = true;
-                Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
-                    oldValue, newValue, IListOwner, IListIndex);
+                ListObjectChanged?.Invoke(oldValue, newValue, IListOwner, IListIndex);
+                //PropertyGrid.btnSave.Visible = true;
+                //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+                //    oldValue, newValue, IListOwner, IListIndex);
             }
             else if (Property != null && Property.CanWrite)
             {
-                PropertyGrid.btnSave.Visible = true;
-                Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
-                    oldValue, newValue, PropertyOwner, Property);
+                PropertyObjectChanged?.Invoke(oldValue, newValue, PropertyOwner, Property);
+                //PropertyGrid.btnSave.Visible = true;
+                //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+                //    oldValue, newValue, PropertyOwner, Property);
             }
         }
 
@@ -200,9 +213,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _newValue = info.GetValue(classObject);
             if (_newValue != _oldValue)
             {
-                PropertyGrid.btnSave.Visible = true;
-                Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
-                    _oldValue, _newValue, classObject, info);
+                PropertyObjectChanged?.Invoke(_oldValue, _newValue, classObject, info);
+                //PropertyGrid.btnSave.Visible = true;
+                //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+                //    _oldValue, _newValue, classObject, info);
             }
         }
         internal protected virtual void SetIListOwner(IList list, Type elementType, int index)

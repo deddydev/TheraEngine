@@ -11,67 +11,38 @@ namespace TheraEngine.Rendering.Models
     public partial class PrimitiveData : FileObject, IDisposable
     {
         public static PrimitiveData FromQuads(Culling culling, VertexShaderDesc info, params VertexQuad[] quads)
-        {
-            return FromQuadList(culling, info, quads);
-        }
+            => FromQuadList(culling, info, quads);
         public static PrimitiveData FromQuadList(Culling culling, VertexShaderDesc info, IEnumerable<VertexQuad> quads)
-        {
-            return FromTriangleList(culling, info, quads.SelectMany(x => x.ToTriangles()));
-        }
+            => FromTriangleList(culling, info, quads.SelectMany(x => x.ToTriangles()));
         public static PrimitiveData FromTriangleStrips(Culling culling, VertexShaderDesc info, params VertexTriangleStrip[] strips)
-        {
-            return FromTriangleStripList(culling, info, strips);
-        }
+            => FromTriangleStripList(culling, info, strips);
         public static PrimitiveData FromTriangleStripList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangleStrip> strips)
-        {
-            return FromTriangleList(culling, info, strips.SelectMany(x => x.ToTriangles()));
-        }
+            => FromTriangleList(culling, info, strips.SelectMany(x => x.ToTriangles()));
         public static PrimitiveData FromTriangleFans(Culling culling, VertexShaderDesc info, params VertexTriangleFan[] fans)
-        {
-            return FromTriangleFanList(culling, info, fans);
-        }
+            => FromTriangleFanList(culling, info, fans);
         public static PrimitiveData FromTriangleFanList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangleFan> fans)
-        {
-            return FromTriangleList(culling, info, fans.SelectMany(x => x.ToTriangles()));
-        }
+            => FromTriangleList(culling, info, fans.SelectMany(x => x.ToTriangles()));
         public static PrimitiveData FromTriangles(Culling culling, VertexShaderDesc info, params VertexTriangle[] triangles)
-        {
-            return FromTriangleList(culling, info, triangles);
-        }
+            => FromTriangleList(culling, info, triangles);
         public static PrimitiveData FromTriangleList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangle> triangles)
         {
             //TODO: convert triangles to tristrips and use primitive restart to render them all in one call
             return new PrimitiveData(culling, info, triangles.SelectMany(x => x.Vertices), EPrimitiveType.Triangles);
         }
         public static PrimitiveData FromLineStrips(VertexShaderDesc info, params VertexLineStrip[] lines)
-        {
-            return FromLineStripList(info, lines);
-        }
+            => FromLineStripList(info, lines);
         public static PrimitiveData FromLineStripList(VertexShaderDesc info, IEnumerable<VertexLineStrip> lines)
-        {
-            return FromLineList(info, lines.SelectMany(x => x.ToLines()));
-        }
+            => FromLineList(info, lines.SelectMany(x => x.ToLines()));
         public static PrimitiveData FromLines(VertexShaderDesc info, params VertexLine[] lines)
-        {
-            return FromLineList(info, lines);
-        }
+            => FromLineList(info, lines);
         public static PrimitiveData FromLineList(VertexShaderDesc info, IEnumerable<VertexLine> lines)
-        {
-            return new PrimitiveData(Culling.None, info, lines.SelectMany(x => x.Vertices), EPrimitiveType.Lines);
-        }
+            => new PrimitiveData(Culling.None, info, lines.SelectMany(x => x.Vertices), EPrimitiveType.Lines);
         public static PrimitiveData FromPoints(params Vec3[] points)
-        {
-            return FromPointList(points);
-        }
+            => FromPointList(points);
         public static PrimitiveData FromPointList(IEnumerable<Vec3> points)
-        {
-            return new PrimitiveData(Culling.None, VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
-        }
-
-        public PrimitiveData()
-        {
-
-        }
+            => new PrimitiveData(Culling.None, VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
+        
+        public PrimitiveData() { }
         public PrimitiveData(Culling culling, VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
         {
             _bufferInfo = info;

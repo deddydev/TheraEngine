@@ -33,6 +33,8 @@ namespace System.ComponentModel
 
         public static Dictionary<string, string> ExtensionNames3rdParty = new Dictionary<string, string>()
         {
+            { "obj", "OBJ Static Mesh" },
+            { "mtl", "OBJ Static Mesh Material" },
             { "dae", "Khronos Group Collada Scene" },
             { "png", "Portable Network Graphics Image" },
             { "jpg", "Joint Photographic Group Image" },

@@ -2,13 +2,63 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.IO;
+using System.Reflection;
+using System.Linq;
+using TheraEngine.Files.Serialization;
+using System.Collections.Generic;
 
 namespace TheraEngine
 {
+    /// <summary>
+    /// Base class for a class that only defines primitive properties; no classes or structs.
+    /// Allows reading and writing all defined properties
+    /// </summary>
+    [File3rdParty("txt")]
     [FileExt("set")]
     public abstract class TSettings : FileObject
     {
-
+        protected internal override void Read3rdParty(string filePath)
+        {
+            string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
+            if (ext == "txt")
+            {
+                List<VarInfo> props = SerializationCommon.CollectSerializedMembers(GetType());
+                string[] lines = File.ReadAllLines(filePath);
+                string modLine;
+                foreach (string line in lines)
+                {
+                    modLine = line.Trim();
+                    if (modLine.StartsWith("[") && modLine.EndsWith("]"))
+                    {
+                        //Category; ignore
+                    }
+                    else
+                    {
+                        string[] parts = modLine.Split('=');
+                        if (parts.Length == 2)
+                        {
+                            string name = parts[0].TrimEnd();
+                            string value = parts[1].TrimStart();
+                            int propIndex = props.FindIndex(x => string.Equals(name, x.Name));
+                            if (props.IndexInRange(propIndex))
+                                props[propIndex].SetValue(this, cus);
+                        }
+                    }
+                }
+            }
+        }
+        protected internal override void Write3rdParty(string filePath)
+        {
+            string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
+            if (ext == "txt")
+            {
+                PropertyInfo[] properties = GetType().
+                  GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+                  Where(x => x.GetCustomAttributes<TSerialize>() != null).
+                  OrderBy(x => x.GetCustomAttribute<TSerialize>().Order).
+                  ToArray();
+            }
+        }
     }
     public enum ShadingStyle
     {

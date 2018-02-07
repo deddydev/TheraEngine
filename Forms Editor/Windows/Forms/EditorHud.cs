@@ -32,7 +32,7 @@ namespace TheraEditor.Windows.Forms
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
-        private bool MouseDown => OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
+        private bool MouseDown { get; set; }//=> OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
         
         public bool UseTransformTool { get; set; } = true;
         public SceneComponent DragComponent
@@ -325,6 +325,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void DoMouseUp()
         {
+            MouseDown = false;
             if (_currentConstraint != null)
             {
                 Engine.World.PhysicsWorld.RemoveConstraint(_currentConstraint);
@@ -334,7 +335,7 @@ namespace TheraEditor.Windows.Forms
                 _pickedBody = null;
             }
 
-            _selectedComponent = null;
+            //_selectedComponent = null;
             _dragComponent = null;
             if (HighlightedComponent != null)
                 Engine.Scene.Add(_highlightPoint);
@@ -345,12 +346,12 @@ namespace TheraEditor.Windows.Forms
         }
         private void PostSelectedComponentChanged(bool selectedByViewport)
         {
-            if (Engine.World == null)
+            if (OwningWorld == null)
                 return;
             
             if (_selectedComponent != null)
             {
-                Engine.Scene?.Remove(_highlightPoint);
+                OwningWorld.Scene?.Remove(_highlightPoint);
                 if (_selectedComponent.OwningActor is TransformTool3D tool)
                 {
 
@@ -378,7 +379,7 @@ namespace TheraEditor.Windows.Forms
                         p2p.Tau = 0.1f;
 
                         _currentConstraint = p2p;
-                        Engine.World.PhysicsWorld.AddConstraint(_currentConstraint);
+                        OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
                     }
                     else
                     {
@@ -416,6 +417,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void DoMouseDown()
         {
+            MouseDown = true;
             SetSelectedComponent(true, HighlightedComponent);
         }
         public class HighlightPoint : I3DRenderable

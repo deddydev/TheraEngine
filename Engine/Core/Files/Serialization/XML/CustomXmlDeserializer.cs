@@ -260,10 +260,6 @@ namespace TheraEngine.Files.Serialization
                     ReadMember(obj, elemStr, reader, customMethods, false);
             }
         }
-        private static bool CanParseAsString(Type t)
-            => t.GetInterface(nameof(IParsable)) != null ||
-                SerializationCommon.IsPrimitiveType(t) ||
-                SerializationCommon.IsEnum(t);
         private static void ReadMember(object obj, VarInfo member, XMLReader reader, IEnumerable<MethodInfo> customMethods, bool isAttribute)
         {
             MethodInfo customMethod = customMethods.FirstOrDefault(

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -40,7 +41,7 @@ namespace TheraEngine.Rendering.Models.Materials
     public abstract class ShaderVar : TObject, IShaderVarOwner
     {
         public const string NoName = "NoName";
-        internal static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
+        public static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
         {
             { typeof(ShaderBool),   ShaderVarType._bool   },
             { typeof(ShaderInt),    ShaderVarType._int    },
@@ -65,7 +66,7 @@ namespace TheraEngine.Rendering.Models.Materials
             { typeof(ShaderBVec3),  ShaderVarType._bvec3  },
             { typeof(ShaderBVec4),  ShaderVarType._bvec4  },
         };
-        internal static Dictionary<ShaderVarType, Type> GLTypeAssociations = new Dictionary<ShaderVarType, Type>()
+        public static Dictionary<ShaderVarType, Type> GLTypeAssociations = new Dictionary<ShaderVarType, Type>()
         {
             { ShaderVarType._bool,   typeof(ShaderBool)   },
             { ShaderVarType._int,    typeof(ShaderInt)    },
@@ -90,6 +91,31 @@ namespace TheraEngine.Rendering.Models.Materials
             { ShaderVarType._bvec3,  typeof(ShaderBVec3)  },
             { ShaderVarType._bvec4,  typeof(ShaderBVec4)  },
         };
+        public static Dictionary<ShaderVarType, Type> AssemblyTypeAssociations = new Dictionary<ShaderVarType, Type>()
+        {
+            { ShaderVarType._bool,   typeof(bool)       },
+            { ShaderVarType._int,    typeof(int)        },
+            { ShaderVarType._uint,   typeof(uint)       },
+            { ShaderVarType._float,  typeof(float)      },
+            { ShaderVarType._double, typeof(double)     },
+            { ShaderVarType._vec2,   typeof(Vec2)       },
+            { ShaderVarType._vec3,   typeof(Vec3)       },
+            { ShaderVarType._vec4,   typeof(Vec4)       },
+            { ShaderVarType._mat3,   typeof(Matrix3)    },
+            { ShaderVarType._mat4,   typeof(Matrix4)    },
+            { ShaderVarType._ivec2,  typeof(IVec2)      },
+            { ShaderVarType._ivec3,  typeof(IVec3)      },
+            { ShaderVarType._ivec4,  typeof(IVec4)      },
+            { ShaderVarType._uvec2,  typeof(UVec2)      },
+            { ShaderVarType._uvec3,  typeof(UVec3)      },
+            { ShaderVarType._uvec4,  typeof(UVec4)      },
+            { ShaderVarType._dvec2,  typeof(DVec2)      },
+            { ShaderVarType._dvec3,  typeof(DVec3)      },
+            { ShaderVarType._dvec4,  typeof(DVec4)      },
+            { ShaderVarType._bvec2,  typeof(BoolVec2)   },
+            { ShaderVarType._bvec3,  typeof(BoolVec3)   },
+            { ShaderVarType._bvec4,  typeof(BoolVec4)   },
+        };
 
         public event Action<ShaderVar> ValueChanged;
 
@@ -104,6 +130,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal IShaderVarOwner Owner => _owner;
         public abstract ShaderVarType TypeName { get; }
 
+        [TString(false, false, false)]
         [Category("Object")]
         public override string Name
         {
@@ -146,11 +173,11 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <summary>
         /// Ex: layout (location = 0) uniform float potato;
         /// </summary>
-        internal string GetUniformDeclaration(int layoutId = -1)
+        internal string GetUniformDeclaration(int bindingLocation = -1)
         {
             string line = "";
-            if (layoutId >= 0)
-                line = string.Format("layout (location = {0}) ", layoutId);
+            if (bindingLocation >= 0)
+                line = string.Format("layout (location = {0}) ", bindingLocation);
             return line + string.Format("uniform {0};", GetDeclaration());
         }
         internal string GetDeclaration()

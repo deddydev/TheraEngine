@@ -62,7 +62,7 @@ namespace TheraEngine.Files.Serialization
     /// <summary>
     /// Stores a field/property's information.
     /// </summary>
-    internal class VarInfo
+    public class VarInfo
     {
         private string _name;
         private string _category = null;
@@ -151,8 +151,10 @@ namespace TheraEngine.Files.Serialization
         }
         public override string ToString() => Name;
     }
-    internal static partial class SerializationCommon
+    public static class SerializationCommon
     {
+        public static bool CanParseAsString(Type t)
+            => t.GetInterface(nameof(IParsable)) != null || IsPrimitiveType(t) || IsEnum(t);
         internal static string GetTypeName(Type t)
         {
             if (t == null || t.IsInterface)
@@ -175,7 +177,12 @@ namespace TheraEngine.Files.Serialization
             }
             return t.Name;
         }
-        internal static List<VarInfo> CollectSerializedMembers(Type t)
+
+        /// <summary>
+        /// Collects and returns all public and non public properties that the type and all derived types define as serialized.
+        /// Also sorts by attribute first and by the defined order in the attribute.
+        /// </summary>
+        public static List<VarInfo> CollectSerializedMembers(Type t)
         {
             List<VarInfo> fields = t.GetMembers(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).
                 Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).

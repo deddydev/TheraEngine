@@ -7,7 +7,7 @@ namespace TheraEngine.Physics
     public abstract class AbstractPhysicsWorld : IDisposable
     {
         public virtual Vec3 Gravity { get; set; } = new Vec3(0.0f, -9.81f, 0.0f);
-        public bool AllowIndividualAabbUpdates { get; set; }
+        public bool AllowIndividualAabbUpdates { get; set; } = true;
 
         public abstract void StepSimulation(float delta);
         public abstract void AddCollisionObject(TCollisionObject collision);

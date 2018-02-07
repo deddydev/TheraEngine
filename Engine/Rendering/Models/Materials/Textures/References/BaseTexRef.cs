@@ -5,7 +5,7 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public abstract class BaseTexRef : FileObject
+    public abstract class BaseTexRef : TFileObject
     {
         private int _index;
         private EFramebufferAttachment? _frameBufferAttachment;

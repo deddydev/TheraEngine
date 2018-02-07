@@ -75,11 +75,11 @@ namespace TheraEngine
         /// <summary>
         /// Instances of files that are loaded only once and are accessable by all global references to that file.
         /// </summary>
-        public static ConcurrentDictionary<string, FileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, FileObject>();
+        public static ConcurrentDictionary<string, TFileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, TFileObject>();
         /// <summary>
         /// Instances of files that are loaded locally in a class. A single file may be loaded independently in multiple local contexts.
         /// </summary>
-        public static ConcurrentDictionary<string, List<FileObject>> LocalFileInstances { get; } = new ConcurrentDictionary<string, List<FileObject>>();
+        public static ConcurrentDictionary<string, List<TFileObject>> LocalFileInstances { get; } = new ConcurrentDictionary<string, List<TFileObject>>();
         /// <summary>
         /// Controllers for all players that are local to this client.
         /// </summary>

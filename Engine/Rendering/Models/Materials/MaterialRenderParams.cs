@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileExt("rendparams")]
     [FileDef("Rendering Parameters", 
         "Contains parameters for rendering an object, such as blending and depth testing.")]
-    public class RenderingParameters : FileObject
+    public class RenderingParameters : TFileObject
     {
         AlphaTest _alphaTest = new AlphaTest();
         DepthTest _depthTest = new DepthTest();

@@ -101,8 +101,8 @@ namespace TheraEditor.Wrappers
         public abstract bool IsLoaded { get; }
         public bool AlwaysReload { get; set; } = false;
         public bool ExternallyModified { get; set; } = false;
-        public abstract FileObject SingleInstance { get; set; }
-        public abstract FileObject GetNewInstance();
+        public abstract TFileObject SingleInstance { get; set; }
+        public abstract TFileObject GetNewInstance();
         public abstract IGlobalFileRef SingleInstanceRef { get; }
         
         public void Reload()
@@ -157,7 +157,7 @@ namespace TheraEditor.Wrappers
         
         public override bool IsLoaded => false;
 
-        public override FileObject SingleInstance
+        public override TFileObject SingleInstance
         {
             get => null;
             set
@@ -175,7 +175,7 @@ namespace TheraEditor.Wrappers
 
         public override IGlobalFileRef SingleInstanceRef => throw new NotImplementedException();
 
-        public override FileObject GetNewInstance()
+        public override TFileObject GetNewInstance()
         {
             return null;
         }
@@ -184,7 +184,7 @@ namespace TheraEditor.Wrappers
         {
         }
     }
-    public class FileWrapper<T> : BaseFileWrapper where T : FileObject
+    public class FileWrapper<T> : BaseFileWrapper where T : TFileObject
     {
         public override Type FileType => typeof(T);
 
@@ -211,9 +211,9 @@ namespace TheraEditor.Wrappers
                 Name = value;
             }
         }
-        public override FileObject GetNewInstance()
+        public override TFileObject GetNewInstance()
             => _fileRef.LoadNewInstance(true, null, null);
-        public override FileObject SingleInstance
+        public override TFileObject SingleInstance
         {
             get => ResourceRef.File;
             set

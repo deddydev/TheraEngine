@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.Textures
     [File3rdParty("png", "jpg", "jpeg", "tiff", "gif", "dds", "tga")]
     [FileExt("tex2d")]
     [FileDef("Texture File 2D")]
-    public class TextureFile2D : FileObject
+    public class TextureFile2D : TFileObject
     {
         private Bitmap[] _bitmaps = null;
         public Bitmap[] Bitmaps

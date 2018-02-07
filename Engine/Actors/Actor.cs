@@ -44,7 +44,7 @@ namespace TheraEngine.Actors
     [File3rdParty(new string[] { "dae" }, null)]
     [FileExt("actor")]
     [FileDef("Actor")]
-    public class Actor<T> : FileObject, IActor where T : OriginRebasableComponent
+    public class Actor<T> : TFileObject, IActor where T : OriginRebasableComponent
     {
         static Actor()
         {
@@ -52,7 +52,7 @@ namespace TheraEngine.Actors
         }
 
         [ThirdPartyLoader("dae")]
-        public static FileObject LoadDAE(string path)
+        public static TFileObject LoadDAE(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {

@@ -14,7 +14,7 @@ namespace TheraEngine
     /// </summary>
     [FileExt("game")]
     [FileDef("Game Info", "Contains all information needed to run any game using the engine.")]
-    public class Game : FileObject
+    public class Game : TFileObject
     {
         public Game() { }
         
@@ -86,7 +86,7 @@ namespace TheraEngine
     /// </summary>
     [FileExt("state")]
     [FileDef("Game State")]
-    public class GameState : FileObject
+    public class GameState : TFileObject
     {
         private GlobalFileRef<World> _worldRef = new GlobalFileRef<World>();
         private GlobalFileRef<BaseGameMode> _gameModeRef = new GlobalFileRef<BaseGameMode>();

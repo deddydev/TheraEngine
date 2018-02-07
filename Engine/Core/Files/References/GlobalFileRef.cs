@@ -13,7 +13,7 @@ namespace TheraEngine.Files
     /// </summary>
     [FileExt("globalref")]
     [FileDef("Global File Reference")]
-    public class GlobalFileRef<T> : FileRef<T>, IGlobalFileRef where T : FileObject
+    public class GlobalFileRef<T> : FileRef<T>, IGlobalFileRef where T : TFileObject
     {
         public GlobalFileRef()
             : base() { }
@@ -45,7 +45,7 @@ namespace TheraEngine.Files
                 return _file;
 
             string absolutePath = ReferencePath;
-            if (absolutePath != null && Engine.GlobalFileInstances.TryGetValue(absolutePath, out FileObject file))
+            if (absolutePath != null && Engine.GlobalFileInstances.TryGetValue(absolutePath, out TFileObject file))
             {
                 //lock (file)
                 //{

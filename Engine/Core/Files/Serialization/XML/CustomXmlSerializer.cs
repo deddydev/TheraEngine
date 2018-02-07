@@ -22,7 +22,7 @@ namespace TheraEngine.Files.Serialization
         /// <summary>
         /// Writes the given object to the path as xml.
         /// </summary>
-        public static void Serialize(FileObject obj, string filePath)
+        public static void Serialize(TFileObject obj, string filePath)
         {
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
             using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
@@ -163,7 +163,7 @@ namespace TheraEngine.Files.Serialization
             switch (SerializationCommon.GetValueType(member.VariableType))
             {
                 case SerializationCommon.ValueType.Manual:
-                    ((FileObject)value).Write(writer);
+                    ((TFileObject)value).Write(writer);
                     break;
                 case SerializationCommon.ValueType.Parsable:
                     writer.WriteElementString(member.Name, ((IParsable)value).WriteToString());

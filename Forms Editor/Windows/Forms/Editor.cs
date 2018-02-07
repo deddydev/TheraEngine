@@ -354,7 +354,7 @@ namespace TheraEditor.Windows.Forms
             string lastOpened = Properties.Settings.Default.LastOpened;
             //"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
             if (!string.IsNullOrEmpty(lastOpened))
-                Project = FileObject.Load<Project>(lastOpened);
+                Project = TFileObject.Load<Project>(lastOpened);
             else
             {
                 Project = null;//new Project() //null
@@ -473,11 +473,11 @@ namespace TheraEditor.Windows.Forms
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = FileObject.GetFilter<World>(),
+                Filter = TFileObject.GetFilter<World>(),
                 Multiselect = false
             };
             if (ofd.ShowDialog() == DialogResult.OK)
-                CurrentWorld = FileObject.Load<World>(ofd.FileName);
+                CurrentWorld = TFileObject.Load<World>(ofd.FileName);
         }
 
         private void BtnNewMaterial_Click(object sender, EventArgs e)
@@ -548,11 +548,11 @@ namespace TheraEditor.Windows.Forms
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = FileObject.GetFilter<Project>(),
+                Filter = TFileObject.GetFilter<Project>(),
             };
 
             if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
-                Project = FileObject.Load<Project>(ofd.FileName);
+                Project = TFileObject.Load<Project>(ofd.FileName);
         }
         private void BtnOpenProject_Click(object sender, EventArgs e) => OpenProject();
         private void BtnSaveProject_Click(object sender, EventArgs e)
@@ -568,7 +568,7 @@ namespace TheraEditor.Windows.Forms
         {
             SaveFileDialog sfd = new SaveFileDialog()
             {
-                Filter = FileObject.GetFilter<Project>(),
+                Filter = TFileObject.GetFilter<Project>(),
             };
             if (sfd.ShowDialog() == DialogResult.OK)
             {

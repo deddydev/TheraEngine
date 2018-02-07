@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using TheraEngine.Files;
 
 namespace TheraEngine.Physics
 {
@@ -31,7 +33,9 @@ namespace TheraEngine.Physics
     }
     public delegate void DelMatrixUpdate(Matrix4 transform);
     public delegate void DelCollision(TCollisionObject me, TCollisionObject other, TCollisionInfo info);
-    public abstract class TCollisionObject : TObject
+    [FileExt("coll")]
+    [FileDef("Collision Object", "Defines a collision object used by the physics engine for collision simulation.")]
+    public abstract class TCollisionObject : TFileObject
     {
         public event DelMatrixUpdate TransformChanged;
         protected internal void OnTransformChanged(Matrix4 worldTransform)

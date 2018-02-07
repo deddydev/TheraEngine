@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Rendering.Particles
 {
-    public class Emitter : FileObject
+    public class Emitter : TFileObject
     {
         public void BeginEmitting()
         {

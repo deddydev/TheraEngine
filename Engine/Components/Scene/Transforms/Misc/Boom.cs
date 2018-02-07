@@ -1,20 +1,22 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    public delegate void LengthChange(float newLength);
+    public delegate void DelBoomLengthChange(float newLength);
+
     [FileDef("Boom Component")]
     public class BoomComponent : RTComponent, I3DRenderable
     {
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
-        public event LengthChange CurrentDistanceChanged;
+        public event DelBoomLengthChange CurrentDistanceChanged;
 
         private TCollisionSphere _traceShape = TCollisionSphere.New(0.3f);
         private float _currentLength = 0.0f;
@@ -24,11 +26,13 @@ namespace TheraEngine.Components.Scene.Transforms
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-        
+
+        [TSerialize]
+        public float InterpSpeed { get; set; } = 15.0f;
         [TSerialize]
         public float MaxLength { get; set; } = 300.0f;
         [TSerialize]
-        public TCollisionObject IgnoreCast { get; set; } = null;
+        public LocalFileRef<TCollisionObject> IgnoreCastRef { get; set; } = null;
 
         public BoomComponent() : base() { }
         

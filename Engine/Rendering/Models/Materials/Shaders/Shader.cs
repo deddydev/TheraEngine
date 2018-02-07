@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     [FileExt("shader")]
     [FileDef("Shader")]
-    public class Shader : FileObject
+    public class Shader : TFileObject
     {
         public event EventHandler Compiled;
 

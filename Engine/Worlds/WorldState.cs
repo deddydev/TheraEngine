@@ -9,7 +9,7 @@ using TheraEngine.Actors;
 
 namespace TheraEngine.Worlds
 {
-    public class WorldState : FileObject
+    public class WorldState : TFileObject
     {
         public List<Map> SpawnedMaps => _spawnedMaps;
         public EventList<IActor> SpawnedActors => _spawnedActors;

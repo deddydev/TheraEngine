@@ -89,7 +89,7 @@ namespace TheraEngine.GameModes
         void EndGameplay();
         void AbortGameplay();
     }
-    public abstract class BaseGameMode : FileObject, IGameMode
+    public abstract class BaseGameMode : TFileObject, IGameMode
     {
         private bool _disallowPausing = false;
 

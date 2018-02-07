@@ -10,7 +10,7 @@ namespace TheraEditor
     /// </summary>
     [FileExt("state")]
     [FileDef("Project State")]
-    public class ProjectState : FileObject
+    public class ProjectState : TFileObject
     {
         private World _currentWorld;
         private Map _currentMap;

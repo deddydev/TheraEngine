@@ -18,7 +18,7 @@ namespace TheraEngine.Worlds
     }
     [FileExt("world")]
     [FileDef("World")]
-    public class World : FileObject, IEnumerable<IActor>, IDisposable
+    public class World : TFileObject, IEnumerable<IActor>, IDisposable
     {
         public World() : this(new WorldSettings(), new WorldState()) { }
         public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
@@ -130,13 +130,23 @@ namespace TheraEngine.Worlds
             IsRebasingOrigin = true;
 
             Engine.PrintLine("Beginning origin rebase.");
-            _physicsWorld.AllowIndividualAabbUpdates = false;
+
+            if (_physicsWorld != null)
+                _physicsWorld.AllowIndividualAabbUpdates = false;
+
+            //Update each actor in parallel; they should not depend on one another
             await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
             //foreach (IActor a in State.SpawnedActors)
             //    a.RebaseOrigin(newOrigin);
-            _physicsWorld.AllowIndividualAabbUpdates = true;
-            _physicsWorld.UpdateAabbs();
+
+            if (_physicsWorld != null)
+            {
+                _physicsWorld.AllowIndividualAabbUpdates = true;
+                _physicsWorld.UpdateAabbs();
+            }
+
             Scene.RenderTree.Remake();
+
             Engine.PrintLine("Finished origin rebase.");
 
             IsRebasingOrigin = false;

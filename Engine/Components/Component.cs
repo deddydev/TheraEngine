@@ -5,7 +5,7 @@ using TheraEngine.Files;
 namespace TheraEngine.Components
 {
     [FileExt("comp")]
-    public abstract class Component : FileObject
+    public abstract class Component : TFileObject
     {
         /// <summary>
         /// Determines if this component was constructed by code and cannot be removed.

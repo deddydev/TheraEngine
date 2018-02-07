@@ -38,7 +38,7 @@ namespace TheraEngine.Files
     }
     //[FileExt("tasset")]
     //[FileDef("Thera Engine Asset")]
-    public abstract class FileObject : TObject, IFileObject
+    public abstract class TFileObject : TObject, IFileObject
     {
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
         public class ThirdPartyLoader : Attribute
@@ -76,14 +76,14 @@ namespace TheraEngine.Files
         private string _filePath;
         private int _calculatedSize;
 
-        public delegate FileObject DelThirdPartyFileMethod(string path);
-        static FileObject()
+        public delegate TFileObject DelThirdPartyFileMethod(string path);
+        static TFileObject()
         {
             _3rdPartyLoaders = new Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>>();
             _3rdPartyExporters = new Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>>();
             try
             {
-                var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(FileObject)) && !t.IsAbstract).ToArray();
+                var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
                 foreach (Type t in types)
                 {
                     File3rdParty attrib = GetFile3rdPartyExtensions(t);
@@ -118,7 +118,7 @@ namespace TheraEngine.Files
 
             }
         }
-        public FileObject() { }
+        public TFileObject() { }
         internal protected virtual void OnLoaded() { }
 
         [TString(false, true, false)]
@@ -160,7 +160,7 @@ namespace TheraEngine.Files
         public static Type[] DetermineThirdPartyTypes(string ext)
         {
             return Engine.FindTypes(t => 
-            typeof(FileObject).IsAssignableFrom(t) && 
+            typeof(TFileObject).IsAssignableFrom(t) && 
             (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false)).ToArray();
         }
 
@@ -208,7 +208,7 @@ namespace TheraEngine.Files
         {
             return Path.Combine(dir, name + "." + GetFileExtension(fileType).GetProperExtension(format));
         }
-        public static string GetFilePath<T>(string dir, string name, ProprietaryFileFormat format) where T : FileObject
+        public static string GetFilePath<T>(string dir, string name, ProprietaryFileFormat format) where T : TFileObject
         {
             return Path.Combine(dir, name + "." + GetFileExtension(typeof(T)).GetProperExtension(format));
         }
@@ -234,7 +234,7 @@ namespace TheraEngine.Files
         {
             return GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
         }
-        public static string GetFilter<T>(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false) where T : FileObject
+        public static string GetFilter<T>(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false) where T : TFileObject
         {
             return GetFilter(typeof(T), proprietary, import3rdParty, export3rdParty);
         }
@@ -332,7 +332,7 @@ namespace TheraEngine.Files
         /// <typeparam name="T">The type of the file object to load.</typeparam>
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
-        public static T Load<T>(string filePath) where T : FileObject
+        public static T Load<T>(string filePath) where T : TFileObject
         {
             switch (GetFormat(filePath, out string ext))
             {
@@ -351,7 +351,7 @@ namespace TheraEngine.Files
         /// <param name="type">The type of the file object to load.</param>
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
-        public static FileObject Load(Type type, string filePath)
+        public static TFileObject Load(Type type, string filePath)
         {
             switch (GetFormat(filePath, out string ext))
             {
@@ -435,20 +435,20 @@ namespace TheraEngine.Files
         #endregion
 
         #region XML
-        internal static T FromXML<T>(string filePath) where T : FileObject
+        internal static T FromXML<T>(string filePath) where T : TFileObject
             => FromXML(typeof(T), filePath) as T;
-        internal static unsafe FileObject FromXML(Type type, string filePath)
+        internal static unsafe TFileObject FromXML(Type type, string filePath)
         {
             if (!File.Exists(filePath))
                 return null;
 
-            FileObject file;
+            TFileObject file;
             if (GetFileExtension(type).ManualXmlConfigSerialize)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                 {
-                    file = SerializationCommon.CreateObject(type) as FileObject;
+                    file = SerializationCommon.CreateObject(type) as TFileObject;
                     if (file != null && reader.BeginElement())
                     {
                         //if (reader.Name.Equals(t.ToString(), true))
@@ -460,7 +460,7 @@ namespace TheraEngine.Files
                 }
             }
             else
-                file = CustomXmlSerializer.Deserialize(filePath) as FileObject;
+                file = CustomXmlSerializer.Deserialize(filePath) as TFileObject;
             if (file != null)
             {
                 file.FilePath = filePath;
@@ -526,17 +526,17 @@ namespace TheraEngine.Files
 
         #region Binary
 
-        internal unsafe static T FromBinary<T>(string filePath) where T : FileObject
+        internal unsafe static T FromBinary<T>(string filePath) where T : TFileObject
             => FromBinary(typeof(T), filePath) as T;
-        internal unsafe static FileObject FromBinary(Type type, string filePath)
+        internal unsafe static TFileObject FromBinary(Type type, string filePath)
         {
             if (!File.Exists(filePath))
                 return null;
 
-            FileObject file;
+            TFileObject file;
             if (GetFileExtension(type).ManualBinConfigSerialize)
             {
-                file = SerializationCommon.CreateObject(type) as FileObject;
+                file = SerializationCommon.CreateObject(type) as TFileObject;
                 if (file != null)
                 {
                     FileMap map = FileMap.FromFile(filePath);
@@ -545,7 +545,7 @@ namespace TheraEngine.Files
                 }
             }
             else
-                file = CustomBinarySerializer.Deserialize(filePath, type) as FileObject;
+                file = CustomBinarySerializer.Deserialize(filePath, type) as TFileObject;
 
             if (file != null)
             {
@@ -649,9 +649,9 @@ namespace TheraEngine.Files
             Write3rdParty(FilePath);
             Engine.PrintLine("Saved third party file to {0}", FilePath);
         }
-        internal unsafe static T Read3rdParty<T>(string filePath) where T : FileObject
+        internal unsafe static T Read3rdParty<T>(string filePath) where T : TFileObject
             => Read3rdParty(typeof(T), filePath) as T;
-        internal unsafe static FileObject Read3rdParty(Type classType, string filePath)
+        internal unsafe static TFileObject Read3rdParty(Type classType, string filePath)
         {
             string ext = Path.GetExtension(filePath).Substring(1);
             return Get3rdPartyLoader(classType, ext)?.Invoke(filePath);
@@ -680,15 +680,15 @@ namespace TheraEngine.Files
             }
             return null;
         }
-        public static void Register3rdPartyLoader<T>(string extension, DelThirdPartyFileMethod loadMethod) where T : FileObject
+        public static void Register3rdPartyLoader<T>(string extension, DelThirdPartyFileMethod loadMethod) where T : TFileObject
         {
             Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
         }
-        public static void Register3rdPartyExporter<T>(string extension, DelThirdPartyFileMethod exportMethod) where T : FileObject
+        public static void Register3rdPartyExporter<T>(string extension, DelThirdPartyFileMethod exportMethod) where T : TFileObject
         {
             Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
         }
-        private static void Register3rdParty<T>(Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>> methodDic, string extension, DelThirdPartyFileMethod method) where T : FileObject
+        private static void Register3rdParty<T>(Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>> methodDic, string extension, DelThirdPartyFileMethod method) where T : TFileObject
         {
             extension = extension.ToLowerInvariant();
 

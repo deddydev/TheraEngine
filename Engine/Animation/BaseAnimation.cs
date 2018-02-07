@@ -26,7 +26,7 @@ namespace TheraEngine.Animation
     }
     [FileExt("anim")]
     [FileDef("Animation")]
-    public abstract class BaseAnimation : FileObject
+    public abstract class BaseAnimation : TFileObject
     {
         public event Action AnimationStarted;
         public event Action AnimationEnded;

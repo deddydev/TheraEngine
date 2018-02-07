@@ -44,7 +44,7 @@ namespace TheraEngine.Files.Serialization
                     obj = ReadObject(t, reader);
                     reader.EndElement();
 
-                    if (obj is FileObject o)
+                    if (obj is TFileObject o)
                         o.FilePath = filePath;
                 }
             }
@@ -284,7 +284,7 @@ namespace TheraEngine.Files.Serialization
             switch (SerializationCommon.GetValueType(memberType))
             {
                 case SerializationCommon.ValueType.Manual:
-                    FileObject o = (FileObject)Activator.CreateInstance(memberType);
+                    TFileObject o = (TFileObject)Activator.CreateInstance(memberType);
                     o.Read(reader);
                     return o;
                 case SerializationCommon.ValueType.Array:

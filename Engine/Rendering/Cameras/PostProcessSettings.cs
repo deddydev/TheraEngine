@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Cameras
     }
     [FileExt("campost")]
     [FileDef("Camera Post-Processing Settings")]
-    public class PostProcessSettings : FileObject
+    public class PostProcessSettings : TFileObject
     {
         public PostProcessSettings()
         {

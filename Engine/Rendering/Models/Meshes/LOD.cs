@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Models
 {
     [FileExt("lod")]
     [FileDef("Level Of Detail Mesh Spec")]
-    public class LOD : FileObject
+    public class LOD : TFileObject
     {
         public LOD() { }
         public LOD(

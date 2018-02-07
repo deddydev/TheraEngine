@@ -295,7 +295,7 @@ namespace TheraEngine.Files.Serialization
         }
         public static ValueType GetValueType(Type t)
         {
-            if (t.IsSubclassOf(typeof(FileObject)) && (FileObject.GetFileExtension(t)?.ManualXmlConfigSerialize == true))
+            if (t.IsSubclassOf(typeof(TFileObject)) && (TFileObject.GetFileExtension(t)?.ManualXmlConfigSerialize == true))
             {
                 return ValueType.Manual;
             }

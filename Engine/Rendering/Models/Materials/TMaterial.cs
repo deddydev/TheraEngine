@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models.Materials
     public delegate void DelSettingUniforms(int programBindingId);
     [FileExt("mat")]
     [FileDef("Material")]
-    public class TMaterial : FileObject
+    public class TMaterial : TFileObject
     {
         public event DelSettingUniforms SettingUniforms;
 

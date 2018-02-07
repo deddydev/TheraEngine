@@ -5,7 +5,7 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models
 {
-    public partial class PrimitiveData : FileObject, IDisposable
+    public partial class PrimitiveData : TFileObject, IDisposable
     {
         public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;
         public Culling Culling

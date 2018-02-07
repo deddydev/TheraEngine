@@ -10,7 +10,7 @@ namespace TheraEngine.Animation
 {
     [FileExt("animtree")]
     [FileDef("Property Animation Tree")]
-    public class AnimationContainer : FileObject
+    public class AnimationContainer : TFileObject
     {
         public event Action<AnimationContainer> AnimationStarted;
         public event Action<AnimationContainer> AnimationEnded;

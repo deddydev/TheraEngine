@@ -30,8 +30,8 @@ namespace TheraEngine.Files.Serialization
                 }
                 FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
                 VoidPtr addr = hdr->Data;
-                obj = (FileObject)ReadObject(t, ref addr, hdr->Strings);
-                if (obj is FileObject o)
+                obj = (TFileObject)ReadObject(t, ref addr, hdr->Strings);
+                if (obj is TFileObject o)
                     o.FilePath = filePath;
             }
             return obj;

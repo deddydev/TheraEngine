@@ -103,7 +103,7 @@ namespace TheraEditor.Wrappers
             }
             else
             {
-                Type mainType = FileObject.DetermineType(path);
+                Type mainType = TFileObject.DetermineType(path);
                 if (mainType != null)
                 {
                     //Try to find wrapper for type or any inherited type, in order
@@ -131,7 +131,7 @@ namespace TheraEditor.Wrappers
             }
             return w;
         }
-        public static BaseFileWrapper Wrap(FileObject file)
+        public static BaseFileWrapper Wrap(TFileObject file)
         {
             if (file == null)
                 return null;
@@ -146,7 +146,7 @@ namespace TheraEditor.Wrappers
                 Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
                 w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
             }
-            FileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
+            TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             w.Text = name + "." + file.FileExtension.GetProperExtension((ProprietaryFileFormat)fmt);
             w.SingleInstance = file;
             return w;

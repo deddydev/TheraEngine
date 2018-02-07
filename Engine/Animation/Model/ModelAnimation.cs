@@ -15,7 +15,7 @@ namespace TheraEngine.Animation
     public class SkeletalAnimation : BaseAnimation
     {
         [ThirdPartyLoader("dae")]
-        public static FileObject LoadDAE(string path)
+        public static TFileObject LoadDAE(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {

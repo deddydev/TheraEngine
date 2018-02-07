@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models
 {
     [FileExt("skel")]
     [FileDef("Model Skeleton")]
-    public class Skeleton : FileObject, IEnumerable<Bone>, I3DRenderable
+    public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
 

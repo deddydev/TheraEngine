@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public class BlendSpace1D : FileObject
+    public class BlendSpace1D : TFileObject
     {
         [TSerialize("Poses")]
         SkeletalAnimation[] _poses;

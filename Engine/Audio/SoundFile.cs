@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Audio
 {
-    public class SoundFile : FileObject
+    public class SoundFile : TFileObject
     {
         private string _path;
         protected WaveFile _waveFile;

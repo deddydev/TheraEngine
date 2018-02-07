@@ -8,7 +8,7 @@ using TheraEngine.Actors;
 
 namespace TheraEngine.Worlds.Maps
 {
-    public class MapSettings : FileObject
+    public class MapSettings : TFileObject
     {
         protected bool _visibleByDefault;
         protected List<IActor> _defaultActors = new List<IActor>();

@@ -7,10 +7,10 @@ namespace TheraEngine.Rendering.Models
     [File3rdParty(new string[] { "dae", "obj" }, null)]
     [FileExt("skmdl")]
     [FileDef("Skeletal Model")]
-    public class SkeletalModel : FileObject, IModelFile
+    public class SkeletalModel : TFileObject, IModelFile
     {
         [ThirdPartyLoader("dae")]
-        public static FileObject LoadDAE(string path)
+        public static TFileObject LoadDAE(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {
@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.Models
             return Collada.Import(path, o)?.Models[0].SkeletalModel;
         }
         [ThirdPartyLoader("obj")]
-        public static FileObject LoadOBJ(string path)
+        public static TFileObject LoadOBJ(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {

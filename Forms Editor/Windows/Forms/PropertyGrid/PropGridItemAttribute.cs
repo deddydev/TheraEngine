@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [AttributeUsage(AttributeTargets.Class, false, true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class PropGridControlForAttribute : Attribute
     {
         public Type[] Types { get; set; }

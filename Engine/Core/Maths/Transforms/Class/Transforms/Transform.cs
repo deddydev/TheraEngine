@@ -16,7 +16,7 @@ namespace TheraEngine.Core.Maths.Transforms
     }
     [FileExt("transform")]
     [FileDef("Transform")]
-    public class Transform : FileObject
+    public class Transform : TFileObject
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(float oldRotation);

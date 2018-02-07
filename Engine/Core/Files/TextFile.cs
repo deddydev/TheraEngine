@@ -8,7 +8,7 @@ namespace TheraEngine.Core.Files
 {
     [File3rdParty("txt", "rtf")]
     [FileDef("Text File")]
-    public class TextFile : FileObject
+    public class TextFile : TFileObject
     {
         [TSerialize("Text", IsXmlElementString = true)]
         private string _text = null;

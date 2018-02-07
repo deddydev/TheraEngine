@@ -5,7 +5,7 @@ namespace System
 {
     [FileDef("Computer Information")]
     [FileExt("compi")]
-    public class ComputerInfo : FileObject
+    public class ComputerInfo : TFileObject
     {
         [TSerialize]
         public int ProcessorCount { get; private set; }

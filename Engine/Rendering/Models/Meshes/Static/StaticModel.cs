@@ -10,10 +10,10 @@ namespace TheraEngine.Rendering.Models
     [File3rdParty(new string[] { "dae", "obj" }, null)]
     [FileExt("stmdl")]
     [FileDef("Static Model")]
-    public class StaticModel : FileObject, IModelFile
+    public class StaticModel : TFileObject, IModelFile
     {
         [ThirdPartyLoader("DAE")]
-        public static FileObject LoadDAE(string path)
+        public static TFileObject LoadDAE(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {
@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering.Models
             return Collada.Import(path, o)?.Models[0].StaticModel;
         }
         [ThirdPartyLoader("OBJ")]
-        public static FileObject LoadOBJ(string path)
+        public static TFileObject LoadOBJ(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {

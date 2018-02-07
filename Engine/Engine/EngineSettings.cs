@@ -15,7 +15,7 @@ namespace TheraEngine
     /// </summary>
     [File3rdParty("txt")]
     [FileExt("set")]
-    public abstract class TSettings : FileObject
+    public abstract class TSettings : TFileObject
     {
         protected internal override void Read3rdParty(string filePath)
         {

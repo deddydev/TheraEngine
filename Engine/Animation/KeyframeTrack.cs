@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public abstract class BaseKeyframeTrack : FileObject
+    public abstract class BaseKeyframeTrack : TFileObject
     {
         public event Action Changed;
         protected internal void OnChanged() => Changed?.Invoke();

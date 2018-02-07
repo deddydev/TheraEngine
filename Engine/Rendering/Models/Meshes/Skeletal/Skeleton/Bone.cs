@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.Models
     }
     [FileExt("bone")]
     [FileDef("Bone")]
-    public class Bone : FileObject, IRigidCollidable, ISocket
+    public class Bone : TFileObject, IRigidCollidable, ISocket
     {
         public Bone(Skeleton owner) : this()
         {

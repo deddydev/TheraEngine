@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Worlds
 {
-    public class Map : FileObject
+    public class Map : TFileObject
     {
         public Map() :this(new MapSettings()) { }
         public Map(MapSettings settings)

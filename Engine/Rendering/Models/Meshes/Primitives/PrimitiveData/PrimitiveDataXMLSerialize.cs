@@ -7,7 +7,7 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models
 {
-    public partial class PrimitiveData : FileObject, IDisposable
+    public partial class PrimitiveData : TFileObject, IDisposable
     {
         [CustomXMLSerializeMethod("Triangles")]
         private void SerializeTriangles(XmlWriter writer)

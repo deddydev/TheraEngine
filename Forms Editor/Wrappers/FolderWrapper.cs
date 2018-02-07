@@ -198,14 +198,14 @@ namespace TheraEditor.Wrappers
 
         private static bool IsFileObject(Type t)
         {
-            return !t.IsAbstract && t.IsSubclassOf(typeof(FileObject));
+            return !t.IsAbstract && t.IsSubclassOf(typeof(TFileObject));
         }
 
         private static bool Is3rdPartyImportable(Type t)
         {
-            if (t.IsAbstract || !t.IsSubclassOf(typeof(FileObject)))
+            if (t.IsAbstract || !t.IsSubclassOf(typeof(TFileObject)))
                 return false;
-            string[] ext = FileObject.GetFile3rdPartyExtensions(t)?.ImportableExtensions;
+            string[] ext = TFileObject.GetFile3rdPartyExtensions(t)?.ImportableExtensions;
             return ext != null && ext.Length > 0;
         }
 
@@ -229,13 +229,13 @@ namespace TheraEditor.Wrappers
                 }
                 OpenFileDialog ofd = new OpenFileDialog()
                 {
-                    Filter = FileObject.GetFilter(fileType, true, true, false),
+                    Filter = TFileObject.GetFilter(fileType, true, true, false),
                     Title = "Import File"
                 };
                 DialogResult r = ofd.ShowDialog(Editor.Instance);
                 if (r == DialogResult.OK)
                 {
-                    FileObject file = FileObject.Load(fileType, ofd.FileName);
+                    TFileObject file = TFileObject.Load(fileType, ofd.FileName);
 
                     FolderWrapper folderNode = GetInstance<FolderWrapper>();
                     string dir = folderNode.FilePath as string;
@@ -253,7 +253,7 @@ namespace TheraEditor.Wrappers
             if (sender is ToolStripDropDownButton button)
             {
                 Type fileType = button.Tag as Type;
-                FileObject file = Editor.UserCreateInstanceOf(fileType, true) as FileObject;
+                TFileObject file = Editor.UserCreateInstanceOf(fileType, true) as TFileObject;
 
                 if (file == null)
                     return;

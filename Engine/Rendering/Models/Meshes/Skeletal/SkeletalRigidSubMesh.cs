@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.Models
 {
     [FileExt("skrmesh")]
     [FileDef("Skeletal Rigid Sub Mesh")]
-    public class SkeletalRigidSubMesh : FileObject, ISkeletalSubMesh
+    public class SkeletalRigidSubMesh : TFileObject, ISkeletalSubMesh
     {
         public SkeletalRigidSubMesh() { _name = "SkeletalRigidSubMesh"; }
         public SkeletalRigidSubMesh(

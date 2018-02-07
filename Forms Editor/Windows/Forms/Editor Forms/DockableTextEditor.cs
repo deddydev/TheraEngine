@@ -190,7 +190,7 @@ namespace TheraEditor.Windows.Forms
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = FileObject.GetFilter<TextFile>(false, true, true) + "|All files (*.*)|*.*",
+                Filter = TFileObject.GetFilter<TextFile>(false, true, true) + "|All files (*.*)|*.*",
                 Multiselect = true
             };
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -216,7 +216,7 @@ namespace TheraEditor.Windows.Forms
         {
             SaveFileDialog sfd = new SaveFileDialog()
             {
-                Filter = FileObject.GetFilter<TextFile>(false, true, true) + "|All files (*.*)|*.*",
+                Filter = TFileObject.GetFilter<TextFile>(false, true, true) + "|All files (*.*)|*.*",
             };
             if (sfd.ShowDialog() == DialogResult.OK)
             {

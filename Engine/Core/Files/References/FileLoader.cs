@@ -18,7 +18,7 @@ namespace TheraEngine.Files
     /// </summary>
     [FileExt("ldr")]
     [FileDef("File Loader")]
-    public class FileLoader<T> : FileObject, IFileLoader where T : FileObject
+    public class FileLoader<T> : TFileObject, IFileLoader where T : TFileObject
     {
         #region Constructors
         public FileLoader() : this(typeof(T)) { }

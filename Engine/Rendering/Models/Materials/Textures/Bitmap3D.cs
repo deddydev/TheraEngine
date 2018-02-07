@@ -36,7 +36,7 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     [FileExt("bmp3d")]
     [FileDef("3D Bitmap")]
-    public class TBitmap3D : FileObject, IDisposable
+    public class TBitmap3D : TFileObject, IDisposable
     {
         public TBitmap3D() : this(1, 1, 1) { }
         public TBitmap3D(int width, int height, int depth)

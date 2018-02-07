@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models
 {
     [FileExt("stsmesh")]
     [FileDef("Static Soft Sub Mesh")]
-    public class StaticSoftSubMesh : FileObject, IStaticSubMesh
+    public class StaticSoftSubMesh : TFileObject, IStaticSubMesh
     {
         public StaticSoftSubMesh() { _name = "StaticSoftSubMesh"; }
         public StaticSoftSubMesh(

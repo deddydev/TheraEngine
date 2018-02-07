@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models
 {
     [FileExt("strmesh")]
     [FileDef("Static Rigid Sub Mesh")]
-    public class StaticRigidSubMesh : FileObject, IStaticSubMesh
+    public class StaticRigidSubMesh : TFileObject, IStaticSubMesh
     {
         public StaticRigidSubMesh()
         {

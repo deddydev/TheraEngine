@@ -12,7 +12,7 @@ using TheraEngine.Components.Scene;
 namespace TheraEngine.Rendering.Cameras
 {
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
-    public abstract class Camera : FileObject, I3DRenderable
+    public abstract class Camera : TFileObject, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
             = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);

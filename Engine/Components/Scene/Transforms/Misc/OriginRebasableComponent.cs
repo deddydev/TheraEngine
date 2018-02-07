@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
+    /// <summary>
+    /// Base class for actor root components. 
+    /// Ensures that the actor's root transform can be rebased to a different location.
+    /// </summary>
     public abstract class OriginRebasableComponent : SceneComponent
     {
         /// <summary>

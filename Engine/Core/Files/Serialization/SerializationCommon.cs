@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -153,6 +154,7 @@ namespace TheraEngine.Files.Serialization
     }
     public static class SerializationCommon
     {
+        public const string TypeIdent = "AssemblyType";
         public static bool CanParseAsString(Type t)
             => t.GetInterface(nameof(IParsable)) != null || IsPrimitiveType(t) || IsEnum(t);
         internal static string GetTypeName(Type t)
@@ -177,7 +179,40 @@ namespace TheraEngine.Files.Serialization
             }
             return t.Name;
         }
+        public static object ParseString(string value, Type t)
+        {
+            //Engine.PrintLine(value.ToString());
 
+            if (t.GetInterface(nameof(IParsable)) != null)
+            {
+                IParsable o = (IParsable)Activator.CreateInstance(t);
+                o.ReadFromString(value);
+                return o;
+            }
+            if (string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture))
+            {
+                value = value.ReplaceWhitespace("").Replace("|", ", ");
+                return Enum.Parse(t, value);
+            }
+            switch (t.Name)
+            {
+                case "Boolean": return Boolean.Parse(value);
+                case "SByte": return SByte.Parse(value);
+                case "Byte": return Byte.Parse(value);
+                case "Char": return Char.Parse(value);
+                case "Int16": return Int16.Parse(value);
+                case "UInt16": return UInt16.Parse(value);
+                case "Int32": return Int32.Parse(value);
+                case "UInt32": return UInt32.Parse(value);
+                case "Int64": return Int64.Parse(value);
+                case "UInt64": return UInt64.Parse(value);
+                case "Single": return Single.Parse(value);
+                case "Double": return Double.Parse(value);
+                case "Decimal": return Decimal.Parse(value);
+                case "String": return value;
+            }
+            throw new InvalidOperationException(t.ToString() + " is not parsable");
+        }
         /// <summary>
         /// Collects and returns all public and non public properties that the type and all derived types define as serialized.
         /// Also sorts by attribute first and by the defined order in the attribute.

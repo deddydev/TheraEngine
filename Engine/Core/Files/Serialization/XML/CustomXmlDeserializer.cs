@@ -11,7 +11,6 @@ namespace TheraEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {
-        public const string TypeIdent = "AssemblyType";
         public static unsafe Type DetermineType(string filePath)
         {
             Type t = null;
@@ -20,7 +19,7 @@ namespace TheraEngine.Files.Serialization
                 using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                 {
-                    if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
+                    if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
                         t = Type.GetType(reader.Value, false, false);
                 }
             }
@@ -39,7 +38,7 @@ namespace TheraEngine.Files.Serialization
             using (FileMap map = FileMap.FromFile(filePath))
             using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
             {
-                if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
+                if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
                 {
                     Type t = Type.GetType(reader.Value.ToString(), false, false);
                     obj = ReadObject(t, reader);
@@ -55,7 +54,7 @@ namespace TheraEngine.Files.Serialization
         {
             if (reader.ReadAttribute())
             {
-                if (string.Equals(reader.Name.ToString(), TypeIdent, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(reader.Name.ToString(), SerializationCommon.TypeIdent, StringComparison.InvariantCultureIgnoreCase))
                 {
                     Type subType = Type.GetType(reader.Value.ToString(), false, false);
                     //if (subType != null)
@@ -240,7 +239,7 @@ namespace TheraEngine.Files.Serialization
 
                 VarInfo elemStr = elementStrings[0];
                 //Engine.PrintLine("Reading element string for {0}", elemStr.Name);
-                if (CanParseAsString(elemStr.VariableType))
+                if (SerializationCommon.CanParseAsString(elemStr.VariableType))
                 {
                     MethodInfo customMethod = customMethods.FirstOrDefault(
                         x => string.Equals(elemStr.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
@@ -253,7 +252,7 @@ namespace TheraEngine.Files.Serialization
                     else
                     {
                         string s = reader.ReadElementString();
-                        elemStr.SetValue(obj, ParseString(s, elemStr.VariableType));
+                        elemStr.SetValue(obj, SerializationCommon.ParseString(s, elemStr.VariableType));
                     }
                 }
                 else
@@ -275,7 +274,7 @@ namespace TheraEngine.Files.Serialization
             else
             {
                 object value = isAttribute ?
-                    ParseString(reader.Value.ToString(), member.VariableType) :
+                    SerializationCommon.ParseString(reader.Value.ToString(), member.VariableType) :
                     ReadMemberElement(member.VariableType, reader);
                 member.SetValue(obj, value);
             }
@@ -295,7 +294,7 @@ namespace TheraEngine.Files.Serialization
                 case SerializationCommon.ValueType.Enum:
                 case SerializationCommon.ValueType.String:
                 case SerializationCommon.ValueType.Parsable:
-                    return ParseString(reader.ReadElementString(), memberType);
+                    return SerializationCommon.ParseString(reader.ReadElementString(), memberType);
                 case SerializationCommon.ValueType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(memberType);
                     if (structFields.Count > 0)
@@ -305,7 +304,7 @@ namespace TheraEngine.Files.Serialization
                         //Enums and parsables have already been handled above
                         //This leaves only primitive types to check
                         if (SerializationCommon.IsPrimitiveType(memberType))
-                            return ParseString(reader.ReadElementString(), memberType);
+                            return SerializationCommon.ParseString(reader.ReadElementString(), memberType);
                         else
                         {
                             //Custom struct with no members marked as serializable
@@ -483,7 +482,7 @@ namespace TheraEngine.Files.Serialization
                             ignore = true;
                             break;
                         case ' ':
-                            o = ParseString(value, elementType);
+                            o = SerializationCommon.ParseString(value, elementType);
                             if (list.IsFixedSize)
                                 list[x++] = o;
                             else
@@ -496,7 +495,7 @@ namespace TheraEngine.Files.Serialization
                     }
             }
 
-            o = ParseString(value, elementType);
+            o = SerializationCommon.ParseString(value, elementType);
             if (list.IsFixedSize)
                 list[x++] = o;
             else
@@ -504,40 +503,6 @@ namespace TheraEngine.Files.Serialization
 
             if (x != count)
                 throw new Exception();
-        }
-        private static object ParseString(string value, Type t)
-        {
-            //Engine.PrintLine(value.ToString());
-
-            if (t.GetInterface(nameof(IParsable)) != null)
-            {
-                IParsable o = (IParsable)Activator.CreateInstance(t);
-                o.ReadFromString(value);
-                return o;
-            }
-            if (string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture))
-            {
-                value = value.ReplaceWhitespace("").Replace("|", ", ");
-                return Enum.Parse(t, value);
-            }
-            switch (t.Name)
-            {
-                case "Boolean": return Boolean.Parse(value);
-                case "SByte": return SByte.Parse(value);
-                case "Byte": return Byte.Parse(value);
-                case "Char": return Char.Parse(value);
-                case "Int16": return Int16.Parse(value);
-                case "UInt16": return UInt16.Parse(value);
-                case "Int32": return Int32.Parse(value);
-                case "UInt32": return UInt32.Parse(value);
-                case "Int64": return Int64.Parse(value);
-                case "UInt64": return UInt64.Parse(value);
-                case "Single": return Single.Parse(value);
-                case "Double": return Double.Parse(value);
-                case "Decimal": return Decimal.Parse(value);
-                case "String": return value;
-            }
-            throw new InvalidOperationException(t.ToString() + " is not parsable");
         }
     }
 }

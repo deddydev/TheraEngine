@@ -70,7 +70,7 @@ namespace TheraEngine.Files.Serialization
             writer.WriteStartElement(string.IsNullOrEmpty(name) ? SerializationCommon.GetTypeName(objType) : name);
             {
                 if (writeTypeDefinition)
-                    writer.WriteAttributeString(TypeIdent, objType.AssemblyQualifiedName);
+                    writer.WriteAttributeString(SerializationCommon.TypeIdent, objType.AssemblyQualifiedName);
                 
                 //Attributes are already sorted to come first, then elements
                 WriteMembers(obj, members, categorized.Count, customMethods, writer);
@@ -238,7 +238,7 @@ namespace TheraEngine.Files.Serialization
             writer.WriteAttributeString("Count", array.Count.ToString());
             Type type = array.GetType();
             if (type != arrayType)
-                writer.WriteAttributeString(TypeIdent, type.AssemblyQualifiedName);
+                writer.WriteAttributeString(SerializationCommon.TypeIdent, type.AssemblyQualifiedName);
             if (array.Count > 0)
             {
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];

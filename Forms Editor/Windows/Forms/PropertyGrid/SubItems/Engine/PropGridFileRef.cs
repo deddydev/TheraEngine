@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    [PropGridControlFor(typeof(IFileRef))]
+    [PropGridControlFor(true, typeof(IFileRef))]
     public partial class PropGridFileRef : PropGridObject
     {
         public PropGridFileRef() : base()

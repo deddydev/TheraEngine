@@ -41,8 +41,21 @@ namespace TheraEngine
                             string value = parts[1].TrimStart();
                             int propIndex = props.FindIndex(x => string.Equals(name, x.Name));
                             if (props.IndexInRange(propIndex))
-                                props[propIndex].SetValue(this, cus);
+                            {
+                                VarInfo prop = props[propIndex];
+                                if (SerializationCommon.CanParseAsString(prop.VariableType))
+                                {
+                                    prop.SetValue(this, SerializationCommon.ParseString(value, prop.VariableType));
+                                    props.RemoveAt(propIndex);
+                                }
+                                else
+                                    Engine.LogWarning("Problem reading line: " + line);
+                            }
+                            else
+                                Engine.LogWarning("Problem reading line: " + line);
                         }
+                        else
+                            Engine.LogWarning("Problem reading line: " + line);
                     }
                 }
             }

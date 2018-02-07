@@ -86,13 +86,13 @@ namespace TheraEngine.Actors.Types.Pawns
 
         [TSerialize]
         [Category("Movement")]
-        public float ScrollSpeed { get; set; } = 10.0f;
+        public float ScrollSpeed { get; set; } = 1.0f;
         [TSerialize]
         [Category("Movement")]
-        public float MouseRotateSpeed { get; set; } = 0.2f;
+        public float MouseRotateSpeed { get; set; } = 0.1f;
         [TSerialize]
         [Category("Movement")]
-        public float MouseTranslateSpeed { get; set; } = 0.7f;
+        public float MouseTranslateSpeed { get; set; } = 0.01f;
         [TSerialize]
         [Category("Movement")]
         public float GamepadRotateSpeed { get; set; } = 150.0f;
@@ -101,7 +101,7 @@ namespace TheraEngine.Actors.Types.Pawns
         public float GamepadTranslateSpeed { get; set; } = 30.0f;
         [TSerialize]
         [Category("Movement")]
-        public float KeyboardTranslateSpeed { get; set; } = 40.0f;
+        public float KeyboardTranslateSpeed { get; set; } = 10.0f;
 
         //protected override void PostConstruct()
         //{

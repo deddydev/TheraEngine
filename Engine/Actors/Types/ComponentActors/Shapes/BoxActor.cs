@@ -10,7 +10,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
 {
     public class BoxActor : ShapeActor
     {
-        public BoxActor() 
+        public BoxActor()
             : this(Vec3.Half) { }
         public BoxActor(Vec3 halfExtents)
             : this(halfExtents, Vec3.Zero) { }

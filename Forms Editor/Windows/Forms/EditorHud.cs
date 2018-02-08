@@ -74,7 +74,7 @@ namespace TheraEditor.Windows.Forms
                 else if (value != null && HighlightedComponent == null)
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
-                        Engine.Scene.Add(_highlightPoint);
+                        OwningWorld.Scene.Add(_highlightPoint);
                     BaseRenderPanel.CheckedInvoke(new Action(() =>
                     {
                         if (BaseRenderPanel.CapturedPanel != null)
@@ -328,7 +328,7 @@ namespace TheraEditor.Windows.Forms
             MouseDown = false;
             if (_currentConstraint != null)
             {
-                Engine.World.PhysicsWorld.RemoveConstraint(_currentConstraint);
+                OwningWorld.PhysicsWorld.RemoveConstraint(_currentConstraint);
                 //_currentConstraint.Dispose();
                 _currentConstraint = null;
                 _pickedBody.ForceActivationState(EBodyActivationState.Active);
@@ -338,7 +338,7 @@ namespace TheraEditor.Windows.Forms
             //_selectedComponent = null;
             _dragComponent = null;
             if (HighlightedComponent != null)
-                Engine.Scene.Add(_highlightPoint);
+                OwningWorld.Scene.Add(_highlightPoint);
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {
@@ -422,12 +422,10 @@ namespace TheraEditor.Windows.Forms
         }
         public class HighlightPoint : I3DRenderable
         {
-            private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false);
-
             public const int CirclePrecision = 20;
             public static readonly Color Color = Color.LimeGreen;
 
-            public RenderInfo3D RenderInfo => _renderInfo;
+            public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false);
             public Shape CullingVolume => null;
             public IOctreeNode OctreeNode { get; set; }
             public SceneComponent HighlightedComponent { get; set; }

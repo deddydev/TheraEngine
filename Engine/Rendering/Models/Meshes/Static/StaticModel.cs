@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Models
     [FileDef("Static Model")]
     public class StaticModel : TFileObject, IModelFile
     {
-        [ThirdPartyLoader("DAE")]
+        [ThirdPartyLoader("dae")]
         public static TFileObject LoadDAE(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.Models
             };
             return Collada.Import(path, o)?.Models[0].StaticModel;
         }
-        [ThirdPartyLoader("OBJ")]
+        [ThirdPartyLoader("obj")]
         public static TFileObject LoadOBJ(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
@@ -56,7 +56,7 @@ namespace TheraEngine.Rendering.Models
             set => _collision = value;
         }
 
-        [CustomXMLSerializeMethod("Collision")]
+        [CustomXMLSerializeMethod(nameof(Collision))]
         private void SerializeConvexShape(XmlWriter writer)
         {
             if (_collision == null)
@@ -66,9 +66,9 @@ namespace TheraEngine.Rendering.Models
             //int size = _collision.CalculateSerializeBufferSize();
         }
         
-        [TSerialize("RigidChildren")]
+        [TSerialize(nameof(RigidChildren))]
         protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();
-        [TSerialize("SoftChildren")]
+        [TSerialize(nameof(SoftChildren))]
         protected List<StaticSoftSubMesh> _softChildren = new List<StaticSoftSubMesh>();
     }
 }

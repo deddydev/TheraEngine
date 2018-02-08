@@ -29,6 +29,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     LODControl c = new LODControl()
                     {
+                        Dock = DockStyle.Top,
+                        AutoSize = true,
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                     };
@@ -48,6 +50,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     LODControl c = new LODControl()
                     {
+                        Dock = DockStyle.Top,
+                        AutoSize = true,
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                     };
@@ -67,6 +71,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     LODControl c = new LODControl()
                     {
+                        Dock = DockStyle.Top,
+                        AutoSize = true,
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                     };
@@ -86,6 +92,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     LODControl c = new LODControl()
                     {
+                        Dock = DockStyle.Top,
+                        AutoSize = true,
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                     };

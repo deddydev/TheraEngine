@@ -97,12 +97,12 @@ namespace TheraEngine.Rendering
 
         private void CameraTransformChanged()
         {
-            if ((Owners.Count == 0 || Camera == null) && Engine.Audio == null)
-                return;
+            //if ((Owners.Count == 0 || Camera == null) && Engine.Audio == null)
+            //    return;
 
-            Vec3 forward = _worldCamera.ForwardVector;
-            Vec3 up = _worldCamera.UpVector;
-            Engine.Audio.UpdateListener(_worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
+            //Vec3 forward = _worldCamera.ForwardVector;
+            //Vec3 up = _worldCamera.UpVector;
+            //Engine.Audio.UpdateListener(_worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
         }
 
         //public BaseRenderPanel OwningPanel => _owningPanel;

@@ -11,14 +11,14 @@ namespace TheraEngine.Core.Files
     [Flags]
     public enum IgnoreFlags
     {
-        None        = 0x00,
-        Asset       = 0x01,
-        Extra       = 0x02,
-        Controllers = 0x04,
-        Geometry    = 0x08,
-        Animations  = 0x10,
-        Cameras     = 0x20,
-        Lights      = 0x40,
+        None        = 0b0000_0000,
+        Asset       = 0b0000_0001,
+        Extra       = 0b0000_0010,
+        Controllers = 0b0000_0100,
+        Geometry    = 0b0000_1000,
+        Animations  = 0b0001_0000,
+        Cameras     = 0b0010_0000,
+        Lights      = 0b0100_0000,
     }
     public delegate IElement DelParseElementXML(
         IElement entry,

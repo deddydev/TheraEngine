@@ -288,6 +288,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             });
         }
 
+        /// <summary>
+        /// Returns a deque of all control types that can edit the given class type.
+        /// </summary>
         public static Deque<Type> GetControlTypes(Type propertyType)
         {
             Type mainControlType = null;
@@ -318,48 +321,78 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 controlTypes.PushBack(typeof(PropGridText));
             }
             else if (controlTypes.Count > 1)
-            {
                 if (mainControlType == typeof(PropGridObject))
-                {
                     controlTypes.PopFront();
-                }
-            }
 
             return controlTypes;
         }
 
+        /// <summary>
+        /// Instantiates the given PropGridItem-derived control types for the given property.
+        /// </summary>
+        /// <param name="controlTypes">The controls to create. All must derive from <see cref="PropGridItem"/>.</param>
+        /// <param name="prop">The info of the property that will be modified.</param>
+        /// <param name="propertyOwner">The object that owns the property.</param>
+        /// <param name="stateChangeMethod">The method that will be called upon a change in value.</param>
+        /// <returns></returns>
         public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, PropertyInfo prop, object propertyOwner, PropGridItem.PropertyStateChange stateChangeMethod)
+            => controlTypes.Select(x => InstantiatePropertyEditor(x, prop, propertyOwner, stateChangeMethod)).ToList();
+        /// <summary>
+        /// Instantiates the given PropGridItem-derived control type for the given property.
+        /// </summary>
+        /// <param name="controlType">The control to create. Must derive from <see cref="PropGridItem"/>.</param>
+        /// <param name="prop">The info of the property that will be modified.</param>
+        /// <param name="propertyOwner">The object that owns the property.</param>
+        /// <param name="stateChangeMethod">The method that will be called upon a change in value.</param>
+        /// <returns></returns>
+        public static PropGridItem InstantiatePropertyEditor(Type controlType, PropertyInfo prop, object propertyOwner, PropGridItem.PropertyStateChange stateChangeMethod)
         {
-            return controlTypes.Select(x =>
-            {
-                PropGridItem control = Activator.CreateInstance(x) as PropGridItem;
-                control.SetProperty(prop, propertyOwner);
-                control.Dock = DockStyle.Fill;
-                control.Visible = true;
+            PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
 
-                if (stateChangeMethod != null)
-                    control.PropertyObjectChanged += stateChangeMethod;
+            control.SetProperty(prop, propertyOwner);
+            control.Dock = DockStyle.Fill;
+            control.Visible = true;
 
-                control.Show();
-                return control;
-            }).ToList();
+            if (stateChangeMethod != null)
+                control.PropertyObjectChanged += stateChangeMethod;
+
+            control.Show();
+            return control;
         }
+        /// <summary>
+        /// Instantiates the given PropGridItem-derived control types for the given object in a list.
+        /// </summary>
+        /// <param name="controlTypes"></param>
+        /// <param name="list"></param>
+        /// <param name="listIndex"></param>
+        /// <param name="stateChangeMethod"></param>
+        /// <returns></returns>
         public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, IList list, int listIndex, PropGridItem.IListStateChange stateChangeMethod)
         {
             Type elementType = list.DetermineElementType();
-            return controlTypes.Select(x =>
-            {
-                var control = Activator.CreateInstance(x) as PropGridItem;
-                control.SetIListOwner(list, elementType, listIndex);
-                control.Dock = DockStyle.Fill;
-                control.Visible = true;
+            return controlTypes.Select(x => InstantiatePropertyEditors(x, list, listIndex, elementType, stateChangeMethod)).ToList();
+        }
+        /// <summary>
+        /// Instantiates the given PropGridItem-derived control type for the given object in a list.
+        /// </summary>
+        /// <param name="controlType"></param>
+        /// <param name="list"></param>
+        /// <param name="listIndex"></param>
+        /// <param name="stateChangeMethod"></param>
+        /// <returns></returns>
+        public static PropGridItem InstantiatePropertyEditors(Type controlType, IList list, int listIndex, Type listElementType, PropGridItem.IListStateChange stateChangeMethod)
+        {
+            var control = Activator.CreateInstance(controlType) as PropGridItem;
 
-                if (stateChangeMethod != null)
-                    control.ListObjectChanged += stateChangeMethod;
+            control.SetIListOwner(list, listElementType, listIndex);
+            control.Dock = DockStyle.Fill;
+            control.Visible = true;
 
-                control.Show();
-                return control;
-            }).ToList();
+            if (stateChangeMethod != null)
+                control.ListObjectChanged += stateChangeMethod;
+
+            control.Show();
+            return control;
         }
 
         private void Control_PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)

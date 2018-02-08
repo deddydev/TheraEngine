@@ -186,6 +186,12 @@
     <Compile Include="Windows\Forms\Model Editor\Mesh List\LODControl.Designer.cs">
       <DependentUpon>LODControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.Designer.cs">
+      <DependentUpon>TexRefControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Model Editor\Mesh List\MaterialControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -611,6 +617,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\LODControl.resx">
       <DependentUpon>LODControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.resx">
+      <DependentUpon>TexRefControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MaterialControl.resx">
       <DependentUpon>MaterialControl.cs</DependentUpon>

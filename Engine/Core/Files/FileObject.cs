@@ -205,13 +205,9 @@ namespace TheraEngine.Files
         /// <param name="fileType">The type of file object.</param>
         /// <returns>An absolute path to the file.</returns>
         public static string GetFilePath(string dir, string name, ProprietaryFileFormat format, Type fileType)
-        {
-            return Path.Combine(dir, name + "." + GetFileExtension(fileType).GetProperExtension(format));
-        }
+            => Path.Combine(dir, name + "." + GetFileExtension(fileType).GetProperExtension(format));
         public static string GetFilePath<T>(string dir, string name, ProprietaryFileFormat format) where T : TFileObject
-        {
-            return Path.Combine(dir, name + "." + GetFileExtension(typeof(T)).GetProperExtension(format));
-        }
+            => Path.Combine(dir, name + "." + GetFileExtension(typeof(T)).GetProperExtension(format));
         public static string GetFilePath(string dir, string name, string thirdPartyExtension)
         {
             if (thirdPartyExtension[0] != '.')
@@ -226,18 +222,11 @@ namespace TheraEngine.Files
         /// <param name="format">The format the data is written in.</param>
         /// <returns>An absolute path to the file.</returns>
         public string GetFilePath(string dir, string name, ProprietaryFileFormat format)
-        {
-            return GetFilePath(dir, name, format, GetType());
-        }
-
+            => GetFilePath(dir, name, format, GetType());
         public string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false)
-        {
-            return GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
-        }
+            => GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
         public static string GetFilter<T>(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false) where T : TFileObject
-        {
-            return GetFilter(typeof(T), proprietary, import3rdParty, export3rdParty);
-        }
+            => GetFilter(typeof(T), proprietary, import3rdParty, export3rdParty);
         /// <summary>
         /// Returns the filter for all extensions related to this format.
         /// </summary>
@@ -355,16 +344,13 @@ namespace TheraEngine.Files
         {
             switch (GetFormat(filePath, out string ext))
             {
-                case FileFormat.ThirdParty:
-                    return Read3rdParty(type, filePath);
-                case FileFormat.Binary:
-                    return FromBinary(type, filePath);
-                case FileFormat.XML:
-                    return FromXML(type, filePath);
+                case FileFormat.ThirdParty: return Read3rdParty(type, filePath);
+                case FileFormat.Binary: return FromBinary(type, filePath);
+                case FileFormat.XML: return FromXML(type, filePath);
             }
             return null;
         }
-        [GridCallable("Save")]
+        //[GridCallable("Save")]
         public void Export()
         {
             if (string.IsNullOrEmpty(_filePath) || !_filePath.IsValidPath())
@@ -375,7 +361,7 @@ namespace TheraEngine.Files
             GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt);
         }
-        [GridCallable("Save")]
+        //[GridCallable("Save")]
         public void Export(string path)
         {
             if (string.IsNullOrEmpty(path) || !path.IsValidPath())
@@ -386,7 +372,7 @@ namespace TheraEngine.Files
             GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt);
         }
-        [GridCallable("Save")]
+        //[GridCallable("Save")]
         public void Export(string directory, string fileName)
         {
             string ext = null;
@@ -413,7 +399,7 @@ namespace TheraEngine.Files
             else
                 Engine.LogWarning("File was not exported; cannot assume extension for {0}.", GetType().GetFriendlyName());
         }
-        [GridCallable("Save")]
+        //[GridCallable("Save")]
         public void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null)
         {
             switch (format)

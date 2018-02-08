@@ -8,6 +8,12 @@ namespace TheraEngine.Rendering.OpenGL
 {
     public class GLWindowContext : RenderContext
     {
+        static GLWindowContext()
+        {
+            GraphicsContext.ShareContexts = true;
+            GraphicsContext.DirectRendering = true;
+        }
+
         private GLRenderer _renderer;
 
         protected class GLThreadSubContext : ThreadSubContext
@@ -16,6 +22,9 @@ namespace TheraEngine.Rendering.OpenGL
             private IGraphicsContext _context;
             private IWindowInfo _winInfo;
             private VSyncMode _vsyncMode = VSyncMode.Disabled;
+#if DEBUG
+            private static bool _hasPrintedInfo = false;
+#endif
 
             public IWindowInfo WindowInfo => _winInfo;
 
@@ -25,7 +34,7 @@ namespace TheraEngine.Rendering.OpenGL
             public override void Generate()
             {
                 _winInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
-                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 32, 0, 4, new ColorFormat(0), 2, false);
+                GraphicsMode mode = new GraphicsMode(new ColorFormat(64), 24, 8, 4, new ColorFormat(0), 2, false);
                 _context = new GraphicsContext(mode, _winInfo);
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();
@@ -41,12 +50,21 @@ namespace TheraEngine.Rendering.OpenGL
                 Engine.ComputerInfo.MaxTextureUnits = units;
 
                 Engine.PrintLine("Generated OpenGL context on thread " + _thread.ManagedThreadId + ".");
-                Engine.PrintLine("OPENGL VENDOR: " + vendor);
-                Engine.PrintLine("OPENGL VERSION: " + version);
-                Engine.PrintLine("OPENGL RENDERER: " + renderer);
-                Engine.PrintLine("OPENGL SHADER LANGUAGE VERSION: " + shaderVersion);
-                Engine.PrintLine("MAX TEXTURE UNITS: " + units);
-                //Engine.DebugPrint("OPENGL EXTENSIONS:\n" + string.Join("\n", extensions.Split(' ')));
+
+#if DEBUG
+                if (!_hasPrintedInfo)
+                {
+                    _hasPrintedInfo = true;
+                    string s = "";
+                    s += "VENDOR: " + vendor + Environment.NewLine;
+                    s += "VERSION: " + version + Environment.NewLine;
+                    s += "RENDERER: " + renderer + Environment.NewLine;
+                    s += "GLSL VER: " + shaderVersion + Environment.NewLine;
+                    s += "TOTAL TEX UNITS: " + units + Environment.NewLine;
+                    //s += "EXTENSIONS:" + Environment.NewLine + string.Join(Environment.NewLine, extensions.Split(' ')) + Environment.NewLine;
+                    s.Print();
+                }
+#endif
 
                 _versionMax = version[0] - 0x30;
                 _versionMin = version[2] - 0x30;

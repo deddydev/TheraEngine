@@ -38,9 +38,11 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.AutoSize = true;
+            this.pnlMain.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pnlMain.Controls.Add(this.materialControl1);
             this.pnlMain.Controls.Add(this.pnlVisDist);
-            this.pnlMain.Size = new System.Drawing.Size(0, 0);
+            this.pnlMain.Size = new System.Drawing.Size(0, 176);
             // 
             // propGridSingle1
             // 
@@ -87,14 +89,13 @@
             this.materialControl1.AutoSize = true;
             this.materialControl1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.materialControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.materialControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.materialControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.materialControl1.Dock = System.Windows.Forms.DockStyle.Top;
             this.materialControl1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.materialControl1.Location = new System.Drawing.Point(0, 27);
             this.materialControl1.Margin = new System.Windows.Forms.Padding(0);
             this.materialControl1.Material = null;
             this.materialControl1.Name = "materialControl1";
-            this.materialControl1.Size = new System.Drawing.Size(0, 0);
+            this.materialControl1.Size = new System.Drawing.Size(0, 149);
             this.materialControl1.TabIndex = 2;
             // 
             // LODControl
@@ -106,12 +107,13 @@
             this.DropDownName = "LOD";
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "LODControl";
-            this.Size = new System.Drawing.Size(10, 25);
+            this.Size = new System.Drawing.Size(10, 201);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
             this.pnlVisDist.ResumeLayout(false);
             this.pnlVisDist.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

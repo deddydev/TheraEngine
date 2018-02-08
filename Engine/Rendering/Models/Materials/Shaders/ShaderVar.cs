@@ -130,7 +130,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal IShaderVarOwner Owner => _owner;
         public abstract ShaderVarType TypeName { get; }
 
-        [TString(false, false, false)]
+        [TString(false, false, false, false)]
         [Category("Object")]
         public override string Name
         {

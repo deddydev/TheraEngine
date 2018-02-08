@@ -149,9 +149,9 @@ namespace TheraEngine.Components.Scene
             if (IsSpawned)
             {
                 if (selected)
-                    Engine.Scene.Add(this);
+                    OwningScene.Add(this);
                 else
-                    Engine.Scene.Remove(this);
+                    OwningScene.Remove(this);
             }
             base.OnSelectedChanged(selected);
         }

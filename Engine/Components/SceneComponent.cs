@@ -269,8 +269,14 @@ namespace TheraEngine.Components
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
+        /// <summary>
+        /// Returns the position of this component in world space.
+        /// </summary>
         public Vec3 GetWorldPoint()
             => _worldTransform.GetPoint();
+        /// <summary>
+        /// Returns the rotation matrix of this component, possibly with scaling.
+        /// </summary>
         public Matrix4 GetWorldAnisotropicRotation()
             => _worldTransform.GetRotationMatrix4();
 

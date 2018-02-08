@@ -7,11 +7,13 @@ namespace TheraEngine.Core.Reflection.Attributes
         public bool MultiLine { get; set; }
         public bool Path { get; set; }
         public bool Unicode { get; set; }
-        public TStringAttribute(bool multiLine = false, bool path = false, bool unicode = false)
+        public bool Nullable { get; set; }
+        public TStringAttribute(bool multiLine = false, bool path = false, bool unicode = false, bool nullable = true)
         {
             MultiLine = multiLine;
             Path = path;
             Unicode = unicode;
+            Nullable = nullable;
         }
     }
 }

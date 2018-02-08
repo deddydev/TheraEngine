@@ -1,6 +1,6 @@
 ﻿namespace TheraEditor.Windows.Forms
 {
-    partial class MaterialControl
+    partial class TexRefControl
     {
         /// <summary> 
         /// Required designer variable.
@@ -32,9 +32,11 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblMaterialName = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
             this.tblUniforms = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // basicRenderPanel1
@@ -67,52 +69,53 @@
             // 
             // panel2
             // 
-            this.panel2.AutoSize = true;
-            this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel2.Controls.Add(this.panel1);
             this.panel2.Controls.Add(this.lblMaterialName);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 0);
-            this.panel2.MinimumSize = new System.Drawing.Size(479, 149);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(479, 149);
             this.panel2.TabIndex = 3;
             // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.tblUniforms);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel3.Location = new System.Drawing.Point(0, 149);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(479, 228);
+            this.panel3.TabIndex = 3;
+            // 
             // tblUniforms
             // 
-            this.tblUniforms.AutoSize = true;
-            this.tblUniforms.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tblUniforms.ColumnCount = 2;
             this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tblUniforms.Location = new System.Drawing.Point(0, 149);
+            this.tblUniforms.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblUniforms.Location = new System.Drawing.Point(0, 0);
             this.tblUniforms.Name = "tblUniforms";
             this.tblUniforms.RowCount = 1;
             this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.Size = new System.Drawing.Size(0, 0);
+            this.tblUniforms.Size = new System.Drawing.Size(479, 228);
             this.tblUniforms.TabIndex = 0;
             // 
             // MaterialControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.Controls.Add(this.tblUniforms);
+            this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MaterialControl";
-            this.Size = new System.Drawing.Size(0, 149);
+            this.Size = new System.Drawing.Size(479, 377);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            this.panel3.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -122,6 +125,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label lblMaterialName;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel panel3;
         private BetterTableLayoutPanel tblUniforms;
     }
 }

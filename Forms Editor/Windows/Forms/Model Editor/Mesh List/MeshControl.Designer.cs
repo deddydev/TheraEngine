@@ -33,7 +33,6 @@
             // 
             // MeshDropdown
             // 
-            this.MeshDropdown.AutoSize = true;
             this.MeshDropdown.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.MeshDropdown.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.MeshDropdown.Collapsible = true;
@@ -48,21 +47,19 @@
             this.MeshDropdown.Location = new System.Drawing.Point(0, 0);
             this.MeshDropdown.Margin = new System.Windows.Forms.Padding(0);
             this.MeshDropdown.Name = "MeshDropdown";
-            this.MeshDropdown.Size = new System.Drawing.Size(10, 25);
+            this.MeshDropdown.Size = new System.Drawing.Size(422, 748);
             this.MeshDropdown.TabIndex = 0;
             // 
             // MeshControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.MeshDropdown);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MeshControl";
-            this.Size = new System.Drawing.Size(10, 25);
+            this.Size = new System.Drawing.Size(422, 748);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

@@ -33,6 +33,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 {
                     btnEdit.Visible = _multiLine = s.MultiLine;
                     btnBrowse.Visible = s.Path;
+                    chkNull.Visible = s.Nullable;
                     if (s.Unicode)
                     {
 

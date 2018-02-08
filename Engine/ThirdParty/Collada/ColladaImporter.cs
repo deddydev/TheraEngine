@@ -127,21 +127,29 @@ namespace TheraEngine.Rendering.Models
 
                                 if (!options.IgnoreFlags.HasFlag(IgnoreFlags.Animations))
                                 {
-                                    data.PropertyAnimations = new List<BasePropAnim>();
-                                    SkeletalAnimation anim = new SkeletalAnimation()
-                                    {
-                                        Name = Path.GetFileNameWithoutExtension(filePath),
-                                        Looped = true,
-                                    };
-
+                                    SkeletalAnimation anim = null;
                                     float animationLength = 0.0f;
                                     foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
                                         foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
+                                        {
+                                            if (anim == null)
+                                            {
+                                                data.PropertyAnimations = new List<BasePropAnim>();
+                                                anim = new SkeletalAnimation()
+                                                {
+                                                    Name = Path.GetFileNameWithoutExtension(filePath),
+                                                    Looped = true,
+                                                };
+                                            }
                                             ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations, ref animationLength);
+                                        }
 
-                                    anim.SetLength(animationLength, false);
-                                    Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
-                                    data.Models[0].Animation = anim;
+                                    if (anim != null && animationLength > 0.0f)
+                                    {
+                                        anim.SetLength(animationLength, false);
+                                        Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
+                                        data.Models[0].Animation = anim;
+                                    }
                                 }
                             }
                         }

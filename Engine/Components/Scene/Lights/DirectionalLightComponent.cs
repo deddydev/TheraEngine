@@ -13,6 +13,22 @@ namespace TheraEngine.Components.Scene.Lights
     public class DirectionalLightComponent : LightComponent
     {
         private float _worldRadius;
+        public float WorldRadius
+        {
+            get => _worldRadius;
+            set
+            {
+                _worldRadius = value;
+                if (_shadowCamera != null)
+                {
+                    _shadowCamera.Resize(WorldRadius, WorldRadius);
+                    _shadowCamera.FarZ = WorldRadius * 2.0f + 1.0f;
+                    _shadowCamera.LocalPoint.Raw = GetWorldPoint();
+                    _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
+                }
+            }
+        }
+
         private int _shadowWidth, _shadowHeight;
         private MaterialFrameBuffer _shadowMap;
         private OrthographicCamera _shadowCamera;
@@ -73,7 +89,7 @@ namespace TheraEngine.Components.Scene.Lights
             if (_shadowCamera != null)
             {
                 _shadowCamera.LocalPoint.Raw = GetWorldPoint();
-                _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius + 1.0f);
+                _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
             }
         }
 
@@ -83,10 +99,10 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 OwningScene.Lights.Add(this);
 
-                _worldRadius = OwningWorld.Settings.Bounds.HalfExtents.LengthFast;
+                WorldRadius = OwningWorld.Settings.Bounds.HalfExtents.LengthFast;
                 SetShadowMapResolution(4096, 4096);
                 _shadowCamera.LocalPoint.Raw = GetWorldPoint();
-                _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius + 1.0f);
+                _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
             }
         }
         public override void OnDespawned()
@@ -119,8 +135,8 @@ namespace TheraEngine.Components.Scene.Lights
 
             if (_shadowCamera == null)
             {
-                _shadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 1.0f, _worldRadius * 2.0f + 1.0f);
-                _shadowCamera.Resize(_worldRadius, _worldRadius);
+                _shadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 1.0f, WorldRadius * 2.0f + 1.0f);
+                _shadowCamera.Resize(WorldRadius, WorldRadius);
                 _shadowCamera.LocalRotation.SyncFrom(_rotation);
             }
             //else
@@ -185,9 +201,9 @@ namespace TheraEngine.Components.Scene.Lights
             if (IsSpawned)
             {
                 if (selected)
-                    Engine.Scene.Add(_shadowCamera);
+                    OwningScene.Add(_shadowCamera);
                 else
-                    Engine.Scene.Remove(_shadowCamera);
+                    OwningScene.Remove(_shadowCamera);
             }
             base.OnSelectedChanged(selected);
         }

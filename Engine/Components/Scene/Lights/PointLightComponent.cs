@@ -216,13 +216,13 @@ namespace TheraEngine.Components.Scene.Lights
         {
             if (selected)
             {
-                Engine.Scene.Add(_cullingVolume);
+                OwningScene.Add(_cullingVolume);
                 //foreach (PerspectiveCamera c in ShadowCameras)
                 //    Engine.Scene.Add(c);
             }
             else
             {
-                Engine.Scene.Remove(_cullingVolume);
+                OwningScene.Remove(_cullingVolume);
                 //foreach (PerspectiveCamera c in ShadowCameras)
                 //    Engine.Scene.Remove(c);
             }

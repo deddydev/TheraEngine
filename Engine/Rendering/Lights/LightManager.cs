@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering
             foreach (PointLightComponent l in _pointLights)
                 l.SetUniforms(programBindingId);
         }
-        internal void Add(DirectionalLightComponent light)
+        public void Add(DirectionalLightComponent light)
         {
             if (_directionalLights.Count >= MaxDirectionalLights)
             {
@@ -52,7 +52,7 @@ namespace TheraEngine.Rendering
             //if (Engine.Settings.RenderLights)
             //    Engine.Scene.Add(light.ShadowCamera);
         }
-        internal void Remove(DirectionalLightComponent light)
+        public void Remove(DirectionalLightComponent light)
         {
             _directionalLights.Remove(light);
             light.LightIndex = -1;
@@ -60,7 +60,7 @@ namespace TheraEngine.Rendering
             //if (Engine.Settings.RenderLights)
             //    Engine.Scene.Remove(light.ShadowCamera);
         }
-        internal void Add(SpotLightComponent light)
+        public void Add(SpotLightComponent light)
         {
             if (_spotLights.Count >= MaxSpotLights)
             {
@@ -76,7 +76,7 @@ namespace TheraEngine.Rendering
             //    Engine.Scene.Add(light.InnerCone);
             //}
         }
-        internal void Remove(SpotLightComponent light)
+        public void Remove(SpotLightComponent light)
         {
             _spotLights.Remove(light);
             light.LightIndex = -1;
@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering
             //    Engine.Scene.Remove(light.InnerCone);
             //}
         }
-        internal void Add(PointLightComponent light)
+        public void Add(PointLightComponent light)
         {
             if (_pointLights.Count >= MaxPointLights)
             {
@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering
             //if (Engine.Settings.RenderLights)
             //    Engine.Scene.Add(light._cullingVolume);
         }
-        internal void Remove(PointLightComponent light)
+        public void Remove(PointLightComponent light)
         {
             _pointLights.Remove(light);
             light.LightIndex = -1;
@@ -108,7 +108,7 @@ namespace TheraEngine.Rendering
             //if (Engine.Settings.RenderLights)
             //    Engine.Scene.Remove(light._cullingVolume);
         }
-        internal void RenderShadowMaps(Scene3D scene)
+        public void RenderShadowMaps(Scene3D scene)
         {
             foreach (DirectionalLightComponent l in _directionalLights)
                 l.RenderShadowMap(scene);

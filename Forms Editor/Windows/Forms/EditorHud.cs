@@ -299,7 +299,7 @@ namespace TheraEditor.Windows.Forms
 
                 }
 
-                Vec3 rightCameraVector = v.Camera.GetRightVector();
+                Vec3 rightCameraVector = v.Camera.RightVector;
                 Quat rotation = Quat.FromAxisAngle(hitNormal, _spawnRotation);
                 rightCameraVector = rotation * rightCameraVector;
                 Vec3

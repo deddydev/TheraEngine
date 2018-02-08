@@ -381,9 +381,9 @@ namespace TheraEngine.Actors.Types
                 case ESpace.Screen:
 
                     Camera c = Engine.LocalPlayers[0].ViewportCamera;
-                    Vec3 f = c.GetForwardVector();
-                    Vec3 u = c.GetUpVector();
-                    Vec3 r = c.GetRightVector();
+                    Vec3 f = c.ForwardVector;
+                    Vec3 u = c.UpVector;
+                    Vec3 r = c.RightVector;
                     return Matrix4.CreateSpacialTransform(_targetSocket.InverseWorldMatrix.GetPoint(), r, u, f);
 
                 case ESpace.World:

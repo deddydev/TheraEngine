@@ -32,8 +32,8 @@ namespace TheraEngine.Components.Scene.Transforms
         [TSerialize]
         public float MaxLength { get; set; } = 300.0f;
         [TSerialize]
-        public LocalFileRef<TCollisionObject> IgnoreCastRef { get; set; } = null;
-
+        public LocalFileRef<TCollisionObject> IgnoreCast { get; set; } = null;
+        
         public BoomComponent() : base() { }
         
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

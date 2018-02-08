@@ -25,22 +25,29 @@ namespace TheraEditor.Windows.Forms
         
         private void Engine_DebugOutput(string message)
         {
-            if (Disposing || IsDisposed)
-                return;
-
-            if (InvokeRequired)
+            try
             {
-                Invoke(new Action<string>(Engine_DebugOutput), message);
-                return;
+                if (Disposing || IsDisposed)
+                    return;
+
+                if (InvokeRequired)
+                {
+                    Invoke(new Action<string>(Engine_DebugOutput), message);
+                    return;
+                }
+
+                OutputTextBox.Text += message;
+
+                //Don't scroll to end if user is reading something
+                if (!OutputTextBox.Focused)
+                {
+                    OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
+                    OutputTextBox.ScrollToCaret();
+                }
             }
-
-            OutputTextBox.Text += message;
-
-            //Don't scroll to end if user is reading something
-            if (!OutputTextBox.Focused)
+            catch
             {
-                OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
-                OutputTextBox.ScrollToCaret();
+
             }
         }
     }

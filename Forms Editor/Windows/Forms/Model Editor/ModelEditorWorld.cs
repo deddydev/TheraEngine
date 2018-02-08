@@ -22,16 +22,16 @@ namespace TheraEditor.Windows.Forms
             base.BeginPlay();
 
             DirectionalLightActor light = new DirectionalLightActor();
-            light.RootComponent.AmbientIntensity = 0.0f;
-            light.RootComponent.DiffuseIntensity = 2000.0f;
-            light.RootComponent.LightColor = new EventColorF3(0.0f);
+            light.RootComponent.AmbientIntensity = 0.01f;
+            light.RootComponent.DiffuseIntensity = 1.0f;
+            light.RootComponent.LightColor = new EventColorF3(1.0f);
             SpawnActor(light);
 
-            Collada.Data d = Collada.Import(Path.Combine(TestDefaults.DesktopPath, "teapot.dae"), new ModelImportOptions());
-            StaticModel m = d.Models[0].StaticModel;
-            StaticMeshComponent c = new StaticMeshComponent(m, null);
-            Actor<StaticMeshComponent> a = new Actor<StaticMeshComponent>(c);
-            SpawnActor(a, new Vec3(100.0f, 100.0f, 100.0f));
+            //Collada.Data d = Collada.Import(Path.Combine(TestDefaults.DesktopPath, "teapot.dae"), new ModelImportOptions());
+            //StaticModel m = d.Models[0].StaticModel;
+            //StaticMeshComponent c = new StaticMeshComponent(m, null);
+            //Actor<StaticMeshComponent> a = new Actor<StaticMeshComponent>(c);
+            //SpawnActor(a, new Vec3(100.0f, 100.0f, 100.0f));
         }
     }
 }

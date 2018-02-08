@@ -35,8 +35,8 @@ namespace TheraEngine
             _timer = new EngineTimer();
             _timer.UpdateFrame += Tick;
 
-            LocalPlayers.PostAdded += ActivePlayers_Added;
-            LocalPlayers.PostRemoved += ActivePlayers_Removed;
+            //LocalPlayers.PostAdded += ActivePlayers_Added;
+            //LocalPlayers.PostRemoved += ActivePlayers_Removed;
 
             _tickLists = new ThreadSafeList<DelTick>[45];
             for (int i = 0; i < _tickLists.Length; ++i)

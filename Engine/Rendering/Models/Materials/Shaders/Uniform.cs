@@ -53,13 +53,10 @@
         CameraNearZ,
         CameraFarZ,
         CameraPosition,
-        CameraForward,
-        CameraUp,
-        CameraRight,
+        //CameraForward,
+        //CameraUp,
+        //CameraRight,
 
         RenderDelta,
-
-        ProjOrigin,
-        ProjRange,
     }
 }

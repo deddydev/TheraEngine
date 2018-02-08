@@ -38,9 +38,9 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                         break;
 
                     case ECommonUniform.CameraPosition:
-                    case ECommonUniform.CameraForward:
-                    case ECommonUniform.CameraUp:
-                    case ECommonUniform.CameraRight:
+                    //case ECommonUniform.CameraForward:
+                    //case ECommonUniform.CameraUp:
+                    //case ECommonUniform.CameraRight:
                         _type = ShaderVarType._vec3;
                         break;
                 }

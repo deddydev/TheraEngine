@@ -358,13 +358,13 @@ namespace TheraEngine.Rendering
         public void RenderPrimitiveManager(IPrimitiveManager manager, bool preservePreviouslyBound = true)
         {
             IPrimitiveManager prev = _currentPrimitiveManager;
-            //CheckErrors();
+            CheckErrors();
             BindPrimitiveManager(manager);
-            //CheckErrors();
+            CheckErrors();
             RenderCurrentPrimitiveManager();
-            //CheckErrors();
+            CheckErrors();
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
-            //CheckErrors();
+            CheckErrors();
         }
         public abstract void RenderCurrentPrimitiveManager();
         public abstract void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer);

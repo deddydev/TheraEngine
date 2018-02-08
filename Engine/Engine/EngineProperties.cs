@@ -83,8 +83,8 @@ namespace TheraEngine
         /// <summary>
         /// Controllers for all players that are local to this client.
         /// </summary>
-        public static EventList<LocalPlayerController> LocalPlayers { get; } = new EventList<LocalPlayerController>();
-
+        public static List<LocalPlayerController> LocalPlayers { get; } = new List<LocalPlayerController>();
+        
         public static List<AIController> ActiveAI
             = new List<AIController>();
 

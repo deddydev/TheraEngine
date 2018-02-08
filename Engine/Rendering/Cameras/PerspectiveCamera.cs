@@ -128,8 +128,8 @@ namespace TheraEngine.Rendering.Cameras
             const bool transformed = false;
             
             return new Frustum(_fovY, _aspect, _nearZ, _farZ,
-                transformed ? GetForwardVector() : Vec3.Forward,
-                transformed ? GetUpVector() : Vec3.Up,
+                transformed ? ForwardVector : Vec3.Forward,
+                transformed ? UpVector : Vec3.Up,
                 transformed ? _localPoint.Raw : Vec3.Zero);
         }
 

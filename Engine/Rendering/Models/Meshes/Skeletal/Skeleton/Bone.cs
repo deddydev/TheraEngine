@@ -571,8 +571,8 @@ namespace TheraEngine.Rendering.Models
 
                 case BillboardType.RotationXYZ:
 
-                    Vec3 up1 = c.GetUpVector();
-                    Vec3 forward1 = c.GetForwardVector();
+                    Vec3 up1 = c.UpVector;
+                    Vec3 forward1 = c.ForwardVector;
 
                     angles = new Matrix4(
                         new Vec4(forward1 ^ up1, 0.0f),
@@ -590,8 +590,8 @@ namespace TheraEngine.Rendering.Models
 
                 case BillboardType.RotationXY:
 
-                    Vec3 forward2 = c.GetForwardVector();
-                    Vec3 right2 = c.GetRightVector();
+                    Vec3 forward2 = c.ForwardVector;
+                    Vec3 right2 = c.RightVector;
                     right2.Y = 0.0f;
 
                     angles = new Matrix4(
@@ -611,7 +611,7 @@ namespace TheraEngine.Rendering.Models
                 case BillboardType.RotationY:
 
                     Vec3 up3 = Vec3.TransformNormalInverse(Vec3.UnitY, inverseParentMatrix); //Up is related to parent
-                    Vec3 forward3 = c.GetForwardVector();
+                    Vec3 forward3 = c.ForwardVector;
                     forward3.Y = 0.0f;
 
                     angles = new Matrix4(

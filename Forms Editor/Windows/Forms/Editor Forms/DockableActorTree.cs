@@ -26,7 +26,7 @@ namespace TheraEditor.Windows.Forms
 
                 if (Engine.LocalPlayers.Count > 0)
                 {
-                    EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn.HUD;
+                    EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
                     if (hud != null)
                     {
                         hud.SetSelectedComponent(false, t.RootComponent);

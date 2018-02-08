@@ -231,15 +231,7 @@ namespace TheraEngine.Rendering.Cameras
             _worldToCameraSpaceMatrix = Matrix4.Identity,
             _worldToCameraProjSpaceMatrix = Matrix4.Identity,
             _cameraProjToWorldSpaceMatrix = Matrix4.Identity;
-        private Vec3
-            _forwardDirection = Vec3.Forward,
-            _upDirection = Vec3.Up,
-            _rightDirection = Vec3.Right;
-        private bool
-            _forwardInvalidated = false,
-            _upInvalidated = false,
-            _rightInvalidated = false,
-            _matrixInvalidated = false;
+        private bool _matrixInvalidated = false;
 
         [TSerialize("Point")]
         protected EventVec3 _localPoint;
@@ -256,9 +248,9 @@ namespace TheraEngine.Rendering.Cameras
             => SetRotationWithTarget(_viewTarget.Raw);
         private void _owningComponent_WorldTransformChanged()
         {
-            _forwardInvalidated = true;
-            _upInvalidated = true;
-            _rightInvalidated = true;
+            //_forwardInvalidated = true;
+            //_upInvalidated = true;
+            //_rightInvalidated = true;
             UpdateTransformedFrustum();
             if (!_updating)
                 OnTransformChanged();
@@ -269,7 +261,7 @@ namespace TheraEngine.Rendering.Cameras
         /// with Z being the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f).
         /// </summary>
         public Vec3 WorldToScreen(Vec3 point)
-            => _projectionRange * (((point * (ProjectionMatrix * WorldToCameraSpaceMatrix)) + 1.0f) / 2.0f);
+            => _projectionRange * (((point * WorldToCameraProjSpaceMatrix) + Vec3.One) * Vec3.Half);
         /// <summary>
         /// Takes an X, Y coordinate relative to the camera's Origin along with the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f), and returns a position in the world.
         /// </summary>
@@ -284,7 +276,7 @@ namespace TheraEngine.Rendering.Cameras
         /// Takes an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f), and returns a position in the world.
         /// </summary>
         public Vec3 ScreenToWorld(Vec3 screenPoint)
-            => ((screenPoint / _projectionRange) * 2.0f - 1.0f) * (CameraToWorldSpaceMatrix * InverseProjectionMatrix);
+            => ((screenPoint / _projectionRange) / Vec3.Half - Vec3.One) * CameraProjToWorldSpaceMatrix;
         
         protected virtual void PositionChanged()
         {
@@ -357,42 +349,18 @@ namespace TheraEngine.Rendering.Cameras
             => Vec3.TransformVector(dir, CameraToWorldSpaceMatrix);
 
         /// <summary>
-        /// Returns the up direction in camera space.
+        /// Returns the right direction of the camera in world space.
         /// </summary>
-        public Vec3 GetUpVector()
-        {
-            if (_upInvalidated)
-            {
-                _upDirection = RotateVector(Vec3.Up);
-                _upInvalidated = false;
-            }
-            return _upDirection;
-        }
+        public Vec3 RightVector => CameraToWorldSpaceMatrix.Row0.Xyz;
         /// <summary>
-        /// Returns the forward direction in camera space.
+        /// Returns the up direction of the camera in world space.
         /// </summary>
-        public Vec3 GetForwardVector()
-        {
-            if (_forwardInvalidated)
-            {
-                _forwardDirection = RotateVector(Vec3.Forward);
-                _forwardInvalidated = false;
-            }
-            return _forwardDirection;
-        }
+        public Vec3 UpVector => CameraToWorldSpaceMatrix.Row1.Xyz;
         /// <summary>
-        /// Returns the right direction in camera space.
+        /// Returns the forward direction of the camera in world space.
         /// </summary>
-        public Vec3 GetRightVector()
-        {
-            if (_rightInvalidated)
-            {
-                _rightDirection = RotateVector(Vec3.Right);
-                _rightInvalidated = false;
-            }
-            return _rightDirection;
-        }
-
+        public Vec3 ForwardVector => -CameraToWorldSpaceMatrix.Row2.Xyz;
+        
         public Matrix4 WorldToCameraProjSpaceMatrix
         {
             get
@@ -470,7 +438,7 @@ namespace TheraEngine.Rendering.Cameras
 
         protected void OnTransformChanged()
         {
-            _forwardInvalidated = _upInvalidated = _rightInvalidated = _matrixInvalidated = true;
+            _matrixInvalidated = true;
             _updating = true;
             TransformChanged?.Invoke();
             _updating = false;
@@ -510,11 +478,10 @@ namespace TheraEngine.Rendering.Cameras
             Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraNearZ),                 NearZ);
             Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraFarZ),                  FarZ);
             Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraPosition),              WorldPoint);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraForward),               GetForwardVector());
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraUp),                    GetUpVector());
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraRight),                 GetRightVector());
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ProjOrigin),                  _projectionOrigin);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ProjRange),                   _projectionRange);
+
+            //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraForward),               GetForwardVector());
+            //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraUp),                    GetUpVector());
+            //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraRight),                 GetRightVector());
         }
 
         [PostDeserialize]
@@ -568,16 +535,16 @@ namespace TheraEngine.Rendering.Cameras
         }
         public Plane GetScreenPlane()
         {
-            Vec3 forward = GetForwardVector();
+            Vec3 forward = ForwardVector;
             return new Plane(forward, Plane.ComputeDistance(WorldPoint, forward));
         }
 
         public Vec3 GetScreenPlaneOriginDistance()
-            => Plane.ComputeDistance(WorldPoint, GetForwardVector());
+            => Plane.ComputeDistance(WorldPoint, ForwardVector);
 
         public float DistanceFromScreenPlane(Vec3 point)
         {
-            Vec3 forward = GetForwardVector();
+            Vec3 forward = ForwardVector;
             return Collision.DistancePlanePoint(forward, Plane.ComputeDistance(WorldPoint, forward), point);
         }
         public float DistanceFromWorldPoint(Vec3 point)

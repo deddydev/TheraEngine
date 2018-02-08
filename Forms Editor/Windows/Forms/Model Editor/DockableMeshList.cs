@@ -56,6 +56,7 @@ namespace TheraEditor.Windows.Forms
                     Dock = DockStyle.Top,
                     Margin = new Padding(0),
                     Padding = new Padding(0),
+                    AutoSize = true,
                 };
                 c.SetMesh(rigidMeshes[i], i);
                 RigidMeshes.pnlMain.Controls.Add(c);
@@ -68,6 +69,7 @@ namespace TheraEditor.Windows.Forms
                     Dock = DockStyle.Top,
                     Margin = new Padding(0),
                     Padding = new Padding(0),
+                    AutoSize = true,
                 };
                 c.SetMesh(softMeshes[i], i);
                 SoftMeshes.pnlMain.Controls.Add(c);

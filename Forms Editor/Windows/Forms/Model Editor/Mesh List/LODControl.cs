@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms
             {
                 DropDownName = "LOD " + i;
                 propGridSingle1.SetProperty(lod.GetType().GetProperty(nameof(lod.VisibleDistance)), lod);
-                materialControl1.Material = lod.Material;
+                materialControl1.Material = lod.MaterialRef;
             }
             else
             {

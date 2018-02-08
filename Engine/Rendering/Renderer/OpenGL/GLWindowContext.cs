@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering.OpenGL
             private int _versionMin, _versionMax;
             private IGraphicsContext _context;
             private IWindowInfo _winInfo;
-            private VSyncMode _vsyncMode = VSyncMode.Disabled;
+            private VSyncMode _vsyncMode = VSyncMode.Adaptive;
 #if DEBUG
             private static bool _hasPrintedInfo = false;
 #endif
@@ -34,7 +34,7 @@ namespace TheraEngine.Rendering.OpenGL
             public override void Generate()
             {
                 _winInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
-                GraphicsMode mode = new GraphicsMode(new ColorFormat(64), 24, 8, 4, new ColorFormat(0), 2, false);
+                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 4, new ColorFormat(0), 2, false);
                 _context = new GraphicsContext(mode, _winInfo);
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();

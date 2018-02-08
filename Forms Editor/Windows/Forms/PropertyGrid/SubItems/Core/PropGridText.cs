@@ -8,6 +8,9 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
+    /// <summary>
+    /// Property editor for strings.
+    /// </summary>
     [PropGridControlFor(typeof(string))]
     public partial class PropGridText : PropGridItem
     {

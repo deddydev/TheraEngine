@@ -14,34 +14,42 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class MaterialControl : UserControl
     {
-        private float _cameraFovY = 90.0f;
+        private float _cameraFovY = 45.0f;
         public float CameraFovY
         {
             get => _cameraFovY;
             set
             {
                 _cameraFovY = value;
+                if (basicRenderPanel1.Camera is PerspectiveCamera cam)
+                {
+                    cam.VerticalFieldOfView = _cameraFovY;
+                    float camDist = 1.0f / TMath.Sindf(_cameraFovY * 0.5f);
+                    cam.LocalPoint.Z = camDist;
+                }
             }
         }
 
         public MaterialControl()
         {
             InitializeComponent();
-
-            float camDist = 1.0f / TMath.Sindf(_cameraFovY * 0.5f);
-            basicRenderPanel1.Camera = new PerspectiveCamera(
-                new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 1000.0f, _cameraFovY, 1.0f);
         }
 
-        DirectionalLightComponent _light;
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            if (DesignMode)
+                return;
+
+            float camDist = 1.0f / TMath.Sindf(_cameraFovY * 0.5f);
+            basicRenderPanel1.Camera = new PerspectiveCamera(
+                new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
+
             basicRenderPanel1.RegisterTick();
 
             _light = new DirectionalLightComponent();
             _light.SetShadowMapResolution(256, 256);
-            _light.WorldRadius = 1000.0f;
+            _light.WorldRadius = 100.0f;
             _light.Rotation.Yaw = 45.0f;
             _light.Rotation.Pitch = -45.0f;
             basicRenderPanel1.Scene.Lights.Add(_light);
@@ -59,7 +67,10 @@ namespace TheraEditor.Windows.Forms
             base.OnHandleDestroyed(e);
         }
 
+        private DirectionalLightComponent _light;
+        private PrimitiveRenderWrapper _spherePrim;
         private TMaterial _material;
+
         public TMaterial Material
         {
             get => _material;
@@ -73,9 +84,15 @@ namespace TheraEditor.Windows.Forms
 
                 if (_material != null)
                 {
-                    PrimitiveRenderWrapper wrap = new PrimitiveRenderWrapper(
-                        new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 1.0f, 30), _material));
-                    basicRenderPanel1.Scene.Add(wrap);
+                    if (_spherePrim == null)
+                    {
+                        basicRenderPanel1.Scene.Clear(BoundingBox.FromHalfExtentsTranslation(2.0f, 0.0f));
+                        _spherePrim = new PrimitiveRenderWrapper( //0.8f instead of 1.0f for border padding
+                            new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
+                        basicRenderPanel1.Scene.Add(_spherePrim);
+                    }
+                    else
+                        _spherePrim.Material = _material;
 
                     lblMaterialName.Text = _material.Name;
                     foreach (ShaderVar shaderVar in _material.Parameters)

@@ -20,9 +20,9 @@ namespace TheraEngine.Rendering.Models
         }
 
         [Category("LOD")]
-        public GlobalFileRef<TMaterial> Material => _material;
+        public GlobalFileRef<TMaterial> MaterialRef => _material;
         [Category("LOD")]
-        public GlobalFileRef<PrimitiveData> Primitives => _primitives;
+        public GlobalFileRef<PrimitiveData> PrimitivesRef => _primitives;
         [Category("LOD")]
         [TSerialize(IsXmlAttribute = true)]
         public float VisibleDistance { get; set; } = 0.0f;

@@ -104,6 +104,13 @@ namespace TheraEngine.Components.Scene.Mesh
         [TSerialize("Sockets")]
         private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
 
+        /// <summary>
+        /// Retrieves the model. 
+        /// May load synchronously if not currently loaded.
+        /// </summary>
+        [Browsable(false)]
+        public StaticModel Model => ModelRef.File;
+
         [Category("Static Mesh Component")]
         [TSerialize]
         public GlobalFileRef<StaticModel> ModelRef

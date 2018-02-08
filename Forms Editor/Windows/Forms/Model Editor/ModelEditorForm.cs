@@ -17,6 +17,7 @@ namespace TheraEditor.Windows.Forms
             DockPanel.Theme = new TheraEditorTheme();
             AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
+            menuStrip1.Renderer = new TheraToolstripRenderer();
         }
 
         #region Instanced Dock Forms
@@ -66,6 +67,9 @@ namespace TheraEditor.Windows.Forms
         private DockablePropertyGrid _propertyGridForm;
         public DockablePropertyGrid PropertyGridForm => GetForm(ref _propertyGridForm, MeshesForm.Pane, DockAlignment.Bottom, 0.6);
 
+        private DockableMaterialList _materialsForm;
+        public DockableMaterialList MaterialsForm => GetForm(ref _materialsForm, MeshesForm.Pane, DockAlignment.Bottom, 0.5);
+
         #endregion
 
         private Lazy<ModelEditorWorld> _world = new Lazy<ModelEditorWorld>(() =>
@@ -92,6 +96,7 @@ namespace TheraEditor.Windows.Forms
             World.SpawnActor(_static);
             
             MeshesForm.DisplayMeshes(_static);
+            MaterialsForm.DisplayMaterials(_static);
 
             //PropertyGridForm.PropertyGrid.TargetObject = stm;
         }
@@ -107,6 +112,7 @@ namespace TheraEditor.Windows.Forms
             World.SpawnActor(_skeletal);
             
             MeshesForm.DisplayMeshes(_skeletal);
+            MaterialsForm.DisplayMaterials(_skeletal);
 
             //PropertyGridForm.PropertyGrid.TargetObject = skm;
         }
@@ -154,6 +160,41 @@ namespace TheraEditor.Windows.Forms
                     GetRenderForm(i).RenderPanel.Invalidate();
 
             Application.DoEvents();
+        }
+
+        private void btnViewport1_Click(object sender, EventArgs e)
+        {
+            RenderForm1.Focus();
+        }
+
+        private void btnViewport2_Click(object sender, EventArgs e)
+        {
+            RenderForm2.Focus();
+        }
+
+        private void btnViewport3_Click(object sender, EventArgs e)
+        {
+            RenderForm3.Focus();
+        }
+
+        private void btnViewport4_Click(object sender, EventArgs e)
+        {
+            RenderForm4.Focus();
+        }
+
+        private void btnMeshList_Click(object sender, EventArgs e)
+        {
+            MeshesForm.Focus();
+        }
+
+        private void btnMaterialList_Click(object sender, EventArgs e)
+        {
+            MaterialsForm.Focus();
+        }
+
+        private void btnSkeleton_Click(object sender, EventArgs e)
+        {
+            BoneTreeForm.Focus();
         }
     }
 }

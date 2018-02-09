@@ -106,7 +106,12 @@ namespace TheraEditor.Windows.Forms
 
             while (count-- > 0 && CanUndo)
             {
-                _moveToOldVal = true;
+                if (_moveToOldVal != true)
+                {
+                    --_stateIndex;
+                    _moveToOldVal = true;
+                }
+
                 if (_stateIndex >= Changes.Count)
                     _stateIndex = Changes.Count - 1;
 
@@ -137,7 +142,11 @@ namespace TheraEditor.Windows.Forms
 
             while (count-- > 0 && CanRedo)
             {
-                _moveToOldVal = false;
+                if (_moveToOldVal != false)
+                {
+                    ++_stateIndex;
+                    _moveToOldVal = false;
+                }
                 if (_stateIndex < 0)
                     _stateIndex = 0;
 

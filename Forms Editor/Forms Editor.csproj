@@ -116,6 +116,7 @@
     <Compile Include="Core\Thumbnails.cs" />
     <Compile Include="EditorGameMode.cs" />
     <Compile Include="EditorPlayerController.cs" />
+    <Compile Include="EditorCameraPawn.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

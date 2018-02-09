@@ -21,6 +21,11 @@ namespace System
         public Vec4 Row2;
         public Vec4 Row3;
 
+        public Vec3 RightVec { get => Row0.Xyz; set => Row0.Xyz = value; }
+        public Vec3 UpVec { get => Row1.Xyz; set => Row1.Xyz = value; }
+        public Vec3 ForwardVec { get => Row2.Xyz; set => Row2.Xyz = value; }
+        public Vec3 Translation { get => Row3.Xyz; set => Row3.Xyz = value; }
+        
         public float* Data { get { fixed (Matrix4* p = &this) return (float*)p; } }
 
         public static readonly Matrix4 Identity = new Matrix4(Vec4.UnitX, Vec4.UnitY, Vec4.UnitZ, Vec4.UnitW);
@@ -153,9 +158,7 @@ namespace System
                   - m14 * m22 * m33 * m41 + m14 * m22 * m31 * m43 - m14 * m23 * m31 * m42 + m14 * m23 * m32 * m41;
             }
         }
-
-        public Vec3 GetPoint() => Vec3.TransformPosition(Vec3.Zero, this);
-
+        
         public void OnlyRotationMatrix()
         {
             Matrix4 m = Identity;
@@ -348,8 +351,7 @@ namespace System
             m.Column3 = Vec4.Zero;
             return m;
         }
-
-        public Vec3 ExtractTranslation() => Row3.Xyz;
+        
         public Vec3 ExtractScale() => new Vec3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length);
 
         /// <summary>

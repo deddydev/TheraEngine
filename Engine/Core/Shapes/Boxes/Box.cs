@@ -41,7 +41,7 @@ namespace TheraEngine.Core.Shapes
             set => _transform.InverseMatrix = value;
         }
 
-        public Vec3 Center => _transform.Matrix.GetPoint();
+        public Vec3 Center => _transform.Matrix.Translation;
 
         public Box(BoundingBox aabb)
             : this(aabb.HalfExtents, new Transform(aabb.Translation, Quat.Identity, Vec3.One)) { }

@@ -74,8 +74,8 @@ namespace TheraEngine.Components.Scene.Transforms
         protected internal void Tick(float delta)
         {
             _delta = delta;
-            _currentPoint = _worldTransform.GetPoint();
-            _destPoint = GetParentMatrix().GetPoint();
+            _currentPoint = _worldTransform.Translation;
+            _destPoint = GetParentMatrix().Translation;
             _laggingDistance = _destPoint.DistanceToFast(_currentPoint);
 
             //if (_laggingDistance > _maxLagDistance)
@@ -88,7 +88,7 @@ namespace TheraEngine.Components.Scene.Transforms
         }
         public override void OnSpawned()
         {
-            _currentPoint = _worldTransform.GetPoint();
+            _currentPoint = _worldTransform.Translation;
             //Engine.Scene.Add(this);
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnSpawned();

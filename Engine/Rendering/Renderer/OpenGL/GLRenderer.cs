@@ -72,8 +72,15 @@ namespace TheraEngine.Rendering.OpenGL
         {
             ErrorCode code;
             string error = "";
+            string temp;
             while ((code = GL.GetError()) != ErrorCode.NoError)
-                error += code.ToString();
+            {
+                temp = code.ToString();
+                if (!error.Contains(temp))
+                    error += temp;
+                else
+                    break;
+            }
             if (error.Length > 0)
                 throw new Exception(error);
         }

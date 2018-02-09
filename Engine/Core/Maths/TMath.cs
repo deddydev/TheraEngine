@@ -129,6 +129,20 @@ namespace System
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pitch"></param>
+        /// <param name="yaw"></param>
+        /// <param name="focusPoint"></param>
+        /// <param name="cameraPoint"></param>
+        /// <param name="cameraRightDir"></param>
+        /// <returns></returns>
+        public static Vec3 ArcballTranslation(float pitch, float yaw, Vec3 focusPoint, Vec3 cameraPoint, Vec3 cameraRightDir)
+        {
+            return focusPoint + Vec3.TransformVector(cameraPoint - focusPoint, Matrix4.CreateRotationY(yaw) * Matrix4.CreateFromAxisAngle(cameraRightDir, pitch));
+        }
+
+        /// <summary>
         /// Returns the sine and cosine of a radian angle simultaneously as doubles.
         /// </summary>
         public static void SinCos(double rad, out double sin, out double cos)

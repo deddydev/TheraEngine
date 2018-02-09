@@ -68,9 +68,9 @@ namespace TheraEngine.Components.Scene.Transforms
         private void Tick(float delta)
         {
             Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.AsTranslationMatrix();
-            _startPoint = startMatrix.GetPoint();
+            _startPoint = startMatrix.Translation;
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
-            Vec3 testEnd = endMatrix.GetPoint();
+            Vec3 testEnd = endMatrix.Translation;
 
             ShapeTraceClosest result = new ShapeTraceClosest(_traceShape, startMatrix, endMatrix, 0xFFFF, 0xFFFF, IgnoreCast);
 

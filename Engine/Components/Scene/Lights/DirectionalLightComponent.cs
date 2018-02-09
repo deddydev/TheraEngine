@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     _shadowCamera.Resize(WorldRadius, WorldRadius);
                     _shadowCamera.FarZ = WorldRadius * 2.0f + 1.0f;
-                    _shadowCamera.LocalPoint.Raw = GetWorldPoint();
+                    _shadowCamera.LocalPoint.Raw = WorldPoint;
                     _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
                 }
             }
@@ -88,7 +88,7 @@ namespace TheraEngine.Components.Scene.Lights
             base.RecalcGlobalTransform();
             if (_shadowCamera != null)
             {
-                _shadowCamera.LocalPoint.Raw = GetWorldPoint();
+                _shadowCamera.LocalPoint.Raw = WorldPoint;
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
             }
         }
@@ -101,7 +101,7 @@ namespace TheraEngine.Components.Scene.Lights
 
                 WorldRadius = OwningWorld.Settings.Bounds.HalfExtents.LengthFast;
                 SetShadowMapResolution(4096, 4096);
-                _shadowCamera.LocalPoint.Raw = GetWorldPoint();
+                _shadowCamera.LocalPoint.Raw = WorldPoint;
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
             }
         }

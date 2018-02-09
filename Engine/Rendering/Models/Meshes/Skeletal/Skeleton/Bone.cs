@@ -352,7 +352,7 @@ namespace TheraEngine.Rendering.Models
 
                     if (ScaleByDistance && c != null)
                     {
-                        float scale = c.DistanceScale(WorldMatrix.GetPoint(), _screenSize);
+                        float scale = c.DistanceScale(WorldMatrix.Translation, _screenSize);
                         _frameMatrix = _frameMatrix * Matrix4.CreateScale(scale);
                         _inverseFrameMatrix = Matrix4.CreateScale(1.0f / scale) * _inverseFrameMatrix;
                     }
@@ -553,7 +553,7 @@ namespace TheraEngine.Rendering.Models
                 case BillboardType.PerspectiveXYZ:
 
                     Vec3 componentPoint = c.WorldPoint * OwningComponent.InverseWorldMatrix;
-                    Vec3 diff = frameTrans.GetPoint() - componentPoint;
+                    Vec3 diff = frameTrans.Translation - componentPoint;
                     Rotator r = diff.LookatAngles();
 
                     angles = r.GetMatrix();

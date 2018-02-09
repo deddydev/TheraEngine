@@ -113,13 +113,16 @@ namespace TheraEngine.Components.Scene.Transforms
             Matrix4 r = _desiredRotation.GetMatrix();
             Matrix4 t = _desiredTranslation.AsTranslationMatrix();
             Matrix4 mtx = t * r * translation.AsTranslationMatrix();
-            _desiredTranslation = mtx.GetPoint();
+            _desiredTranslation = mtx.Translation;
         }
+
         public void Pivot(float pitch, float yaw, float distance)
             => Pivot(pitch, yaw, _desiredTranslation + GetDesiredForwardDir() * distance);
-        public void Pivot(float pitch, float yaw, Vec3 point)
+        public void Pivot(float pitch, float yaw, Vec3 focusPoint)
         {
-            _desiredTranslation = TMath.RotateAboutPoint(_desiredTranslation, point, new Rotator(pitch, yaw, 0.0f));
+            //"Arcball" rotation
+            //All rotation is done within local component space
+            _desiredTranslation = TMath.ArcballTranslation(pitch, yaw, focusPoint, _desiredTranslation, GetDesiredRightDir());
             _desiredRotation.AddRotations(pitch, yaw, 0.0f);
         }
 
@@ -132,12 +135,12 @@ namespace TheraEngine.Components.Scene.Transforms
             _desiredRotation.SetRotations(q.ToYawPitchRoll());
             base.HandleWorldRotation(delta);
         }
-        
-        public Vec3 GetForwardDir() => _currentRotation.TransformVector(Vec3.Forward);
-        public Vec3 GetRightDir() => _currentRotation.TransformVector(Vec3.Right);
-        public Vec3 GetUpDir() => _currentRotation.TransformVector(Vec3.Up);
-        public Vec3 GetDesiredForwardDir() => _desiredRotation.TransformVector(Vec3.Forward);
+        public Vec3 RightDir => _localTransform.RightVec;
+        public Vec3 UpDir => _localTransform.UpVec;
+        public Vec3 ForwardDir => _localTransform.ForwardVec;
+
         public Vec3 GetDesiredRightDir() => _desiredRotation.TransformVector(Vec3.Right);
         public Vec3 GetDesiredUpDir() => _desiredRotation.TransformVector(Vec3.Up);
+        public Vec3 GetDesiredForwardDir() => _desiredRotation.TransformVector(Vec3.Forward);
     }
 }

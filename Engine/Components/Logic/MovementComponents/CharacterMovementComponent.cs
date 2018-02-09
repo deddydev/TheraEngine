@@ -60,7 +60,7 @@ namespace TheraEngine.Components.Logic.Movement
                             //root.PhysicsDriver.Kinematic = true;
                             //Physics simulation updates the world matrix, but not its components (translation, for example)
                             //Do that now
-                            root.Translation = root.GetWorldPoint();
+                            root.Translation = root.WorldPoint;
                             
                             _subUpdateTick = TickWalking;
                             break;
@@ -104,7 +104,7 @@ namespace TheraEngine.Components.Logic.Movement
             Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            Vec3 point = moved.GetPoint();
+            Vec3 point = moved.Translation;
 
             root.Translation = point;
             root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;

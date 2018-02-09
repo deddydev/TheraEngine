@@ -1,50 +1,13 @@
-﻿using TheraEngine.Input;
-using TheraEngine.Input.Devices;
-using System;
+﻿using System;
 using System.ComponentModel;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
 using TheraEngine.Components.Scene;
-using TheraEngine.Physics.RayTracing;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Worlds;
+using TheraEngine.Input;
+using TheraEngine.Input.Devices;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
-    //public enum CameraInputType
-    //{
-    //    TranslateXY,
-    //    RotateYP,
-    //    Select,
-    //    ContextMenu,
-    //}
-    //[Flags]
-    //public enum ComboModifier
-    //{
-    //    None        = 0x0,
-    //    Ctrl        = 0x1,
-    //    Alt         = 0x2,
-    //    Shift       = 0x4,
-    //    LeftClick   = 0x8,
-    //    MiddleClick = 0x10,
-    //    RightClick  = 0x20,
-    //}
-    //public class CameraInputCombo
-    //{
-    //    public CameraInputCombo(EMouseButton type, ComboModifier modifiers)
-    //    {
-    //        _type = type;
-    //        _modifiers = modifiers;
-    //    }
-    //    public CameraInputCombo(EMouseButton type)
-    //    {
-    //        _type = type;
-    //        _modifiers = ComboModifier.None;
-    //    }
-    //    public EMouseButton _type;
-    //    public ComboModifier _modifiers;
-    //}
     public class FlyingCameraPawn : Pawn<TRLaggedComponent>
     {
         public FlyingCameraPawn() : base() { }
@@ -53,36 +16,29 @@ namespace TheraEngine.Actors.Types.Pawns
         protected override TRLaggedComponent OnConstruct()
         {
             TRLaggedComponent root = new TRLaggedComponent();
-            ScreenShakeComponent = new ScreenShake3DComponent();
             Camera = new PerspectiveCamera();
             CameraComponent cam = new CameraComponent(Camera);
-            ScreenShakeComponent.ChildComponents.Add(cam);
-            root.ChildComponents.Add(ScreenShakeComponent);
+            root.ChildComponents.Add(cam);
             return root;
         }
 
         public PerspectiveCamera Camera { get; private set; }
-        public ScreenShake3DComponent ScreenShakeComponent { get; private set; }
         
-        float 
+        protected float 
             _linearRight = 0.0f,
             _linearForward = 0.0f,
             _linearUp = 0.0f,
             _pitch = 0.0f,
             _yaw = 0.0f;
 
-        bool 
+        protected bool 
             _ctrl = false,
-            _alt = false,
-            _shift = false,
-            _rightClickPressed = false, 
-            _middleClickPressed = false,
-            _leftClickPressed = false;
+            _rightClickPressed = false;
         
         [Browsable(false)]
-        bool Rotating => _rightClickPressed && _ctrl;
+        public bool Rotating => _rightClickPressed && _ctrl;
         [Browsable(false)]
-        bool Translating => _rightClickPressed && !_ctrl;
+        public bool Translating => _rightClickPressed && !_ctrl;
 
         [TSerialize]
         [Category("Movement")]
@@ -124,14 +80,9 @@ namespace TheraEngine.Actors.Types.Pawns
             input.RegisterButtonPressed(EKey.D, MoveRight, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.Q, MoveDown, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.E, MoveUp, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.T, ButtonInputType.Pressed, AddTrauma, EInputPauseType.TickAlways);
 
             input.RegisterButtonPressed(EKey.ControlLeft, OnControl, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.ControlRight, OnControl, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.AltLeft, OnAlt, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.AltRight, OnAlt, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.ShiftLeft, OnShift, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.ShiftRight, OnShift, EInputPauseType.TickAlways);
 
             input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause, EInputPauseType.TickAlways);
@@ -143,12 +94,7 @@ namespace TheraEngine.Actors.Types.Pawns
             input.RegisterButtonPressed(GamePadButton.RightBumper, MoveUp, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(GamePadButton.LeftBumper, MoveDown, EInputPauseType.TickAlways);
         }
-
-        private void AddTrauma()
-        {
-            ScreenShakeComponent.Trauma += 0.4f;
-        }
-
+        
         private void OnTogglePause()
         {
             Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
@@ -183,63 +129,26 @@ namespace TheraEngine.Actors.Types.Pawns
 
         private void OnControl(bool pressed)
             => _ctrl = pressed;
-        private void OnAlt(bool pressed)
-            => _alt = pressed;
-        private void OnShift(bool pressed)
-            => _shift = pressed;
 
-        private void OnScrolled(bool up)
-        {
-            if (_alt || _shift)
-                return;
-
-            if (_ctrl)
-                Engine.TimeDilation *= up ? 0.8f : 1.2f;
-            else
-            {
-                RootComponent.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
-            }
-        }
+        protected virtual void OnScrolled(bool up) 
+            => RootComponent.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
         
-        private void OnRightClick(bool pressed)
+        protected virtual void OnRightClick(bool pressed)
         {
             _rightClickPressed = pressed;
-            Viewport v = LocalPlayerController.Viewport;
-            Vec2 viewportPoint = v.AbsoluteToRelative(HUD.CursorPosition);
-
-            Segment s = v.GetWorldSegment(viewportPoint);
-            RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
-            if (_hasHit = c.Trace())
-                _screenPoint = Camera.WorldToScreen(c.HitPointWorld);
         }
         
-        bool _hasHit = false;
-        Vec3 _screenPoint;
-        public void MouseMove(float x, float y)
+        public virtual void MouseMove(float x, float y)
         {
             if (Rotating)
             {
                 float pitch = -y * MouseRotateSpeed;
                 float yaw = -x * MouseRotateSpeed;
-                if (_hasHit)
-                    RootComponent.Pivot(pitch, yaw, Camera.ScreenToWorld(_screenPoint));
-                else
-                    RootComponent.DesiredRotation.AddRotations(pitch, yaw, 0.0f);
-                //RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
+                RootComponent.DesiredRotation.AddRotations(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
-                if (_hasHit)
-                {
-                    Vec3 oldPoint = Camera.ScreenToWorld(_screenPoint);
-                    _screenPoint.X += -x;
-                    _screenPoint.Y += y;
-                    Vec3 newPoint = Camera.ScreenToWorld(_screenPoint);
-                    Vec3 diff = newPoint - oldPoint;
-                    RootComponent.DesiredTranslation += diff;
-                }
-                else
-                    RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
+                RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
             }
         }
         public override void OnSpawnedPostComponentSetup()
@@ -259,10 +168,7 @@ namespace TheraEngine.Actors.Types.Pawns
             if (translate)
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-            {
                 RootComponent.DesiredRotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
-                //RootComponent.DesiredRotation.RemapToRange(-180.0f, 180.0f);
-            }
         }
 
         #region Customizable Input
@@ -306,4 +212,37 @@ namespace TheraEngine.Actors.Types.Pawns
         //}
         #endregion
     }
+    //public enum CameraInputType
+    //{
+    //    TranslateXY,
+    //    RotateYP,
+    //    Select,
+    //    ContextMenu,
+    //}
+    //[Flags]
+    //public enum ComboModifier
+    //{
+    //    None        = 0x0,
+    //    Ctrl        = 0x1,
+    //    Alt         = 0x2,
+    //    Shift       = 0x4,
+    //    LeftClick   = 0x8,
+    //    MiddleClick = 0x10,
+    //    RightClick  = 0x20,
+    //}
+    //public class CameraInputCombo
+    //{
+    //    public CameraInputCombo(EMouseButton type, ComboModifier modifiers)
+    //    {
+    //        _type = type;
+    //        _modifiers = modifiers;
+    //    }
+    //    public CameraInputCombo(EMouseButton type)
+    //    {
+    //        _type = type;
+    //        _modifiers = ComboModifier.None;
+    //    }
+    //    public EMouseButton _type;
+    //    public ComboModifier _modifiers;
+    //}
 }

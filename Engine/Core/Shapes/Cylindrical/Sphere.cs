@@ -168,7 +168,7 @@ namespace TheraEngine.Core.Shapes
 
         public override void SetRenderTransform(Matrix4 worldMatrix)
         {
-            _center = worldMatrix.GetPoint();
+            _center = worldMatrix.Translation;
             base.SetRenderTransform(worldMatrix);
         }
         

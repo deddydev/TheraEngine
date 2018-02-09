@@ -71,7 +71,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected virtual void Tick(float delta)
         {
-            _currentTranslation.Raw = Vec3.Lerp(_currentTranslation.Raw, _desiredTranslation, delta*_invTransInterpSec);
+            _currentTranslation.Raw = Interp.InterpCosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec);
             RecalcLocalTransform();
         }
 

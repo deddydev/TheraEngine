@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Lights
         [Category("Spotlight Component")]
         public Vec3 Position
         {
-            get => WorldMatrix.GetPoint();
+            get => WorldMatrix.Translation;
             set => WorldMatrix = value.AsTranslationMatrix();
         }
 

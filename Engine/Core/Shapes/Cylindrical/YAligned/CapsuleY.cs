@@ -28,7 +28,7 @@ namespace TheraEngine.Core.Shapes
         public override Shape HardCopy()
             => new CapsuleY(_state.Translation, _state.Rotation, _state.Scale, Radius, HalfHeight);
         public override Shape TransformedBy(Matrix4 worldMatrix)
-            => new CapsuleY(worldMatrix.GetPoint(), Rotator.GetZero(), Vec3.One, Radius, HalfHeight);
+            => new CapsuleY(worldMatrix.Translation, Rotator.GetZero(), Vec3.One, Radius, HalfHeight);
         public override Matrix4 GetTransformMatrix()
             => _state.Matrix;
     }

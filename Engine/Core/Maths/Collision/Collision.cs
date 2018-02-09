@@ -110,6 +110,10 @@ namespace System
         {
             return Vec3.Dot(planeNormal, point) + planeOriginDistance;
         }
+        public static Vec3 ClosestPlanePointToPoint(Vec3 planeNormal, float planeOriginDistance, Vec3 point)
+        {
+            return point - (planeNormal * DistancePlanePoint(planeNormal, planeOriginDistance, point));
+        }
 
         public static EContainment SphereContainsAABB(Vec3 center, float radius, Vec3 minimum, Vec3 maximum)
         {

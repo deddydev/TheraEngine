@@ -13,10 +13,10 @@ namespace TheraEngine.Animation
             object arg2 = input[1];
             Vec3 destPoint = 
                 (arg2 is Vec3 ? (Vec3)arg2 : 
-                (arg2 is Bone ? ((Bone)arg2).WorldMatrix.GetPoint() : 
-                (arg2 is Matrix4 ? ((Matrix4)arg2).GetPoint() : 
+                (arg2 is Bone ? ((Bone)arg2).WorldMatrix.Translation : 
+                (arg2 is Matrix4 ? ((Matrix4)arg2).Translation : 
                 Vec3.Zero)));
-            Vec3 sourcePoint = bone.WorldMatrix.GetPoint();
+            Vec3 sourcePoint = bone.WorldMatrix.Translation;
             bone.FrameState.Rotation.SetRotations(Quat.LookAt(sourcePoint, destPoint, Vec3.TransformVector(Vec3.Forward, bone.Parent.WorldMatrix)).ToYawPitchRoll());
         }
 

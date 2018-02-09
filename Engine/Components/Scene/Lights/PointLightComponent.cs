@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             _cullingVolume.SetRenderTransform(WorldMatrix);
             foreach (PerspectiveCamera cam in ShadowCameras)
-                cam.LocalPoint.Raw = WorldMatrix.GetPoint();
+                cam.LocalPoint.Raw = WorldMatrix.Translation;
             base.OnWorldTransformChanged();
         }
 

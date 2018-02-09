@@ -179,24 +179,15 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        private void SetWorldSpace()
-        {
-            TransformTool3D.Instance.TransformSpace = ESpace.World;
-        }
-        private void SetLocalSpace()
-        {
-            TransformTool3D.Instance.TransformSpace = ESpace.Local;
-        }
-        private void SetScreenSpace()
-        {
-            TransformTool3D.Instance.TransformSpace = ESpace.Screen;
-        }
-        private void SetParentSpace()
-        {
-            TransformTool3D.Instance.TransformSpace = ESpace.Parent;
-        }
 
-        TransformType _transformType = TransformType.Translate;
+        private void SetWorldSpace() => TransformTool3D.Instance.TransformSpace = ESpace.World;
+        private void SetLocalSpace() => TransformTool3D.Instance.TransformSpace = ESpace.Local;
+        private void SetScreenSpace() => TransformTool3D.Instance.TransformSpace = ESpace.Screen;
+        private void SetParentSpace() => TransformTool3D.Instance.TransformSpace = ESpace.Parent;
+        
+        private TransformType _transformType = TransformType.Translate;
+        private Matrix4 _prevDragMatrix = Matrix4.Identity;
+
         private void ToggleTransformMode()
         {
             if (_transformType == TransformType.DragDrop)
@@ -291,19 +282,18 @@ namespace TheraEditor.Windows.Forms
             }
             else if (_dragComponent != null)
             {
-                //float prevHitDist = _draggingTestDistance;
                 IRigidCollidable p = _dragComponent as IRigidCollidable;
                 SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
+
+                if (dist > _draggingTestDistance)
+                    comp = null;
 
                 float upDist = 0.0f;
                 if (comp == null)
                 {
-                    //_draggingTestDistance = prevHitDist;
                     hitNormal = Vec3.Up;// v.Camera.GetUpVector();
                     float depth = TMath.DistanceToDepth(_draggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
                     _hitPoint = v.ScreenToWorld(v.ToInternalResCoords(viewportPoint), depth);
-                    //Vec3 forwardCameraVector = v.Camera.GetForwardVector();
-                    //_hitPoint = v.Camera.WorldPoint + forwardCameraVector * _hitDistance;
                 }
                 else if (p != null)
                 {
@@ -334,7 +324,12 @@ namespace TheraEditor.Windows.Forms
             else
             {
                 SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out dist);
-                _highlightPoint.Transform = Matrix4.CreateTranslation(_hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(_hitPoint, _toolSize));
+
+                _highlightPoint.Transform = 
+                    Matrix4.CreateTranslation(_hitPoint) * 
+                    hitNormal.LookatAngles().GetMatrix() *
+                    Matrix4.CreateScale(OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(_hitPoint, _toolSize));
+
                 HighlightedComponent = comp;
             }
         }
@@ -352,6 +347,7 @@ namespace TheraEditor.Windows.Forms
 
             if (_dragComponent != null)
             {
+                Editor.Instance.UndoManager.AddChange(_dragComponent.EditorState, _prevDragMatrix, _dragComponent.WorldMatrix, _dragComponent, _dragComponent.GetType().GetProperty(nameof(_dragComponent.WorldMatrix)));
                 //_selectedComponent = null;
                 _dragComponent = null;
             }
@@ -412,8 +408,9 @@ namespace TheraEditor.Windows.Forms
                                 _dragComponent = _selectedComponent;
                                 if (_dragComponent != null)
                                 {
+                                    _prevDragMatrix = _dragComponent.WorldMatrix;
                                     Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
-                                    _draggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.GetWorldPoint()) : _draggingTestDistance;
+                                    _draggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : _draggingTestDistance;
                                 }
                             }
                         }

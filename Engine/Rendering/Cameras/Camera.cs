@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering.Cameras
             get => _cameraToWorldSpaceMatrix;
             internal set
             {
-                _localPoint.Raw = _cameraToWorldSpaceMatrix.GetPoint();
+                _localPoint.Raw = _cameraToWorldSpaceMatrix.Translation;
                 _localRotation.SetRotations(_cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation().ToYawPitchRoll());
                 _cameraToWorldSpaceMatrix = value;
                 _worldToCameraSpaceMatrix = _cameraToWorldSpaceMatrix.Inverted();
@@ -141,7 +141,7 @@ namespace TheraEngine.Rendering.Cameras
         }
 
         [Category("Camera")]
-        public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
+        public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.Translation : _localPoint.Raw;
         
         [Category("Camera")]
         public EventVec3 LocalPoint
@@ -309,7 +309,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * translation.AsTranslationMatrix();
             _worldToCameraSpaceMatrix = (-translation).AsTranslationMatrix() * _worldToCameraSpaceMatrix;
-            _localPoint.SetRawNoUpdate(_cameraToWorldSpaceMatrix.GetPoint());
+            _localPoint.SetRawNoUpdate(_cameraToWorldSpaceMatrix.Translation);
             if (_viewTarget != null)
                 SetRotationWithTarget(_viewTarget.Raw);
             else
@@ -351,15 +351,15 @@ namespace TheraEngine.Rendering.Cameras
         /// <summary>
         /// Returns the right direction of the camera in world space.
         /// </summary>
-        public Vec3 RightVector => CameraToWorldSpaceMatrix.Row0.Xyz;
+        public Vec3 RightVector => CameraToWorldSpaceMatrix.RightVec;
         /// <summary>
         /// Returns the up direction of the camera in world space.
         /// </summary>
-        public Vec3 UpVector => CameraToWorldSpaceMatrix.Row1.Xyz;
+        public Vec3 UpVector => CameraToWorldSpaceMatrix.UpVec;
         /// <summary>
         /// Returns the forward direction of the camera in world space.
         /// </summary>
-        public Vec3 ForwardVector => -CameraToWorldSpaceMatrix.Row2.Xyz;
+        public Vec3 ForwardVector => -CameraToWorldSpaceMatrix.ForwardVec;
         
         public Matrix4 WorldToCameraProjSpaceMatrix
         {
@@ -546,6 +546,11 @@ namespace TheraEngine.Rendering.Cameras
         {
             Vec3 forward = ForwardVector;
             return Collision.DistancePlanePoint(forward, Plane.ComputeDistance(WorldPoint, forward), point);
+        }
+        public Vec3 ClosestPointOnScreenPlane(Vec3 point)
+        {
+            Vec3 forward = ForwardVector;
+            return Collision.ClosestPlanePointToPoint(forward, Plane.ComputeDistance(WorldPoint, forward), point);
         }
         public float DistanceFromWorldPoint(Vec3 point)
             => WorldPoint.DistanceTo(point);

@@ -9,6 +9,7 @@ using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using WeifenLuo.WinFormsUI.Docking;
 using TheraEngine.Actors.Types;
+using TheraEditor.Actors.Types.Pawns;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -19,7 +20,7 @@ namespace TheraEditor.Windows.Forms
             FormIndex = formIndex;
             PlayerIndex = playerIndex;
             InitializeComponent();
-            EditorPawn = new FlyingCameraPawn(PlayerIndex)
+            EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 HUD = new EditorHud(RenderPanel.ClientSize),
             };
@@ -62,7 +63,7 @@ namespace TheraEditor.Windows.Forms
         
         public int FormIndex { get; private set; }
         public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
-        public FlyingCameraPawn EditorPawn { get; private set; }
+        public EditorCameraPawn EditorPawn { get; private set; }
 
         LocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
@@ -137,8 +138,7 @@ namespace TheraEditor.Windows.Forms
                 BaseRenderPanel.HoveredPanel = RenderPanel;
                 RenderPanel.Focus();
                 EditorHud hud = EditorPawn.HUD as EditorHud;
-                Engine.World.SpawnActor(actor, EditorPawn.RootComponent.GetWorldPoint() +
-                    EditorPawn.RootComponent.GetForwardDir() * 20.0f);
+                Engine.World.SpawnActor(actor, EditorPawn.RootComponent.WorldPoint + EditorPawn.RootComponent.ForwardDir * 20.0f);
                 _prevTransformType = hud.TransformMode;
                 hud.TransformMode = TransformType.DragDrop;
                 hud.HighlightedComponent = actor.RootComponent;

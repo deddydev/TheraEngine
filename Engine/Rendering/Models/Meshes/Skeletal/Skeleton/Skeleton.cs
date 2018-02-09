@@ -154,10 +154,10 @@ namespace TheraEngine.Rendering.Models
             //_cullingVolume.Render();
             foreach (Bone b in BoneNameCache.Values)
             {
-                Vec3 point = b.WorldMatrix.GetPoint();
+                Vec3 point = b.WorldMatrix.Translation;
                 Engine.Renderer.RenderPoint(point, b.Parent == null ? Color.Orange : Color.Purple, 15.0f);
                 if (b.Parent != null)
-                    Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.GetPoint(), Color.Blue, 5.0f);
+                    Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.Translation, Color.Blue, 5.0f);
                 //float scale = AbstractRenderer.CurrentCamera.DistanceScale(point, 2.0f);
                 //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), Color.Red, 5.0f);
                 //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), Color.Green, 5.0f);

@@ -342,23 +342,24 @@ namespace TheraEngine.Actors.Types
                     if (_targetSocket.ParentSocket != null)
                         return _targetSocket.ParentSocket.WorldMatrix.ClearScale();
                     else
-                        return _targetSocket.WorldMatrix.GetPoint().AsTranslationMatrix();
+                        return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
 
                 case ESpace.Screen:
 
-                    Vec3 point = _targetSocket.WorldMatrix.GetPoint();
+                    Vec3 point = _targetSocket.WorldMatrix.Translation;
                     Camera c = Engine.LocalPlayers[0].ViewportCamera;
-                    Rotator angles = (c.WorldPoint - point).LookatAngles();
-                    Matrix4 angleMatrix = angles.GetMatrix();
-                    //float dot = c.GetRightVector().Dot(Vec3.TransformVector(Vec3.Right, angleMatrix));
-                    //dot = (1.0f + dot) * -90.0f;
-                    //Engine.PrintLine(dot.ToString());
-                    //angles.Roll = dot;
-                    return point.AsTranslationMatrix() * angleMatrix;
+                    //Rotator angles = (c.WorldPoint - point).LookatAngles();
+                    //Matrix4 angleMatrix = angles.GetMatrix();
+                    //return point.AsTranslationMatrix() * angleMatrix;
+                    Vec3 fwd = (c.WorldPoint - point).NormalizedFast();
+                    Vec3 up = c.UpVector;
+                    Vec3 right = up ^ fwd;
+                    return Matrix4.CreateSpacialTransform(point, right, up, fwd);
+                    //return Matrix4.CreateSpacialTransform(point, -c.RightVector, c.UpVector, -c.ForwardVector);
 
                 case ESpace.World:
                 default:
-                    return _targetSocket.WorldMatrix.GetPoint().AsTranslationMatrix();
+                    return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
             }
         }
         private Matrix4 GetInvWorldMatrix()
@@ -376,19 +377,18 @@ namespace TheraEngine.Actors.Types
                     if (_targetSocket.ParentSocket != null)
                         return _targetSocket.ParentSocket.InverseWorldMatrix.ClearScale();
                     else
-                        return _targetSocket.InverseWorldMatrix.GetPoint().AsTranslationMatrix();
+                        return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
 
                 case ESpace.Screen:
 
                     Camera c = Engine.LocalPlayers[0].ViewportCamera;
-                    Vec3 f = c.ForwardVector;
-                    Vec3 u = c.UpVector;
-                    Vec3 r = c.RightVector;
-                    return Matrix4.CreateSpacialTransform(_targetSocket.InverseWorldMatrix.GetPoint(), r, u, f);
+                    Matrix4 mtx = c.CameraToWorldSpaceMatrix;
+                    mtx.Translation = _targetSocket.InverseWorldMatrix.Translation;
+                    return mtx;
 
                 case ESpace.World:
                 default:
-                    return _targetSocket.InverseWorldMatrix.GetPoint().AsTranslationMatrix();
+                    return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
             }
         }
         public static TransformTool3D GetInstance(ISocket comp, TransformType transformType)
@@ -454,28 +454,33 @@ namespace TheraEngine.Actors.Types
         private delegate void DelDragRot(Quat dragPoint);
 
         #region Drag
-        private bool _snapRotations, _snapTranslations, _snapScale;
+        private bool 
+            _snapRotations = false,
+            _snapTranslations = false,
+            _snapScale = false;
         private float _rotationSnapBias = 0.0f;
         private float _rotationSnapInterval = 5.0f;
         private float _translationSnapBias = 0.0f;
-        private float _translationSnapInterval = 5.0f;
+        private float _translationSnapInterval = 30.0f;
         private float _scaleSnapBias = 0.0f;
         private float _scaleSnapInterval = 0.25f;
         private void DragRotation(Vec3 dragPoint)
         {
             Quat delta = Quat.BetweenVectors(_lastPoint, dragPoint);
 
-            if (_snapRotations)
-            {
-                delta.ToAxisAngle(out Vec3 axis, out float angle);
-                angle = angle.RoundToNearest(_rotationSnapBias, _rotationSnapInterval);
-                delta = Quat.FromAxisAngle(axis, angle);
-            }
+            //if (_snapRotations)
+            //{
+            //    delta.ToAxisAngle(out Vec3 axis, out float angle);
+            //    angle = angle.RoundToNearest(_rotationSnapBias, _rotationSnapInterval);
+            //    delta = Quat.FromAxisAngle(axis, angle);
+            //}
 
             _targetSocket.HandleWorldRotation(delta);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
+
+        private Vec3 _newTranslation;
         private void DragTranslation(Vec3 dragPoint)
         {
             Vec3 delta = dragPoint - _lastPoint;
@@ -484,18 +489,18 @@ namespace TheraEngine.Actors.Types
             m = m.ClearTranslation();
             Vec3 worldTrans = m * delta;
 
-            if (_snapTranslations)
-            {
-                //Modify delta to move resulting world point to nearest snap
-                Vec3 worldPoint = _targetSocket.WorldMatrix.GetPoint();
-                Vec3 resultPoint = worldPoint + worldTrans;
+            //if (_snapTranslations)
+            //{
+            //    //Modify delta to move resulting world point to nearest snap
+            //    Vec3 worldPoint = _targetSocket.WorldMatrix.Translation;
+            //    Vec3 resultPoint = worldPoint + worldTrans;
 
-                resultPoint.X = resultPoint.X.RoundToNearest(_translationSnapBias, _translationSnapInterval);
-                resultPoint.Y = resultPoint.Y.RoundToNearest(_translationSnapBias, _translationSnapInterval);
-                resultPoint.Z = resultPoint.Z.RoundToNearest(_translationSnapBias, _translationSnapInterval);
+            //    resultPoint.X = resultPoint.X.RoundToNearest(_translationSnapBias, _translationSnapInterval);
+            //    resultPoint.Y = resultPoint.Y.RoundToNearest(_translationSnapBias, _translationSnapInterval);
+            //    resultPoint.Z = resultPoint.Z.RoundToNearest(_translationSnapBias, _translationSnapInterval);
 
-                worldTrans = resultPoint - worldPoint;
-            }
+            //    worldTrans = resultPoint - worldPoint;
+            //}
 
             _targetSocket.HandleWorldTranslation(worldTrans);
 
@@ -602,10 +607,10 @@ namespace TheraEngine.Actors.Types
         }
 #endregion
 
-#region Highlighting
+        #region Highlighting
         private bool HighlightRotation(Camera camera, Ray localRay)
         {
-            Vec3 worldPoint = _dragMatrix.GetPoint();
+            Vec3 worldPoint = _dragMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             if (!Collision.RayIntersectsSphere(localRay.StartPoint, localRay.Direction, Vec3.Zero, radius, out Vec3 point))
@@ -647,7 +652,7 @@ namespace TheraEngine.Actors.Types
         }
         private bool HighlightTranslation(Camera camera, Ray localRay)
         {
-            Vec3 worldPoint = _dragMatrix.GetPoint();
+            Vec3 worldPoint = _dragMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             _intersectionPoints.Clear();
@@ -704,7 +709,7 @@ namespace TheraEngine.Actors.Types
         }
         private bool HighlightScale(Camera camera, Ray localRay)
         {
-            Vec3 worldPoint = _dragMatrix.GetPoint();
+            Vec3 worldPoint = _dragMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             _intersectionPoints.Clear();
@@ -769,7 +774,7 @@ namespace TheraEngine.Actors.Types
 
             return snapFound;
         }
-#endregion
+        #endregion
 
         private bool _pressed = false;
         private Matrix4 _dragMatrix, _invDragMatrix;

@@ -272,8 +272,7 @@ namespace TheraEngine.Components
         /// <summary>
         /// Returns the position of this component in world space.
         /// </summary>
-        public Vec3 GetWorldPoint()
-            => _worldTransform.GetPoint();
+        public Vec3 WorldPoint => _worldTransform.Translation;
         /// <summary>
         /// Returns the rotation matrix of this component, possibly with scaling.
         /// </summary>
@@ -412,6 +411,7 @@ namespace TheraEngine.Components
             }
             OwningActor?.GenerateSceneComponentCache();
         }
+        
         private void _children_Removed(SceneComponent item)
         {
             if (item.IsSpawned)

@@ -449,7 +449,7 @@ namespace TheraEngine.Core.Shapes
         }
         public override void SetRenderTransform(Matrix4 worldMatrix)
         {
-            _translation = worldMatrix.GetPoint();
+            _translation = worldMatrix.Translation;
             base.SetRenderTransform(worldMatrix);
         }
         public override Shape HardCopy()

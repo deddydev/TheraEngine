@@ -8,37 +8,31 @@ namespace TheraEngine.Components.Scene.Transforms
     /// Rotates first, then translates.
     /// </summary>
     [FileDef("Rotation-Translation Component")]
-    public class RTComponent : TranslationComponent
+    public class RTComponent : RotationComponent
     {
-        public RTComponent() : base()
+        public RTComponent() : this(Rotator.GetZero(), Vec3.Zero, true) { }
+        public RTComponent(Rotator rotation, Vec3 translation, bool deferLocalRecalc = false) : base(rotation, true)
         {
-            Rotation = new Rotator();
-        }
-        public RTComponent(Rotator rotation, Vec3 translation)
-        {
-            SetRT(rotation, translation);
-        }
-
-        public void SetRT(Rotator rotation, Vec3 translation)
-        {
-            _rotation = rotation;
-            _rotation.Changed += RecalcLocalTransform;
             _translation = translation;
             _translation.Changed += RecalcLocalTransform;
-            RecalcLocalTransform();
+            if (!deferLocalRecalc)
+                RecalcLocalTransform();
         }
 
-        [TSerialize("Rotation", UseCategory = true, OverrideXmlCategory = "Transform")]
-        protected Rotator _rotation;
+        [TSerialize("Translation", UseCategory = true, OverrideXmlCategory = "Transform")]
+        protected EventVec3 _translation;
 
         [Category("Transform")]
-        public Rotator Rotation
+        public EventVec3 Translation
         {
-            get => _rotation;
+            get
+            {
+                return _translation;
+            }
             set
             {
-                _rotation = value;
-                _rotation.Changed += RecalcLocalTransform;
+                _translation = value ?? new EventVec3();
+                _translation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
         }

@@ -1,10 +1,10 @@
-﻿using TheraEditor.Windows.Forms;
+﻿using TheraEditor.Actors.Types.Pawns;
+using TheraEditor.Windows.Forms;
 using TheraEngine.GameModes;
-using TheraEngine.Actors.Types.Pawns;
 
 namespace TheraEditor
 {
-    public class EditorGameMode : GameMode<FlyingCameraPawn, EditorPlayerController>
+    public class EditorGameMode : GameMode<EditorCameraPawn, EditorPlayerController>
     {
         protected override void HandleLocalPlayerJoined(EditorPlayerController item)
         {
@@ -27,11 +27,6 @@ namespace TheraEditor
                 form.RenderPanel.UnregisterController(item);
                 item.ControlledPawn = null;
             }
-        }
-
-        protected override void OnBeginGameplay()
-        {
-            //Engine.World.SpawnActor(new TestCharacter(), new Vec3(-5.0f, 50.0f, -5.0f));
         }
     }
 }

@@ -33,7 +33,7 @@ namespace TheraEngine.Components.Scene.Shapes
         internal override void RecalcGlobalTransform()
         {
             base.RecalcGlobalTransform();
-            _sphere.Center = GetWorldPoint();
+            _sphere.Center = WorldPoint;
         }
         public override void Render()
             => _sphere.Render();

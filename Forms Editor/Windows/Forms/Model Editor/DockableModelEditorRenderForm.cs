@@ -7,6 +7,7 @@ using TheraEngine.Timers;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using WeifenLuo.WinFormsUI.Docking;
+using TheraEditor.Actors.Types.Pawns;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -19,7 +20,7 @@ namespace TheraEditor.Windows.Forms
             PlayerIndex = playerIndex;
             InitializeComponent();
             RenderPanel.Owner = this;
-            EditorPawn = new FlyingCameraPawn(PlayerIndex)
+            EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 HUD = new EditorHud(RenderPanel.ClientSize),
             };
@@ -60,7 +61,7 @@ namespace TheraEditor.Windows.Forms
         public ModelEditorForm Form { get; private set; }
         public int FormIndex { get; private set; }
         public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
-        public FlyingCameraPawn EditorPawn { get; private set; }
+        public EditorCameraPawn EditorPawn { get; private set; }
 
         LocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;

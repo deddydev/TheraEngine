@@ -83,7 +83,7 @@ namespace TheraEngine.Components.Scene.Mesh
         public float GetDistance(Camera camera)
         {
             Vec3 camPoint = camera == null ? Vec3.Zero : camera.WorldPoint;
-            Vec3 meshPoint = (_component != null ? _component.WorldMatrix.GetPoint() : Vec3.Zero);
+            Vec3 meshPoint = (_component != null ? _component.WorldMatrix.Translation : Vec3.Zero);
             return meshPoint.DistanceToFast(camPoint);
         }
 

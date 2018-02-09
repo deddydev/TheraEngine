@@ -122,7 +122,7 @@ namespace TheraEngine.Core.Maths.Transforms
         public event MatrixChange MatrixChanged;
         public void Lookat(Vec3 point)
         {
-            SetForwardVector(point - _transform.GetPoint());
+            SetForwardVector(point - _transform.Translation);
         }
         public void SetForwardVector(Vec3 direction)
         {

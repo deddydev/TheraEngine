@@ -35,8 +35,9 @@
             // 
             // splitter1
             // 
+            this.splitter1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter1.Location = new System.Drawing.Point(0, 557);
+            this.splitter1.Location = new System.Drawing.Point(0, 551);
             this.splitter1.Name = "splitter1";
             this.splitter1.Size = new System.Drawing.Size(728, 3);
             this.splitter1.TabIndex = 2;
@@ -49,12 +50,17 @@
             this.RigidMeshes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.RigidMeshes.Collapsible = false;
             this.RigidMeshes.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.RigidMeshes.DropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
+            this.RigidMeshes.DropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
+            this.RigidMeshes.DropDownMouseDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(55)))), ((int)(((byte)(80)))));
             this.RigidMeshes.DropDownName = "Rigid Meshes";
+            this.RigidMeshes.ExpandedDropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
+            this.RigidMeshes.ExpandedDropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
             this.RigidMeshes.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.RigidMeshes.Location = new System.Drawing.Point(0, 0);
             this.RigidMeshes.Margin = new System.Windows.Forms.Padding(0);
             this.RigidMeshes.Name = "RigidMeshes";
-            this.RigidMeshes.Size = new System.Drawing.Size(728, 557);
+            this.RigidMeshes.Size = new System.Drawing.Size(728, 551);
             this.RigidMeshes.TabIndex = 0;
             // 
             // SoftMeshes
@@ -64,12 +70,17 @@
             this.SoftMeshes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.SoftMeshes.Collapsible = false;
             this.SoftMeshes.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.SoftMeshes.DropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
+            this.SoftMeshes.DropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
+            this.SoftMeshes.DropDownMouseDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(55)))), ((int)(((byte)(80)))));
             this.SoftMeshes.DropDownName = "Soft Meshes";
+            this.SoftMeshes.ExpandedDropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
+            this.SoftMeshes.ExpandedDropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
             this.SoftMeshes.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.SoftMeshes.Location = new System.Drawing.Point(0, 560);
+            this.SoftMeshes.Location = new System.Drawing.Point(0, 554);
             this.SoftMeshes.Margin = new System.Windows.Forms.Padding(0);
             this.SoftMeshes.Name = "SoftMeshes";
-            this.SoftMeshes.Size = new System.Drawing.Size(728, 25);
+            this.SoftMeshes.Size = new System.Drawing.Size(728, 31);
             this.SoftMeshes.TabIndex = 1;
             // 
             // DockableMeshList

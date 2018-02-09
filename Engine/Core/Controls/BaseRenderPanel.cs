@@ -163,7 +163,8 @@ namespace TheraEngine
             set
             {
                 _vsyncMode = value;
-                _context.VSyncMode = _vsyncMode;
+                if (_context != null)
+                    _context.VSyncMode = _vsyncMode;
             }
         }
 
@@ -311,6 +312,9 @@ namespace TheraEngine
         }
         public void CreateContext()
         {
+            if (DesignMode)
+                return;
+
             switch (Engine.RenderLibrary)
             {
                 case RenderLibrary.OpenGL:

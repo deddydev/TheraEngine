@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
@@ -33,6 +34,26 @@ namespace TheraEditor.Windows.Forms
         public MaterialControl()
         {
             InitializeComponent();
+
+            pnlMatInfo.MouseEnter += PnlMatInfo_MouseEnter;
+            pnlMatInfo.MouseLeave += PnlMatInfo_MouseLeave;
+            pnlMatInfo.MouseDown += PnlMatInfo_MouseDown;
+            tblUniforms.Visible = false;
+        }
+
+        private void PnlMatInfo_MouseDown(object sender, MouseEventArgs e)
+        {
+            tblUniforms.Visible = !tblUniforms.Visible;
+        }
+
+        private void PnlMatInfo_MouseLeave(object sender, EventArgs e)
+        {
+            BackColor = Color.FromArgb(62, 83, 90);
+        }
+
+        private void PnlMatInfo_MouseEnter(object sender, EventArgs e)
+        {
+            BackColor = Color.FromArgb(42, 63, 70);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -63,7 +84,9 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            basicRenderPanel1.UnregisterTick();
+            if (!DesignMode)
+                basicRenderPanel1.UnregisterTick();
+
             base.OnHandleDestroyed(e);
         }
 
@@ -77,6 +100,9 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _material = value;
+
+                if (DesignMode)
+                    return;
 
                 tblUniforms.Controls.Clear();
                 tblUniforms.RowStyles.Clear();
@@ -116,6 +142,7 @@ namespace TheraEditor.Windows.Forms
                         tblUniforms.Controls.Add(textCtrl, 0, tblUniforms.RowCount - 1);
                         tblUniforms.Controls.Add(valueCtrl, 1, tblUniforms.RowCount - 1);
                     }
+                    
                     foreach (BaseTexRef tref in _material.Textures)
                     {
 

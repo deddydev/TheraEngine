@@ -310,7 +310,7 @@ namespace System
         /// </summary>
         public static float DistanceToDepth(float z, float nearZ, float farZ)
         {
-            float nonLinearDepth = (farZ + nearZ - 2.0f * nearZ * farZ / z) / (farZ - nearZ);
+            float nonLinearDepth = (farZ + nearZ - 2.0f * nearZ * farZ / z.ClampMin(0.001f)) / (farZ - nearZ);
             nonLinearDepth = (nonLinearDepth + 1.0f) / 2.0f;
             return nonLinearDepth;
         }

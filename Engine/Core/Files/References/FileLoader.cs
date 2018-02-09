@@ -68,8 +68,9 @@ namespace TheraEngine.Files
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    _localPath = value.MakePathRelativeTo(Application.StartupPath);
-                    _absolutePath = Path.GetFullPath(Application.StartupPath + _localPath);
+                    _absolutePath = _localPath = value;
+                    //_localPath = value.MakePathRelativeTo(Application.StartupPath);
+                    //_absolutePath = Path.GetFullPath(Application.StartupPath + _localPath);
                 }
                 else
                 {

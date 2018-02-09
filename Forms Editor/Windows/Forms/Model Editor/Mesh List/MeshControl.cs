@@ -15,7 +15,7 @@ namespace TheraEditor.Windows.Forms
     {
         public MeshControl() : base()
         {
-            //InitializeComponent();
+            
         }
 
         public void SetMesh(StaticRigidSubMesh mesh, int i)

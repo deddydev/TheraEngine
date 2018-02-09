@@ -190,7 +190,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         private void OnScrolled(bool up)
         {
-            if (_alt)
+            if (_alt || _shift)
                 return;
 
             if (_ctrl)

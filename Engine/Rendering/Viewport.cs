@@ -183,11 +183,13 @@ namespace TheraEngine.Rendering
             _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
             HUD?.Resize(_internalResolution.Bounds);
         }
-        internal void Resize(
+
+        public void Resize(
             float parentWidth,
             float parentHeight,
             bool setInternalResolution = true,
-            float internalResolutionScale = 1.0f)
+            float internalResolutionWidthScale = 1.0f,
+            float internalResolutionHeightScale = 1.0f)
         {
             _region.X = _leftPercentage * parentWidth;
             _region.Y = _bottomPercentage * parentHeight;
@@ -195,11 +197,11 @@ namespace TheraEngine.Rendering
             _region.Height =  _topPercentage * parentHeight - _region.Y;
             
             if (setInternalResolution) SetInternalResolution(
-                _region.Width * internalResolutionScale, 
-                _region.Height * internalResolutionScale); 
+                _region.Width * internalResolutionWidthScale, 
+                _region.Height * internalResolutionHeightScale); 
 
             if (Camera is PerspectiveCamera p)
-                p.Aspect = Width / Height;
+                p.Aspect = _region.Width / _region.Height;
         }
 
         /// <summary>

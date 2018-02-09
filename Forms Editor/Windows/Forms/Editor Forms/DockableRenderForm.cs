@@ -135,12 +135,14 @@ namespace TheraEditor.Windows.Forms
                 //Engine.TargetRenderFreq = 20.0f;
                 //Engine.TargetUpdateFreq = 20.0f;
                 BaseRenderPanel.HoveredPanel = RenderPanel;
+                RenderPanel.Focus();
                 EditorHud hud = EditorPawn.HUD as EditorHud;
-                Engine.World.SpawnActor(actor/*, EditorPawn.RootComponent.GetWorldPoint() +
-                    EditorPawn.RootComponent.GetForwardDir() * hud._hitDistance*/);
+                Engine.World.SpawnActor(actor, EditorPawn.RootComponent.GetWorldPoint() +
+                    EditorPawn.RootComponent.GetForwardDir() * 20.0f);
                 _prevTransformType = hud.TransformMode;
                 hud.TransformMode = TransformType.DragDrop;
-                hud.SetSelectedComponent(true, actor.RootComponent);
+                hud.HighlightedComponent = actor.RootComponent;
+                hud.DoMouseDown();
             }
         }
 

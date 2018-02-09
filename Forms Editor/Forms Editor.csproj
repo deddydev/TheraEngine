@@ -207,9 +207,6 @@
     <Compile Include="Windows\Forms\Model Editor\Mesh List\MeshControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Mesh List\MeshControl.Designer.cs">
-      <DependentUpon>MeshControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Windows\Forms\Model Editor\ModelEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -632,9 +629,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MaterialControl.resx">
       <DependentUpon>MaterialControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MeshControl.resx">
-      <DependentUpon>MeshControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\ModelEditorForm.resx">
       <DependentUpon>ModelEditorForm.cs</DependentUpon>

@@ -566,7 +566,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (!string.IsNullOrWhiteSpace(TargetObject.FilePath))
             {
+                Editor.Instance.ContentTree.WatchProjectDirectory = false;
                 TargetObject.Export();
+                Editor.Instance.ContentTree.WatchProjectDirectory = true;
             }
             else if (TargetObject.References.Count == 1)
             {

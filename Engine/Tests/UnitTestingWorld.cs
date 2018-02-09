@@ -20,8 +20,8 @@ namespace TheraEngine.Tests
     {
         protected internal override void OnLoaded()
         {
-            int pointLights = 0;
-            int dirLights = 1;
+            int pointLights = 1;
+            int dirLights = 0;
             int spotLights = 0;
 
             float margin = 5.0f;
@@ -72,7 +72,7 @@ namespace TheraEngine.Tests
             };
 
             //Create walls
-            for (int i = 0; i < 1; ++i)
+            for (int i = 0; i < 6; ++i)
             {
                 Rotator r = rotations[i];
                 actor = new BoxActor("Wall" + i,

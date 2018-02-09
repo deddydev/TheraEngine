@@ -90,6 +90,21 @@ namespace TheraEngine.Files
             }
         }
 
+        //[TString(false, true, false)]
+        //[Category("File Reference")]
+        //[TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        //public override string ReferencePath
+        //{
+        //    get => base.ReferencePath;
+        //    set
+        //    {
+        //        string prev = base.ReferencePath;
+        //        base.ReferencePath = value;
+        //        if (string.Equals(prev, base.ReferencePath, StringComparison.InvariantCulture))
+        //            IsLoaded = false;
+        //    }
+        //}
+
         /// <summary>
         /// If true, the referenced file will be written within the parent file's data
         /// and loaded with the parent file instead of being loaded on demand from the external file.

@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.basicRenderPanel1 = new TheraEngine.BasicRenderPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.pnlRenderPreview = new System.Windows.Forms.Panel();
             this.lblMaterialName = new System.Windows.Forms.Label();
-            this.panel2 = new System.Windows.Forms.Panel();
+            this.pnlMatInfo = new System.Windows.Forms.Panel();
             this.tblUniforms = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
-            this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
+            this.pnlRenderPreview.SuspendLayout();
+            this.pnlMatInfo.SuspendLayout();
             this.SuspendLayout();
             // 
             // basicRenderPanel1
@@ -48,13 +48,13 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.basicRenderPanel1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(5);
-            this.panel1.Size = new System.Drawing.Size(150, 149);
-            this.panel1.TabIndex = 1;
+            this.pnlRenderPreview.Controls.Add(this.basicRenderPanel1);
+            this.pnlRenderPreview.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlRenderPreview.Location = new System.Drawing.Point(0, 0);
+            this.pnlRenderPreview.Name = "panel1";
+            this.pnlRenderPreview.Padding = new System.Windows.Forms.Padding(5);
+            this.pnlRenderPreview.Size = new System.Drawing.Size(150, 149);
+            this.pnlRenderPreview.TabIndex = 1;
             // 
             // lblMaterialName
             // 
@@ -67,16 +67,16 @@
             // 
             // panel2
             // 
-            this.panel2.AutoSize = true;
-            this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel2.Controls.Add(this.panel1);
-            this.panel2.Controls.Add(this.lblMaterialName);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 0);
-            this.panel2.MinimumSize = new System.Drawing.Size(479, 149);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(479, 149);
-            this.panel2.TabIndex = 3;
+            this.pnlMatInfo.AutoSize = true;
+            this.pnlMatInfo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.pnlMatInfo.Controls.Add(this.pnlRenderPreview);
+            this.pnlMatInfo.Controls.Add(this.lblMaterialName);
+            this.pnlMatInfo.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlMatInfo.Location = new System.Drawing.Point(0, 0);
+            this.pnlMatInfo.MinimumSize = new System.Drawing.Size(479, 149);
+            this.pnlMatInfo.Name = "panel2";
+            this.pnlMatInfo.Size = new System.Drawing.Size(479, 149);
+            this.pnlMatInfo.TabIndex = 3;
             // 
             // tblUniforms
             // 
@@ -103,14 +103,14 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.tblUniforms);
-            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.pnlMatInfo);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MaterialControl";
             this.Size = new System.Drawing.Size(0, 149);
-            this.panel1.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
+            this.pnlRenderPreview.ResumeLayout(false);
+            this.pnlMatInfo.ResumeLayout(false);
+            this.pnlMatInfo.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -119,9 +119,9 @@
         #endregion
 
         private TheraEngine.BasicRenderPanel basicRenderPanel1;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pnlRenderPreview;
         private System.Windows.Forms.Label lblMaterialName;
-        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel pnlMatInfo;
         private BetterTableLayoutPanel tblUniforms;
     }
 }

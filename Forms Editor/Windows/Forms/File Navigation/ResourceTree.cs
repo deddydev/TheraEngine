@@ -732,8 +732,8 @@ namespace TheraEditor.Windows.Forms
             Bitmap bmp;
             if (_draggedNodes.Length == 1)
             {
-                int w = (_draggedNodes[0].Bounds.Size.Width + Indent).ClampMin(1);
-                int h = _draggedNodes[0].Bounds.Height.ClampMin(1);
+                int w = (_draggedNodes[0].Bounds.Size.Width + Indent).Clamp(1, 256);
+                int h = _draggedNodes[0].Bounds.Height.Clamp(1, 256);
                 text = _draggedNodes[0].Text;
                 _draggingImageList.ImageSize = new Size(w, h);
                 bmp = new Bitmap(w, h);

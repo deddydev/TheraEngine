@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
+using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Timers;
@@ -17,7 +19,7 @@ namespace TheraEditor.Windows.Forms
             DockPanel.Theme = new TheraEditorTheme();
             AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
-            menuStrip1.Renderer = new TheraToolstripRenderer();
+            formMenu.Renderer = new TheraToolstripRenderer();
         }
 
         #region Instanced Dock Forms
@@ -86,6 +88,8 @@ namespace TheraEditor.Windows.Forms
 
         public void SetModel(StaticModel stm)
         {
+            FormTitle.Text = "Model Editor - " + (stm?.Name ?? "<null>");
+
             if (_static != null && _static.IsSpawned)
                 World.DespawnActor(_static);
             if (_skeletal != null && _skeletal.IsSpawned)
@@ -102,6 +106,8 @@ namespace TheraEditor.Windows.Forms
         }
         public void SetModel(SkeletalModel skm, Skeleton skel)
         {
+            FormTitle.Text = string.Format("Model Editor - {0} [{1)]", skm?.Name ?? "<null>", skel?.Name ?? "<null>");
+
             if (_static != null && _static.IsSpawned)
                 World.DespawnActor(_static);
             if (_skeletal != null && _skeletal.IsSpawned)
@@ -115,6 +121,10 @@ namespace TheraEditor.Windows.Forms
             MaterialsForm.DisplayMaterials(_skeletal);
 
             //PropertyGridForm.PropertyGrid.TargetObject = skm;
+        }
+        public void LoadAnimations(IEnumerable<SkeletalAnimation> anims)
+        {
+
         }
         protected override void OnShown(EventArgs e)
         {

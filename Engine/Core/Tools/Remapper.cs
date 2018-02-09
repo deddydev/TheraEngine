@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace System
 {
@@ -18,6 +19,14 @@ namespace System
         /// </summary>
         public int[] RemapTable => _remapTable;
         public int ImplementationLength => _impTable.Length;
+
+        public T[] GetFirstAppearanceBuffer<T>()
+        {
+            if (_source == null || !(_source is IList<T> list))
+                throw new InvalidOperationException();
+
+            return ImplementationTable.Select(x => list[x]).ToArray();
+        }
 
         public void Remap<T>(IList<T> source) => Remap(source, null);
         public void Remap<T>(IList<T> source, Comparison<T> comp)

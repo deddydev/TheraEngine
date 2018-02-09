@@ -116,5 +116,22 @@
             float f2 = value.Clamp(0.0f, 1.0f);
             return (byte)Math.Floor(f2 == 1.0f ? 4294967295.0f : f2 * 4294967296.0f);
         }
+        public static Single RoundToNearest(this Single value, Single intervalBias, Single interval)
+        {
+            float f = (value - intervalBias) / interval;
+
+            int floor = (int)f;
+
+            //Calculate ceiling away from zero
+            int ceil = (int)(f < 0 ? f - 1.0f : f + 1.0f);
+
+            float ceilDist = Math.Abs(ceil - f);
+            float floorDist = Math.Abs(f - floor);
+
+            if (floorDist < ceilDist)
+                return floor * interval + intervalBias;
+            else
+                return ceil * interval + intervalBias;
+        }
     }
 }

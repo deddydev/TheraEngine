@@ -147,7 +147,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (value != null && _project == value)
                     return;
-
+                
                 GameState = EEditorGameplayState.Editing;
 
                 if (!CloseProject())

@@ -15,6 +15,8 @@ using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryImages;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
 using static TheraEngine.Rendering.Models.Collada.Source;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Maths;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -312,7 +314,7 @@ namespace TheraEngine.Rendering.Models
 
                 if (m == null)
                     m = TMaterial.CreateLitColorMaterial();
-
+                
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, data, m));
             }
             public void Initialize(StaticModel model, VisualScene scene)
@@ -335,7 +337,15 @@ namespace TheraEngine.Rendering.Models
                 if (m == null)
                     m = TMaterial.CreateLitColorMaterial();
 
-                model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, null, data, m));
+                Sphere sphere = null;
+                VertexBuffer posBuf = data[BufferType.Position];
+                if (posBuf != null)
+                {
+                    Remapper remap = posBuf.GetData(out Vec3[] positions, true);
+                    sphere = new Sphere(remap.GetFirstAppearanceBuffer<Vec3>());
+                }
+
+                model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, sphere, data, m));
             }
         }
         private static TMaterial CreateMaterial(LibraryMaterials.Material colladaMaterial)

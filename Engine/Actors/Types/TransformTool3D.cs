@@ -453,10 +453,25 @@ namespace TheraEngine.Actors.Types
         private delegate void DelDrag(Vec3 dragPoint);
         private delegate void DelDragRot(Quat dragPoint);
 
-#region Drag
+        #region Drag
+        private bool _snapRotations, _snapTranslations, _snapScale;
+        private float _rotationSnapBias = 0.0f;
+        private float _rotationSnapInterval = 5.0f;
+        private float _translationSnapBias = 0.0f;
+        private float _translationSnapInterval = 5.0f;
+        private float _scaleSnapBias = 0.0f;
+        private float _scaleSnapInterval = 0.25f;
         private void DragRotation(Vec3 dragPoint)
         {
             Quat delta = Quat.BetweenVectors(_lastPoint, dragPoint);
+
+            if (_snapRotations)
+            {
+                delta.ToAxisAngle(out Vec3 axis, out float angle);
+                angle = angle.RoundToNearest(_rotationSnapBias, _rotationSnapInterval);
+                delta = Quat.FromAxisAngle(axis, angle);
+            }
+
             _targetSocket.HandleWorldRotation(delta);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
@@ -464,11 +479,25 @@ namespace TheraEngine.Actors.Types
         private void DragTranslation(Vec3 dragPoint)
         {
             Vec3 delta = dragPoint - _lastPoint;
-
+            
             Matrix4 m = _targetSocket.InverseWorldMatrix.ClearScale();
             m = m.ClearTranslation();
+            Vec3 worldTrans = m * delta;
 
-            _targetSocket.HandleWorldTranslation(m * delta);
+            if (_snapTranslations)
+            {
+                //Modify delta to move resulting world point to nearest snap
+                Vec3 worldPoint = _targetSocket.WorldMatrix.GetPoint();
+                Vec3 resultPoint = worldPoint + worldTrans;
+
+                resultPoint.X = resultPoint.X.RoundToNearest(_translationSnapBias, _translationSnapInterval);
+                resultPoint.Y = resultPoint.Y.RoundToNearest(_translationSnapBias, _translationSnapInterval);
+                resultPoint.Z = resultPoint.Z.RoundToNearest(_translationSnapBias, _translationSnapInterval);
+
+                worldTrans = resultPoint - worldPoint;
+            }
+
+            _targetSocket.HandleWorldTranslation(worldTrans);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }

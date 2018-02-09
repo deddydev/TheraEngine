@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
+using TheraEngine;
 using TheraEngine.Editor;
 using static TheraEngine.Editor.EditorState;
 
@@ -56,7 +57,7 @@ namespace TheraEditor.Windows.Forms
                 Editor.Instance.Invoke((Action)(() => OnChangeAdded(change)));
                 return;
             }
-
+            
             while (CanRedo)
                 Changes.PopBack().DestroySelf();
             ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
@@ -109,7 +110,9 @@ namespace TheraEditor.Windows.Forms
                 if (_stateIndex >= Changes.Count)
                     _stateIndex = Changes.Count - 1;
 
-                Changes[(uint)(_stateIndex--)].ApplyOldValue();
+                GlobalValueChange c = Changes[(uint)_stateIndex];
+                c.ApplyOldValue();
+                --_stateIndex;
 
                 ToolStripItemCollection undoColl = Editor.Instance.btnUndo.DropDownItems;
                 ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
@@ -138,7 +141,9 @@ namespace TheraEditor.Windows.Forms
                 if (_stateIndex < 0)
                     _stateIndex = 0;
 
-                Changes[(uint)(_stateIndex++)].ApplyNewValue();
+                GlobalValueChange c = Changes[(uint)_stateIndex];
+                c.ApplyNewValue();
+                ++_stateIndex;
 
                 ToolStripItemCollection undoColl = Editor.Instance.btnUndo.DropDownItems;
                 ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;

@@ -255,8 +255,6 @@ namespace TheraEngine.Actors.Types
                 TranformChanged(null);
         }
 
-
-
         [Category("Transform Tool 3D")]
         public TransformType TransformMode
         {

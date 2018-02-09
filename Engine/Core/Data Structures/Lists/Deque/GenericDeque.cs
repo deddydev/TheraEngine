@@ -109,7 +109,7 @@ namespace System.Collections.Generic
 
                 Node c = front;
                 for (int i = 0; i < index; i++)
-                    c = front.Next;
+                    c = c.Next;
                 return c.Value;
             }
             set
@@ -119,7 +119,7 @@ namespace System.Collections.Generic
 
                 Node c = front;
                 for (int i = 0; i < index; i++)
-                    c = front.Next;
+                    c = c.Next;
                 c.Value = value;
 
                 version++;

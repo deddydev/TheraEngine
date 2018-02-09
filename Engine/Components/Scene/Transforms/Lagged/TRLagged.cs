@@ -135,9 +135,6 @@ namespace TheraEngine.Components.Scene.Transforms
             _desiredRotation.SetRotations(q.ToYawPitchRoll());
             base.HandleWorldRotation(delta);
         }
-        public Vec3 RightDir => _localTransform.RightVec;
-        public Vec3 UpDir => _localTransform.UpVec;
-        public Vec3 ForwardDir => _localTransform.ForwardVec;
 
         public Vec3 GetDesiredRightDir() => _desiredRotation.TransformVector(Vec3.Right);
         public Vec3 GetDesiredUpDir() => _desiredRotation.TransformVector(Vec3.Up);

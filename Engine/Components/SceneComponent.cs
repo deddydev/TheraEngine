@@ -202,6 +202,48 @@ namespace TheraEngine.Components
             }
         }
 
+        /// <summary>
+        /// Right direction relative to the parent component (or world if null).
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 LocalRightDir => _localTransform.RightVec;
+        /// <summary>
+        /// Up direction relative to the parent component (or world if null).
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 LocalUpDir => _localTransform.UpVec;
+        /// <summary>
+        /// Forward direction relative to the parent component (or world if null).
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 LocalForwardDir => _localTransform.ForwardVec;
+        /// <summary>
+        /// The position of this component relative to the parent component (or world if null).
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 LocalPoint => _localTransform.Translation;
+        
+        /// <summary>
+        /// Right direction relative to the world.
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 WorldRightDir => _worldTransform.RightVec;
+        /// <summary>
+        /// Up direction relative to the world.
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 WorldUpDir => _worldTransform.UpVec;
+        /// <summary>
+        /// Forward direction relative to the world.
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 WorldForwardDir => _worldTransform.ForwardVec;
+        /// <summary>
+        /// The position of this component relative to the world.
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 WorldPoint => _worldTransform.Translation;
+
         [TSerialize]
         //[Browsable(false)]
         [Category("Scene Component")]
@@ -269,10 +311,7 @@ namespace TheraEngine.Components
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
-        /// <summary>
-        /// Returns the position of this component in world space.
-        /// </summary>
-        public Vec3 WorldPoint => _worldTransform.Translation;
+
         /// <summary>
         /// Returns the rotation matrix of this component, possibly with scaling.
         /// </summary>

@@ -15,6 +15,7 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Physics;
 using TheraEngine.Editor;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Components.Scene.Mesh;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -22,9 +23,29 @@ namespace TheraEditor.Windows.Forms
     {
         public EditorHud(Vec2 bounds) : base(bounds)
         {
+            TransformTool3D.Instance.MouseDown += Instance_MouseDown;
+            TransformTool3D.Instance.MouseUp += Instance_MouseUp;
+        }
+
+        private void Instance_MouseUp()
+        {
+            ISocket socket = TransformTool3D.Instance.TargetSocket;
+            if (TransformTool3D.Instance.PrevRootWorldMatrix != socket.WorldMatrix)
+            {
+                Editor.Instance.UndoManager.AddChange(
+                    ((TObject)socket).EditorState,
+                    TransformTool3D.Instance.PrevRootWorldMatrix,
+                    socket.WorldMatrix,
+                    socket,
+                    socket.GetType().GetProperty(nameof(ISocket.WorldMatrix)));
+            }
+        }
+
+        private void Instance_MouseDown()
+        {
 
         }
-        
+
         private HighlightPoint _highlightPoint;
         TRigidBody _pickedBody;
         TPointPointConstraint _currentConstraint;

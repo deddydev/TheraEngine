@@ -19,8 +19,8 @@ namespace TheraEngine.Components.Scene.Mesh
     public interface ISocket
     {
         ISocket ParentSocket { get; }
-        Matrix4 WorldMatrix { get; }
-        Matrix4 InverseWorldMatrix { get; }
+        Matrix4 WorldMatrix { get; set; }
+        Matrix4 InverseWorldMatrix { get; set; }
         EventList<SceneComponent> ChildComponents { get; }
         void RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister = false);
         
@@ -52,8 +52,8 @@ namespace TheraEngine.Components.Scene.Mesh
         private Transform _transform = Transform.GetIdentity();
         private EventList<SceneComponent> _childComponents;
 
-        public Matrix4 WorldMatrix => _transform.Matrix;
-        public Matrix4 InverseWorldMatrix => _transform.InverseMatrix;
+        public Matrix4 WorldMatrix { get=> _transform.Matrix; set => _transform.Matrix = value; }
+        public Matrix4 InverseWorldMatrix { get => _transform.InverseMatrix; set => _transform.InverseMatrix = value; }
         public EventList<SceneComponent> ChildComponents => _childComponents;
 
         private void _children_RemovedRange(IEnumerable<SceneComponent> items)

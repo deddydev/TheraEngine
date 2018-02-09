@@ -182,7 +182,14 @@ namespace TheraEngine.Rendering.Models
             }
         }
         [Browsable(false)]
-        public Matrix4 InverseWorldMatrix => OwningComponent != null ? OwningComponent.InverseWorldMatrix * InverseFrameMatrix : InverseFrameMatrix;
+        public Matrix4 InverseWorldMatrix
+        {
+            get => OwningComponent != null ? OwningComponent.InverseWorldMatrix * InverseFrameMatrix : InverseFrameMatrix;
+            set
+            {
+                WorldMatrix = value.Inverted();
+            }
+        }
         [Browsable(false)]
         public Matrix4 FrameMatrix => _frameMatrix;
         [Browsable(false)]

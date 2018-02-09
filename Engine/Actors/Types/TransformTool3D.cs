@@ -255,6 +255,8 @@ namespace TheraEngine.Actors.Types
                 TranformChanged(null);
         }
 
+
+
         [Category("Transform Tool 3D")]
         public TransformType TransformMode
         {
@@ -267,14 +269,20 @@ namespace TheraEngine.Actors.Types
                     case TransformType.Rotate:
                         _highlight = HighlightRotation;
                         _drag = DragRotation;
+                        _mouseDown = MouseDownRotation;
+                        _mouseUp = MouseUpRotation;
                         break;
                     case TransformType.Translate:
                         _highlight = HighlightTranslation;
                         _drag = DragTranslation;
+                        _mouseDown = MouseDownTranslation;
+                        _mouseUp = MouseUpTranslation;
                         break;
                     case TransformType.Scale:
                         _highlight = HighlightScale;
                         _drag = DragScale;
+                        _mouseDown = MouseDownScale;
+                        _mouseUp = MouseUpScale;
                         break;
                 }
                 int x = 0;
@@ -293,6 +301,37 @@ namespace TheraEngine.Actors.Types
                 GetDependentColors();
             }
         }
+
+        private void MouseUpScale()
+        {
+
+        }
+
+        private void MouseDownScale()
+        {
+
+        }
+
+        private void MouseUpTranslation()
+        {
+
+        }
+
+        private void MouseDownTranslation()
+        {
+
+        }
+
+        private void MouseUpRotation()
+        {
+
+        }
+
+        private void MouseDownRotation()
+        {
+
+        }
+
         /// <summary>
         /// The socket transform that is being manipulated by this transform tool.
         /// </summary>
@@ -391,6 +430,7 @@ namespace TheraEngine.Actors.Types
                     return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
             }
         }
+
         public static TransformTool3D GetInstance(ISocket comp, TransformType transformType)
         {
             if (!Instance.IsSpawned)
@@ -447,6 +487,7 @@ namespace TheraEngine.Actors.Types
         Vec3 _lastPoint;
         Vec3 _dragPlaneNormal;
 
+        private Action _mouseUp, _mouseDown;
         private DelDrag _drag;
         private DelHighlight _highlight;
         private delegate bool DelHighlight(Camera camera, Ray localRay);
@@ -479,8 +520,7 @@ namespace TheraEngine.Actors.Types
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
-
-        private Vec3 _newTranslation;
+        
         private void DragTranslation(Vec3 dragPoint)
         {
             Vec3 delta = dragPoint - _lastPoint;
@@ -843,6 +883,8 @@ namespace TheraEngine.Actors.Types
                 }
             }
         }
+
+        public Matrix4 PrevRootWorldMatrix { get; private set; } = Matrix4.Identity;
         private void OnPressed()
         {
             if (_targetSocket != null)
@@ -853,13 +895,21 @@ namespace TheraEngine.Actors.Types
             _pressed = true;
             _dragMatrix = RootComponent.WorldMatrix;
             _invDragMatrix = RootComponent.InverseWorldMatrix;
+
+            PrevRootWorldMatrix = _targetSocket.WorldMatrix;
+            MouseDown?.Invoke();
+            //_mouseDown();
         }
         private void OnReleased()
         {
             _pressed = false;
             _dragMatrix = RootComponent.WorldMatrix;
             _invDragMatrix = RootComponent.InverseWorldMatrix;
+            MouseUp?.Invoke();
+
+            //_mouseUp();
         }
+        public event Action MouseDown, MouseUp;
         public void Render()
         {
             //foreach (Vec3 v in _intersectionPoints)

@@ -284,6 +284,7 @@ namespace TheraEditor.Windows.Forms
             AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
 
+            KeyPreview = true;
             MappableActions = new Dictionary<Keys, Func<bool>>()
             {
                 { Keys.Control | Keys.Z, Undo },
@@ -732,9 +733,7 @@ namespace TheraEditor.Windows.Forms
                 var func = MappableActions[e.KeyData];
                 e.Handled = func();
                 if (e.Handled)
-                {
                     Engine.PrintLine(e.KeyData.ToString() + ": " + func.Method.Name);
-                }
                 return;
             }
             base.OnKeyDown(e);

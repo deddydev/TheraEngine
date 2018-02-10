@@ -23,6 +23,7 @@ namespace TheraEditor.Windows.Forms
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 HUD = new EditorHud(RenderPanel.ClientSize),
+                Name = string.Format("ModelViewport{0}_EditorCamera", (FormIndex + 1).ToString())
             };
             Text = string.Format("Model Viewport {0}", (FormIndex + 1).ToString());
             RenderPanel.AllowDrop = true;

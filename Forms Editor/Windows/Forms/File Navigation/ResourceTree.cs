@@ -1262,9 +1262,10 @@ namespace TheraEditor.Windows.Forms
                 {
                     Rectangle r = n.Bounds;
                     r.X -= 25; r.Width += 25;
-                    if (r.Contains(x, y))
-                        SelectedNode = n;
+                    SelectedNode = r.Contains(x, y) ? n : null;
                 }
+                else
+                    SelectedNode = null;
 
                 m.Result = IntPtr.Zero;
                 return;

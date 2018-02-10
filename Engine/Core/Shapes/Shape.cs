@@ -34,7 +34,9 @@ namespace TheraEngine.Core.Shapes
     public abstract class Shape : TFileObject, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
+            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
+
+        public Action VisibilityChanged;
 
         [Browsable(false)]
         public virtual Shape CullingVolume => this;
@@ -62,7 +64,13 @@ namespace TheraEngine.Core.Shapes
         public bool Visible
         {
             get => _isVisible;
-            set => _isVisible = value;
+            set
+            {
+                if (_isVisible == value)
+                    return;
+                _isVisible = value;
+                VisibilityChanged?.Invoke();
+            }
         }
         public bool VisibleInEditorOnly
         {

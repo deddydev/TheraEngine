@@ -187,5 +187,28 @@ namespace TheraEngine.Components.Scene.Mesh
                 m.Visible = false;
             base.OnDespawned();
         }
+
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            base.OnSelectedChanged(selected);
+
+            if (OwningScene == null)
+                return;
+
+            foreach (StaticRenderableMesh m in Meshes)
+            {
+                if (m.CullingVolume != null)
+                {
+                    if (selected)
+                    {
+                        OwningScene.Add(m.CullingVolume);
+                    }
+                    else
+                    {
+                        OwningScene.Remove(m.CullingVolume);
+                    }
+                }
+            }
+        }
     }
 }

@@ -132,6 +132,17 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 _initialCullingVolumeMatrix = _cullingVolume.GetTransformMatrix();
                 _component.WorldTransformChanged += _component_WorldTransformChanged;
+                //_cullingVolume.VisibilityChanged += () => 
+                //{
+                //    if (_cullingVolume.Visible)
+                //    {
+                //        _component?.OwningScene?.Add(_cullingVolume);
+                //    }
+                //    else
+                //    {
+                //        _component?.OwningScene?.Remove(_cullingVolume);
+                //    }
+                //};  
             }
             else
                 _initialCullingVolumeMatrix = Matrix4.Identity;

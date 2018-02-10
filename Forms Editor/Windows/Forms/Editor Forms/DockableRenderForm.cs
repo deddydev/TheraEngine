@@ -23,6 +23,7 @@ namespace TheraEditor.Windows.Forms
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 HUD = new EditorHud(RenderPanel.ClientSize),
+                Name = string.Format("Viewport{0}_EditorCamera", (FormIndex + 1).ToString())
             };
             Text = string.Format("Viewport {0}", (FormIndex + 1).ToString());
             RenderPanel.AllowDrop = true;
@@ -138,7 +139,7 @@ namespace TheraEditor.Windows.Forms
                 BaseRenderPanel.HoveredPanel = RenderPanel;
                 RenderPanel.Focus();
                 EditorHud hud = EditorPawn.HUD as EditorHud;
-                Engine.World.SpawnActor(actor, EditorPawn.RootComponent.WorldPoint + EditorPawn.RootComponent.LocalForwardDir * 20.0f);
+                Engine.World.SpawnActor(actor, EditorPawn.RootComponent.WorldPoint + EditorPawn.RootComponent.WorldForwardDir * 20.0f);
                 _prevTransformType = hud.TransformMode;
                 hud.TransformMode = TransformType.DragDrop;
                 hud.HighlightedComponent = actor.RootComponent;

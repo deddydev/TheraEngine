@@ -76,6 +76,7 @@ namespace TheraEngine.Rendering.OpenGL
             while ((code = GL.GetError()) != ErrorCode.NoError)
             {
                 temp = code.ToString();
+                //Prevent infinite loop
                 if (!error.Contains(temp))
                     error += temp;
                 else

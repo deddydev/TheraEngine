@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -74,7 +75,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 await Task.Run(() => Parallel.For(0, list.Count, i =>
                 {
                     Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(list[i]?.GetType());
-                    List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, list, i, Control_ListObjectChanged);
+                    List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, list, i, DataChangeHandler);
                     controls.TryAdd(i, items);
                 }));
                 propGridListItems.tblProps.SuspendLayout();
@@ -125,13 +126,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _list.Add(value);
             var items = TheraPropertyGrid.InstantiatePropertyEditors(
-                TheraPropertyGrid.GetControlTypes(value?.GetType()), _list, i, Control_ListObjectChanged);
+                TheraPropertyGrid.GetControlTypes(value?.GetType()), _list, i, DataChangeHandler);
             propGridListItems.AddProperty(items, new object[0], false);
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(items[items.Count - 1]);
         }
-        
-        private void Control_ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
-            => OnListObjectChanged(oldValue, newValue, listOwner, listIndex);
         
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {

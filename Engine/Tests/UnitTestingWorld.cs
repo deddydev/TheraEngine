@@ -186,7 +186,14 @@ namespace TheraEngine.Tests
             {
                 Bounds = new BoundingBox(1000.0f),
                 OriginRebaseBounds = new BoundingBox(50.0f),
+                EnableOriginRebasing = false,
             };
+        }
+        public override void BeginPlay()
+        {
+            base.BeginPlay();
+
+            //Scene.Add(Settings.OriginRebaseBounds);
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -13,7 +14,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class MaterialControl : UserControl
+    public partial class MaterialControl : UserControl, IDataChangeHandler
     {
         private float _cameraFovY = 45.0f;
         public float CameraFovY
@@ -129,12 +130,12 @@ namespace TheraEditor.Windows.Forms
                         PropGridItem textCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
                             typeof(PropGridText),
                             varType.GetProperty(nameof(ShaderVar.Name)), 
-                            shaderVar, UniformChanged);
+                            shaderVar, this);
 
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
                             TheraPropertyGrid.GetControlTypes(valType)[0],
                             varType.GetProperty("Value"), 
-                            shaderVar, UniformChanged);
+                            shaderVar, this);
 
                         tblUniforms.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                         tblUniforms.RowCount = tblUniforms.RowStyles.Count;
@@ -151,10 +152,16 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void UniformChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
+        public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
         {
             //btnSave.Visible = true;
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
+        }
+
+        public void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
+        {
+            //btnSave.Visible = true;
+            Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, listOwner, listIndex);
         }
     }
 }

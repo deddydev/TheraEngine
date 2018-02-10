@@ -475,7 +475,7 @@ namespace TheraEditor.Windows.Forms
             public HighlightPoint()
             {
                 _material = TMaterial.CreateUnlitColorMaterialForward(Color);
-                _material.RenderParamsRef.File.DepthTest.Enabled = false;
+                _material.RenderParams.DepthTest.Enabled = false;
                 _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), _material);
                 _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), _material);
             }

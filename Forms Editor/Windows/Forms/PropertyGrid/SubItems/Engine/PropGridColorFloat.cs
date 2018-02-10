@@ -108,17 +108,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
+                //Revert color
                 if (DataType == typeof(ColorF3))
                 {
                     ColorF3 color = (ColorF3)_previousColor;
                     panel1.BackColor = color.Color;
-                    UpdateValue(color);
+                    UpdateValue(color, false);
                 }
                 else if (DataType == typeof(ColorF4))
                 {
                     ColorF4 color = (ColorF4)_previousColor;
                     panel1.BackColor = colorControl1.Color;
-                    UpdateValue(color);
+                    UpdateValue(color, false);
                 }
                 else if (DataType == typeof(EventColorF3))
                 {
@@ -144,13 +145,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 ColorF3 color = (ColorF3)newColor;
                 panel1.BackColor = color.Color;
-                UpdateValue(color);
+                UpdateValue(color, false);
             }
             else if (DataType == typeof(ColorF4))
             {
                 ColorF4 color = newColor;
                 panel1.BackColor = newColor;
-                UpdateValue(color);
+                UpdateValue(color, false);
             }
             else if (DataType == typeof(EventColorF3))
             {

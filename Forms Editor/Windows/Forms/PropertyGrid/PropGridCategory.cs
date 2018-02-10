@@ -17,7 +17,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             bool invalid = string.IsNullOrWhiteSpace(CategoryName);
             if (lblCategoryName.Visible = !invalid)
-                tblProps.Visible = !Editor.GetSettings().PropertyGridRef.File.CollapsedCategories.Contains(CategoryName);
+                tblProps.Visible = !Editor.GetSettings().PropertyGrid.CollapsedCategories.Contains(CategoryName);
             else
                 tblProps.Visible = true;
         }
@@ -31,7 +31,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 bool invalid = string.IsNullOrWhiteSpace(value);
                 if (lblCategoryName.Visible = !invalid)
-                    tblProps.Visible = !Editor.GetSettings().PropertyGridRef.File.CollapsedCategories.Contains(CategoryName);
+                    tblProps.Visible = !Editor.GetSettings().PropertyGrid.CollapsedCategories.Contains(CategoryName);
                 else
                     tblProps.Visible = true;
             }

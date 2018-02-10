@@ -10,8 +10,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     [PropGridControlFor(typeof(Vec4))]
     public partial class PropGridVec4 : PropGridItem
     {
-        public PropGridVec4() => InitializeComponent();
-        
+        public PropGridVec4()
+        {
+            InitializeComponent();
+            numericInputBoxX.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxY.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxZ.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxW.GotFocus += NumericInputBoxX_GotFocus;
+            numericInputBoxX.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxY.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxZ.LostFocus += NumericInputBoxX_LostFocus;
+            numericInputBoxW.LostFocus += NumericInputBoxX_LostFocus;
+        }
+        private void NumericInputBoxX_LostFocus(object sender, EventArgs e) => IsEditing = false;
+        private void NumericInputBoxX_GotFocus(object sender, EventArgs e) => IsEditing = true;
+
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
@@ -89,24 +102,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,
                 numericInputBoxZ.Value.Value,
-                numericInputBoxW.Value.Value));
+                numericInputBoxW.Value.Value), false);
         private void numericInputBoxY_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
             => UpdateValue(new Vec4(
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,
                 numericInputBoxZ.Value.Value,
-                numericInputBoxW.Value.Value));
+                numericInputBoxW.Value.Value), false);
         private void numericInputBoxZ_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
             => UpdateValue(new Vec4(
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,
                 numericInputBoxZ.Value.Value,
-                numericInputBoxW.Value.Value));
+                numericInputBoxW.Value.Value), false);
         private void numericInputBoxW_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
             => UpdateValue(new Vec4(
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,
                 numericInputBoxZ.Value.Value,
-                numericInputBoxW.Value.Value));
+                numericInputBoxW.Value.Value), false);
     }
 }

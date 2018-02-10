@@ -40,6 +40,9 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public abstract class ShaderVar : TObject, IShaderVarOwner
     {
+        internal const string CategoryName = "Material Parameter";
+        internal const string ValueName = "Value";
+
         public const string NoName = "NoName";
         public static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
         {
@@ -131,7 +134,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public abstract ShaderVarType TypeName { get; }
 
         [TString(false, false, false, false)]
-        [Category("Object")]
+        [Category(CategoryName)]
         public override string Name
         {
             get => base.Name;

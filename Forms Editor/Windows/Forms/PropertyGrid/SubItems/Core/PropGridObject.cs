@@ -104,7 +104,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
 
                     TheraPropertyGrid.CreateControls(
-                        controlTypes, prop, pnlProps, _categories, obj, attribs, false, Control_PropertyObjectChanged);
+                        controlTypes, prop, pnlProps, _categories, obj, attribs, false, DataChangeHandler);
                 }
             }
 
@@ -113,9 +113,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             pnlProps.ResumeLayout(true);
         }
-
-        private void Control_PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
-            => OnPropertyObjectChanged(oldValue, newValue, propertyOwner, propertyInfo);
         
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {
@@ -207,7 +204,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true));
+                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
         }
     }
 }

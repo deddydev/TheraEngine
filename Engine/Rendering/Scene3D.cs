@@ -271,7 +271,7 @@ namespace TheraEngine.Rendering
 
                             Engine.Renderer.AllowDepthWrite(true);
 
-                            RenderTree.DebugRender(c?.Frustum, true);
+                            //RenderTree.DebugRender(c?.Frustum, true);
 
                             _passes.Render(ERenderPass3D.OpaqueForward);
                             //Render forward transparent objects next

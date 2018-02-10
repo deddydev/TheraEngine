@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void numericInputBox1_ValueChanged(NumericInputBoxBase<UInt16> box, UInt16? previous, UInt16? current)
         {
-            UpdateValue(current.Value);
+            UpdateValue(current.Value, false);
         }
     }
 }

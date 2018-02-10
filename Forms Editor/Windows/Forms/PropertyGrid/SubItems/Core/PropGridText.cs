@@ -50,7 +50,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (_updating)
                 return;
-            UpdateValue(textBox1.Text);
+            UpdateValue(textBox1.Text, false);
         }
         protected override void SetControlsEnabled(bool enabled)
         {

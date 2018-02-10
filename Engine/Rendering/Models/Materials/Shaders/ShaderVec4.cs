@@ -7,12 +7,13 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._bvec4;
+        [Category(CategoryName)]
         public BoolVec4 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private BoolVec4 _value;
 
         public ShaderBVec4() : this(new BoolVec4(), NoName) { }
@@ -32,12 +33,13 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._vec4;
+        [Category(CategoryName)]
         public Vec4 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) 
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private Vec4 _value;
 
         public ShaderVec4() : this(new Vec4(), NoName) { }
@@ -57,12 +59,13 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._dvec4;
+        [Category(CategoryName)]
         public DVec4 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private DVec4 _value;
 
         public ShaderDVec4() : this(new DVec4(), NoName) { }
@@ -82,12 +85,13 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._ivec4;
+        [Category(CategoryName)]
         public IVec4 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) 
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private IVec4 _value;
 
         public ShaderIVec4() : this(new IVec4(), NoName) { }
@@ -107,12 +111,13 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._uvec4;
+        [Category(CategoryName)]
         public UVec4 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) 
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private UVec4 _value;
 
         public ShaderUVec4() : this(new UVec4(), NoName) { }

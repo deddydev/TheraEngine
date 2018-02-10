@@ -99,6 +99,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             => UpdateValue(new Vec3(
                 numericInputBoxX.Value.Value,
                 numericInputBoxY.Value.Value,
-                numericInputBoxZ.Value.Value));
+                numericInputBoxZ.Value.Value), false);
     }
 }

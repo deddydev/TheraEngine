@@ -6,6 +6,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._bool;
+        [Category(CategoryName)]
         public bool Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
@@ -13,7 +14,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe bool* Data { get { fixed (bool* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private bool _value;
 
         public ShaderBool() : this(false, NoName) { }
@@ -26,6 +27,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._float;
+        [Category(CategoryName)]
         public float Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.Uniform(programBindingId, location, _value);
@@ -33,7 +35,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe float* Data { get { fixed (float* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private float _value;
 
         public ShaderFloat() : this(0.0f, NoName) { }
@@ -46,6 +48,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._double;
+        [Category(CategoryName)]
         public double Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
@@ -53,7 +56,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe double* Data { get { fixed (double* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private double _value;
 
         public ShaderDouble() : this(0.0, NoName) { }
@@ -66,6 +69,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._int;
+        [Category(CategoryName)]
         public int Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.Uniform(programBindingId, location, _value);
@@ -73,7 +77,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe int* Data { get { fixed (int* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private int _value;
 
         public ShaderInt() : this(0, NoName) { }
@@ -86,6 +90,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._uint;
+        [Category(CategoryName)]
         public uint Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
@@ -93,7 +98,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public unsafe uint* Data { get { fixed (uint* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private uint _value;
         
         public ShaderUInt() : this(0u, NoName) { }

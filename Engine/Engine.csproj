@@ -512,7 +512,7 @@
     <Compile Include="Rendering\Models\Materials\Shaders\ShaderVec1.cs" />
     <Compile Include="Rendering\Models\Materials\Shaders\ShaderVec2.cs" />
     <Compile Include="Rendering\Models\Materials\Shaders\ShaderVec3.cs" />
-    <Compile Include="Rendering\Models\Materials\Shaders\ShaderMat4.cs" />
+    <Compile Include="Rendering\Models\Materials\Shaders\ShaderMat.cs" />
     <Compile Include="Rendering\Models\Materials\Shaders\ShaderVec4.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Constants\CommonParameterFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Constants\ConstantFunc.cs" />

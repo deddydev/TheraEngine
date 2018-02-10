@@ -38,7 +38,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 r0c0.Value.Value, r0c1.Value.Value, r0c2.Value.Value, r0c3.Value.Value,
                 r1c0.Value.Value, r1c1.Value.Value, r1c2.Value.Value, r1c3.Value.Value,
                 r2c0.Value.Value, r2c1.Value.Value, r2c2.Value.Value, r2c3.Value.Value,
-                r3c0.Value.Value, r3c1.Value.Value, r3c2.Value.Value, r3c3.Value.Value));
+                r3c0.Value.Value, r3c1.Value.Value, r3c2.Value.Value, r3c3.Value.Value), false);
 
         private NumericInputBoxSingle[,] _boxes;
 

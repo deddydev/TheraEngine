@@ -7,11 +7,12 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._mat4;
+        [Category(CategoryName)]
         public Matrix4 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private Matrix4 _value;
 
         public ShaderMat4(Matrix4 defaultValue, string name, IShaderVarOwner owner) 
@@ -29,11 +30,12 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._mat3;
+        [Category(CategoryName)]
         public Matrix3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
-        [TSerialize("Value", IsXmlElementString = true)]
+        [TSerialize(ValueName, IsXmlElementString = true)]
         private Matrix3 _value;
         
         public ShaderMat3(Matrix3 defaultValue, string name, IShaderVarOwner owner)

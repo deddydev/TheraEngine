@@ -88,6 +88,7 @@ namespace TheraEngine.Components.Scene.Transforms
             //Engine.PrintLine("Rebasing {0}.", OwningActor.GetType().GetFriendlyName());
             _desiredTranslation -= newOrigin;
             _currentTranslation.Raw -= newOrigin;
+            RecalcLocalTransform();
         }
 
         [Browsable(false)]

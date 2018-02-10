@@ -90,17 +90,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 SubmitPreManualStateChange(ClassObject, propName);
         }
 
-        public delegate void IListStateChange(object oldValue, object newValue, IList listOwner, int listIndex);
-        public delegate void PropertyStateChange(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo);
+        public IDataChangeHandler DataChangeHandler { get; set; }
 
-        public event IListStateChange ListObjectChanged;
-        public event PropertyStateChange PropertyObjectChanged;
-
-        public void OnPropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
-            => PropertyObjectChanged?.Invoke(oldValue, newValue, propertyOwner, propertyInfo);
-        public void OnListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
-            => ListObjectChanged?.Invoke(oldValue, newValue, listOwner, listIndex);
-        
         /// <summary>
         /// Records that a value has changed to the undo buffer and enables saving the owning file.
         /// </summary>
@@ -108,14 +99,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (IListOwner != null)
             {
-                ListObjectChanged?.Invoke(oldValue, newValue, IListOwner, IListIndex);
+                DataChangeHandler.ListObjectChanged(oldValue, newValue, IListOwner, IListIndex);
                 //PropertyGrid.btnSave.Visible = true;
                 //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
                 //    oldValue, newValue, IListOwner, IListIndex);
             }
             else if (Property != null && Property.CanWrite)
             {
-                PropertyObjectChanged?.Invoke(oldValue, newValue, PropertyOwner, Property);
+                DataChangeHandler.PropertyObjectChanged(oldValue, newValue, PropertyOwner, Property);
                 //PropertyGrid.btnSave.Visible = true;
                 //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
                 //    oldValue, newValue, PropertyOwner, Property);
@@ -144,7 +135,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        public void UpdateValue(object newValue, bool submitStateChange = false)
+        public void UpdateValue(object newValue, bool submitStateChange)
         {
             if (_updating)
                 return;
@@ -213,7 +204,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _newValue = info.GetValue(classObject);
             if (_newValue != _oldValue)
             {
-                PropertyObjectChanged?.Invoke(_oldValue, _newValue, classObject, info);
+                DataChangeHandler.PropertyObjectChanged(_oldValue, _newValue, classObject, info);
                 //PropertyGrid.btnSave.Visible = true;
                 //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
                 //    _oldValue, _newValue, classObject, info);

@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.Models
             _cullingVolume.File = cullingVolume;
             _lods = lods?.ToList() ?? new List<LOD>();
         }
-
+        
         protected List<LOD> _lods = new List<LOD>();
         [TSerialize(nameof(CullingVolume), Order = 1)]
         protected GlobalFileRef<Shape> _cullingVolume = new GlobalFileRef<Shape>();
@@ -64,7 +64,9 @@ namespace TheraEngine.Rendering.Models
         [TSerialize(Order = 0)]
         public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
         //[Browsable(false)]
-        public GlobalFileRef<Shape> CullingVolume => _cullingVolume;
+        public GlobalFileRef<Shape> CullingVolumeRef => _cullingVolume;
+        [Browsable(false)]
+        public Shape CullingVolume => _cullingVolume.File;
         [TSerialize(Order = 2)]
         public List<LOD> LODs
         {

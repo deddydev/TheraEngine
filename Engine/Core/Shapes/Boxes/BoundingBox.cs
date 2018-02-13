@@ -118,6 +118,7 @@ namespace TheraEngine.Core.Shapes
             out Vec3 BFL,
             out Vec3 BFR)
             => GetCorners(Minimum, Maximum, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+
         /// <summary>
         /// Returns the corners of a box with the given minimum and maximum corner coordinates.
         /// Naming system (back, front, etc) is relative to a camera looking in the -Z direction (forward).
@@ -356,6 +357,13 @@ namespace TheraEngine.Core.Shapes
             _translation.Raw = (max + min) / 2.0f;
             _halfExtents.Raw = (max - min) / 2.0f;
         }
+        public void Expand(BoundingBox box)
+        {
+            Vec3 min = Vec3.ComponentMin(box.Minimum, box.Maximum, Minimum);
+            Vec3 max = Vec3.ComponentMax(box.Minimum, box.Maximum, Maximum);
+            _translation.Raw = (max + min) / 2.0f;
+            _halfExtents.Raw = (max - min) / 2.0f;
+        }
 
         #region Collision
         /// <summary>
@@ -470,6 +478,7 @@ namespace TheraEngine.Core.Shapes
             => TCollisionBox.New(HalfExtents);
         public override void Render()
             => Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid, Color.Blue);
+        public override BoundingBox GetAABB() => this;
         #endregion
     }
 }

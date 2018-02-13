@@ -5,6 +5,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Timers;
 using WeifenLuo.WinFormsUI.Docking;
@@ -102,11 +103,16 @@ namespace TheraEditor.Windows.Forms
             MeshesForm.DisplayMeshes(_static);
             MaterialsForm.DisplayMaterials(_static);
 
+            BoundingBox aabb = stm.CalculateAABB();
+            RenderForm1.AlignView(aabb);
+
             //PropertyGridForm.PropertyGrid.TargetObject = stm;
         }
-        public void SetModel(SkeletalModel skm, Skeleton skel)
+        public void SetModel(SkeletalModel skm)
         {
-            FormTitle.Text = string.Format("Model Editor - {0} [{1)]", skm?.Name ?? "<null>", skel?.Name ?? "<null>");
+            Skeleton skel = skm.SkeletonRef?.File;
+
+            FormTitle.Text = string.Format("Model Editor - {0} [{1}]", skm?.Name ?? "<null>", skel?.Name ?? "<null>");
 
             if (_static != null && _static.IsSpawned)
                 World.DespawnActor(_static);
@@ -116,9 +122,10 @@ namespace TheraEditor.Windows.Forms
             Model = skm;
             _skeletal = new Actor<SkeletalMeshComponent>(new SkeletalMeshComponent(skm, skel));
             World.SpawnActor(_skeletal);
-            
+
             MeshesForm.DisplayMeshes(_skeletal);
             MaterialsForm.DisplayMaterials(_skeletal);
+            BoneTreeForm.NodeTree.DisplayNodes(skel);
 
             //PropertyGridForm.PropertyGrid.TargetObject = skm;
         }
@@ -171,40 +178,12 @@ namespace TheraEditor.Windows.Forms
 
             Application.DoEvents();
         }
-
-        private void btnViewport1_Click(object sender, EventArgs e)
-        {
-            RenderForm1.Focus();
-        }
-
-        private void btnViewport2_Click(object sender, EventArgs e)
-        {
-            RenderForm2.Focus();
-        }
-
-        private void btnViewport3_Click(object sender, EventArgs e)
-        {
-            RenderForm3.Focus();
-        }
-
-        private void btnViewport4_Click(object sender, EventArgs e)
-        {
-            RenderForm4.Focus();
-        }
-
-        private void btnMeshList_Click(object sender, EventArgs e)
-        {
-            MeshesForm.Focus();
-        }
-
-        private void btnMaterialList_Click(object sender, EventArgs e)
-        {
-            MaterialsForm.Focus();
-        }
-
-        private void btnSkeleton_Click(object sender, EventArgs e)
-        {
-            BoneTreeForm.Focus();
-        }
+        private void btnViewport1_Click(object sender, EventArgs e) => RenderForm1.Focus();
+        private void btnViewport2_Click(object sender, EventArgs e) => RenderForm2.Focus();
+        private void btnViewport3_Click(object sender, EventArgs e) => RenderForm3.Focus();
+        private void btnViewport4_Click(object sender, EventArgs e) => RenderForm4.Focus();
+        private void btnMeshList_Click(object sender, EventArgs e) => MeshesForm.Focus();
+        private void btnMaterialList_Click(object sender, EventArgs e) => MaterialsForm.Focus();
+        private void btnSkeleton_Click(object sender, EventArgs e) => BoneTreeForm.Focus();
     }
 }

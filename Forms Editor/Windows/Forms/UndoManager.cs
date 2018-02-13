@@ -19,16 +19,17 @@ namespace TheraEditor.Windows.Forms
             get => _maxChanges;
             set
             {
-                _maxChanges = value;
+                _maxChanges = value.ClampMin(-1);
                 CheckChangeSize();
-                _stateIndex = _stateIndex.ClampMax(_maxChanges);
             }
         }
         private Deque<GlobalValueChange> Changes { get; } = new Deque<GlobalValueChange>();
         private void CheckChangeSize()
         {
             while (Changes.Count > _maxChanges)
+            {
                 Changes.PopFront().DestroySelf();
+            }
         }
         public void AddChange(EditorState editorState, object oldValue, object newValue, IList listOwner, int listIndex)
         {

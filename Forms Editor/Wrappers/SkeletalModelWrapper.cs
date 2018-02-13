@@ -34,7 +34,9 @@ namespace TheraEditor.Wrappers
 
         public override void EditResource()
         {
-            
+            ModelEditorForm d = new ModelEditorForm();
+            d.Show();
+            d.SetModel(Resource);
         }
     }
 }

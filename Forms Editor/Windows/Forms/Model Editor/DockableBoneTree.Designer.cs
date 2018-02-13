@@ -28,29 +28,29 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ContentTree = new TheraEditor.Windows.Forms.TreeViewEx();
+            this.NodeTree = new TheraEditor.Windows.Forms.BoneTree();
             this.SuspendLayout();
             // 
-            // ContentTree
+            // NodeTree
             // 
-            this.ContentTree.AllowDrop = true;
-            this.ContentTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.ContentTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.ContentTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ContentTree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
-            this.ContentTree.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.ContentTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.ContentTree.Location = new System.Drawing.Point(0, 0);
-            this.ContentTree.Margin = new System.Windows.Forms.Padding(0);
-            this.ContentTree.Name = "ContentTree";
-            this.ContentTree.Size = new System.Drawing.Size(728, 585);
-            this.ContentTree.Sorted = true;
-            this.ContentTree.TabIndex = 4;
+            this.NodeTree.AllowDrop = true;
+            this.NodeTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.NodeTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.NodeTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.NodeTree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
+            this.NodeTree.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.NodeTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.NodeTree.Location = new System.Drawing.Point(0, 0);
+            this.NodeTree.Margin = new System.Windows.Forms.Padding(0);
+            this.NodeTree.Name = "NodeTree";
+            this.NodeTree.Size = new System.Drawing.Size(728, 585);
+            this.NodeTree.Sorted = true;
+            this.NodeTree.TabIndex = 4;
             // 
             // DockableBoneTree
             // 
             this.ClientSize = new System.Drawing.Size(728, 585);
-            this.Controls.Add(this.ContentTree);
+            this.Controls.Add(this.NodeTree);
             this.Name = "DockableBoneTree";
             this.Text = "Skeleton";
             this.ResumeLayout(false);
@@ -59,6 +59,6 @@
 
         #endregion
 
-        public TreeViewEx ContentTree;
+        public BoneTree NodeTree;
     }
 }

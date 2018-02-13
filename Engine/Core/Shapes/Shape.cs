@@ -90,6 +90,7 @@ namespace TheraEngine.Core.Shapes
         
         public abstract void Render();
         public abstract TCollisionShape GetCollisionShape();
+        public abstract BoundingBox GetAABB();
 
         public abstract Vec3 ClosestPoint(Vec3 point);
         public abstract bool Contains(Vec3 point);

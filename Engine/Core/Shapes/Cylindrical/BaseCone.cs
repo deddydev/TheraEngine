@@ -174,5 +174,9 @@ namespace TheraEngine.Core.Shapes
         {
             throw new NotImplementedException();
         }
+        public override BoundingBox GetAABB()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

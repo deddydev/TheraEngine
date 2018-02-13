@@ -230,5 +230,13 @@ namespace TheraEngine.Core.Shapes
             Vec3 closest = Collision.ClosestPointAABBPoint(-_halfExtents, _halfExtents, aabbPoint);
             return Vec3.TransformPosition(closest, _transform.Matrix);
         }
+
+        public override BoundingBox GetAABB()
+        {
+            Vec3[] corners = GetCorners();
+            Vec3 min = Vec3.ComponentMin(corners);
+            Vec3 max = Vec3.ComponentMax(corners);
+            return BoundingBox.FromMinMax(min, max);
+        }
     }
 }

@@ -99,10 +99,7 @@ namespace TheraEngine.Files
                             _3rdPartyLoaders.Add(extLower, d = new Dictionary<Type, DelThirdPartyFileMethod>());
                         if (!d.ContainsKey(t))
                         {
-                            var methods = t.GetMethods(
-                                BindingFlags.NonPublic |
-                                BindingFlags.Public |
-                                BindingFlags.Static)
+                            var methods = t.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                                 .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
                                 .ToArray();
                             if (methods.Length > 0 && Delegate.CreateDelegate(typeof(DelThirdPartyFileMethod), methods[0]) is DelThirdPartyFileMethod result)

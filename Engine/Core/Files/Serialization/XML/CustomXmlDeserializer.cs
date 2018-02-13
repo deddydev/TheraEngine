@@ -235,6 +235,7 @@ namespace TheraEngine.Files.Serialization
 
             if (allElementsNull && elementStrings.Count == 1)
             {
+                //We've moved to the end element tag trying to find child elements, so move back to start
                 reader.MoveBackToElementClose();
 
                 VarInfo elemStr = elementStrings[0];

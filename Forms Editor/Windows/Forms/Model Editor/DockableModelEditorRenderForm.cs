@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
-using TheraEditor.Wrappers;
-using TheraEngine;
-using TheraEngine.Files;
-using TheraEngine.Timers;
-using TheraEngine.Actors;
-using TheraEngine.Actors.Types.Pawns;
-using WeifenLuo.WinFormsUI.Docking;
 using TheraEditor.Actors.Types.Pawns;
+using TheraEngine;
+using TheraEngine.Actors;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Timers;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -23,7 +22,7 @@ namespace TheraEditor.Windows.Forms
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 HUD = new EditorHud(RenderPanel.ClientSize),
-                Name = string.Format("ModelViewport{0}_EditorCamera", (FormIndex + 1).ToString())
+                Name = string.Format("ModelViewport{0}_EditorCamera", (FormIndex + 1).ToString()),
             };
             Text = string.Format("Model Viewport {0}", (FormIndex + 1).ToString());
             RenderPanel.AllowDrop = true;
@@ -105,6 +104,30 @@ namespace TheraEditor.Windows.Forms
 
         protected override string GetPersistString()
             => GetType().ToString() + "," + FormIndex;
+
+        public void AlignView(BoundingBox aabb)
+        {
+            //Get aspect of the front plane of the aabb
+            aabb.GetCorners(out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
+            float w = Math.Abs(TFR.X - TFL.X);
+            float h = Math.Abs(TFR.Y - BFR.Y);
+            float aspect = w / h;
+
+            //Get the aspect of the camera
+            PerspectiveCamera cam = EditorPawn.Camera;
+            float cAspect = cam.Width / cam.Height;
+
+            //Start the camera off at the center of the aabb
+            Vec3 pos = aabb.Translation;
+
+            //Move the camera back to start at the front plane of the aabb
+            pos.Z += aabb.HalfExtents.Z;
+            
+            //Move the camera back to show all of the front plane rectangle
+            pos.Z += aspect > cAspect ? cam.FrustumDistanceAtWidth(w) : cam.FrustumDistanceAtHeight(h);
+
+            EditorPawn.RootComponent.SetTranslation(pos);
+        }
 
         #region Drag Drop
         //BaseFileWrapper _lastDraggedNode = null;

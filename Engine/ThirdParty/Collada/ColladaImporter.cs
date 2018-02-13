@@ -115,12 +115,13 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 else
                                 {
-                                    modelScene.SkeletalModel = new SkeletalModel()
-                                    {
-                                        Name = Path.GetFileNameWithoutExtension(filePath)
-                                    };
                                     modelScene.StaticModel = null;
                                     modelScene.Skeleton = new Skeleton(rootBones.ToArray());
+                                    modelScene.SkeletalModel = new SkeletalModel()
+                                    {
+                                        Name = Path.GetFileNameWithoutExtension(filePath),
+                                    };
+                                    modelScene.SkeletalModel.SkeletonRef.File = modelScene.Skeleton;
                                     foreach (ObjectInfo obj in objects)
                                         obj.Initialize(modelScene.SkeletalModel, visualScene);
                                 }

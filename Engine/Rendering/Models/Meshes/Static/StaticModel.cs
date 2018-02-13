@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System;
 using System.Xml;
 using TheraEngine.Physics;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -56,19 +57,34 @@ namespace TheraEngine.Rendering.Models
             set => _collision = value;
         }
 
-        [CustomXMLSerializeMethod(nameof(Collision))]
-        private void SerializeConvexShape(XmlWriter writer)
-        {
-            if (_collision == null)
-                return;
+        //[CustomXMLSerializeMethod(nameof(Collision))]
+        //private void SerializeConvexShape(XmlWriter writer)
+        //{
+        //    if (_collision == null)
+        //        return;
 
-            //TODO: serialize convex shape collision using bullet serializer
-            //int size = _collision.CalculateSerializeBufferSize();
-        }
+        //    //TODO: serialize convex shape collision using bullet serializer
+        //    //int size = _collision.CalculateSerializeBufferSize();
+        //}
         
         [TSerialize(nameof(RigidChildren))]
         protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();
         [TSerialize(nameof(SoftChildren))]
         protected List<StaticSoftSubMesh> _softChildren = new List<StaticSoftSubMesh>();
+        
+        /// <summary>
+        /// Calculates the fully-encompassing aabb for this model based on each child mesh's aabb.
+        /// </summary>
+        public BoundingBox CalculateAABB()
+        {
+            BoundingBox aabb = new BoundingBox();
+            foreach (var s in RigidChildren)
+                if (s.CullingVolume != null)
+                    aabb.Expand(s.CullingVolume.GetAABB());
+            //foreach (var s in SoftChildren)
+            //    if (s.CullingVolume != null)
+            //        aabb.Expand(s.CullingVolume.GetAABB());
+            return aabb;
+        }
     }
 }

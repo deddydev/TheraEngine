@@ -31,7 +31,7 @@ namespace TheraEngine.Components.Scene.Mesh
         void HandleWorldScale(Vec3 delta);
         void HandleWorldRotation(Quat delta);
     }
-    public class MeshSocket : ISocket
+    public class MeshSocket : TObject, ISocket
     {
         internal MeshSocket(Transform transform, IMeshSocketOwner owner, IActor actor)
         {

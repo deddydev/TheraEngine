@@ -25,7 +25,7 @@ namespace TheraEngine
     }
     public interface IStaticSubMesh : IBaseSubMesh
     {
-        GlobalFileRef<Shape> CullingVolume { get; }
+        GlobalFileRef<Shape> CullingVolumeRef { get; }
     }
     public interface ISkeletalSubMesh : IBaseSubMesh
     {

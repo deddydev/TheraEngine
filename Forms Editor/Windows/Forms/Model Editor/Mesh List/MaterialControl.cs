@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
+using TheraEngine;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -26,7 +27,7 @@ namespace TheraEditor.Windows.Forms
                 if (basicRenderPanel1.Camera is PerspectiveCamera cam)
                 {
                     cam.VerticalFieldOfView = _cameraFovY;
-                    float camDist = 1.0f / TMath.Sindf(_cameraFovY * 0.5f);
+                    float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
                     cam.LocalPoint.Z = camDist;
                 }
             }
@@ -35,11 +36,72 @@ namespace TheraEditor.Windows.Forms
         public MaterialControl()
         {
             InitializeComponent();
-
+            basicRenderPanel1.MouseDown += BasicRenderPanel1_MouseDown;
+            basicRenderPanel1.MouseUp += BasicRenderPanel1_MouseUp;
+            basicRenderPanel1.MouseMove += BasicRenderPanel1_MouseMove;
             pnlMatInfo.MouseEnter += PnlMatInfo_MouseEnter;
             pnlMatInfo.MouseLeave += PnlMatInfo_MouseLeave;
             pnlMatInfo.MouseDown += PnlMatInfo_MouseDown;
             tblUniforms.Visible = false;
+        }
+        
+        private int _prevX, _prevY;
+        private bool _dragging = false;
+        private void BasicRenderPanel1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_dragging)
+            {
+                int dx = e.X - _prevX;
+                int dy = e.Y - _prevY;
+                _prevX = e.X;
+                _prevY = e.Y;
+                
+                if (dx == 0 && dy == 0)
+                    return;
+
+                //up is negative, left is negative
+
+                Quat lightRotation = _light.Rotation.GetMatrix().ExtractRotation(false);
+
+                Vec2 vec = new Vec2(dx, dy);
+                Vec3 axis = Vec3.Zero;
+
+                if (dx == 0)
+                {
+                    if (dy < 0)
+                        axis = -Vec3.UnitX;
+                    else
+                        axis = Vec3.UnitX;
+                }
+                else if (dy == 0)
+                {
+                    if (dx < 0)
+                        axis = -Vec3.UnitY;
+                    else
+                        axis = Vec3.UnitY;
+                }
+                //else
+                //{
+                //    axis = new Vec3(1.0f / vec, 0.0f).Normalized();
+                //}
+                float vecLen = vec.Length;
+                Quat rot = Quat.FromAxisAngle(axis, vecLen);
+                lightRotation = rot * lightRotation;
+                Rotator r = lightRotation.ToYawPitchRoll();
+                _light.Rotation.SetRotations(r);
+            }
+        }
+
+        private void BasicRenderPanel1_MouseUp(object sender, MouseEventArgs e)
+        {
+            _dragging = false;
+        }
+
+        private void BasicRenderPanel1_MouseDown(object sender, MouseEventArgs e)
+        {
+            _prevX = e.X;
+            _prevY = e.Y;
+            _dragging = true;
         }
 
         private void PnlMatInfo_MouseDown(object sender, MouseEventArgs e)
@@ -63,14 +125,14 @@ namespace TheraEditor.Windows.Forms
             if (DesignMode)
                 return;
 
-            float camDist = 1.0f / TMath.Sindf(_cameraFovY * 0.5f);
+            float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
             basicRenderPanel1.Camera = new PerspectiveCamera(
                 new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
 
             basicRenderPanel1.RegisterTick();
 
             _light = new DirectionalLightComponent();
-            _light.SetShadowMapResolution(256, 256);
+            _light.SetShadowMapResolution(1, 1);
             _light.WorldRadius = 100.0f;
             _light.Rotation.Yaw = 45.0f;
             _light.Rotation.Pitch = -45.0f;

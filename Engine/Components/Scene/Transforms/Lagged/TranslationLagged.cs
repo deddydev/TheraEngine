@@ -83,6 +83,13 @@ namespace TheraEngine.Components.Scene.Transforms
             //Engine.PrintLine("Recalculated T.");
         }
 
+        public void SetTranslation(Vec3 translation)
+        {
+            _desiredTranslation = translation;
+            _currentTranslation.Raw = translation;
+            RecalcLocalTransform();
+        }
+
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
             //Engine.PrintLine("Rebasing {0}.", OwningActor.GetType().GetFriendlyName());

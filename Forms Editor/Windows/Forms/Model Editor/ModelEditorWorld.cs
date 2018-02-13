@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEngine.Actors;
-using TheraEngine.Actors.Types.Lights;
+﻿using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Components.Scene.Lights;
-using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Tests;
 using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
@@ -22,9 +12,12 @@ namespace TheraEditor.Windows.Forms
             base.BeginPlay();
 
             DirectionalLightActor light = new DirectionalLightActor();
-            light.RootComponent.AmbientIntensity = 0.01f;
-            light.RootComponent.DiffuseIntensity = 1.0f;
-            light.RootComponent.LightColor = new EventColorF3(1.0f);
+            DirectionalLightComponent comp = light.RootComponent;
+            comp.AmbientIntensity = 0.01f;
+            comp.DiffuseIntensity = 1.0f;
+            comp.LightColor = new EventColorF3(1.0f);
+            comp.Rotation.Yaw = 45.0f;
+            comp.Rotation.Pitch = -45.0f;
             SpawnActor(light);
 
             //Collada.Data d = Collada.Import(Path.Combine(TestDefaults.DesktopPath, "teapot.dae"), new ModelImportOptions());

@@ -19,7 +19,13 @@ namespace TheraEngine.Rendering.Models
                 Core.Files.IgnoreFlags.Cameras |
                 Core.Files.IgnoreFlags.Lights
             };
-            return Collada.Import(path, o)?.Models[0].SkeletalModel;
+            Collada.Data data = Collada.Import(path, o);
+            if (data != null && data.Models != null && data.Models.Count > 0)
+            {
+                ModelScene scene = data.Models[0];
+                return scene.SkeletalModel;
+            }
+            return null;
         }
         [ThirdPartyLoader("obj")]
         public static TFileObject LoadOBJ(string path)
@@ -41,7 +47,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("SoftChildren")]
         protected List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
 
-        public GlobalFileRef<Skeleton> Skeleton => _skeleton;
+        public GlobalFileRef<Skeleton> SkeletonRef => _skeleton;
         public List<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
         public List<SkeletalSoftSubMesh> SoftChildren => _softChildren;
     }

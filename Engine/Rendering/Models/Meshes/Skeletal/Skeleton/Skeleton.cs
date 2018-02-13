@@ -15,7 +15,8 @@ namespace TheraEngine.Rendering.Models
     [FileDef("Model Skeleton")]
     public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo { get; }
+            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -60,7 +61,6 @@ namespace TheraEngine.Rendering.Models
         private SkeletalMeshComponent _owningComponent;
         //private bool _childMatrixModified = false;
 
-        
         private Bone[] _rootBones;
 
         [TSerialize]

@@ -102,27 +102,20 @@ namespace TheraEngine.Rendering.Models
                 {
                     writer.WriteStartElement("Counts");
                     foreach (InfluenceDef inf in _influences)
-                    {
                         writer.WriteString(inf.WeightCount.ToString() + " ");
-                    }
+                    
                     writer.WriteEndElement();
                     writer.WriteStartElement("Indices");
                     foreach (InfluenceDef inf in _influences)
-                    {
                         for (int i = 0; i < inf.WeightCount; ++i)
-                        {
                             writer.WriteString(_utilizedBones.IndexOf(inf.Weights[i].Bone).ToString() + " ");
-                        }
-                    }
+
                     writer.WriteEndElement();
                     writer.WriteStartElement("Weights");
                     foreach (InfluenceDef inf in _influences)
-                    {
                         for (int i = 0; i < inf.WeightCount; ++i)
-                        {
                             writer.WriteString(inf.Weights[i].Weight.ToString() + " ");
-                        }
-                    }
+
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
@@ -147,11 +140,11 @@ namespace TheraEngine.Rendering.Models
             {
                 s = reader.ReadElementString();
                 if (reader.Name.Equals("Counts", true))
-                    counts = s.Split(' ').Select(x => int.Parse(x)).ToArray();
+                    counts = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
                 else if (reader.Name.Equals("Indices", true))
-                    indices = s.Split(' ').Select(x => int.Parse(x)).ToArray();
+                    indices = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
                 else if (reader.Name.Equals("Weights", true))
-                    weights = s.Split(' ').Select(x => float.Parse(x)).ToArray();
+                    weights = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => float.Parse(x)).ToArray();
                 reader.EndElement();
             }
             int k = 0;

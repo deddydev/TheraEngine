@@ -9,7 +9,7 @@ namespace TheraEngine.Actors.Types
 {
     public class SceneCaptureComponent : TranslationComponent
     {
-        RenderTexCube _skyTexture;
+        private RenderTexCube _captureMap;
         private PerspectiveCamera[] _cameras;
 
         public SceneCaptureComponent()

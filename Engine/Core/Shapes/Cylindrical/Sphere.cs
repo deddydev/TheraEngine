@@ -193,5 +193,8 @@ namespace TheraEngine.Core.Shapes
                 return dir * TMath.InverseSqrtFast(lenSq) * _radius;
             return point;
         }
+
+        public override BoundingBox GetAABB()
+            => new BoundingBox(_radius, _center);
     }
 }

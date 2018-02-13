@@ -163,6 +163,10 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\DragDropFilter.cs" />
+    <Compile Include="Windows\Forms\Model Editor\Bone Tree\BoneTree.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Bone Tree\BoneTreeNode.cs" />
     <Compile Include="Windows\Forms\Model Editor\DockableMaterialList.cs">
       <SubType>Form</SubType>
     </Compile>

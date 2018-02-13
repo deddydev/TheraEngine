@@ -295,5 +295,12 @@ namespace TheraEngine.Core.Shapes
             bottomSphereHalf = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
                 bottomHalfCircleAway, bottomHalfCircleRight);
         }
+        public override BoundingBox GetAABB()
+        {
+            BoundingBox aabb = BoundingBox.ExpandableBox();
+            aabb.Expand(GetTopSphere().GetAABB());
+            aabb.Expand(GetBottomSphere().GetAABB());
+            return aabb;
+        }
     }
 }

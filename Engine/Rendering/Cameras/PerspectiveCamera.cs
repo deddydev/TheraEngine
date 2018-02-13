@@ -53,6 +53,9 @@ namespace TheraEngine.Rendering.Cameras
             set => Resize(Width, value);
         }
 
+        /// <summary>
+        /// The ratio of Width/Height.
+        /// </summary>
         [Category("Perspective Camera")]
         public float Aspect
         {
@@ -132,27 +135,39 @@ namespace TheraEngine.Rendering.Cameras
                 transformed ? UpVector : Vec3.Up,
                 transformed ? _localPoint.Raw : Vec3.Zero);
         }
-
+        
         public float FrustumHeightAtDistance(float distance)
-            => 2.0f * distance * (float)Math.Tan(TMath.DegToRad(_fovY * 0.5f));
-        public float FOVForHeightAndDistance(float height, float distance)
+            => distance * 2.0f * TMath.Tandf(_fovY * 0.5f);
+        public float FrustumWidthAtDistance(float distance)
+            => distance * 2.0f * TMath.Tandf(_fovX * 0.5f);
+        public float FrustumDistanceAtHeight(float height)
+            => height * 0.5f / TMath.Tandf(_fovY * 0.5f);
+        public float FrustumDistanceAtWidth(float width)
+            => width * 0.5f / TMath.Tandf(_fovX * 0.5f);
+        public float VerticalFovForHeightAndDistance(float height, float distance)
             => 2.0f * TMath.RadToDeg((float)Math.Atan(height * 0.5f / distance));
+        public float HorizontalFovForWidthAndDistance(float width, float distance)
+            => 2.0f * TMath.RadToDeg((float)Math.Atan(width * 0.5f / distance));
+        public float VerticalFovForWidthAndDistance(float width, float distance)
+            => 2.0f * TMath.RadToDeg((float)Math.Atan(width / _aspect * 0.5f / distance));
+        public float HorizontalFovForHeightAndDistance(float height, float distance)
+            => 2.0f * TMath.RadToDeg((float)Math.Atan(height * _aspect * 0.5f / distance));
         
         // half of the the horizontal field of view
- //       float angleX;
-	//// store the information
-	//this->ratio = ratio;
-	//this->nearD = nearD;
-	//this->farD = farD;
+        //       float angleX;
+        //// store the information
+        //this->ratio = ratio;
+        //this->nearD = nearD;
+        //this->farD = farD;
 
-	//angle *= HALF_ANG2RAD;
-	//// compute width and height of the near and far plane sections
-	//tang = tan(angle);
- //       sphereFactorY = 1.0/cos(angle);
+        //angle *= HALF_ANG2RAD;
+        //// compute width and height of the near and far plane sections
+        //tang = tan(angle);
+        //       sphereFactorY = 1.0/cos(angle);
 
- //       // compute half of the the horizontal field of view and sphereFactorX
- //       float anglex = atan(tang * ratio);
- //       sphereFactorX = 1.0/cos(anglex);
+        //       // compute half of the the horizontal field of view and sphereFactorX
+        //       float anglex = atan(tang * ratio);
+        //       sphereFactorX = 1.0/cos(anglex);
         //public static EContainment ContainsSphere(Frustum frustum, Vec3 center, float radius)
         //{
         //    float d;

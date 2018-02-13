@@ -15,7 +15,6 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             _currentRotation = new Rotator(rotation);
             _desiredRotation = new Rotator(rotation);
-            //_currentRotation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
@@ -23,7 +22,6 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             _currentRotation = Rotator.GetZero();
             _desiredRotation = Rotator.GetZero();
-            //_currentRotation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
@@ -31,7 +29,6 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             _currentRotation = new Rotator(rotation);
             _desiredRotation = new Rotator(rotation);
-            //_currentRotation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
@@ -39,10 +36,8 @@ namespace TheraEngine.Components.Scene.Transforms
         public void SetTR(Vec3 translation, Rotator rotation)
         {
             _currentTranslation = _desiredTranslation = translation;
-            //_currentTranslation.Changed += RecalcLocalTransform;
             _currentRotation = new Rotator(rotation);
             _desiredRotation = new Rotator(rotation);
-            //_currentRotation.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }
 
@@ -65,7 +60,6 @@ namespace TheraEngine.Components.Scene.Transforms
             set
             {
                 _currentRotation = value ?? new Rotator();
-                //_currentRotation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
         }
@@ -76,17 +70,18 @@ namespace TheraEngine.Components.Scene.Transforms
             get => _invRotInterpSec;
             set => _invRotInterpSec = value;
         }
-
-        protected internal override void OnDeserialized()
-        {
-            //_currentRotation.Changed += RecalcLocalTransform;
-            base.OnDeserialized();
-        }
-
+        
         protected override void Tick(float delta)
         {
             _currentTranslation.Raw = Interp.InterpCosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec);
             _currentRotation.PitchYawRoll = Interp.InterpCosineTo(_currentRotation.PitchYawRoll, _desiredRotation.PitchYawRoll, delta, _invRotInterpSec);
+            RecalcLocalTransform();
+        }
+
+        public void SetRotation(Rotator rotation)
+        {
+            _desiredRotation.SetRotations(rotation);
+            _currentRotation.SetRotations(rotation);
             RecalcLocalTransform();
         }
 
@@ -102,12 +97,11 @@ namespace TheraEngine.Components.Scene.Transforms
 
             localTransform = t * r;
             inverseLocalTransform = ir * it;
-
-            //Engine.PrintLine("Recalculated TR.");
         }
 
         public void TranslateRelative(float x, float y, float z)
             => TranslateRelative(new Vec3(x, y, z));
+
         public void TranslateRelative(Vec3 translation)
         {
             Matrix4 r = _desiredRotation.GetMatrix();

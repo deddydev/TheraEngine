@@ -382,7 +382,7 @@ namespace TheraEngine.Components
                 p.RigidBodyCollision?.Spawn();
 
             if (this is IPreRenderNeeded r)
-                Engine.Scene.AddPreRenderedObject(r);
+                OwningScene.AddPreRenderedObject(r);
 
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
@@ -393,7 +393,7 @@ namespace TheraEngine.Components
                 p.RigidBodyCollision?.Despawn();
 
             if (this is IPreRenderNeeded r)
-                Engine.Scene.RemovePreRenderedObject(r);
+                OwningScene.RemovePreRenderedObject(r);
 
             foreach (SceneComponent c in _children)
                 c.OnDespawned();

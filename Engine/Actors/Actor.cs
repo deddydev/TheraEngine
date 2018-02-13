@@ -98,7 +98,7 @@ namespace TheraEngine.Actors
         }
 
         private bool _isConstructing;
-        private List<I2DRenderable> _renderableComponentCache = new List<I2DRenderable>();
+        //private List<I3DRenderable> _renderableComponentCache = new List<I3DRenderable>();
         public int _spawnIndex = -1;
         private ReadOnlyCollection<SceneComponent> _sceneComponentCache;
         private T _rootComponent;
@@ -182,16 +182,16 @@ For example, a logic component could give any actor health and/or allow it to ta
         [Browsable(false)]
         public bool IsConstructing => _isConstructing;
 
-        [Browsable(false)]
-        public List<I2DRenderable> RenderableComponentCache => _renderableComponentCache;
-        [Browsable(false)]
-        public bool HasRenderableComponents => RenderableComponentCache.Count > 0;
+        //[Browsable(false)]
+        //public List<I3DRenderable> RenderableComponentCache => _renderableComponentCache;
+        //[Browsable(false)]
+        //public bool HasRenderableComponents => RenderableComponentCache.Count > 0;
 
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)
             {
-                _renderableComponentCache = new List<I2DRenderable>();
+                //_renderableComponentCache = new List<I3DRenderable>();
                 _sceneComponentCache = _rootComponent?.GenerateChildCache().AsReadOnly();
             }
         }

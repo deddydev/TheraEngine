@@ -247,7 +247,7 @@ namespace System
         /// </summary>
         public static Vec3 ComponentMax(params Vec3[] values)
         {
-            Vec3 value = new Vec3(float.MaxValue);
+            Vec3 value = new Vec3(float.MinValue);
             foreach (Vec3 v in values)
                 value = ComponentMax(v, value);
             return value;

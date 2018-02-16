@@ -91,16 +91,16 @@ namespace TheraEditor.Windows.Forms
             base.OnClosed(e);
         }
         
-        protected override void OnResizeBegin(EventArgs e)
-        {
-            RenderPanel.BeginResize();
-            base.OnResizeBegin(e);
-        }
-        protected override void OnResizeEnd(EventArgs e)
-        {
-            RenderPanel.EndResize();
-            base.OnResizeEnd(e);
-        }
+        //protected override void OnResizeBegin(EventArgs e)
+        //{
+        //    RenderPanel.BeginResize();
+        //    base.OnResizeBegin(e);
+        //}
+        //protected override void OnResizeEnd(EventArgs e)
+        //{
+        //    RenderPanel.EndResize();
+        //    base.OnResizeEnd(e);
+        //}
 
         protected override string GetPersistString()
             => GetType().ToString() + "," + FormIndex;

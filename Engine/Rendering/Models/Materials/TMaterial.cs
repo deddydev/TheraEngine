@@ -223,7 +223,7 @@ namespace TheraEngine.Rendering.Models.Materials
             //    _uniqueID = -1;
             //}
         }
-        public void SetUniforms(int programBindingId = 0)
+        public void SetUniforms(int programBindingId)
         {
             if (programBindingId <= 0)
                 programBindingId = Program.BindingId;
@@ -236,10 +236,12 @@ namespace TheraEngine.Rendering.Models.Materials
             }
             else if (Requirements == UniformRequirements.NeedsCamera)
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
-            
+
             //Apply special rendering parameters
             if (RenderParams != null)
                 Engine.Renderer.ApplyRenderParams(RenderParams);
+            else
+                throw new Exception();
 
             //Set variable uniforms
             foreach (ShaderVar v in _parameters)

@@ -8,6 +8,7 @@ using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -16,7 +17,7 @@ namespace TheraEngine.Rendering.Models
     public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
+            = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false);
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -95,14 +96,14 @@ namespace TheraEngine.Rendering.Models
             set => _visible = value;
         }
 
-        public void UpdateBones(Camera c)
+        public void UpdateBones(Camera c, Matrix4 worldMatrix, Matrix4 inverseWorldMatrix)
         {
             //Looping recursively is more efficient than looping through the whole bone cache
             //because bone subtrees that do not need updating will be skipped entirely
             //instead of being iterated through
             if (RootBones != null)
                 foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix(c, Matrix4.Identity, Matrix4.Identity);
+                    b.CalcFrameMatrix(c, worldMatrix, inverseWorldMatrix);
         }
 
         public bool VisibleInEditorOnly
@@ -149,6 +150,13 @@ namespace TheraEngine.Rendering.Models
         {
             //_cullingVolume.SetRenderTransform(_owningComponent == null ? Matrix4.Identity : _owningComponent.WorldMatrix);
         }
+        //RenderingParameters p = new RenderingParameters()
+        //{
+        //    DepthTest = new DepthTest()
+        //    {
+        //        Enabled = false,
+        //    },
+        //};
         public void Render()
         {
             //_cullingVolume.Render();

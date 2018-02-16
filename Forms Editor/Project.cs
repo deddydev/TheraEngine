@@ -3,6 +3,8 @@ using TheraEngine.Files;
 using System.IO;
 using System.ComponentModel;
 using System;
+using Microsoft.CSharp;
+using System.CodeDom.Compiler;
 
 namespace TheraEditor
 {
@@ -17,7 +19,8 @@ namespace TheraEditor
         public static readonly string ConfigDirName = "Config" + Path.DirectorySeparatorChar.ToString();
         public static readonly string SourceDirName = "Source" + Path.DirectorySeparatorChar.ToString();
         public static readonly string ContentDirName = "Content" + Path.DirectorySeparatorChar.ToString();
-
+        public static readonly string TempDirName = "Temp" + Path.DirectorySeparatorChar.ToString();
+        
         private GlobalFileRef<ProjectState> _state;
         private GlobalFileRef<EditorSettings> _editorSettings;
 
@@ -59,21 +62,6 @@ namespace TheraEditor
             EngineSettingsRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EngineSettings));
             EditorSettingsRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EditorSettings));
         }
-        public static Project Create(string name)
-        {
-            Project p = new Project()
-            {
-                Name = name,
-                ProjectStateRef = new ProjectState(),
-                UserSettingsRef = new UserSettings(),
-                EngineSettingsRef = new EngineSettings(),
-                EditorSettingsRef = new EditorSettings()
-                {
-
-                },
-            };
-            return p;
-        }
         public static Project Create(string directory, string name)
         {
             if (!directory.EndsWithDirectorySeparator())
@@ -83,11 +71,13 @@ namespace TheraEditor
             string configDir = directory + ConfigDirName + Path.DirectorySeparatorChar;
             string sourceDir = directory + SourceDirName + Path.DirectorySeparatorChar;
             string contentDir = directory + ContentDirName + Path.DirectorySeparatorChar;
+            string tempDir = directory + TempDirName + Path.DirectorySeparatorChar;
 
             Directory.CreateDirectory(binariesDir);
             Directory.CreateDirectory(configDir);
             Directory.CreateDirectory(sourceDir);
             Directory.CreateDirectory(contentDir);
+            Directory.CreateDirectory(tempDir);
 
             ProjectState state = new ProjectState();
             UserSettings userSettings = new UserSettings();
@@ -103,8 +93,32 @@ namespace TheraEditor
                 EngineSettingsRef = new GlobalFileRef<EngineSettings>(configDir, "EngineSettings", ProprietaryFileFormat.XML, engineSettings, true),
                 EditorSettingsRef = new GlobalFileRef<EditorSettings>(configDir, "EditorSettings", ProprietaryFileFormat.XML, editorSettings, true),
             };
+
             p.Export();
+
             return p;
+        }
+        public void GenerateSolution()
+        {
+            string slnPath = 
+        }
+        public void Compile()
+        {
+            CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+            CompilerParameters parameters = new CompilerParameters
+            {
+                GenerateExecutable = true,
+                OutputAssembly = Path.Combine(FilePath, "Intermediate", Name + ".exe"),
+            };
+            CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, SourceString);
+            if (results.Errors.Count > 0)
+            {
+                foreach (CompilerError CompErr in results.Errors)
+                {
+                    Engine.PrintLine("Line number {0}, Error Number: {1}, '{2};",
+                        CompErr.Line, CompErr.ErrorNumber, CompErr.ErrorText);
+                }
+            }
         }
     }
 }

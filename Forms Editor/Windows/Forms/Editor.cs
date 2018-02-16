@@ -15,6 +15,8 @@ using TheraEngine.Worlds;
 using TheraEngine.Actors;
 using WeifenLuo.WinFormsUI.Docking;
 using System.Collections.Generic;
+using Microsoft.CSharp;
+using System.CodeDom.Compiler;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -733,7 +735,7 @@ namespace TheraEditor.Windows.Forms
                 var func = MappableActions[e.KeyData];
                 e.Handled = func();
                 if (e.Handled)
-                    Engine.PrintLine(e.KeyData.ToString() + ": " + func.Method.Name);
+                    Engine.PrintLine(e.KeyData.ToString().Replace(", ", "+") + ": " + func.Method.Name);
                 return;
             }
             base.OnKeyDown(e);
@@ -851,5 +853,15 @@ namespace TheraEditor.Windows.Forms
 
         private void btnUndo_Click(object sender, EventArgs e) => UndoManager.Undo();
         private void btnRedo_Click(object sender, EventArgs e) => UndoManager.Redo();
+
+        private void btnViewTools_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnCompile_Click(object sender, EventArgs e)
+        {
+            Project.Compile();
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
+using System;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
@@ -201,7 +202,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         public void PreRender(Camera camera)
         {
-            Skeleton.UpdateBones(AbstractRenderer.CurrentCamera);
+            Skeleton.UpdateBones(AbstractRenderer.CurrentCamera, Matrix4.Identity, Matrix4.Identity);
         }
     }
 }

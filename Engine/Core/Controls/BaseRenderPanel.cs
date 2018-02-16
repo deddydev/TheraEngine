@@ -88,8 +88,13 @@ namespace TheraEngine
             CreateContext();
             //Add the main viewport - at least one viewport should always be rendering
             //AddViewport();
-        }
 
+            //_timer = new Timer
+            //{
+            //    Interval = 500
+            //};
+            //_timer.Tick += (sender, e) => EndResize();
+        }
 
         internal delegate Point DelPointConvert(Point p);
         internal DelPointConvert PointToClientDelegate;
@@ -211,13 +216,43 @@ namespace TheraEngine
         #endregion
 
         #region Resizing
-        public void BeginResize()
+        //protected override void OnParentChanged(EventArgs e)
+        //{
+        //    base.OnParentChanged(e);
+
+        //    if (!DesignMode)
+        //    {
+        //        var parent = Parent;
+        //        if (parent != null)
+        //        {
+        //            while (!(parent is Form))
+        //                parent = parent.Parent;
+
+        //            var form = parent as Form;
+
+        //            form.ResizeBegin += (s, ea) => BeginResize();
+        //            form.ResizeEnd += (s, ea) => EndResize();
+        //        }
+        //    }
+        //}
+        //private Timer _timer;
+        //protected override void OnSizeChanged(EventArgs e)
+        //{
+        //    base.OnSizeChanged(e);
+        //    _context?.Update();
+        //    foreach (Viewport v in _viewports)
+        //        v.Resize(Width, Height, false);
+        //    _resizing = true;
+        //    _timer.Start();
+        //}
+        private void BeginResize()
         {
             //Visible = false;
             _resizing = true;
         }
-        public void EndResize()
+        private void EndResize()
         {
+            //_timer.Stop();
             //Visible = true;
             _resizing = false;
             foreach (Viewport v in _viewports)
@@ -225,13 +260,10 @@ namespace TheraEngine
         }
         protected override void OnResize(EventArgs e)
         {
-            int w = Width.ClampMin(1);
-            int h = Height.ClampMin(1);
-            //_globalHud?.Resize(new Vec2(w, h));
-            foreach (Viewport v in _viewports)
-                v.Resize(w, h, true);
             base.OnResize(e);
-            //_context?.Update();
+            _context?.Update();
+            foreach (Viewport v in _viewports)
+                v.Resize(Width, Height, true);
         }
         #endregion
 

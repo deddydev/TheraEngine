@@ -194,7 +194,7 @@ namespace TheraEngine.Rendering.Models
                 if (parent == null)
                     rootBone = bone;
                 else
-                    parent.ChildBones.Add(bone);
+                    bone.Parent = parent;
                 parent = bone;
                 inv = bindMatrix.Inverted();
             }

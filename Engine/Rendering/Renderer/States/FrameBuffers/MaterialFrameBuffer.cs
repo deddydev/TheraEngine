@@ -29,12 +29,8 @@ namespace TheraEngine.Rendering
         }
         public BaseTexRef[] Textures => Material?.Textures;
         public void ResizeTextures(int width, int height)
-        {
-            Material?.Resize2DTextures(width, height);
-            //Bind(EFramebufferTarget.Framebuffer);
-
-            //Unbind(EFramebufferTarget.Framebuffer);
-        }
+            => Material?.Resize2DTextures(width, height);
+        
         public void Compile()
         {
             Compile(Material.FBODrawAttachments);

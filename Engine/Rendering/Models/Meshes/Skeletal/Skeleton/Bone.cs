@@ -7,6 +7,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components;
 using TheraEngine.Physics;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -46,7 +47,9 @@ namespace TheraEngine.Rendering.Models
         }
         private void Init(string name, Transform bindState, TRigidBodyConstructionInfo info)
         {
-            _frameState = _bindState = bindState;
+            _frameState = bindState.HardCopy();
+            _bindState = bindState.HardCopy();
+
             _frameState.MatrixChanged += FrameStateMatrixChanged;
             _name = name;
 
@@ -109,16 +112,24 @@ namespace TheraEngine.Rendering.Models
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
 
+        [TSerialize("Transform")]
+        private Transform _bindState;
         [TSerialize("ChildBones")]
         private EventList<Bone> _childBones = new EventList<Bone>();
         //[Serialize("ChildComponents")]
         private EventList<SceneComponent> _childComponents = new EventList<SceneComponent>();
-        [TSerialize("ParentPhysicsConstraint")]
+        [TSerialize("ConstraintToParent")]
         private TConstraint _parentConstraint;
-        [TSerialize("RigidBodyCollision")]
+        [TSerialize("RigidBody")]
         private TRigidBody _rigidBodyCollision;
-        [TSerialize("Transform")]
-        private Transform _bindState;
+
+        [PostDeserialize]
+        private void PostDeserialize()
+        {
+            _frameState = _bindState.HardCopy();
+            TriggerFrameMatrixUpdate();
+            TriggerChildFrameMatrixUpdate();
+        }
 
         private bool _frameMatrixChanged = false;
         //private bool _childFrameMatrixChanged = false;

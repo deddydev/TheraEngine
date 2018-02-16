@@ -597,5 +597,10 @@ namespace TheraEngine.Core.Maths.Transforms
             _scale.X *= value;
         }
         #endregion
+
+        public Transform HardCopy()
+        {
+            return new Transform(Translation, Rotation, Scale, TransformationOrder);
+        }
     }
 }

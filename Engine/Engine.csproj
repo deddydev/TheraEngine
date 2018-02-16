@@ -304,6 +304,7 @@
     </Compile>
     <Compile Include="Core\EditorUndo\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
+    <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
     <Compile Include="Core\Files\References\FileLoader.cs" />
     <Compile Include="Core\Files\References\LocalFileRef.cs" />

@@ -122,6 +122,7 @@ namespace TheraEditor.Windows.Forms
             Model = skm;
             _skeletal = new Actor<SkeletalMeshComponent>(new SkeletalMeshComponent(skm, skel));
             World.SpawnActor(_skeletal);
+            World.Scene.Add(skel);
 
             MeshesForm.DisplayMeshes(_skeletal);
             MaterialsForm.DisplayMaterials(_skeletal);

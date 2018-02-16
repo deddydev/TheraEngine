@@ -107,22 +107,12 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         }
         public void Resize(int width, int height)
         {
-            if (_mipmaps != null && _mipmaps.Length > 0)
-            {
-                _mipmaps[0] = _mipmaps[0].Resized(width, height);
-
-                double wratio = (double)width / _width;
-                double hratio = (double)height / _height;
-
-                for (int i = 1; i < _mipmaps.Length; ++i)
-                {
-                    Bitmap bmp = _mipmaps[i];
-                    _mipmaps[i] = bmp.Resized((int)(bmp.Width * wratio), (int)(bmp.Height * wratio));
-                }
-            }
-
             _width = width;
             _height = height;
+
+            if (_mipmaps != null)
+                for (int i = 0; i < _mipmaps.Length; ++i, width /= 2, height /= 2)
+                    _mipmaps[i] = _mipmaps[i].Resized(width, height);
 
             PushData();
         }

@@ -177,11 +177,16 @@ namespace TheraEngine.Rendering
             _internalResolution.Width = width;
             _internalResolution.Height = height;
 
-            GBufferFBO?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
-            PostProcessFBO?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+            int w = _internalResolution.IntWidth;
+            int h = _internalResolution.IntHeight;
 
-            _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
-            HUD?.Resize(_internalResolution.Bounds);
+            Engine.PrintLine("Internal resolution Changed: {0}x{1}", w, h);
+
+            GBufferFBO?.ResizeTextures(w, h);
+            PostProcessFBO?.ResizeTextures(w, h);
+
+            //_worldCamera?.Resize(w, h);
+            //HUD?.Resize(_internalResolution.Bounds);
         }
 
         public void Resize(
@@ -191,14 +196,17 @@ namespace TheraEngine.Rendering
             float internalResolutionWidthScale = 1.0f,
             float internalResolutionHeightScale = 1.0f)
         {
-            _region.X = _leftPercentage * parentWidth;
-            _region.Y = _bottomPercentage * parentHeight;
-            _region.Width = _rightPercentage * parentWidth - _region.X;
-            _region.Height =  _topPercentage * parentHeight - _region.Y;
+            float w = parentWidth.ClampMin(1.0f);
+            float h = parentHeight.ClampMin(1.0f);
+
+            _region.X = _leftPercentage * w;
+            _region.Y = _bottomPercentage * h;
+            _region.Width = _rightPercentage * w - _region.X;
+            _region.Height =  _topPercentage * h - _region.Y;
             
             if (setInternalResolution) SetInternalResolution(
                 _region.Width * internalResolutionWidthScale, 
-                _region.Height * internalResolutionHeightScale); 
+                _region.Height * internalResolutionHeightScale);
 
             if (Camera is PerspectiveCamera p)
                 p.Aspect = _region.Width / _region.Height;

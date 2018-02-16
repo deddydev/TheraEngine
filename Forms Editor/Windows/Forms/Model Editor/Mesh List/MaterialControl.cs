@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
-using TheraEngine;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;

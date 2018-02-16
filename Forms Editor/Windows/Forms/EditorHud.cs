@@ -2,20 +2,19 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Input.Devices;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.UI;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds;
-using TheraEngine.Components;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Physics;
-using TheraEngine.Editor;
-using TheraEngine.Rendering.Cameras;
+using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Editor;
+using TheraEngine.Input.Devices;
+using TheraEngine.Physics;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {

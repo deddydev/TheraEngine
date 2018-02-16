@@ -5,6 +5,9 @@ using System.ComponentModel;
 using System;
 using Microsoft.CSharp;
 using System.CodeDom.Compiler;
+using Microsoft.Build.Evaluation;
+using System.Collections.Generic;
+using Microsoft.Build.Execution;
 
 namespace TheraEditor
 {
@@ -100,25 +103,38 @@ namespace TheraEditor
         }
         public void GenerateSolution()
         {
-            string slnPath = 
+            //string slnPath = Path.Combine(TempDirName, 
         }
         public void Compile()
         {
-            CSharpCodeProvider codeProvider = new CSharpCodeProvider();
-            CompilerParameters parameters = new CompilerParameters
+            string projectFileName = @"...\ConsoleApplication3\ConsoleApplication3.sln";
+
+            ProjectCollection pc = new ProjectCollection();
+            Dictionary<string, string> GlobalProperty = new Dictionary<string, string>
             {
-                GenerateExecutable = true,
-                OutputAssembly = Path.Combine(FilePath, "Intermediate", Name + ".exe"),
+                { "Configuration", "Debug" },
+                { "Platform", "x86" }
             };
-            CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, SourceString);
-            if (results.Errors.Count > 0)
-            {
-                foreach (CompilerError CompErr in results.Errors)
-                {
-                    Engine.PrintLine("Line number {0}, Error Number: {1}, '{2};",
-                        CompErr.Line, CompErr.ErrorNumber, CompErr.ErrorText);
-                }
-            }
+
+            BuildParameters buildParams = new BuildParameters(pc);
+            BuildRequestData buildRequest = new BuildRequestData(projectFileName, GlobalProperty, null, new string[] { "Build" }, null);
+            BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
+
+            //CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+            //CompilerParameters parameters = new CompilerParameters
+            //{
+            //    GenerateExecutable = true,
+            //    OutputAssembly = Path.Combine(FilePath, "Intermediate", Name + ".exe"),
+            //};
+            //CompilerResults results = codeProvider.CompileAssemblyFromFile(parameters, "");
+            //if (results.Errors.Count > 0)
+            //{
+            //    foreach (CompilerError CompErr in results.Errors)
+            //    {
+            //        Engine.PrintLine("Line number {0}, Error Number: {1}, '{2};",
+            //            CompErr.Line, CompErr.ErrorNumber, CompErr.ErrorText);
+            //    }
+            //}
         }
     }
 }

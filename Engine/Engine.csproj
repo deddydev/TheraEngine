@@ -364,6 +364,9 @@
     <Compile Include="Rendering\PrimitiveRenderWrapper.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffers\MaterialFrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffers\QuadFrameBuffer.cs" />
+    <Compile Include="Rendering\RenderInfo.cs" />
+    <Compile Include="Scripting\CSharp\Script.cs" />
+    <Compile Include="Scripting\Lua\Script.cs" />
     <Compile Include="Scripting\Python\IronPython.cs" />
     <Compile Include="Scripting\Python\Script.cs" />
     <Compile Include="Tests\UnitTestingWorld.cs" />
@@ -886,6 +889,7 @@
     <Folder Include="Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Components\Scene\Shapes\Cylindrical\ZAligned\" />
     <Folder Include="Core\Shapes\Cylindrical\XAligned\" />
+    <Folder Include="Scripting\Visual\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Libraries\x64\FreeImage.dll" Condition="'$(Platform)' == 'x64'">

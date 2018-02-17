@@ -1,19 +1,21 @@
 ﻿using System.Windows.Forms;
 using System.ComponentModel;
 using TheraEditor.Windows.Forms;
-using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Scripting;
+using WeifenLuo.WinFormsUI.Docking;
+using TheraEngine;
+using System.IO;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(TMaterial), SystemImages.GenericFile)]
-    public class MaterialWrapper : FileWrapper<TMaterial>
+    [NodeWrapper(typeof(CSharpScript), SystemImages.GenericFile)]
+    public class CSharpWrapper : FileWrapper<CSharpScript>
     {
         #region Menu
         private static ContextMenuStrip _menu;
-        static MaterialWrapper()
+        static CSharpWrapper()
         {
             _menu = new ContextMenuStrip();
-            FillContextMenu(_menu);
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
@@ -23,19 +25,15 @@ namespace TheraEditor.Wrappers
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
-            MaterialWrapper w = GetInstance<MaterialWrapper>();
+            CSharpWrapper w = GetInstance<CSharpWrapper>();
         }
         #endregion
         
-        public MaterialWrapper() : base() { }
+        public CSharpWrapper() : base() { }
 
         public override void EditResource()
         {
-            MaterialEditorForm m = new MaterialEditorForm()
-            {
-                Material = ResourceRef
-            };
-            m.Show();
+            DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, Resource.Text, Path.GetFileName(ResourceRef.ReferencePath), ETextEditorMode.Python, DefaultSaveText);
         }
     }
 }

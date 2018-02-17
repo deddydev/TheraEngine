@@ -19,26 +19,31 @@ namespace TheraEditor.Wrappers
             ImageIndex = 0;
             SelectedImageIndex = 0;
         }
+        public static int FillContextMenu(ContextMenuStrip strip)
+        {
+            strip.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
+            strip.Items.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.O));   //1
+            strip.Items.Add(new ToolStripMenuItem("Edit File", null, EditAction, Keys.F1));                             //2
+            strip.Items.Add(new ToolStripSeparator());                                                                  //3
+            strip.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));               //4
+            strip.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));             //5
+            strip.Items.Add(new ToolStripMenuItem("Re&load", null, RestoreAction, Keys.Control | Keys.L));              //6
+            ToolStripMenuItem alwaysReload = new ToolStripMenuItem("Reload Automatically") { CheckOnClick = true };
+            alwaysReload.CheckedChanged += AlwaysReload_CheckedChanged;
+            strip.Items.Add(alwaysReload); //7
+            strip.Items.Add(new ToolStripSeparator());                                                                  //8
+            strip.Items.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //9
+            strip.Items.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //10
+            strip.Items.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //11
+            strip.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //12
+            strip.Opening += MenuOpening;
+            strip.Closing += MenuClosing;
+            return strip.Items.Count;
+        }
         static BaseFileWrapper()
         {
             _menu = new ContextMenuStrip();
-            _menu.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
-            _menu.Items.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.O));   //1
-            _menu.Items.Add(new ToolStripMenuItem("Edit File", null, EditAction, Keys.F1));                             //2
-            _menu.Items.Add(new ToolStripSeparator());                                                                  //3
-            _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));               //4
-            _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));             //5
-            _menu.Items.Add(new ToolStripMenuItem("Re&load", null, RestoreAction, Keys.Control | Keys.L));              //6
-            ToolStripMenuItem alwaysReload = new ToolStripMenuItem("Reload Automatically") { CheckOnClick = true };
-            alwaysReload.CheckedChanged += AlwaysReload_CheckedChanged;
-            _menu.Items.Add(alwaysReload); //7
-            _menu.Items.Add(new ToolStripSeparator());                                                                  //8
-            _menu.Items.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //9
-            _menu.Items.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //10
-            _menu.Items.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //11
-            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //12
-            _menu.Opening += MenuOpening;
-            _menu.Closing += MenuClosing;
+            FillContextMenu(_menu);
         }
 
         private static void AlwaysReload_CheckedChanged(object sender, EventArgs e)
@@ -230,6 +235,16 @@ namespace TheraEditor.Wrappers
             if (parentFolderPath[parentFolderPath.Length - 1] != Path.DirectorySeparatorChar)
                 parentFolderPath += Path.DirectorySeparatorChar;
             FilePath = parentFolderPath + fileName;
+        }
+        protected void DefaultSaveText(DockableTextEditor obj)
+        {
+            ITextSource source = Resource as ITextSource;
+            if (source == null)
+                return;
+            source.Text = obj.GetText();
+            Editor.Instance.ContentTree.WatchProjectDirectory = false;
+            ResourceRef.ExportReference();
+            Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
     }
 }

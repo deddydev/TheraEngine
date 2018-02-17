@@ -33,6 +33,14 @@ namespace TheraEditor.Windows.Forms
             toolStrip1.Renderer =  new TheraForm.TheraToolstripRenderer();
         }
 
+        public static void ShowNew(DockPanel dockPanel, DockState document, string text, string v, ETextEditorMode python, Action<DockableTextEditor> defaultSaveText)
+        {
+            DockableTextEditor m = new DockableTextEditor();
+            m.Show(dockPanel, document);
+            m.InitText(text, v, ETextEditorMode.Python);
+            m.Saved += defaultSaveText;
+        }
+
         private void TextBox_CustomAction(object sender, CustomActionEventArgs e)
         {
             switch (e.Action)

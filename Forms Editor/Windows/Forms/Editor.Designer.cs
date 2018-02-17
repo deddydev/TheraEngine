@@ -81,6 +81,7 @@
             this.TheraEngineText = new System.Windows.Forms.Label();
             this.DecorationToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.visualStudioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -110,9 +111,9 @@
             // 
             // FormTitle
             // 
-            this.FormTitle.Location = new System.Drawing.Point(402, 0);
+            this.FormTitle.Location = new System.Drawing.Point(517, 0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.FormTitle.Size = new System.Drawing.Size(574, 36);
+            this.FormTitle.Size = new System.Drawing.Size(459, 36);
             this.FormTitle.Text = "";
             // 
             // MiddlePanel
@@ -135,7 +136,7 @@
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(218, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(333, 36);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -158,34 +159,34 @@
             this.btnSaveProject,
             this.btnSaveProjectAs});
             this.btnProject.Name = "btnProject";
-            this.btnProject.Size = new System.Drawing.Size(181, 26);
+            this.btnProject.Size = new System.Drawing.Size(130, 26);
             this.btnProject.Text = "Project";
             // 
             // btnNewProject
             // 
             this.btnNewProject.Name = "btnNewProject";
-            this.btnNewProject.Size = new System.Drawing.Size(181, 26);
+            this.btnNewProject.Size = new System.Drawing.Size(135, 26);
             this.btnNewProject.Text = "New";
             this.btnNewProject.Click += new System.EventHandler(this.BtnNewProject_Click);
             // 
             // btnOpenProject
             // 
             this.btnOpenProject.Name = "btnOpenProject";
-            this.btnOpenProject.Size = new System.Drawing.Size(181, 26);
+            this.btnOpenProject.Size = new System.Drawing.Size(135, 26);
             this.btnOpenProject.Text = "Open";
             this.btnOpenProject.Click += new System.EventHandler(this.BtnOpenProject_Click);
             // 
             // btnSaveProject
             // 
             this.btnSaveProject.Name = "btnSaveProject";
-            this.btnSaveProject.Size = new System.Drawing.Size(181, 26);
+            this.btnSaveProject.Size = new System.Drawing.Size(135, 26);
             this.btnSaveProject.Text = "Save";
             this.btnSaveProject.Click += new System.EventHandler(this.BtnSaveProject_Click);
             // 
             // btnSaveProjectAs
             // 
             this.btnSaveProjectAs.Name = "btnSaveProjectAs";
-            this.btnSaveProjectAs.Size = new System.Drawing.Size(181, 26);
+            this.btnSaveProjectAs.Size = new System.Drawing.Size(135, 26);
             this.btnSaveProjectAs.Text = "Save As";
             this.btnSaveProjectAs.Click += new System.EventHandler(this.BtnSaveProjectAs_Click);
             // 
@@ -197,31 +198,31 @@
             this.saveToolStripMenuItem1,
             this.saveAsToolStripMenuItem1});
             this.btnWorld.Name = "btnWorld";
-            this.btnWorld.Size = new System.Drawing.Size(181, 26);
+            this.btnWorld.Size = new System.Drawing.Size(130, 26);
             this.btnWorld.Text = "World";
             // 
             // newToolStripMenuItem1
             // 
             this.newToolStripMenuItem1.Name = "newToolStripMenuItem1";
-            this.newToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
+            this.newToolStripMenuItem1.Size = new System.Drawing.Size(135, 26);
             this.newToolStripMenuItem1.Text = "New";
             // 
             // openToolStripMenuItem1
             // 
             this.openToolStripMenuItem1.Name = "openToolStripMenuItem1";
-            this.openToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
+            this.openToolStripMenuItem1.Size = new System.Drawing.Size(135, 26);
             this.openToolStripMenuItem1.Text = "Open";
             // 
             // saveToolStripMenuItem1
             // 
             this.saveToolStripMenuItem1.Name = "saveToolStripMenuItem1";
-            this.saveToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
+            this.saveToolStripMenuItem1.Size = new System.Drawing.Size(135, 26);
             this.saveToolStripMenuItem1.Text = "Save";
             // 
             // saveAsToolStripMenuItem1
             // 
             this.saveAsToolStripMenuItem1.Name = "saveAsToolStripMenuItem1";
-            this.saveAsToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
+            this.saveAsToolStripMenuItem1.Size = new System.Drawing.Size(135, 26);
             this.saveAsToolStripMenuItem1.Text = "Save As";
             // 
             // editToolStripMenuItem
@@ -320,7 +321,8 @@
             this.btnViewFileTree,
             this.btnViewTools,
             this.btnViewPropertyGrid,
-            this.btnViewOutput});
+            this.btnViewOutput,
+            this.visualStudioToolStripMenuItem});
             this.viewToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
@@ -341,28 +343,28 @@
             // viewport1ToolStripMenuItem
             // 
             this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
-            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
             this.viewport1ToolStripMenuItem.Text = "Viewport 1";
             this.viewport1ToolStripMenuItem.Click += new System.EventHandler(this.Viewport1ToolStripMenuItem_Click);
             // 
             // viewport2ToolStripMenuItem
             // 
             this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
-            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
             this.viewport2ToolStripMenuItem.Text = "Viewport 2";
             this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
             // 
             // viewport3ToolStripMenuItem
             // 
             this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
-            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
             this.viewport3ToolStripMenuItem.Text = "Viewport 3";
             this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
             // 
             // viewport4ToolStripMenuItem
             // 
             this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
-            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
             this.viewport4ToolStripMenuItem.Text = "Viewport 4";
             this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
             // 
@@ -420,21 +422,21 @@
             // btnPlay
             // 
             this.btnPlay.Name = "btnPlay";
-            this.btnPlay.Size = new System.Drawing.Size(181, 26);
+            this.btnPlay.Size = new System.Drawing.Size(179, 26);
             this.btnPlay.Text = "Play";
             this.btnPlay.Click += new System.EventHandler(this.BtPlay_Click);
             // 
             // btnPlayDetached
             // 
             this.btnPlayDetached.Name = "btnPlayDetached";
-            this.btnPlayDetached.Size = new System.Drawing.Size(181, 26);
+            this.btnPlayDetached.Size = new System.Drawing.Size(179, 26);
             this.btnPlayDetached.Text = "Play Detached";
             this.btnPlayDetached.Click += new System.EventHandler(this.btnPlayDetached_Click);
             // 
             // btnCompile
             // 
             this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(181, 26);
+            this.btnCompile.Size = new System.Drawing.Size(179, 26);
             this.btnCompile.Text = "Compile";
             this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
             // 
@@ -547,6 +549,13 @@
             this.DockPanel.SupportDeeplyNestedContent = true;
             this.DockPanel.TabIndex = 7;
             // 
+            // visualStudioToolStripMenuItem
+            // 
+            this.visualStudioToolStripMenuItem.Name = "visualStudioToolStripMenuItem";
+            this.visualStudioToolStripMenuItem.Size = new System.Drawing.Size(205, 30);
+            this.visualStudioToolStripMenuItem.Text = "Visual Studio";
+            this.visualStudioToolStripMenuItem.Click += new System.EventHandler(this.visualStudioToolStripMenuItem_Click);
+            // 
             // Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -623,6 +632,7 @@
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem visualStudioToolStripMenuItem;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

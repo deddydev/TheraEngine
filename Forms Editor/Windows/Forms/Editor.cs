@@ -863,5 +863,13 @@ namespace TheraEditor.Windows.Forms
         {
             Project.Compile();
         }
+
+        private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EnvDTE.DTE dte = VisualStudioManager.CreateVSInstance();
+            Engine.PrintLine($"Launched Visual Studio {dte.Edition} {dte.Version}.");
+            dte.MainWindow.Visible = true;
+            dte.UserControl = true;
+        }
     }
 }

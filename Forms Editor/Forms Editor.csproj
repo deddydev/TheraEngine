@@ -91,6 +91,7 @@
       <HintPath>..\packages\FCTB.2.16.21.0\lib\FastColoredTextBox.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -585,15 +586,18 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\UndoManager.cs" />
+    <Compile Include="Windows\Forms\VisualStudioManager.cs" />
     <Compile Include="Windows\TransparentPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
+    <Compile Include="Wrappers\CSharpWrapper.cs" />
     <Compile Include="Wrappers\SkeletalModelWrapper.cs" />
     <Compile Include="Wrappers\StaticModelWrapper.cs" />
     <Compile Include="Wrappers\PythonWrapper.cs" />
     <Compile Include="Wrappers\PropertyAnimationWrapper.cs" />
     <Compile Include="Wrappers\MaterialWrapper.cs" />
+    <Compile Include="Wrappers\ProjectWrapper.cs" />
     <Compile Include="Wrappers\WorldWrapper.cs" />
     <Compile Include="Wrappers\FolderWrapper.cs" />
     <Compile Include="Wrappers\FileWrapper.cs" />

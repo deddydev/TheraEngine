@@ -126,6 +126,8 @@ namespace TheraEngine.Files
             set => _filePath = value;
         }
         [Browsable(false)]
+        public string DirectoryPath => FilePath.IsDirectoryPath() == false ? Path.GetDirectoryName(FilePath) : null;
+        [Browsable(false)]
         public int CalculatedSize => _calculatedSize;
         [Browsable(false)]
         public List<IFileRef> References { get => _references; set => _references = value; }

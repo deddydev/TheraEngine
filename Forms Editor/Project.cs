@@ -8,6 +8,9 @@ using System.CodeDom.Compiler;
 using Microsoft.Build.Evaluation;
 using System.Collections.Generic;
 using Microsoft.Build.Execution;
+using Microsoft.Build.Logging;
+using Microsoft.Build.Framework;
+using TheraEditor.Windows.Forms;
 
 namespace TheraEditor
 {
@@ -23,7 +26,7 @@ namespace TheraEditor
         public static readonly string SourceDirName = "Source" + Path.DirectorySeparatorChar.ToString();
         public static readonly string ContentDirName = "Content" + Path.DirectorySeparatorChar.ToString();
         public static readonly string TempDirName = "Temp" + Path.DirectorySeparatorChar.ToString();
-        
+
         private GlobalFileRef<ProjectState> _state;
         private GlobalFileRef<EditorSettings> _editorSettings;
 
@@ -86,7 +89,7 @@ namespace TheraEditor
             UserSettings userSettings = new UserSettings();
             EngineSettings engineSettings = new EngineSettings();
             EditorSettings editorSettings = new EditorSettings();
-            
+
             Project p = new Project()
             {
                 Name = name,
@@ -103,7 +106,117 @@ namespace TheraEditor
         }
         public void GenerateSolution()
         {
-            //string slnPath = Path.Combine(TempDirName, 
+            EnvDTE.DTE dte = VisualStudioManager.CreateVSInstance();
+            dte.Solution.Create(Path.Combine(DirectoryPath, SourceDirName), Name);
+
+            //Dictionary<string, string> props = new Dictionary<string, string>
+            //{
+            //    { "Configuration", "Debug" },
+            //    { "Platform", "x86" }
+            //};
+            //EngineLogger logger = new EngineLogger(LoggerVerbosity.Diagnostic);
+            //ProjectCollection pc = new ProjectCollection(props, new ILogger[] { logger },
+            //    ToolsetDefinitionLocations.ConfigurationFile | ToolsetDefinitionLocations.Registry);
+            //BuildParameters buildParams = new BuildParameters(pc);
+            //BuildRequestData buildRequest = new BuildRequestData(projectFileName, props, null, new string[] { "Build" }, null);
+            //BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
+        }
+        private class EngineLogger : ILogger
+        {
+            public EngineLogger() { }
+            public EngineLogger(LoggerVerbosity verbosity) => Verbosity = verbosity;
+
+            public LoggerVerbosity Verbosity { get; set; } = LoggerVerbosity.Normal;
+            public string Parameters { get; set; }
+
+            private IEventSource _source = null;
+
+            public void Initialize(IEventSource eventSource)
+            {
+                if ((_source = eventSource) == null)
+                    return;
+
+                _source.BuildFinished += BuildFinishedHandler;
+                _source.BuildStarted += BuildStartedHandler;
+                _source.CustomEventRaised += CustomEventHandler;
+                _source.ErrorRaised += ErrorHandler;
+                _source.MessageRaised += MessageHandler;
+                _source.ProjectFinished += ProjectFinishedHandler;
+                _source.ProjectStarted += ProjectStartedHandler;
+                _source.TargetFinished += TargetFinishedHandler;
+                _source.TargetStarted += TargetStartedHandler;
+                _source.TaskFinished += TaskFinishedHandler;
+                _source.TaskStarted += TaskStartedHandler;
+                _source.WarningRaised += WarningHandler;
+            }
+
+            public void Shutdown()
+            {
+                if (_source == null)
+                    return;
+
+                _source.BuildFinished -= BuildFinishedHandler;
+                _source.BuildStarted -= BuildStartedHandler;
+                _source.CustomEventRaised -= CustomEventHandler;
+                _source.ErrorRaised -= ErrorHandler;
+                _source.MessageRaised -= MessageHandler;
+                _source.ProjectFinished -= ProjectFinishedHandler;
+                _source.ProjectStarted -= ProjectStartedHandler;
+                _source.TargetFinished -= TargetFinishedHandler;
+                _source.TargetStarted -= TargetStartedHandler;
+                _source.TaskFinished -= TaskFinishedHandler;
+                _source.TaskStarted -= TaskStartedHandler;
+                _source.WarningRaised -= WarningHandler;
+            }
+            
+            public void BuildFinishedHandler(object sender, BuildFinishedEventArgs e)
+            {
+                
+            }
+            public void BuildStartedHandler(object sender, BuildStartedEventArgs e)
+            {
+
+            }
+            public void CustomEventHandler(object sender, CustomBuildEventArgs e)
+            {
+
+            }
+            public void ErrorHandler(object sender, BuildErrorEventArgs e)
+            {
+
+            }
+            public void MessageHandler(object sender, BuildMessageEventArgs e)
+            {
+
+            }
+            public void ProjectFinishedHandler(object sender, ProjectFinishedEventArgs e)
+            {
+
+            }
+            public void ProjectStartedHandler(object sender, ProjectStartedEventArgs e)
+            {
+
+            }
+            public void TargetFinishedHandler(object sender, TargetFinishedEventArgs e)
+            {
+
+            }
+            public void TargetStartedHandler(object sender, TargetStartedEventArgs e)
+            {
+
+            }
+            public void TaskFinishedHandler(object sender, TaskFinishedEventArgs e)
+            {
+
+            }
+            public void TaskStartedHandler(object sender, TaskStartedEventArgs e)
+            {
+
+            }
+            public void WarningHandler(object sender, BuildWarningEventArgs e)
+            {
+
+            }
         }
         public void Compile()
         {

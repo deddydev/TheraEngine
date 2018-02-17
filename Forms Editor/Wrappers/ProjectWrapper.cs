@@ -1,19 +1,18 @@
 ﻿using System.Windows.Forms;
 using System.ComponentModel;
+using TheraEngine.Worlds;
 using TheraEditor.Windows.Forms;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(TMaterial), SystemImages.GenericFile)]
-    public class MaterialWrapper : FileWrapper<TMaterial>
+    [NodeWrapper(typeof(Project), SystemImages.GenericFile)]
+    public class ProjectWrapper : FileWrapper<Project>
     {
         #region Menu
         private static ContextMenuStrip _menu;
-        static MaterialWrapper()
+        static ProjectWrapper()
         {
             _menu = new ContextMenuStrip();
-            FillContextMenu(_menu);
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
@@ -23,19 +22,15 @@ namespace TheraEditor.Wrappers
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
-            MaterialWrapper w = GetInstance<MaterialWrapper>();
+            ProjectWrapper w = GetInstance<ProjectWrapper>();
         }
         #endregion
-        
-        public MaterialWrapper() : base() { }
 
+        public ProjectWrapper() : base() { }
+        
         public override void EditResource()
         {
-            MaterialEditorForm m = new MaterialEditorForm()
-            {
-                Material = ResourceRef
-            };
-            m.Show();
+            Editor.Instance.Project = Resource;
         }
     }
 }

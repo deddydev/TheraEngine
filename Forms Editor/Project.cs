@@ -107,7 +107,12 @@ namespace TheraEditor
         public void GenerateSolution()
         {
             EnvDTE.DTE dte = VisualStudioManager.CreateVSInstance();
-            dte.Solution.Create(Path.Combine(DirectoryPath, SourceDirName), Name);
+            dte.SuppressUI = true;
+            string dir = Path.Combine(DirectoryPath, SourceDirName);
+            dte.Solution.Create(dir, Name);
+            //dte.Solution.AddFromTemplate("ConsoleApplication.zip", "csproj");
+            dte.Solution.SaveAs(Path.Combine(dir, Name + ".sln"));
+            VisualStudioManager.VSInstanceClosed();
 
             //Dictionary<string, string> props = new Dictionary<string, string>
             //{

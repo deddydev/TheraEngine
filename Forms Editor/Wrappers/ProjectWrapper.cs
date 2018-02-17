@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Worlds;
 using TheraEditor.Windows.Forms;
+using System;
 
 namespace TheraEditor.Wrappers
 {
@@ -13,9 +14,21 @@ namespace TheraEditor.Wrappers
         static ProjectWrapper()
         {
             _menu = new ContextMenuStrip();
+            _menu.Items.Add(new ToolStripMenuItem("Generate Solution", null, RegenSolutionAction, Keys.F5));
+            _menu.Items.Add(new ToolStripSeparator());
+            FillContextMenuDefaults(_menu);
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
+
+        private static void RegenSolutionAction(object sender, EventArgs e)
+            => GetInstance<ProjectWrapper>().GenerateSolution();
+
+        private void GenerateSolution()
+        {
+            Resource?.GenerateSolution();
+        }
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             
@@ -26,7 +39,7 @@ namespace TheraEditor.Wrappers
         }
         #endregion
 
-        public ProjectWrapper() : base() { }
+        public ProjectWrapper() : base(_menu) { }
         
         public override void EditResource()
         {

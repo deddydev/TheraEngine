@@ -36,40 +36,40 @@ namespace TheraEngine.Rendering.Models
         public EPrimitiveType Type { get => _type; set => _type = value; }
 
         //Skinning data first
-        [TSerialize("SingleBindBone", Order = 0)]
+        [TSerialize(nameof(SingleBindBone), Order = 0)]
         internal string _singleBindBone;
-        [TSerialize("UtilizedBones", Order = 1)]
+        [TSerialize(nameof(UtilizedBones), Order = 1)]
         internal string[] _utilizedBones;
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
-        [TSerialize("Influences", Order = 2)]
+        [TSerialize(nameof(Influences), Order = 2)]
         internal InfluenceDef[] _influences;
 
         //Buffer data second
-        [TSerialize("BufferInfo", Order = 3)]
+        [TSerialize(nameof(BufferInfo), Order = 3)]
         internal VertexShaderDesc _bufferInfo;
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
-        [TSerialize("VertexBuffers", Order = 4)]
+        [TSerialize(nameof(Buffers), Order = 4)]
         internal List<VertexBuffer> _buffers = null;
 
         //Face data last
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
-        [TSerialize("FacePoints", Order = 5)]
+        [TSerialize(nameof(FacePoints), Order = 5)]
         internal List<FacePoint> _facePoints = null;
-        [TSerialize("Points", Order = 6)]
+        [TSerialize(nameof(Points), Order = 6)]
         internal List<IndexPoint> _points = null;
-        [TSerialize("Lines", Order = 7)]
+        [TSerialize(nameof(Lines), Order = 7)]
         internal List<IndexLine> _lines = null;
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
-        [TSerialize("Triangles", Order = 8)]
+        [TSerialize(nameof(Triangles), Order = 8)]
         internal List<IndexTriangle> _triangles = null;
 
-        [TSerialize("Type", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(nameof(Type), XmlNodeType = EXmlNodeType.Attribute)]
         internal EPrimitiveType _type = EPrimitiveType.Triangles;
-        [TSerialize("Culling", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(nameof(Culling), XmlNodeType = EXmlNodeType.Attribute)]
         internal Culling _culling = Culling.Back;
     }
 }

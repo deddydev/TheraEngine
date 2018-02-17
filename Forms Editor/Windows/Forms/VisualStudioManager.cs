@@ -23,7 +23,6 @@ namespace TheraEditor.Windows.Forms
                 return _devEnvPath;
             }
         }
-
         public static EnvDTE.DTE CreateVSInstance()
         {
             EnvDTE.DTE dte = null;
@@ -50,18 +49,23 @@ namespace TheraEditor.Windows.Forms
                     
                     if (proc != null)
                         dte = GetDTE(proc.Id, 120);
+
+                    if (dte != null)
+                    {
+                        //++_activeInstances;
+
+                    }
                 }
                 catch (Exception ex)
                 {
                     Engine.PrintLine(ex.ToString());
                 }
-                finally
-                {
-                    // turn off the IOleMessageFilter.
-                    MessageFilter.Revoke();
-                }
             }
             return dte;
+        }
+        public static void VSInstanceClosed()
+        {
+            MessageFilter.Revoke();
         }
         public static string[] FindDevEnv()
         {

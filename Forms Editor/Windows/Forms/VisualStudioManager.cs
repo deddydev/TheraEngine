@@ -23,9 +23,9 @@ namespace TheraEditor.Windows.Forms
                 return _devEnvPath;
             }
         }
-        public static EnvDTE.DTE CreateVSInstance()
+        public static EnvDTE80.DTE2 CreateVSInstance()
         {
-            EnvDTE.DTE dte = null;
+            EnvDTE80.DTE2 dte = null;
 
             string devEnvPath = DevEnvPath;
             if (devEnvPath != null)
@@ -83,9 +83,9 @@ namespace TheraEditor.Windows.Forms
         /// <returns>
         /// Retrieved DTE object or <see langword="null"> if not found.
         /// </see></returns>
-        private static EnvDTE.DTE GetDTE(int processId, int timeout)
+        private static EnvDTE80.DTE2 GetDTE(int processId, int timeout)
         {
-            EnvDTE.DTE res = null;
+            EnvDTE80.DTE2 res = null;
             DateTime startTime = DateTime.Now;
 
             while (res == null && DateTime.Now.Subtract(startTime).Seconds < timeout)
@@ -106,7 +106,7 @@ namespace TheraEditor.Windows.Forms
         /// <returns>
         /// Retrieved DTE object or <see langword="null"> if not found.
         /// </see></returns>
-        private static EnvDTE.DTE GetDTE(int processId)
+        private static EnvDTE80.DTE2 GetDTE(int processId)
         {
             object runningObject = null;
 
@@ -166,7 +166,7 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            return runningObject as EnvDTE.DTE;
+            return runningObject as EnvDTE80.DTE2;
         }
         public class MessageFilter : IOleMessageFilter
         {

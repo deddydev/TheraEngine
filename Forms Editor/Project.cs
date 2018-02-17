@@ -11,6 +11,8 @@ using Microsoft.Build.Execution;
 using Microsoft.Build.Logging;
 using Microsoft.Build.Framework;
 using TheraEditor.Windows.Forms;
+using System.Threading.Tasks;
+using EnvDTE100;
 
 namespace TheraEditor
 {
@@ -104,15 +106,21 @@ namespace TheraEditor
 
             return p;
         }
-        public void GenerateSolution()
+
+        public void GenerateSolution() => GenerateSolution(Path.Combine(DirectoryPath, SourceDirName));
+        public void GenerateSolution(string dir)
         {
-            EnvDTE.DTE dte = VisualStudioManager.CreateVSInstance();
-            dte.SuppressUI = true;
-            string dir = Path.Combine(DirectoryPath, SourceDirName);
-            dte.Solution.Create(dir, Name);
-            //dte.Solution.AddFromTemplate("ConsoleApplication.zip", "csproj");
-            dte.Solution.SaveAs(Path.Combine(dir, Name + ".sln"));
-            VisualStudioManager.VSInstanceClosed();
+            Task.Run(() =>
+            {
+                EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
+                dte.SuppressUI = true;
+                Solution4 sln = (Solution4)dte.Solution;
+                sln.Create(dir, Name);
+                string projPath = GenerateGameProject(dir, dte, sln);
+                sln.AddFromFile(projPath, false);
+                sln.SaveAs(Path.Combine(dir, Name + ".sln"));
+                VisualStudioManager.VSInstanceClosed();
+            });
 
             //Dictionary<string, string> props = new Dictionary<string, string>
             //{
@@ -126,6 +134,16 @@ namespace TheraEditor
             //BuildRequestData buildRequest = new BuildRequestData(projectFileName, props, null, new string[] { "Build" }, null);
             //BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
         }
+
+        private string GenerateGameProject(string slnDir, EnvDTE80.DTE2 dte, Solution4 sln)
+        {
+            string projDir = Path.Combine(slnDir, Name);
+
+            string projPath = Path.Combine(projDir, Name);
+
+            return projPath;
+        }
+
         private class EngineLogger : ILogger
         {
             public EngineLogger() { }

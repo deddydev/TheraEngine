@@ -151,43 +151,20 @@ namespace TheraEditor.Wrappers
             }
         }
     }
-    public class UnidentifiedFileWrapper : BaseFileWrapper
+    public class GenericFileWrapper : BaseFileWrapper
     {
-        public UnidentifiedFileWrapper(string path) : base()
+        public GenericFileWrapper(string path) : base()
         {
             Text = Path.GetFileName(path);
             FilePath = Name = path;
-            Engine.PrintLine("File not identified: " + path);
+            Engine.PrintLine("File type not identified: " + path);
         }
-        
+        public override TFileObject SingleInstance { get => null; set { } }
         public override bool IsLoaded => false;
-
-        public override TFileObject SingleInstance
-        {
-            get => null;
-            set
-            {
-
-            }
-        }
-        public override string FilePath
-        {
-            get => Name;
-            set => Name = value;
-        }
-
         public override Type FileType => null;
-
         public override IGlobalFileRef SingleInstanceRef => throw new NotImplementedException();
-
-        public override TFileObject GetNewInstance()
-        {
-            return null;
-        }
-
-        protected internal override void FixPath(string parentFolderPath)
-        {
-        }
+        public override TFileObject GetNewInstance() { return null; }
+        protected internal override void FixPath(string parentFolderPath) { }
     }
     public class FileWrapper<T> : BaseFileWrapper where T : TFileObject
     {

@@ -55,7 +55,7 @@ namespace TheraEditor.Wrappers
 
         public new ResourceTree TreeView => (ResourceTree)base.TreeView;
         public new BaseWrapper Parent => base.Parent as BaseWrapper; //Parent may be null
-        public abstract string FilePath { get; set; }
+        public virtual string FilePath { get => Name; set => Name = value; }
         public bool IsPopulated => _isPopulated;
 
         public BaseWrapper(ContextMenuStrip menu)
@@ -127,7 +127,7 @@ namespace TheraEditor.Wrappers
                     w.FilePath = w.Name = path;
                 }
                 else
-                    w = new UnidentifiedFileWrapper(path);
+                    w = new GenericFileWrapper(path);
             }
             return w;
         }

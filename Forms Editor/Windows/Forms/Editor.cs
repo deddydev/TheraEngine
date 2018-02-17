@@ -82,6 +82,7 @@ namespace TheraEditor.Windows.Forms
 
         private Project _project;
         private Assembly _gameProgram;
+        private EditorGameMode _editorGameMode;
         private DeserializeDockContent _deserializeDockContent;
 
         #region Instanced Dock Forms
@@ -141,7 +142,6 @@ namespace TheraEditor.Windows.Forms
 
         public ResourceTree ContentTree => FileTreeForm.ContentTree;
         public TreeView ActorTree => ActorTreeForm.ActorTree;
-
         public Project Project
         {
             get => _project;
@@ -270,7 +270,6 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        EditorGameMode _editorGameMode;
         public Editor() : base()
         {
             _instance = this;

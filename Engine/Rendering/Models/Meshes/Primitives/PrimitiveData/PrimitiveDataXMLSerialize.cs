@@ -9,49 +9,49 @@ namespace TheraEngine.Rendering.Models
 {
     public partial class PrimitiveData : TFileObject, IDisposable
     {
-        [CustomXMLSerializeMethod("Triangles")]
+        [CustomXMLSerializeMethod(nameof(Triangles))]
         private void SerializeTriangles(XmlWriter writer)
         {
             if (_triangles == null) return;
             string str = string.Join(" ", _triangles.SelectMany(x => x.Points.Select(y => y.VertexIndex.ToString())));
-            writer.WriteElementString("Triangles", str);
+            writer.WriteElementString(nameof(Triangles), str);
         }
-        [CustomXMLSerializeMethod("Lines")]
+        [CustomXMLSerializeMethod(nameof(Lines))]
         private void SerializeLines(XmlWriter writer)
         {
             if (_lines == null) return;
             string str = string.Join(" ", _lines.SelectMany(x => new string[] { x.Point0.VertexIndex.ToString(), x.Point1.VertexIndex.ToString() }));
-            writer.WriteElementString("Lines", str);
+            writer.WriteElementString(nameof(Lines), str);
         }
-        [CustomXMLSerializeMethod("Points")]
+        [CustomXMLSerializeMethod(nameof(Points))]
         private void SerializePoints(XmlWriter writer)
         {
             if (_points == null) return;
             string str = string.Join(" ", _points.Select(x => x.VertexIndex.ToString()));
-            writer.WriteElementString("Points", str);
+            writer.WriteElementString(nameof(Points), str);
         }
-        [CustomXMLDeserializeMethod("Triangles")]
+        [CustomXMLDeserializeMethod(nameof(Triangles))]
         private void DeserializeTriangles(XMLReader reader)
         {
             string str = reader.ReadElementString();
             _triangles = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).SelectEvery(3, x => new IndexTriangle(int.Parse(x[0]), int.Parse(x[1]), int.Parse(x[2]))).ToList();
         }
-        [CustomXMLDeserializeMethod("Lines")]
+        [CustomXMLDeserializeMethod(nameof(Lines))]
         private void DeserializeLines(XMLReader reader)
         {
             string str = reader.ReadElementString();
             _lines = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).SelectEvery(2, x => new IndexLine(int.Parse(x[0]), int.Parse(x[1]))).ToList();
         }
-        [CustomXMLDeserializeMethod("Points")]
+        [CustomXMLDeserializeMethod(nameof(Points))]
         private void DeserializePoints(XMLReader reader)
         {
             string str = reader.ReadElementString();
             _points = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => new IndexPoint(int.Parse(x))).ToList();
         }
-        [CustomXMLSerializeMethod("FacePoints")]
+        [CustomXMLSerializeMethod(nameof(FacePoints))]
         private bool SerializeFacePoints(XmlWriter writer)
         {
-            writer.WriteStartElement("FacePoints");
+            writer.WriteStartElement(nameof(FacePoints));
             writer.WriteAttributeString("Count", _facePoints.Count.ToString());
             {
                 bool hasInfs = _influences != null && _influences.Length > 0;
@@ -66,7 +66,7 @@ namespace TheraEngine.Rendering.Models
             writer.WriteEndElement();
             return true;
         }
-        [CustomXMLDeserializeMethod("FacePoints")]
+        [CustomXMLDeserializeMethod(nameof(FacePoints))]
         private bool DeserializeFacePoints(XMLReader reader)
         {
             int count = 0;
@@ -92,12 +92,12 @@ namespace TheraEngine.Rendering.Models
             }
             return true;
         }
-        [CustomXMLSerializeMethod("Influences")]
+        [CustomXMLSerializeMethod(nameof(Influences))]
         private bool CustomInfluencesSerialize(XmlWriter writer)
         {
             if (_influences != null)
             {
-                writer.WriteStartElement("Influences");
+                writer.WriteStartElement(nameof(Influences));
                 writer.WriteAttributeString("Count", _influences.Length.ToString());
                 {
                     writer.WriteStartElement("Counts");
@@ -122,7 +122,7 @@ namespace TheraEngine.Rendering.Models
             }
             return true;
         }
-        [CustomXMLDeserializeMethod("Influences")]
+        [CustomXMLDeserializeMethod(nameof(Influences))]
         private bool CustomInfluencesDeserialize(XMLReader reader)
         {
             while (reader.ReadAttribute())
@@ -133,14 +133,14 @@ namespace TheraEngine.Rendering.Models
                     _influences = new InfluenceDef[count];
                 }
             }
-            int[] counts = null, indices = null;
+            int[] boneCounts = null, indices = null;
             float[] weights = null;
             string s;
             while (reader.BeginElement())
             {
                 s = reader.ReadElementString();
                 if (reader.Name.Equals("Counts", true))
-                    counts = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
+                    boneCounts = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
                 else if (reader.Name.Equals("Indices", true))
                     indices = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
                 else if (reader.Name.Equals("Weights", true))
@@ -151,7 +151,7 @@ namespace TheraEngine.Rendering.Models
             for (int i = 0; i < _influences.Length; ++i)
             {
                 InfluenceDef inf = new InfluenceDef();
-                for (int j = 0; j < counts[i]; ++j, ++k)
+                for (int boneIndex = 0; boneIndex < boneCounts[i]; ++boneIndex, ++k)
                     inf.AddWeight(new BoneWeight(_utilizedBones[indices[k]], weights[k]));
                 _influences[i] = inf;
             }

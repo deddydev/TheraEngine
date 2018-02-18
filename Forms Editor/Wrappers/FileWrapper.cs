@@ -13,13 +13,14 @@ namespace TheraEditor.Wrappers
     public abstract class BaseFileWrapper : BaseWrapper
     {
         #region Menu
-        private static ContextMenuStrip _menu;
-        public BaseFileWrapper() : base(_menu)
+        private static ContextMenuStrip _defaultMenu;
+        public BaseFileWrapper() : this(_defaultMenu) { }
+        public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
         {
             ImageIndex = 0;
             SelectedImageIndex = 0;
         }
-        public static int FillContextMenu(ContextMenuStrip strip)
+        public static int FillContextMenuDefaults(ContextMenuStrip strip)
         {
             strip.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
             strip.Items.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.O));   //1
@@ -42,8 +43,8 @@ namespace TheraEditor.Wrappers
         }
         static BaseFileWrapper()
         {
-            _menu = new ContextMenuStrip();
-            FillContextMenu(_menu);
+            _defaultMenu = new ContextMenuStrip();
+            FillContextMenuDefaults(_defaultMenu);
         }
 
         private static void AlwaysReload_CheckedChanged(object sender, EventArgs e)
@@ -92,10 +93,10 @@ namespace TheraEditor.Wrappers
         {
             BaseFileWrapper w = GetInstance<BaseFileWrapper>();
             //_menu.Items[0].Enabled = w.TreeView.LabelEdit;
-            _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && File.Exists(w.FilePath);
-            _menu.Items[5].Enabled = _menu.Items[8].Enabled = w.Parent != null;
-            _menu.Items[6].Enabled = w.IsLoaded && w.SingleInstance.EditorState.HasChanges;
-            ((ToolStripMenuItem)_menu.Items[7]).Checked = w.AlwaysReload;
+            _defaultMenu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && File.Exists(w.FilePath);
+            _defaultMenu.Items[5].Enabled = _defaultMenu.Items[8].Enabled = w.Parent != null;
+            _defaultMenu.Items[6].Enabled = w.IsLoaded && w.SingleInstance.EditorState.HasChanges;
+            ((ToolStripMenuItem)_defaultMenu.Items[7]).Checked = w.AlwaysReload;
             //_menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             //_menu.Items[4].Enabled = w.PrevNode != null;
             //_menu.Items[5].Enabled = w.NextNode != null;
@@ -165,9 +166,15 @@ namespace TheraEditor.Wrappers
         public override IGlobalFileRef SingleInstanceRef => throw new NotImplementedException();
         public override TFileObject GetNewInstance() { return null; }
         protected internal override void FixPath(string parentFolderPath) { }
+
+        //Let Windows decide how the file should be edited
+        public override void EditResource() => Process.Start(FilePath);
     }
     public class FileWrapper<T> : BaseFileWrapper where T : TFileObject
     {
+        public FileWrapper() : base() { }
+        public FileWrapper(ContextMenuStrip menu) : base(menu) { }
+
         public override Type FileType => typeof(T);
 
         protected GlobalFileRef<T> _fileRef = new GlobalFileRef<T>();

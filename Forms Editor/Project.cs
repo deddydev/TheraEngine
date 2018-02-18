@@ -11,6 +11,8 @@ using Microsoft.Build.Execution;
 using Microsoft.Build.Logging;
 using Microsoft.Build.Framework;
 using TheraEditor.Windows.Forms;
+using System.Threading.Tasks;
+using EnvDTE100;
 
 namespace TheraEditor
 {
@@ -104,23 +106,48 @@ namespace TheraEditor
 
             return p;
         }
-        public void GenerateSolution()
-        {
-            EnvDTE.DTE dte = VisualStudioManager.CreateVSInstance();
-            dte.Solution.Create(Path.Combine(DirectoryPath, SourceDirName), Name);
 
-            //Dictionary<string, string> props = new Dictionary<string, string>
-            //{
-            //    { "Configuration", "Debug" },
-            //    { "Platform", "x86" }
-            //};
-            //EngineLogger logger = new EngineLogger(LoggerVerbosity.Diagnostic);
-            //ProjectCollection pc = new ProjectCollection(props, new ILogger[] { logger },
-            //    ToolsetDefinitionLocations.ConfigurationFile | ToolsetDefinitionLocations.Registry);
-            //BuildParameters buildParams = new BuildParameters(pc);
-            //BuildRequestData buildRequest = new BuildRequestData(projectFileName, props, null, new string[] { "Build" }, null);
-            //BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
+        public void GenerateSolution() => GenerateSolution(Path.Combine(DirectoryPath, SourceDirName, "Solution"));
+        public void GenerateSolution(string slnDir)
+        {
+            Task.Run(() =>
+            {
+                EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
+                dte.SuppressUI = true;
+                Solution4 sln = (Solution4)dte.Solution;
+                sln.Create(slnDir, Name);
+                string projDir = Path.Combine(slnDir, Name);
+                string projPath = Path.Combine(projDir, Name + ".csproj");
+                string csTemplatePath = sln.GetProjectTemplate("ConsoleApplication.zip", "CSharp");
+                EnvDTE.Project proj = sln.AddFromTemplate(csTemplatePath, projDir, Name, false);
+                EnvDTE.Project proj2 = sln.Projects.Item(1);
+                //string projPath = GenerateGameProject(dir, dte, sln);
+                //sln.AddFromFile(projPath, false);
+                sln.SaveAs(Path.Combine(slnDir, Name + ".sln"));
+                VisualStudioManager.VSInstanceClosed();
+            });
         }
+
+        //private string GenerateGameProject(string slnDir, EnvDTE80.DTE2 dte, Solution4 sln)
+        //{
+
+
+        //    //Dictionary<string, string> props = new Dictionary<string, string>
+        //    //{
+        //    //    { "Configuration", "Debug" },
+        //    //    { "Platform", "x86" }
+        //    //};
+        //    //EngineLogger logger = new EngineLogger(LoggerVerbosity.Diagnostic);
+        //    //ProjectCollection pc = new ProjectCollection(props, new ILogger[] { logger },
+        //    //    ToolsetDefinitionLocations.ConfigurationFile | ToolsetDefinitionLocations.Registry);
+        //    //BuildParameters buildParams = new BuildParameters(pc);
+        //    //BuildRequestData buildRequest = new BuildRequestData(projectFileName, props, null, new string[] { "Build" }, null);
+        //    //BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
+
+        //    //File.WriteAllText(projPath, @"");
+        //    return projPath;
+        //}
+
         private class EngineLogger : ILogger
         {
             public EngineLogger() { }

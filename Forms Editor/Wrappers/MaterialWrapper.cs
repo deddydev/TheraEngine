@@ -13,7 +13,7 @@ namespace TheraEditor.Wrappers
         static MaterialWrapper()
         {
             _menu = new ContextMenuStrip();
-            FillContextMenu(_menu);
+            FillContextMenuDefaults(_menu);
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }

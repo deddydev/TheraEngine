@@ -865,7 +865,7 @@ namespace TheraEditor.Windows.Forms
 
         private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            EnvDTE.DTE dte = VisualStudioManager.CreateVSInstance();
+            EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
             Engine.PrintLine($"Launched Visual Studio {dte.Edition} {dte.Version}.");
             dte.MainWindow.Visible = true;
             dte.UserControl = true;

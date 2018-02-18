@@ -180,13 +180,13 @@ namespace TheraEngine.Rendering
             int w = _internalResolution.IntWidth;
             int h = _internalResolution.IntHeight;
 
-            Engine.PrintLine("Internal resolution Changed: {0}x{1}", w, h);
+            //Engine.PrintLine("Internal resolution changed: {0}x{1}", w, h);
 
             GBufferFBO?.ResizeTextures(w, h);
             PostProcessFBO?.ResizeTextures(w, h);
 
-            //_worldCamera?.Resize(w, h);
-            //HUD?.Resize(_internalResolution.Bounds);
+            _worldCamera?.Resize(w, h);
+            HUD?.Resize(_internalResolution.Bounds);
         }
 
         public void Resize(

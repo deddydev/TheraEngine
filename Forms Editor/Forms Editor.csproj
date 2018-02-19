@@ -9,17 +9,18 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TheraEditor</RootNamespace>
     <AssemblyName>Forms Editor</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>publish\</PublishUrl>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>C:\Users\David\Google Drive\TheraDev\Thera Engine\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Background</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
@@ -27,8 +28,9 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <CreateDesktopShortcut>true</CreateDesktopShortcut>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
@@ -82,10 +84,16 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>false</GenerateManifests>
+    <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>239630CC4577AEC35A431E1EA06262D6E2A8C423</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>Forms Editor_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
@@ -120,6 +128,12 @@
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Octokit, Version=0.29.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Octokit.0.29.0\lib\net45\Octokit.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -183,6 +197,7 @@
     <Compile Include="ThirdParty\Text Editor\SyntaxHighlightingTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Github.cs" />
     <Compile Include="Windows\BorderlessForm\TheraForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -192,7 +207,19 @@
     <Compile Include="Windows\Forms\BetterTableLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\DragDropFilter.cs" />
+    <Compile Include="Windows\Forms\IssueDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\IssueDialog.Designer.cs">
+      <DependentUpon>IssueDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\LoginControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\LoginControl.Designer.cs">
+      <DependentUpon>LoginControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\DragDropFilter.cs" />
     <Compile Include="Windows\Forms\Model Editor\Bone Tree\BoneTree.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -547,6 +574,7 @@
     <Compile Include="Windows\Forms\PropertyGrid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
+    <None Include="Forms Editor_TemporaryKey.pfx" />
     <None Include="Windows\Forms\File Navigation\ResourceListView.cs">
       <SubType>Component</SubType>
     </None>
@@ -578,13 +606,13 @@
     <Compile Include="Windows\Forms\Editor Forms\TheraEditorTheme.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editor.cs">
+    <Compile Include="Windows\Forms\Main Window\Editor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editor.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Editor.Designer.cs">
       <DependentUpon>Editor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\EditorHud.cs" />
+    <Compile Include="Windows\Forms\Main Window\EditorHud.cs" />
     <Compile Include="EditorSettings.cs" />
     <Compile Include="Windows\BorderlessForm\BorderlessFormBase.cs">
       <SubType>Form</SubType>
@@ -614,7 +642,7 @@
     <Compile Include="Windows\Forms\Editor Forms\EditorWorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\UndoManager.cs" />
+    <Compile Include="Windows\Forms\Main Window\UndoManager.cs" />
     <Compile Include="Windows\Forms\VisualStudioManager.cs" />
     <Compile Include="Windows\TransparentPanel.cs">
       <SubType>Component</SubType>
@@ -646,6 +674,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\IssueDialog.resx">
+      <DependentUpon>IssueDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\LoginControl.resx">
+      <DependentUpon>LoginControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialList.resx">
       <DependentUpon>DockableMaterialList.cs</DependentUpon>
@@ -695,7 +729,7 @@
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableRenderForm.resx">
       <DependentUpon>DockableRenderForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editor.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Class Creation\ObjectCreator.resx">
@@ -846,6 +880,10 @@
       <Project>{3ba74071-a8fb-473a-9388-0c8f75872f41}</Project>
       <Name>Engine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Updater\Updater.csproj">
+      <Project>{cf1e25a4-e55e-4c0e-a518-8565a4c4f86b}</Project>
+      <Name>Updater</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\ProjectFile.png" />
@@ -873,6 +911,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CSharpScript.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Code.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

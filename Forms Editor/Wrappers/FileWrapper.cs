@@ -13,13 +13,14 @@ namespace TheraEditor.Wrappers
     public abstract class BaseFileWrapper : BaseWrapper
     {
         #region Menu
-        private static ContextMenuStrip _defaultMenu;
-        public BaseFileWrapper() : this(_defaultMenu) { }
-        public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
+
+        static BaseFileWrapper()
         {
-            ImageIndex = 0;
-            SelectedImageIndex = 0;
+            _defaultMenu = new ContextMenuStrip();
+            FillContextMenuDefaults(_defaultMenu);
         }
+
+        private static ContextMenuStrip _defaultMenu;
         public static int FillContextMenuDefaults(ContextMenuStrip strip)
         {
             strip.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
@@ -41,12 +42,6 @@ namespace TheraEditor.Wrappers
             strip.Closing += MenuClosing;
             return strip.Items.Count;
         }
-        static BaseFileWrapper()
-        {
-            _defaultMenu = new ContextMenuStrip();
-            FillContextMenuDefaults(_defaultMenu);
-        }
-
         private static void AlwaysReload_CheckedChanged(object sender, EventArgs e)
         {
             GetInstance<BaseFileWrapper>().AlwaysReload = ((ToolStripMenuItem)sender).Checked;
@@ -75,7 +70,7 @@ namespace TheraEditor.Wrappers
             if (string.IsNullOrEmpty(path))
                 return;
             if (editFileExternally)
-                Process.Start("explorer.exe", path);
+                Process.Start(path);
             else
             {
                 string dir = Path.GetDirectoryName(path);
@@ -102,6 +97,19 @@ namespace TheraEditor.Wrappers
             //_menu.Items[5].Enabled = w.NextNode != null;
         }
         #endregion
+
+        public BaseFileWrapper() : this(_defaultMenu) { }
+        public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
+        {
+            var nodeWrappers = GetType().GetCustomAttributesExt<NodeWrapperAttribute>();
+            if (nodeWrappers.Length > 0)
+            {
+                ImageIndex = ResourceTree.Images.Images.IndexOfKey(nodeWrappers[0].ImageName);
+                SelectedImageIndex = ResourceTree.Images.Images.IndexOfKey(nodeWrappers[0].SelectedImageName);
+            }
+            else
+                ImageIndex = SelectedImageIndex = 0;
+        }
 
         public abstract Type FileType { get; }
         public abstract bool IsLoaded { get; }

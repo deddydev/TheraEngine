@@ -149,7 +149,7 @@ namespace TheraEngine.Rendering
             {
                 TMaterial mat = TMaterial.CreateUnlitColorMaterialForward();
                 RenderingParameters p = new RenderingParameters();
-                p.DepthTest.Enabled = false;
+                p.DepthTest.Enabled = true;
                 mat.RenderParamsRef = p;
                 return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), mat);
             }

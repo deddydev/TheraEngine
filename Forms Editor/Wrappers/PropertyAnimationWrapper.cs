@@ -2,10 +2,11 @@
 using System.ComponentModel;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Animation;
+using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(PropAnimFloat), SystemImages.GenericFile)]
+    [NodeWrapper(typeof(PropAnimFloat), nameof(Resources.GenericFile))]
     public class PropAnimFloatWrapper : FileWrapper<PropAnimFloat>
     {
         #region Menu

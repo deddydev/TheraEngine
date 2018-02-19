@@ -55,7 +55,7 @@
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 5, 0, 5);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(236, 717);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(236, 477);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // label1
@@ -87,7 +87,7 @@
             this.splitContainer1.Panel2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Panel2.Controls.Add(this.panel3);
-            this.splitContainer1.Size = new System.Drawing.Size(1074, 757);
+            this.splitContainer1.Size = new System.Drawing.Size(896, 517);
             this.splitContainer1.SplitterDistance = 244;
             this.splitContainer1.TabIndex = 5;
             // 
@@ -100,7 +100,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(4);
-            this.panel1.Size = new System.Drawing.Size(244, 757);
+            this.panel1.Size = new System.Drawing.Size(244, 517);
             this.panel1.TabIndex = 1;
             // 
             // label2
@@ -110,7 +110,7 @@
             this.label2.Font = new System.Drawing.Font("Origicide", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(39, 23);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(289, 43);
+            this.label2.Size = new System.Drawing.Size(245, 37);
             this.label2.TabIndex = 6;
             this.label2.Text = "Thera Engine";
             // 
@@ -121,7 +121,7 @@
             this.panel3.BackColor = System.Drawing.Color.Transparent;
             this.panel3.Controls.Add(this.btnNew);
             this.panel3.Controls.Add(this.btnOpen);
-            this.panel3.Location = new System.Drawing.Point(27, 92);
+            this.panel3.Location = new System.Drawing.Point(27, 85);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(323, 59);
             this.panel3.TabIndex = 5;
@@ -155,7 +155,7 @@
             // DockableWelcomeWindow
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.ClientSize = new System.Drawing.Size(1074, 757);
+            this.ClientSize = new System.Drawing.Size(896, 517);
             this.Controls.Add(this.splitContainer1);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.Name = "DockableWelcomeWindow";

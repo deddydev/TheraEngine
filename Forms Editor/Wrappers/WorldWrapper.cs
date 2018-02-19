@@ -2,10 +2,11 @@
 using System.ComponentModel;
 using TheraEngine.Worlds;
 using TheraEditor.Windows.Forms;
+using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(World), SystemImages.GenericFile)]
+    [NodeWrapper(typeof(World), nameof(Resources.GenericFile))]
     public class WorldWrapper : FileWrapper<World>
     {
         #region Menu

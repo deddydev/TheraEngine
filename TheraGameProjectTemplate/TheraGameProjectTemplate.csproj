@@ -45,6 +45,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <CreateVsixContainer>True</CreateVsixContainer>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -90,7 +91,9 @@
     <None Include="TheraGameProjectTemplate.ico" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="TheraGameProjectTemplate.vstemplate" />
+    <VSTemplate Include="TheraGameProjectTemplate.vstemplate">
+      <SubType>Designer</SubType>
+    </VSTemplate>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj">

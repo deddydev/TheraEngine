@@ -23,20 +23,6 @@ namespace TheraEditor.Windows.Forms
     {
         Dictionary<Keys, Func<bool>> MappableActions { get; }
     }
-    public enum SystemImages
-    {
-        GenericFile,
-        ClosedFolder,
-        OpenFolder,
-        LockedFolder,
-        Project,
-        World,
-        Map,
-        Actor,
-        SceneComponent,
-        LogicComponent,
-        Settings,
-    }
     [Flags]
     public enum KeyStateFlags : int
     {
@@ -95,14 +81,24 @@ namespace TheraEditor.Windows.Forms
                         ImageSize = new Size(24, 24),
                         ColorDepth = ColorDepth.Depth32Bit,
                     };
-                    _imgList.Images.AddRange(new Image[]
+
+                    _imgList.Images.Add(nameof(Resources.GenericFile), Resources.GenericFile);
+                    _imgList.Images.Add(nameof(Resources.ClosedFolder), Resources.ClosedFolder);
+                    _imgList.Images.Add(nameof(Resources.OpenFolder), Resources.OpenFolder);
+                    _imgList.Images.Add(nameof(Resources.LockedFolder), Resources.GenericFile);
+
+                    Type fileWrapper = typeof(BaseFileWrapper);
+                    var types = Engine.FindTypes(t => fileWrapper.IsAssignableFrom(t));
+                    foreach (Type t in types)
                     {
-                        Resources.GenericFile,      //0
-                        Resources.ClosedFolder,     //1
-                        Resources.OpenFolder,       //2
-                        Resources.LockedFolder,     //3
-                        Resources.ProjectFile,      //4
-                    });
+                        var wrapper = t.GetCustomAttribute<NodeWrapperAttribute>();
+                        if (wrapper != null && !string.IsNullOrWhiteSpace(wrapper.ImageName))
+                        {
+                            object o = Resources.ResourceManager.GetObject(wrapper.ImageName, Resources.Culture);
+                            if (o is Bitmap bmp && !_imgList.Images.ContainsKey(wrapper.ImageName))
+                                _imgList.Images.Add(wrapper.ImageName, bmp);
+                        }
+                    }
                 }
                 return _imgList;
             }
@@ -551,7 +547,7 @@ namespace TheraEditor.Windows.Forms
                     if (bw != null)
                     {
                         bw.EnsureVisible();
-                        SelectedNode = bw;
+                        //SelectedNode = bw;
                     }
                     break;
                 case WatcherChangeTypes.Changed:

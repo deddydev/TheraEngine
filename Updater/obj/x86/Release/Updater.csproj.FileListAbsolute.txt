@@ -1,0 +1,7 @@
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Release\Editor\x86\Updater.exe.config
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Release\Editor\x86\Updater.exe
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Release\Editor\x86\Updater.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Release\Updater.csprojResolveAssemblyReference.cache
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Release\Updater.csproj.CoreCompileInputs.cache
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Release\Updater.exe
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Release\Updater.pdb

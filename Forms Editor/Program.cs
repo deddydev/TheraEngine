@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Editor;
 
 namespace TheraEditor
 {
@@ -20,7 +21,29 @@ namespace TheraEditor
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            Application.ThreadException += Application_ThreadException;
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.Run(new Editor());
+        }
+
+        static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+        {
+            List<EditorState> dirty = Editor.Instance.GetDirtyFiles();
+            Exception ex = e.Exception;
+            IssueDialog d = new IssueDialog(ex, dirty);
+            d.ShowDialog();
+        }
+
+        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception)
+            {
+                List<EditorState> dirty = Editor.Instance.GetDirtyFiles();
+                Exception ex = e.ExceptionObject as Exception;
+                IssueDialog d = new IssueDialog(ex, dirty);
+                d.ShowDialog();
+            }
         }
 
         /// <summary>Returns true if any editor window has focus.</summary>

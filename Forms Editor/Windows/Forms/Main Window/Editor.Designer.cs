@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Editor));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnFile = new System.Windows.Forms.ToolStripMenuItem();
             this.btnProject = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewProject = new System.Windows.Forms.ToolStripMenuItem();
             this.btnOpenProject = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,7 +42,7 @@
             this.openToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.btnUndo = new System.Windows.Forms.ToolStripMenuItem();
             this.btnRedo = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEditProjectSettings = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,7 +52,7 @@
             this.btnUserSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnWorldSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEditEditorSettings = new System.Windows.Forms.ToolStripMenuItem();
-            this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnView = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewViewport = new System.Windows.Forms.ToolStripMenuItem();
             this.viewport1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewport2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,10 +63,17 @@
             this.btnViewTools = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewPropertyGrid = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewOutput = new System.Windows.Forms.ToolStripMenuItem();
-            this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnOpenVisualStudio = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnWindow = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnGame = new System.Windows.Forms.ToolStripMenuItem();
             this.btnPlay = new System.Windows.Forms.ToolStripMenuItem();
             this.btnPlayDetached = new System.Windows.Forms.ToolStripMenuItem();
             this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnContact = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnDocumentation = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxContentTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.BtnImportFile = new System.Windows.Forms.ToolStripMenuItem();
             this.btnImportModel = new System.Windows.Forms.ToolStripMenuItem();
@@ -81,7 +88,6 @@
             this.TheraEngineText = new System.Windows.Forms.Label();
             this.DecorationToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
-            this.visualStudioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -111,9 +117,9 @@
             // 
             // FormTitle
             // 
-            this.FormTitle.Location = new System.Drawing.Point(517, 0);
+            this.FormTitle.Location = new System.Drawing.Point(531, 0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.FormTitle.Size = new System.Drawing.Size(459, 36);
+            this.FormTitle.Size = new System.Drawing.Size(445, 36);
             this.FormTitle.Text = "";
             // 
             // MiddlePanel
@@ -127,29 +133,31 @@
             this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(0);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.editToolStripMenuItem,
-            this.viewToolStripMenuItem,
-            this.gameToolStripMenuItem});
+            this.btnFile,
+            this.btnEdit,
+            this.btnView,
+            this.btnWindow,
+            this.btnGame,
+            this.btnHelp});
             this.menuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
             this.menuStrip1.Location = new System.Drawing.Point(184, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(333, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(347, 36);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // fileToolStripMenuItem
+            // btnFile
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnProject,
             this.btnWorld});
-            this.fileToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
-            this.fileToolStripMenuItem.Text = "File";
-            this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
+            this.btnFile.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.btnFile.Name = "btnFile";
+            this.btnFile.Size = new System.Drawing.Size(44, 24);
+            this.btnFile.Text = "File";
+            this.btnFile.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // btnProject
             // 
@@ -225,17 +233,17 @@
             this.saveAsToolStripMenuItem1.Size = new System.Drawing.Size(135, 26);
             this.saveAsToolStripMenuItem1.Text = "Save As";
             // 
-            // editToolStripMenuItem
+            // btnEdit
             // 
-            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnUndo,
             this.btnRedo,
             this.btnEditProjectSettings,
             this.btnEditEditorSettings});
-            this.editToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(47, 24);
-            this.editToolStripMenuItem.Text = "Edit";
+            this.btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(47, 24);
+            this.btnEdit.Text = "Edit";
             // 
             // btnUndo
             // 
@@ -313,20 +321,20 @@
             this.btnEditEditorSettings.Text = "Editor Default Settings";
             this.btnEditEditorSettings.Click += new System.EventHandler(this.BtnEditorSettings_Click);
             // 
-            // viewToolStripMenuItem
+            // btnView
             // 
-            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnViewViewport,
             this.btnViewActorTree,
             this.btnViewFileTree,
             this.btnViewTools,
             this.btnViewPropertyGrid,
             this.btnViewOutput,
-            this.visualStudioToolStripMenuItem});
-            this.viewToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
-            this.viewToolStripMenuItem.Text = "View";
+            this.btnOpenVisualStudio});
+            this.btnView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.btnView.Name = "btnView";
+            this.btnView.Size = new System.Drawing.Size(53, 24);
+            this.btnView.Text = "View";
             // 
             // btnViewViewport
             // 
@@ -337,7 +345,7 @@
             this.viewport4ToolStripMenuItem});
             this.btnViewViewport.Image = ((System.Drawing.Image)(resources.GetObject("btnViewViewport.Image")));
             this.btnViewViewport.Name = "btnViewViewport";
-            this.btnViewViewport.Size = new System.Drawing.Size(205, 30);
+            this.btnViewViewport.Size = new System.Drawing.Size(210, 26);
             this.btnViewViewport.Text = "Viewport";
             // 
             // viewport1ToolStripMenuItem
@@ -372,7 +380,7 @@
             // 
             this.btnViewActorTree.Image = ((System.Drawing.Image)(resources.GetObject("btnViewActorTree.Image")));
             this.btnViewActorTree.Name = "btnViewActorTree";
-            this.btnViewActorTree.Size = new System.Drawing.Size(205, 30);
+            this.btnViewActorTree.Size = new System.Drawing.Size(210, 26);
             this.btnViewActorTree.Text = "Scene Actors Tree";
             this.btnViewActorTree.Click += new System.EventHandler(this.BtnViewActorTree_Click);
             // 
@@ -380,7 +388,7 @@
             // 
             this.btnViewFileTree.Image = ((System.Drawing.Image)(resources.GetObject("btnViewFileTree.Image")));
             this.btnViewFileTree.Name = "btnViewFileTree";
-            this.btnViewFileTree.Size = new System.Drawing.Size(205, 30);
+            this.btnViewFileTree.Size = new System.Drawing.Size(210, 26);
             this.btnViewFileTree.Text = "Project Files Tree";
             this.btnViewFileTree.Click += new System.EventHandler(this.btnViewFileTree_Click);
             // 
@@ -388,7 +396,7 @@
             // 
             this.btnViewTools.Image = ((System.Drawing.Image)(resources.GetObject("btnViewTools.Image")));
             this.btnViewTools.Name = "btnViewTools";
-            this.btnViewTools.Size = new System.Drawing.Size(205, 30);
+            this.btnViewTools.Size = new System.Drawing.Size(210, 26);
             this.btnViewTools.Text = "Tools";
             this.btnViewTools.Click += new System.EventHandler(this.btnViewTools_Click);
             // 
@@ -396,7 +404,7 @@
             // 
             this.btnViewPropertyGrid.Image = ((System.Drawing.Image)(resources.GetObject("btnViewPropertyGrid.Image")));
             this.btnViewPropertyGrid.Name = "btnViewPropertyGrid";
-            this.btnViewPropertyGrid.Size = new System.Drawing.Size(205, 30);
+            this.btnViewPropertyGrid.Size = new System.Drawing.Size(210, 26);
             this.btnViewPropertyGrid.Text = "Property Grid";
             this.btnViewPropertyGrid.Click += new System.EventHandler(this.btnViewPropertyGrid_Click);
             // 
@@ -404,20 +412,34 @@
             // 
             this.btnViewOutput.Image = ((System.Drawing.Image)(resources.GetObject("btnViewOutput.Image")));
             this.btnViewOutput.Name = "btnViewOutput";
-            this.btnViewOutput.Size = new System.Drawing.Size(205, 30);
+            this.btnViewOutput.Size = new System.Drawing.Size(210, 26);
             this.btnViewOutput.Text = "Output";
             this.btnViewOutput.Click += new System.EventHandler(this.btnViewOutput_Click);
             // 
-            // gameToolStripMenuItem
+            // btnOpenVisualStudio
             // 
-            this.gameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnOpenVisualStudio.Name = "btnOpenVisualStudio";
+            this.btnOpenVisualStudio.Size = new System.Drawing.Size(210, 26);
+            this.btnOpenVisualStudio.Text = "Open Visual Studio";
+            this.btnOpenVisualStudio.Click += new System.EventHandler(this.visualStudioToolStripMenuItem_Click);
+            // 
+            // btnWindow
+            // 
+            this.btnWindow.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.btnWindow.Name = "btnWindow";
+            this.btnWindow.Size = new System.Drawing.Size(76, 24);
+            this.btnWindow.Text = "Window";
+            // 
+            // btnGame
+            // 
+            this.btnGame.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnPlay,
             this.btnPlayDetached,
             this.btnCompile});
-            this.gameToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.gameToolStripMenuItem.Name = "gameToolStripMenuItem";
-            this.gameToolStripMenuItem.Size = new System.Drawing.Size(60, 24);
-            this.gameToolStripMenuItem.Text = "Game";
+            this.btnGame.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.btnGame.Name = "btnGame";
+            this.btnGame.Size = new System.Drawing.Size(60, 24);
+            this.btnGame.Text = "Game";
             // 
             // btnPlay
             // 
@@ -439,6 +461,46 @@
             this.btnCompile.Size = new System.Drawing.Size(179, 26);
             this.btnCompile.Text = "Compile";
             this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
+            // 
+            // btnHelp
+            // 
+            this.btnHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnContact,
+            this.btnDocumentation,
+            this.btnCheckForUpdates,
+            this.btnAbout});
+            this.btnHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.btnHelp.Name = "btnHelp";
+            this.btnHelp.Size = new System.Drawing.Size(53, 24);
+            this.btnHelp.Text = "Help";
+            // 
+            // btnContact
+            // 
+            this.btnContact.Name = "btnContact";
+            this.btnContact.Size = new System.Drawing.Size(210, 26);
+            this.btnContact.Text = "Contact Us";
+            this.btnContact.Click += new System.EventHandler(this.btnContact_Click);
+            // 
+            // btnDocumentation
+            // 
+            this.btnDocumentation.Name = "btnDocumentation";
+            this.btnDocumentation.Size = new System.Drawing.Size(210, 26);
+            this.btnDocumentation.Text = "Documentation";
+            this.btnDocumentation.Click += new System.EventHandler(this.btnDocumentation_Click);
+            // 
+            // btnCheckForUpdates
+            // 
+            this.btnCheckForUpdates.Name = "btnCheckForUpdates";
+            this.btnCheckForUpdates.Size = new System.Drawing.Size(210, 26);
+            this.btnCheckForUpdates.Text = "Check For Updates";
+            this.btnCheckForUpdates.Click += new System.EventHandler(this.btnCheckForUpdates_Click);
+            // 
+            // btnAbout
+            // 
+            this.btnAbout.Name = "btnAbout";
+            this.btnAbout.Size = new System.Drawing.Size(210, 26);
+            this.btnAbout.Text = "About Thera Editor";
+            this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
             // 
             // ctxContentTree
             // 
@@ -545,16 +607,10 @@
             this.DockPanel.Location = new System.Drawing.Point(0, 0);
             this.DockPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.DockPanel.Name = "DockPanel";
+            this.DockPanel.ShowDocumentIcon = true;
             this.DockPanel.Size = new System.Drawing.Size(1103, 710);
             this.DockPanel.SupportDeeplyNestedContent = true;
             this.DockPanel.TabIndex = 7;
-            // 
-            // visualStudioToolStripMenuItem
-            // 
-            this.visualStudioToolStripMenuItem.Name = "visualStudioToolStripMenuItem";
-            this.visualStudioToolStripMenuItem.Size = new System.Drawing.Size(205, 30);
-            this.visualStudioToolStripMenuItem.Text = "Visual Studio";
-            this.visualStudioToolStripMenuItem.Click += new System.EventHandler(this.visualStudioToolStripMenuItem_Click);
             // 
             // Editor
             // 
@@ -582,9 +638,9 @@
         #endregion
 
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnFile;
+        private System.Windows.Forms.ToolStripMenuItem btnEdit;
+        private System.Windows.Forms.ToolStripMenuItem btnView;
         private System.Windows.Forms.ToolStripMenuItem btnEditorSettings;
         private System.Windows.Forms.ToolStripMenuItem btnEngineSettings;
         private System.Windows.Forms.ToolStripMenuItem btnProjectSettings;
@@ -601,7 +657,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnNewMaterial;
         private System.Windows.Forms.ToolStripMenuItem btnUserSettings;
         private System.Windows.Forms.ToolStripMenuItem btnWorldSettings;
-        private System.Windows.Forms.ToolStripMenuItem gameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnGame;
         private System.Windows.Forms.ToolStripMenuItem btnPlay;
         private System.Windows.Forms.ToolStripMenuItem btnCompile;
         private System.Windows.Forms.Label TheraEngineText;
@@ -632,7 +688,13 @@
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem visualStudioToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnOpenVisualStudio;
+        private System.Windows.Forms.ToolStripMenuItem btnWindow;
+        private System.Windows.Forms.ToolStripMenuItem btnHelp;
+        private System.Windows.Forms.ToolStripMenuItem btnContact;
+        private System.Windows.Forms.ToolStripMenuItem btnDocumentation;
+        private System.Windows.Forms.ToolStripMenuItem btnAbout;
+        private System.Windows.Forms.ToolStripMenuItem btnCheckForUpdates;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

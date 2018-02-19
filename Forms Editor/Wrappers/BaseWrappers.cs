@@ -6,6 +6,7 @@ using TheraEngine.Files;
 using System.IO;
 using TheraEditor.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
+using System.Drawing;
 
 namespace TheraEditor.Wrappers
 {
@@ -13,15 +14,24 @@ namespace TheraEditor.Wrappers
     sealed class NodeWrapperAttribute : Attribute
     {
         private Type _fileType;
-        private SystemImages _image;
-
-        public NodeWrapperAttribute(Type type, SystemImages image)
+        private string _imageName, _selectedImageName;
+        
+        public NodeWrapperAttribute(Type type, string imageName)
         {
             _fileType = type;
-            _image = image;
+            _imageName = _selectedImageName = imageName;
+        }
+        public NodeWrapperAttribute(Type type, string imageName, string selectedImageName)
+        {
+            _fileType = type;
+            _imageName = imageName;
+            _selectedImageName = selectedImageName;
         }
 
+
         public Type FileType => _fileType;
+        public string ImageName => _imageName;
+        public string SelectedImageName => _selectedImageName;
 
         /// <summary>
         /// Key is file type, Value is tree node wrapper type
@@ -38,7 +48,7 @@ namespace TheraEditor.Wrappers
                 return _wrappers;
             }
         }
-
+        
         public static void LoadWrappers(Assembly assembly)
         {
             if (assembly != null)
@@ -149,6 +159,7 @@ namespace TheraEditor.Wrappers
             TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             w.Text = name + "." + file.FileExtension.GetProperExtension((ProprietaryFileFormat)fmt);
             w.SingleInstance = file;
+            w.SelectedImageIndex = w.ImageIndex = 0;
             return w;
         }
 

@@ -1,0 +1,6 @@
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x64\Updater.exe.config
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x64\Updater.exe
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x64\Updater.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x64\Debug\Updater.csproj.CoreCompileInputs.cache
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x64\Debug\Updater.exe
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x64\Debug\Updater.pdb

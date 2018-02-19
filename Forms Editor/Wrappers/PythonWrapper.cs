@@ -5,10 +5,11 @@ using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
 using TheraEngine;
 using System.IO;
+using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(PythonScript), SystemImages.GenericFile)]
+    [NodeWrapper(typeof(PythonScript), nameof(Resources.GenericFile))]
     public class PythonWrapper : FileWrapper<PythonScript>
     {
         #region Menu

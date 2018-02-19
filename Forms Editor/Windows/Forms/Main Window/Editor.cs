@@ -17,6 +17,8 @@ using WeifenLuo.WinFormsUI.Docking;
 using System.Collections.Generic;
 using Microsoft.CSharp;
 using System.CodeDom.Compiler;
+using TheraEngine.Editor;
+using System.Diagnostics;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -349,6 +351,8 @@ namespace TheraEditor.Windows.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
+            CheckUpdates(false);
 
             //xcopy /Y "$(SolutionDir)Libraries\$(Platform)\FreeImage.dll" "$(TargetDir)"
 
@@ -869,6 +873,62 @@ namespace TheraEditor.Windows.Forms
             Engine.PrintLine($"Launched Visual Studio {dte.Edition} {dte.Version}.");
             dte.MainWindow.Visible = true;
             dte.UserControl = true;
+            VisualStudioManager.VSInstanceClosed();
+        }
+
+        private void btnContact_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void btnDocumentation_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void btnCheckForUpdates_Click(object sender, EventArgs e) => CheckUpdates();
+        private void btnAbout_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CheckUpdates(bool manual = true)
+        {
+            try
+            {
+                string path = Path.Combine(Application.StartupPath, "Updater.exe");
+                if (!File.Exists(path))
+                {
+                    if (manual)
+                        MessageBox.Show("Could not find " + path);
+                    return;
+                }
+
+                string editorVer = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                string engineVer = typeof(Engine).Assembly.GetName().Version.ToString();
+
+                Process updater = Process.Start(new ProcessStartInfo()
+                {
+                    FileName = path,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    Arguments = String.Format("-u {0} {1} {2}",
+                    editorVer, engineVer, manual ? "1" : "0"),
+                });
+                updater.OutputDataReceived += Updater_OutputDataReceived;
+            }
+            catch (Exception e)
+            {
+                if (manual)
+                    MessageBox.Show(e.Message);
+            }
+        }
+
+        private void Updater_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Engine.PrintLine(e.Data);
+        }
+
+        public List<EditorState> GetDirtyFiles()
+        {
+            throw new NotImplementedException();
         }
     }
 }

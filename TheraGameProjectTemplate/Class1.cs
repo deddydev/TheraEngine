@@ -6,6 +6,7 @@ $endif$using System.Text;
 namespace $safeprojectname$
 {
 	public class Class1
-{
-}
+    {
+        
+    }
 }

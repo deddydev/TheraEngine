@@ -3,12 +3,12 @@ using System.ComponentModel;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
-using TheraEngine;
 using System.IO;
+using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(CSharpScript), SystemImages.GenericFile)]
+    [NodeWrapper(typeof(CSharpScript), nameof(Resources.CSharpScript))]
     public class CSharpWrapper : FileWrapper<CSharpScript>
     {
         #region Menu

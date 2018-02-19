@@ -155,8 +155,7 @@ namespace TheraEditor.Wrappers
                         catch (UnauthorizedAccessException)
                         {
                             //display a locked folder icon
-                            node.ImageIndex = 3;
-                            node.SelectedImageIndex = 3;
+                            node.ImageIndex = node.SelectedImageIndex = 3;
                         }
                         catch (Exception ex)
                         {
@@ -181,8 +180,7 @@ namespace TheraEditor.Wrappers
 
             if (Nodes.Count > 0)
             {
-                ImageIndex = 2;
-                SelectedImageIndex = 2;
+                ImageIndex = SelectedImageIndex = 2; //Open folder
             }
         }
 
@@ -190,8 +188,7 @@ namespace TheraEditor.Wrappers
         {
             if (Nodes.Count > 0)
             {
-                ImageIndex = 1;
-                SelectedImageIndex = 1;
+                ImageIndex = SelectedImageIndex = 1; //Closed folder
             }
         }
         #region File Type Loading

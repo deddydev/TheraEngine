@@ -1,8 +1,6 @@
-﻿using TheraEngine.Windows.Forms;
-
-namespace TheraEditor.Windows.Forms
+﻿namespace TheraEditor.Windows.Forms
 {
-    partial class DockableRenderForm
+    partial class DockableMatGraph
     {
         /// <summary>
         /// Required designer variable.
@@ -30,36 +28,36 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.RenderPanel = new EditorWorldRenderPanel();
+            this.RenderPanel = new TheraEngine.MaterialGraphRenderPanel();
             this.SuspendLayout();
             // 
-            // RenderPanel
+            // renderPanel1
             // 
             this.RenderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.RenderPanel.Location = new System.Drawing.Point(0, 0);
-            this.RenderPanel.Name = "RenderPanel";
-            this.RenderPanel.Size = new System.Drawing.Size(740, 573);
-            this.RenderPanel.TabIndex = 0;
+            this.RenderPanel.Name = "renderPanel1";
+            this.RenderPanel.Size = new System.Drawing.Size(504, 408);
+            this.RenderPanel.TabIndex = 1;
+            this.RenderPanel.UI = null;
             this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Disabled;
-            this.RenderPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
-            this.RenderPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
-            this.RenderPanel.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);
-            this.RenderPanel.DragLeave += new System.EventHandler(this.RenderPanel_DragLeave);
             // 
-            // DockableRenderForm
+            // DockableMatGraph
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(740, 573);
+            this.ClientSize = new System.Drawing.Size(504, 408);
+            this.CloseButton = false;
+            this.CloseButtonVisible = false;
             this.Controls.Add(this.RenderPanel);
-            this.Name = "DockableRenderForm";
-            this.Text = "DockableRenderForm";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Name = "DockableMatGraph";
+            this.Text = "Material Graph";
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        public EditorWorldRenderPanel RenderPanel;
+        private TheraEngine.MaterialGraphRenderPanel RenderPanel;
     }
 }

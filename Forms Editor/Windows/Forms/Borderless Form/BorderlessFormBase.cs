@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace BorderlessForm
 {
     /// <summary>
     /// Based on http://customerborderform.codeplex.com/
     /// </summary>
-    public class BorderlessFormBase : Form
+    public class BorderlessFormBase : DockContent
     {
         public void DecorationMouseDown(HitTestValues hit, Point p)
         {

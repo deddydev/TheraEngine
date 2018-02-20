@@ -89,27 +89,27 @@ namespace TheraEditor.Windows.Forms
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
-        private DockableRenderForm[] _renderForms = new DockableRenderForm[4];
+        private DockableWorldRenderForm[] _renderForms = new DockableWorldRenderForm[4];
         public bool RenderFormActive(int i)
         {
-            DockableRenderForm form = _renderForms[i];
+            DockableWorldRenderForm form = _renderForms[i];
             return form != null && !form.IsDisposed;
         }
-        public DockableRenderForm GetRenderForm(int i)
+        public DockableWorldRenderForm GetRenderForm(int i)
         {
-            DockableRenderForm form = _renderForms[i];
+            DockableWorldRenderForm form = _renderForms[i];
             if (form == null || form.IsDisposed)
             {
                 Engine.PrintLine("Created viewport " + (i + 1).ToString());
-                form = _renderForms[i] = new DockableRenderForm(LocalPlayerIndex.One, i);
+                form = _renderForms[i] = new DockableWorldRenderForm(LocalPlayerIndex.One, i);
                 form.Show(DockPanel);
             }
             return form;
         }
-        public DockableRenderForm RenderForm1 => GetRenderForm(0);
-        public DockableRenderForm RenderForm2 => GetRenderForm(1);
-        public DockableRenderForm RenderForm3 => GetRenderForm(2);
-        public DockableRenderForm RenderForm4 => GetRenderForm(3);
+        public DockableWorldRenderForm RenderForm1 => GetRenderForm(0);
+        public DockableWorldRenderForm RenderForm2 => GetRenderForm(1);
+        public DockableWorldRenderForm RenderForm3 => GetRenderForm(2);
+        public DockableWorldRenderForm RenderForm4 => GetRenderForm(3);
         
         public static GlobalFileRef<EditorSettings> GetSettingsRef() => Instance.Project?.EditorSettingsRef ?? DefaultSettingsRef;
         public static EditorSettings GetSettings() => GetSettingsRef()?.File;
@@ -352,7 +352,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
-            CheckUpdates(false);
+            CheckUpdates();
 
             //xcopy /Y "$(SolutionDir)Libraries\$(Platform)\FreeImage.dll" "$(TargetDir)"
 
@@ -606,9 +606,9 @@ namespace TheraEditor.Windows.Forms
 
         }
 
-        private DockableRenderForm FocusViewport(int index)
+        private DockableWorldRenderForm FocusViewport(int index)
         {
-            DockableRenderForm form = GetRenderForm(index);
+            DockableWorldRenderForm form = GetRenderForm(index);
             if (form.IsHidden)
                 form.Show(DockPanel, DockState.Document);
             form.Focus();
@@ -654,7 +654,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             //Transition from editor mode to attached gameplay mode
                             Engine.EditorState.InGameMode = true;
-                            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
+                            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
                             renderPanel.Focus();
                             renderPanel.Capture = true;
                             //Cursor.Hide();
@@ -679,7 +679,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             //Transition from editor mode to detached gameplay mode
                             Engine.EditorState.InGameMode = true;
-                            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
+                            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
                             renderPanel.Focus();
                             renderPanel.Capture = true;
                             //Cursor.Hide();
@@ -837,7 +837,7 @@ namespace TheraEditor.Windows.Forms
                 if (parsedStrings.Length == 0)
                     return null;
                 string type = parsedStrings[0];
-                if (type == typeof(DockableRenderForm).ToString())
+                if (type == typeof(DockableWorldRenderForm).ToString())
                 {
                     if (parsedStrings.Length < 2)
                         return null;
@@ -905,14 +905,28 @@ namespace TheraEditor.Windows.Forms
                 string editorVer = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 string engineVer = typeof(Engine).Assembly.GetName().Version.ToString();
 
-                Process updater = Process.Start(new ProcessStartInfo()
+                Process updater = new Process();
+                ProcessStartInfo info = new ProcessStartInfo()
                 {
                     FileName = path,
+                    Arguments = String.Format("{0} {1}", editorVer, engineVer),
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    Arguments = String.Format("-u {0} {1} {2}",
-                    editorVer, engineVer, manual ? "1" : "0"),
                 });
-                updater.OutputDataReceived += Updater_OutputDataReceived;
+                updater.StartInfo = info;
+                if (manual)
+                {
+                    updater.OutputDataReceived += Updater_OutputDataReceived;
+                    updater.ErrorDataReceived += Updater_ErrorDataReceived;
+                    updater.Start();
+                    updater.BeginOutputReadLine();
+                    updater.BeginErrorReadLine();
+                }
+                else
+                    updater.Start();
             }
             catch (Exception e)
             {
@@ -921,9 +935,16 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
+        private void Updater_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(e.Data))
+                Engine.PrintLine(e.Data);
+        }
+
         private void Updater_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            Engine.PrintLine(e.Data);
+            if (!string.IsNullOrWhiteSpace(e.Data))
+                Engine.PrintLine(e.Data);
         }
 
         public List<EditorState> GetDirtyFiles()

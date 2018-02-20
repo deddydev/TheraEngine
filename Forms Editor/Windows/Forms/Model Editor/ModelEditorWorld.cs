@@ -19,12 +19,6 @@ namespace TheraEditor.Windows.Forms
             comp.Rotation.Yaw = 45.0f;
             comp.Rotation.Pitch = -45.0f;
             SpawnActor(light);
-
-            //Collada.Data d = Collada.Import(Path.Combine(TestDefaults.DesktopPath, "teapot.dae"), new ModelImportOptions());
-            //StaticModel m = d.Models[0].StaticModel;
-            //StaticMeshComponent c = new StaticMeshComponent(m, null);
-            //Actor<StaticMeshComponent> a = new Actor<StaticMeshComponent>(c);
-            //SpawnActor(a, new Vec3(100.0f, 100.0f, 100.0f));
         }
     }
 }

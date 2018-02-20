@@ -8,7 +8,7 @@ namespace TheraEditor
     {
         protected override void HandleLocalPlayerJoined(EditorPlayerController item)
         {
-            if (Editor.ActiveRenderForm is DockableRenderForm form)
+            if (Editor.ActiveRenderForm is DockableWorldRenderForm form)
             {
                 if (item.LocalPlayerIndex != form.PlayerIndex)
                     return;
@@ -19,7 +19,7 @@ namespace TheraEditor
         }
         protected override void HandleLocalPlayerLeft(EditorPlayerController item)
         {
-            if (Editor.ActiveRenderForm is DockableRenderForm form)
+            if (Editor.ActiveRenderForm is DockableWorldRenderForm form)
             {
                 if (item.LocalPlayerIndex != form.PlayerIndex)
                     return;

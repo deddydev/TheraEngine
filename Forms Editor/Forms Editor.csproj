@@ -198,25 +198,37 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Github.cs" />
-    <Compile Include="Windows\BorderlessForm\TheraForm.cs">
+    <Compile Include="Windows\Forms\Borderless Form\TheraForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\BorderlessForm\TheraForm.Designer.cs">
+    <Compile Include="Windows\Forms\Borderless Form\TheraForm.Designer.cs">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\BetterTableLayoutPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Windows\Forms\IssueDialog.cs">
+    <Compile Include="Windows\Forms\Material Editor\DockableMatFuncList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\IssueDialog.Designer.cs">
+    <Compile Include="Windows\Forms\Material Editor\DockableMatFuncList.Designer.cs">
+      <DependentUpon>DockableMatFuncList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Material Editor\DockableMatGraph.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Material Editor\DockableMatGraph.Designer.cs">
+      <DependentUpon>DockableMatGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Misc\BetterTableLayoutPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Misc\IssueDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Misc\IssueDialog.Designer.cs">
       <DependentUpon>IssueDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\LoginControl.cs">
+    <Compile Include="Windows\Forms\Misc\LoginControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\LoginControl.Designer.cs">
+    <Compile Include="Windows\Forms\Misc\LoginControl.Designer.cs">
       <DependentUpon>LoginControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Main Window\DragDropFilter.cs" />
@@ -370,25 +382,25 @@
     <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxBase.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\BufferedPanel.cs">
+    <Compile Include="Windows\Forms\Misc\BufferedPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\ColorControl.cs">
+    <Compile Include="Windows\Forms\Misc\ColorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\ColorControl.Designer.cs">
+    <Compile Include="Windows\Forms\Misc\ColorControl.Designer.cs">
       <DependentUpon>ColorControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\ColorDialog.cs">
+    <Compile Include="Windows\Forms\Misc\ColorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\ColorDialog.Designer.cs">
+    <Compile Include="Windows\Forms\Misc\ColorDialog.Designer.cs">
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\ColorPicker.cs">
+    <Compile Include="Windows\Forms\Misc\ColorPicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\ColorPicker.Designer.cs">
+    <Compile Include="Windows\Forms\Misc\ColorPicker.Designer.cs">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\MinMaxControl.cs">
@@ -597,13 +609,13 @@
     <Compile Include="Windows\Forms\Editor Forms\DockableActorTree.Designer.cs">
       <DependentUpon>DockableActorTree.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editor Forms\DockableRenderForm.cs">
+    <Compile Include="Windows\Forms\Editor Forms\DockableWorldRenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editor Forms\DockableRenderForm.Designer.cs">
-      <DependentUpon>DockableRenderForm.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Editor Forms\DockableWorldRenderForm.Designer.cs">
+      <DependentUpon>DockableWorldRenderForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editor Forms\TheraEditorTheme.cs">
+    <Compile Include="Windows\Forms\Main Window\TheraEditorTheme.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Main Window\Editor.cs">
@@ -614,7 +626,7 @@
     </Compile>
     <Compile Include="Windows\Forms\Main Window\EditorHud.cs" />
     <Compile Include="EditorSettings.cs" />
-    <Compile Include="Windows\BorderlessForm\BorderlessFormBase.cs">
+    <Compile Include="Windows\Forms\Borderless Form\BorderlessFormBase.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Core\OS\Win32\Native.cs" />
@@ -639,12 +651,12 @@
     <Compile Include="Windows\Forms\File Navigation\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editor Forms\EditorWorldRenderPanel.cs">
+    <Compile Include="Windows\Forms\Main Window\EditorWorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Main Window\UndoManager.cs" />
     <Compile Include="Windows\Forms\VisualStudioManager.cs" />
-    <Compile Include="Windows\TransparentPanel.cs">
+    <Compile Include="Windows\Forms\Misc\TransparentPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
@@ -672,13 +684,19 @@
     <EmbeddedResource Include="ThirdParty\Text Editor\SyntaxHighlightingTextBox.resx">
       <DependentUpon>SyntaxHighlightingTextBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
+    <EmbeddedResource Include="Windows\Forms\Borderless Form\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\IssueDialog.resx">
+    <EmbeddedResource Include="Windows\Forms\Material Editor\DockableMatFuncList.resx">
+      <DependentUpon>DockableMatFuncList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Material Editor\DockableMatGraph.resx">
+      <DependentUpon>DockableMatGraph.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Misc\IssueDialog.resx">
       <DependentUpon>IssueDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\LoginControl.resx">
+    <EmbeddedResource Include="Windows\Forms\Misc\LoginControl.resx">
       <DependentUpon>LoginControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialList.resx">
@@ -726,8 +744,8 @@
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableActorTree.resx">
       <DependentUpon>DockableActorTree.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableRenderForm.resx">
-      <DependentUpon>DockableRenderForm.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableWorldRenderForm.resx">
+      <DependentUpon>DockableWorldRenderForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
@@ -755,13 +773,13 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\ColorControl.resx">
+    <EmbeddedResource Include="Windows\Forms\Misc\ColorControl.resx">
       <DependentUpon>ColorControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\ColorDialog.resx">
+    <EmbeddedResource Include="Windows\Forms\Misc\ColorDialog.resx">
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\ColorPicker.resx">
+    <EmbeddedResource Include="Windows\Forms\Misc\ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\MinMaxControl.resx">
@@ -917,6 +935,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Code.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Windows\Forms\HUD Editor\" />
+    <Folder Include="Windows\Forms\Model Animation Editor\" />
+    <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
+    <Folder Include="Windows\Forms\Particle Editor\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

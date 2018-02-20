@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Windows.Forms;
+using TheraEditor.Actors.Types.Pawns;
 using TheraEditor.Wrappers;
 using TheraEngine;
-using TheraEngine.Files;
-using TheraEngine.Rendering;
-using TheraEngine.Timers;
 using TheraEngine.Actors;
-using TheraEngine.Actors.Types.Pawns;
-using WeifenLuo.WinFormsUI.Docking;
 using TheraEngine.Actors.Types;
-using TheraEditor.Actors.Types.Pawns;
+using TheraEngine.Files;
+using TheraEngine.Timers;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableRenderForm : DockContent, IEditorControl
+    public partial class DockableWorldRenderForm : DockContent, IEditorControl
     {
-        public DockableRenderForm(LocalPlayerIndex playerIndex, int formIndex)
+        public DockableWorldRenderForm(LocalPlayerIndex playerIndex, int formIndex)
         {
             FormIndex = formIndex;
             PlayerIndex = playerIndex;

@@ -371,6 +371,12 @@ namespace TheraEngine
         public static void PrintLine(string message, params object[] args)
             => Print(message + Environment.NewLine, args);
         
+        public static void LogException(Exception ex)
+        {
+#if DEBUG || EDITOR
+            PrintLine(ex.ToString());
+#endif
+        }
         public static void LogWarning(string message, params object[] args)
         {
 #if DEBUG || EDITOR

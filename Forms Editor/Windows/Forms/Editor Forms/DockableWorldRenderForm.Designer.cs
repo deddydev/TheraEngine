@@ -1,8 +1,8 @@
-﻿using WeifenLuo.WinFormsUI.Docking;
+﻿using TheraEngine.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    partial class MaterialEditorForm
+    partial class DockableWorldRenderForm
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.RenderPanel = new TheraEngine.Windows.Forms.EditorWorldRenderPanel();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -39,42 +39,50 @@ namespace TheraEditor.Windows.Forms
             // 
             // BodyPanel
             // 
-            this.BodyPanel.Controls.Add(this.dockPanel1);
-            this.BodyPanel.Size = new System.Drawing.Size(797, 389);
+            this.BodyPanel.Controls.Add(this.RenderPanel);
+            this.BodyPanel.Size = new System.Drawing.Size(650, 410);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(797, 429);
+            this.MainPanel.Size = new System.Drawing.Size(650, 450);
             // 
             // TitlePanel
             // 
-            this.TitlePanel.Size = new System.Drawing.Size(797, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(650, 40);
             // 
             // FormTitle
             // 
-            this.FormTitle.Size = new System.Drawing.Size(626, 40);
-            this.FormTitle.Text = "MaterialEditorForm";
+            this.FormTitle.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            this.FormTitle.Size = new System.Drawing.Size(479, 40);
+            this.FormTitle.Text = "DockableRenderForm";
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(797, 437);
+            this.MiddlePanel.Size = new System.Drawing.Size(650, 458);
             // 
-            // dockPanel1
+            // RenderPanel
             // 
-            this.dockPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dockPanel1.Location = new System.Drawing.Point(0, 0);
-            this.dockPanel1.Name = "dockPanel1";
-            this.dockPanel1.Size = new System.Drawing.Size(797, 389);
-            this.dockPanel1.TabIndex = 2;
+            this.RenderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.RenderPanel.Location = new System.Drawing.Point(0, 0);
+            this.RenderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.RenderPanel.Name = "RenderPanel";
+            this.RenderPanel.Size = new System.Drawing.Size(650, 410);
+            this.RenderPanel.TabIndex = 0;
+            this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Disabled;
+            this.RenderPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
+            this.RenderPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
+            this.RenderPanel.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);
+            this.RenderPanel.DragLeave += new System.EventHandler(this.RenderPanel_DragLeave);
             // 
-            // MaterialEditorForm
+            // DockableRenderForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(805, 437);
+            this.ClientSize = new System.Drawing.Size(658, 458);
             this.Location = new System.Drawing.Point(0, 0);
-            this.Name = "MaterialEditorForm";
-            this.Text = "MaterialEditorForm";
+            this.MinimumSize = new System.Drawing.Size(320, 55);
+            this.Name = "DockableRenderForm";
+            this.Text = "DockableRenderForm";
             this.BodyPanel.ResumeLayout(false);
             this.MainPanel.ResumeLayout(false);
             this.TitlePanel.ResumeLayout(false);
@@ -84,6 +92,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         #endregion
-        private DockPanel dockPanel1;
+
+        public EditorWorldRenderPanel RenderPanel;
     }
 }

@@ -31,34 +31,7 @@ namespace TheraEditor.Windows.Forms
         private void InitializeComponent()
         {
             this.RenderPanel = new TheraEngine.Windows.Forms.EditorWorldRenderPanel();
-            this.BodyPanel.SuspendLayout();
-            this.MainPanel.SuspendLayout();
-            this.TitlePanel.SuspendLayout();
-            this.MiddlePanel.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // BodyPanel
-            // 
-            this.BodyPanel.Controls.Add(this.RenderPanel);
-            this.BodyPanel.Size = new System.Drawing.Size(650, 410);
-            // 
-            // MainPanel
-            // 
-            this.MainPanel.Size = new System.Drawing.Size(650, 450);
-            // 
-            // TitlePanel
-            // 
-            this.TitlePanel.Size = new System.Drawing.Size(650, 40);
-            // 
-            // FormTitle
-            // 
-            this.FormTitle.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
-            this.FormTitle.Size = new System.Drawing.Size(479, 40);
-            this.FormTitle.Text = "DockableRenderForm";
-            // 
-            // MiddlePanel
-            // 
-            this.MiddlePanel.Size = new System.Drawing.Size(650, 458);
             // 
             // RenderPanel
             // 
@@ -76,6 +49,7 @@ namespace TheraEditor.Windows.Forms
             // 
             // DockableRenderForm
             // 
+            this.Controls.Add(RenderPanel);
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(658, 458);
@@ -83,10 +57,6 @@ namespace TheraEditor.Windows.Forms
             this.MinimumSize = new System.Drawing.Size(320, 55);
             this.Name = "DockableRenderForm";
             this.Text = "DockableRenderForm";
-            this.BodyPanel.ResumeLayout(false);
-            this.MainPanel.ResumeLayout(false);
-            this.TitlePanel.ResumeLayout(false);
-            this.MiddlePanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

@@ -915,7 +915,7 @@ namespace TheraEditor.Windows.Forms
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
-                });
+                };
                 updater.StartInfo = info;
                 if (manual)
                 {

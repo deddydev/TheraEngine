@@ -9,15 +9,33 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         /// <summary>
         /// Determines if this function can be contained within one line.
         /// Otherwise written as a method located outside of main().
+        /// <para>
         /// Ex: type thing = FUNC_OPERATION;
+        /// </para>
         /// otherwise:
+        /// <para>
         /// type FUNC_NAME(in/out type args) { FUNC_OPERATION }
+        /// </para>
         /// </summary>
-        protected bool _inline = false;
-        
+        public bool Inline { get; private set; } = false;
+
+        /// <summary>
+        /// Creates a new material function for material shader generation.
+        /// </summary>
+        /// <param name="inline">       
+        /// Determines if this function can be contained within one line.
+        /// Otherwise written as a method located outside of main().
+        /// <para>
+        /// Ex: type thing = FUNC_OPERATION;
+        /// </para>
+        /// otherwise:
+        /// <para>
+        /// type FUNC_NAME(in/out type args) { FUNC_OPERATION }
+        /// </para>
+        /// </param>
         public MaterialFunction(bool inline) : base()
         {
-            _inline = inline;
+            Inline = inline;
         }
         
         /// <summary>
@@ -25,6 +43,14 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         /// </summary>
         protected abstract string GetOperation();
         
+        /// <summary>
+        /// Returns the operation of this function on a single line.
+        /// Written either inline or as a method call.
+        /// </summary>
+        /// <param name="inputNames"></param>
+        /// <param name="outputNames"></param>
+        /// <param name="declareOutputs"></param>
+        /// <returns></returns>
         public string GetLineOperation(
             string[] inputNames,
             string[] outputNames,
@@ -34,7 +60,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 outputNames.Length != _outputs.Count)
                 throw new InvalidOperationException();
 
-            if (_inline)
+            if (Inline)
                 return string.Format(GetOperation(), inputNames);
 
             string s = "\n";

@@ -7,10 +7,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// Returns the absolute value of the input value
     /// </summary>
     [FunctionDefinition(
-                "Math",
-                "Absolute Value",
-                "Returns the absolute value of the given value.", 
-                "absolute value")]
+        "Helpers",
+        "Absolute Value",
+        "Returns the absolute value of the given value; |A|", 
+        "absolute value")]
     public class AbsFunc : MaterialFunction
     {
         MatFuncValueInput InputValue;

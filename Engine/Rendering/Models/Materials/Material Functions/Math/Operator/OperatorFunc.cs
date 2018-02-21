@@ -4,6 +4,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class OperatorFunc : MaterialFunction
     {
+        public const string CategoryName = "Basic Operators";
+
         MatFuncValueInput A, B;
         MatFuncValueOutput Result;
 

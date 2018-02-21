@@ -4,6 +4,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class ComparableFunc : MaterialFunction
     {
+        public const string CategoryName = "Comparisons";
+
         MatFuncValueInput A, B;
         MatFuncValueOutput Result;
 

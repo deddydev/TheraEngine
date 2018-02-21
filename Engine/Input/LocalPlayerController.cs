@@ -201,7 +201,7 @@ namespace TheraEngine.Input
             Viewport = null;
             _input.WantsInputsRegistered -= RegisterInput;
         }
-        internal void UnlinkControlledPawn()
+        public void UnlinkControlledPawn()
         {
             _possessionQueue.Clear();
             ControlledPawn = null;

@@ -3,10 +3,10 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-                "Math",
-                "A * B",
-                "Returns A * B.",
-                "multiply multiplied multiplication *")]
+        CategoryName,
+        "Multiply",
+        "Returns A * B.",
+        "multiply multiplied multiplication *")]
     public class MultiplyFunc : OperatorFunc
     {
         public MultiplyFunc() : base() { }

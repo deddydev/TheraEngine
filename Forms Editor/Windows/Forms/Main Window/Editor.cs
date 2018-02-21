@@ -19,6 +19,7 @@ using Microsoft.CSharp;
 using System.CodeDom.Compiler;
 using TheraEngine.Editor;
 using System.Diagnostics;
+using TheraEngine.GameModes;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -36,6 +37,10 @@ namespace TheraEditor.Windows.Forms
         /// The pawn the player will possess for editing purposes.
         /// </summary>
         IPawn EditorPawn { get; }
+        /// <summary>
+        /// The game mode used for this render form.
+        /// </summary>
+        BaseGameMode GameMode { get; }
     }
     public partial class Editor : TheraForm, IMappableShortcutControl
     {
@@ -49,6 +54,8 @@ namespace TheraEditor.Windows.Forms
             if (ActiveRenderForm == control)
                 return;
 
+            bool sameGameMode = ReferenceEquals(ActiveRenderForm?.GameMode, control?.GameMode);
+
             if (ActiveRenderForm != null)
             {
                 int index = (int)ActiveRenderForm.PlayerIndex;
@@ -58,10 +65,16 @@ namespace TheraEditor.Windows.Forms
                     ActiveRenderForm.RenderPanel.UnregisterController(c);
                     c.ControlledPawn = null;
                 }
+
+                if (!sameGameMode)
+                    ActiveRenderForm.GameMode?.EndGameplay();
             }
             ActiveRenderForm = control;
             if (ActiveRenderForm != null)
             {
+                if (!sameGameMode)
+                    ActiveRenderForm.GameMode?.BeginGameplay();
+
                 int index = (int)control.PlayerIndex;
                 if (index < Engine.LocalPlayers.Count)
                 {
@@ -199,7 +212,7 @@ namespace TheraEditor.Windows.Forms
                         ContentTree.OpenPath(_project.FilePath);
                     }
 
-                    Engine.SetGamePanel(RenderForm1.RenderPanel, false);
+                    Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
                     Engine.SetActiveGameMode(_editorGameMode);
                     Engine.Initialize(false);
                     SetRenderTicking(true);

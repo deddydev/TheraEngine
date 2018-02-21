@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public abstract class UIViewportComponent : UIMaterialComponent
+    public abstract class UIViewportComponent : UIMaterialRectangleComponent
     {
         public UIViewportComponent() : base(TMaterial.CreateUnlitTextureMaterialForward()) { }
 

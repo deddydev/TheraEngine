@@ -506,11 +506,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             int diff = e.Y - _y;
             treeViewSceneComps.Height += diff;
+            _y = e.Y;
         }
         private void MouseMoveLogicComps(object sender, MouseEventArgs e)
         {
             int diff = e.Y - _y;
             lstLogicComps.Height += diff;
+            _y = e.Y;
         }
 
         private void lstLogicComps_SelectedIndexChanged(object sender, EventArgs e)

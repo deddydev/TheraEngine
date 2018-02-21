@@ -8,8 +8,9 @@ using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class UIMaterialEditor : UIManager
+    public class UIMaterialEditor : UIManager<UIMaterialRectangleComponent>
     {
+        public UIMaterialEditor() : base() { }
         public UIMaterialEditor(Vec2 bounds) : base(bounds) { }
 
         public override void RegisterInput(InputInterface input)
@@ -42,9 +43,9 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        protected override UIDockableComponent OnConstruct()
+        protected override UIMaterialRectangleComponent OnConstruct()
         {
-            UIDockableComponent root = new UIDockableComponent()
+            UIMaterialRectangleComponent root = new UIMaterialRectangleComponent()
             {
                 DockStyle = HudDockStyle.Fill,
                 SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom

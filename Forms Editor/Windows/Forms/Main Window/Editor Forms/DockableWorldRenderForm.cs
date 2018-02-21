@@ -6,6 +6,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Files;
+using TheraEngine.GameModes;
 using TheraEngine.Timers;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -32,7 +33,7 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
-            Engine.SetGamePanel(RenderPanel, false);
+            Engine.SetWorldPanel(RenderPanel, false);
             Editor.SetActiveEditorControl(this);
         }
         
@@ -67,13 +68,14 @@ namespace TheraEditor.Windows.Forms
         LocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => EditorPawn;
+        BaseGameMode IEditorControl.GameMode => Engine.ActiveGameMode;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
             base.OnHandleDestroyed(e);
             if (Editor.ActiveRenderForm == this)
             {
-                Engine.SetGamePanel(null, false);
+                Engine.SetWorldPanel(null, false);
                 Editor.SetActiveEditorControl(null);
             }
         }

@@ -90,7 +90,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEditor|x86'">
     <OutputPath>..\Build\Release\Editor\x86\</OutputPath>
@@ -297,7 +297,7 @@
     <Compile Include="Components\Scene\UI\UIComponent.cs" />
     <Compile Include="Components\Scene\UI\UIDockableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIManager.cs" />
-    <Compile Include="Components\Scene\UI\UIMaterialComponent.cs" />
+    <Compile Include="Components\Scene\UI\UIMaterialRectangleComponent.cs" />
     <Compile Include="Components\Scene\UI\UIRotatableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
     <Compile Include="Core\Controls\BasicRenderPanel.cs">

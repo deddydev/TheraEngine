@@ -53,7 +53,7 @@ namespace System
         public void DebugRender(bool onlyContainingItems, Color color, float lineWidth)
              => _head?.DebugRender(true, onlyContainingItems, color, lineWidth);
 
-        public void Resize(Vec2 bounds) => _head.Resize(bounds / _head.Extents);
+        public void Resize(Vec2 bounds) => _head.Resize(bounds);
 
         private class Node : IQuadtreeNode
         {
@@ -431,15 +431,15 @@ namespace System
             {
 
             }
-            public void Resize(Vec2 ratio)
+            public void Resize(Vec2 bounds)
             {
-                _bounds.Bounds *= ratio;
-                _bounds.Translation *= ratio;
+                _bounds.Bounds *= bounds;
+                _bounds.Translation *= bounds;
 
                 IsLoopingSubNodes = true;
                 foreach (Node node in _subNodes)
                     if (node != null)
-                        node.Resize(ratio);
+                        node.Resize(bounds);
                 IsLoopingSubNodes = false;
 
                 IsLoopingItems = true;

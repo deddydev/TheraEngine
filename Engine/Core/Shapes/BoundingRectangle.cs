@@ -378,5 +378,9 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
                 MinY <= other.MaxY &&
                 MaxY >= other.MinY;
         }
+        public override string ToString()
+        {
+            return string.Format("[X:{0} Y:{1} W:{2} H:{3}]", Position.X, Position.Y, Width, Height);
+        }
     }
 }

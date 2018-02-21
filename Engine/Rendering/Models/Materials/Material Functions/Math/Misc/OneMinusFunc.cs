@@ -8,10 +8,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// 1.0f - input
     /// </summary>
     [FunctionDefinition(
-                "Math",
-                "One Minus Value",
-                "Returns 1.0f - value.",
-                "one minus value 1 - subtract")]
+        "Helpers",
+        "One Minus Value",
+        "Returns 1.0f - value.",
+        "one minus value 1 - subtract")]
     public class OneMinusFunc : MaterialFunction
     {
         MatFuncValueInput InputValue;
@@ -23,13 +23,14 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             switch ((ShaderVarType)InputValue.CurrentArgumentType)
             {
                 case ShaderVarType._float:
+                    return "1.0f - {0}";
                 case ShaderVarType._double:
                     return "1.0 - {0}";
                 case ShaderVarType._int:
                 case ShaderVarType._uint:
                     return "1 - {0}";
                 case ShaderVarType._vec2:
-                    return "vec2(1.0) - {0}";
+                    return "vec2(1.0f) - {0}";
                 case ShaderVarType._dvec2:
                     return "dvec2(1.0) - {0}";
                 case ShaderVarType._ivec2:
@@ -37,7 +38,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 case ShaderVarType._uvec2:
                     return "uvec2(1) - {0}";
                 case ShaderVarType._vec3:
-                    return "vec3(1.0) - {0}";
+                    return "vec3(1.0f) - {0}";
                 case ShaderVarType._dvec3:
                     return "dvec3(1.0) - {0}";
                 case ShaderVarType._ivec3:
@@ -45,7 +46,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 case ShaderVarType._uvec3:
                     return "uvec3(1) - {0}";
                 case ShaderVarType._vec4:
-                    return "vec4(1.0) - {0}";
+                    return "vec4(1.0f) - {0}";
                 case ShaderVarType._dvec4:
                     return "dvec4(1.0) - {0}";
                 case ShaderVarType._ivec4:

@@ -164,9 +164,9 @@ namespace TheraEngine.Rendering.UI
         }
 
         public BoundingRectangle AxisAlignedBounds => _axisAlignedBounds;
-        public new UIManager OwningActor
+        public new IUIManager OwningActor
         {
-            get => (UIManager)base.OwningActor;
+            get => (IUIManager)base.OwningActor;
             set
             {
                 if (IsSpawned && this is I2DRenderable r)

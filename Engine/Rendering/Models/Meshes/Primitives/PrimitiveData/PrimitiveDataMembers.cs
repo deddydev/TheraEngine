@@ -7,33 +7,41 @@ namespace TheraEngine.Rendering.Models
 {
     public partial class PrimitiveData : TFileObject, IDisposable
     {
+        [Browsable(false)]
         public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;
+        [Browsable(false)]
         public Culling Culling
         {
             get => _culling;
             set => _culling = value;
         }
+        [Browsable(false)]
         public string SingleBindBone
         {
             get => _singleBindBone;
             set => _singleBindBone = value;
         }
-
-        [Browsable(false)]
-        public VertexShaderDesc BufferInfo => _bufferInfo;
-
         /// <summary>
         /// TODO: move render state buffers to PrimitiveManager, but keep remapped buffer data here
         /// </summary>
+        [Browsable(false)]
         public List<VertexBuffer> Buffers { get => _buffers; set => _buffers = value; }
-
+        [Browsable(false)]
         public InfluenceDef[] Influences { get => _influences; set => _influences = value; }
+        [Browsable(false)]
         public string[] UtilizedBones { get => _utilizedBones; set => _utilizedBones = value; }
+        [Browsable(false)]
         public List<FacePoint> FacePoints { get => _facePoints; set => _facePoints = value; }
+        [Browsable(false)]
         public List<IndexTriangle> Triangles { get => _triangles; set => _triangles = value; }
+        [Browsable(false)]
         public List<IndexLine> Lines { get => _lines; set => _lines = value; }
+        [Browsable(false)]
         public List<IndexPoint> Points { get => _points; set => _points = value; }
+        [Browsable(false)]
         public EPrimitiveType Type { get => _type; set => _type = value; }
+        [Browsable(false)]
+        public VertexShaderDesc BufferInfo => _bufferInfo;
 
         //Skinning data first
         [TSerialize(nameof(SingleBindBone), Order = 0)]

@@ -9,7 +9,7 @@ using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(PythonScript), nameof(Resources.GenericFile))]
+    [NodeWrapper(typeof(PythonScript), nameof(Resources.PythonIcon))]
     public class PythonWrapper : FileWrapper<PythonScript>
     {
         #region Menu

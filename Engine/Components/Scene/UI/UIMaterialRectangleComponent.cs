@@ -4,18 +4,21 @@ using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using System.Drawing;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIMaterialComponent : UIDockableComponent, I2DRenderable
+    public class UIMaterialRectangleComponent : UIDockableComponent, I2DRenderable
     {
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 0, 0);
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.Opaque, 0, 0);
 
-        public UIMaterialComponent(TMaterial m)
+        public UIMaterialRectangleComponent() 
+            : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }
+        public UIMaterialRectangleComponent(TMaterial material)
         {
-            VertexQuad quad = VertexQuad.PosZQuad(_region.Width, _region.Height, -2.0f, true);
+            VertexQuad quad = VertexQuad.PosZQuad(_region.Width, _region.Height, 0.0f, true);
             PrimitiveData quadData = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), quad);
-            _quad = new PrimitiveManager(quadData, m);
+            _quad = new PrimitiveManager(quadData, material);
         }
 
         private PrimitiveManager _quad;
@@ -45,17 +48,33 @@ namespace TheraEngine.Rendering.UI
         public T2 Parameter<T2>(string name) where T2 : ShaderVar
             => _quad.Parameter<T2>(name);
         
+        // 3--2
+        // |\ |
+        // | \|
+        // 0--1
         public unsafe override BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
+            //013312
             BoundingRectangle r = base.Resize(parentRegion);
             VertexBuffer buffer = _quad.Data[0];
             Vec3* data = (Vec3*)buffer.Address;
-            data[0] = new Vec3(Region.BottomLeft, -2.0f);
-            data[1] = new Vec3(Region.BottomRight, -2.0f);
-            data[2] = new Vec3(Region.TopLeft, -2.0f);
-            data[3] = new Vec3(Region.TopRight, -2.0f);
+            data[0] = new Vec3(Region.BottomLeft, 0.0f);
+            data[1] = data[4] = new Vec3(Region.BottomRight, 0.0f);
+            data[2] = data[3] = new Vec3(Region.TopLeft, 0.0f);
+            data[5] = new Vec3(Region.TopRight, 0.0f);
             return r;
         }
+
+        public override void OnSpawned()
+        {
+            base.OnSpawned();
+        }
+
+        public override void OnDespawned()
+        {
+            base.OnDespawned();
+        }
+
         public virtual void Render()
             => _quad.Render(WorldMatrix, Matrix3.Identity);
     }

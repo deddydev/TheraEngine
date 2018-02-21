@@ -12,6 +12,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
+    [EditorFor(typeof(SkeletalModel), typeof(StaticModel))]
     public partial class ModelEditorForm : TheraForm
     {
         public ModelEditorForm()

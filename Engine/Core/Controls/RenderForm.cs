@@ -11,7 +11,7 @@ namespace TheraEngine
         {
             Engine.SetGame(game);
             InitializeComponent();
-            Engine.SetGamePanel(renderPanel1);
+            Engine.SetWorldPanel(renderPanel1);
             Engine.Initialize();
 
             Text = game.Name;

@@ -3,10 +3,10 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-                "Math",
-                "A - B",
-                "Returns A - B.",
-                "subtracted - subtraction")]
+        CategoryName,
+        "Subtract",
+        "Returns A - B.",
+        "subtracted - subtraction minus negative dash")]
     public class SubtractFunc : OperatorFunc
     {
         public SubtractFunc() : base() { }

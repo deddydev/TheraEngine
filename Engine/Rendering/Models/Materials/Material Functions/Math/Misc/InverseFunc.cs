@@ -8,10 +8,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// Returns 1.0f divided by the input value
     /// </summary>
     [FunctionDefinition(
-                "Math",
-                "Inverse",
-                "Returns 1.0 / value.",
-                "inverse divided divison one 1 over value")]
+        "Helpers",
+        "Inverse",
+        "Returns 1.0 / value.",
+        "inverse divided divison one 1 over value")]
     public class InverseFunc : MaterialFunction
     {
         MatFuncValueInput InputValue;

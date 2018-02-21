@@ -332,9 +332,7 @@ namespace TheraEngine.Rendering.Models
         }
         public T Get<T>(int offset) where T : struct
         {
-            T value = default(T);
-            Marshal.PtrToStructure(_data.Address + offset, value);
-            return value;
+            return (T)Marshal.PtrToStructure(_data.Address + offset, typeof(T));
         }
         public void Set<T>(int offset, T value) where T : struct
         {

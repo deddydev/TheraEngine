@@ -91,6 +91,12 @@ namespace TheraEngine
         }
 
         private static IEnumerable<Type> _typeCache = null;
+        /// <summary>
+        /// Helper to collect all types from all loaded assemblies that match the given predicate.
+        /// </summary>
+        /// <param name="matchPredicate">What determines if the type is a match or not.</param>
+        /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
+        /// <returns>All types that match the predicate.</returns>
         public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, bool resetTypeCache = false)
         {
             if (_typeCache == null || resetTypeCache)
@@ -98,7 +104,7 @@ namespace TheraEngine
             return _typeCache.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
         }
 
-        public static void SetGamePanel(BaseRenderPanel panel, bool registerTickNow = true)
+        public static void SetWorldPanel(BaseRenderPanel panel, bool registerTickNow = true)
         {
             BaseRenderPanel.WorldPanel = panel;
             if (registerTickNow)

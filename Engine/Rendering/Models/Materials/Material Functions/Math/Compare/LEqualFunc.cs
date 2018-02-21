@@ -3,10 +3,10 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-                "Math",
-                "A <= B",
-                "Returns true bool/bvec if A's individual components are less than or equal to B's.",
-                "less than or equals to <=")]
+        CategoryName,
+        "Less Or Equal",
+        "Returns true bool/bvec if A's individual components are less than or equal to B's.",
+        "less than or equals to <=")]
     public class LEqualFunc : ComparableFunc
     {
         public LEqualFunc() : base() { }

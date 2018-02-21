@@ -1,19 +1,50 @@
 ﻿using System;
 using TheraEngine;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Actors;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    //[EditorFor(typeof(TMaterial))]
+    [EditorFor(typeof(TMaterial))]
     public partial class MaterialEditorForm : TheraForm
     {
-        private UIMaterialEditor _hud;
         public MaterialEditorForm()
         {
             InitializeComponent();
-            //renderPanel1.UI = _hud = new UIMaterialEditor(renderPanel1.ClientSize);
+        }
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            MaterialGraph.Focus();
+            MaterialFunctions.Focus();
+        }
+        private DockableMatFuncList _matFuncs = null;
+        public DockableMatFuncList MaterialFunctions
+        {
+            get
+            {
+                if (_matFuncs == null || _matFuncs.IsDisposed)
+                {
+                    Engine.PrintLine("Created material functions form");
+                    _matFuncs = new DockableMatFuncList();
+                    _matFuncs.Show(dockPanel1, DockState.DockRight);
+                }
+                return _matFuncs;
+            }
+        }
+        private DockableMatGraph _materialGraph = null;
+        public DockableMatGraph MaterialGraph
+        {
+            get
+            {
+                if (_materialGraph == null || _materialGraph.IsDisposed)
+                {
+                    Engine.PrintLine("Created material graph viewport");
+                    _materialGraph = new DockableMatGraph();
+                    _materialGraph.Show(dockPanel1, DockState.Document);
+                }
+                return _materialGraph;
+            }
         }
         public MaterialEditorForm(TMaterial m) : this()
         {
@@ -21,8 +52,8 @@ namespace TheraEditor.Windows.Forms
         }
         public TMaterial Material
         {
-            get => _hud.TargetMaterial;
-            set => _hud.TargetMaterial = value;
+            get => MaterialGraph.RenderPanel.UI.TargetMaterial;
+            set => MaterialGraph.RenderPanel.UI.TargetMaterial = value;
         }
     }
 }

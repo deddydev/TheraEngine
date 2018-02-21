@@ -5,29 +5,36 @@ using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
+    public interface IUIManager : IPawn
+    {
+        IPawn OwningPawn { get; set; }
+        void Resize(Vec2 bounds);
+        UIComponent FindClosestComponent(Vec2 viewportPoint);
+        void RemoveRenderableComponent(I2DRenderable r);
+        void AddRenderableComponent(I2DRenderable r);
+        Scene2D Scene { get; }
+        Vec2 CursorPosition { get; }
+        OrthographicCamera Camera { get; }
+        Vec2 Bounds { get; }
+    }
     /// <summary>
     /// Each viewport has a hud manager. 
     /// The main form also has a hud manager to overlay over everything if necessary.
     /// </summary>
-    public partial class UIManager : Pawn<UIDockableComponent>//, I3DRenderable
+    public partial class UIManager<T> : Pawn<T>, IUIManager where T : UIDockableComponent, new()
     {
         internal Scene2D _scene;
         private OrthographicCamera _camera;
-        private bool _visible = true;
         private Vec2 _bounds;
         private IPawn _owningPawn;
 
+        public Vec2 Bounds => _bounds;
         public OrthographicCamera Camera => _camera;
         
-        public virtual bool Visible
-        {
-            get => _visible;
-            set => _visible = value;
-        }
-
         public IPawn OwningPawn
         {
             get => _owningPawn;
@@ -66,8 +73,8 @@ namespace TheraEngine.Actors.Types.Pawns
                 }
             }
         }
-        
-        public RenderInfo3D RenderInfo { get; } 
+
+        public RenderInfo3D RenderInfo { get; }
             = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false);
 
         public Shape CullingVolume => null;
@@ -76,7 +83,8 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public UIManager() : base()
         {
-            _camera = new OrthographicCamera();
+            _camera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
+            _camera.SetOriginBottomLeft();
             _scene = new Scene2D();
         }
         public UIManager(Vec2 bounds) : this()
@@ -117,13 +125,13 @@ namespace TheraEngine.Actors.Types.Pawns
         //    _scene.DoRender(AbstractRenderer.CurrentCamera, null);
         //}
 
-        internal void RemoveRenderableComponent(I2DRenderable component)
+        public void RemoveRenderableComponent(I2DRenderable component)
         {
             _scene.Remove(component);
 
             //_renderables.Remove(component);
         }
-        internal void AddRenderableComponent(I2DRenderable component)
+        public void AddRenderableComponent(I2DRenderable component)
         {
             _scene.Add(component);
 

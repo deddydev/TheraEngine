@@ -3,10 +3,10 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-                "Math",
-                "A + B",
-                "Returns A + B.",
-                "added + concatenate addition")]
+        CategoryName,
+        "Add",
+        "Returns A + B.",
+        "added + concatenate addition")]
     public class AddFunc : OperatorFunc
     {
         public AddFunc() : base() { }

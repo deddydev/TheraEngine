@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Houses a self-contained 3D scene within a 2D user interface.
     /// </summary>
-    public class UI3DComponent : UIMaterialComponent
+    public class UI3DComponent : UIMaterialRectangleComponent
     {
         public UI3DComponent() : base(TMaterial.CreateUnlitTextureMaterialForward())
         {

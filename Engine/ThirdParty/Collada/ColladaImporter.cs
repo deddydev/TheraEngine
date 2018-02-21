@@ -304,6 +304,8 @@ namespace TheraEngine.Rendering.Models
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
+                data.GenerateBinormalTangentBuffers(0, 0, 0);
+
                 TMaterial m = null;
                 if (_inst?.
                     BindMaterialElement?.
@@ -325,6 +327,8 @@ namespace TheraEngine.Rendering.Models
                     data = DecodePrimitivesWeighted(scene, _bindMatrix, _geoEntry, _rig);
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+
+                data.GenerateBinormalTangentBuffers(0, 0, 0);
 
                 TMaterial m = null;
                 if (_inst?.

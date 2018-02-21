@@ -4,6 +4,7 @@ using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Core.Shapes;
+using TheraEngine.GameModes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Timers;
 using WeifenLuo.WinFormsUI.Docking;
@@ -19,8 +20,12 @@ namespace TheraEditor.Windows.Forms
             PlayerIndex = playerIndex;
             InitializeComponent();
             RenderPanel.Owner = this;
+            GameMode = new EditorGameMode();
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
+                MouseTranslateSpeed = 0.05f,
+                ScrollSpeed = 1.0f,
+                GamepadTranslateSpeed = 15.0f,
                 HUD = new EditorHud(RenderPanel.ClientSize),
                 Name = string.Format("ModelViewport{0}_EditorCamera", (FormIndex + 1).ToString()),
             };
@@ -58,6 +63,7 @@ namespace TheraEditor.Windows.Forms
         //    }
         //}
         
+        public EditorGameMode GameMode { get; set; }
         public ModelEditorForm Form { get; private set; }
         public int FormIndex { get; private set; }
         public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
@@ -66,6 +72,7 @@ namespace TheraEditor.Windows.Forms
         LocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => EditorPawn;
+        BaseGameMode IEditorControl.GameMode => GameMode;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

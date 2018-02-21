@@ -29,7 +29,7 @@ namespace TheraEngine.Actors
         AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
         CameraComponent CurrentCameraComponent { get; set; }
-        UIManager HUD { get; set; }
+        IUIManager HUD { get; set; }
 
         void QueuePossession(LocalPlayerIndex possessor);
         void OnUnPossessed();
@@ -54,7 +54,7 @@ namespace TheraEngine.Actors
     {
         private PawnController _controller;
         private CameraComponent _currentCameraComponent;
-        private UIManager _hud = null;
+        private IUIManager _hud = null;
         
         [Category("Pawn")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -86,7 +86,7 @@ namespace TheraEngine.Actors
         }
 
         [Category("Pawn")]
-        public UIManager HUD
+        public IUIManager HUD
         {
             get => _hud;
             set

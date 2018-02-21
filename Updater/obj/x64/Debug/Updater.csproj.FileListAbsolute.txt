@@ -4,3 +4,4 @@ C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x64\Updater
 C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x64\Debug\Updater.csproj.CoreCompileInputs.cache
 C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x64\Debug\Updater.exe
 C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x64\Debug\Updater.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x64\Debug\Updater.csprojResolveAssemblyReference.cache

@@ -4,7 +4,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class TextHudComponent : UIMaterialComponent
+    public class TextHudComponent : UIMaterialRectangleComponent
     {
         public TextHudComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(new TexRef2D()))
         {

@@ -3,10 +3,10 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-            "Math",
-            "Exponent",
-            "Returns A to the power of B.",
-            "exponent ^ power")]
+        CategoryName,
+        "Exponent",
+        "Returns A to the power of B.",
+        "exponent ^ power to raise")]
     public class ExponentFunc : OperatorFunc
     {
         public ExponentFunc() : base() { }

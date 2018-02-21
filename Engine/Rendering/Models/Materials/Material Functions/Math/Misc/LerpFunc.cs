@@ -7,10 +7,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// a * (1 − t) + b * t. 
     /// </summary>
     [FunctionDefinition(
-                "Math",
-                "Linear Interpolate",
-                "Linearly interpolates between A and B using Time: A + (B - A) * Time",
-                "lerp mix linear interpolate blend")]
+        "Helpers",
+        "Lerp",
+        "Linearly interpolates between A and B using Time: A + (B - A) * Time",
+        "lerp mix linear interpolate blend")]
     public class LerpFunc : MaterialFunction
     {
         MatFuncValueInput A, B, Time;

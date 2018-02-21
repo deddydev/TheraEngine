@@ -54,6 +54,11 @@ namespace TheraEngine.Rendering.UI
         //A variety of positioning parameters are used
         //to calculate the region's position and dimensions upon resize.
 
+        public UIDockableComponent()
+        {
+            DockStyle = HudDockStyle.Fill;
+        }
+
         public class SizeableElement
         {
             private float _value;
@@ -86,14 +91,14 @@ namespace TheraEngine.Rendering.UI
             public SizeableElement Bottom { get => _bottom; set => _bottom = value; }
         }
 
-        private SizeableElement
-            _width = new SizeableElement(),
-            _height = new SizeableElement(),
+        protected SizeableElement
+            _width = new SizeableElement(1.0f, SizingMode.ParentPercentage),
+            _height = new SizeableElement(1.0f, SizingMode.ParentPercentage),
             _posX = new SizeableElement(),
             _posY = new SizeableElement();
-        private SizeableElementQuad _margin, _padding, _anchor;
-        
-        private WidthHeightConstraint _whConstraint = WidthHeightConstraint.NoConstraint;
+        protected SizeableElementQuad _margin, _padding, _anchor;
+
+        protected WidthHeightConstraint _whConstraint = WidthHeightConstraint.NoConstraint;
         private HudDockStyle _dockStyle = HudDockStyle.None;
         private AnchorFlags _anchorFlags = AnchorFlags.None;
         
@@ -182,11 +187,21 @@ namespace TheraEngine.Rendering.UI
             }
         }
         
-        public WidthHeightConstraint WidthHeightConstraint { get => _whConstraint; set => _whConstraint = value; }
+        public WidthHeightConstraint WidthHeightConstraint
+        {
+            get => _whConstraint;
+            set
+            {
+                _whConstraint = value;
+                if (ParentSocket is UIComponent h)
+                    Resize(h.Region);
+            }
+        }
         
         public override unsafe BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             BoundingRectangle leftOver = parentRegion;
+            BoundingRectangle prevRegion = Region;
 
             //float* points = stackalloc float[8];
             //float tAspect = (float)_bgImage.Width / (float)_bgImage.Height;
@@ -320,11 +335,15 @@ namespace TheraEngine.Rendering.UI
                     leftOver = RegionDockComplement(parentRegion, Region);
             }
 
+
+            RecalcLocalTransform();
+
             BoundingRectangle region = Region;
+
+            Engine.PrintLine("Resized {0} to {0}", prevRegion, region);
+
             foreach (UIComponent c in _children)
                 region = c.Resize(region);
-
-            //RecalcLocalTransform();
 
             return leftOver;
         }

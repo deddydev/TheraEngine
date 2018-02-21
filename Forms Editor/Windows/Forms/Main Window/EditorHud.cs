@@ -18,7 +18,7 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class EditorHud : UIManager
+    public class EditorHud : UIManager<UIDockableComponent>
     {
         public EditorHud(Vec2 bounds) : base(bounds)
         {

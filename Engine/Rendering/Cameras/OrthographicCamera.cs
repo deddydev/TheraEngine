@@ -73,10 +73,11 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize("OriginPercentages")]
         private EventVec2 _originPercentages = Vec2.Zero;
 
-        public void SetCenteredStyle() 
-            => SetOriginPercentages(0.5f, 0.5f);
-        public void SetGraphStyle() 
-            => SetOriginPercentages(0.0f, 0.0f);
+        public void SetOriginCentered() => SetOriginPercentages(0.5f, 0.5f);
+        public void SetOriginBottomLeft() => SetOriginPercentages(0.0f, 0.0f);
+        public void SetOriginTopLeft() => SetOriginPercentages(0.0f, 1.0f);
+        public void SetOriginBottomRight() => SetOriginPercentages(1.0f, 0.0f);
+        public void SetOriginTopRight() => SetOriginPercentages(1.0f, 1.0f);
 
         public void SetOriginPercentages(Vec2 percentages)
             => SetOriginPercentages(percentages.X, percentages.Y);

@@ -1,44 +1,70 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Core.Shapes;
+using TheraEngine.GameModes;
+using TheraEngine.Input;
 using TheraEngine.Timers;
+using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
+    public class MaterialEditorController : LocalPlayerController
+    {
+        public MaterialEditorController(LocalPlayerIndex index) : base(index)
+        {
+            SetViewportCamera = false;
+            SetViewportHUD = false;
+        }
+
+        public MaterialEditorController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+            : base(index, possessionQueue)
+        {
+            SetViewportCamera = false;
+            SetViewportHUD = false;
+        }
+    }
+    public class MaterialEditorGameMode : GameMode<UIMaterialEditor, MaterialEditorController>
+    {
+        public DockableMatGraph Editor { get; set; }
+        protected override void HandleLocalPlayerJoined(MaterialEditorController item)
+        {
+            Editor.RenderPanel.GetOrAddViewport(0)?.RegisterController(item);
+            item.EnqueuePosession(Editor.RenderPanel.UI);
+            item.Viewport.HUD = Editor.RenderPanel.UI;
+            item.ViewportCamera = Editor.RenderPanel.UI.Camera;
+        }
+        protected override void HandleLocalPlayerLeft(MaterialEditorController item)
+        {
+            Editor.RenderPanel.UnregisterController(item);
+            item.UnlinkControlledPawn();
+        }
+    }
     public partial class DockableMatGraph : DockContent, IEditorControl
     {
         public DockableMatGraph()
         {
             InitializeComponent();
-            EditorPawn = new UIMaterialEditor(RenderPanel.ClientSize)
-            {
-                HUD = new EditorHud(RenderPanel.ClientSize),
-                Name = "MaterialEditorPawn",
-            };
-            RenderPanel.AllowDrop = true;
+            RenderPanel.AllowDrop = false;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
+            GameMode = new MaterialEditorGameMode() { Editor = this };
+            _world = new World();
         }
-
+        private World _world;
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             Editor.SetActiveEditorControl(this);
         }
         
-        public UIMaterialEditor EditorPawn { get; private set; }
+        public MaterialEditorGameMode GameMode { get; set; }
 
         LocalPlayerIndex IEditorControl.PlayerIndex => LocalPlayerIndex.One;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
-        IPawn IEditorControl.EditorPawn => EditorPawn;
+        IPawn IEditorControl.EditorPawn => RenderPanel.UI;
+        BaseGameMode IEditorControl.GameMode => GameMode;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
@@ -48,7 +74,9 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnShown(EventArgs e)
         {
-            Engine.World?.SpawnActor(EditorPawn);
+            //Engine.World?.SpawnActor(EditorPawn);
+            _world.SpawnActor(RenderPanel.UI);
+            Engine.RegisterRenderTick(RenderTick);
             base.OnShown(e);
         }
 
@@ -60,7 +88,9 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnClosed(EventArgs e)
         {
-            Engine.World?.DespawnActor(EditorPawn);
+            //Engine.World?.DespawnActor(EditorPawn);
+            _world.DespawnActor(RenderPanel.UI);
+            Engine.UnregisterRenderTick(RenderTick);
             base.OnClosed(e);
         }
 

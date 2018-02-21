@@ -7,10 +7,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// Physically-based rendering result.
     /// </summary>
     [FunctionDefinition(
-                "Output",
-                "Output PBR",
-                "Outputs the given vec4 color as the color for this fragment.",
-                "result output final return physically based rendering PBR")]
+        "Output",
+        "Output PBR",
+        "Combines the given inputs using a physically-based shading pipeline.",
+        "result output final return physically based rendering PBR albedo roughness shininess specularity metallic refraction")]
     public class ResultPBRFunc : ResultBasicFunc
     {
         protected override string GetOperation()

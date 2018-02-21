@@ -129,6 +129,13 @@ namespace System
             }
         }
 
+        public static T GetCustomAttributeExt<T>(this Type type) where T : Attribute
+        {
+            T[] types = type.GetCustomAttributesExt<T>();
+            if (types.Length > 0)
+                return types[0];
+            return null;
+        }
         public static T[] GetCustomAttributesExt<T>(this Type type) where T : Attribute
         {
             List<T> list = new List<T>();

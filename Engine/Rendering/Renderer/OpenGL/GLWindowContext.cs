@@ -111,8 +111,15 @@ namespace TheraEngine.Rendering.OpenGL
 
             public override void OnSwapBuffers()
             {
-                if (!IsContextDisposed())
-                    _context.SwapBuffers();
+                try
+                {
+                    if (!IsContextDisposed())
+                        _context.SwapBuffers();
+                }
+                catch(Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
             }
 
             public override void OnUpdated()
@@ -120,8 +127,15 @@ namespace TheraEngine.Rendering.OpenGL
 
             public override void SetCurrent(bool current)
             {
-                if (!IsContextDisposed() && IsCurrent() != current)
-                    _context.MakeCurrent(current ? WindowInfo : null);
+                try
+                {
+                    if (!IsContextDisposed() && IsCurrent() != current)
+                        _context.MakeCurrent(current ? WindowInfo : null);
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
             }
         }
         protected override ThreadSubContext CreateSubContext(Thread thread)

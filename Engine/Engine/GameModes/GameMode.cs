@@ -180,6 +180,8 @@ namespace TheraEngine.GameModes
         {
             item.Viewport.HUD = null;
             BaseRenderPanel.WorldPanel?.UnregisterController(item);
+            Engine.World.DespawnActor(item.ControlledPawn);
+            item.UnlinkControlledPawn();
         }
         protected internal virtual void HandleLocalPlayerJoined(ControllerType item)
         {

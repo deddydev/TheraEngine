@@ -7,10 +7,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// Basic rendering result.
     /// </summary>
     [FunctionDefinition(
-                "Output",
-                "Basic Output",
-                "Outputs the given vec4 color as the color for this fragment.",
-                "result output final return")]
+        "Output",
+        "Basic Output",
+        "Outputs the given vec4 color as the color for this fragment.",
+        "result output final return")]
     public class ResultBasicFunc : MaterialFunction
     {
         MatFuncValueInput Color;

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
@@ -10,14 +12,16 @@ namespace TheraEngine.Rendering.UI.Functions
     {
         public FunctionDefinition(string category, string name, string description, string keywords)
         {
-            _keywords = keywords.Split(' ').ToList();
-            _description = description;
-            _name = name;
-            _category = category;
+            Keywords = keywords.Split(' ').ToList();
+            Description = description;
+            Name = name;
+            Category = category;
         }
 
-        public List<string> _keywords;
-        public string _name, _description, _category;
+        public List<string> Keywords { get; }
+        public string Name { get; }
+        public string Description { get; }
+        public string Category { get; }
     }
     public interface IFunction
     {
@@ -41,7 +45,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 //    continue;
 
                 int count = 0;
-                foreach (string keyword in def._keywords)
+                foreach (string keyword in def.Keywords)
                 {
                     foreach (string typedKeyword in keyArray)
                         if (keyword.Contains(typedKeyword))
@@ -69,19 +73,34 @@ namespace TheraEngine.Rendering.UI.Functions
     /// <typeparam name="TVOut">The output value class to use.</typeparam>
     /// <typeparam name="TEIn">The input execution argument class to use.</typeparam>
     /// <typeparam name="TEOut">The output execution class to use.</typeparam>
-    public abstract class Function<TVIn, TVOut, TEIn, TEOut> : UIComponent, IShaderVarOwner, IFunction
-        where TVIn : UIComponent, IFuncValueInput where TVOut : UIComponent, IFuncValueOutput
-        where TEIn : UIComponent, IFuncExecInput where TEOut : UIComponent, IFuncExecOutput
+    public abstract class Function<TVIn, TVOut, TEIn, TEOut>
+        : UIMaterialRectangleComponent, IShaderVarOwner, IFunction
+        where TVIn : UIComponent, IFuncValueInput
+        where TVOut : UIComponent, IFuncValueOutput
+        where TEIn : UIComponent, IFuncExecInput
+        where TEOut : UIComponent, IFuncExecOutput
     {
         protected List<TVIn> _inputs = new List<TVIn>();
         protected List<TVOut> _outputs = new List<TVOut>();
         protected TEIn _mainExecIn;
         protected TEOut _mainExecOut;
 
-        public Function()
+        public Function() : base(MakeFunctionMaterial())
         {
             AddInput(GetValueInputs());
             AddOutput(GetValueOutputs());
+            RenderInfo.LayerIndex = 2;
+            Size = new Vec2(10.0f, 10.0f);
+            DockStyle = HudDockStyle.None;
+            _width.SizingMode = SizingMode.Pixels;
+            _height.SizingMode = SizingMode.Pixels;
+            _width.Value = 100.0f;
+            _height.Value = 50.0f;
+        }
+
+        private static TMaterial MakeFunctionMaterial()
+        {
+            return TMaterial.CreateUnlitColorMaterialForward(Color.Green);
         }
 
         public List<TVIn> InputArguments => _inputs;
@@ -169,12 +188,12 @@ namespace TheraEngine.Rendering.UI.Functions
 
             Width = titleWidth;
         }
-
+        
         public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();
-        public ReadOnlyCollection<string> Keywords => Definition?._keywords.AsReadOnly();
-        public string FunctionName => Definition?._name;
-        public string Description => Definition?._description;
-        public string Category => Definition?._category;
+        public ReadOnlyCollection<string> Keywords => Definition?.Keywords.AsReadOnly();
+        public string FunctionName => Definition?.Name;
+        public string Description => Definition?.Description;
+        public string Category => Definition?.Category;
 
         protected TEIn MainExecIn { get => _mainExecIn; set => _mainExecIn = value; }
         protected TEOut MainExecOut { get => _mainExecOut; set => _mainExecOut = value; }

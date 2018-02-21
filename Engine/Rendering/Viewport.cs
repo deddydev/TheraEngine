@@ -133,8 +133,8 @@ namespace TheraEngine.Rendering
 
         public BoundingRectangle InternalResolution => _internalResolution;
 
-        private UIManager _hud;
-        public UIManager HUD
+        private IUIManager _hud;
+        public IUIManager HUD
         {
             get => _hud;
             set

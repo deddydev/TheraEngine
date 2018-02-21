@@ -71,9 +71,11 @@ namespace TheraEngine.Rendering
     /// </summary>
     public class Scene2D : Scene
     {
-        public Quadtree RenderTree { get; private set; }
-        public override int Count => RenderTree.Count;
+        //public Quadtree RenderTree { get; private set; }
+        public override int Count => _renderables.Count;
         private RenderPasses2D _passes = new RenderPasses2D();
+
+        private List<I2DRenderable> _renderables = new List<I2DRenderable>();
 
         public Scene2D()
         {
@@ -102,11 +104,16 @@ namespace TheraEngine.Rendering
         }
         public void CollectVisibleRenderables()
         {
-            CollectVisibleRenderables(RenderTree.Bounds);
+            //CollectVisibleRenderables(RenderTree.Bounds);
+            CollectVisibleRenderables(BoundingRectangle.Empty);
         }
         public void CollectVisibleRenderables(BoundingRectangle bounds)
         {
-            RenderTree.CollectVisible(bounds, _passes);
+            //RenderTree.CollectVisible(bounds, _passes);
+
+            foreach (I2DRenderable r in _renderables)
+                _passes.Add(r);
+            _passes.Sort();
         }
         
         public void DoRender(Camera c, Viewport v)
@@ -119,43 +126,56 @@ namespace TheraEngine.Rendering
                 if (v != null)
                 {
                     //Enable internal resolution
-                    Engine.Renderer.PushRenderArea(v.InternalResolution);
-                    {
-                        //Now render to final post process framebuffer.
-                        v.PostProcessFBO.Bind(EFramebufferTarget.Framebuffer);
-                        {
-                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                    //Engine.Renderer.PushRenderArea(v.InternalResolution);
+                    //{
+                    //    //Now render to final post process framebuffer.
+                    //    v.PostProcessFBO.Bind(EFramebufferTarget.Framebuffer);
+                    //    {
+                    //        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
-                            Engine.Renderer.AllowDepthWrite(false);
-                            _passes.Render(ERenderPass2D.Background);
+                    //        Engine.Renderer.AllowDepthWrite(false);
+                    //        _passes.Render(ERenderPass2D.Background);
 
-                            Engine.Renderer.AllowDepthWrite(true);
-                            _passes.Render(ERenderPass2D.Opaque);
-                            _passes.Render(ERenderPass2D.Transparent);
+                    //        Engine.Renderer.AllowDepthWrite(true);
+                    //        _passes.Render(ERenderPass2D.Opaque);
+                    //        _passes.Render(ERenderPass2D.Transparent);
 
-                            //Disable depth fail for objects on top
-                            Engine.Renderer.DepthFunc(EComparison.Always);
+                    //        //Disable depth fail for objects on top
+                    //        Engine.Renderer.DepthFunc(EComparison.Always);
 
-                            _passes.Render(ERenderPass2D.OnTop);
-                        }
-                        v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
+                    //        _passes.Render(ERenderPass2D.OnTop);
+                    //    }
+                    //    v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
 
-                        //Render to 2D framebuffer.
-                        //v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                        //{
-                        //    Engine.Renderer.DepthFunc(EComparison.Lequal);
-                        //    v._postProcessFrameBuffer.Render();
-                        //}
-                        //v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
-                    }
-                    //Disable internal resolution
-                    Engine.Renderer.PopRenderArea();
+                    //    //Render to 2D framebuffer.
+                    //    //v._hudFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                    //    //{
+                    //    //    Engine.Renderer.DepthFunc(EComparison.Lequal);
+                    //    //    v._postProcessFrameBuffer.Render();
+                    //    //}
+                    //    //v._hudFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                    //}
+                    ////Disable internal resolution
+                    //Engine.Renderer.PopRenderArea();
 
                     //Render the last pass to the actual screen resolution
                     Engine.Renderer.PushRenderArea(v.Region);
                     {
                         Engine.Renderer.CropRenderArea(v.Region);
-                        //v._hudFrameBuffer.Render();
+                        //v.PostProcessFBO.Render();
+                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+
+                        Engine.Renderer.AllowDepthWrite(false);
+                        _passes.Render(ERenderPass2D.Background);
+
+                        Engine.Renderer.AllowDepthWrite(true);
+                        _passes.Render(ERenderPass2D.Opaque);
+                        _passes.Render(ERenderPass2D.Transparent);
+
+                        //Disable depth fail for objects on top
+                        Engine.Renderer.DepthFunc(EComparison.Always);
+
+                        _passes.Render(ERenderPass2D.OnTop);
                     }
                     Engine.Renderer.PopRenderArea();
 
@@ -182,20 +202,23 @@ namespace TheraEngine.Rendering
         
         public void Resize(Vec2 bounds)
         {
-            RenderTree?.Resize(bounds);
+            //RenderTree?.Resize(bounds);
         }
 
-        public void Add(I2DBoundable obj)
+        public void Add(I2DRenderable obj)
         {
-            RenderTree?.Add(obj);
+            _renderables.Add(obj);
+            //RenderTree?.Add(obj);
         }
-        public void Remove(I2DBoundable obj)
+        public void Remove(I2DRenderable obj)
         {
-            RenderTree?.Remove(obj);
+            _renderables.Remove(obj);
+            //RenderTree?.Remove(obj);
         }
         public void Clear(Vec2 bounds)
         {
-            RenderTree = new Quadtree(new BoundingRectangle(new Vec2(0.0f), bounds));
+            //RenderTree = new Quadtree(new BoundingRectangle(new Vec2(0.0f), bounds));
+            _renderables.Clear();
             _passes = new RenderPasses2D();
         }
     }

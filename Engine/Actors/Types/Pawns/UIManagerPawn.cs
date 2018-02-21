@@ -8,7 +8,7 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
-    public partial class UIManager : Pawn<UIDockableComponent>
+    public partial class UIManager<T> : Pawn<T> where T : UIDockableComponent, new()
     {
         private Vec2 _cursorPos = Vec2.Zero;
         private UIComponent _focusedComponent;
@@ -24,9 +24,9 @@ namespace TheraEngine.Actors.Types.Pawns
             }
         }
 
-        protected override UIDockableComponent OnConstruct()
+        protected override T OnConstruct()
         {
-            return new UIDockableComponent()
+            return new T()
             {
                 DockStyle = HudDockStyle.Fill,
             };
@@ -76,8 +76,9 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public List<UIComponent> FindAllComponents(Vec2 viewportPoint)
         {
-            List<I2DBoundable> results = _scene.RenderTree.FindClosest(viewportPoint);
-            return results?.Select(x => (UIComponent)x).ToList();
+            return null;
+            //List<I2DBoundable> results = _scene.RenderTree.FindClosest(viewportPoint);
+            //return results?.Select(x => (UIComponent)x).ToList();
             //return RootComponent.FindComponent(viewportPoint);
         }
         public UIComponent FindClosestComponent(Vec2 viewportPoint)

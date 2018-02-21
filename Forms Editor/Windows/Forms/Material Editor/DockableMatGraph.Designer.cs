@@ -38,7 +38,6 @@
             this.RenderPanel.Name = "renderPanel1";
             this.RenderPanel.Size = new System.Drawing.Size(504, 408);
             this.RenderPanel.TabIndex = 1;
-            this.RenderPanel.UI = null;
             this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Disabled;
             // 
             // DockableMatGraph
@@ -58,6 +57,6 @@
 
         #endregion
 
-        private TheraEngine.MaterialGraphRenderPanel RenderPanel;
+        public TheraEngine.MaterialGraphRenderPanel RenderPanel;
     }
 }

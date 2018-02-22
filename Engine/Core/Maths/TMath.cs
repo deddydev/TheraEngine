@@ -332,27 +332,27 @@ namespace System
         #region Transforms
         public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Rotator angles)
         {
-            return point * Matrix4.CreateTranslation(-center) * angles.GetMatrix() * Matrix4.CreateTranslation(center);
+            return point * (Matrix4.CreateTranslation(center) * (Matrix4.CreateTranslation(-center) * angles.GetMatrix()));
         }
         public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Quat rotation)
         {
-            return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateFromQuaternion(rotation) * Matrix4.CreateTranslation(center);
+            return point * (Matrix4.CreateTranslation(center) * (Matrix4.CreateTranslation(-center) * Matrix4.CreateFromQuaternion(rotation)));
         }
         public static Vec3 ScaleAboutPoint(Vec3 point, Vec3 center, Vec3 scale)
         {
-            return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(center);
+            return point * (Matrix4.CreateTranslation(center) * (Matrix4.CreateTranslation(-center) * Matrix4.CreateScale(scale)));
         }
         public static Vec2 RotateAboutPoint(Vec2 point, Vec2 center, float angle)
         {
-            return (Vec2)((Vec3)point * Matrix4.CreateTranslation(-center) * Matrix4.CreateRotationZ(angle) * Matrix4.CreateTranslation(center));
+            return (Vec2)((Vec3)point * (Matrix4.CreateTranslation(center) * (Matrix4.CreateTranslation(-center) * Matrix4.CreateRotationZ(angle))));
         }
         public static Vec2 ScaleAboutPoint(Vec2 point, Vec2 center, Vec2 scale)
         {
-            return (Vec2)((Vec3)point * Matrix4.CreateTranslation(-center) * Matrix4.CreateScale(scale.X, scale.Y, 1.0f) * Matrix4.CreateTranslation(center));
+            return (Vec2)((Vec3)point * (Matrix4.CreateTranslation(center) * (Matrix4.CreateTranslation(-center) * Matrix4.CreateScale(scale.X, scale.Y, 1.0f))));
         }
         public static Vec3 TransformAboutPoint(Vec3 point, Vec3 center, Matrix4 transform)
         {
-            return point * Matrix4.CreateTranslation(-center) * transform * Matrix4.CreateTranslation(center);
+            return point * (Matrix4.CreateTranslation(center) * (Matrix4.CreateTranslation(-center) * transform));
         }
         #endregion
 

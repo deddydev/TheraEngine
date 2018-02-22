@@ -60,121 +60,80 @@ namespace TheraEngine.Rendering.UI
             DockStyle = HudDockStyle.Fill;
         }
 
-        [Category("Transform")]
-        public override BoundingRectangle Region
+        /// <summary>
+        /// The X value of the right boundary line.
+        /// Only moves the right edge by resizing width.
+        /// </summary>
+        public float MaxX
         {
-            get => _region;
+            get => LocalTranslationX + (Width < 0 ? 0 : Width);
             set
             {
-                _region = value;
+                CheckProperDimensions();
+                _size.X = value - LocalTranslationX;
                 OnResized();
-            }
-        }
-        [Category("Transform")]
-        public override Vec2 Size
-        {
-            get => _region.Bounds;
-            set
-            {
-                _region.Bounds = value;
-                OnResized();
-            }
-        }
-        [Category("Transform")]
-        public override float Height
-        {
-            get => _region.Height;
-            set
-            {
-                _region.Height = value;
-                OnResized();
-            }
-        }
-        [Category("Transform")]
-        public override float Width
-        {
-            get => _region.Width;
-            set
-            {
-                _region.Width = value;
-                OnResized();
-            }
-        }
-        [Category("Transform")]
-        public override Vec2 Translation
-        {
-            get => _region.Translation;
-            set
-            {
-                _region.Translation = value;
-                RecalcLocalTransform();
             }
         }
         /// <summary>
-        /// The origin of the component's rotation angle, as a percentage.
-        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
+        /// The Y value of the top boundary line.
+        /// Only moves the top edge by resizing height.
         /// </summary>
-        [Category("Transform")]
-        public override Vec2 TranslationLocalOrigin
+        public float MaxY
         {
-            get => _translationLocalOrigin;
+            get => LocalTranslationY + (Height < 0 ? 0 : Height);
             set
             {
-                Vec2 diff = value - _translationLocalOrigin;
-                _region.X += diff.X;
-                _region.Y += diff.Y;
-                _translationLocalOrigin = value;
-                RecalcLocalTransform();
+                CheckProperDimensions();
+                _size.Y = value - LocalTranslationY;
+                OnResized();
             }
         }
-        [Category("Transform")]
-        public override float TranslationX
+        /// <summary>
+        /// The X value of the left boundary line.
+        /// Only moves the left edge by resizing width.
+        /// </summary>
+        public float MinX
         {
-            get => _region.X;
+            get => LocalTranslationX + (Width < 0 ? Width : 0);
             set
             {
-                _region.X = value;
-                RecalcLocalTransform();
+                CheckProperDimensions();
+                float origX = _size.X;
+                _localTransform.TranslationX = value;
+                _size.X = origX - LocalTranslationX;
+                OnResized();
             }
         }
-        [Category("Transform")]
-        public override float TranslationY
+        /// <summary>
+        /// The Y value of the bottom boundary line.
+        /// Only moves the bottom edge by resizing height.
+        /// </summary>
+        public float MinY
         {
-            get => _region.Y;
+            get => LocalTranslationY + (Height < 0 ? Height : 0);
             set
             {
-                _region.Y = value;
-                RecalcLocalTransform();
+                CheckProperDimensions();
+                float origY = _size.Y;
+                _localTransform.TranslationY = value;
+                _size.Y = origY - LocalTranslationY;
+                OnResized();
             }
         }
-        [Category("Transform")]
-        public override Vec2 Scale
+        /// <summary>
+        /// Checks that the width and height are positive values. Will move the location of the rectangle to fix this.
+        /// </summary>
+        public void CheckProperDimensions()
         {
-            get => _scale;
-            set
+            if (Width < 0)
             {
-                _scale = value;
-                RecalcLocalTransform();
+                LocalTranslationX += Width;
+                Width = -Width;
             }
-        }
-        [Category("Transform")]
-        public override float ScaleX
-        {
-            get => _scale.X;
-            set
+            if (Height < 0)
             {
-                _scale.X = value;
-                RecalcLocalTransform();
-            }
-        }
-        [Category("Transform")]
-        public override float ScaleY
-        {
-            get => _scale.Y;
-            set
-            {
-                _scale.Y = value;
-                RecalcLocalTransform();
+                LocalTranslationY += Height;
+                Height = -Height;
             }
         }
 
@@ -228,7 +187,7 @@ namespace TheraEngine.Rendering.UI
             {
                 _dockStyle = value;
                 if (ParentSocket is UIComponent h)
-                    Resize(h.Region);
+                    Resize(h.AxisAlignedRegion);
             }
         }
         public AnchorFlags SideAnchorFlags
@@ -238,7 +197,7 @@ namespace TheraEngine.Rendering.UI
             {
                 _anchorFlags = value;
                 if (ParentSocket is UIComponent h)
-                    Resize(h.Region);
+                    Resize(h.AxisAlignedRegion);
             }
         }
 
@@ -257,7 +216,7 @@ namespace TheraEngine.Rendering.UI
                 else
                     _anchorFlags &= ~AnchorFlags.Bottom;
                 if (ParentSocket is UIComponent h)
-                    Resize(h.Region);
+                    Resize(h.AxisAlignedRegion);
             }
         }
         public bool AnchoredTop
@@ -272,7 +231,7 @@ namespace TheraEngine.Rendering.UI
                 else
                     _anchorFlags &= ~AnchorFlags.Top;
                 if (ParentSocket is UIComponent h)
-                    Resize(h.Region);
+                    Resize(h.AxisAlignedRegion);
             }
         }
         public bool AnchoredLeft
@@ -287,7 +246,7 @@ namespace TheraEngine.Rendering.UI
                 else
                     _anchorFlags &= ~AnchorFlags.Left;
                 if (ParentSocket is UIComponent h)
-                    Resize(h.Region);
+                    Resize(h.AxisAlignedRegion);
             }
         }
         public bool AnchoredRight
@@ -302,7 +261,7 @@ namespace TheraEngine.Rendering.UI
                 else
                     _anchorFlags &= ~AnchorFlags.Right;
                 if (ParentSocket is UIComponent h)
-                    Resize(h.Region);
+                    Resize(h.AxisAlignedRegion);
             }
         }
         
@@ -313,14 +272,14 @@ namespace TheraEngine.Rendering.UI
             {
                 _whConstraint = value;
                 if (ParentSocket is UIComponent h)
-                    Resize(h.Region);
+                    Resize(h.AxisAlignedRegion);
             }
         }
         
         public override unsafe BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             BoundingRectangle leftOver = parentRegion;
-            BoundingRectangle prevRegion = Region;
+            BoundingRectangle prevRegion = AxisAlignedRegion;
 
             //float* points = stackalloc float[8];
             //float tAspect = (float)_bgImage.Width / (float)_bgImage.Height;
@@ -394,7 +353,7 @@ namespace TheraEngine.Rendering.UI
                         break;
                 }
             }
-            _region = new BoundingRectangle(x, y, w, h, _translationLocalOrigin.X, _translationLocalOrigin.Y);
+            //_region = new BoundingRectangle(x, y, w, h, _localOriginPercentage.X, _localOriginPercentage.Y);
             if (Docked || Anchored)
             {
                 bool 
@@ -412,29 +371,31 @@ namespace TheraEngine.Rendering.UI
                     switch (_dockStyle)
                     {
                         case HudDockStyle.Fill:
-                            _region.Bounds = parentRegion.Bounds;
-                            _region.Translation = parentRegion.Translation;
+                            _size = parentRegion.Bounds;
+                            _localTransform.TranslationXy = Vec2.Zero;
                             break;
                         case HudDockStyle.Bottom:
-                            _region.Translation = parentRegion.Translation;
-                            _region.Width = parentRegion.Width;
+                            _localOriginPercentage = new Vec2(0.0f, 0.0f);
+                            _localTransform.TranslationXy = Vec2.Zero;
+                            _size.X = parentRegion.Width;
                             allowTop = true;
                             break;
                         case HudDockStyle.Top:
-                            _region.Translation = parentRegion.Translation;
-                            _region.Y += parentRegion.Height - _region.Height;
-                            _region.Width = parentRegion.Width;
+                            _localOriginPercentage = new Vec2(0.0f, 1.0f);
+                            _localTransform.TranslationXy = new Vec2(0.0f, parentRegion.Height);
+                            _size.X = parentRegion.Width;
                             allowBottom = true;
                             break;
                         case HudDockStyle.Left:
-                            _region.Translation = parentRegion.Translation;
-                            _region.Height = parentRegion.Height;
+                            _localOriginPercentage = new Vec2(0.0f, 0.0f);
+                            _localTransform.TranslationXy = Vec2.Zero;
+                            _size.Y = parentRegion.Height;
                             allowRight = true;
                             break;
                         case HudDockStyle.Right:
-                            _region.Translation = parentRegion.Translation;
-                            _region.X += parentRegion.Width - _region.Width;
-                            _region.Height = parentRegion.Height;
+                            _localOriginPercentage = new Vec2(1.0f, 0.0f);
+                            _localTransform.TranslationXy = new Vec2(parentRegion.Width, 0.0f);
+                            _size.Y = parentRegion.Height;
                             allowLeft = true;
                             break;
                     }
@@ -442,24 +403,22 @@ namespace TheraEngine.Rendering.UI
                 if (Anchored)
                 {
                     if (allowBottom && AnchoredBottom)
-                        _region.MinY = _anchor.Bottom.GetValue(parentRegion.Height);
+                        MinY = _anchor.Bottom.GetValue(parentRegion.Height);
                     if (allowTop && AnchoredTop)
-                        _region.MaxY = _anchor.Top.GetValue(parentRegion.Height);
+                        MaxY = _anchor.Top.GetValue(parentRegion.Height);
                     if (allowLeft && AnchoredLeft)
-                        _region.MinX = _anchor.Left.GetValue(parentRegion.Width);
+                        MinX = _anchor.Left.GetValue(parentRegion.Width);
                     if (allowRight && AnchoredRight)
-                        _region.MaxX = _anchor.Right.GetValue(parentRegion.Width);
+                        MaxX = _anchor.Right.GetValue(parentRegion.Width);
                 }
+
                 if (_dockStyle != HudDockStyle.None)
-                    leftOver = RegionDockComplement(parentRegion, Region);
+                    leftOver = RegionDockComplement(parentRegion, AxisAlignedRegion);
             }
 
             RecalcLocalTransform();
 
-            BoundingRectangle region = Region;
-
-            //Engine.PrintLine("Resized {0} to {0}", prevRegion, region);
-
+            BoundingRectangle region = AxisAlignedRegion;
             foreach (UIComponent c in _children)
                 region = c.Resize(region);
 

@@ -19,7 +19,7 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
             DockPanel.Theme = new TheraEditorTheme();
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleMode = AutoScaleMode.Dpi;
             DoubleBuffered = false;
             formMenu.Renderer = new TheraToolstripRenderer();
         }

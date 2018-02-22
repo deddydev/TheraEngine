@@ -76,7 +76,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p1 = p0;
             p1.X += 10.0f;
 
-            Vec2 p3 = Translation;
+            Vec2 p3 = ScreenTranslation;
 
             Vec2 p2 = p3;
             p2.X -= 10.0f;
@@ -92,9 +92,9 @@ namespace TheraEngine.Rendering.UI.Functions
         public Vec2 BezierFromOutputArg(float time)
         {
             if (_connectedTo == null)
-                return Translation;
+                return ScreenTranslation;
 
-            return BezierFromPoint(_connectedTo.Translation, time);
+            return BezierFromPoint(_connectedTo.ScreenTranslation, time);
         }
         public Vec2[] BezierPointsFromPoint(Vec2 otherPoint, int count)
         {
@@ -103,7 +103,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p1 = p0;
             p1.X += 10.0f;
 
-            Vec2 p3 = Translation;
+            Vec2 p3 = ScreenTranslation;
 
             Vec2 p2 = p3;
             p2.X -= 10.0f;
@@ -115,7 +115,7 @@ namespace TheraEngine.Rendering.UI.Functions
             if (_connectedTo == null)
                 return null;
 
-            return BezierPointsFromPoint(_connectedTo.Translation, count);
+            return BezierPointsFromPoint(_connectedTo.ScreenTranslation, count);
         }
         public override bool CanConnectTo(TOutput other)
         {

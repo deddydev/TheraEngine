@@ -16,14 +16,19 @@ namespace TheraEngine
 
         public MaterialGraphRenderPanel()
         {
-            UI = new UIMaterialEditor(ClientSize);
-            AddViewport();
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+                return;
+            Viewport v = AddViewport();
+            v.HUD = UI = new UIMaterialEditor(Size);
+            v.Camera = UI.Camera;
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UI.Resize(ClientSize);
+
+            //Engine.PrintLine(Size.ToString());
+            //Engine.PrintLine(UI.RootComponent.Size.ToString());
         }
     }
 }

@@ -296,8 +296,7 @@ namespace TheraEditor.Windows.Forms
             _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
 
             DockPanel.Theme = new TheraEditorTheme();
-
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleMode = AutoScaleMode.Dpi;
             DoubleBuffered = false;
 
             KeyPreview = true;

@@ -85,6 +85,7 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             _camera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
             _camera.SetOriginBottomLeft();
+            _camera.Resize(1, 1);
             _scene = new Scene2D();
         }
         public UIManager(Vec2 bounds) : this()
@@ -98,8 +99,8 @@ namespace TheraEngine.Actors.Types.Pawns
             if (_bounds == Vec2.Zero)
                 return;
             _scene.Resize(bounds);
+            RootComponent.Resize(new BoundingRectangle(Vec2.Zero, bounds));
             _camera.Resize(bounds.X, bounds.Y);
-            RootComponent?.Resize(new BoundingRectangle(Vec2.Zero, bounds));
         }
         protected override void PostConstruct()
         {

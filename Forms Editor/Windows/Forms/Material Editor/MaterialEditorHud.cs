@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Models.Materials;
@@ -39,12 +40,14 @@ namespace TheraEditor.Windows.Forms
             //    Engine.PrintLine(func.Name);
             //}
 
+            Vec2 pos = LocalPlayerController.Viewport.AbsoluteToRelative(CursorPosition);
+
             base.MouseMove(x, y);
 
             if (_selectedFunc != null)
             {
-                Vec3 worldPoint = LocalPlayerController.Viewport.ScreenToWorld(new Vec2(x, y), 0.0f);
-                _selectedFunc.Translation = worldPoint.Xy;
+                Vec3 worldPoint = LocalPlayerController.Viewport.ScreenToWorld(pos, 0.0f);
+                _selectedFunc.LocalTranslation = worldPoint.Xy;
             }
         }
         private void MouseUp()

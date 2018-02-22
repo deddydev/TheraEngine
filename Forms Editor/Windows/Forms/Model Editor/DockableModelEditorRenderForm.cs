@@ -23,8 +23,8 @@ namespace TheraEditor.Windows.Forms
             GameMode = new EditorGameMode();
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
-                MouseTranslateSpeed = 0.05f,
-                ScrollSpeed = 1.0f,
+                MouseTranslateSpeed = 0.02f,
+                ScrollSpeed = 0.5f,
                 GamepadTranslateSpeed = 15.0f,
                 HUD = new EditorHud(RenderPanel.ClientSize),
                 Name = string.Format("ModelViewport{0}_EditorCamera", (FormIndex + 1).ToString()),

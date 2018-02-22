@@ -118,13 +118,13 @@ namespace System
                     return;
 
                 //Still within the same volume?
-                if (item.AxisAlignedBounds.ContainmentWithin(_bounds) == EContainment.Contains)
+                if (item.AxisAlignedRegion.ContainmentWithin(_bounds) == EContainment.Contains)
                 {
                     //Try subdividing
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         BoundingRectangle bounds = GetSubdivision(i);
-                        if (item.AxisAlignedBounds.ContainmentWithin(bounds) == EContainment.Contains)
+                        if (item.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                         {
                             QueueRemove(item);
                             CreateSubNode(bounds, i)?.Add(item);
@@ -208,7 +208,7 @@ namespace System
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I2DRenderable r = _items[i] as I2DRenderable;
-                            if ((c = r.AxisAlignedBounds.ContainmentWithin(bounds)) != EContainment.Disjoint)
+                            if ((c = r.AxisAlignedRegion.ContainmentWithin(bounds)) != EContainment.Disjoint)
                                 passes.Add(r);
                         }
                         IsLoopingItems = false;
@@ -278,7 +278,7 @@ namespace System
                 if (item == null)
                     return false;
                
-                if (force || item.AxisAlignedBounds.ContainmentWithin(_bounds) != EContainment.Contains)
+                if (force || item.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
                 {
                     if (force)
                     {
@@ -296,7 +296,7 @@ namespace System
                         continue;
 
                     BoundingRectangle bounds = GetSubdivision(i);
-                    if (item.AxisAlignedBounds.ContainmentWithin(bounds) == EContainment.Contains)
+                    if (item.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                     {
                         CreateSubNode(bounds, i)?.Add(item);
                         return true;

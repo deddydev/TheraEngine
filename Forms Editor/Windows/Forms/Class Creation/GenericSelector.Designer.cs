@@ -116,7 +116,7 @@ namespace TheraEditor.Windows.Forms
             // GenericsSelector
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(434, 407);
             this.Location = new System.Drawing.Point(0, 0);
             this.MaximizeBox = false;

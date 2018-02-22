@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering
         private int _index;
         private BoundingRectangle _region;
         private Camera _worldCamera;
-        //private BaseRenderPanel _owningPanel;
+        private BaseRenderPanel _owningPanel;
 
         private SSAOInfo _ssaoInfo = new SSAOInfo();
         internal QuadFrameBuffer GBufferFBO;
@@ -145,6 +145,9 @@ namespace TheraEngine.Rendering
                 Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud == null ? "null" : _hud.GetType().GetFriendlyName()));
             }
         }
+
+        public BaseRenderPanel OwningPanel => _owningPanel;
+
         public Viewport(BaseRenderPanel panel, int index)
         {
             if (index == 0)
@@ -154,7 +157,8 @@ namespace TheraEngine.Rendering
             }
             else
                 ViewportCountChanged(index, panel.Viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
-            
+
+            _owningPanel = panel;
             _index = index;
             Resize(panel.Width, panel.Height);
             UpdateRender();

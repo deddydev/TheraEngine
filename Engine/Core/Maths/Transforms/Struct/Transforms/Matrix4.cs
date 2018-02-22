@@ -25,7 +25,13 @@ namespace System
         public Vec3 UpVec { get => Row1.Xyz; set => Row1.Xyz = value; }
         public Vec3 ForwardVec { get => Row2.Xyz; set => Row2.Xyz = value; }
         public Vec3 Translation { get => Row3.Xyz; set => Row3.Xyz = value; }
-        
+        public Vec2 TranslationXy { get => Row3.Xy; set => Row3.Xy = value; }
+        public Vec2 TranslationXz { get => Row3.Xz; set => Row3.Xz = value; }
+        public Vec2 TranslationYz { get => Row3.Yz; set => Row3.Yz = value; }
+        public float TranslationX { get => Row3.X; set => Row3.X = value; }
+        public float TranslationY { get => Row3.Y; set => Row3.Y = value; }
+        public float TranslationZ { get => Row3.Z; set => Row3.Z = value; }
+
         public float* Data { get { fixed (Matrix4* p = &this) return (float*)p; } }
 
         public static readonly Matrix4 Identity = new Matrix4(Vec4.UnitX, Vec4.UnitY, Vec4.UnitZ, Vec4.UnitW);

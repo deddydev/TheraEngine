@@ -1,10 +1,10 @@
 ﻿using System;
+using TheraEngine.Components;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
-    public interface IBaseFuncExec
+    public interface IBaseFuncExec : IUIComponent
     {
-        Vec2 Translation { get; set; }
         void Arrange(int argumentIndex);
         void ClearConnection();
     }
@@ -37,16 +37,16 @@ namespace TheraEngine.Rendering.UI.Functions
         public Vec2 BezierToConnectedArgPoint(float time)
         {
             if (_connectedTo == null)
-                return Translation;
+                return ScreenTranslation;
 
-            return BezierToPointAsPoint(_connectedTo.Translation, time);
+            return BezierToPointAsPoint(_connectedTo.ScreenTranslation, time);
         }
         public Vec2[] BezierToConnectedArgPoints(int count)
         {
             if (_connectedTo == null)
                 return new Vec2[0];
 
-            return BezierToPointAsPoints(_connectedTo.Translation, count);
+            return BezierToPointAsPoints(_connectedTo.ScreenTranslation, count);
         }
     }
 }

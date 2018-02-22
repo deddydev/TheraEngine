@@ -10,6 +10,38 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Components
 {
+    public interface ISceneComponent
+    {
+        Matrix4 WorldMatrix { get; set; }
+        Matrix4 InverseWorldMatrix { get; set; }
+        Matrix4 LocalMatrix { get; }
+        Matrix4 InverseLocalMatrix { get; }
+        Scene3D OwningScene { get; set; }
+        World OwningWorld { get; }
+        IActor OwningActor { get; set; }
+        Vec3 LocalRightDir { get; }
+        Vec3 LocalUpDir { get; }
+        Vec3 LocalForwardDir { get; }
+        Vec3 LocalPoint { get; }
+        Vec3 WorldRightDir { get; }
+        Vec3 WorldUpDir { get; }
+        Vec3 WorldForwardDir { get; }
+        Vec3 WorldPoint { get; }
+        EventList<SceneComponent> ChildComponents { get; set; }
+
+        Matrix4 GetParentMatrix();
+        Matrix4 GetInverseParentMatrix();
+        Matrix4 GetActorTransform();
+        Matrix4 GetInvActorTransform();
+        
+        ISocket AttachTo(SkeletalMeshComponent mesh, string socketName);
+        ISocket AttachTo(StaticMeshComponent mesh, string socketName);
+        void AttachTo(SceneComponent component);
+        void DetachFromParent();
+
+        List<SceneComponent> GenerateChildCache();
+    }
+
     [FileExt("scomp")]
     public abstract class SceneComponent : Component, ISocket
     {
@@ -36,8 +68,11 @@ namespace TheraEngine.Components
                     OwningWorld.PhysicsWorld.UpdateSingleAabb(p.RigidBodyCollision);
             }
 
-            if (this is I3DBoundable r)
-                r.OctreeNode?.ItemMoved(r);
+            if (this is I2DBoundable r2d)
+                r2d.QuadtreeNode?.ItemMoved(r2d);
+
+            if (this is I3DBoundable r3d)
+                r3d.OctreeNode?.ItemMoved(r3d);
 
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();

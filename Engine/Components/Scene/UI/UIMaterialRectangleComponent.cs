@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.UI
             : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }
         public UIMaterialRectangleComponent(TMaterial material)
         {
-            VertexQuad quad = VertexQuad.PosZQuad(_region.Width, _region.Height, 0.0f, true);
+            VertexQuad quad = VertexQuad.PosZQuad(Width, Height, 0.0f, true);
             PrimitiveData quadData = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), quad);
             _quad = new PrimitiveManager(quadData, material);
         }
@@ -58,24 +58,13 @@ namespace TheraEngine.Rendering.UI
             BoundingRectangle r = base.Resize(parentRegion);
             VertexBuffer buffer = _quad.Data[0];
             Vec3* data = (Vec3*)buffer.Address;
-            data[0] = new Vec3(Region.BottomLeft, 0.0f);
-            data[1] = data[4] = new Vec3(Region.BottomRight, 0.0f);
-            data[2] = data[3] = new Vec3(Region.TopLeft, 0.0f);
-            data[5] = new Vec3(Region.TopRight, 0.0f);
+            data[0] = new Vec3(0.0f);
+            data[1] = data[4] = new Vec3(Width, 0.0f, 0.0f);
+            data[2] = data[3] = new Vec3(0.0f, Height, 0.0f);
+            data[5] = new Vec3(Width, Height, 0.0f);
             return r;
         }
-
-        public override void OnSpawned()
-        {
-            base.OnSpawned();
-        }
-
-        public override void OnDespawned()
-        {
-            base.OnDespawned();
-        }
-
-        public virtual void Render()
-            => _quad.Render(WorldMatrix, Matrix3.Identity);
+        
+        public virtual void Render() => _quad.Render(WorldMatrix, Matrix3.Identity);
     }
 }

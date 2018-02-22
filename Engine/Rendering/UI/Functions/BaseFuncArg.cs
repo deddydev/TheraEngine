@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering.UI.Functions
         /// <returns>The interpolated point.</returns>
         public Vec2 BezierToPointAsPoint(Vec2 point, float time)
         {
-            Vec2 p0 = Translation;
+            Vec2 p0 = ScreenTranslation;
 
             Vec2 p1 = p0;
             p1.X += IsOutput ? 10.0f : -10.0f;
@@ -32,13 +32,13 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p3 = point;
 
             Vec2 p2 = p3;
-            p2.X += Translation.X < point.X ? -10.0f : 10.0f;
+            p2.X += ScreenTranslation.X < point.X ? -10.0f : 10.0f;
 
             return Interp.CubicBezier(p0, p1, p2, p3, time);
         }
         public Vec2[] BezierToPointAsPoints(Vec2 point, int count)
         {
-            Vec2 p0 = Translation;
+            Vec2 p0 = ScreenTranslation;
 
             Vec2 p1 = p0;
             p1.X += IsOutput ? 10.0f : -10.0f;
@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Vec2 p3 = point;
 
             Vec2 p2 = p3;
-            p2.X += Translation.X < point.X ? -10.0f : 10.0f;
+            p2.X += ScreenTranslation.X < point.X ? -10.0f : 10.0f;
 
             return Interp.GetBezierPoints(p0, p1, p2, p3, count);
         }

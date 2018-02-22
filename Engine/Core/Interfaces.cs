@@ -90,7 +90,7 @@ namespace TheraEngine
     }
     public interface I2DBoundable
     {
-        BoundingRectangle AxisAlignedBounds { get; }
+        BoundingRectangle AxisAlignedRegion { get; }
         IQuadtreeNode QuadtreeNode { get; set; }
         bool IsRendering { get; set; }
         bool Contains(Vec2 point);
@@ -104,8 +104,18 @@ namespace TheraEngine
     }
     public interface IPanel
     {
-        BoundingRectangle Region { get; set; }
-        BoundingRectangle Resize(BoundingRectangle parentRegion);
+        Vec2 Size { get; set; }
+        float Height { get; set; }
+        float Width { get; set; }
+        Vec2 LocalTranslation { get; set; }
+        float LocalTranslationX { get; set; }
+        float LocalTranslationY { get; set; }
+        Vec2 Scale { get; set; }
+        float ScaleX { get; set; }
+        float ScaleY { get; set; }
+        Vec2 LocalOriginPercentage { get; set; }
+        Vec2 LocalOriginTranslation { get; set; }
+        Vec2 BottomLeftTranslation { get; set; }
     }
     public interface IBufferable
     {

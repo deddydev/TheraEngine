@@ -1,21 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Components;
 using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIComponent : OriginRebasableComponent, IPanel, I2DBoundable, IEnumerable<UIComponent>
+    public interface IUIComponent : ISceneComponent
     {
-        public UIComponent() : base()
-        {
-
-        }
+        Vec2 ScreenTranslation { get; }
+    }
+    public abstract class UIComponent : OriginRebasableComponent, IPanel, I2DBoundable, IEnumerable<UIComponent>
+    {
+        public UIComponent() : base() { }
 
         public IQuadtreeNode QuadtreeNode { get; set; }
 
@@ -24,107 +25,111 @@ namespace TheraEngine.Rendering.UI
 
         protected IQuadtreeNode _renderNode;
         protected bool _highlightable, _selectable, _scrollable;
-        protected ushort _layerIndex, _sameLayerIndex;
-        protected AnchorFlags _positionAnchorFlags;
-        protected BoundingRectangle _region = new BoundingRectangle();
-        protected Vec2 _translationLocalOrigin = Vec2.Zero;
-        protected Vec2 _scale = Vec2.One;
-        protected BoundingRectangle _axisAlignedBounds;
+        protected ushort _layerIndex, _indexWithinLayer;
+        protected Vec2 _localOriginPercentage = Vec2.Zero;
+        protected Vec2 _size = Vec2.Zero, _scale = Vec2.One;
+        protected BoundingRectangle _axisAlignedBounds = new BoundingRectangle();
         protected bool _isRendering;
 
-        [Category("Transform")]
-        public virtual BoundingRectangle Region
-        {
-            get => _region;
-            set
-            {
-                _region = value;
-                OnResized();
-            }
-        }
+        #region Bounds
         [Category("Transform")]
         public virtual Vec2 Size
         {
-            get => _region.Bounds;
+            get => _size;
             set
             {
-                _region.Bounds = value;
+                _size = value;
                 OnResized();
             }
         }
         [Category("Transform")]
         public virtual float Height
         {
-            get => _region.Height;
+            get => _size.Y;
             set
             {
-                _region.Height = value;
+                _size.Y = value;
                 OnResized();
             }
         }
         [Category("Transform")]
         public virtual float Width
         {
-            get => _region.Width;
+            get => _size.X;
             set
             {
-                _region.Width = value;
+                _size.X = value;
                 OnResized();
             }
         }
+        #endregion
+
+        #region Translation
+
+        [Browsable(false)]
         [Category("Transform")]
-        public virtual Vec2 Translation
+        public Vec2 ScreenTranslation => Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
+        
+        [Category("Transform")]
+        public virtual Vec2 LocalTranslation
         {
-            get => _region.Translation;
+            get => _localTransform.Translation.Xy;
             set
             {
-                _region.Translation = value;
+                _localTransform.TranslationXy = value;
+                RecalcLocalTransform();
+            }
+        }
+        [Category("Transform")]
+        public virtual float LocalTranslationX
+        {
+            get => _localTransform.TranslationX;
+            set
+            {
+                _localTransform.TranslationX = value;
+                RecalcLocalTransform();
+            }
+        }
+        [Category("Transform")]
+        public virtual float LocalTranslationY
+        {
+            get => _localTransform.TranslationY;
+            set
+            {
+                _localTransform.TranslationY = value;
                 RecalcLocalTransform();
             }
         }
         /// <summary>
-        /// The origin of the component's rotation angle, as a percentage.
+        /// The origin of the component's rotation and scale, as a percentage.
         /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
         /// </summary>
         [Category("Transform")]
-        public virtual Vec2 TranslationLocalOrigin
+        public virtual Vec2 LocalOriginPercentage
         {
-            get => _translationLocalOrigin;
+            get => _localOriginPercentage;
             set
             {
-                Vec2 diff = value - _translationLocalOrigin;
-                _region.X += diff.X;
-                _region.Y += diff.Y;
-                _translationLocalOrigin = value;
+                _localTransform.TranslationXy += (value - _localOriginPercentage) * Size;
+                _localOriginPercentage = value;
                 RecalcLocalTransform();
             }
         }
         [Category("Transform")]
-        public Vec2 BottomLeftTranslation
+        public virtual Vec2 LocalOriginTranslation
         {
-            get => new Vec2(TranslationX - _translationLocalOrigin.X * Width, TranslationY - _translationLocalOrigin.Y * Height);
-            set => Translation = value + _translationLocalOrigin * new Vec2(Width, Height);
+            get => LocalOriginPercentage * Size;
+            set => LocalOriginPercentage = value / Size;
         }
         [Category("Transform")]
-        public virtual float TranslationX
+        public virtual Vec2 BottomLeftTranslation
         {
-            get => _region.X;
-            set
-            {
-                _region.X = value;
-                RecalcLocalTransform();
-            }
+            get => LocalTranslation - LocalOriginTranslation;
+            set => LocalTranslation = value + LocalOriginTranslation;
         }
-        [Category("Transform")]
-        public virtual float TranslationY
-        {
-            get => _region.Y;
-            set
-            {
-                _region.Y = value;
-                RecalcLocalTransform();
-            }
-        }
+        #endregion
+
+        #region Scale
         [Category("Transform")]
         public virtual Vec2 Scale
         {
@@ -155,8 +160,9 @@ namespace TheraEngine.Rendering.UI
                 RecalcLocalTransform();
             }
         }
+        #endregion
 
-        public BoundingRectangle AxisAlignedBounds => _axisAlignedBounds;
+        public virtual BoundingRectangle AxisAlignedRegion => _axisAlignedBounds;
         public new IUIManager OwningActor
         {
             get => (IUIManager)base.OwningActor;
@@ -176,34 +182,20 @@ namespace TheraEngine.Rendering.UI
             set => _isRendering = value;
         }
         public ushort LayerIndex => _layerIndex;
-        public ushort SameLayerIndex => _sameLayerIndex;
-
-        public virtual void Translate(float x, float y)
-        {
-            _region.X += x;
-            _region.Y += y;
-            RecalcLocalTransform();
-        }
-
-        /// <summary>
-        /// Returns true if the given point, relative to the owning HudManager pawn's transform, is contained within this component.
-        /// </summary>
-        /// <param name="worldPoint"></param>
-        /// <returns></returns>
-        public bool Contains(Vec2 worldPoint)
-        {
-            return Contains(new Vec3(worldPoint, 0.0f));
-        }
+        public ushort IndexWithinLayer => _indexWithinLayer;
+        
+        public bool Contains(Vec2 screenPoint)
+            => Contains(Vec3.TransformPosition(screenPoint, GetActorTransform()));
         /// <summary>
         /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
         /// </summary>
         /// <param name="worldPoint"></param>
-        /// <param name="depthMargin">How far away the point can be on either side of the HUD for it to be considered close enough.</param>
+        /// <param name="zMargin">How far away the point can be on either side of the HUD for it to be considered close enough.</param>
         /// <returns></returns>
-        public bool Contains(Vec3 worldPoint, float depthMargin = 0.5f)
+        public bool Contains(Vec3 worldPoint, float zMargin = 0.5f)
         {
-            Vec3 localPoint = Vec3.TransformPosition(worldPoint, _inverseWorldTransform);
-            return Math.Abs(localPoint.Z) < depthMargin && Region.Contains(localPoint.Xy);
+            Vec3 localPoint = Vec3.TransformPosition(worldPoint, InverseWorldMatrix);
+            return Math.Abs(localPoint.Z) < zMargin && Size.Contains(localPoint.Xy);
         }
 
         public override void OnSpawned()
@@ -220,30 +212,8 @@ namespace TheraEngine.Rendering.UI
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(
-                new Vec3(ScaleX, ScaleY, 1.0f),
-                Quat.Identity,
-                new Vec3(BottomLeftTranslation),
-                TransformOrder.TRS);
-
-            inverseLocalTransform = Matrix4.TransformMatrix(
-                new Vec3(1.0f / ScaleX, 1.0f / ScaleY, 1.0f),
-                Quat.Identity,
-                new Vec3(-BottomLeftTranslation),
-                TransformOrder.SRT);
-        }
-        internal override void RecalcGlobalTransform()
-        {
-            Matrix4 parentTransform = GetParentMatrix();
-            Matrix4 invParentTransform = GetInverseParentMatrix();
-            
-            _worldTransform = parentTransform * _localTransform;
-            _inverseWorldTransform = _inverseLocalTransform * invParentTransform;
-
-            _renderNode?.ItemMoved(this);
-
-            foreach (UIComponent c in _children)
-                c.RecalcGlobalTransform();
+            localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Quat.Identity, LocalTranslation - LocalOriginTranslation, TransformOrder.TRS);
+            inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Quat.Identity, -LocalTranslation + LocalOriginTranslation, TransformOrder.SRT);
         }
         protected virtual void OnChildAdded(UIComponent child)
         {
@@ -275,16 +245,14 @@ namespace TheraEngine.Rendering.UI
         }
         protected virtual void OnResized()
         {
+            _axisAlignedBounds.Translation = Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
+            _axisAlignedBounds.Bounds = Size;
             RecalcLocalTransform();
         }
-        /// <summary>
-        /// Returns the available real estate for the next components to use.
-        /// </summary>
         public virtual BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
-            BoundingRectangle region = Region;
             foreach (UIComponent c in _children)
-                region = c.Resize(region);
+                c.Resize(parentRegion);
             return parentRegion;
         }
         public UIComponent FindComponent(Vec2 viewportPoint)

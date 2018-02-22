@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TheraEngine.Components;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
-    public interface IBaseFuncValue
+    public interface IBaseFuncValue : IUIComponent
     {
-        Vec2 Translation { get; set; }
         void Arrange(int argumentIndex);
         int CurrentArgumentType { get; }
         int[] AllowedArgumentTypes { get; }

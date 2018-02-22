@@ -69,7 +69,7 @@ namespace TheraEngine.Rendering.UI.Functions
         /// <returns>The interpolated point.</returns>
         public Vec2 BezierToPoint(Vec2 otherPoint, float time)
         {
-            Vec2 p0 = Translation;
+            Vec2 p0 = ScreenTranslation;
 
             Vec2 p1 = p0;
             p1.X += 10.0f;
@@ -93,9 +93,9 @@ namespace TheraEngine.Rendering.UI.Functions
                 argIndex >= _connectedTo.Count ||
                 argIndex < 0 ||
                 _connectedTo[argIndex] == null)
-                return Translation;
+                return ScreenTranslation;
 
-            return BezierToPoint((_connectedTo[argIndex]).Translation, time);
+            return BezierToPoint((_connectedTo[argIndex]).ScreenTranslation, time);
         }
         public override bool CanConnectTo(TInput other)
         {

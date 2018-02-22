@@ -294,11 +294,11 @@
     <Compile Include="Components\Scene\UI\Text\RichTextBoxHudComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\TextHudComponent.cs" />
     <Compile Include="Components\Scene\UI\UI3DComponent.cs" />
-    <Compile Include="Components\Scene\UI\UIComponent.cs" />
-    <Compile Include="Components\Scene\UI\UIDockableComponent.cs" />
+    <Compile Include="Components\Scene\UI\Base UI Components\UIComponent.cs" />
+    <Compile Include="Components\Scene\UI\Base UI Components\UIDockableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIManager.cs" />
     <Compile Include="Components\Scene\UI\UIMaterialRectangleComponent.cs" />
-    <Compile Include="Components\Scene\UI\UIRotatableComponent.cs" />
+    <Compile Include="Components\Scene\UI\Base UI Components\UIRotatableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
     <Compile Include="Core\Controls\BasicRenderPanel.cs">
       <SubType>UserControl</SubType>

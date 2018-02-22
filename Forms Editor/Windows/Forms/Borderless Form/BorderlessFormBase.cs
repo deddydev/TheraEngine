@@ -41,7 +41,7 @@ namespace BorderlessForm
         {
             base.OnHandleCreated(e);
 
-            if (!DesignMode)
+            //if (!DesignMode)
                 SetWindowRegion(Handle, 0, 0, Width, Height);
         }
 
@@ -62,11 +62,11 @@ namespace BorderlessForm
         
         protected override void WndProc(ref Message m)
         {
-            if (DesignMode)
-            {
-                base.WndProc(ref m);
-                return;
-            }
+            //if (DesignMode)
+            //{
+            //    base.WndProc(ref m);
+            //    return;
+            //}
 
             switch (m.Msg)
             {

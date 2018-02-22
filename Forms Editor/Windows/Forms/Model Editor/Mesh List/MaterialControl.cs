@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -121,7 +122,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            if (DesignMode)
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
                 return;
 
             float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
@@ -146,7 +147,7 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            if (!DesignMode)
+            if (LicenseManager.UsageMode == LicenseUsageMode.Runtime)
                 basicRenderPanel1.UnregisterTick();
 
             base.OnHandleDestroyed(e);
@@ -163,7 +164,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _material = value;
 
-                if (DesignMode)
+                if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
                     return;
 
                 tblUniforms.Controls.Clear();

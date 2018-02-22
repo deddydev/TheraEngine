@@ -313,7 +313,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     hitNormal = Vec3.Up;// v.Camera.GetUpVector();
                     float depth = TMath.DistanceToDepth(_draggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
-                    _hitPoint = v.ScreenToWorld(v.ToInternalResCoords(viewportPoint), depth);
+                    _hitPoint = v.ScreenToWorld(viewportPoint, depth);
                 }
                 else if (p != null)
                 {

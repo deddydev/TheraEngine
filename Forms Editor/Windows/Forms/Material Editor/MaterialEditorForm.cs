@@ -11,6 +11,7 @@ namespace TheraEditor.Windows.Forms
         public MaterialEditorForm()
         {
             InitializeComponent();
+            dockPanel1.Theme = new TheraEditorTheme();
         }
         protected override void OnLoad(EventArgs e)
         {

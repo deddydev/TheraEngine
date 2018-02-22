@@ -70,6 +70,16 @@ namespace TheraEngine
         /// The render panel that is currently being rendered to.
         /// </summary>
         public static BaseRenderPanel RenderingPanel => RenderContext.Captured?.Control;
+        
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        CreateParams cp = base.CreateParams;
+        //        cp.ExStyle = cp.ExStyle | 0x2000000;
+        //        return cp;
+        //    }
+        //}
 
         public BaseRenderPanel()
         {

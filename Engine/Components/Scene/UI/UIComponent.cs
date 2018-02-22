@@ -33,7 +33,7 @@ namespace TheraEngine.Rendering.UI
         protected bool _isRendering;
 
         [Category("Transform")]
-        public BoundingRectangle Region
+        public virtual BoundingRectangle Region
         {
             get => _region;
             set
@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public Vec2 Size
+        public virtual Vec2 Size
         {
             get => _region.Bounds;
             set
@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public float Height
+        public virtual float Height
         {
             get => _region.Height;
             set
@@ -63,7 +63,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public float Width
+        public virtual float Width
         {
             get => _region.Width;
             set
@@ -73,7 +73,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public Vec2 Translation
+        public virtual Vec2 Translation
         {
             get => _region.Translation;
             set
@@ -102,18 +102,11 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public Vec2 BottomLeftTranslation
         {
-            get => new Vec2(
-                TranslationX - _translationLocalOrigin.X * Width,
-                TranslationY - _translationLocalOrigin.Y * Height);
-            set
-            {
-                TranslationX = value.X + _translationLocalOrigin.X * Width;
-                TranslationY = value.Y + _translationLocalOrigin.Y * Height;
-                RecalcLocalTransform();
-            }
+            get => new Vec2(TranslationX - _translationLocalOrigin.X * Width, TranslationY - _translationLocalOrigin.Y * Height);
+            set => Translation = value + _translationLocalOrigin * new Vec2(Width, Height);
         }
         [Category("Transform")]
-        public float TranslationX
+        public virtual float TranslationX
         {
             get => _region.X;
             set
@@ -123,7 +116,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public float TranslationY
+        public virtual float TranslationY
         {
             get => _region.Y;
             set
@@ -133,7 +126,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public Vec2 Scale
+        public virtual Vec2 Scale
         {
             get => _scale;
             set
@@ -143,7 +136,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public float ScaleX
+        public virtual float ScaleX
         {
             get => _scale.X;
             set
@@ -153,7 +146,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public float ScaleY
+        public virtual float ScaleY
         {
             get => _scale.Y;
             set
@@ -185,15 +178,21 @@ namespace TheraEngine.Rendering.UI
         public ushort LayerIndex => _layerIndex;
         public ushort SameLayerIndex => _sameLayerIndex;
 
+        public virtual void Translate(float x, float y)
+        {
+            _region.X += x;
+            _region.Y += y;
+            RecalcLocalTransform();
+        }
+
         /// <summary>
         /// Returns true if the given point, relative to the owning HudManager pawn's transform, is contained within this component.
         /// </summary>
-        /// <param name="point"></param>
+        /// <param name="worldPoint"></param>
         /// <returns></returns>
-        public bool Contains(Vec2 point)
+        public bool Contains(Vec2 worldPoint)
         {
-            Vec3 transformedPoint = new Vec3(point, 0.0f) * OwningActor.RootComponent.InverseWorldMatrix;
-            return Contains(transformedPoint);
+            return Contains(new Vec3(worldPoint, 0.0f));
         }
         /// <summary>
         /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
@@ -203,7 +202,7 @@ namespace TheraEngine.Rendering.UI
         /// <returns></returns>
         public bool Contains(Vec3 worldPoint, float depthMargin = 0.5f)
         {
-            Vec3 localPoint = worldPoint * _inverseWorldTransform;
+            Vec3 localPoint = Vec3.TransformPosition(worldPoint, _inverseWorldTransform);
             return Math.Abs(localPoint.Z) < depthMargin && Region.Contains(localPoint.Xy);
         }
 
@@ -276,7 +275,7 @@ namespace TheraEngine.Rendering.UI
         }
         protected virtual void OnResized()
         {
-            
+            RecalcLocalTransform();
         }
         /// <summary>
         /// Returns the available real estate for the next components to use.

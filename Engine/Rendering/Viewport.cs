@@ -186,7 +186,6 @@ namespace TheraEngine.Rendering
             PostProcessFBO?.ResizeTextures(w, h);
 
             _worldCamera?.Resize(w, h);
-            HUD?.Resize(_internalResolution.Bounds);
         }
 
         public void Resize(
@@ -208,6 +207,7 @@ namespace TheraEngine.Rendering
                 _region.Width * internalResolutionWidthScale, 
                 _region.Height * internalResolutionHeightScale);
 
+            HUD?.Resize(_region.Bounds);
             if (Camera is PerspectiveCamera p)
                 p.Aspect = _region.Width / _region.Height;
         }
@@ -250,11 +250,15 @@ namespace TheraEngine.Rendering
 
         #region Coordinate conversion
         public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
-            => _worldCamera.ScreenToWorld(viewportPoint, depth);
+            => _worldCamera.ScreenToWorld(ToInternalResCoords(viewportPoint), depth);
         public Vec3 ScreenToWorld(Vec3 viewportPoint)
-            => _worldCamera.ScreenToWorld(viewportPoint);
+            => _worldCamera.ScreenToWorld(ToInternalResCoords(viewportPoint.Xy), viewportPoint.Z);
         public Vec3 WorldToScreen(Vec3 worldPoint)
-            => _worldCamera.WorldToScreen(worldPoint);
+        {
+            Vec3 screenPoint = _worldCamera.WorldToScreen(worldPoint);
+            screenPoint.Xy = FromInternalResCoords(screenPoint.Xy);
+            return screenPoint;
+        }
         public Vec2 AbsoluteToRelative(Vec2 absolutePoint) => new Vec2(absolutePoint.X - _region.X, absolutePoint.Y - _region.Y);
         public Vec2 RelativeToAbsolute(Vec2 viewportPoint) => new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y);
         /// <summary>

@@ -673,7 +673,6 @@
     <Compile Include="Wrappers\WorldWrapper.cs" />
     <Compile Include="Wrappers\FolderWrapper.cs" />
     <Compile Include="Wrappers\FileWrapper.cs" />
-    <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="ThirdParty\Graphing\PlotterGraphEx.resx">
       <DependentUpon>PlotterGraphEx.cs</DependentUpon>
       <SubType>Designer</SubType>

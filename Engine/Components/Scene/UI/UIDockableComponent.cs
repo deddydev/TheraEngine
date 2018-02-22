@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
@@ -57,6 +58,124 @@ namespace TheraEngine.Rendering.UI
         public UIDockableComponent()
         {
             DockStyle = HudDockStyle.Fill;
+        }
+
+        [Category("Transform")]
+        public override BoundingRectangle Region
+        {
+            get => _region;
+            set
+            {
+                _region = value;
+                OnResized();
+            }
+        }
+        [Category("Transform")]
+        public override Vec2 Size
+        {
+            get => _region.Bounds;
+            set
+            {
+                _region.Bounds = value;
+                OnResized();
+            }
+        }
+        [Category("Transform")]
+        public override float Height
+        {
+            get => _region.Height;
+            set
+            {
+                _region.Height = value;
+                OnResized();
+            }
+        }
+        [Category("Transform")]
+        public override float Width
+        {
+            get => _region.Width;
+            set
+            {
+                _region.Width = value;
+                OnResized();
+            }
+        }
+        [Category("Transform")]
+        public override Vec2 Translation
+        {
+            get => _region.Translation;
+            set
+            {
+                _region.Translation = value;
+                RecalcLocalTransform();
+            }
+        }
+        /// <summary>
+        /// The origin of the component's rotation angle, as a percentage.
+        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
+        /// </summary>
+        [Category("Transform")]
+        public override Vec2 TranslationLocalOrigin
+        {
+            get => _translationLocalOrigin;
+            set
+            {
+                Vec2 diff = value - _translationLocalOrigin;
+                _region.X += diff.X;
+                _region.Y += diff.Y;
+                _translationLocalOrigin = value;
+                RecalcLocalTransform();
+            }
+        }
+        [Category("Transform")]
+        public override float TranslationX
+        {
+            get => _region.X;
+            set
+            {
+                _region.X = value;
+                RecalcLocalTransform();
+            }
+        }
+        [Category("Transform")]
+        public override float TranslationY
+        {
+            get => _region.Y;
+            set
+            {
+                _region.Y = value;
+                RecalcLocalTransform();
+            }
+        }
+        [Category("Transform")]
+        public override Vec2 Scale
+        {
+            get => _scale;
+            set
+            {
+                _scale = value;
+                RecalcLocalTransform();
+            }
+        }
+        [Category("Transform")]
+        public override float ScaleX
+        {
+            get => _scale.X;
+            set
+            {
+                _scale.X = value;
+                RecalcLocalTransform();
+            }
+        }
+        [Category("Transform")]
+        public override float ScaleY
+        {
+            get => _scale.Y;
+            set
+            {
+                _scale.Y = value;
+                RecalcLocalTransform();
+            }
         }
 
         public class SizeableElement
@@ -335,12 +454,11 @@ namespace TheraEngine.Rendering.UI
                     leftOver = RegionDockComplement(parentRegion, Region);
             }
 
-
             RecalcLocalTransform();
 
             BoundingRectangle region = Region;
 
-            Engine.PrintLine("Resized {0} to {0}", prevRegion, region);
+            //Engine.PrintLine("Resized {0} to {0}", prevRegion, region);
 
             foreach (UIComponent c in _children)
                 region = c.Resize(region);

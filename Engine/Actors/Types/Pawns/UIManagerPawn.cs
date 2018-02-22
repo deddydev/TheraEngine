@@ -34,14 +34,14 @@ namespace TheraEngine.Actors.Types.Pawns
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickOnlyWhenPaused);
-            input.RegisterMouseMove(OnMouseMove, false, EInputPauseType.TickOnlyWhenPaused);
+            input.RegisterMouseMove(MouseMove, false, EInputPauseType.TickOnlyWhenPaused);
             //input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
 
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, EInputPauseType.TickOnlyWhenPaused);
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false, EInputPauseType.TickOnlyWhenPaused);
-            input.RegisterButtonEvent(GamePadButton.DPadUp, ButtonInputType.Pressed, OnDPadUp, EInputPauseType.TickOnlyWhenPaused);
+            //input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, EInputPauseType.TickOnlyWhenPaused);
+            //input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false, EInputPauseType.TickOnlyWhenPaused);
+            //input.RegisterButtonEvent(GamePadButton.DPadUp, ButtonInputType.Pressed, OnDPadUp, EInputPauseType.TickOnlyWhenPaused);
             //input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickOnlyWhenPaused);
-            input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, EInputPauseType.TickOnlyWhenPaused);
+            //input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, EInputPauseType.TickOnlyWhenPaused);
         }
 
         protected virtual void OnLeftStickX(float value) { }
@@ -55,7 +55,7 @@ namespace TheraEngine.Actors.Types.Pawns
         //{
             //_focusedComponent?.OnSelect();
         //}
-        protected void OnScrolledInput(bool up)
+        protected virtual void OnScrolledInput(bool up)
         {
             //_focusedComponent?.OnScrolled(up);
         }
@@ -68,7 +68,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         }
 
-        protected virtual void OnMouseMove(float x, float y)
+        protected virtual void MouseMove(float x, float y)
         {
             _cursorPos.X = x;
             _cursorPos.Y = y;

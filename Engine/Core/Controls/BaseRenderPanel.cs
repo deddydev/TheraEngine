@@ -83,12 +83,15 @@ namespace TheraEngine
 
         public BaseRenderPanel()
         {
+            ResizeRedraw = true;
+
             //Force custom paint
             SetStyle(
                 ControlStyles.UserPaint |
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.Opaque,
                 true);
+            UpdateStyles();
 
             //_globalHud = new UIManager();
             PointToClientDelegate = new DelPointConvert(PointToClient);
@@ -111,7 +114,7 @@ namespace TheraEngine
         internal DelPointConvert PointToScreenDelegate;
 
         protected bool _resizing = false;
-        protected VSyncMode _vsyncMode = VSyncMode.Disabled;
+        protected VSyncMode _vsyncMode = VSyncMode.Adaptive;
         internal RenderContext _context;
         //protected UIManager _globalHud;
         protected List<Viewport> _viewports = new List<Viewport>(4);
@@ -354,8 +357,8 @@ namespace TheraEngine
         }
         public void CreateContext()
         {
-            if (DesignMode)
-                return;
+            //if (DesignMode)
+            //    return;
 
             switch (Engine.RenderLibrary)
             {
@@ -367,7 +370,7 @@ namespace TheraEngine
                     _context = new GLWindowContext(this);
 
                     break;
-                case RenderLibrary.Direct3D11:
+                case RenderLibrary.Direct3D12:
                     if (_context is DXWindowContext)
                         return;
 
@@ -390,8 +393,6 @@ namespace TheraEngine
         {
             if (_context != null)
             {
-                Resize -= _context.OnResized;
-                _context.Unbind();
                 _context.Dispose();
                 _context = null;
             }

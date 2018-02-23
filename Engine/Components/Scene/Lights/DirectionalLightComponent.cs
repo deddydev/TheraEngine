@@ -12,7 +12,18 @@ namespace TheraEngine.Components.Scene.Lights
     [FileDef("Directional Light Component")]
     public class DirectionalLightComponent : LightComponent
     {
+        [TSerialize(nameof(ShadowMapResolutionWidth))]
+        private int _shadowWidth = 4096;
+        [TSerialize(nameof(ShadowMapResolutionHeight))]
+        private int _shadowHeight = 4096;
+        [TSerialize(nameof(WorldRadius))]
         private float _worldRadius;
+
+        private MaterialFrameBuffer _shadowMap = null;
+        private OrthographicCamera _shadowCamera = null;
+        private Vec3 _direction;
+
+        [Category("Directional Light Component")]
         public float WorldRadius
         {
             get => _worldRadius;
@@ -28,11 +39,6 @@ namespace TheraEngine.Components.Scene.Lights
                 }
             }
         }
-
-        private int _shadowWidth, _shadowHeight;
-        private MaterialFrameBuffer _shadowMap;
-        private OrthographicCamera _shadowCamera;
-        private Vec3 _direction;
 
         [Category("Directional Light Component")]
         public int ShadowMapResolutionWidth
@@ -99,8 +105,9 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 OwningScene.Lights.Add(this);
 
-                WorldRadius = OwningWorld.Settings.Bounds.HalfExtents.LengthFast;
-                SetShadowMapResolution(4096, 4096);
+                if (_shadowMap == null)
+                    SetShadowMapResolution(_shadowWidth, _shadowHeight);
+
                 _shadowCamera.LocalPoint.Raw = WorldPoint;
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
             }

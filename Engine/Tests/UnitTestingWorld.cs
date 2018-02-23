@@ -14,6 +14,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Worlds.Maps;
 using TheraEngine.Rendering;
+using TheraEngine.Actors.Types.Lights;
 
 namespace TheraEngine.Tests
 {
@@ -32,6 +33,7 @@ namespace TheraEngine.Tests
             ColorF4 floorColor = Color.Gray;
             float diam = radius * 2.0f;
             float originDist = diam + margin;
+            BoundingBox bounds = new BoundingBox(1000.0f);
 
             List<IActor> actors = new List<IActor>();
             IActor actor;
@@ -106,15 +108,14 @@ namespace TheraEngine.Tests
                 float lightAngle = 360.0f / dirLights;
                 for (int i = 0; i < dirLights; ++i)
                 {
-                    DirectionalLightComponent dir = new DirectionalLightComponent()
-                    {
-                        LightColor = (ColorF3)Color.White,
-                        DiffuseIntensity = 1.0f,
-                        AmbientIntensity = 0.0f,
-                    };
+                    DirectionalLightActor dirlight = new DirectionalLightActor();
+                    DirectionalLightComponent dir = dirlight.RootComponent;
+                    dir.LightColor = (ColorF3)Color.White;
+                    dir.DiffuseIntensity = 1.0f;
+                    dir.AmbientIntensity = 0.0f;
+                    dir.WorldRadius = bounds.HalfExtents.LengthFast;
                     dir.Rotation.Pitch = -35.0f;
                     dir.Rotation.Yaw = lightAngle * i;
-                    Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>(dir);
                     actors.Add(dirlight);
                 }
             }
@@ -185,7 +186,7 @@ namespace TheraEngine.Tests
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {
-                Bounds = new BoundingBox(1000.0f),
+                Bounds = bounds,
                 OriginRebaseBounds = new BoundingBox(50.0f),
                 EnableOriginRebasing = false,
             };

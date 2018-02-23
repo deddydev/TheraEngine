@@ -90,12 +90,8 @@ namespace TheraEngine.Rendering.UI.Functions
             AddInput(GetValueInputs());
             AddOutput(GetValueOutputs());
             RenderInfo.LayerIndex = 2;
-            Size = new Vec2(10.0f, 10.0f);
+            Size = new Vec2(100.0f, 50.0f);
             DockStyle = HudDockStyle.None;
-            _width.SizingMode = SizingMode.Pixels;
-            _height.SizingMode = SizingMode.Pixels;
-            _width.Value = 100.0f;
-            _height.Value = 50.0f;
         }
 
         private static TMaterial MakeFunctionMaterial()

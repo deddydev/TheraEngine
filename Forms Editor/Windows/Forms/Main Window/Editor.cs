@@ -273,10 +273,13 @@ namespace TheraEditor.Windows.Forms
                 }
 
                 Engine.SetCurrentWorld(value, true, false);
-                btnWorldSettings.Enabled = Engine.World != null;
+
+                bool isNull = Engine.World == null;
+
+                btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = !isNull;
 
                 GenerateInitialActorList();
-                if (Engine.World != null)
+                if (!isNull)
                 {
                     Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
                     Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
@@ -511,6 +514,15 @@ namespace TheraEditor.Windows.Forms
         public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; }
             = new GlobalFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
 
+        public void ClearDockPanel()
+        {
+            foreach (IDockContent document in DockPanel.Contents.ToArray())
+            {
+                document.DockHandler.DockPanel = null;
+                document.DockHandler.Close();
+            }
+        }
+
         private bool CloseProject()
         {
             if (_project != null)
@@ -535,15 +547,6 @@ namespace TheraEditor.Windows.Forms
             }
             return true;
         }
-        public void ClearDockPanel()
-        {
-            foreach (IDockContent document in DockPanel.Contents.ToArray())
-            {
-                document.DockHandler.DockPanel = null;
-                document.DockHandler.Close();
-            }
-        }
-        private void BtnNewProject_Click(object sender, EventArgs e) => CreateNewProject();
         /// <summary>
         /// Asks the user to select a folder to create a new project in, creates it there, and then loads it for editing.
         /// Closes the currently opened project if there is one.
@@ -571,27 +574,6 @@ namespace TheraEditor.Windows.Forms
 
             if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
                 Project = TFileObject.Load<Project>(ofd.FileName);
-        }
-        private void BtnOpenProject_Click(object sender, EventArgs e) => OpenProject();
-        private void BtnSaveProject_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(_project.FilePath))
-            {
-                BtnSaveProjectAs_Click(sender, e);
-                return;
-            }
-            _project.Export();
-        }
-        private void BtnSaveProjectAs_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog sfd = new SaveFileDialog()
-            {
-                Filter = TFileObject.GetFilter<Project>(),
-            };
-            if (sfd.ShowDialog() == DialogResult.OK)
-            {
-                _project.Export(sfd.FileName);
-            }
         }
         private void BtnProjectSettings_Click(object sender, EventArgs e)
         {
@@ -962,6 +944,103 @@ namespace TheraEditor.Windows.Forms
         public List<EditorState> GetDirtyFiles()
         {
             throw new NotImplementedException();
+        }
+
+        private void BtnNewProject_Click(object sender, EventArgs e) => CreateNewProject();
+        private void BtnOpenProject_Click(object sender, EventArgs e) => OpenProject();
+        private void BtnSaveProject_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_project.FilePath))
+            {
+                BtnSaveProjectAs_Click(sender, e);
+                return;
+            }
+            _project.Export();
+        }
+        private void BtnSaveProjectAs_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                Filter = TFileObject.GetFilter<Project>(),
+            };
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                _project.Export(sfd.FileName);
+            }
+        }
+        private void newToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            CreateNewWorld();
+        }
+        private void openToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenWorld();
+        }
+        private void saveToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (CurrentWorld == null)
+                return;
+
+            if (string.IsNullOrEmpty(CurrentWorld.FilePath))
+            {
+                saveAsToolStripMenuItem1_Click(sender, e);
+                return;
+            }
+            CurrentWorld.Export();
+        }
+
+        private void saveAsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (CurrentWorld == null)
+                return;
+
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                Filter = TFileObject.GetFilter<World>(),
+            };
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                CurrentWorld.Export(sfd.FileName);
+            }
+        }
+        private bool CloseWorld()
+        {
+            if (CurrentWorld != null)
+            {
+                if (CurrentWorld.EditorState != null && CurrentWorld.EditorState.HasChanges)
+                {
+                    DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                    if (r == DialogResult.Cancel)
+                        return false;
+                    else if (r == DialogResult.Yes)
+                        CurrentWorld.Export();
+                }
+
+                CurrentWorld.EditorState = null;
+                CurrentWorld = null;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Creates and loads a new world for editing.
+        /// Closes the currently opened world if there is one.
+        /// </summary>
+        public void CreateNewWorld()
+        {
+            if (!CloseWorld())
+                return;
+
+            CurrentWorld = new World();
+        }
+        public void OpenWorld()
+        {
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = TFileObject.GetFilter<World>(),
+            };
+
+            if (ofd.ShowDialog() == DialogResult.OK && CloseWorld())
+                CurrentWorld = TFileObject.Load<World>(ofd.FileName);
         }
     }
 }

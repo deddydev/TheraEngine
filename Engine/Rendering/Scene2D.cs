@@ -161,7 +161,7 @@ namespace TheraEngine.Rendering
                     //Render the last pass to the actual screen resolution
                     Engine.Renderer.PushRenderArea(v.Region);
                     {
-                        Engine.Renderer.CropRenderArea(v.Region);
+                        //Engine.Renderer.CropRenderArea(v.Region);
                         //v.PostProcessFBO.Render();
                         Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 

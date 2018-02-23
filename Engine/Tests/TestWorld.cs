@@ -21,6 +21,11 @@ namespace TheraEngine.Tests
     {
         internal protected override void OnLoaded()
         {
+            Settings = new WorldSettings("TestWorld")
+            {
+                Bounds = BoundingBox.FromHalfExtentsTranslation(new Vec3(200.0f), Vec3.Zero),
+            };
+
             List<IActor> actors = new List<IActor>();
             IActor actor;
 
@@ -135,7 +140,10 @@ namespace TheraEngine.Tests
             //floorActor1.RootComponent.AddAnimation(lightAnimContainer, true, ETickGroup.PostPhysics, ETickOrder.BoneAnimation, InputPauseType.TickOnlyWhenUnpaused);
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                (ColorF3)Color.Beige, 1.0f, 0.0f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
+                (ColorF3)Color.Beige, 1.0f, 0.0f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR))
+            {
+                WorldRadius = Settings.Bounds.HalfExtents.LengthFast
+            };
             actor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
             actors.Add(actor);
 
@@ -269,10 +277,6 @@ namespace TheraEngine.Tests
             //ModelScene gunScene = dae.Models[0];
             //Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
 
-            Settings = new WorldSettings("TestWorld")
-            {
-                Bounds = BoundingBox.FromHalfExtentsTranslation(new Vec3(200.0f), Vec3.Zero),
-            };
             Settings.GameModeOverrideRef = new TestGameMode();// new GameMode<FlyingCameraPawn>();
             Settings.Maps.Add(new Map(new MapSettings(true, Vec3.Zero, actors)));
             //Settings.Maps[0].File.Settings.StaticActors.AddRange(array);

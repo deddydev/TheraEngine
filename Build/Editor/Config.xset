@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <EditorSettings AssemblyType="TheraEditor.EditorSettings, Forms Editor, Version=1.3.0.0, Culture=neutral, PublicKeyToken=null">
-	<EngineDefaults ReferencePath="">
+	<EngineSettingsRef ReferencePath="">
 		<File>
 			<ShadingStyle3D>Deferred</ShadingStyle3D>
 			<SkinOnGPU>False</SkinOnGPU>
@@ -19,17 +19,18 @@
 			<ShadersFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Shaders</ShadersFolder>
 			<TexturesFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Textures</TexturesFolder>
 		</File>
-	</EngineDefaults>
-	<PropertyGrid ReferencePath="">
+	</EngineSettingsRef>
+	<PropertyGridRef ReferencePath="">
 		<File>
 			<SplitCamelCase>True</SplitCamelCase>
 			<UpdateRateInSeconds>0.2</UpdateRateInSeconds>
 			<IgnoreLoneSubCategories>True</IgnoreLoneSubCategories>
+			<CollapsedCategories Count="0" />
 		</File>
-	</PropertyGrid>
-	<Controls ReferencePath="">
+	</PropertyGridRef>
+	<ControlSettingsRef ReferencePath="">
 		<File />
-	</Controls>
+	</ControlSettingsRef>
 	<DockConfigPath>\DockPanel.config</DockConfigPath>
 	<RecentlyOpenedProjectPaths Count="0" />
 </EditorSettings>

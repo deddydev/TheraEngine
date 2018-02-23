@@ -1,4 +1,4 @@
-﻿using SlimDX.XInput;
+﻿using SharpDX.XInput;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,7 +13,7 @@ namespace TheraEngine.Input.Devices.DirectX
 
         public DXGamepad(int index) : base(index)
         {
-            _controller = new Controller(UserIndex.One + index);
+            _controller = new Controller(UserIndex.One + (byte)index);
         }
 
         public override void Vibrate(float lowFreq, float highFreq)

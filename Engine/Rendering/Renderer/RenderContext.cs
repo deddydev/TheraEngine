@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering
             public abstract bool IsCurrent();
             public abstract bool IsContextDisposed();
             public abstract void OnSwapBuffers();
-            public abstract void OnUpdated();
+            public abstract void OnResized(Vec2 size);
             public abstract void SetCurrent(bool current);
             public abstract void Dispose();
             internal abstract void VsyncChanged(VSyncMode vsyncMode);
@@ -88,7 +88,11 @@ namespace TheraEngine.Rendering
             BoundContexts.Add(this);
         }
 
-        internal abstract void OnResized(object sender, EventArgs e);
+        private void OnResized(object sender, EventArgs e)
+        {
+            OnResized();
+            //_control.Invalidate();
+        }
 
         protected void GetCurrentSubContext()
         {
@@ -122,10 +126,33 @@ namespace TheraEngine.Rendering
 
         internal abstract AbstractRenderer GetRendererInstance();
 
+        public bool IsCurrent()
+        {
+            GetCurrentSubContext();
+            return _currentSubContext.IsCurrent();
+        }
+        public bool IsContextDisposed()
+        {
+            GetCurrentSubContext();
+            return _currentSubContext.IsContextDisposed();
+        }
+        protected void OnSwapBuffers()
+        {
+            GetCurrentSubContext();
+            _currentSubContext.OnSwapBuffers();
+        }
+        protected void OnResized()
+        {
+            GetCurrentSubContext();
+            _currentSubContext.OnResized(_control.ClientSize);
+        }
+        public void SetCurrent(bool current)
+        {
+            GetCurrentSubContext();
+            _currentSubContext.SetCurrent(current);
+        }
+
         public abstract void ErrorCheck();
-        public abstract bool IsCurrent();
-        public abstract bool IsContextDisposed();
-        public abstract void SetCurrent(bool current);
         public void Capture(bool force = false)
         {
             try
@@ -156,7 +183,6 @@ namespace TheraEngine.Rendering
             Capture();
             OnSwapBuffers();
         }
-        protected abstract void OnSwapBuffers();
         public void Reset()
         {
             if (_resetting) //Prevent a possible infinite loop
@@ -179,15 +205,14 @@ namespace TheraEngine.Rendering
         public void Update()
         {
             if (Captured == this)
-                OnUpdated();
+                OnResized();
         }
-        protected abstract void OnUpdated();
 
         public abstract void Flush();
         public abstract void Initialize();
         public abstract void BeginDraw();
         public abstract void EndDraw();
-        public virtual void Unbind() { }
+        //public virtual void Unbind() { }
 
         #region IDisposable Support
         protected bool _disposedValue = false; // To detect redundant calls
@@ -199,12 +224,15 @@ namespace TheraEngine.Rendering
                 if (disposing)
                 {
                     Capture();
+                    //Unbind();
                     foreach (BaseRenderState.ContextBind state in States)
                         state.Destroy();
                     States.Clear();
                     if (BoundContexts.Contains(this))
                         BoundContexts.Remove(this);
                     Release();
+                    _control.Resize -= OnResized;
+                    _control = null;
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

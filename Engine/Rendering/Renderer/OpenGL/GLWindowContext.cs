@@ -14,6 +14,8 @@ namespace TheraEngine.Rendering.OpenGL
             GraphicsContext.DirectRendering = true;
         }
 
+        public GLWindowContext(BaseRenderPanel c) : base(c) { }
+
         private GLRenderer _renderer;
 
         protected class GLThreadSubContext : ThreadSubContext
@@ -122,7 +124,7 @@ namespace TheraEngine.Rendering.OpenGL
                 }
             }
 
-            public override void OnUpdated()
+            public override void OnResized(Vec2 size)
                 => _context?.Update(WindowInfo);
 
             public override void SetCurrent(bool current)
@@ -148,35 +150,6 @@ namespace TheraEngine.Rendering.OpenGL
             return new GLThreadSubContext(handle, thread);
         }
 
-        public GLWindowContext(BaseRenderPanel c) : base(c)
-        {
-
-        }
-        public override bool IsCurrent()
-        {
-            GetCurrentSubContext();
-            return _currentSubContext.IsCurrent();
-        }
-        public override bool IsContextDisposed()
-        {
-            GetCurrentSubContext();
-            return _currentSubContext.IsContextDisposed();
-        }
-        protected override void OnSwapBuffers()
-        {
-            GetCurrentSubContext();
-            _currentSubContext.OnSwapBuffers();
-        }
-        protected override void OnUpdated()
-        {
-            GetCurrentSubContext();
-            _currentSubContext.OnSwapBuffers();
-        }
-        public override void SetCurrent(bool current)
-        {
-            GetCurrentSubContext();
-            _currentSubContext.SetCurrent(current);
-        }
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -249,12 +222,7 @@ namespace TheraEngine.Rendering.OpenGL
         {
 
         }
-        internal override void OnResized(object sender, EventArgs e)
-        {
-            OnUpdated();
-            _control.Invalidate();
-        }
-
+        
         public override void Flush()
         {
             GetCurrentSubContext();

@@ -78,7 +78,7 @@
             this.BtnImportFile,
             this.BtnNewFile});
             this.ctxContentTree.Name = "ctxContentTree";
-            this.ctxContentTree.Size = new System.Drawing.Size(140, 64);
+            this.ctxContentTree.Size = new System.Drawing.Size(124, 52);
             // 
             // BtnImportFile
             // 
@@ -86,19 +86,19 @@
             this.btnImportModel,
             this.btnImportTexture});
             this.BtnImportFile.Name = "BtnImportFile";
-            this.BtnImportFile.Size = new System.Drawing.Size(139, 30);
+            this.BtnImportFile.Size = new System.Drawing.Size(123, 24);
             this.BtnImportFile.Text = "Import";
             // 
             // btnImportModel
             // 
             this.btnImportModel.Name = "btnImportModel";
-            this.btnImportModel.Size = new System.Drawing.Size(151, 30);
+            this.btnImportModel.Size = new System.Drawing.Size(132, 26);
             this.btnImportModel.Text = "Model";
             // 
             // btnImportTexture
             // 
             this.btnImportTexture.Name = "btnImportTexture";
-            this.btnImportTexture.Size = new System.Drawing.Size(151, 30);
+            this.btnImportTexture.Size = new System.Drawing.Size(132, 26);
             this.btnImportTexture.Text = "Texture";
             // 
             // BtnNewFile
@@ -111,53 +111,53 @@
             this.btnNewLogicComponent,
             this.btnNewMaterial});
             this.BtnNewFile.Name = "BtnNewFile";
-            this.BtnNewFile.Size = new System.Drawing.Size(139, 30);
+            this.BtnNewFile.Size = new System.Drawing.Size(123, 24);
             this.BtnNewFile.Text = "New";
             // 
             // btnNewWorld
             // 
             this.btnNewWorld.Name = "btnNewWorld";
-            this.btnNewWorld.Size = new System.Drawing.Size(242, 30);
+            this.btnNewWorld.Size = new System.Drawing.Size(205, 26);
             this.btnNewWorld.Text = "World";
             // 
             // btnNewMap
             // 
             this.btnNewMap.Name = "btnNewMap";
-            this.btnNewMap.Size = new System.Drawing.Size(242, 30);
+            this.btnNewMap.Size = new System.Drawing.Size(205, 26);
             this.btnNewMap.Text = "Map";
             // 
             // btnNewActor
             // 
             this.btnNewActor.Name = "btnNewActor";
-            this.btnNewActor.Size = new System.Drawing.Size(242, 30);
+            this.btnNewActor.Size = new System.Drawing.Size(205, 26);
             this.btnNewActor.Text = "Actor";
             // 
             // btnNewSceneComponent
             // 
             this.btnNewSceneComponent.Name = "btnNewSceneComponent";
-            this.btnNewSceneComponent.Size = new System.Drawing.Size(242, 30);
+            this.btnNewSceneComponent.Size = new System.Drawing.Size(205, 26);
             this.btnNewSceneComponent.Text = "Scene Component";
             // 
             // btnNewLogicComponent
             // 
             this.btnNewLogicComponent.Name = "btnNewLogicComponent";
-            this.btnNewLogicComponent.Size = new System.Drawing.Size(242, 30);
+            this.btnNewLogicComponent.Size = new System.Drawing.Size(205, 26);
             this.btnNewLogicComponent.Text = "Logic Component";
             // 
             // btnNewMaterial
             // 
             this.btnNewMaterial.Name = "btnNewMaterial";
-            this.btnNewMaterial.Size = new System.Drawing.Size(242, 30);
+            this.btnNewMaterial.Size = new System.Drawing.Size(205, 26);
             this.btnNewMaterial.Text = "Material";
             // 
             // BodyPanel
             // 
             this.BodyPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.BodyPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BodyPanel.Location = new System.Drawing.Point(0, 50);
+            this.BodyPanel.Location = new System.Drawing.Point(0, 40);
             this.BodyPanel.Margin = new System.Windows.Forms.Padding(0);
             this.BodyPanel.Name = "BodyPanel";
-            this.BodyPanel.Size = new System.Drawing.Size(1541, 944);
+            this.BodyPanel.Size = new System.Drawing.Size(847, 613);
             this.BodyPanel.TabIndex = 7;
             // 
             // TitlePanel
@@ -170,18 +170,19 @@
             this.TitlePanel.Location = new System.Drawing.Point(0, 0);
             this.TitlePanel.Margin = new System.Windows.Forms.Padding(0);
             this.TitlePanel.Name = "TitlePanel";
-            this.TitlePanel.Size = new System.Drawing.Size(1541, 50);
+            this.TitlePanel.Size = new System.Drawing.Size(847, 40);
             this.TitlePanel.TabIndex = 0;
             // 
             // FormTitle
             // 
+            this.FormTitle.AutoEllipsis = true;
             this.FormTitle.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FormTitle.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.FormTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.FormTitle.Location = new System.Drawing.Point(50, 0);
+            this.FormTitle.Location = new System.Drawing.Point(44, 0);
             this.FormTitle.Name = "FormTitle";
-            this.FormTitle.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
-            this.FormTitle.Size = new System.Drawing.Size(1348, 50);
+            this.FormTitle.Padding = new System.Windows.Forms.Padding(9, 0, 9, 0);
+            this.FormTitle.Size = new System.Drawing.Size(676, 40);
             this.FormTitle.TabIndex = 6;
             this.FormTitle.Text = "Thera Editor Form";
             this.FormTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -192,10 +193,11 @@
             this.WindowButtonsPanel.Controls.Add(this.MaximizeLabel);
             this.WindowButtonsPanel.Controls.Add(this.CloseLabel);
             this.WindowButtonsPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.WindowButtonsPanel.Location = new System.Drawing.Point(1398, 0);
+            this.WindowButtonsPanel.Location = new System.Drawing.Point(720, 0);
+            this.WindowButtonsPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.WindowButtonsPanel.Name = "WindowButtonsPanel";
-            this.WindowButtonsPanel.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
-            this.WindowButtonsPanel.Size = new System.Drawing.Size(143, 50);
+            this.WindowButtonsPanel.Padding = new System.Windows.Forms.Padding(0, 0, 0, 8);
+            this.WindowButtonsPanel.Size = new System.Drawing.Size(127, 40);
             this.WindowButtonsPanel.TabIndex = 8;
             // 
             // MinimizeLabel
@@ -203,9 +205,9 @@
             this.MinimizeLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.MinimizeLabel.Dock = System.Windows.Forms.DockStyle.Right;
             this.MinimizeLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.MinimizeLabel.Location = new System.Drawing.Point(8, 0);
+            this.MinimizeLabel.Location = new System.Drawing.Point(7, 0);
             this.MinimizeLabel.Name = "MinimizeLabel";
-            this.MinimizeLabel.Size = new System.Drawing.Size(45, 40);
+            this.MinimizeLabel.Size = new System.Drawing.Size(40, 32);
             this.MinimizeLabel.TabIndex = 3;
             this.MinimizeLabel.Text = "0";
             this.MinimizeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -215,9 +217,9 @@
             this.MaximizeLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.MaximizeLabel.Dock = System.Windows.Forms.DockStyle.Right;
             this.MaximizeLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.MaximizeLabel.Location = new System.Drawing.Point(53, 0);
+            this.MaximizeLabel.Location = new System.Drawing.Point(47, 0);
             this.MaximizeLabel.Name = "MaximizeLabel";
-            this.MaximizeLabel.Size = new System.Drawing.Size(45, 40);
+            this.MaximizeLabel.Size = new System.Drawing.Size(40, 32);
             this.MaximizeLabel.TabIndex = 4;
             this.MaximizeLabel.Text = "1";
             this.MaximizeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -227,9 +229,9 @@
             this.CloseLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.CloseLabel.Dock = System.Windows.Forms.DockStyle.Right;
             this.CloseLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.CloseLabel.Location = new System.Drawing.Point(98, 0);
+            this.CloseLabel.Location = new System.Drawing.Point(87, 0);
             this.CloseLabel.Name = "CloseLabel";
-            this.CloseLabel.Size = new System.Drawing.Size(45, 40);
+            this.CloseLabel.Size = new System.Drawing.Size(40, 32);
             this.CloseLabel.TabIndex = 5;
             this.CloseLabel.Text = "r";
             this.CloseLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -239,9 +241,10 @@
             this.LogoPanel.Controls.Add(this.Logo);
             this.LogoPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.LogoPanel.Location = new System.Drawing.Point(0, 0);
+            this.LogoPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.LogoPanel.Name = "LogoPanel";
-            this.LogoPanel.Padding = new System.Windows.Forms.Padding(5);
-            this.LogoPanel.Size = new System.Drawing.Size(50, 50);
+            this.LogoPanel.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.LogoPanel.Size = new System.Drawing.Size(44, 40);
             this.LogoPanel.TabIndex = 7;
             // 
             // Logo
@@ -249,10 +252,10 @@
             this.Logo.BackgroundImage = global::TheraEditor.Properties.Resources.LogoImage;
             this.Logo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.Logo.Dock = System.Windows.Forms.DockStyle.Left;
-            this.Logo.Location = new System.Drawing.Point(5, 5);
+            this.Logo.Location = new System.Drawing.Point(4, 4);
             this.Logo.Margin = new System.Windows.Forms.Padding(0);
             this.Logo.Name = "Logo";
-            this.Logo.Size = new System.Drawing.Size(40, 40);
+            this.Logo.Size = new System.Drawing.Size(36, 32);
             this.Logo.TabIndex = 2;
             this.Logo.TabStop = false;
             // 
@@ -262,10 +265,10 @@
             this.MainPanel.Controls.Add(this.BodyPanel);
             this.MainPanel.Controls.Add(this.TitlePanel);
             this.MainPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainPanel.Location = new System.Drawing.Point(0, 5);
+            this.MainPanel.Location = new System.Drawing.Point(0, 4);
             this.MainPanel.Margin = new System.Windows.Forms.Padding(0);
             this.MainPanel.Name = "MainPanel";
-            this.MainPanel.Size = new System.Drawing.Size(1541, 994);
+            this.MainPanel.Size = new System.Drawing.Size(847, 653);
             this.MainPanel.TabIndex = 7;
             // 
             // TopLeftBorderPanel
@@ -275,7 +278,7 @@
             this.TopLeftBorderPanel.Location = new System.Drawing.Point(0, 0);
             this.TopLeftBorderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.TopLeftBorderPanel.Name = "TopLeftBorderPanel";
-            this.TopLeftBorderPanel.Size = new System.Drawing.Size(5, 5);
+            this.TopLeftBorderPanel.Size = new System.Drawing.Size(4, 4);
             this.TopLeftBorderPanel.TabIndex = 8;
             // 
             // TopRightBorderPanel
@@ -285,27 +288,27 @@
             this.TopRightBorderPanel.Location = new System.Drawing.Point(0, 0);
             this.TopRightBorderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.TopRightBorderPanel.Name = "TopRightBorderPanel";
-            this.TopRightBorderPanel.Size = new System.Drawing.Size(5, 5);
+            this.TopRightBorderPanel.Size = new System.Drawing.Size(4, 4);
             this.TopRightBorderPanel.TabIndex = 9;
             // 
             // BottomRightBorderPanel
             // 
             this.BottomRightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNWSE;
             this.BottomRightBorderPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BottomRightBorderPanel.Location = new System.Drawing.Point(0, 999);
+            this.BottomRightBorderPanel.Location = new System.Drawing.Point(0, 657);
             this.BottomRightBorderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.BottomRightBorderPanel.Name = "BottomRightBorderPanel";
-            this.BottomRightBorderPanel.Size = new System.Drawing.Size(5, 5);
+            this.BottomRightBorderPanel.Size = new System.Drawing.Size(4, 4);
             this.BottomRightBorderPanel.TabIndex = 9;
             // 
             // BottomLeftBorderPanel
             // 
             this.BottomLeftBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNESW;
             this.BottomLeftBorderPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BottomLeftBorderPanel.Location = new System.Drawing.Point(0, 999);
+            this.BottomLeftBorderPanel.Location = new System.Drawing.Point(0, 657);
             this.BottomLeftBorderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.BottomLeftBorderPanel.Name = "BottomLeftBorderPanel";
-            this.BottomLeftBorderPanel.Size = new System.Drawing.Size(5, 5);
+            this.BottomLeftBorderPanel.Size = new System.Drawing.Size(4, 4);
             this.BottomLeftBorderPanel.TabIndex = 10;
             // 
             // TopBorderPanel
@@ -315,17 +318,17 @@
             this.TopBorderPanel.Location = new System.Drawing.Point(0, 0);
             this.TopBorderPanel.Margin = new System.Windows.Forms.Padding(0);
             this.TopBorderPanel.Name = "TopBorderPanel";
-            this.TopBorderPanel.Size = new System.Drawing.Size(1541, 5);
+            this.TopBorderPanel.Size = new System.Drawing.Size(847, 4);
             this.TopBorderPanel.TabIndex = 11;
             // 
             // BottomBorderPanel
             // 
             this.BottomBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNS;
             this.BottomBorderPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BottomBorderPanel.Location = new System.Drawing.Point(0, 999);
+            this.BottomBorderPanel.Location = new System.Drawing.Point(0, 657);
             this.BottomBorderPanel.Margin = new System.Windows.Forms.Padding(0);
             this.BottomBorderPanel.Name = "BottomBorderPanel";
-            this.BottomBorderPanel.Size = new System.Drawing.Size(1541, 5);
+            this.BottomBorderPanel.Size = new System.Drawing.Size(847, 4);
             this.BottomBorderPanel.TabIndex = 12;
             // 
             // LeftBorderPanel
@@ -337,7 +340,7 @@
             this.LeftBorderPanel.Location = new System.Drawing.Point(0, 0);
             this.LeftBorderPanel.Margin = new System.Windows.Forms.Padding(0);
             this.LeftBorderPanel.Name = "LeftBorderPanel";
-            this.LeftBorderPanel.Size = new System.Drawing.Size(5, 1004);
+            this.LeftBorderPanel.Size = new System.Drawing.Size(4, 661);
             this.LeftBorderPanel.TabIndex = 13;
             // 
             // RightBorderPanel
@@ -346,10 +349,10 @@
             this.RightBorderPanel.Controls.Add(this.BottomRightBorderPanel);
             this.RightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeWE;
             this.RightBorderPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.RightBorderPanel.Location = new System.Drawing.Point(1546, 0);
+            this.RightBorderPanel.Location = new System.Drawing.Point(851, 0);
             this.RightBorderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.RightBorderPanel.Name = "RightBorderPanel";
-            this.RightBorderPanel.Size = new System.Drawing.Size(5, 1004);
+            this.RightBorderPanel.Size = new System.Drawing.Size(4, 661);
             this.RightBorderPanel.TabIndex = 14;
             // 
             // MiddlePanel
@@ -358,24 +361,24 @@
             this.MiddlePanel.Controls.Add(this.TopBorderPanel);
             this.MiddlePanel.Controls.Add(this.BottomBorderPanel);
             this.MiddlePanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MiddlePanel.Location = new System.Drawing.Point(5, 0);
+            this.MiddlePanel.Location = new System.Drawing.Point(4, 0);
             this.MiddlePanel.Margin = new System.Windows.Forms.Padding(0);
             this.MiddlePanel.Name = "MiddlePanel";
-            this.MiddlePanel.Size = new System.Drawing.Size(1541, 1004);
+            this.MiddlePanel.Size = new System.Drawing.Size(847, 661);
             this.MiddlePanel.TabIndex = 0;
             // 
             // TheraForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.ClientSize = new System.Drawing.Size(1551, 1004);
+            this.ClientSize = new System.Drawing.Size(855, 661);
             this.Controls.Add(this.MiddlePanel);
             this.Controls.Add(this.RightBorderPanel);
             this.Controls.Add(this.LeftBorderPanel);
             this.Location = new System.Drawing.Point(0, 0);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.MinimumSize = new System.Drawing.Size(400, 60);
+            this.MinimumSize = new System.Drawing.Size(358, 57);
             this.Name = "TheraForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Thera Editor";

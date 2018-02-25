@@ -10,7 +10,7 @@ namespace TheraEngine.Actors.Types.Pawns
 {
     public partial class UIManager<T> : Pawn<T> where T : UIDockableComponent, new()
     {
-        private Vec2 _cursorPos = Vec2.Zero;
+        protected Vec2 _cursorPos = Vec2.Zero;
         private UIComponent _focusedComponent;
 
         public Vec2 CursorPosition //=> _cursorPos;

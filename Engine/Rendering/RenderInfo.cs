@@ -18,13 +18,13 @@ namespace TheraEngine.Rendering
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
         /// </summary>
         public int LayerIndex;
-        public int OrderInLayer;
+        public int IndexWithinLayer;
 
         public RenderInfo2D(ERenderPass2D pass, int layerIndex, int orderInLayer)
         {
             RenderPass = pass;
             LayerIndex = layerIndex;
-            OrderInLayer = orderInLayer;
+            IndexWithinLayer = orderInLayer;
         }
 
         public DateTime LastRenderedTime { get; internal set; }

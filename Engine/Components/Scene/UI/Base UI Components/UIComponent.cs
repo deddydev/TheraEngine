@@ -24,12 +24,16 @@ namespace TheraEngine.Rendering.UI
         protected UIComponent _left, _right, _down, _up;
 
         protected IQuadtreeNode _renderNode;
-        protected bool _highlightable, _selectable, _scrollable;
-        protected ushort _layerIndex, _indexWithinLayer;
+        protected bool _highlightable, _selectable, _scrollable, _isRendering;
+
+        public virtual int LayerIndex { get; set; }
+        public virtual int IndexWithinLayer { get; set; }
+
+        protected Vec2 _size = Vec2.Zero;
+        protected Vec2 _scale = Vec2.One;
+        protected Vec2 _translation = Vec2.Zero;
         protected Vec2 _localOriginPercentage = Vec2.Zero;
-        protected Vec2 _size = Vec2.Zero, _scale = Vec2.One;
         protected BoundingRectangle _axisAlignedBounds = new BoundingRectangle();
-        protected bool _isRendering;
 
         #region Bounds
         [Category("Transform")]
@@ -69,34 +73,34 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         [Category("Transform")]
         public Vec2 ScreenTranslation => Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
-        
+
         [Category("Transform")]
         public virtual Vec2 LocalTranslation
         {
-            get => _localTransform.Translation.Xy;
+            get => _translation;
             set
             {
-                _localTransform.TranslationXy = value;
+                _translation = value;
                 RecalcLocalTransform();
             }
         }
         [Category("Transform")]
         public virtual float LocalTranslationX
         {
-            get => _localTransform.TranslationX;
+            get => _translation.X;
             set
             {
-                _localTransform.TranslationX = value;
+                _translation.X = value;
                 RecalcLocalTransform();
             }
         }
         [Category("Transform")]
         public virtual float LocalTranslationY
         {
-            get => _localTransform.TranslationY;
+            get => _translation.Y;
             set
             {
-                _localTransform.TranslationY = value;
+                _translation.Y = value;
                 RecalcLocalTransform();
             }
         }
@@ -110,7 +114,7 @@ namespace TheraEngine.Rendering.UI
             get => _localOriginPercentage;
             set
             {
-                _localTransform.TranslationXy += (value - _localOriginPercentage) * Size;
+                _translation += (value - _localOriginPercentage) * Size;
                 _localOriginPercentage = value;
                 RecalcLocalTransform();
             }
@@ -181,11 +185,12 @@ namespace TheraEngine.Rendering.UI
             get => _isRendering;
             set => _isRendering = value;
         }
-        public ushort LayerIndex => _layerIndex;
-        public ushort IndexWithinLayer => _indexWithinLayer;
-        
+
         public bool Contains(Vec2 screenPoint)
-            => Contains(Vec3.TransformPosition(screenPoint, GetActorTransform()));
+        {
+            Vec3 localPoint = Vec3.TransformPosition(screenPoint, InverseWorldMatrix);
+            return Size.Contains(localPoint.Xy);
+        }
         /// <summary>
         /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
         /// </summary>
@@ -212,37 +217,13 @@ namespace TheraEngine.Rendering.UI
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Quat.Identity, LocalTranslation - LocalOriginTranslation, TransformOrder.TRS);
-            inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Quat.Identity, -LocalTranslation + LocalOriginTranslation, TransformOrder.SRT);
+            localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Matrix4.Identity, LocalTranslation - LocalOriginTranslation, TransformOrder.TRS);
+            inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Matrix4.Identity, -LocalTranslation + LocalOriginTranslation, TransformOrder.SRT);
         }
-        //protected virtual void OnChildAdded(UIComponent child)
-        //{
-        //    child.OwningActor = OwningActor;
-        //}
-        //public void Add(UIComponent child)
-        //{
-        //    if (child == null)
-        //        return;
-        //    if (!_children.Contains(child))
-        //        _children.Add(child);
-        //    child._parent = this;
-        //    child._layerIndex = (ushort)(_layerIndex + 1);
-        //    OnChildAdded(child);
-        //}
-        //protected virtual void OnChildRemoved(UIComponent child)
-        //{
-
-        //}
-        //public void Remove(UIComponent child)
-        //{
-        //    if (child == null)
-        //        return;
-        //    if (_children.Contains(child))
-        //        _children.Remove(child);
-        //    child.OwningActor = null;
-        //    child._parent = null;
-        //    child._layerIndex = 0;
-        //}
+        internal override void RecalcGlobalTransform()
+        {
+            base.RecalcGlobalTransform();
+        }
         protected virtual void OnResized()
         {
             _axisAlignedBounds.Translation = Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
@@ -270,25 +251,17 @@ namespace TheraEngine.Rendering.UI
 
             return this;
         }
+        
+        protected override void HandleSingleChildAdded(SceneComponent item)
+        {
+            base.HandleSingleChildAdded(item);
+            if (item is UIComponent c)
+                c.LayerIndex = LayerIndex;
+        }
 
         protected internal override void OriginRebased(Vec3 newOrigin) { }
 
         public IEnumerator<UIComponent> GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
-
-        //public override void HandleLocalTranslation(Vec3 delta)
-        //{
-
-        //}
-
-        //public override void HandleLocalScale(Vec3 delta)
-        //{
-
-        //}
-
-        //public override void HandleLocalRotation(Quat delta)
-        //{
-
-        //}
     }
 }

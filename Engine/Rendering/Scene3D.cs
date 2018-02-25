@@ -186,7 +186,7 @@ namespace TheraEngine.Rendering
         {
             AbstractRenderer.PushCurrentCamera(c);
             {
-                foreach (IPreRenderNeeded p in _preRenderList)
+                foreach (IPreRendered p in _preRenderList)
                     p.PreRender(c);
 
                 //Enable internal resolution
@@ -229,7 +229,7 @@ namespace TheraEngine.Rendering
             AbstractRenderer.PushCurrentCamera(c);
             AbstractRenderer.Rendering3DScene = this;
             {
-                foreach (IPreRenderNeeded p in _preRenderList)
+                foreach (IPreRendered p in _preRenderList)
                     p.PreRender(c);
 
                 if (v != null)

@@ -23,9 +23,9 @@ namespace TheraEngine.Components
         Vec3 LocalUpDir { get; }
         Vec3 LocalForwardDir { get; }
         Vec3 LocalPoint { get; }
-        Vec3 WorldRightDir { get; }
-        Vec3 WorldUpDir { get; }
-        Vec3 WorldForwardDir { get; }
+        Vec3 WorldRightVec { get; }
+        Vec3 WorldUpVec { get; }
+        Vec3 WorldForwardVec { get; }
         Vec3 WorldPoint { get; }
         EventList<SceneComponent> ChildComponents { get; set; }
 
@@ -262,17 +262,17 @@ namespace TheraEngine.Components
         /// Right direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldRightDir => _worldTransform.RightVec;
+        public Vec3 WorldRightVec => _worldTransform.RightVec;
         /// <summary>
         /// Up direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldUpDir => _worldTransform.UpVec;
+        public Vec3 WorldUpVec => _worldTransform.UpVec;
         /// <summary>
         /// Forward direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldForwardDir => _worldTransform.ForwardVec;
+        public Vec3 WorldForwardVec => _worldTransform.ForwardVec;
         /// <summary>
         /// The position of this component relative to the world.
         /// </summary>
@@ -290,22 +290,22 @@ namespace TheraEngine.Components
                 if (_children != null)
                 {
                     _children.Clear();
-                    _children.PostAdded -= _children_Added;
-                    _children.PostAddedRange -= _children_AddedRange;
-                    _children.PostInserted -= _children_Inserted;
-                    _children.PostInsertedRange -= _children_InsertedRange;
-                    _children.PostRemoved -= _children_Removed;
-                    _children.PostRemovedRange -= _children_RemovedRange;
+                    _children.PostAdded -= OnChildComponentAdded;
+                    _children.PostAddedRange -= OnChildComponentsAdded;
+                    _children.PostInserted -= OnChildComponentInserted;
+                    _children.PostInsertedRange -= OnChildComponentsInserted;
+                    _children.PostRemoved -= OnChildComponentRemoved;
+                    _children.PostRemovedRange -= OnChildComponentsRemoved;
                 }
                 if (value != null)
                 {
                     _children = value;
-                    _children.PostAdded += _children_Added;
-                    _children.PostAddedRange += _children_AddedRange;
-                    _children.PostInserted += _children_Inserted;
-                    _children.PostInsertedRange += _children_InsertedRange;
-                    _children.PostRemoved += _children_Removed;
-                    _children.PostRemovedRange += _children_RemovedRange;
+                    _children.PostAdded += OnChildComponentAdded;
+                    _children.PostAddedRange += OnChildComponentsAdded;
+                    _children.PostInserted += OnChildComponentInserted;
+                    _children.PostInsertedRange += OnChildComponentsInserted;
+                    _children.PostRemoved += OnChildComponentRemoved;
+                    _children.PostRemovedRange += OnChildComponentsRemoved;
                 }
             }
         }
@@ -416,7 +416,7 @@ namespace TheraEngine.Components
             if (this is IRigidCollidable p)
                 p.RigidBodyCollision?.Spawn();
 
-            if (this is IPreRenderNeeded r)
+            if (this is IPreRendered r)
                 OwningScene.AddPreRenderedObject(r);
 
             foreach (SceneComponent c in _children)
@@ -427,7 +427,7 @@ namespace TheraEngine.Components
             if (this is IRigidCollidable p)
                 p.RigidBodyCollision?.Despawn();
 
-            if (this is IPreRenderNeeded r)
+            if (this is IPreRendered r)
                 OwningScene.RemovePreRenderedObject(r);
 
             foreach (SceneComponent c in _children)
@@ -443,18 +443,15 @@ namespace TheraEngine.Components
         /// Do not call directly! Call RecalcLocalTransform() instead.
         /// </summary>
         protected abstract void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform);
+        /// <summary>
+        /// Recalculates the world matrix for this component in relation to the parent component's world matrix.
+        /// </summary>
         internal virtual void RecalcGlobalTransform()
         {
-            //if (!_simulatingPhysics)
-            //{
             _previousWorldTransform = _worldTransform;
             _worldTransform = GetParentMatrix() * LocalMatrix;
-            //if (_ancestorSimulatingPhysics == null)
-            //    _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
-            //}
             _previousInverseWorldTransform = _inverseWorldTransform;
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
-
             OnWorldTransformChanged();
         }
 
@@ -472,7 +469,7 @@ namespace TheraEngine.Components
         }
 
         #region Child Components
-        private void _children_RemovedRange(IEnumerable<SceneComponent> items)
+        protected virtual void OnChildComponentsRemoved(IEnumerable<SceneComponent> items)
         {
             foreach (SceneComponent item in items)
             {
@@ -485,8 +482,7 @@ namespace TheraEngine.Components
             }
             OwningActor?.GenerateSceneComponentCache();
         }
-        
-        private void _children_Removed(SceneComponent item)
+        protected virtual void OnChildComponentRemoved(SceneComponent item)
         {
             if (item.IsSpawned)
                 item.OnDespawned();
@@ -497,33 +493,32 @@ namespace TheraEngine.Components
 
             OwningActor?.GenerateSceneComponentCache();
         }
-        private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
-            => _children_AddedRange(items);
-        private void _children_Inserted(SceneComponent item, int index)
-            => _children_Added(item);
-        private void _children_AddedRange(IEnumerable<SceneComponent> items)
+        protected virtual void OnChildComponentsInserted(IEnumerable<SceneComponent> items, int index)
+            => OnChildComponentsAdded(items);
+        protected virtual void OnChildComponentInserted(SceneComponent item, int index)
+            => OnChildComponentAdded(item);
+        /// <summary>
+        /// Called when a multiple child components are added.
+        /// Calls HandleSingleChildAdded for each component and regenerates the owning actor's scene component cache.
+        /// </summary>
+        /// <param name="items"></param>
+        protected virtual void OnChildComponentsAdded(IEnumerable<SceneComponent> items)
         {
-            bool spawnedMismatch;
             foreach (SceneComponent item in items)
-            {
-                spawnedMismatch = IsSpawned != item.IsSpawned;
-
-                item._parent = this;
-                item.OwningActor = OwningActor;
-                item.RecalcGlobalTransform();
-
-                if (spawnedMismatch)
-                {
-                    if (item.IsSpawned)
-                        item.OnSpawned();
-                    else
-                        item.OnDespawned();
-                }
-            }
+                HandleSingleChildAdded(item);
             OwningActor?.GenerateSceneComponentCache();
         }
-
-        private void _children_Added(SceneComponent item)
+        /// <summary>
+        /// Called when a single child component is added.
+        /// Calls HandleSingleChildAdded and regenerates the owning actor's scene component cache.
+        /// </summary>
+        /// <param name="item"></param>
+        protected virtual void OnChildComponentAdded(SceneComponent item)
+        {
+            HandleSingleChildAdded(item);
+            OwningActor?.GenerateSceneComponentCache();
+        }
+        protected virtual void HandleSingleChildAdded(SceneComponent item)
         {
             bool spawnedMismatch = IsSpawned != item.IsSpawned;
 
@@ -538,11 +533,10 @@ namespace TheraEngine.Components
                 else
                     item.OnDespawned();
             }
-
-            OwningActor?.GenerateSceneComponentCache();
         }
         #endregion
 
+        #region Sockets
         /// <summary>
         /// Attaches this component to the given skeletal mesh component at the given socket.
         /// </summary>
@@ -617,6 +611,7 @@ namespace TheraEngine.Components
         /// </summary>
         public void DetachFromParent()
             => ParentSocket?.ChildComponents.Remove(this);
+        #endregion
 
         #region Transform Tool
         [Browsable(false)]

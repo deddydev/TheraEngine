@@ -11,12 +11,12 @@ namespace TheraEngine.Rendering.UI.Functions
         int CurrentArgumentType { get; }
         int[] AllowedArgumentTypes { get; }
     }
-    public static class BaseFuncValue
+    public class BaseFuncValue : UIComponent
     {
-        internal const float ConnectionBoxDims = 6.0f;
-        internal const float ConnectionBoxMargin = 1.0f;
+        internal const float ConnectionBoxDims = 10.0f;
+        internal const float ConnectionBoxMargin = 3.0f;
     }
-    public abstract class BaseFuncValue<T> : UIComponent where T : IBaseFuncValue
+    public abstract class BaseFuncValue<T> : BaseFuncValue where T : IBaseFuncValue
     {
         public BaseFuncValue(string name)
         {

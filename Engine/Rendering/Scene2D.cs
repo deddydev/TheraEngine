@@ -35,9 +35,9 @@ namespace TheraEngine.Rendering
                     return -1;
                 if (x.RenderInfo.LayerIndex > y.RenderInfo.LayerIndex)
                     return 1;
-                if (x.RenderInfo.OrderInLayer < y.RenderInfo.OrderInLayer)
+                if (x.RenderInfo.IndexWithinLayer < y.RenderInfo.IndexWithinLayer)
                     return -1;
-                if (x.RenderInfo.OrderInLayer > y.RenderInfo.OrderInLayer)
+                if (x.RenderInfo.IndexWithinLayer > y.RenderInfo.IndexWithinLayer)
                     return 1;
                 return 0;
             }
@@ -120,7 +120,7 @@ namespace TheraEngine.Rendering
         {
             AbstractRenderer.PushCurrentCamera(c);
             {
-                foreach (IPreRenderNeeded p in _preRenderList)
+                foreach (IPreRendered p in _preRenderList)
                     p.PreRender(c);
 
                 if (v != null)

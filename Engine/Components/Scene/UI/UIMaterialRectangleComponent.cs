@@ -10,6 +10,8 @@ namespace TheraEngine.Rendering.UI
 {
     public class UIMaterialRectangleComponent : UIDockableComponent, I2DRenderable
     {
+        public override int LayerIndex { get => RenderInfo.LayerIndex; set => RenderInfo.LayerIndex = value; }
+        public override int IndexWithinLayer { get => RenderInfo.IndexWithinLayer; set => RenderInfo.IndexWithinLayer = value; }
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.Opaque, 0, 0);
 
         public UIMaterialRectangleComponent() 
@@ -38,6 +40,13 @@ namespace TheraEngine.Rendering.UI
                 return _quad.Material.Textures[index].GetTextureGeneric(true);
             return null;
         }
+        public T Texture<T>(int index) where T : BaseRenderTexture
+        {
+            if (_quad.Material.Textures.IndexInRange(index))
+                return _quad.Material.Textures[index].GetTextureGeneric<T>(true);
+            return null;
+        }
+
         /// <summary>
         /// Retrieves the linked material's uniform parameter at the given index.
         /// Use this to set uniform values to be passed to the shader.

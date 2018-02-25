@@ -10,7 +10,7 @@ using System;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
-    public partial class SkeletalMeshComponent : TRSComponent, IPreRenderNeeded, IMeshSocketOwner
+    public partial class SkeletalMeshComponent : TRSComponent, IPreRendered, IMeshSocketOwner
     {
         public SkeletalMeshComponent(GlobalFileRef<SkeletalModel> mesh, LocalFileRef<Skeleton> skeleton)
         {

@@ -117,7 +117,7 @@ namespace TheraEngine.Rendering.Text
 
     public class TextDrawer
     {
-        internal SortedDictionary<float, TextData> _text;
+        private SortedDictionary<float, TextData> _text;
         private LinkedList<TextData> _modified;
         public event Action NeedsRedraw;
 

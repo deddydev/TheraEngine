@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering
     /// Use for calculating something right before *anything* in the scene is rendered.
     /// Generally used for setting up data for a collection of sub-renderables just before they are rendered separately.
     /// </summary>
-    public interface IPreRenderNeeded
+    public interface IPreRendered
     {
         void PreRender(Camera camera);
     }
@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering
     {
         private static List<TMaterial> _activeMaterials = new List<TMaterial>();
         private static Queue<int> _removedIds = new Queue<int>();
-        protected List<IPreRenderNeeded> _preRenderList = new List<IPreRenderNeeded>();
+        protected List<IPreRendered> _preRenderList = new List<IPreRendered>();
 
         public DelRender Render { get; protected set; }
         public abstract int Count { get; }
@@ -40,14 +40,14 @@ namespace TheraEngine.Rendering
         //    _activeMaterials.RemoveAt(material.UniqueID);
         //}
 
-        public void AddPreRenderedObject(IPreRenderNeeded obj)
+        public void AddPreRenderedObject(IPreRendered obj)
         {
             if (obj == null)
                 return;
             if (!_preRenderList.Contains(obj))
                 _preRenderList.Add(obj);
         }
-        public void RemovePreRenderedObject(IPreRenderNeeded obj)
+        public void RemovePreRenderedObject(IPreRendered obj)
         {
             if (obj == null)
                 return;

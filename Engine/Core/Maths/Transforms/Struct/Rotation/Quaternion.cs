@@ -73,7 +73,7 @@ namespace System
         public Vec4 ToAxisAngle()
         {
             Quat q = this;
-            q.NormalizeFast();
+            q.Normalize();
 
             float den = (float)Sqrt(1.0f - q.W * q.W);
             return new Vec4(den > 0.0001f ? q.Xyz / den : Vec3.Right, 2.0f * (float)Acos(q.W));
@@ -206,7 +206,7 @@ namespace System
             result.Xyz = axis.Xyz * (float)Sin(angle);
             result.W = (float)Cos(angle);
 
-            return result.NormalizedFast();
+            return result.Normalized();
         }
 
         public static Quat FromRotator(Rotator rotator)
@@ -351,7 +351,7 @@ namespace System
 
             Quat result = new Quat(blendA * q1.Xyz + blendB * q2.Xyz, blendA * q1.W + blendB * q2.W);
             if (result.LengthSquared > 0.0f)
-                return result.NormalizedFast();
+                return result.Normalized();
             else
                 return Identity;
         }

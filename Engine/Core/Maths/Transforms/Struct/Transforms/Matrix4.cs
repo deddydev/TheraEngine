@@ -293,7 +293,7 @@ namespace System
         /// <summary>
         /// Gets the trace of the matrix, the sum of the values along the diagonal.
         /// </summary>
-        public float Trace { get { return Row0.X + Row1.Y + Row2.Z + Row3.W; } }
+        public float Trace => Row0.X + Row1.Y + Row2.Z + Row3.W;
 
         public float this[int rowIndex, int columnIndex]
         {
@@ -926,7 +926,7 @@ namespace System
         {
             return TransformMatrix(scale, CreateFromRotator(rotate), translate, order);
         }
-        private static Matrix4 TransformMatrix(
+        public static Matrix4 TransformMatrix(
             Vec3 scale,
             Matrix4 rotate,
             Vec3 translate,

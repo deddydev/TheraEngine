@@ -25,6 +25,8 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _index = value;
         }
 
+        public T GetTextureGeneric<T>(bool loadSynchronously = false) where T : BaseRenderTexture
+            => GetTextureGeneric(loadSynchronously) as T;
         /// <summary>
         /// Converts this texture reference into a texture made for rendering.
         /// </summary>

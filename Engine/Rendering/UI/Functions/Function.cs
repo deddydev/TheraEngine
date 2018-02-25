@@ -4,7 +4,10 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Forms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
@@ -75,9 +78,9 @@ namespace TheraEngine.Rendering.UI.Functions
     /// <typeparam name="TEOut">The output execution class to use.</typeparam>
     public abstract class Function<TVIn, TVOut, TEIn, TEOut>
         : UIMaterialRectangleComponent, IShaderVarOwner, IFunction
-        where TVIn : UIComponent, IFuncValueInput
-        where TVOut : UIComponent, IFuncValueOutput
-        where TEIn : UIComponent, IFuncExecInput
+        where TVIn : BaseFuncValue, IFuncValueInput
+        where TVOut : BaseFuncValue, IFuncValueOutput
+        where TEIn : BaseFuncExec, IFuncExecInput
         where TEOut : UIComponent, IFuncExecOutput
     {
         protected List<TVIn> _inputs = new List<TVIn>();
@@ -87,11 +90,17 @@ namespace TheraEngine.Rendering.UI.Functions
 
         public Function() : base(MakeFunctionMaterial())
         {
+            DockStyle = HudDockStyle.None;
+
+            TextHudComponent header = new TextHudComponent
+            {
+                DockStyle = HudDockStyle.Top,
+            };
+            header.TextDrawer.Add(new TextData(FunctionName, _textFont, Color.Black, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            ChildComponents.Add(header);
+
             AddInput(GetValueInputs());
             AddOutput(GetValueOutputs());
-            RenderInfo.LayerIndex = 2;
-            Size = new Vec2(100.0f, 50.0f);
-            DockStyle = HudDockStyle.None;
         }
 
         private static TMaterial MakeFunctionMaterial()
@@ -119,37 +128,49 @@ namespace TheraEngine.Rendering.UI.Functions
         {
             if (input != null)
                 foreach (TVIn v in input)
-                {
-                    v.Arrange(_inputs.Count);
-                    _inputs.Add(v);
-                    _children.Add(v);
-                }
+                    HandleInputAdded(v);
             Resized();
         }
         protected void AddInput(TVIn input)
         {
-            input.Arrange(_inputs.Count);
-            _inputs.Add(input);
-            _children.Add(input);
+            HandleInputAdded(input);
             Resized();
+        }
+        private void HandleInputAdded(TVIn input)
+        {
+            _inputs.Add(input);
+            ChildComponents.Add(input);
+
+            TextHudComponent text = new TextHudComponent
+            {
+                DockStyle = HudDockStyle.Top,
+            };
+            text.TextDrawer.Add(new TextData(FunctionName, _textFont, Color.Black, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            ChildComponents.Add(text);
         }
         protected void AddOutput(List<TVOut> output)
         {
             if (output != null)
                 foreach (TVOut v in output)
-                {
-                    v.Arrange(_outputs.Count);
-                    _outputs.Add(v);
-                    _children.Add(v);
-                }
+                    HandleOutputAdded(v);
             Resized();
         }
         protected void AddOutput(TVOut output)
         {
-            output.Arrange(_outputs.Count);
-            _outputs.Add(output);
-            _children.Add(output);
+            HandleOutputAdded(output);
             Resized();
+        }
+        private void HandleOutputAdded(TVOut output)
+        {
+            _outputs.Add(output);
+            ChildComponents.Add(output);
+
+            TextHudComponent text = new TextHudComponent
+            {
+                DockStyle = HudDockStyle.Top,
+            };
+            text.TextDrawer.Add(new TextData(output.Name, _textFont, Color.Black, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            ChildComponents.Add(text);
         }
         public override string ToString()
             => FunctionName;
@@ -158,8 +179,12 @@ namespace TheraEngine.Rendering.UI.Functions
         internal const float TextCharWidth = 5.0f;
         internal const float TextCharHeight = 5.0f;
         internal const float MaxArgTextWidth = 20.0f;
-        public void Resized()
+        private Font _textFont = new Font("Arial", 12.0f, FontStyle.Bold);
+
+        public override BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
+            Size textSize = TextRenderer.MeasureText(FunctionName, _textFont);
+
             float titleWidth = FunctionName.Length * TextCharWidth;
             float titleHeight = TextCharHeight;
             float connectionBoxBounds = BaseFuncValue.ConnectionBoxDims + BaseFuncValue.ConnectionBoxMargin;
@@ -183,6 +208,12 @@ namespace TheraEngine.Rendering.UI.Functions
             }
 
             Width = titleWidth;
+
+            return base.Resize(parentRegion);
+        }
+        public void Resized()
+        {
+            Resize(BoundingRectangle.Empty);
         }
         
         public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();

@@ -41,14 +41,15 @@ namespace TheraEditor.Windows.Forms
             //}
 
             Vec2 pos = LocalPlayerController.Viewport.AbsoluteToRelative(CursorPosition);
-
-            base.MouseMove(x, y);
-
+            
             if (_selectedFunc != null)
             {
-                Vec3 worldPoint = LocalPlayerController.Viewport.ScreenToWorld(pos, 0.0f);
-                _selectedFunc.LocalTranslation = worldPoint.Xy;
+                //Vec3 worldPoint = LocalPlayerController.Viewport.ScreenToWorld(pos, 0.0f);
+                _selectedFunc.LocalTranslation += pos - _cursorPos; //worldPoint.Xy;
             }
+
+            _cursorPos = pos;
+            //base.MouseMove(x, y);
         }
         private void MouseUp()
         {

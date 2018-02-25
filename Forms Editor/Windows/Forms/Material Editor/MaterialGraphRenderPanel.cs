@@ -19,7 +19,7 @@ namespace TheraEngine
             if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
                 return;
             Viewport v = AddViewport();
-            v.HUD = UI = new UIMaterialEditor(Size);
+            v.HUD = UI = new UIMaterialEditor(ClientSize);
             v.Camera = UI.Camera;
         }
 

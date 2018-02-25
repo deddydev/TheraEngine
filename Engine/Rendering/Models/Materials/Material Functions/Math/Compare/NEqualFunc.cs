@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         CategoryName,
         "Not Equal",
         "Returns true bool/bvec if A's and B's individual components are not equal.",
-        "does not equals !=")]
+        "does not equals != equality")]
     public class NEqualFunc : ComparableFunc
     {
         public NEqualFunc() : base() { }

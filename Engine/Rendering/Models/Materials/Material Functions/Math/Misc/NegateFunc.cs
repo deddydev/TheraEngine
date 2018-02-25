@@ -10,8 +10,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     [FunctionDefinition(
         OperatorFunc.CategoryName,
         "Negate",
-        "Returns -value.",
-        "negate negative value one minus")]
+        "Returns 0 - value.",
+        "negate negative zero - value minus")]
     public class NegateFunc : MaterialFunction
     {
         MatFuncValueInput InputValue;

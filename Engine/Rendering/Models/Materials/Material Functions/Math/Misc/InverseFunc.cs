@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     [FunctionDefinition(
         "Helpers",
         "Inverse",
-        "Returns 1.0 / value.",
+        "Returns 1 / value.",
         "inverse divided divison one 1 over value")]
     public class InverseFunc : MaterialFunction
     {

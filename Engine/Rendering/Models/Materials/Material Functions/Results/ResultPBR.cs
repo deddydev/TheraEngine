@@ -8,11 +8,18 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// </summary>
     [FunctionDefinition(
         "Output",
-        "Output PBR",
-        "Combines the given inputs using a physically-based shading pipeline.",
+        "PBR Output [Deferred]",
+        "Combines the given inputs using a deferred physically-based shading pipeline.",
         "result output final return physically based rendering PBR albedo roughness shininess specularity metallic refraction")]
     public class ResultPBRFunc : ResultBasicFunc
     {
+        public MatFuncValueInput Albedo { get; set; }
+        public MatFuncValueInput Roughness { get; set; }
+        public MatFuncValueInput Shininess { get; set; }
+        public MatFuncValueInput Specularity { get; set; }
+        public MatFuncValueInput Metallic { get; set; }
+        public MatFuncValueInput Refraction { get; set; }
+        
         protected override string GetOperation()
         {
             return base.GetOperation();
@@ -20,15 +27,13 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
         protected override List<MatFuncValueInput> GetValueInputs()
         {
-            return new List<MatFuncValueInput>()
-            {
-                new MatFuncValueInput("Albedo", ShaderVarType._vec4),
-                new MatFuncValueInput("Roughness", ShaderVarType._float),
-                new MatFuncValueInput("Shininess", ShaderVarType._float),
-                new MatFuncValueInput("Specularity", ShaderVarType._float),
-                new MatFuncValueInput("Metallic", ShaderVarType._float),
-                new MatFuncValueInput("Refraction", ShaderVarType._float),
-            };
+            Albedo = new MatFuncValueInput("Albedo", ShaderVarType._vec4);
+            Roughness = new MatFuncValueInput("Roughness", ShaderVarType._float);
+            Shininess = new MatFuncValueInput("Shininess", ShaderVarType._float);
+            Specularity = new MatFuncValueInput("Specularity", ShaderVarType._float);
+            Metallic = new MatFuncValueInput("Metallic", ShaderVarType._float);
+            Refraction = new MatFuncValueInput("Refraction", ShaderVarType._float);
+            return new List<MatFuncValueInput>() { Albedo, Roughness, Shininess, Specularity, Metallic, Refraction };
         }
     }
 }

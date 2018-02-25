@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         CategoryName,
         "Equal",
         "Returns true bool/bvec if A's and B's individual components are equal.",
-        "equals ==")]
+        "equals == equality")]
     public class EqualFunc : ComparableFunc
     {
         public EqualFunc() : base() { }

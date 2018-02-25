@@ -1,7 +1,13 @@
 ﻿using System.Collections.Generic;
+using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
+    [FunctionDefinition(
+        "Logic",
+        "If Branch",
+        "Branches code execution if a condition is true.",
+        "if branch condition")]
     public class IfFunc : MaterialFunction
     {
         public IfFunc() : base(true) { }

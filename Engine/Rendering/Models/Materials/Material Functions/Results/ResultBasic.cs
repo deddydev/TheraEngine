@@ -8,14 +8,14 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// </summary>
     [FunctionDefinition(
         "Output",
-        "Basic Output",
-        "Outputs the given vec4 color as the color for this fragment.",
+        "Basic Output [Forward]",
+        "Outputs the given vec4 color as the color for this fragment in a forward shading pipeline.",
         "result output final return")]
     public class ResultBasicFunc : MaterialFunction
     {
-        MatFuncValueInput Color;
-        MatFuncValueInput Opacity;
-        MatFuncValueInput WorldPositionOffset;
+        public MatFuncValueInput Color { get; set; }
+        public MatFuncValueInput Opacity { get; set; }
+        public MatFuncValueInput WorldPositionOffset { get; set; }
 
         private TMaterial _material;
         public TMaterial Material

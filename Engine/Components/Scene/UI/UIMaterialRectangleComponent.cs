@@ -17,13 +17,16 @@ namespace TheraEngine.Rendering.UI
         public UIMaterialRectangleComponent(TMaterial material)
         {
             VertexQuad quad = VertexQuad.PosZQuad(Width, Height, 0.0f, true);
-            PrimitiveData quadData = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), quad);
+            PrimitiveData quadData = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosTex(), quad);
             _quad = new PrimitiveManager(quadData, material);
         }
 
         private PrimitiveManager _quad;
         
-        public TMaterial Material
+        /// <summary>
+        /// The material used to render on this UI component.
+        /// </summary>
+        public TMaterial InterfaceMaterial
         {
             get => _quad.Material;
             set => _quad.Material = value;

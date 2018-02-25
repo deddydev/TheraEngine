@@ -215,34 +215,34 @@ namespace TheraEngine.Rendering.UI
             localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Quat.Identity, LocalTranslation - LocalOriginTranslation, TransformOrder.TRS);
             inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Quat.Identity, -LocalTranslation + LocalOriginTranslation, TransformOrder.SRT);
         }
-        protected virtual void OnChildAdded(UIComponent child)
-        {
-            child.OwningActor = OwningActor;
-        }
-        public void Add(UIComponent child)
-        {
-            if (child == null)
-                return;
-            if (!_children.Contains(child))
-                _children.Add(child);
-            child._parent = this;
-            child._layerIndex = (ushort)(_layerIndex + 1);
-            OnChildAdded(child);
-        }
-        protected virtual void OnChildRemoved(UIComponent child)
-        {
+        //protected virtual void OnChildAdded(UIComponent child)
+        //{
+        //    child.OwningActor = OwningActor;
+        //}
+        //public void Add(UIComponent child)
+        //{
+        //    if (child == null)
+        //        return;
+        //    if (!_children.Contains(child))
+        //        _children.Add(child);
+        //    child._parent = this;
+        //    child._layerIndex = (ushort)(_layerIndex + 1);
+        //    OnChildAdded(child);
+        //}
+        //protected virtual void OnChildRemoved(UIComponent child)
+        //{
 
-        }
-        public void Remove(UIComponent child)
-        {
-            if (child == null)
-                return;
-            if (_children.Contains(child))
-                _children.Remove(child);
-            child.OwningActor = null;
-            child._parent = null;
-            child._layerIndex = 0;
-        }
+        //}
+        //public void Remove(UIComponent child)
+        //{
+        //    if (child == null)
+        //        return;
+        //    if (_children.Contains(child))
+        //        _children.Remove(child);
+        //    child.OwningActor = null;
+        //    child._parent = null;
+        //    child._layerIndex = 0;
+        //}
         protected virtual void OnResized()
         {
             _axisAlignedBounds.Translation = Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;

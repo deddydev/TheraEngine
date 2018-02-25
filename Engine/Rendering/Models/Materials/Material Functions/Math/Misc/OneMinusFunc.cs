@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     [FunctionDefinition(
         "Helpers",
         "One Minus Value",
-        "Returns 1.0f - value.",
+        "Returns 1 - value.",
         "one minus value 1 - subtract")]
     public class OneMinusFunc : MaterialFunction
     {

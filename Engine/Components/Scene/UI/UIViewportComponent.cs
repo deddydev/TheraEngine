@@ -8,13 +8,16 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public abstract class UIViewportComponent : UIMaterialRectangleComponent
+    public abstract class UIViewportComponent : UIDockableComponent, I2DRenderable
     {
-        public UIViewportComponent() : base(TMaterial.CreateUnlitTextureMaterialForward()) { }
+        public UIViewportComponent() : base() { }
+        
+        public abstract Camera GetCamera();
+        public abstract Scene GetScene();
 
-        public GlobalFileRef<Camera> Camera { get; } = new GlobalFileRef<Camera>();
-        public virtual Scene GetScene() => Engine.Scene;
-        private Viewport _viewport = new Viewport(0.0f, 0.0f);
+        private Viewport _viewport = new Viewport(1.0f, 1.0f);
+
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.Opaque, 0, 0);
 
         public override void OnSpawned()
         {
@@ -24,20 +27,19 @@ namespace TheraEngine.Rendering.UI
         {
             base.OnDespawned();
         }
+
         public override BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
-            _viewport.Resize(parentRegion.Width, parentRegion.Height);
-            return base.Resize(parentRegion);
+            BoundingRectangle r = base.Resize(parentRegion);
+            _viewport.Resize(Width, Height);
+            return r;
         }
-        public override void Render()
+        public void Render()
         {
             Scene scene = GetScene();
-            if (scene is Scene2D scene2d)
-                scene2d.CollectVisibleRenderables();
-            else if (scene is Scene3D scene3d)
-                scene3d.CollectVisibleRenderables(Camera.File.Frustum, false);
-            scene.Render(Camera.File, _viewport);
-            base.Render();
+            Camera camera = GetCamera();
+
+            _viewport.Render(scene, camera, camera.Frustum);
         }
     }
 }

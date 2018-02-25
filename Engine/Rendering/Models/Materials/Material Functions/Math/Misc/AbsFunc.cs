@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     [FunctionDefinition(
         "Helpers",
         "Absolute Value",
-        "Returns the absolute value of the given value; |A|", 
+        "Returns the absolute value of the given value; |value|", 
         "absolute value")]
     public class AbsFunc : MaterialFunction
     {

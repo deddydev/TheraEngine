@@ -62,7 +62,7 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 item._parent = null;
                 item.OwningActor = null;
-                item.RecalcGlobalTransform();
+                item.RecalcWorldTransform();
             }
             //_owner?.GenerateSceneComponentCache();
         }
@@ -70,7 +70,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             item._parent = null;
             item.OwningActor = null;
-            item.RecalcGlobalTransform();
+            item.RecalcWorldTransform();
             //_owner?.GenerateSceneComponentCache();
         }
         private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
@@ -83,7 +83,7 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 item._parent = this;
                 item.OwningActor = _owningActor;
-                item.RecalcGlobalTransform();
+                item.RecalcWorldTransform();
             }
             //_owner?.GenerateSceneComponentCache();
         }
@@ -91,7 +91,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             item._parent = this;
             item.OwningActor = _owningActor;
-            item.RecalcGlobalTransform();
+            item.RecalcWorldTransform();
             //_owner?.GenerateSceneComponentCache();
         }
 

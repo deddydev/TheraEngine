@@ -20,7 +20,9 @@ namespace TheraEngine.Rendering
         public const float DefaultLineSize = 5.0f;
         
         public static Camera CurrentCamera => _cameraStack.Count == 0 ? null : _cameraStack.Peek();
-
+        public static Scene2D Current2DScene => _2dSceneStack.Count == 0 ? null : _2dSceneStack.Peek();
+        public static Scene3D Current3DScene => _3dSceneStack.Count == 0 ? null : _3dSceneStack.Peek();
+        
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext => RenderContext.Captured;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
@@ -34,7 +36,9 @@ namespace TheraEngine.Rendering
         protected static IPrimitiveManager _currentPrimitiveManager;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
         private static Stack<Camera> _cameraStack = new Stack<Camera>();
-
+        private static Stack<Scene2D> _2dSceneStack = new Stack<Scene2D>();
+        private static Stack<Scene3D> _3dSceneStack = new Stack<Scene3D>();
+        
         public abstract void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor);
         public void ClearTexImage(int bindingId, int level, ColorF4 color)
             => ClearTexImage(bindingId, level, EPixelFormat.Rgba, EPixelType.Float, color.Address);
@@ -50,9 +54,23 @@ namespace TheraEngine.Rendering
         #region Debug Primitives
 
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
-
-        internal static Scene3D Rendering3DScene { get; set; }
-        internal static Scene2D Rendering2DScene { get; set; }
+        
+        internal static void PushCurrent3DScene(Scene3D scene)
+        {
+            _3dSceneStack.Push(scene);
+        }
+        internal static void PopCurrent3DScene()
+        {
+            _3dSceneStack.Pop();
+        }
+        internal static void PushCurrent2DScene(Scene2D scene)
+        {
+            _2dSceneStack.Push(scene);
+        }
+        internal static void PopCurrent2DScene()
+        {
+            _2dSceneStack.Pop();
+        }
         internal static void PushCurrentCamera(Camera camera)
         {
             Camera c = CurrentCamera;

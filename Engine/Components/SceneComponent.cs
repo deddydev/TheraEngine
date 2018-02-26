@@ -75,7 +75,7 @@ namespace TheraEngine.Components
                 r3d.OctreeNode?.ItemMoved(r3d);
 
             foreach (SceneComponent c in _children)
-                c.RecalcGlobalTransform();
+                c.RecalcWorldTransform();
 
             WorldTransformChanged?.Invoke();
             SocketTransformChanged?.Invoke(this);
@@ -330,7 +330,7 @@ namespace TheraEngine.Components
                 _inverseWorldTransform = WorldMatrix.Inverted();
                 _localTransform = WorldMatrix * GetInverseParentMatrix();
                 _inverseLocalTransform = GetParentMatrix() * InverseWorldMatrix;
-                RecalcGlobalTransform();
+                RecalcWorldTransform();
             }
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
@@ -436,7 +436,7 @@ namespace TheraEngine.Components
         protected void RecalcLocalTransform()
         {
             OnRecalcLocalTransform(out _localTransform, out _inverseLocalTransform);
-            RecalcGlobalTransform();
+            RecalcWorldTransform();
         }
         /// <summary>
         /// Override to set local transforms.
@@ -446,7 +446,7 @@ namespace TheraEngine.Components
         /// <summary>
         /// Recalculates the world matrix for this component in relation to the parent component's world matrix.
         /// </summary>
-        internal virtual void RecalcGlobalTransform()
+        public virtual void RecalcWorldTransform()
         {
             _previousWorldTransform = _worldTransform;
             _worldTransform = GetParentMatrix() * LocalMatrix;
@@ -478,7 +478,7 @@ namespace TheraEngine.Components
 
                 item._parent = null;
                 item.OwningActor = null;
-                item.RecalcGlobalTransform();
+                item.RecalcWorldTransform();
             }
             OwningActor?.GenerateSceneComponentCache();
         }
@@ -489,7 +489,7 @@ namespace TheraEngine.Components
 
             item._parent = null;
             item.OwningActor = null;
-            item.RecalcGlobalTransform();
+            item.RecalcWorldTransform();
 
             OwningActor?.GenerateSceneComponentCache();
         }
@@ -524,7 +524,7 @@ namespace TheraEngine.Components
 
             item._parent = this;
             item.OwningActor = OwningActor;
-            item.RecalcGlobalTransform();
+            item.RecalcWorldTransform();
 
             if (spawnedMismatch)
             {

@@ -30,9 +30,9 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public override Shape CullingVolume
             => _sphere;
-        internal override void RecalcGlobalTransform()
+        public override void RecalcWorldTransform()
         {
-            base.RecalcGlobalTransform();
+            base.RecalcWorldTransform();
             _sphere.Center = WorldPoint;
         }
         public override void Render()

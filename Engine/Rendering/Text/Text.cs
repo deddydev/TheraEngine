@@ -144,6 +144,9 @@ namespace TheraEngine.Rendering.Text
 
         public unsafe void Draw(RenderTex2D texture)
         {
+            if (texture == null || texture.Mipmaps == null || texture.Mipmaps.Length == 0)
+                return;
+
             Bitmap b = texture.Mipmaps[0];
             b.MakeTransparent();
 

@@ -165,7 +165,7 @@ namespace TheraEngine.Actors
                 if (_rootComponent != null)
                 {
                     _rootComponent.OwningActor = this;
-                    _rootComponent.RecalcGlobalTransform();
+                    _rootComponent.RecalcWorldTransform();
                 }
                 GenerateSceneComponentCache();
             }

@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _pixelType = EPixelType.UnsignedByte;
         }
         public TexRef2D(string name, int width, int height,
-            PixelFormat bitmapFormat = PixelFormat.Format32bppArgb, int mipCount = 1)
+            PixelFormat bitmapFormat, int mipCount = 1)
             : this(name, width, height)
         {
             _mipmaps = new GlobalFileRef<TextureFile2D>[mipCount];

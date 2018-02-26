@@ -89,9 +89,9 @@ namespace TheraEngine.Components.Scene.Lights
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
 
-        internal override void RecalcGlobalTransform()
+        public override void RecalcWorldTransform()
         {
-            base.RecalcGlobalTransform();
+            base.RecalcWorldTransform();
             if (_shadowCamera != null)
             {
                 _shadowCamera.LocalPoint.Raw = WorldPoint;

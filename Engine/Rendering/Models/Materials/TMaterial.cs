@@ -232,7 +232,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (Requirements == UniformRequirements.NeedsLightsAndCamera)
             {
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
-                AbstractRenderer.Rendering3DScene.Lights.SetUniforms(programBindingId);
+                AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
             }
             else if (Requirements == UniformRequirements.NeedsCamera)
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
@@ -240,8 +240,6 @@ namespace TheraEngine.Rendering.Models.Materials
             //Apply special rendering parameters
             if (RenderParams != null)
                 Engine.Renderer.ApplyRenderParams(RenderParams);
-            else
-                throw new Exception();
 
             //Set variable uniforms
             foreach (ShaderVar v in _parameters)

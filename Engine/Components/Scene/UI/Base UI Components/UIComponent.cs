@@ -18,6 +18,7 @@ namespace TheraEngine.Rendering.UI
     {
         public UIComponent() : base() { }
 
+        [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
 
         //Used to select a new component when the user moves the gamepad stick.
@@ -81,7 +82,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation = value;
-                RecalcLocalTransform();
+                OnResized();
             }
         }
         [Category("Transform")]
@@ -91,7 +92,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation.X = value;
-                RecalcLocalTransform();
+                OnResized();
             }
         }
         [Category("Transform")]
@@ -101,7 +102,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation.Y = value;
-                RecalcLocalTransform();
+                OnResized();
             }
         }
         /// <summary>
@@ -116,7 +117,7 @@ namespace TheraEngine.Rendering.UI
             {
                 _translation += (value - _localOriginPercentage) * Size;
                 _localOriginPercentage = value;
-                RecalcLocalTransform();
+                OnResized();
             }
         }
         [Category("Transform")]
@@ -141,7 +142,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale = value;
-                RecalcLocalTransform();
+                OnResized();
             }
         }
         [Category("Transform")]
@@ -151,7 +152,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale.X = value;
-                RecalcLocalTransform();
+                OnResized();
             }
         }
         [Category("Transform")]
@@ -161,12 +162,14 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale.Y = value;
-                RecalcLocalTransform();
+                OnResized();
             }
         }
         #endregion
 
+        [Browsable(false)]
         public virtual BoundingRectangle AxisAlignedRegion => _axisAlignedBounds;
+        [Browsable(false)]
         public new IUIManager OwningActor
         {
             get => (IUIManager)base.OwningActor;
@@ -180,15 +183,16 @@ namespace TheraEngine.Rendering.UI
                 base.OwningActor = value;
             }
         }
+        [Browsable(false)]
         public bool IsRendering
         {
             get => _isRendering;
             set => _isRendering = value;
         }
 
-        public bool Contains(Vec2 screenPoint)
+        public bool Contains(Vec2 cursorPointWorld)
         {
-            Vec3 localPoint = Vec3.TransformPosition(screenPoint, InverseWorldMatrix);
+            Vec3 localPoint = Vec3.TransformPosition(cursorPointWorld, InverseWorldMatrix);
             return Size.Contains(localPoint.Xy);
         }
         /// <summary>
@@ -220,15 +224,21 @@ namespace TheraEngine.Rendering.UI
             localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Matrix4.Identity, LocalTranslation - LocalOriginTranslation, TransformOrder.TRS);
             inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Matrix4.Identity, -LocalTranslation + LocalOriginTranslation, TransformOrder.SRT);
         }
-        internal override void RecalcGlobalTransform()
+        public override void RecalcWorldTransform()
         {
-            base.RecalcGlobalTransform();
+            base.RecalcWorldTransform();
         }
         protected virtual void OnResized()
         {
             _axisAlignedBounds.Translation = Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
             _axisAlignedBounds.Bounds = Size;
-            RecalcLocalTransform();
+
+            if (ParentSocket is UIComponent comp)
+                Resize(comp.AxisAlignedRegion);
+            else if (OwningActor != null)
+                Resize(new BoundingRectangle(Vec2.Zero, OwningActor.Bounds));
+            else
+                Resize(BoundingRectangle.Empty);
         }
         public virtual BoundingRectangle Resize(BoundingRectangle parentRegion)
         {

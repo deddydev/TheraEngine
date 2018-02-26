@@ -126,13 +126,19 @@ namespace TheraEngine.Components.Scene
             localTransform = CameraRef.File.CameraToComponentSpaceMatrix;
             inverseLocalTransform = CameraRef.File.ComponentToCameraSpaceMatrix;
         }
-        internal override void RecalcGlobalTransform()
+        public override void RecalcWorldTransform()
         {
             _previousWorldTransform = _worldTransform;
             _worldTransform = GetParentMatrix() * LocalMatrix;
             _previousInverseWorldTransform = _inverseWorldTransform;
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
             OnWorldTransformChanged();
+        }
+
+        public override bool IsTranslatable => true;
+        public override void HandleWorldTranslation(Vec3 delta)
+        {
+            _cameraRef.File.TranslateAbsolute(delta);
         }
 
 #if EDITOR

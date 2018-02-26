@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
@@ -17,6 +18,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         /// type FUNC_NAME(in/out type args) { FUNC_OPERATION }
         /// </para>
         /// </summary>
+        [Browsable(false)]
         public bool Inline { get; private set; } = false;
 
         /// <summary>
@@ -56,8 +58,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             string[] outputNames,
             bool declareOutputs = false)
         {
-            if (inputNames.Length != _inputs.Count ||
-                outputNames.Length != _outputs.Count)
+            if (inputNames.Length != _valueInputs.Count ||
+                outputNames.Length != _valueOutputs.Count)
                 throw new InvalidOperationException();
 
             if (Inline)
@@ -65,26 +67,26 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
             string s = "\n";
             if (declareOutputs)
-                for (int i = 0; i < _outputs.Count; ++i)
+                for (int i = 0; i < _valueOutputs.Count; ++i)
                 {
                     string name = outputNames[i];
-                    ShaderVarType type = (ShaderVarType)_outputs[i].CurrentArgumentType;
+                    ShaderVarType type = (ShaderVarType)_valueOutputs[i].CurrentArgumentType;
                     s += type + " " + name + ";\n";
                 }
 
             s += Name + "(";
-            for (int i = 0; i < _inputs.Count; ++i)
+            for (int i = 0; i < _valueInputs.Count; ++i)
             {
                 s += inputNames[i];
-                if (i != _inputs.Count - 1)
+                if (i != _valueInputs.Count - 1)
                     s += ", ";
             }
-            if (_outputs.Count > 0)
+            if (_valueOutputs.Count > 0)
                 s += ", ";
-            for (int i = 0; i < _outputs.Count; ++i)
+            for (int i = 0; i < _valueOutputs.Count; ++i)
             {
                 s += outputNames[i];
-                if (i != _outputs.Count - 1)
+                if (i != _valueOutputs.Count - 1)
                     s += ", ";
             }
             s += ")";

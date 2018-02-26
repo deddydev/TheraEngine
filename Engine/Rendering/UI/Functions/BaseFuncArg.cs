@@ -1,20 +1,35 @@
 ﻿using System;
+using System.Drawing;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
-    public abstract class BaseFuncArg : UIComponent
+    public abstract class BaseFuncArg : UIMaterialRectangleComponent
     {
-        public BaseFuncArg(string name)
+        internal const int ConnectionBoxDims = 10;
+        internal const int ConnectionBoxMargin = 3;
+
+        public BaseFuncArg(string name) : base(MakeArgMaterial())
         {
             _name = name;
+            DockStyle = HudDockStyle.None;
+            Size = new Vec2(ConnectionBoxDims);
         }
-        public BaseFuncArg(string name, IFunction parent)
+        public BaseFuncArg(string name, IFunction parent) : base(MakeArgMaterial())
         {
             _name = name;
             _parent = (UIComponent)parent;
+            DockStyle = HudDockStyle.None;
+            Size = new Vec2(ConnectionBoxDims);
         }
+
         public abstract bool IsOutput { get; }
         public override string ToString() => Name;
+
+        private static TMaterial MakeArgMaterial()
+        {
+            return TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
+        }
 
         /// <summary>
         /// Returns an interpolated point from this argument to the given point.

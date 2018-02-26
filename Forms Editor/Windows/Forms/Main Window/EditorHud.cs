@@ -119,9 +119,16 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
+        public UIViewportComponent TestViewport { get; private set; }
         protected override UIDockableComponent OnConstruct()
         {
-            return base.OnConstruct();
+            UIDockableComponent dock = new UIDockableComponent();
+            TestViewport = new UIViewportComponent();
+            TestViewport.DockStyle = HudDockStyle.None;
+            TestViewport.Width = 400;
+            TestViewport.Height = 400;
+            dock.ChildComponents.Add(TestViewport);
+            return dock;
         }
         protected override void PreConstruct()
         {
@@ -254,6 +261,12 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnSpawnedPostComponentSetup();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
+            PerspectiveCameraActor c = new PerspectiveCameraActor();
+            c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
+            OwningWorld.SpawnActor(c);
+            TestViewport.Camera = c.Camera;
+            TestViewport.Width = 400;
+            TestViewport.Height = 400;
         }
         public override void OnDespawned()
         {

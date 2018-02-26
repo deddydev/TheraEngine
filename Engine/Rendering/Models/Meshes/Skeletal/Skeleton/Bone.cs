@@ -400,7 +400,7 @@ namespace TheraEngine.Rendering.Models
                 }
 
                 foreach (SceneComponent comp in _childComponents)
-                    comp.RecalcGlobalTransform();
+                    comp.RecalcWorldTransform();
             }
 
             //Update child bone transforms
@@ -519,7 +519,7 @@ namespace TheraEngine.Rendering.Models
         {
             item._parent = this;
             item.OwningActor = OwningComponent.OwningActor;
-            item.RecalcGlobalTransform();
+            item.RecalcWorldTransform();
         }
         private void ChildComponentsAddedRange(IEnumerable<SceneComponent> items)
         {
@@ -527,7 +527,7 @@ namespace TheraEngine.Rendering.Models
             {
                 item._parent = this;
                 item.OwningActor = OwningComponent.OwningActor;
-                item.RecalcGlobalTransform();
+                item.RecalcWorldTransform();
             }
         }
         private void ChildComponentsInserted(SceneComponent item, int index)
@@ -538,7 +538,7 @@ namespace TheraEngine.Rendering.Models
         {
             item._parent = null;
             item.OwningActor = null;
-            item.RecalcGlobalTransform();
+            item.RecalcWorldTransform();
         }
         private void ChildComponentsRemovedRange(IEnumerable<SceneComponent> items)
         {
@@ -546,7 +546,7 @@ namespace TheraEngine.Rendering.Models
             {
                 item._parent = null;
                 item.OwningActor = null;
-                item.RecalcGlobalTransform();
+                item.RecalcWorldTransform();
             }
         }
         #endregion

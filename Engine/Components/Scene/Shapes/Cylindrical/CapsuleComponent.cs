@@ -33,9 +33,9 @@ namespace TheraEngine.Components.Scene.Shapes
             set => _capsule.HalfHeight = value;
         }
 
-        internal override void RecalcGlobalTransform()
+        public override void RecalcWorldTransform()
         {
-            base.RecalcGlobalTransform();
+            base.RecalcWorldTransform();
             _capsule.SetRenderTransform(WorldMatrix);
             OctreeNode?.ItemMoved(this);
         }

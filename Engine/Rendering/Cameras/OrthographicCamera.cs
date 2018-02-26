@@ -12,6 +12,8 @@ namespace TheraEngine.Rendering.Cameras
             _scale.Changed += CreateTransform;
             _originPercentages.Changed += _originPercentages_Changed;
         }
+        public OrthographicCamera(float nearZ, float farZ)
+            : this(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, nearZ, farZ) { }
         public OrthographicCamera(Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
             : base(16.0f, 9.0f, nearZ, farZ, point, rotation)
         {
@@ -90,14 +92,49 @@ namespace TheraEngine.Rendering.Cameras
             _orthoBottomPercentage = 0.0f - yPercentage;
             _orthoTopPercentage = 1.0f - yPercentage;
         }
-        public override void Zoom(float amount)
+        Vec2 _minScale = new Vec2(0.05f), _maxScale = new Vec2(2.5f);
+        public override void Zoom(float amount, Vec2 zoomOriginScreenPoint)
         {
-            float scale = amount >= 0 ? amount : 1.0f / -amount;
+            if (amount == 0.0f)
+                return;
 
-            _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * Matrix4.CreateScale(scale);
-            _worldToCameraSpaceMatrix = Matrix4.CreateScale(-scale) * _worldToCameraSpaceMatrix;
-            UpdateTransformedFrustum();
-            OnTransformChanged();
+            Vec3 worldPoint = ScreenToWorld(zoomOriginScreenPoint, 0.0f);
+            Vec2 multiplier = Vec2.One / _scale.Xy * amount;
+            Vec2 newScale = _scale.Xy - amount;
+
+            bool xClamped = false;
+            bool yClamped = false;
+            if (newScale.X < _minScale.X)
+            {
+                newScale.X = _minScale.X;
+                xClamped = true;
+            }
+            if (newScale.X > _maxScale.X)
+            {
+                newScale.X = _maxScale.X;
+                xClamped = true;
+            }
+            if (newScale.Y < _minScale.Y)
+            {
+                newScale.Y = _minScale.Y;
+                yClamped = true;
+            }
+            if (newScale.Y > _maxScale.Y)
+            {
+                newScale.Y = _maxScale.Y;
+                yClamped = true;
+            }
+
+            if (!xClamped || !yClamped)
+            {
+                _localPoint.SetRawNoUpdate(_localPoint.Raw + (worldPoint - WorldPoint) * multiplier);
+                _scale.Xy = newScale;
+            }
+
+            //_cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * Matrix4.CreateScale(scale);
+            //_worldToCameraSpaceMatrix = Matrix4.CreateScale(-scale) * _worldToCameraSpaceMatrix;
+            //UpdateTransformedFrustum();
+            //OnTransformChanged();
         }
         protected override void CalculateProjection()
         {

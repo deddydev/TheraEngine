@@ -22,8 +22,9 @@ namespace TheraEngine.Rendering
     {
         public const int GBufferTextureCount = 5;
 
-        public static Viewport CurrentlyRendering { get; private set; }
-        
+        private static Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
+        public static Viewport CurrentlyRendering => CurrentlyRenderingViewports.Peek();
+
         private List<LocalPlayerController> _owners = new List<LocalPlayerController>();
         private int _index;
         private BoundingRectangle _region;
@@ -107,12 +108,13 @@ namespace TheraEngine.Rendering
 
         //public BaseRenderPanel OwningPanel => _owningPanel;
         public BoundingRectangle Region => _region;
-        public float Height => _region.Height;
-        public float Width => _region.Width;
-        public float X => _region.X;
-        public float Y => _region.Y;
+        public float Height { get => _region.Height; set => _region.Height = value; }
+        public float Width { get => _region.Width; set => _region.Width = value; }
+        public float X { get => _region.X; set => _region.X = value; }
+        public float Y { get => _region.Y; set => _region.Y = value; }
+        public Vec2 Position { get => _region.Position; set => _region.Position = value; }
         public int Index => _index;
-
+        
         public List<LocalPlayerController> Owners => _owners;
         //{
         //    get => _owner;
@@ -161,7 +163,7 @@ namespace TheraEngine.Rendering
             _owningPanel = panel;
             _index = index;
             Resize(panel.Width, panel.Height);
-            UpdateRender();
+            UpdateFBOs();
         }
         public Viewport(float width, float height)
         {
@@ -169,7 +171,7 @@ namespace TheraEngine.Rendering
             SetFullScreen();
             
             Resize(width, height);
-            UpdateRender();
+            UpdateFBOs();
         }
         private void _postProcessGBuffer_SettingUniforms(int programBindingId)
         {
@@ -242,9 +244,9 @@ namespace TheraEngine.Rendering
             if (scene == null || scene.Count == 0)
                 return;
 
-            CurrentlyRendering = this;
+            CurrentlyRenderingViewports.Push(this);
             OnRender(scene, camera, frustum);
-            CurrentlyRendering = null;
+            CurrentlyRenderingViewports.Pop();
         }
         protected virtual void OnRender(Scene scene, Camera camera, Frustum frustum)
         {
@@ -621,7 +623,7 @@ namespace TheraEngine.Rendering
             Depth32Stencil8,
         }
 
-        internal unsafe void UpdateRender()
+        internal unsafe void UpdateFBOs()
         {
             int width = InternalResolution.IntWidth;
             int height = InternalResolution.IntHeight;

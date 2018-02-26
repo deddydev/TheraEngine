@@ -119,6 +119,7 @@ namespace TheraEngine.Rendering
         public void DoRender(Camera c, Viewport v)
         {
             AbstractRenderer.PushCurrentCamera(c);
+            AbstractRenderer.PushCurrent2DScene(this);
             {
                 foreach (IPreRendered p in _preRenderList)
                     p.PreRender(c);
@@ -163,7 +164,7 @@ namespace TheraEngine.Rendering
                     {
                         //Engine.Renderer.CropRenderArea(v.Region);
                         //v.PostProcessFBO.Render();
-                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
                         Engine.Renderer.AllowDepthWrite(false);
                         _passes.Render(ERenderPass2D.Background);
@@ -197,6 +198,7 @@ namespace TheraEngine.Rendering
                     _passes.Render(ERenderPass2D.OnTop);
                 }
             }
+            AbstractRenderer.PopCurrent2DScene();
             AbstractRenderer.PopCurrentCamera();
         }
         

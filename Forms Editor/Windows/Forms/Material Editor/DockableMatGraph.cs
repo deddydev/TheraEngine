@@ -87,7 +87,6 @@ namespace TheraEditor.Windows.Forms
             //EditorPawn.RootComponent.SetTranslation(pos);
         }
 
-
         //protected override void OnResizeBegin(EventArgs e)
         //{
         //    RenderPanel.BeginResize();

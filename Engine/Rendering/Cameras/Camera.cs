@@ -113,7 +113,6 @@ namespace TheraEngine.Rendering.Cameras
                 _localRotation.SetRotations(_cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation().ToYawPitchRoll());
                 _cameraToWorldSpaceMatrix = value;
                 _worldToCameraSpaceMatrix = _cameraToWorldSpaceMatrix.Inverted();
-                UpdateTransformedFrustum();
                 OnTransformChanged();
             }
         }
@@ -140,6 +139,7 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
 
+        [Browsable(false)]
         [Category("Camera")]
         public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.Translation : _localPoint.Raw;
         
@@ -173,7 +173,9 @@ namespace TheraEngine.Rendering.Cameras
 
         public abstract float Width { get; set; }
         public abstract float Height { get; set; }
+        [Browsable(false)]
         public abstract Vec2 Origin { get; }
+        [Browsable(false)]
         public Vec2 Dimensions => new Vec2(Width, Height);
 
         [Browsable(false)]
@@ -289,13 +291,12 @@ namespace TheraEngine.Rendering.Cameras
             Matrix4 rotMatrix = _localRotation.GetMatrix();
             _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix;
             _worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
-            UpdateTransformedFrustum();
             OnTransformChanged();
         }
         protected void UpdateTransformedFrustum()
             => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, CameraToWorldSpaceMatrix);
 
-        public abstract void Zoom(float amount);
+        public abstract void Zoom(float amount, Vec2 zoomOriginScreenPoint);
 
         /// <summary>
         /// Translates the camera relative to the camera's rotation.
@@ -313,10 +314,7 @@ namespace TheraEngine.Rendering.Cameras
             if (_viewTarget != null)
                 SetRotationWithTarget(_viewTarget.Raw);
             else
-            {
-                UpdateTransformedFrustum();
                 OnTransformChanged();
-            }
         }
 
         /// <summary>
@@ -351,16 +349,20 @@ namespace TheraEngine.Rendering.Cameras
         /// <summary>
         /// Returns the right direction of the camera in world space.
         /// </summary>
+        [Browsable(false)]
         public Vec3 RightVector => CameraToWorldSpaceMatrix.RightVec;
         /// <summary>
         /// Returns the up direction of the camera in world space.
         /// </summary>
+        [Browsable(false)]
         public Vec3 UpVector => CameraToWorldSpaceMatrix.UpVec;
         /// <summary>
         /// Returns the forward direction of the camera in world space.
         /// </summary>
+        [Browsable(false)]
         public Vec3 ForwardVector => -CameraToWorldSpaceMatrix.ForwardVec;
-        
+
+        [Browsable(false)]
         public Matrix4 WorldToCameraProjSpaceMatrix
         {
             get
@@ -374,6 +376,7 @@ namespace TheraEngine.Rendering.Cameras
                 return _worldToCameraProjSpaceMatrix;
             }
         }
+        [Browsable(false)]
         public Matrix4 CameraProjToWorldSpaceMatrix
         {
             get
@@ -416,10 +419,11 @@ namespace TheraEngine.Rendering.Cameras
         }
         public void Pivot(float y, float x, float radius)
         {
+            Vec2 center = Dimensions / 2.0f;
             BeginUpdate();
-            Zoom(-radius);
+            Zoom(-radius, center);
             AddRotation(y, x);
-            Zoom(radius);
+            Zoom(radius, center);
             EndUpdate();
         }
         
@@ -439,6 +443,7 @@ namespace TheraEngine.Rendering.Cameras
         protected void OnTransformChanged()
         {
             _matrixInvalidated = true;
+            UpdateTransformedFrustum();
             _updating = true;
             TransformChanged?.Invoke();
             _updating = false;

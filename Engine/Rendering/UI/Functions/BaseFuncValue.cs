@@ -11,24 +11,16 @@ namespace TheraEngine.Rendering.UI.Functions
         int CurrentArgumentType { get; }
         int[] AllowedArgumentTypes { get; }
     }
-    public class BaseFuncValue : UIComponent
+    public abstract class BaseFuncValue : BaseFuncArg
     {
-        internal const float ConnectionBoxDims = 10.0f;
-        internal const float ConnectionBoxMargin = 3.0f;
+        public BaseFuncValue(string name) : base(name) { }
+        public BaseFuncValue(string name, IFunction parent) : base(name, parent) { }
     }
     public abstract class BaseFuncValue<T> : BaseFuncValue where T : IBaseFuncValue
     {
-        public BaseFuncValue(string name)
-        {
-            _name = name;
-        }
-        public BaseFuncValue(string name, IFunction parent)
-        {
-            _name = name;
-            _parent = (UIComponent)parent;
-        }
+        public BaseFuncValue(string name) : base(name) { }
+        public BaseFuncValue(string name, IFunction parent) : base(name, parent) { }
         
-        public abstract bool IsOutput { get; }
         public List<IBaseFuncValue> SyncedArguments => _syncedArgs;
         public int[] AllowedArgumentTypes => _allowedArgTypes;
         public int CurrentArgumentType => _currentArgType;

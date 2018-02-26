@@ -14,8 +14,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "one minus value 1 - subtract")]
     public class OneMinusFunc : MaterialFunction
     {
-        MatFuncValueInput InputValue;
-        MatFuncValueOutput Result;
+        MatFuncValueInput InputValue { get; set; }
+        MatFuncValueOutput Result { get; set; }
 
         public OneMinusFunc() : base(true) { }
         protected override string GetOperation()

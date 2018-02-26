@@ -50,7 +50,7 @@ namespace TheraEngine.Input.Devices
         public ButtonManager RightClick => _buttonStates[(int)EMouseButton.RightClick];
         public ButtonManager MiddleClick => _buttonStates[(int)EMouseButton.MiddleClick];
     }
-    public delegate void DelMouseScroll(bool up);
+    public delegate void DelMouseScroll(bool down);
     public delegate void DelCursorUpdate(float x, float y);
     public class CursorManager
     {
@@ -150,7 +150,7 @@ namespace TheraEngine.Input.Devices
             else
                 _onUpdate.Add(new Tuple<EInputPauseType, DelMouseScroll>(pauseType, func));
         }
-        private void OnUpdate(bool up)
+        private void OnUpdate(bool down)
         {
             int i = _onUpdate.Count;
             for (int x = 0; x < i; ++x)
@@ -159,7 +159,7 @@ namespace TheraEngine.Input.Devices
                 if (update.Item1 == EInputPauseType.TickAlways ||
                     (update.Item1 == EInputPauseType.TickOnlyWhenUnpaused && !Engine.IsPaused) ||
                     (update.Item1 == EInputPauseType.TickOnlyWhenPaused && Engine.IsPaused))
-                    update.Item2(up);
+                    update.Item2(down);
             }
         }
     }

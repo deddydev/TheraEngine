@@ -86,7 +86,7 @@ namespace TheraEngine.Components.Scene.Mesh
             => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
         #endregion
 
-        //internal override void RecalcGlobalTransform()
+        //public override void RecalcGlobalTransform()
         //{
         //    base.RecalcGlobalTransform();
         //    if (_meshes != null)

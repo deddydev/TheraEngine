@@ -227,7 +227,7 @@ namespace TheraEngine.Rendering
         public void RenderDeferred(Camera c, Viewport v)
         {
             AbstractRenderer.PushCurrentCamera(c);
-            AbstractRenderer.Rendering3DScene = this;
+            AbstractRenderer.PushCurrent3DScene(this);
             {
                 foreach (IPreRendered p in _preRenderList)
                     p.PreRender(c);
@@ -294,11 +294,16 @@ namespace TheraEngine.Rendering
 
                         Engine.Renderer.AllowDepthWrite(true);
                         Engine.Renderer.DepthFunc(EComparison.Lequal);
-                        
-                        //v.HUD.Scene.DoRender(v.Camera, v);
+
                         v.PostProcessFBO.Render();
                     }
                     Engine.Renderer.PopRenderArea();
+
+                    if (v.HUD?.Scene != null)
+                    {
+                        v.HUD.Scene.CollectVisibleRenderables();
+                        v.HUD.Scene.DoRender(v.Camera, v);
+                    }
                 }
                 else
                 {
@@ -318,7 +323,7 @@ namespace TheraEngine.Rendering
                     _passes.Render(ERenderPass3D.OnTopForward);
                 }
             }
-            AbstractRenderer.Rendering3DScene = null;
+            AbstractRenderer.PopCurrent3DScene();
             AbstractRenderer.PopCurrentCamera();
         }
         public void Add(I3DBoundable obj)
@@ -327,7 +332,7 @@ namespace TheraEngine.Rendering
             {
                 if (obj is I3DRenderable r && r.CullingVolume != null)
                     RegisterCullingVolume(r.CullingVolume);
-                //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
+                Engine.PrintLine("Added {0} to the scene.", obj.ToString());
             }
         }
         public void Remove(I3DBoundable obj)
@@ -336,7 +341,7 @@ namespace TheraEngine.Rendering
             {
                 if (obj is I3DRenderable r && r.CullingVolume != null)
                     UnregisterCullingVolume(r.CullingVolume);
-                //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
+                Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
             }
         }
         private void RegisterCullingVolume(Shape cullingVolume)

@@ -50,7 +50,7 @@ namespace TheraEngine.Components.Scene.Transforms
             _currentPoint -= newOrigin;
             _destPoint -= newOrigin;
             _interpPoint -= newOrigin;
-            RecalcGlobalTransform();
+            RecalcWorldTransform();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
@@ -61,7 +61,7 @@ namespace TheraEngine.Components.Scene.Transforms
             localTransform = Matrix4.Identity;
             inverseLocalTransform = Matrix4.Identity;
         }
-        internal override void RecalcGlobalTransform()
+        public override void RecalcWorldTransform()
         {
             _previousWorldTransform = _worldTransform;
             _previousInverseWorldTransform = _inverseWorldTransform;
@@ -84,7 +84,7 @@ namespace TheraEngine.Components.Scene.Transforms
                 _interpPoint = Interp.InterpLinearTo(_currentPoint, _destPoint, _delta, _interpSpeed);
 
             //Engine.DebugPrint(_currentPoint.DistanceTo(_destPoint));
-            RecalcGlobalTransform();
+            RecalcWorldTransform();
         }
         public override void OnSpawned()
         {

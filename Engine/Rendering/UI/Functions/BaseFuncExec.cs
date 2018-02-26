@@ -8,7 +8,12 @@ namespace TheraEngine.Rendering.UI.Functions
         void Arrange(int argumentIndex);
         void ClearConnection();
     }
-    public abstract class BaseFuncExec<T> : BaseFuncArg where T : UIComponent, IBaseFuncExec
+    public abstract class BaseFuncExec : BaseFuncArg
+    {
+        public BaseFuncExec(string name) : base(name) { }
+        public BaseFuncExec(string name, IFunction parent) : base(name, parent) { }
+    }
+    public abstract class BaseFuncExec<T> : BaseFuncExec where T : UIComponent, IBaseFuncExec
     {
         public T ConnectedTo => _connectedTo;
 

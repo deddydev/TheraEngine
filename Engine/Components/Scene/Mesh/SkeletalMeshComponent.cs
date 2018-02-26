@@ -192,9 +192,9 @@ namespace TheraEngine.Components.Scene.Mesh
 
             base.OnDespawned();
         }
-        internal override void RecalcGlobalTransform()
+        public override void RecalcWorldTransform()
         {
-            base.RecalcGlobalTransform();
+            base.RecalcWorldTransform();
             Skeleton.WorldMatrixChanged();
         }
 

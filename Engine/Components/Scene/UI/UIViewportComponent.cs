@@ -8,38 +8,30 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public abstract class UIViewportComponent : UIDockableComponent, I2DRenderable
+    public class UIViewportComponent : UIDockableComponent, I2DRenderable
     {
         public UIViewportComponent() : base() { }
         
-        public abstract Camera GetCamera();
-        public abstract Scene GetScene();
-
         private Viewport _viewport = new Viewport(1.0f, 1.0f);
 
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.Opaque, 0, 0);
-
-        public override void OnSpawned()
-        {
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            base.OnDespawned();
-        }
-
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 20, 0);
+        public Camera Camera { get; set; }
+        
         public override BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             BoundingRectangle r = base.Resize(parentRegion);
             _viewport.Resize(Width, Height);
             return r;
         }
+        public override void RecalcWorldTransform()
+        {
+            base.RecalcWorldTransform();
+            _viewport.Position = ScreenTranslation;
+        }
         public void Render()
         {
-            Scene scene = GetScene();
-            Camera camera = GetCamera();
-
-            _viewport.Render(scene, camera, camera.Frustum);
+            Scene scene = Camera?.OwningComponent?.OwningScene;
+            _viewport.Render(scene, Camera, Camera?.Frustum);
         }
     }
 }

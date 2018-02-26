@@ -15,45 +15,74 @@ namespace TheraEditor.Windows.Forms
 
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, MouseDown, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, MouseUp, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, LeftClickDown, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, LeftClickUp, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.RightClick, ButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.RightClick, ButtonInputType.Released, RightClickUp, EInputPauseType.TickAlways);
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
             input.RegisterMouseMove(MouseMove, false, EInputPauseType.TickAlways);
         }
 
+        private Vec2 _lastWorldPos = Vec2.Zero;
+        private Vec2 _lastFocusPoint = Vec2.Zero;
         MaterialFunction _selectedFunc = null;
-        private void MouseDown()
+        MaterialFunction _highlightedFunc = null;
+        bool _rightClickDown = false;
+
+        private void LeftClickDown()
         {
-            UIComponent comp = RootComponent.FindComponent(LocalPlayerController.Viewport.AbsoluteToRelative(CursorPosition));
-            if (comp != null && comp is MaterialFunction func)
-            {
-                _selectedFunc = func;
-            }
-            else
-                _selectedFunc = null;
+            _selectedFunc = _highlightedFunc;
+            _lastWorldPos = Viewport.ScreenToWorld(Viewport.AbsoluteToRelative(CursorPosition), 0.0f).Xy;
+        }
+        private UIComponent FindComponent()
+        {
+            return RootComponent.FindComponent(Viewport.ScreenToWorld(Viewport.AbsoluteToRelative(CursorPosition)).Xy);
         }
         protected override void MouseMove(float x, float y)
         {
-            //UIComponent comp = RootComponent.FindComponent(LocalPlayerController.Viewport.AbsoluteToRelative(CursorPosition));
-            //if (comp != null && comp is MaterialFunction func)
-            //{
-            //    Engine.PrintLine(func.Name);
-            //}
-
-            Vec2 pos = LocalPlayerController.Viewport.AbsoluteToRelative(CursorPosition);
+            Vec2 pos = Viewport.AbsoluteToRelative(CursorPosition);
             
             if (_selectedFunc != null)
             {
-                //Vec3 worldPoint = LocalPlayerController.Viewport.ScreenToWorld(pos, 0.0f);
-                _selectedFunc.LocalTranslation += pos - _cursorPos; //worldPoint.Xy;
+                Vec2 worldPoint = Viewport.ScreenToWorld(pos, 0.0f).Xy;
+                _selectedFunc.LocalTranslation += worldPoint - _lastWorldPos;
+                _lastWorldPos = worldPoint;
+            }
+            else if (_rightClickDown)
+            {
+                Vec2 screenPoint = Viewport.WorldToScreen(_lastFocusPoint).Xy;
+                screenPoint += pos - _cursorPos;
+                Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
+                Camera.LocalPoint += _lastFocusPoint - newFocusPoint;
+            }
+            else
+            {
+                _highlightedFunc = FindComponent() as MaterialFunction;
+                if (_highlightedFunc != null)
+                {
+                    //Engine.PrintLine(_highlightedFunc.Name + " " + DateTime.Now.ToString());
+                }
             }
 
             _cursorPos = pos;
-            //base.MouseMove(x, y);
         }
-        private void MouseUp()
+        private void LeftClickUp()
         {
             _selectedFunc = null;
+        }
+        private void RightClickDown()
+        {
+            _rightClickDown = true;
+            _lastWorldPos = Camera.LocalPoint.Xy;
+            _lastFocusPoint = Viewport.ScreenToWorld(Viewport.AbsoluteToRelative(CursorPosition)).Xy;
+        }
+        private void RightClickUp()
+        {
+            _rightClickDown = false;
+        }
+        protected override void OnScrolledInput(bool down)
+        {
+            Camera.Zoom(down ? -0.1f : 0.1f, Viewport.AbsoluteToRelative(CursorPosition));
         }
 
         private ResultBasicFunc _endFunc;
@@ -63,14 +92,10 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 if (_endFunc != null)
-                {
                     RootComponent.ChildComponents.Remove(_endFunc);
-                }
                 _endFunc = value;
                 if (_endFunc != null)
-                {
                     RootComponent.ChildComponents.Add(_endFunc);
-                }
             }
         }
 

@@ -17,7 +17,7 @@ namespace TheraEngine.Core.Shapes
     public class Frustum : I3DRenderable, IEnumerable<Plane>
     {
         public RenderInfo3D RenderInfo { get; } 
-            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
+            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];
@@ -194,7 +194,7 @@ namespace TheraEngine.Core.Shapes
         [Browsable(false)]
         public IEnumerable<Vec3> Points => _points;
         [Browsable(false)]
-        public Shape CullingVolume => _boundingSphere;
+        public Shape CullingVolume => null;
 
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
@@ -207,10 +207,10 @@ namespace TheraEngine.Core.Shapes
         [Browsable(false)]
         public Plane[] Planes => _planes;
 
-        [Browsable(false)]
-        public ERenderPass3D RenderPass => ERenderPass3D.OpaqueForward;
-        [Browsable(false)]
-        public float RenderOrder => 0.0f;
+        //[Browsable(false)]
+        //public ERenderPass3D RenderPass => ERenderPass3D.OpaqueForward;
+        //[Browsable(false)]
+        //public float RenderOrder => 0.0f;
 
         public bool UseBoundingSphere
         {
@@ -402,7 +402,6 @@ namespace TheraEngine.Core.Shapes
                     if (point.IsInTriangle(bottomLeft, bottomRight, topRight) &&
                         point.IsInTriangle(bottomLeft, topLeft, topRight))
                     {
-
                         return EContainment.Intersects;
                     }
 

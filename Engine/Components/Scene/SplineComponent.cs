@@ -68,9 +68,9 @@ namespace TheraEngine.Components.Scene
             Spline = spline;
         }
 
-        internal override void RecalcGlobalTransform()
+        public override void RecalcWorldTransform()
         {
-            base.RecalcGlobalTransform();
+            base.RecalcWorldTransform();
             //RenderNode?.ItemMoved(this);
         }
 

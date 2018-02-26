@@ -97,7 +97,7 @@ namespace TheraEngine.Components.Scene.Transforms
             _localTransform = LocalMatrix * translation.AsTranslationMatrix();
             _inverseLocalTransform = (-translation).AsTranslationMatrix() * InverseLocalMatrix;
             _translation.SetRawNoUpdate(LocalMatrix.Translation);
-            RecalcGlobalTransform();
+            RecalcWorldTransform();
         }
 
         public void Pivot(float pitch, float yaw, float distance)

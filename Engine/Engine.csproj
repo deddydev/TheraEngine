@@ -320,6 +320,7 @@
     <Compile Include="Components\Scene\Transforms\Noise\NoiseTR.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoiseRotation.cs" />
     <Compile Include="Components\Scene\Transforms\Lagged\TRLagged.cs" />
+    <Compile Include="Components\Scene\UI\Base UI Components\SizeableElement.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIButtonComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIDropDownListComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIInteractableComponent.cs" />

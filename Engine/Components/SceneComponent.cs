@@ -98,6 +98,7 @@ namespace TheraEngine.Components
         protected Matrix4 _localTransform = Matrix4.Identity;
         //[TSerialize("InverseLocalTransform")]
         protected Matrix4 _inverseLocalTransform = Matrix4.Identity;
+
         internal ISocket _parent;
         protected EventList<SceneComponent> _children;
 

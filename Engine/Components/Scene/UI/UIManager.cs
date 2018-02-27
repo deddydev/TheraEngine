@@ -99,14 +99,14 @@ namespace TheraEngine.Actors.Types.Pawns
             if (_bounds == Vec2.Zero)
                 return;
             _scene.Resize(bounds);
-            RootComponent.Resize(new BoundingRectangle(Vec2.Zero, bounds));
+            RootComponent.Resize(bounds);
             _camera.Resize(bounds.X, bounds.Y);
         }
         protected override void PostConstruct()
         {
             base.PostConstruct();
             if (_bounds != Vec2.Zero)
-                RootComponent?.Resize(new BoundingRectangle(Vec2.Zero, _bounds));
+                RootComponent?.Resize(_bounds);
         }
         //public void Render()
         //{

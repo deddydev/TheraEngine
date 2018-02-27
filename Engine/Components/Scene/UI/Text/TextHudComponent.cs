@@ -2,12 +2,14 @@
 using TheraEngine.Rendering.Text;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using System;
 
 namespace TheraEngine.Rendering.UI
 {
     public class TextHudComponent : UIMaterialRectangleComponent
     {
-        public TextHudComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)))
+        public TextHudComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(
+            new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)))
         {
             _textDrawer = new TextDrawer();
             _textDrawer.NeedsRedraw += Redraw;
@@ -20,9 +22,9 @@ namespace TheraEngine.Rendering.UI
 
         private void Redraw() => TextDrawer.Draw(TextTexture);
 
-        public override BoundingRectangle Resize(BoundingRectangle parentRegion)
+        public override Vec2 Resize(Vec2 parentBounds)
         {
-            BoundingRectangle rect = base.Resize(parentRegion);
+            Vec2 rect = base.Resize(parentBounds);
             TextTexture.Resize((int)Width, (int)Height);
             Redraw();
             return rect;

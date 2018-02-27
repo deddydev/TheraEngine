@@ -1,4 +1,5 @@
-﻿using TheraEngine.Core.Shapes;
+﻿using System;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
@@ -17,9 +18,9 @@ namespace TheraEngine.Rendering.UI
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 20, 0);
         public Camera Camera { get; set; }
         
-        public override BoundingRectangle Resize(BoundingRectangle parentRegion)
+        public override Vec2 Resize(Vec2 parentBounds)
         {
-            BoundingRectangle r = base.Resize(parentRegion);
+            Vec2 r = base.Resize(parentBounds);
             _viewport.Resize(Width, Height);
             return r;
         }

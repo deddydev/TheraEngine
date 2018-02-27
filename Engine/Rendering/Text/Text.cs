@@ -158,7 +158,7 @@ namespace TheraEngine.Rendering.Text
             using (Graphics g = Graphics.FromImage(b))
             {
                 g.Clear(Color.Transparent);
-                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+                g.TextRenderingHint = TextRenderingHint.SystemDefault;
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 foreach (TextData text in _text.Values)
                 {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -35,6 +36,17 @@ namespace TheraEngine.Rendering.UI
         protected Vec2 _translation = Vec2.Zero;
         protected Vec2 _localOriginPercentage = Vec2.Zero;
         protected BoundingRectangle _axisAlignedBounds = new BoundingRectangle();
+
+        [Browsable(false)]
+        public override ISocket ParentSocket
+        {
+            get => base.ParentSocket;
+            set
+            {
+                base.ParentSocket = value;
+                OnResized();
+            }
+        }
 
         #region Bounds
         [Category("Transform")]
@@ -168,7 +180,7 @@ namespace TheraEngine.Rendering.UI
         #endregion
 
         [Browsable(false)]
-        public virtual BoundingRectangle AxisAlignedRegion => _axisAlignedBounds;
+        public BoundingRectangle AxisAlignedRegion => _axisAlignedBounds;
         [Browsable(false)]
         public new IUIManager OwningActor
         {
@@ -181,6 +193,9 @@ namespace TheraEngine.Rendering.UI
                     value?.AddRenderableComponent(r);
                 }
                 base.OwningActor = value;
+
+                //if (ParentSocket == null)
+                    OnResized();
             }
         }
         [Browsable(false)]
@@ -234,17 +249,17 @@ namespace TheraEngine.Rendering.UI
             _axisAlignedBounds.Bounds = Size;
 
             if (ParentSocket is UIComponent comp)
-                Resize(comp.AxisAlignedRegion);
+                Resize(comp.Size);
             else if (OwningActor != null)
-                Resize(new BoundingRectangle(Vec2.Zero, OwningActor.Bounds));
+                Resize(OwningActor.Bounds);
             else
-                Resize(BoundingRectangle.Empty);
+                Resize(Vec2.Zero);
         }
-        public virtual BoundingRectangle Resize(BoundingRectangle parentRegion)
+        public virtual Vec2 Resize(Vec2 parentBounds)
         {
             foreach (UIComponent c in _children)
-                c.Resize(parentRegion);
-            return parentRegion;
+                c.Resize(parentBounds);
+            return parentBounds;
         }
         public UIComponent FindComponent(Vec2 viewportPoint)
         {

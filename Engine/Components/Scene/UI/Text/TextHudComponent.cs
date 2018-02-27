@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering.UI
 
         private TextDrawer _textDrawer;
 
-        public RenderTex2D TextTexture => Texture<RenderTex2D>(0);
+        public TexRef2D TextTexture => Texture<TexRef2D>(0);
         public TextDrawer TextDrawer => _textDrawer;
 
         private void Redraw() => TextDrawer.Draw(TextTexture);

@@ -45,8 +45,6 @@ namespace TheraEngine.Rendering.UI.Functions
                     continue;
 
                 FunctionDefinition def = func.GetCustomAttribute<FunctionDefinition>();
-                //if (def == null)
-                //    continue;
 
                 int count = 0;
                 foreach (string keyword in def.Keywords)

@@ -33,16 +33,16 @@ namespace TheraEngine.Rendering.UI
             set => _quad.Material = value;
         }
         
-        public BaseRenderTexture Texture(int index)
+        public BaseTexRef Texture(int index)
         {
             if (_quad.Material.Textures.IndexInRange(index))
-                return _quad.Material.Textures[index].GetTextureGeneric(true);
+                return _quad.Material.Textures[index];
             return null;
         }
-        public T Texture<T>(int index) where T : BaseRenderTexture
+        public T Texture<T>(int index) where T : BaseTexRef
         {
             if (_quad.Material.Textures.IndexInRange(index))
-                return _quad.Material.Textures[index].GetTextureGeneric<T>(true);
+                return _quad.Material.Textures[index] as T;
             return null;
         }
 

@@ -34,6 +34,27 @@ namespace TheraEngine.Rendering.Models.Materials
             _mipmaps = new GlobalFileRef<TextureFile2D>[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
                 _mipmaps[i] = new TextureFile2D(width / scale, height / scale, bitmapFormat);
+
+            switch (bitmapFormat)
+            {
+                case PixelFormat.Format32bppArgb:
+                case PixelFormat.Format32bppPArgb:
+                    _internalFormat = EPixelInternalFormat.Rgba8;
+                    _pixelFormat = EPixelFormat.Bgra;
+                    _pixelType = EPixelType.UnsignedByte;
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    _internalFormat = EPixelInternalFormat.Rgb8;
+                    _pixelFormat = EPixelFormat.Bgr;
+                    _pixelType = EPixelType.UnsignedByte;
+                    break;
+                case PixelFormat.Format64bppArgb:
+                case PixelFormat.Format64bppPArgb:
+                    _internalFormat = EPixelInternalFormat.Rgba16;
+                    _pixelFormat = EPixelFormat.Bgra;
+                    _pixelType = EPixelType.UnsignedShort;
+                    break;
+            }
         }
         public TexRef2D(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
@@ -188,8 +209,19 @@ namespace TheraEngine.Rendering.Models.Materials
 
             if (_isLoading)
                 return;
-            
-            GetTexture(true)?.Resize(_width, _height);
+
+            _texture?.Resize(width, height);
+            if (_mipmaps != null)
+                foreach (TextureFile2D tex in _mipmaps)
+                {
+                    int w = width, h = height;
+                    for (int i = 0; i < tex.Bitmaps.Length; ++i)
+                    {
+                        tex.Bitmaps[i] = tex.Bitmaps[i].Resized(w, h);
+                        w /= 2;
+                        h /= 2;
+                    }
+                }
         }
 
         public bool IsLoaded => _texture != null;

@@ -14,28 +14,23 @@ namespace TheraEngine.Rendering.UI
     public interface IUIComponent : ISceneComponent
     {
         Vec2 ScreenTranslation { get; }
+        Vec2 LocalTranslation { get; set; }
+        float LocalTranslationX { get; set; }
+        float LocalTranslationY { get; set; }
+        Vec2 Scale { get; set; }
+        float ScaleX { get; set; }
+        float ScaleY { get; set; }
     }
-    public abstract class UIComponent : OriginRebasableComponent, IPanel, I2DBoundable, IEnumerable<UIComponent>
+    public class UIComponent : OriginRebasableComponent, IUIComponent, IEnumerable<UIComponent>
     {
         public UIComponent() : base() { }
 
-        [Browsable(false)]
-        public IQuadtreeNode QuadtreeNode { get; set; }
-
-        //Used to select a new component when the user moves the gamepad stick.
-        protected UIComponent _left, _right, _down, _up;
-
-        protected IQuadtreeNode _renderNode;
-        protected bool _highlightable, _selectable, _scrollable, _isRendering;
+        protected Vec2 _translation = Vec2.Zero;
+        protected Vec2 _scale = Vec2.One;
+        protected Vec2 _localOriginPercentage = Vec2.Zero;
 
         public virtual int LayerIndex { get; set; }
         public virtual int IndexWithinLayer { get; set; }
-
-        protected Vec2 _size = Vec2.Zero;
-        protected Vec2 _scale = Vec2.One;
-        protected Vec2 _translation = Vec2.Zero;
-        protected Vec2 _localOriginPercentage = Vec2.Zero;
-        protected BoundingRectangle _axisAlignedBounds = new BoundingRectangle();
 
         [Browsable(false)]
         public override ISocket ParentSocket
@@ -44,43 +39,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 base.ParentSocket = value;
-                OnResized();
+                PerformResize();
             }
         }
-
-        #region Bounds
-        [Category("Transform")]
-        public virtual Vec2 Size
-        {
-            get => _size;
-            set
-            {
-                _size = value;
-                OnResized();
-            }
-        }
-        [Category("Transform")]
-        public virtual float Height
-        {
-            get => _size.Y;
-            set
-            {
-                _size.Y = value;
-                OnResized();
-            }
-        }
-        [Category("Transform")]
-        public virtual float Width
-        {
-            get => _size.X;
-            set
-            {
-                _size.X = value;
-                OnResized();
-            }
-        }
-        #endregion
-
+        
         #region Translation
 
         [Browsable(false)]
@@ -94,7 +56,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation = value;
-                OnResized();
+                PerformResize();
             }
         }
         [Category("Transform")]
@@ -104,7 +66,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation.X = value;
-                OnResized();
+                PerformResize();
             }
         }
         [Category("Transform")]
@@ -114,35 +76,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation.Y = value;
-                OnResized();
+                PerformResize();
             }
-        }
-        /// <summary>
-        /// The origin of the component's rotation and scale, as a percentage.
-        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
-        /// </summary>
-        [Category("Transform")]
-        public virtual Vec2 LocalOriginPercentage
-        {
-            get => _localOriginPercentage;
-            set
-            {
-                _translation += (value - _localOriginPercentage) * Size;
-                _localOriginPercentage = value;
-                OnResized();
-            }
-        }
-        [Category("Transform")]
-        public virtual Vec2 LocalOriginTranslation
-        {
-            get => LocalOriginPercentage * Size;
-            set => LocalOriginPercentage = value / Size;
-        }
-        [Category("Transform")]
-        public virtual Vec2 BottomLeftTranslation
-        {
-            get => LocalTranslation - LocalOriginTranslation;
-            set => LocalTranslation = value + LocalOriginTranslation;
         }
         #endregion
 
@@ -154,7 +89,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale = value;
-                OnResized();
+                PerformResize();
             }
         }
         [Category("Transform")]
@@ -164,7 +99,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale.X = value;
-                OnResized();
+                PerformResize();
             }
         }
         [Category("Transform")]
@@ -174,13 +109,11 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale.Y = value;
-                OnResized();
+                PerformResize();
             }
         }
         #endregion
-
-        [Browsable(false)]
-        public BoundingRectangle AxisAlignedRegion => _axisAlignedBounds;
+        
         [Browsable(false)]
         public new IUIManager OwningActor
         {
@@ -195,31 +128,8 @@ namespace TheraEngine.Rendering.UI
                 base.OwningActor = value;
 
                 //if (ParentSocket == null)
-                    OnResized();
+                    PerformResize();
             }
-        }
-        [Browsable(false)]
-        public bool IsRendering
-        {
-            get => _isRendering;
-            set => _isRendering = value;
-        }
-
-        public bool Contains(Vec2 cursorPointWorld)
-        {
-            Vec3 localPoint = Vec3.TransformPosition(cursorPointWorld, InverseWorldMatrix);
-            return Size.Contains(localPoint.Xy);
-        }
-        /// <summary>
-        /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
-        /// </summary>
-        /// <param name="worldPoint"></param>
-        /// <param name="zMargin">How far away the point can be on either side of the HUD for it to be considered close enough.</param>
-        /// <returns></returns>
-        public bool Contains(Vec3 worldPoint, float zMargin = 0.5f)
-        {
-            Vec3 localPoint = Vec3.TransformPosition(worldPoint, InverseWorldMatrix);
-            return Math.Abs(localPoint.Z) < zMargin && Size.Contains(localPoint.Xy);
         }
 
         public override void OnSpawned()
@@ -236,36 +146,31 @@ namespace TheraEngine.Rendering.UI
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Matrix4.Identity, LocalTranslation - LocalOriginTranslation, TransformOrder.TRS);
-            inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Matrix4.Identity, -LocalTranslation + LocalOriginTranslation, TransformOrder.SRT);
+            localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Matrix4.Identity, LocalTranslation, TransformOrder.TRS);
+            inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Matrix4.Identity, -LocalTranslation, TransformOrder.SRT);
         }
         public override void RecalcWorldTransform()
         {
             base.RecalcWorldTransform();
         }
-        protected virtual void OnResized()
+        public virtual Vec2 Resize(Vec2 parentBounds)
         {
-            _axisAlignedBounds.Translation = Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
-            _axisAlignedBounds.Bounds = Size;
-
-            if (ParentSocket is UIComponent comp)
+            foreach (UIComponent c in _children)
+                c.Resize(parentBounds);
+            RecalcLocalTransform();
+            return parentBounds;
+        }
+        protected virtual void PerformResize()
+        {
+            if (ParentSocket is UIBoundableComponent comp)
                 Resize(comp.Size);
             else if (OwningActor != null)
                 Resize(OwningActor.Bounds);
             else
                 Resize(Vec2.Zero);
         }
-        public virtual Vec2 Resize(Vec2 parentBounds)
+        public virtual UIComponent FindComponent(Vec2 viewportPoint)
         {
-            foreach (UIComponent c in _children)
-                c.Resize(parentBounds);
-            return parentBounds;
-        }
-        public UIComponent FindComponent(Vec2 viewportPoint)
-        {
-            if (!Contains(viewportPoint))
-                return null;
-
             //TODO: create 2D quadtree for hud component searching
             foreach (UIComponent c in _children)
             {
@@ -273,10 +178,54 @@ namespace TheraEngine.Rendering.UI
                 if (comp != null)
                     return comp;
             }
-
-            return this;
+            return null;
         }
-        
+
+        public void Zoom(float amount, Vec2 worldScreenPoint, Vec2 minScale, Vec2 maxScale)
+        {
+            if (amount == 0.0f)
+                return;
+
+            Vec2 multiplier = Vec2.One / _scale * amount;
+            Vec2 newScale = _scale - amount;
+
+            bool xClamped = false;
+            bool yClamped = false;
+            if (newScale.X < minScale.X)
+            {
+                newScale.X = minScale.X;
+                xClamped = true;
+            }
+            if (newScale.X > maxScale.X)
+            {
+                newScale.X = maxScale.X;
+                xClamped = true;
+            }
+            if (newScale.Y < minScale.Y)
+            {
+                newScale.Y = minScale.Y;
+                yClamped = true;
+            }
+            if (newScale.Y > maxScale.Y)
+            {
+                newScale.Y = maxScale.Y;
+                yClamped = true;
+            }
+
+            if (!xClamped || !yClamped)
+            {
+                _translation = (_translation + (worldScreenPoint - WorldPoint.Xy) * multiplier);
+                _scale = newScale;
+            }
+
+            PerformResize();
+
+            //_cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * Matrix4.CreateScale(scale);
+            //_worldToCameraSpaceMatrix = Matrix4.CreateScale(-scale) * _worldToCameraSpaceMatrix;
+            //UpdateTransformedFrustum();
+            //OnTransformChanged();
+        }
+
         protected override void HandleSingleChildAdded(SceneComponent item)
         {
             base.HandleSingleChildAdded(item);

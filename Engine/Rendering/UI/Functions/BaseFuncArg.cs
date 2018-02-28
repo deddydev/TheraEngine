@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.UI.Functions
 
         private static TMaterial MakeArgMaterial()
         {
-            return TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
+            return TMaterial.CreateUnlitColorMaterialForward(new ColorF4(0.4f, 1.0f));
         }
 
         /// <summary>

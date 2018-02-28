@@ -124,7 +124,15 @@ namespace TheraEngine.Rendering.Cameras
                 _aspect = _width / _height;
             base.Resize(width, height);
         }
-        public override void Zoom(float amount, Vec2 zoomOriginScreenPoint)
+        public void Pivot(float y, float x, float radius)
+        {
+            BeginUpdate();
+            Zoom(-radius);
+            AddRotation(y, x);
+            Zoom(radius);
+            EndUpdate();
+        }
+        public void Zoom(float amount)
             => TranslateRelative(0.0f, 0.0f, amount);
         protected override Frustum CreateUntransformedFrustum()
         {

@@ -296,8 +296,6 @@ namespace TheraEngine.Rendering.Cameras
         protected void UpdateTransformedFrustum()
             => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, CameraToWorldSpaceMatrix);
 
-        public abstract void Zoom(float amount, Vec2 zoomOriginScreenPoint);
-
         /// <summary>
         /// Translates the camera relative to the camera's rotation.
         /// </summary>
@@ -417,15 +415,6 @@ namespace TheraEngine.Rendering.Cameras
             //    target = Vec3.TransformPosition(target, _owningComponent.InverseWorldMatrix);
             SetRotation((target - _localPoint).LookatAngles());
         }
-        public void Pivot(float y, float x, float radius)
-        {
-            Vec2 center = Dimensions / 2.0f;
-            BeginUpdate();
-            Zoom(-radius, center);
-            AddRotation(y, x);
-            Zoom(radius, center);
-            EndUpdate();
-        }
         
         public void Reset()
         {
@@ -506,9 +495,9 @@ namespace TheraEngine.Rendering.Cameras
 
         protected abstract Frustum CreateUntransformedFrustum();
 
-        private void BeginUpdate() 
+        protected void BeginUpdate() 
             =>_updating = true;
-        private void EndUpdate()
+        protected void EndUpdate()
         {
             _updating = false;
             TransformChanged?.Invoke();

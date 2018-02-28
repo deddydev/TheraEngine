@@ -17,7 +17,8 @@ namespace TheraEngine.Rendering.UI
 
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 20, 0);
         public Camera Camera { get; set; }
-        
+        public bool IsRendering { get; set; }
+
         public override Vec2 Resize(Vec2 parentBounds)
         {
             Vec2 r = base.Resize(parentBounds);

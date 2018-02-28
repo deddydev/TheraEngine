@@ -39,6 +39,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         {
             Inline = inline;
         }
+        public MaterialFunction() : base()
+        {
+
+        }
         
         /// <summary>
         /// Returns the base operation for string.Format.
@@ -192,6 +196,24 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             ShaderVarType._bool,
             ShaderVarType._bvec2,
             ShaderVarType._bvec3,
+            ShaderVarType._bvec4,
+        };
+        public static readonly ShaderVarType[] VectorTypes = new ShaderVarType[]
+        {
+            ShaderVarType._vec2,
+            ShaderVarType._ivec2,
+            ShaderVarType._uvec2,
+            ShaderVarType._dvec2,
+            ShaderVarType._bvec2,
+            ShaderVarType._vec3,
+            ShaderVarType._ivec3,
+            ShaderVarType._uvec3,
+            ShaderVarType._dvec3,
+            ShaderVarType._bvec3,
+            ShaderVarType._vec4,
+            ShaderVarType._ivec4,
+            ShaderVarType._uvec4,
+            ShaderVarType._dvec4,
             ShaderVarType._bvec4,
         };
     }

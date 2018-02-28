@@ -92,8 +92,16 @@ namespace TheraEngine.Rendering.Cameras
             _orthoBottomPercentage = 0.0f - yPercentage;
             _orthoTopPercentage = 1.0f - yPercentage;
         }
-        Vec2 _minScale = new Vec2(0.05f), _maxScale = new Vec2(2.5f);
-        public override void Zoom(float amount, Vec2 zoomOriginScreenPoint)
+        //public void Pivot(float y, float x, float radius)
+        //{
+        //    Vec2 center = Dimensions / 2.0f;
+        //    BeginUpdate();
+        //    Zoom(-radius, center);
+        //    AddRotation(y, x);
+        //    Zoom(radius, center);
+        //    EndUpdate();
+        //}
+        public void Zoom(float amount, Vec2 zoomOriginScreenPoint, Vec2 minScale, Vec2 maxScale)
         {
             if (amount == 0.0f)
                 return;
@@ -104,24 +112,24 @@ namespace TheraEngine.Rendering.Cameras
 
             bool xClamped = false;
             bool yClamped = false;
-            if (newScale.X < _minScale.X)
+            if (newScale.X < minScale.X)
             {
-                newScale.X = _minScale.X;
+                newScale.X = minScale.X;
                 xClamped = true;
             }
-            if (newScale.X > _maxScale.X)
+            if (newScale.X > maxScale.X)
             {
-                newScale.X = _maxScale.X;
+                newScale.X = maxScale.X;
                 xClamped = true;
             }
-            if (newScale.Y < _minScale.Y)
+            if (newScale.Y < minScale.Y)
             {
-                newScale.Y = _minScale.Y;
+                newScale.Y = minScale.Y;
                 yClamped = true;
             }
-            if (newScale.Y > _maxScale.Y)
+            if (newScale.Y > maxScale.Y)
             {
-                newScale.Y = _maxScale.Y;
+                newScale.Y = maxScale.Y;
                 yClamped = true;
             }
 

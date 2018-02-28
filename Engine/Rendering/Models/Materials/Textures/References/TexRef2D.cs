@@ -210,7 +210,6 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_isLoading)
                 return;
 
-            _texture?.Resize(width, height);
             if (_mipmaps != null)
                 foreach (TextureFile2D tex in _mipmaps)
                 {
@@ -222,6 +221,7 @@ namespace TheraEngine.Rendering.Models.Materials
                         h /= 2;
                     }
                 }
+            _texture?.Resize(width, height);
         }
 
         public bool IsLoaded => _texture != null;

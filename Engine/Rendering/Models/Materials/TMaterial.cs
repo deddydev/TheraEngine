@@ -18,12 +18,12 @@ namespace TheraEngine.Rendering.Models.Materials
         public event DelSettingUniforms SettingUniforms;
 
 #if EDITOR
-        public ResultBasicFunc EditorMaterialEnd
+        public ResultFunc EditorMaterialEnd
         {
             get => _editorMaterialEnd;
             set => _editorMaterialEnd = value;
         }
-        private ResultBasicFunc _editorMaterialEnd;
+        private ResultFunc _editorMaterialEnd;
 #endif
 
         private List<Shader> _geometryShaders = new List<Shader>();
@@ -362,12 +362,13 @@ namespace TheraEngine.Rendering.Models.Materials
         //}
 
         #region Basic Material Generation
-        public static TMaterial CreateUnlitTextureMaterialForward(TexRef2D texture)
+        public static TMaterial CreateUnlitTextureMaterialForward(TexRef2D texture, RenderingParameters renderParams)
         {
             return new TMaterial("UnlitTextureMaterial", new BaseTexRef[] { texture },
                 ShaderHelpers.UnlitTextureFragForward())
             {
                 Requirements = UniformRequirements.None,
+                RenderParams = renderParams,
             };
         }
         public static TMaterial CreateUnlitTextureMaterialForward()

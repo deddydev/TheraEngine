@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "PBR Output [Deferred]",
         "Combines the given inputs using a deferred physically-based shading pipeline.",
         "result output final return physically based rendering PBR albedo roughness shininess specularity metallic refraction")]
-    public class ResultPBRFunc : ResultBasicFunc
+    public class ResultPBRFunc : ResultFunc
     {
         public MatFuncValueInput Albedo { get; set; }
         public MatFuncValueInput Roughness { get; set; }
@@ -19,11 +19,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         public MatFuncValueInput Specularity { get; set; }
         public MatFuncValueInput Metallic { get; set; }
         public MatFuncValueInput Refraction { get; set; }
-        
-        protected override string GetOperation()
-        {
-            return base.GetOperation();
-        }
+
+        public ResultPBRFunc() : base(false) { }
 
         protected override List<MatFuncValueInput> GetValueInputs()
         {

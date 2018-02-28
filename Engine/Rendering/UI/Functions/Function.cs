@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using TheraEngine.Components;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
@@ -90,11 +91,11 @@ namespace TheraEngine.Rendering.UI.Functions
 
             _headerText = new TextHudComponent
             {
-                Name = FunctionName + "_Text",
+                Name = FunctionName + " Text",
                 DockStyle = HudDockStyle.Top,
-                Height = TextRenderer.MeasureText(FunctionName, _textFont).Height + HeaderPadding * 2,
+                Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
             };
-            _headerText.TextDrawer.Add(new TextData(FunctionName, _textFont, Color.White, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            _headerText.TextDrawer.Add(new TextData(FunctionName, _headerFont, Color.White, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
             ChildComponents.Add(_headerText);
 
             AddExecInput(GetExecInputs());
@@ -105,7 +106,7 @@ namespace TheraEngine.Rendering.UI.Functions
 
         private static TMaterial MakeFunctionMaterial()
         {
-            return TMaterial.CreateUnlitColorMaterialForward(Color.Green);
+            return TMaterial.CreateUnlitColorMaterialForward(new ColorF4(0.1f, 1.0f));
         }
 
         private TextHudComponent _headerText;
@@ -118,10 +119,10 @@ namespace TheraEngine.Rendering.UI.Functions
 
             TextHudComponent text = new TextHudComponent
             {
-                Name = arg.Name + "_Text",
+                Name = arg.Name + " Text",
                 DockStyle = HudDockStyle.None,
             };
-            text.TextDrawer.Add(new TextData(arg.Name, _textFont, Color.White, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            text.TextDrawer.Add(new TextData(arg.Name, _paramFont, Color.White, new Vec2(HeaderPadding), new Vec2(), 0.0f, Vec2.One, 0.0f));
             ChildComponents.Add(text);
 
             if (arg is IFuncExecInput || arg is IFuncValueInput)
@@ -148,12 +149,12 @@ namespace TheraEngine.Rendering.UI.Functions
             if (input != null)
                 foreach (TEIn v in input)
                     HandleExecInputAdded(v);
-            OnResized();
+            PerformResize();
         }
         protected void AddExecInput(TEIn input)
         {
             HandleExecInputAdded(input);
-            OnResized();
+            PerformResize();
         }
         private void HandleExecInputAdded(TEIn input)
         {
@@ -165,12 +166,12 @@ namespace TheraEngine.Rendering.UI.Functions
             if (output != null)
                 foreach (TEOut v in output)
                     HandleExecOutputAdded(v);
-            OnResized();
+            PerformResize();
         }
         protected void AddExecOutput(TEOut output)
         {
             HandleExecOutputAdded(output);
-            OnResized();
+            PerformResize();
         }
         private void HandleExecOutputAdded(TEOut output)
         {
@@ -193,12 +194,12 @@ namespace TheraEngine.Rendering.UI.Functions
             if (input != null)
                 foreach (TVIn v in input)
                     HandleValueInputAdded(v);
-            OnResized();
+            PerformResize();
         }
         protected void AddValueInput(TVIn input)
         {
             HandleValueInputAdded(input);
-            OnResized();
+            PerformResize();
         }
         private void HandleValueInputAdded(TVIn input)
         {
@@ -210,12 +211,12 @@ namespace TheraEngine.Rendering.UI.Functions
             if (output != null)
                 foreach (TVOut v in output)
                     HandleValueOutputAdded(v);
-            OnResized();
+            PerformResize();
         }
         protected void AddValueOutput(TVOut output)
         {
             HandleValueOutputAdded(output);
-            OnResized();
+            PerformResize();
         }
         private void HandleValueOutputAdded(TVOut output)
         {
@@ -228,11 +229,12 @@ namespace TheraEngine.Rendering.UI.Functions
             => FunctionName;
 
         internal const int HeaderPadding = 2;
-        private Font _textFont = new Font("Arial", 9.0f, FontStyle.Regular);
+        private Font _paramFont = new Font("Segoe UI", 9.0f, FontStyle.Regular);
+        private Font _headerFont = new Font("Segoe UI", 11.0f, FontStyle.Bold);
 
         public override Vec2 Resize(Vec2 parentBounds)
         {
-            Size headerSize = TextRenderer.MeasureText(FunctionName, _textFont);
+            Size headerSize = TextRenderer.MeasureText(FunctionName, _headerFont);
             int totalHeaderPadding = HeaderPadding * 2;
             headerSize.Height += totalHeaderPadding;
             headerSize.Width += totalHeaderPadding;
@@ -276,6 +278,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 int height = TMath.Max(connectionBoxBounds,
                     i < inputTextSizes.Length ? inputTextSizes[i].Height : 0,
                     i < outputTextSizes.Length ? outputTextSizes[i].Height : 0);
+
                 yTrans -= height;
 
                 if (i < _execInputs.Count)
@@ -310,9 +313,25 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         private void Arrange1(BaseFuncArg arg, int i, Size[] sizes, ref int currentRowWidth)
         {
-            Size argTextSize = TextRenderer.MeasureText(arg.Name, _textFont);
+            Size argTextSize = TextRenderer.MeasureText(arg.Name, _paramFont);
             sizes[i] = argTextSize;
             currentRowWidth += BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin * 2 + argTextSize.Width;
+        }
+
+        protected override void HandleSingleChildAdded(SceneComponent item)
+        {
+            base.HandleSingleChildAdded(item);
+            if (OwningActor != null)
+            {
+                foreach (var e in _execInputs)
+                {
+                    OwningActor.RootComponent.ChildComponents.Add(e);
+                }
+                foreach (var v in _valueInputs)
+                {
+                    OwningActor.RootComponent.ChildComponents.Add(v);
+                }
+            }
         }
 
         [Browsable(false)]

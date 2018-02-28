@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using TheraEngine.Components;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
@@ -26,7 +27,7 @@ namespace TheraEngine.Rendering.UI
     ///Component that uses a variety of positioning parameters
     ///to calculate the region's position and dimensions upon resize.
     /// </summary>
-    public class UIDockableComponent : UIComponent
+    public class UIDockableComponent : UIBoundableComponent
     {
         /// <summary>
         /// The X value of the right boundary line.
@@ -39,7 +40,7 @@ namespace TheraEngine.Rendering.UI
             {
                 CheckProperDimensions();
                 _size.X = value - LocalTranslationX;
-                OnResized();
+                PerformResize();
             }
         }
         /// <summary>
@@ -53,7 +54,7 @@ namespace TheraEngine.Rendering.UI
             {
                 CheckProperDimensions();
                 _size.Y = value - LocalTranslationY;
-                OnResized();
+                PerformResize();
             }
         }
         /// <summary>
@@ -69,7 +70,7 @@ namespace TheraEngine.Rendering.UI
                 float origX = _size.X;
                 _translation.X = value;
                 _size.X = origX - LocalTranslationX;
-                OnResized();
+                PerformResize();
             }
         }
         /// <summary>
@@ -85,7 +86,7 @@ namespace TheraEngine.Rendering.UI
                 float origY = _size.Y;
                 _translation.Y = value;
                 _size.Y = origY - LocalTranslationY;
-                OnResized();
+                PerformResize();
             }
         }
         /// <summary>
@@ -192,7 +193,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _dockStyle = value;
-                OnResized();
+                PerformResize();
             }
         }
         public AnchorFlags SideAnchorFlags
@@ -201,7 +202,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _anchorFlags = value;
-                OnResized();
+                PerformResize();
             }
         }
 
@@ -219,7 +220,7 @@ namespace TheraEngine.Rendering.UI
                     _anchorFlags |= AnchorFlags.Bottom;
                 else
                     _anchorFlags &= ~AnchorFlags.Bottom;
-                OnResized();
+                PerformResize();
             }
         }
         public bool AnchoredTop
@@ -233,7 +234,7 @@ namespace TheraEngine.Rendering.UI
                     _anchorFlags |= AnchorFlags.Top;
                 else
                     _anchorFlags &= ~AnchorFlags.Top;
-                OnResized();
+                PerformResize();
             }
         }
         public bool AnchoredLeft
@@ -247,7 +248,7 @@ namespace TheraEngine.Rendering.UI
                     _anchorFlags |= AnchorFlags.Left;
                 else
                     _anchorFlags &= ~AnchorFlags.Left;
-                OnResized();
+                PerformResize();
             }
         }
         public bool AnchoredRight
@@ -261,7 +262,7 @@ namespace TheraEngine.Rendering.UI
                     _anchorFlags |= AnchorFlags.Right;
                 else
                     _anchorFlags &= ~AnchorFlags.Right;
-                OnResized();
+                PerformResize();
             }
         }
         

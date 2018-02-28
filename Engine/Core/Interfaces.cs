@@ -87,12 +87,12 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo2D RenderInfo { get; }
+        bool IsRendering { get; set; }
     }
     public interface I2DBoundable
     {
         BoundingRectangle AxisAlignedRegion { get; }
         IQuadtreeNode QuadtreeNode { get; set; }
-        bool IsRendering { get; set; }
         bool Contains(Vec2 point);
     }
     public interface IRenderable
@@ -101,21 +101,6 @@ namespace TheraEngine
         /// Called when the engine wants to render this object.
         /// </summary>
         void Render();
-    }
-    public interface IPanel
-    {
-        Vec2 Size { get; set; }
-        float Height { get; set; }
-        float Width { get; set; }
-        Vec2 LocalTranslation { get; set; }
-        float LocalTranslationX { get; set; }
-        float LocalTranslationY { get; set; }
-        Vec2 Scale { get; set; }
-        float ScaleX { get; set; }
-        float ScaleY { get; set; }
-        Vec2 LocalOriginPercentage { get; set; }
-        Vec2 LocalOriginTranslation { get; set; }
-        Vec2 BottomLeftTranslation { get; set; }
     }
     public interface IBufferable
     {

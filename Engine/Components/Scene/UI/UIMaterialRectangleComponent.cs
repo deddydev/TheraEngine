@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering.UI
         public UIMaterialRectangleComponent(TMaterial material)
         {
             VertexQuad quad = VertexQuad.PosZQuad(Width, Height, 0.0f, true);
-            PrimitiveData quadData = PrimitiveData.FromQuads(Culling.None, VertexShaderDesc.PosNormTex(), quad);
+            PrimitiveData quadData = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosTex(), quad);
             _quad = new PrimitiveManager(quadData, material);
         }
 
@@ -32,7 +32,8 @@ namespace TheraEngine.Rendering.UI
             get => _quad.Material;
             set => _quad.Material = value;
         }
-        
+        public bool IsRendering { get; set; }
+
         public BaseTexRef Texture(int index)
         {
             if (_quad.Material.Textures.IndexInRange(index))

@@ -142,13 +142,13 @@ namespace TheraEngine.Rendering.Text
             _modified.AddLast(text);
         }
 
-        public unsafe void Draw(TexRef2D texture)
+        public unsafe void Draw(TexRef2D texture, Vec2 texScale)
         {
             if (texture == null || texture.Mipmaps == null || texture.Mipmaps.Length == 0)
                 return;
 
             Bitmap b = texture.Mipmaps[0].File.Bitmaps[0];
-            b.MakeTransparent();
+            //b.MakeTransparent();
 
             //TODO: instead of redrawing the whole image, keep track of overlapping text
             //and only redraw the previous and new regions. Repeat for any other overlapping texts.
@@ -158,10 +158,11 @@ namespace TheraEngine.Rendering.Text
             using (Graphics g = Graphics.FromImage(b))
             {
                 g.Clear(Color.Transparent);
-                g.TextRenderingHint = TextRenderingHint.AntiAlias;
+                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                //g.DrawLine(new Pen(new SolidBrush(Color.Red)), new Point(0, 0), new Point(b.Width, b.Height));
                 RectangleF rect = new RectangleF(0, 0, b.Width, b.Height);
                 foreach (TextData text in _text.Values)
                 {
@@ -173,14 +174,15 @@ namespace TheraEngine.Rendering.Text
                         g.ResetTransform();
                         g.TranslateTransform(text.Position.X - localOrigin.X, text.Position.Y - localOrigin.Y);
                         //g.RotateTransformAt(text.Rotation);
-                        //g.ScaleTransform(text.Scale.X, text.Scale.Y);
-                        g.DrawString(text.Text, text.Font, text._brush, rect);
+                        g.ScaleTransform(texScale.X, texScale.Y);
+                        g.DrawString(text.Text, text.Font, text._brush, rect,
+                            new StringFormat(StringFormatFlags.FitBlackBox | StringFormatFlags.NoClip | StringFormatFlags.NoWrap));
                     }
                 }
                 g.Flush();
             }
 
-            //texture.Mipmaps[0].Save("X:\\Desktop\\test.png", System.Drawing.Imaging.ImageFormat.Png);
+            //b.Save("X:\\Desktop\\test.png", System.Drawing.Imaging.ImageFormat.Png);
             
             _modified.Clear();
         }

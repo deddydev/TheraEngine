@@ -321,6 +321,7 @@
     <Compile Include="Components\Scene\Transforms\Noise\NoiseRotation.cs" />
     <Compile Include="Components\Scene\Transforms\Lagged\TRLagged.cs" />
     <Compile Include="Components\Scene\UI\Base UI Components\SizeableElement.cs" />
+    <Compile Include="Components\Scene\UI\Base UI Components\UIBoundableComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIButtonComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIDropDownListComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIInteractableComponent.cs" />
@@ -391,6 +392,7 @@
     <Compile Include="Rendering\Models\Materials\Colors\EventColorF4.cs" />
     <Compile Include="Rendering\Models\Materials\Colors\ColorInterfaces.cs" />
     <Compile Include="Rendering\Models\Materials\Colors\TexturePixelTypesCommon.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\Results\Result.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\References\RefCubeSide.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\References\TexRefCube.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderCubeMipmap.cs" />

@@ -4,7 +4,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIRotatableComponent : UIComponent
+    public class UIRotatableComponent : UIBoundableComponent
     {
         private float _rotationAngle = 0.0f;
 
@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering.UI
                 Matrix4.CreateTranslation(-LocalTranslationX, -LocalTranslationY, 0.0f);
         }
 
-        protected override void OnResized()
+        protected override void PerformResize()
         {
             //TODO: calculate min max x and y by transforming quad corner points
             //_axisAlignedBounds.Translation = Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;

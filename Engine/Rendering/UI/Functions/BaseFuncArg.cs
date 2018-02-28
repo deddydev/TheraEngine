@@ -6,6 +6,9 @@ namespace TheraEngine.Rendering.UI.Functions
 {
     public abstract class BaseFuncArg : UIMaterialRectangleComponent
     {
+        public static Vec4 RegularColor { get; set; } = new Vec4(0.4f, 0.4f, 0.4f, 1.0f);
+        public static Vec4 HighlightedColor { get; set; } = new Vec4(0.4f, 0.6f, 0.6f, 1.0f);
+
         internal const int ConnectionBoxDims = 10;
         internal const int ConnectionBoxMargin = 3;
 
@@ -24,6 +27,7 @@ namespace TheraEngine.Rendering.UI.Functions
         }
 
         public abstract bool IsOutput { get; }
+
         public override string ToString() => Name;
 
         private static TMaterial MakeArgMaterial()

@@ -181,7 +181,7 @@ namespace TheraEngine.Rendering.UI
             return null;
         }
 
-        public void Zoom(float amount, Vec2 worldScreenPoint, Vec2 minScale, Vec2 maxScale)
+        public void Zoom(float amount, Vec2 worldScreenPoint, Vec2? minScale, Vec2? maxScale)
         {
             if (amount == 0.0f)
                 return;
@@ -191,25 +191,31 @@ namespace TheraEngine.Rendering.UI
 
             bool xClamped = false;
             bool yClamped = false;
-            if (newScale.X < minScale.X)
+            if (minScale != null)
             {
-                newScale.X = minScale.X;
-                xClamped = true;
+                if (newScale.X < minScale.Value.X)
+                {
+                    newScale.X = minScale.Value.X;
+                    xClamped = true;
+                }
+                if (newScale.Y < minScale.Value.Y)
+                {
+                    newScale.Y = minScale.Value.Y;
+                    yClamped = true;
+                }
             }
-            if (newScale.X > maxScale.X)
+            if (maxScale != null)
             {
-                newScale.X = maxScale.X;
-                xClamped = true;
-            }
-            if (newScale.Y < minScale.Y)
-            {
-                newScale.Y = minScale.Y;
-                yClamped = true;
-            }
-            if (newScale.Y > maxScale.Y)
-            {
-                newScale.Y = maxScale.Y;
-                yClamped = true;
+                if (newScale.X > maxScale.Value.X)
+                {
+                    newScale.X = maxScale.Value.X;
+                    xClamped = true;
+                }
+                if (newScale.Y > maxScale.Value.Y)
+                {
+                    newScale.Y = maxScale.Value.Y;
+                    yClamped = true;
+                }
             }
 
             if (!xClamped || !yClamped)

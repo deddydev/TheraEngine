@@ -32,8 +32,74 @@ namespace TheraEngine.Rendering.UI.Functions
     {
 
     }
-    public static class Function
+    public abstract class BaseFunction : UIMaterialRectangleComponent, IShaderVarOwner, IFunction
     {
+        public static Vec4 RegularColor { get; set; } = new Vec4(0.1f, 0.1f, 0.1f, 1.0f);
+        public static Vec4 HighlightedColor { get; set; } = new Vec4(0.1f, 0.3f, 0.4f, 1.0f);
+
+        [Browsable(false)]
+        public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();
+        [Browsable(false)]
+        public ReadOnlyCollection<string> Keywords => Definition?.Keywords.AsReadOnly();
+        [Browsable(false)]
+        public string FunctionName => Definition?.Name;
+        [Browsable(false)]
+        public string Description => Definition?.Description;
+        [Browsable(false)]
+        public string Category => Definition?.Category;
+
+        protected TextHudComponent _headerText;
+        protected List<TextHudComponent> _inputParamTexts = new List<TextHudComponent>();
+        protected List<TextHudComponent> _outputParamTexts = new List<TextHudComponent>();
+
+        protected const int HeaderPadding = 2;
+        protected Font _paramFont = new Font("Segoe UI", 9.0f, FontStyle.Regular);
+        protected Font _headerFont = new Font("Segoe UI", 11.0f, FontStyle.Bold);
+
+        public BaseFunction() : base(MakeFunctionMaterial())
+        {
+            DockStyle = HudDockStyle.None;
+
+            _headerText = new TextHudComponent
+            {
+                Name = FunctionName + " Text",
+                DockStyle = HudDockStyle.Top,
+                Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
+            };
+            _headerText.TextDrawer.Add(new TextData(FunctionName, _headerFont, Color.White, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            ChildComponents.Add(_headerText);
+        }
+
+        private static TMaterial MakeFunctionMaterial()
+        {
+            return TMaterial.CreateUnlitColorMaterialForward(new ColorF4(0.1f, 1.0f));
+        }
+
+        protected void AddParam(BaseFuncArg arg)
+        {
+            ChildComponents.Add(arg);
+
+            TextHudComponent text = new TextHudComponent
+            {
+                Name = arg.Name + " Text",
+                DockStyle = HudDockStyle.None,
+            };
+            text.TextDrawer.Add(new TextData(arg.Name, _paramFont, Color.White, new Vec2(HeaderPadding), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            ChildComponents.Add(text);
+
+            if (arg is IFuncExecInput || arg is IFuncValueInput)
+            {
+                _inputParamTexts.Add(text);
+            }
+            else if (arg is IFuncExecOutput || arg is IFuncValueOutput)
+            {
+                _outputParamTexts.Add(text);
+            }
+        }
+
+        public override string ToString()
+            => FunctionName;
+
         public static List<Type> Find<T>(string keywords) where T : IFunction
         {
             string[] keyArray = keywords.Split(' ');
@@ -78,61 +144,18 @@ namespace TheraEngine.Rendering.UI.Functions
     /// <typeparam name="TVOut">The output value class to use.</typeparam>
     /// <typeparam name="TEIn">The input execution argument class to use.</typeparam>
     /// <typeparam name="TEOut">The output execution class to use.</typeparam>
-    public abstract class Function<TVIn, TVOut, TEIn, TEOut>
-        : UIMaterialRectangleComponent, IShaderVarOwner, IFunction
+    public abstract class Function<TVIn, TVOut, TEIn, TEOut> : BaseFunction
         where TVIn : BaseFuncValue, IFuncValueInput
         where TVOut : BaseFuncValue, IFuncValueOutput
         where TEIn : BaseFuncExec, IFuncExecInput
         where TEOut : BaseFuncExec, IFuncExecOutput
     {
-        public Function() : base(MakeFunctionMaterial())
+        public Function() : base()
         {
-            DockStyle = HudDockStyle.None;
-
-            _headerText = new TextHudComponent
-            {
-                Name = FunctionName + " Text",
-                DockStyle = HudDockStyle.Top,
-                Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
-            };
-            _headerText.TextDrawer.Add(new TextData(FunctionName, _headerFont, Color.White, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
-            ChildComponents.Add(_headerText);
-
             AddExecInput(GetExecInputs());
             AddExecOutput(GetExecOutputs());
             AddValueInput(GetValueInputs());
             AddValueOutput(GetValueOutputs());
-        }
-
-        private static TMaterial MakeFunctionMaterial()
-        {
-            return TMaterial.CreateUnlitColorMaterialForward(new ColorF4(0.1f, 1.0f));
-        }
-
-        private TextHudComponent _headerText;
-        private List<TextHudComponent> _inputParamTexts = new List<TextHudComponent>();
-        private List<TextHudComponent> _outputParamTexts = new List<TextHudComponent>();
-        
-        private void AddParam(BaseFuncArg arg)
-        {
-            ChildComponents.Add(arg);
-
-            TextHudComponent text = new TextHudComponent
-            {
-                Name = arg.Name + " Text",
-                DockStyle = HudDockStyle.None,
-            };
-            text.TextDrawer.Add(new TextData(arg.Name, _paramFont, Color.White, new Vec2(HeaderPadding), new Vec2(), 0.0f, Vec2.One, 0.0f));
-            ChildComponents.Add(text);
-
-            if (arg is IFuncExecInput || arg is IFuncValueInput)
-            {
-                _inputParamTexts.Add(text);
-            }
-            else if (arg is IFuncExecOutput || arg is IFuncValueOutput)
-            {
-                _outputParamTexts.Add(text);
-            }
         }
 
         #region Input/Output Exec
@@ -224,13 +247,6 @@ namespace TheraEngine.Rendering.UI.Functions
             AddParam(output);
         }
         #endregion
-
-        public override string ToString()
-            => FunctionName;
-
-        internal const int HeaderPadding = 2;
-        private Font _paramFont = new Font("Segoe UI", 9.0f, FontStyle.Regular);
-        private Font _headerFont = new Font("Segoe UI", 11.0f, FontStyle.Bold);
 
         public override Vec2 Resize(Vec2 parentBounds)
         {
@@ -333,16 +349,5 @@ namespace TheraEngine.Rendering.UI.Functions
                 }
             }
         }
-
-        [Browsable(false)]
-        public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();
-        [Browsable(false)]
-        public ReadOnlyCollection<string> Keywords => Definition?.Keywords.AsReadOnly();
-        [Browsable(false)]
-        public string FunctionName => Definition?.Name;
-        [Browsable(false)]
-        public string Description => Definition?.Description;
-        [Browsable(false)]
-        public string Category => Definition?.Category;
     }
 }

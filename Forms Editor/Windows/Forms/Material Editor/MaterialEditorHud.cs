@@ -34,7 +34,8 @@ namespace TheraEditor.Windows.Forms
         private BaseFuncArg _selectedArg = null;
         private BaseFuncArg _highlightedArg = null;
         private BaseFuncArg _draggedArg = null;
-        
+        private UIComponent _rootTransform;
+        private UIMaterialRectangleComponent _bezierRect = new UIMaterialRectangleComponent();
         bool _rightClickDown = false;
 
         private void LeftClickDown()
@@ -58,7 +59,6 @@ namespace TheraEditor.Windows.Forms
         {
             _rightClickDown = false;
         }
-        private UIComponent _rootTransform;
         private UIComponent FindComponent()
         {
             return RootComponent.FindComponent(Viewport.ScreenToWorld(Viewport.AbsoluteToRelative(CursorPosition)).Xy);
@@ -77,7 +77,7 @@ namespace TheraEditor.Windows.Forms
             }
             else if (_draggedArg != null)
             {
-
+                
             }
             else if (_rightClickDown)
             {
@@ -95,39 +95,33 @@ namespace TheraEditor.Windows.Forms
                     comp = (UIComponent)comp.ParentSocket;
 
                 if (_highlightedFunc != null && comp != _highlightedFunc)
-                {
-                    _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value 
-                        = new Vec4(0.1f, 0.1f, 0.1f, 1.0f);
-                }
+                    _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
+                
                 if (_highlightedArg != null && comp != _highlightedArg)
                 {
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value
-                        = new Vec4(0.4f, 0.4f, 0.4f, 1.0f);
+                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncArg.RegularColor;
                     UIMaterialRectangleComponent r = _highlightedArg.ParentSocket as UIMaterialRectangleComponent;
-                    r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value
-                        = new Vec4(0.1f, 0.1f, 0.1f, 1.0f);
+                    r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
                 }
 
                 _highlightedFunc = comp as MaterialFunction;
                 _highlightedArg = comp as BaseFuncArg;
+
                 if (_highlightedFunc != null)
-                {
-                    _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value
-                        = new Vec4(0.1f, 0.3f, 0.4f, 1.0f);
-                }
+                    _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.HighlightedColor;
+                
                 if (_highlightedArg != null)
                 {
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value
-                        = new Vec4(0.4f, 0.6f, 0.6f, 1.0f);
+                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncArg.HighlightedColor;
                     UIMaterialRectangleComponent r = _highlightedArg.ParentSocket as UIMaterialRectangleComponent;
-                    r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value
-                        = new Vec4(0.1f, 0.3f, 0.4f, 1.0f);
+                    r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.HighlightedColor;
                 }
             }
 
             _cursorPos = pos;
         }
-        Vec2 _minScale = new Vec2(0.05f), _maxScale = new Vec2(2.5f);
+
+        private Vec2 _minScale = new Vec2(0.05f), _maxScale = new Vec2(3.0f);
         protected override void OnScrolledInput(bool down)
         {
             Vec3 worldPoint = Camera.ScreenToWorld(Viewport.AbsoluteToRelative(CursorPosition), 0.0f);
@@ -157,13 +151,34 @@ namespace TheraEditor.Windows.Forms
             };
             _rootTransform = new UIComponent();
             root.ChildComponents.Add(_rootTransform);
+            root.ChildComponents.Add(_bezierRect);
             return root;
         }
 
         private TMaterial GetGraphMaterial()
         {
             return TMaterial.CreateUnlitColorMaterialForward(Color.Gray);
-            //return new TMaterial("MatGraphBG");
+            return new TMaterial("MatGraphBG");
+            string frag = @"
+#version 450
+
+uniform vec3 lineColor;
+uniform vec3 bgColor;
+uniform float scale;
+uniform float lineWidth;
+uniform vec2 translation;
+
+void main()
+{
+    vec2 scaledUV = (vPosition.xy + translation) / scale;
+    vec2 fractUV = vec2(fract(scaledUV));
+    fractUV = (fractUV - 0.5) * 2.0;
+    vec2 lines = vec2(floor(abs(fractUV) + lineWidth));
+    float lerp = clamp(lines.x + lines.y, 0.0, 1.0);
+    vec3 col = mix(bgColor, lineColor, lerp);
+
+    gl_FragColor = vec4(col, 1.0);
+}";
         }
 
         private TMaterial _targetMaterial;

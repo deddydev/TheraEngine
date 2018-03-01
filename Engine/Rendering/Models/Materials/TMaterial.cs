@@ -277,19 +277,35 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         public TMaterial()
-            : this("NewMaterial", new ShaderVar[0], new BaseTexRef[0]) { }
+            : this("NewMaterial", new RenderingParameters()) { }
 
-        public TMaterial(string name, params Shader[] shaders) 
-            : this(name, new ShaderVar[0], new BaseTexRef[0], shaders) { }
-        public TMaterial(string name, ShaderVar[] parameters, params Shader[] shaders)
-            : this(name, parameters, new BaseTexRef[0], shaders) { }
+        public TMaterial(string name, params Shader[] shaders)
+            : this(name, new RenderingParameters(), new ShaderVar[0], new BaseTexRef[0], shaders) { }
+
+        public TMaterial(string name, RenderingParameters renderParams, params Shader[] shaders)
+            : this(name, renderParams, new ShaderVar[0], new BaseTexRef[0], shaders) { }
+
+        public TMaterial(string name, ShaderVar[] vars, params Shader[] shaders)
+            : this(name, new RenderingParameters(), vars, new BaseTexRef[0], shaders) { }
+        
+        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, params Shader[] shaders)
+            : this(name, renderParams, vars, new BaseTexRef[0], shaders) { }
+
         public TMaterial(string name, BaseTexRef[] textures, params Shader[] shaders)
-            : this(name, new ShaderVar[0], textures, shaders) { }
-        public TMaterial(string name, ShaderVar[] parameters, BaseTexRef[] textures, params Shader[] shaders)
+            : this(name, new RenderingParameters(), new ShaderVar[0], textures, shaders) { }
+
+        public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params Shader[] shaders)
+            : this(name, renderParams, new ShaderVar[0], textures, shaders) { }
+
+        public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params Shader[] shaders)
+            : this(name, new RenderingParameters(), vars, textures, shaders) { }
+
+        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, BaseTexRef[] textures, params Shader[] shaders)
         {
             _name = name;
-            _parameters = parameters ?? new ShaderVar[0];
+            _parameters = vars ?? new ShaderVar[0];
             Textures = textures ?? new BaseTexRef[0];
+            RenderParams = renderParams ?? new RenderingParameters();
 
             _shaders.AddRange(shaders);
 

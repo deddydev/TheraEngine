@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering
             if (resultFunction == null)
                 return null;
 
-            TMaterial m = new TMaterial(name, new ShaderVar[0], new TexRef2D[0]);
+            TMaterial m = new TMaterial(name);
 
             //TODO: determine shader types needed
             foreach (MatFuncValueInput arg in resultFunction.InputArguments)

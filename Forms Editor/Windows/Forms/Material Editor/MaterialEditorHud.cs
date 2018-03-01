@@ -26,6 +26,8 @@ namespace TheraEditor.Windows.Forms
             input.RegisterMouseMove(MouseMove, false, EInputPauseType.TickAlways);
         }
 
+        private ResultFunc _endFunc;
+        private Vec2 _minScale = new Vec2(0.05f), _maxScale = new Vec2(3.0f);
         private Vec2 _lastWorldPos = Vec2.Zero;
         //private Vec2 _lastFocusPoint = Vec2.Zero;
         private MaterialFunction _selectedFunc = null;
@@ -121,14 +123,12 @@ namespace TheraEditor.Windows.Forms
             _cursorPos = pos;
         }
 
-        private Vec2 _minScale = new Vec2(0.05f), _maxScale = new Vec2(3.0f);
         protected override void OnScrolledInput(bool down)
         {
             Vec3 worldPoint = Camera.ScreenToWorld(Viewport.AbsoluteToRelative(CursorPosition), 0.0f);
             _rootTransform.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, _minScale, _maxScale);
         }
 
-        private ResultFunc _endFunc;
         private ResultFunc EndFunc
         {
             get => _endFunc;
@@ -151,34 +151,22 @@ namespace TheraEditor.Windows.Forms
             };
             _rootTransform = new UIComponent();
             root.ChildComponents.Add(_rootTransform);
-            root.ChildComponents.Add(_bezierRect);
+            //root.ChildComponents.Add(_bezierRect);
             return root;
         }
 
         private TMaterial GetGraphMaterial()
         {
-            return TMaterial.CreateUnlitColorMaterialForward(Color.Gray);
-            return new TMaterial("MatGraphBG");
-            string frag = @"
-#version 450
-
-uniform vec3 lineColor;
-uniform vec3 bgColor;
-uniform float scale;
-uniform float lineWidth;
-uniform vec2 translation;
-
-void main()
-{
-    vec2 scaledUV = (vPosition.xy + translation) / scale;
-    vec2 fractUV = vec2(fract(scaledUV));
-    fractUV = (fractUV - 0.5) * 2.0;
-    vec2 lines = vec2(floor(abs(fractUV) + lineWidth));
-    float lerp = clamp(lines.x + lines.y, 0.0, 1.0);
-    vec3 col = mix(bgColor, lineColor, lerp);
-
-    gl_FragColor = vec4(col, 1.0);
-}";
+            Shader frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", ShaderMode.Fragment);
+            return new TMaterial("MatEditorGraphBG", new ShaderVar[] 
+            {
+                new ShaderVec3(new Vec3(0.0f, 0.0f, 0.0f), "LineColor"),
+                new ShaderVec3(new Vec3(0.3f, 0.3f, 0.3f), "BGColor"),
+                new ShaderFloat(1.0f, "Scale"),
+                new ShaderFloat(0.1f, "LineWidth"),
+                new ShaderVec2(new Vec2(0.0f), "Translation"),
+            },
+            frag);
         }
 
         private TMaterial _targetMaterial;

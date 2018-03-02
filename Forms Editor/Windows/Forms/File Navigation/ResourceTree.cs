@@ -16,6 +16,7 @@ using Core.Win32.Native;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Reflection;
+using TheraEditor.Core;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -754,12 +755,13 @@ namespace TheraEditor.Windows.Forms
 
             if (DragHelper.ImageList_BeginDrag(_draggingImageList.Handle, 0, dx, dy))
             {
-                //This is a synchronous operation
+                //This is a synchronous operation, which freezes the whole simulation. Not good.
                 //DoDragDrop(bmp, DragDropEffects.Move | DragDropEffects.Copy);
 
+                //This filters events in the windows message loop, which is not a blocking operation.
                 _dragFilter = new DragDropFilter(bmp, DragDropEffects.Move | DragDropEffects.Copy);
                 _dragFilter.Done += _dragFilter_Done;
-                Application.AddMessageFilter(_dragFilter);
+                _dragFilter.BeginFiltering();
             }
         }
 

@@ -12,8 +12,7 @@ namespace TheraEngine.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
-        public RenderInfo3D RenderInfo => _renderInfo;
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
 
         [Browsable(false)]
         public Shape CullingVolume => null;

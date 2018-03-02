@@ -5,6 +5,7 @@ using System.Linq;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Rendering.UI;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
@@ -13,15 +14,54 @@ namespace TheraEngine.Actors.Types.Pawns
         protected Vec2 _cursorPos = Vec2.Zero;
         private UIComponent _focusedComponent;
 
-        public Vec2 CursorPosition //=> _cursorPos;
+        /// <summary>
+        /// Returns the cursor position on the screen relative to the the viewport 
+        /// controlling this UI or the owning pawn's viewport which uses this UI as its HUD.
+        /// </summary>
+        public Vec2 CursorPosition()
         {
-            get
+            Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
+            Point absolute = Cursor.Position;
+            BaseRenderPanel panel = v.OwningPanel;
+            try
             {
-                Point absolute = Cursor.Position;
-                if (BaseRenderPanel.HoveredPanel != null)
-                    absolute = (Point)BaseRenderPanel.HoveredPanel.Invoke(BaseRenderPanel.HoveredPanel.PointToClientDelegate, absolute);
-                return new Vec2(absolute.X, absolute.Y);
+                if (panel != null && !panel.Disposing && !panel.IsDisposed)
+                    absolute = (Point)panel.Invoke(panel.PointToClientDelegate, absolute);
             }
+            catch { }
+            Vec2 result = new Vec2(absolute.X, absolute.Y);
+            result = v.AbsoluteToRelative(result);
+            return result;
+        }
+        /// <summary>
+        /// Returns the cursor position in the world relative to the the viewport 
+        /// controlling this UI or the owning pawn's viewport which uses this UI as its HUD.
+        /// </summary>
+        public Vec2 CursorPositionWorld()
+        {
+            Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
+            return v.ScreenToWorld(CursorPosition(v)).Xy;
+        }
+        /// <summary>
+        /// Returns the cursor position relative to the the viewport.
+        /// </summary>
+        public Vec2 CursorPosition(Viewport v)
+        {
+            Point absolute = Cursor.Position;
+            BaseRenderPanel panel = v.OwningPanel;
+            try
+            {
+                if (panel != null && !panel.Disposing && !panel.IsDisposed)
+                    absolute = (Point)panel.Invoke(panel.PointToClientDelegate, absolute);
+            }
+            catch { }
+            Vec2 result = new Vec2(absolute.X, absolute.Y);
+            result = v.AbsoluteToRelative(result);
+            return result;
+        }
+        public Vec2 CursorPositionWorld(Viewport v)
+        {
+            return v.ScreenToWorld(CursorPosition(v)).Xy;
         }
 
         protected override T OnConstruct()

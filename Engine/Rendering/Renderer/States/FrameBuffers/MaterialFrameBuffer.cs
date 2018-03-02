@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering
         public MaterialFrameBuffer() { }
         public MaterialFrameBuffer(TMaterial m) => Material = m;
 
-        //private bool _compiled = false;
+        private bool _compiled = false;
 
         private TMaterial _material;
         public TMaterial Material
@@ -23,10 +23,11 @@ namespace TheraEngine.Rendering
                 if (_material != null)
                 {
                     _material.FrameBuffer = this;
-                    //_compiled = false;
+                    _compiled = false;
                 }
             }
         }
+
         public BaseTexRef[] Textures => Material?.Textures;
         public void ResizeTextures(int width, int height)
             => Material?.Resize2DTextures(width, height);
@@ -41,15 +42,16 @@ namespace TheraEngine.Rendering
                 return;
             if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.World))
                 return;
-            Material.GenerateTextures(true);
+            _compiled = true;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+            Material.GenerateTextures(true);
             foreach (BaseTexRef tref in Material.Textures)
                 tref.AttachToFBO();
             Engine.Renderer.SetDrawBuffers(drawAttachments);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             CheckErrors();
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-            //_compiled = true;
+            Engine.LogWarning("COMPILED FBO " + BindingId);
         }
         public override void Bind(EFramebufferTarget type)
         {
@@ -60,7 +62,8 @@ namespace TheraEngine.Rendering
 
         protected override void OnGenerated()
         {
-            Compile();
+            if (!_compiled)
+                Compile();
         }
     }
 }

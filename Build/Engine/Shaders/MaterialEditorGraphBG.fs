@@ -13,7 +13,7 @@ uniform vec2 Translation;
 
 void main()
 {
-    vec2 scaledUV = (FragPos.xy + Translation) * (Scale / 20.0f);
+    vec2 scaledUV = (FragPos.xy + Translation) * (Scale / 30.0f);
     vec2 fractUV = fract(scaledUV);
     fractUV = (fractUV - 0.5f) * 2.0f;
     vec2 lines = vec2(floor(abs(fractUV) + LineWidth));

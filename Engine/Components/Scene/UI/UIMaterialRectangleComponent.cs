@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.UI
             _quad = new PrimitiveManager(quadData, material);
         }
 
-        private PrimitiveManager _quad;
+        protected PrimitiveManager _quad;
         
         /// <summary>
         /// The material used to render on this UI component.

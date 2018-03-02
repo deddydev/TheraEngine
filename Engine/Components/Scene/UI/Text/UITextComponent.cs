@@ -4,9 +4,9 @@ using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class TextHudComponent : UIMaterialRectangleComponent
+    public class UITextComponent : UIMaterialRectangleComponent
     {
-        public TextHudComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(
+        public UITextComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(
             new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
             {
                 MagFilter = ETexMagFilter.Linear,
@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        private void Redraw() => TextDrawer.Draw(TextTexture, TexScale);
+        protected void Redraw() => TextDrawer.Draw(TextTexture, TexScale);
 
         public override Vec2 Resize(Vec2 parentBounds)
         {

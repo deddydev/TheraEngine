@@ -128,7 +128,7 @@ namespace TheraEngine.Rendering.Text
             _text = new SortedDictionary<float, TextData>();
             _modified = new LinkedList<TextData>();
         }
-
+        
         public void Clear()
         {
             _text.Clear();

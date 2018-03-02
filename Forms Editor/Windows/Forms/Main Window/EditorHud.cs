@@ -120,14 +120,23 @@ namespace TheraEditor.Windows.Forms
             }
         }
         public UIViewportComponent TestViewport { get; private set; }
+        //public UITextProjectionComponent TextOverlay { get; private set; }
         protected override UIDockableComponent OnConstruct()
         {
             UIDockableComponent dock = new UIDockableComponent();
-            TestViewport = new UIViewportComponent();
-            TestViewport.DockStyle = HudDockStyle.None;
-            TestViewport.Width = 400;
-            TestViewport.Height = 400;
+            TestViewport = new UIViewportComponent
+            {
+                DockStyle = HudDockStyle.None,
+                Width = 400,
+                Height = 400
+            };
             dock.ChildComponents.Add(TestViewport);
+            //TextOverlay = new UITextProjectionComponent()
+            //{
+            //    TexScale = new Vec2(1.0f),
+            //    DockStyle = HudDockStyle.Fill,
+            //};
+            //dock.ChildComponents.Add(TextOverlay);
             return dock;
         }
         protected override void PreConstruct()
@@ -280,9 +289,9 @@ namespace TheraEditor.Windows.Forms
         private void MouseMove(bool gamepad)
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
-            if (v != null && BaseRenderPanel.HoveredPanel != null)
+            if (v != null)
             {
-                Vec2 viewportPoint = /*gamepad ? v.Center : */v.AbsoluteToRelative(CursorPosition);
+                Vec2 viewportPoint = /*gamepad ? v.Center : */CursorPosition(v);
                 MouseMove(v, viewportPoint);
             }
         }

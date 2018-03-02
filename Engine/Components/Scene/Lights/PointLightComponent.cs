@@ -199,7 +199,7 @@ namespace TheraEngine.Components.Scene.Lights
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
                 scene.CollectVisibleRenderables(_cullingVolume, true);
-                scene.Render(null, null);
+                scene.Render(null, null, null);
             }
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.Framebuffer);

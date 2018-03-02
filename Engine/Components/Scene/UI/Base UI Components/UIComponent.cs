@@ -7,7 +7,6 @@ using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -56,7 +55,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation = value;
-                PerformResize();
+                RecalcLocalTransform();
+                //PerformResize();
             }
         }
         [Category("Transform")]
@@ -66,7 +66,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation.X = value;
-                PerformResize();
+                RecalcLocalTransform();
+                //PerformResize();
             }
         }
         [Category("Transform")]
@@ -76,7 +77,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation.Y = value;
-                PerformResize();
+                RecalcLocalTransform();
+                //PerformResize();
             }
         }
         #endregion
@@ -89,7 +91,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale = value;
-                PerformResize();
+                RecalcLocalTransform();
+                //PerformResize();
             }
         }
         [Category("Transform")]
@@ -99,7 +102,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale.X = value;
-                PerformResize();
+                RecalcLocalTransform();
+                //PerformResize();
             }
         }
         [Category("Transform")]
@@ -109,7 +113,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _scale.Y = value;
-                PerformResize();
+                RecalcLocalTransform();
+                //PerformResize();
             }
         }
         #endregion

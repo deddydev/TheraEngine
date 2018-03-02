@@ -11,7 +11,6 @@ namespace TheraEditor.Windows.Forms
             SetViewportCamera = false;
             SetViewportHUD = false;
         }
-
         public MaterialEditorController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue)
         {

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Windows.Forms;
+using TheraEditor.Core;
 using TheraEngine;
 using TheraEngine.Rendering.Models.Materials.Functions;
 using TheraEngine.Rendering.UI.Functions;
@@ -27,6 +27,7 @@ namespace TheraEditor.Windows.Forms
             
             betterListView1.DrawColumnHeaderBackground += BetterListView1_DrawColumnHeaderBackground;
             betterListView1.DrawColumnHeader += BetterListView1_DrawColumnHeader;
+            betterListView1.BeforeDrag += BetterListView1_BeforeDrag;
 
             betterListView1.Items.Clear();
             Type matFunc = typeof(MaterialFunction);
@@ -56,6 +57,16 @@ namespace TheraEditor.Windows.Forms
                     _funcs.Add(info);
                 }
             }
+        }
+
+        private void BetterListView1_BeforeDrag(object sender, BetterListViewBeforeDragEventArgs eventArgs)
+        {
+            //Cancel the blocking drag operation
+            eventArgs.Cancel = true;
+
+            //Use drag drop filter system instead
+            DragDropFilter f = new DragDropFilter(eventArgs.Data, eventArgs.AllowedEffect);
+            f.BeginFiltering();
         }
 
         private void BetterListView1_DrawColumnHeader(object sender, BetterListViewDrawColumnHeaderEventArgs e)

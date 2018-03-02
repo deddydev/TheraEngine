@@ -12,13 +12,13 @@ namespace TheraEngine.Rendering.UI.Functions
         internal const int ConnectionBoxDims = 10;
         internal const int ConnectionBoxMargin = 3;
 
-        public BaseFuncArg(string name) : base(MakeArgMaterial())
+        public BaseFuncArg(string name, ColorF4 color) : base(MakeArgMaterial(color))
         {
             _name = name;
             DockStyle = HudDockStyle.None;
             Size = new Vec2(ConnectionBoxDims);
         }
-        public BaseFuncArg(string name, IFunction parent) : base(MakeArgMaterial())
+        public BaseFuncArg(string name, IFunction parent, ColorF4 color) : base(MakeArgMaterial(color))
         {
             _name = name;
             _parent = (UIComponent)parent;
@@ -30,9 +30,9 @@ namespace TheraEngine.Rendering.UI.Functions
 
         public override string ToString() => Name;
 
-        private static TMaterial MakeArgMaterial()
+        private static TMaterial MakeArgMaterial(ColorF4 color)
         {
-            return TMaterial.CreateUnlitColorMaterialForward(new ColorF4(0.4f, 1.0f));
+            return TMaterial.CreateUnlitColorMaterialForward(color);
         }
 
         /// <summary>

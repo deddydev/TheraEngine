@@ -5,7 +5,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelRender(Camera camera, Viewport viewport);
+    public delegate void DelRender(Camera camera, Viewport viewport, MaterialFrameBuffer target);
     /// <summary>
     /// Use for calculating something right before *anything* in the scene is rendered.
     /// Generally used for setting up data for a collection of sub-renderables just before they are rendered separately.

@@ -1,15 +1,14 @@
-﻿using TheraEngine.Rendering.Cameras;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using TheraEngine.Core.Shapes;
-using System.ComponentModel;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Worlds;
-using TheraEngine.Rendering;
+using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Actors.Types
 {
@@ -929,6 +928,15 @@ namespace TheraEngine.Actors.Types
             //Vec3 dragPoint = _dragMatrix.GetPoint();
             //Engine.Renderer.RenderLine(dragPoint, dragPoint + _dragPlaneNormal * 10.0f, Color.White);
             //Engine.Renderer.RenderPoint(_lastPoint * _dragMatrix, Color.Magenta);
+        }
+        TextData _xText, _yText, _zText;
+        public override void OnSpawnedPostComponentSetup()
+        {
+            
+        }
+        public override void OnDespawned()
+        {
+            
         }
     }
 }

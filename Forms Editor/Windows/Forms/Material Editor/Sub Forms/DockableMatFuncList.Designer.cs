@@ -84,7 +84,7 @@ namespace TheraEditor.Windows.Forms
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
             this.panel2.Location = new System.Drawing.Point(361, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Padding = new System.Windows.Forms.Padding(0, 10, 0, 0);
+            this.panel2.Padding = new System.Windows.Forms.Padding(0, 9, 0, 0);
             this.panel2.Size = new System.Drawing.Size(140, 40);
             this.panel2.TabIndex = 3;
             // 
@@ -94,7 +94,7 @@ namespace TheraEditor.Windows.Forms
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.textBox1.Location = new System.Drawing.Point(0, 10);
+            this.textBox1.Location = new System.Drawing.Point(0, 9);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(140, 22);
             this.textBox1.TabIndex = 2;
@@ -102,6 +102,8 @@ namespace TheraEditor.Windows.Forms
             // 
             // betterListView1
             // 
+            this.betterListView1.AllowDrag = true;
+            this.betterListView1.AllowedDragEffects = System.Windows.Forms.DragDropEffects.Move;
             this.betterListView1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(60)))));
             this.betterListView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.betterListView1.Columns.Add(this.betterListViewColumnHeader1);
@@ -110,7 +112,9 @@ namespace TheraEditor.Windows.Forms
             this.betterListView1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.betterListView1.ForeColorGroups = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.betterListView1.HeaderStyle = ComponentOwl.BetterListView.BetterListViewHeaderStyle.Sortable;
+            this.betterListView1.HideSelectionMode = ComponentOwl.BetterListView.BetterListViewHideSelectionMode.Disable;
             this.betterListView1.Location = new System.Drawing.Point(0, 40);
+            this.betterListView1.MultiSelect = false;
             this.betterListView1.Name = "betterListView1";
             this.betterListView1.ShowGroups = true;
             this.betterListView1.Size = new System.Drawing.Size(501, 327);

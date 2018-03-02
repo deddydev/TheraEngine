@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Rendering.UI.Text
 {
-    public class RichTextBoxHudComponent : TextHudComponent
+    public class RichTextBoxHudComponent : UITextComponent
     {
         private string _text;
         private bool _wordWrap = true;

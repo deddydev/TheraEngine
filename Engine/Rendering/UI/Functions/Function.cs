@@ -48,9 +48,9 @@ namespace TheraEngine.Rendering.UI.Functions
         [Browsable(false)]
         public string Category => Definition?.Category;
 
-        protected TextHudComponent _headerText;
-        protected List<TextHudComponent> _inputParamTexts = new List<TextHudComponent>();
-        protected List<TextHudComponent> _outputParamTexts = new List<TextHudComponent>();
+        protected UITextComponent _headerText;
+        protected List<UITextComponent> _inputParamTexts = new List<UITextComponent>();
+        protected List<UITextComponent> _outputParamTexts = new List<UITextComponent>();
 
         protected const int HeaderPadding = 2;
         protected Font _paramFont = new Font("Segoe UI", 9.0f, FontStyle.Regular);
@@ -60,7 +60,7 @@ namespace TheraEngine.Rendering.UI.Functions
         {
             DockStyle = HudDockStyle.None;
 
-            _headerText = new TextHudComponent
+            _headerText = new UITextComponent
             {
                 Name = FunctionName + " Text",
                 DockStyle = HudDockStyle.Top,
@@ -77,14 +77,15 @@ namespace TheraEngine.Rendering.UI.Functions
 
         protected void AddParam(BaseFuncArg arg)
         {
+            arg.LocalOriginPercentage = new Vec2(0.0f, 0.5f);
             ChildComponents.Add(arg);
 
-            TextHudComponent text = new TextHudComponent
+            UITextComponent text = new UITextComponent
             {
                 Name = arg.Name + " Text",
                 DockStyle = HudDockStyle.None,
             };
-            text.TextDrawer.Add(new TextData(arg.Name, _paramFont, Color.White, new Vec2(HeaderPadding), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            text.TextDrawer.Add(new TextData(arg.Name, _paramFont, Color.White, new Vec2(0.0f), new Vec2(), 0.0f, Vec2.One, 0.0f));
             ChildComponents.Add(text);
 
             if (arg is IFuncExecInput || arg is IFuncValueInput)
@@ -156,6 +157,8 @@ namespace TheraEngine.Rendering.UI.Functions
             AddExecOutput(GetExecOutputs());
             AddValueInput(GetValueInputs());
             AddValueOutput(GetValueOutputs());
+            ArrangeControls();
+            PerformResize();
         }
 
         #region Input/Output Exec
@@ -248,27 +251,28 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         #endregion
 
-        public override Vec2 Resize(Vec2 parentBounds)
+        #region Control Arrangement
+        private void ArrangeControls()
         {
             Size headerSize = TextRenderer.MeasureText(FunctionName, _headerFont);
             int totalHeaderPadding = HeaderPadding * 2;
             headerSize.Height += totalHeaderPadding;
             headerSize.Width += totalHeaderPadding;
-            
+
             int connectionBoxBounds = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
             Size[] inputTextSizes = new Size[_valueInputs.Count + _execInputs.Count];
             Size[] outputTextSizes = new Size[_valueOutputs.Count + _execOutputs.Count];
             int maxRows = Math.Max(inputTextSizes.Length, outputTextSizes.Length);
 
             int middleMargin = 2;
-            
+
             int maxRowWidth = 0;
             int currentRowWidth;
             _size.Y = headerSize.Height + BaseFuncArg.ConnectionBoxMargin * 2.0f;
             for (int i = 0; i < maxRows; ++i)
             {
                 currentRowWidth = middleMargin;
-                
+
                 if (i < _execInputs.Count)
                     Arrange1(_execInputs[i], i, inputTextSizes, ref currentRowWidth);
                 else if (i - _execInputs.Count < _valueInputs.Count)
@@ -278,7 +282,7 @@ namespace TheraEngine.Rendering.UI.Functions
                     Arrange1(_execOutputs[i], i, outputTextSizes, ref currentRowWidth);
                 else if (i - _execOutputs.Count < _valueOutputs.Count)
                     Arrange1(_valueOutputs[i - _execOutputs.Count], i, outputTextSizes, ref currentRowWidth);
-                
+
                 maxRowWidth = Math.Max(maxRowWidth, currentRowWidth);
                 _size.Y += TMath.Max(connectionBoxBounds,
                     i < inputTextSizes.Length ? inputTextSizes[i].Height : 0,
@@ -309,11 +313,8 @@ namespace TheraEngine.Rendering.UI.Functions
             }
 
             //_headerText.LocalTranslation = new Vec2(0.0f, _size.Y);
-
-            return base.Resize(parentBounds);
         }
-
-        private void Arrange2(BaseFuncArg arg, TextHudComponent text, Size[] sizes, bool input, int i, float headerHeight, float yTrans)
+        private void Arrange2(BaseFuncArg arg, UITextComponent text, Size[] sizes, bool input, int i, float headerHeight, float yTrans)
         {
             float xTrans;
             if (input)
@@ -326,6 +327,7 @@ namespace TheraEngine.Rendering.UI.Functions
             if (!input)
                 t = -t;
             text.LocalTranslation = new Vec2(xTrans + t, yTrans);
+            arg.LocalTranslationY += text.Height * 0.5f;
         }
         private void Arrange1(BaseFuncArg arg, int i, Size[] sizes, ref int currentRowWidth)
         {
@@ -333,6 +335,7 @@ namespace TheraEngine.Rendering.UI.Functions
             sizes[i] = argTextSize;
             currentRowWidth += BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin * 2 + argTextSize.Width;
         }
+        #endregion
 
         protected override void HandleSingleChildAdded(SceneComponent item)
         {

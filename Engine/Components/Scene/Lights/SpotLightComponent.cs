@@ -312,7 +312,7 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.AllowDepthWrite(true);
 
             scene.CollectVisibleRenderables(_shadowCamera.Frustum, true);
-            scene.Render(_shadowCamera, null);
+            scene.Render(_shadowCamera, null, null);
 
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.Framebuffer);

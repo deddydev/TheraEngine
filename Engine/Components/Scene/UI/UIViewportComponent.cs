@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
@@ -9,31 +10,56 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public class UIViewportComponent : UIDockableComponent, I2DRenderable
+    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable
     {
-        public UIViewportComponent() : base() { }
-        
-        private Viewport _viewport = new Viewport(1.0f, 1.0f);
+        public event DelSetUniforms SettingUniforms;
 
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 20, 0);
+        public UIViewportComponent() : base(GetViewportMaterial())
+        {
+            _viewport = new Viewport(1.0f, 1.0f);
+            _fbo = new MaterialFrameBuffer(InterfaceMaterial);
+            //_quad.SettingUniforms += SetUniforms;
+        }
+
+        private static TMaterial GetViewportMaterial()
+        {
+            return new TMaterial("ViewportMat",
+                new RenderingParameters(),
+                new ShaderVar[0],
+                new BaseTexRef[]
+                {
+                    TexRef2D.CreateFrameBufferTexture("OutColor", 1, 1, EPixelInternalFormat.Rgba16f,
+                    EPixelFormat.Rgba, EPixelType.HalfFloat, EFramebufferAttachment.ColorAttachment0),
+                },
+                Engine.LoadEngineShader("ViewportFBO.fs", ShaderMode.Fragment));
+        }
+
+        //private void SetUniforms()
+        //{
+        //    int fragId = Engine.Settings.AllowShaderPipelines ?
+        //       _quad.Material.Program.BindingId :
+        //       _quad.VertexFragProgram.BindingId;
+
+        //    SettingUniforms?.Invoke(fragId);
+        //}
+
         public Camera Camera { get; set; }
-        public bool IsRendering { get; set; }
 
+        private Viewport _viewport;
+        private MaterialFrameBuffer _fbo;
+        
         public override Vec2 Resize(Vec2 parentBounds)
         {
             Vec2 r = base.Resize(parentBounds);
-            _viewport.Resize(Width, Height);
+            _fbo.ResizeTextures((int)Width, (int)Height);
+            _viewport.Resize(Width, Height, true, 1.0f, 1.0f);
             return r;
         }
-        public override void RecalcWorldTransform()
-        {
-            base.RecalcWorldTransform();
-            _viewport.Position = ScreenTranslation;
-        }
-        public void Render()
+        public override void Render()
         {
             Scene scene = Camera?.OwningComponent?.OwningScene;
-            _viewport.Render(scene, Camera, Camera?.Frustum);
+            _viewport.Render(scene, Camera, Camera?.Frustum, _fbo);
+            base.Render();
         }
     }
 }

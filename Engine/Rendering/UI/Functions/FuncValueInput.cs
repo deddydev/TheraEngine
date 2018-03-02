@@ -22,24 +22,24 @@ namespace TheraEngine.Rendering.UI.Functions
         public FuncValueInput(string name, params int[] types)
             : base(name)
         {
-            _allowedArgTypes = types;
+            AllowedArgumentTypes = types;
         }
         public FuncValueInput(string name, TParent parent, params int[] types)
             : base(name, parent)
         {
-            _allowedArgTypes = types;
+            AllowedArgumentTypes = types;
         }
         public FuncValueInput(string name, IBaseFuncValue linkedMultiArg)
             : base(name)
         {
-            _syncedArgs.Add(linkedMultiArg);
-            _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
+            SyncedArguments.Add(linkedMultiArg);
+            AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
         }
         public FuncValueInput(string name, TParent parent, IBaseFuncValue linkedMultiArg)
             : base(name, parent)
         {
-            _syncedArgs.Add(linkedMultiArg);
-            _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
+            SyncedArguments.Add(linkedMultiArg);
+            AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
         }
 
         public bool TryConnectTo(TOutput other)

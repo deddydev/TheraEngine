@@ -182,7 +182,7 @@ namespace TheraEngine.Rendering
             _passes.Sort(shadowPass);
         }
 
-        public void RenderForward(Camera c, Viewport v)
+        public void RenderForward(Camera c, Viewport v, MaterialFrameBuffer target)
         {
             AbstractRenderer.PushCurrentCamera(c);
             {
@@ -207,9 +207,7 @@ namespace TheraEngine.Rendering
                         _passes.Render(ERenderPass3D.OnTopForward);
                     }
                     v.PostProcessFBO.Unbind(EFramebufferTarget.Framebuffer);
-
                 }
-                //Disable internal resolution
                 Engine.Renderer.PopRenderArea();
 
                 //Render the last pass to the actual screen resolution
@@ -224,7 +222,7 @@ namespace TheraEngine.Rendering
             }
             AbstractRenderer.PopCurrentCamera();
         }
-        public void RenderDeferred(Camera c, Viewport v)
+        public void RenderDeferred(Camera c, Viewport v, MaterialFrameBuffer target)
         {
             AbstractRenderer.PushCurrentCamera(c);
             AbstractRenderer.PushCurrent3DScene(this);
@@ -288,25 +286,27 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.PopRenderArea();
 
                     //Render the last pass to the actual screen resolution
+                    target?.Bind(EFramebufferTarget.Framebuffer);
                     Engine.Renderer.PushRenderArea(v.Region);
                     {
-                        Engine.Renderer.CropRenderArea(v.Region);
+                        //Engine.Renderer.CropRenderArea(v.Region);
 
                         Engine.Renderer.AllowDepthWrite(true);
                         Engine.Renderer.DepthFunc(EComparison.Lequal);
 
                         v.PostProcessFBO.Render();
                     }
-                    Engine.Renderer.PopRenderArea();
-
                     if (v.HUD?.Scene != null)
                     {
                         v.HUD.Scene.CollectVisibleRenderables();
-                        v.HUD.Scene.DoRender(v.Camera, v);
+                        v.HUD.Scene.DoRender(v.HUD.Camera, v, null);
                     }
+                    Engine.Renderer.PopRenderArea();
+                    target?.Unbind(EFramebufferTarget.Framebuffer);
                 }
                 else
                 {
+                    target?.Bind(EFramebufferTarget.Framebuffer);
                     Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
                     Engine.Renderer.AllowDepthWrite(false);
@@ -321,6 +321,7 @@ namespace TheraEngine.Rendering
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
                     _passes.Render(ERenderPass3D.OnTopForward);
+                    target?.Unbind(EFramebufferTarget.Framebuffer);
                 }
             }
             AbstractRenderer.PopCurrent3DScene();

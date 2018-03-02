@@ -31,7 +31,7 @@ namespace TheraEngine
 
             PreRender();
             _context.BeginDraw();
-            v.Render(Scene, v.Camera, v.Camera.Frustum);
+            v.Render(Scene, v.Camera, v.Camera.Frustum, null);
             _context.EndDraw();
             PostRender();
         }

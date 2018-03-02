@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Components;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
@@ -10,8 +11,8 @@ namespace TheraEngine.Rendering.UI.Functions
     }
     public abstract class BaseFuncExec : BaseFuncArg
     {
-        public BaseFuncExec(string name) : base(name) { }
-        public BaseFuncExec(string name, IFunction parent) : base(name, parent) { }
+        public BaseFuncExec(string name) : base(name, new ColorF4(0.4f, 1.0f)) { }
+        public BaseFuncExec(string name, IFunction parent) : base(name, parent, new ColorF4(0.4f, 1.0f)) { }
     }
     public abstract class BaseFuncExec<T> : BaseFuncExec where T : UIComponent, IBaseFuncExec
     {

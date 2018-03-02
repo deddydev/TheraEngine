@@ -307,8 +307,24 @@ namespace TheraEngine.Rendering.Models.Materials
 
         internal override void AttachToFBO()
         {
-            if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
+            if (FrameBufferAttachment.HasValue/* && Material != null && Material.HasAttachment(FrameBufferAttachment.Value)*/)
+            {
+                //_texture.Bind();
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
+            }
+        }
+
+        public static TexRef2D CreateFrameBufferTexture(string name, int width, int height,
+            EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType, EFramebufferAttachment bufAttach)
+        {
+            return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
+            {
+                MinFilter = ETexMinFilter.Nearest,
+                MagFilter = ETexMagFilter.Nearest,
+                UWrap = ETexWrapMode.Clamp,
+                VWrap = ETexWrapMode.Clamp,
+                FrameBufferAttachment = bufAttach,
+            };
         }
     }
 }

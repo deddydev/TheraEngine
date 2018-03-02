@@ -212,20 +212,20 @@
     <Compile Include="Windows\Forms\Borderless Form\TheraForm.Designer.cs">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\DockableMatFuncList.cs">
+    <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatFuncList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\DockableMatFuncList.Designer.cs">
+    <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatFuncList.Designer.cs">
       <DependentUpon>DockableMatFuncList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\DockableMatGraph.cs">
+    <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatGraph.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\DockableMatGraph.Designer.cs">
+    <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatGraph.Designer.cs">
       <DependentUpon>DockableMatGraph.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\MaterialEditorGameMode.cs" />
-    <Compile Include="Windows\Forms\Material Editor\MaterialEditorController.cs" />
+    <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialEditorGameMode.cs" />
+    <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialEditorController.cs" />
     <Compile Include="Windows\Forms\Misc\BetterTableLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -241,7 +241,7 @@
     <Compile Include="Windows\Forms\Misc\LoginControl.Designer.cs">
       <DependentUpon>LoginControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\DragDropFilter.cs" />
+    <Compile Include="Core\DragDropFilter.cs" />
     <Compile Include="Windows\Forms\Model Editor\Bone Tree\BoneTree.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -297,28 +297,28 @@
     <Compile Include="Windows\Forms\Model Editor\ModelEditorForm.Designer.cs">
       <DependentUpon>ModelEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableWelcomeWindow.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableWelcomeWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableWelcomeWindow.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableWelcomeWindow.Designer.cs">
       <DependentUpon>DockableWelcomeWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableContentCreator.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableContentCreator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableContentCreator.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableContentCreator.Designer.cs">
       <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableTextEditor.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableTextEditor.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor.Designer.cs">
       <DependentUpon>DockableTextEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableOutputWindow.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableOutputWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableOutputWindow.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableOutputWindow.Designer.cs">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Class Creation\ObjectCreator.cs">
@@ -353,7 +353,7 @@
     <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.Designer.cs">
       <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\MaterialGraphRenderPanel.cs">
+    <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialGraphRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxDecimal.cs">
@@ -601,28 +601,28 @@
       <SubType>Component</SubType>
     </None>
     <Compile Include="Windows\Forms\File Navigation\TreeViewEx.cs" />
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockablePropertyGrid.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockablePropertyGrid.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockablePropertyGrid.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockablePropertyGrid.Designer.cs">
       <DependentUpon>DockablePropertyGrid.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableFileTree.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableFileTree.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableFileTree.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableFileTree.Designer.cs">
       <DependentUpon>DockableFileTree.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableActorTree.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableActorTree.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableActorTree.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableActorTree.Designer.cs">
       <DependentUpon>DockableActorTree.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableWorldRenderForm.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableWorldRenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor Forms\DockableWorldRenderForm.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableWorldRenderForm.Designer.cs">
       <DependentUpon>DockableWorldRenderForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Main Window\TheraEditorTheme.cs">
@@ -647,13 +647,13 @@
     <Compile Include="Windows\Forms\Class Creation\GenericSelector.Designer.cs">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\MaterialEditorForm.cs">
+    <Compile Include="Windows\Forms\Material Editor\MaterialEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\MaterialEditorForm.Designer.cs">
-      <DependentUpon>MaterialEditorForm.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Material Editor\MaterialEditor.Designer.cs">
+      <DependentUpon>MaterialEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\MaterialEditorHud.cs" />
+    <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialEditorHud.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectState.cs" />
@@ -697,10 +697,10 @@
     <EmbeddedResource Include="Windows\Forms\Borderless Form\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Material Editor\DockableMatFuncList.resx">
+    <EmbeddedResource Include="Windows\Forms\Material Editor\Sub Forms\DockableMatFuncList.resx">
       <DependentUpon>DockableMatFuncList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Material Editor\DockableMatGraph.resx">
+    <EmbeddedResource Include="Windows\Forms\Material Editor\Sub Forms\DockableMatGraph.resx">
       <DependentUpon>DockableMatGraph.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Misc\IssueDialog.resx">
@@ -733,28 +733,28 @@
     <EmbeddedResource Include="Windows\Forms\Model Editor\ModelEditorForm.resx">
       <DependentUpon>ModelEditorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor Forms\DockableWelcomeWindow.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableWelcomeWindow.resx">
       <DependentUpon>DockableWelcomeWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor Forms\DockableContentCreator.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableContentCreator.resx">
       <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor Forms\DockableTextEditor.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor.resx">
       <DependentUpon>DockableTextEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor Forms\DockableOutputWindow.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableOutputWindow.resx">
       <DependentUpon>DockableOutputWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor Forms\DockablePropertyGrid.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockablePropertyGrid.resx">
       <DependentUpon>DockablePropertyGrid.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor Forms\DockableFileTree.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableFileTree.resx">
       <DependentUpon>DockableFileTree.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor Forms\DockableActorTree.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableActorTree.resx">
       <DependentUpon>DockableActorTree.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor Forms\DockableWorldRenderForm.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableWorldRenderForm.resx">
       <DependentUpon>DockableWorldRenderForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\Editor.resx">
@@ -775,8 +775,8 @@
     <EmbeddedResource Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.resx">
       <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Material Editor\MaterialEditorForm.resx">
-      <DependentUpon>MaterialEditorForm.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Material Editor\MaterialEditor.resx">
+      <DependentUpon>MaterialEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -943,6 +943,7 @@
   <ItemGroup>
     <Folder Include="Windows\Forms\Cutscene Editor\" />
     <Folder Include="Windows\Forms\HUD Editor\" />
+    <Folder Include="Windows\Forms\Main Window\Overrides\" />
     <Folder Include="Windows\Forms\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
     <Folder Include="Windows\Forms\Particle Editor\" />

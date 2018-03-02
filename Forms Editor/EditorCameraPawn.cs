@@ -51,7 +51,7 @@ namespace TheraEditor.Actors.Types.Pawns
             base.OnRightClick(pressed);
 
             Viewport v = LocalPlayerController.Viewport;
-            Vec2 viewportPoint = v.AbsoluteToRelative(HUD.CursorPosition);
+            Vec2 viewportPoint = HUD.CursorPosition(v);
             Segment s = v.GetWorldSegment(viewportPoint);
             RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
             if (_hasHit = c.Trace())

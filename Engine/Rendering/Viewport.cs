@@ -239,19 +239,19 @@ namespace TheraEngine.Rendering
                 Owners.Remove(controller);
         }
         
-        public void Render(Scene scene, Camera camera, Frustum frustum)
+        public void Render(Scene scene, Camera camera, Frustum frustum, MaterialFrameBuffer target)
         {
             if (scene == null || scene.Count == 0)
                 return;
 
             CurrentlyRenderingViewports.Push(this);
-            OnRender(scene, camera, frustum);
+            OnRender(scene, camera, frustum, target);
             CurrentlyRenderingViewports.Pop();
         }
-        protected virtual void OnRender(Scene scene, Camera camera, Frustum frustum)
+        protected virtual void OnRender(Scene scene, Camera camera, Frustum frustum, MaterialFrameBuffer target)
         {
             scene.CollectVisibleRenderables(frustum, false);
-            scene.Render(camera, this);
+            scene.Render(camera, this, target);
         }
 
         #region Coordinate conversion
@@ -630,18 +630,11 @@ namespace TheraEngine.Rendering
 
             _ssaoInfo.Generate();
 
-            TexRef2D depthTexture = new TexRef2D("Depth", width, height,
-                EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
-            {
-                MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest,
-                UWrap = ETexWrapMode.Clamp,
-                VWrap = ETexWrapMode.Clamp,
-                FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
-            };
+            TexRef2D depthTexture = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
+                EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float,
+                EFramebufferAttachment.DepthAttachment);
 
             InitPostFBO(width, height, depthTexture);
-            //InitUiFBO(width, height, depthTexture);
 
             //If forward, we can render directly to the post process FBO.
             //If deferred, we have to render to a quad first, then render that to post process
@@ -654,7 +647,7 @@ namespace TheraEngine.Rendering
         {
             TexRef2D[] postProcessRefs = new TexRef2D[]
             {
-                CreateFrameBufferTexture("OutputColor", width, height,
+                TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
                     EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0),
                 depthTexture
@@ -698,13 +691,13 @@ namespace TheraEngine.Rendering
             bmp.UnlockBits(data);
             TexRef2D[] deferredRefs = new TexRef2D[]
             {
-                CreateFrameBufferTexture("AlbedoOpacity", width, height,
+                TexRef2D.CreateFrameBufferTexture("AlbedoOpacity", width, height,
                     EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0),
-                CreateFrameBufferTexture("Normal", width, height,
+                TexRef2D.CreateFrameBufferTexture("Normal", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment1),
-                CreateFrameBufferTexture("RoughnessMetallicSpecular", width, height,
+                TexRef2D.CreateFrameBufferTexture("RoughnessMetallicSpecular", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment2),
                 //CreateFrameBufferTexture("Velocity", width, height,
@@ -735,18 +728,6 @@ namespace TheraEngine.Rendering
             Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
             _worldCamera.SetUniforms(programBindingId);
             _worldCamera.PostProcess.AmbientOcclusion.SetUniforms(programBindingId);
-        }
-        private TexRef2D CreateFrameBufferTexture(string name, int width, int height,
-            EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType, EFramebufferAttachment bufAttach)
-        {
-            return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
-            {
-                MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest,
-                UWrap = ETexWrapMode.Clamp,
-                VWrap = ETexWrapMode.Clamp,
-                FrameBufferAttachment = bufAttach,
-            };
         }
         #endregion
     }

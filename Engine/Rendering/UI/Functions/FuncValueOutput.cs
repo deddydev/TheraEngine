@@ -20,30 +20,30 @@ namespace TheraEngine.Rendering.UI.Functions
         public FuncValueOutput(string name, params int[] types)
             : base(name)
         {
-            _allowedArgTypes = types;
+            AllowedArgumentTypes = types;
             _connectedTo.PostAdded += _connectedTo_Added;
             _connectedTo.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TParent parent, params int[] types)
             : base(name, parent)
         {
-            _allowedArgTypes = types;
+            AllowedArgumentTypes = types;
             _connectedTo.PostAdded += _connectedTo_Added;
             _connectedTo.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TInput linkedMultiArg)
             : base(name)
         {
-            _syncedArgs.Add(linkedMultiArg);
-            _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
+            SyncedArguments.Add(linkedMultiArg);
+            AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
             _connectedTo.PostAdded += _connectedTo_Added;
             _connectedTo.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TParent parent, TInput linkedMultiArg)
             : base(name, parent)
         {
-            _syncedArgs.Add(linkedMultiArg);
-            _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
+            SyncedArguments.Add(linkedMultiArg);
+            AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
             _connectedTo.PostAdded += _connectedTo_Added;
             _connectedTo.PostRemoved += _connectedTo_Removed;
         }
@@ -61,6 +61,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public virtual void ClearConnection(TInput other) { _connectedTo.Remove(other, false, false); }
         private void _connectedTo_Added(TInput item) { item.SetConnection(this); }
         private void _connectedTo_Removed(TInput item) { item.ClearConnection(); }
+
         /// <summary>
         /// Returns interpolated point from the connected output argument to this argument.
         /// Used for rendering the material editor graph.
@@ -122,13 +123,13 @@ namespace TheraEngine.Rendering.UI.Functions
             else //this type is invalid, use allowed arg types
             {
                 if (otherType >= 0)
-                    return _allowedArgTypes.Contains(otherType);
+                    return AllowedArgumentTypes.Contains(otherType);
 
                 //Has to be a multi arg as per the edge case check above
                 TInput otherMultiArg = other;
 
                 //Returns true if there are any matching allowed types between the two
-                return _allowedArgTypes.Intersect(otherMultiArg.AllowedArgumentTypes).ToArray().Length != 0;
+                return AllowedArgumentTypes.Intersect(otherMultiArg.AllowedArgumentTypes).ToArray().Length != 0;
             }
         }
     }

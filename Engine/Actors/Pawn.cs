@@ -81,7 +81,7 @@ namespace TheraEngine.Actors
                 _currentCameraComponent = value;
                 LocalPlayerController controller = LocalPlayerController;
                 if (controller != null)
-                    controller.ViewportCamera = value.CameraRef;
+                    controller.ViewportCamera = _currentCameraComponent.CameraRef.File;
             }
         }
 

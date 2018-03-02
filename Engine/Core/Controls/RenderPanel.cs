@@ -37,7 +37,7 @@ namespace TheraEngine
             PreRender();
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
-                v.Render(GetScene(v), GetCamera(v), GetFrustum(v));
+                v.Render(GetScene(v), GetCamera(v), GetFrustum(v), null);
             //_globalHud?.Render();
             _context.EndDraw();
             PostRender();

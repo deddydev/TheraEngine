@@ -1,11 +1,10 @@
-﻿using TheraEngine.Rendering.Cameras;
-using System;
+﻿using System;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
-using TheraEngine.Rendering.UI;
 using TheraEngine.Rendering;
-using TheraEngine.Worlds;
-using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
@@ -17,7 +16,10 @@ namespace TheraEngine.Actors.Types.Pawns
         void RemoveRenderableComponent(I2DRenderable r);
         void AddRenderableComponent(I2DRenderable r);
         Scene2D Scene { get; }
-        Vec2 CursorPosition { get; }
+        Vec2 CursorPosition();
+        Vec2 CursorPositionWorld();
+        Vec2 CursorPosition(Viewport v);
+        Vec2 CursorPositionWorld(Viewport v);
         OrthographicCamera Camera { get; }
         Vec2 Bounds { get; }
     }

@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering.UI
         public UIViewportComponent() : base(GetViewportMaterial())
         {
             _viewport = new Viewport(1.0f, 1.0f);
-            _fbo = new MaterialFrameBuffer(InterfaceMaterial);
+            _fbo = new QuadFrameBuffer(InterfaceMaterial);
             //_quad.SettingUniforms += SetUniforms;
         }
 
@@ -46,19 +46,20 @@ namespace TheraEngine.Rendering.UI
         public Camera Camera { get; set; }
 
         private Viewport _viewport;
-        private MaterialFrameBuffer _fbo;
+        private QuadFrameBuffer _fbo;
         
         public override Vec2 Resize(Vec2 parentBounds)
         {
             Vec2 r = base.Resize(parentBounds);
-            _fbo.ResizeTextures((int)Width, (int)Height);
-            _viewport.Resize(Width, Height, true, 1.0f, 1.0f);
+            //_fbo.ResizeTextures((int)Width, (int)Height);
+            //_viewport.Resize(Width, Height, true, 1.0f, 1.0f);
             return r;
         }
         public override void Render()
         {
-            Scene scene = Camera?.OwningComponent?.OwningScene;
-            _viewport.Render(scene, Camera, Camera?.Frustum, _fbo);
+            //Scene scene = Camera?.OwningComponent?.OwningScene;
+            //_viewport.Render(scene, Camera, Camera?.Frustum, _fbo);
+            //_fbo.Render();
             base.Render();
         }
     }

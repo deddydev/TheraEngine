@@ -284,7 +284,7 @@ namespace TheraEngine.Rendering
         {
             throw new NotImplementedException();
             Vec2 absolutePoint = viewportPoint;//RelativeToAbsolute(viewportPoint);
-            GBufferFBO.Bind(EFramebufferTarget.Framebuffer);
+            GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             //var depthTex = _gBuffer.Textures[4];
             //depthTex.Bind();
@@ -294,7 +294,7 @@ namespace TheraEngine.Rendering
             //float depth = *(float*)((byte*)bmd.Scan0 + ((int)viewportPoint.Y * bmd.Stride + (int)viewportPoint.X * 4));
             //depthTex.UnlockBits(bmd);
             float depth = Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
-            GBufferFBO.Unbind(EFramebufferTarget.Framebuffer);
+            GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
             return depth;
         }
         /// <summary>

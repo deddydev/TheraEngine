@@ -193,7 +193,7 @@ namespace TheraEngine.Components.Scene.Lights
         public override void RenderShadowMap(Scene3D scene)
         {
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
-            _shadowMap.Bind(EFramebufferTarget.Framebuffer);
+            _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowResolution, _shadowResolution, 0.0f, 0.0f));
             {
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
@@ -202,7 +202,7 @@ namespace TheraEngine.Components.Scene.Lights
                 scene.Render(null, null, null);
             }
             Engine.Renderer.PopRenderArea();
-            _shadowMap.Unbind(EFramebufferTarget.Framebuffer);
+            _shadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.MaterialOverride = null;
         }
 

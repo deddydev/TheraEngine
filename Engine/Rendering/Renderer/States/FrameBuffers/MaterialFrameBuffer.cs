@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering
         public MaterialFrameBuffer() { }
         public MaterialFrameBuffer(TMaterial m) => Material = m;
 
-        private bool _compiled = false;
+        //private bool _compiled = false;
 
         private TMaterial _material;
         public TMaterial Material
@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering
                 if (_material != null)
                 {
                     _material.FrameBuffer = this;
-                    _compiled = false;
+                    //_compiled = false;
                 }
             }
         }
@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering
                 return;
             if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.World))
                 return;
-            _compiled = true;
+            //_compiled = true;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             Material.GenerateTextures(true);
             foreach (BaseTexRef tref in Material.Textures)
@@ -62,8 +62,8 @@ namespace TheraEngine.Rendering
 
         protected override void OnGenerated()
         {
-            if (!_compiled)
-                Compile();
+            //if (!_compiled)
+            Compile();
         }
     }
 }

@@ -97,8 +97,11 @@ namespace TheraEngine.Rendering
         protected void GetCurrentSubContext()
         {
             Thread thread = Thread.CurrentThread;
-            if (!_subContexts.ContainsKey(thread.ManagedThreadId))
-                CreateContextForThread(thread);
+            lock (_subContexts)
+            {
+                if (!_subContexts.ContainsKey(thread.ManagedThreadId))
+                    CreateContextForThread(thread);
+            }
             _currentSubContext = _subContexts[thread.ManagedThreadId];
             _currentSubContext.SetCurrent(true);
         }
@@ -155,53 +158,53 @@ namespace TheraEngine.Rendering
         public abstract void ErrorCheck();
         public void Capture(bool force = false)
         {
-            try
-            {
+            //try
+            //{
                 if (force || Captured != this)
                 {
                     if (force)
                         Captured = null;
                     Captured = this;
                 }
-            }
-            catch { Reset(); }
+            //}
+            //catch { Reset(); }
         }
         public void Release()
         {
-            try
-            {
+            //try
+            //{
                 if (Captured == this)
                 {
                     Captured = null;
                     ContextChanged?.Invoke(false);
                 }
-            }
-            catch { Reset(); }
+            //}
+            //catch { Reset(); }
         }
         public void Swap()
         {
             Capture();
             OnSwapBuffers();
         }
-        public void Reset()
-        {
-            if (_resetting) //Prevent a possible infinite loop
-                return;
+        //public void Reset()
+        //{
+        //    if (_resetting) //Prevent a possible infinite loop
+        //        return;
 
-            _resetting = true;
-            //_control.Reset();
-            Dispose();
+        //    _resetting = true;
+        //    //_control.Reset();
+        //    Dispose();
 
-            //_winInfo = Utilities.CreateWindowsWindowInfo(_control.Handle);
-            //_context = new GraphicsContext(GraphicsMode.Default, WindowInfo);
-            Capture(true);
-            //_context.LoadAll();
-            Update();
+        //    //_winInfo = Utilities.CreateWindowsWindowInfo(_control.Handle);
+        //    //_context = new GraphicsContext(GraphicsMode.Default, WindowInfo);
+        //    Capture(true);
+        //    //_context.LoadAll();
+        //    Update();
 
-            ResetOccured?.Invoke(this, EventArgs.Empty);
+        //    ResetOccured?.Invoke(this, EventArgs.Empty);
 
-            _resetting = false;
-        }
+        //    _resetting = false;
+        //}
         public void Update()
         {
             if (Captured == this)

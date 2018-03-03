@@ -118,7 +118,7 @@ namespace TheraEngine.Rendering
         
         public void DoRender(Camera c, Viewport v, MaterialFrameBuffer target)
         {
-            target?.Bind(EFramebufferTarget.Framebuffer);
+            target?.Bind(EFramebufferTarget.DrawFramebuffer);
 
             AbstractRenderer.PushCurrentCamera(c);
             AbstractRenderer.PushCurrent2DScene(this);
@@ -203,7 +203,7 @@ namespace TheraEngine.Rendering
             AbstractRenderer.PopCurrent2DScene();
             AbstractRenderer.PopCurrentCamera();
 
-            target?.Unbind(EFramebufferTarget.Framebuffer);
+            target?.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         
         public void Resize(Vec2 bounds)

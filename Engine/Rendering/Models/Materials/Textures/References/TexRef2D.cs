@@ -134,8 +134,8 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public ETexWrapMode VWrap
         {
-            get => _uWrapMode;
-            set => _uWrapMode = value;
+            get => _vWrapMode;
+            set => _vWrapMode = value;
         }
         [TSerialize]
         public float LodBias

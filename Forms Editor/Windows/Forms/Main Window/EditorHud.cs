@@ -81,7 +81,7 @@ namespace TheraEditor.Windows.Forms
                 if (value == null && HighlightedComponent != null)
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
-                        Engine.Scene.Remove(_highlightPoint);
+                        _highlightPoint.Visible = false;
                     BaseRenderPanel.CheckedInvoke(new Action(() => 
                     {
                         if (BaseRenderPanel.CapturedPanel != null)
@@ -94,7 +94,7 @@ namespace TheraEditor.Windows.Forms
                 else if (value != null && HighlightedComponent == null)
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
-                        OwningWorld.Scene.Add(_highlightPoint);
+                        _highlightPoint.Visible = true;
                     BaseRenderPanel.CheckedInvoke(new Action(() =>
                     {
                         if (BaseRenderPanel.CapturedPanel != null)
@@ -119,18 +119,18 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        public UIViewportComponent TestViewport { get; private set; }
+        //public UIViewportComponent TestViewport { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
         protected override UIDockableComponent OnConstruct()
         {
             UIDockableComponent dock = new UIDockableComponent();
-            TestViewport = new UIViewportComponent
-            {
-                DockStyle = HudDockStyle.None,
-                Width = 400,
-                Height = 400
-            };
-            dock.ChildComponents.Add(TestViewport);
+            //TestViewport = new UIViewportComponent
+            //{
+            //    DockStyle = HudDockStyle.None,
+            //    Width = 400,
+            //    Height = 400
+            //};
+            //dock.ChildComponents.Add(TestViewport);
             //TextOverlay = new UITextProjectionComponent()
             //{
             //    TexScale = new Vec2(1.0f),
@@ -270,17 +270,19 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnSpawnedPostComponentSetup();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
-            PerspectiveCameraActor c = new PerspectiveCameraActor();
-            c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
-            OwningWorld.SpawnActor(c);
-            TestViewport.Camera = c.Camera;
-            TestViewport.Width = 400;
-            TestViewport.Height = 400;
+            OwningWorld.Scene.Add(_highlightPoint);
+            //PerspectiveCameraActor c = new PerspectiveCameraActor();
+            //c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
+            //OwningWorld.SpawnActor(c);
+            //TestViewport.Camera = c.Camera;
+            //TestViewport.Width = 400;
+            //TestViewport.Height = 400;
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
+            OwningWorld.Scene.Remove(_highlightPoint);
         }
         private void MouseMove(float delta)
         {
@@ -395,7 +397,7 @@ namespace TheraEditor.Windows.Forms
             }
 
             if (HighlightedComponent != null)
-                OwningWorld.Scene.Add(_highlightPoint);
+                _highlightPoint.Visible = true;
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {
@@ -408,7 +410,7 @@ namespace TheraEditor.Windows.Forms
             
             if (_selectedComponent != null)
             {
-                OwningWorld.Scene?.Remove(_highlightPoint);
+                _highlightPoint.Visible = false;
                 if (_selectedComponent.OwningActor is TransformTool3D tool)
                 {
 
@@ -488,6 +490,7 @@ namespace TheraEditor.Windows.Forms
             public IOctreeNode OctreeNode { get; set; }
             public SceneComponent HighlightedComponent { get; set; }
             public Matrix4 Transform { get; set; } = Matrix4.Identity;
+            public bool Visible { get; set; }
 
             private TMaterial _material;
             private PrimitiveManager _circlePrimitive;
@@ -503,6 +506,9 @@ namespace TheraEditor.Windows.Forms
             
             public void Render()
             {
+                if (!Visible)
+                    return;
+
                 if (HighlightedComponent != null && HighlightedComponent != TransformTool3D.Instance?.RootComponent)
                 {
                     _circlePrimitive.Render(Transform, Matrix3.Identity);

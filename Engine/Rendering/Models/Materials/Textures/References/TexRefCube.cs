@@ -142,8 +142,8 @@ namespace TheraEngine.Rendering.Models.Materials
         private ETexWrapMode _uWrapMode = ETexWrapMode.ClampToEdge;
         private ETexWrapMode _vWrapMode = ETexWrapMode.ClampToEdge;
         private ETexWrapMode _wWrapMode = ETexWrapMode.ClampToEdge;
-        private ETexMinFilter _minFilter = ETexMinFilter.LinearMipmapLinear;
-        private ETexMagFilter _magFilter = ETexMagFilter.Linear;
+        private ETexMinFilter _minFilter = ETexMinFilter.Nearest;
+        private ETexMagFilter _magFilter = ETexMagFilter.Nearest;
         private float _lodBias = 0.0f;
 
         [TSerialize]
@@ -167,8 +167,8 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public ETexWrapMode VWrap
         {
-            get => _uWrapMode;
-            set => _uWrapMode = value;
+            get => _vWrapMode;
+            set => _vWrapMode = value;
         }
         [TSerialize]
         public ETexWrapMode WWrap

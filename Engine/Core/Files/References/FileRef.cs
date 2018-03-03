@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Files
@@ -192,6 +193,7 @@ namespace TheraEngine.Files
                 ReferencePath = _file.FilePath;
         }
 
+        public Task<T> GetInstanceAsync() => Task.Run(() => GetInstance());
         /// <summary>
         /// Loads or retrieves the instance of this file.
         /// </summary>

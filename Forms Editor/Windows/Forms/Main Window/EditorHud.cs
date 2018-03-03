@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine;
@@ -45,10 +46,12 @@ namespace TheraEditor.Windows.Forms
 
         }
 
+        [Browsable(false)]
+        public float DraggingTestDistance { get; set; } = 20.0f;
+
         private HighlightPoint _highlightPoint;
         TRigidBody _pickedBody;
         TPointPointConstraint _currentConstraint;
-        private float _draggingTestDistance = 20.0f;
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
@@ -205,8 +208,8 @@ namespace TheraEditor.Windows.Forms
                     _spawnRotation += up ? 5.0f : -5.0f;
                 else if (Control.ModifierKeys == Keys.Alt)
                 {
-                    _draggingTestDistance *= up ? 0.8f : 1.2f;
-                    _draggingTestDistance.ClampMin(0.0f);
+                    DraggingTestDistance *= up ? 0.8f : 1.2f;
+                    DraggingTestDistance.ClampMin(0.0f);
                 }
                 else if (Control.ModifierKeys == Keys.Shift)
                 {
@@ -322,21 +325,21 @@ namespace TheraEditor.Windows.Forms
             else if (_currentConstraint != null)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
-                _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * _draggingTestDistance;
+                _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * DraggingTestDistance;
             }
             else if (_dragComponent != null)
             {
                 IRigidCollidable p = _dragComponent as IRigidCollidable;
                 SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
-                if (dist > _draggingTestDistance)
+                if (dist > DraggingTestDistance)
                     comp = null;
 
                 float upDist = 0.0f;
                 if (comp == null)
                 {
                     hitNormal = Vec3.Up;// v.Camera.GetUpVector();
-                    float depth = TMath.DistanceToDepth(_draggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
+                    float depth = TMath.DistanceToDepth(DraggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
                     _hitPoint = v.ScreenToWorld(viewportPoint, depth);
                 }
                 else if (p != null)
@@ -454,7 +457,7 @@ namespace TheraEditor.Windows.Forms
                                 {
                                     _prevDragMatrix = _dragComponent.WorldMatrix;
                                     Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
-                                    _draggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : _draggingTestDistance;
+                                    DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
                                 }
                             }
                         }

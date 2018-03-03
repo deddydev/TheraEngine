@@ -260,6 +260,12 @@ namespace TheraEditor.Windows.Forms
             get => Engine.World;
             set
             {
+                if (InvokeRequired)
+                {
+                    Invoke((Action)(() => CurrentWorld = value));
+                    return;
+                }
+
                 if (Engine.World != null &&
                     Engine.World.EditorState != null &&
                     Engine.World.EditorState.HasChanges)
@@ -884,43 +890,45 @@ namespace TheraEditor.Windows.Forms
 
         }
 
-        private void CheckUpdates(bool manual = true)
+        private async void CheckUpdates(bool manual = true)
         {
             try
             {
-                string path = Path.Combine(Application.StartupPath, "Updater.exe");
-                if (!File.Exists(path))
-                {
-                    if (manual)
-                        MessageBox.Show("Could not find " + path);
-                    return;
-                }
+                //string path = Path.Combine(Application.StartupPath, "Updater.exe");
+                //if (!File.Exists(path))
+                //{
+                //    if (manual)
+                //        MessageBox.Show("Could not find " + path);
+                //    return;
+                //}
 
                 string editorVer = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 string engineVer = typeof(Engine).Assembly.GetName().Version.ToString();
 
-                Process updater = new Process();
-                ProcessStartInfo info = new ProcessStartInfo()
-                {
-                    FileName = path,
-                    Arguments = String.Format("{0} {1}", editorVer, engineVer),
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                };
-                updater.StartInfo = info;
-                if (manual)
-                {
-                    updater.OutputDataReceived += Updater_OutputDataReceived;
-                    updater.ErrorDataReceived += Updater_ErrorDataReceived;
-                    updater.Start();
-                    updater.BeginOutputReadLine();
-                    updater.BeginErrorReadLine();
-                }
-                else
-                    updater.Start();
+                await Github.Updater.CheckUpdates(editorVer, engineVer);
+
+                //Process updater = new Process();
+                //ProcessStartInfo info = new ProcessStartInfo()
+                //{
+                //    FileName = path,
+                //    Arguments = String.Format("{0} {1}", editorVer, engineVer),
+                //    CreateNoWindow = true,
+                //    UseShellExecute = false,
+                //    RedirectStandardOutput = true,
+                //    RedirectStandardError = true,
+                //    WindowStyle = ProcessWindowStyle.Hidden,
+                //};
+                //updater.StartInfo = info;
+                //if (manual)
+                //{
+                //    updater.OutputDataReceived += Updater_OutputDataReceived;
+                //    updater.ErrorDataReceived += Updater_ErrorDataReceived;
+                //    updater.Start();
+                //    updater.BeginOutputReadLine();
+                //    updater.BeginErrorReadLine();
+                //}
+                //else
+                //    updater.Start();
             }
             catch (Exception e)
             {

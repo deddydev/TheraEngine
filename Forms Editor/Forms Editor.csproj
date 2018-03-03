@@ -908,10 +908,6 @@
       <Project>{3ba74071-a8fb-473a-9388-0c8f75872f41}</Project>
       <Name>Engine</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Updater\Updater.csproj">
-      <Project>{cf1e25a4-e55e-4c0e-a518-8565a4c4f86b}</Project>
-      <Name>Updater</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\ProjectFile.png" />

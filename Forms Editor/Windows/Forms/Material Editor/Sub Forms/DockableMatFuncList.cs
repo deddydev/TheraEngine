@@ -59,14 +59,26 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
+        DragDropFilter _filter;
         private void BetterListView1_BeforeDrag(object sender, BetterListViewBeforeDragEventArgs eventArgs)
         {
+            //Use drag drop filter system instead
+            _filter = new DragDropFilter(eventArgs.Data, System.Windows.Forms.DragDropEffects.Move);
+            _filter.Done += _filter_Done;
+            _filter.BeginFiltering();
+
             //Cancel the blocking drag operation
             eventArgs.Cancel = true;
+        }
 
-            //Use drag drop filter system instead
-            DragDropFilter f = new DragDropFilter(eventArgs.Data, eventArgs.AllowedEffect);
-            f.BeginFiltering();
+        private void betterListView1_ItemDrag(object sender, BetterListViewItemDragEventArgs eventArgs)
+        {
+
+        }
+
+        private void _filter_Done(object sender, EventArgs e)
+        {
+            _filter = null;
         }
 
         private void BetterListView1_DrawColumnHeader(object sender, BetterListViewDrawColumnHeaderEventArgs e)

@@ -50,6 +50,12 @@ namespace TheraEditor.Windows.Forms
         }
         private void Engine_WorldPostChanged()
         {
+            if (InvokeRequired)
+            {
+                Invoke((Action)Engine_WorldPostChanged);
+                return;
+            }
+
             if (Engine.World == null || EditorPawn == null)
             {
                 Text = string.Format("Viewport {0}", (FormIndex + 1).ToString());
@@ -139,7 +145,7 @@ namespace TheraEditor.Windows.Forms
                 BaseRenderPanel.HoveredPanel = RenderPanel;
                 RenderPanel.Focus();
                 EditorHud hud = EditorPawn.HUD as EditorHud;
-                Engine.World.SpawnActor(actor, EditorPawn.RootComponent.WorldPoint + EditorPawn.RootComponent.WorldForwardVec * 20.0f);
+                Engine.World.SpawnActor(actor, EditorPawn.Camera.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance);
                 _prevTransformType = hud.TransformMode;
                 hud.TransformMode = TransformType.DragDrop;
                 hud.HighlightedComponent = actor.RootComponent;

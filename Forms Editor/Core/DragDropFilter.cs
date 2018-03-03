@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
+using TheraEngine;
 
 namespace TheraEditor.Core
 {
@@ -92,9 +93,12 @@ namespace TheraEditor.Core
             switch (msg)
             {
                 case WindowsMessage.WM_MOUSEMOVE:
-                {
+
                     int keyState = (int)m.WParam;
                     Control ctrl = Control.FromHandle(m.HWnd);
+
+                    if (ctrl != null)
+                    Engine.PrintLine(ctrl.Name);
 
                     //Get cursor position
                     //LParam seems to be off compared to Cursor.Position
@@ -151,11 +155,10 @@ namespace TheraEditor.Core
                         CheckNullTarget();
 
                     break;
-                }
+                
                 case WindowsMessage.WM_LBUTTONDOWN:
                     return true;
                 case WindowsMessage.WM_LBUTTONUP:
-                {
                     Application.RemoveMessageFilter(this);
                     if (_hoveredControl != null)
                     {
@@ -164,16 +167,15 @@ namespace TheraEditor.Core
                     }
                     Done?.Invoke(null, EventArgs.Empty);
                     break;
-                }
+                
                 case WindowsMessage.WM_KEYDOWN:
-                {
                     if (_hoveredControl != null)
                     {
                         QueryContinueDragEventArgs queryArgs = new QueryContinueDragEventArgs(0, false, DragAction.Continue);
                         _queryContinue.Invoke(_hoveredControl, new object[] { queryArgs });
                     }
                     break;
-                }
+                
             }
             return false;
         }

@@ -97,77 +97,25 @@ namespace TheraEditor.Windows.Forms
         //    RenderPanel.EndResize();
         //    base.OnResizeEnd(e);
         //}
+        
+        private void RenderPanel_DragEnter(object sender, DragEventArgs e)
+        {
+            string [] fmts = e.Data.GetFormats();
+        }
+        
+        private void RenderPanel_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Move;
+        }
 
-        //BaseFileWrapper _lastDraggedNode = null;
-        //TFileObject _dragInstance = null;
-        ////private float _preRenderFreq, _preUpdateFreq;
-        //private TransformType _prevTransformType;
-        //private void RenderPanel_DragEnter(object sender, DragEventArgs e)
-        //{
-        //    BaseWrapper[] dragNodes = Editor.Instance.ContentTree?.DraggedNodes;
-        //    if (dragNodes == null || dragNodes.Length != 1)
-        //        return;
-        //    BaseFileWrapper wrapper = dragNodes[0] as BaseFileWrapper;
-        //    if (wrapper == null)
-        //        return;
-        //    if (_lastDraggedNode != wrapper)
-        //    {
-        //        _lastDraggedNode = wrapper;
-        //        _dragInstance = null;
-        //    }
-        //    TFileObject instance = _dragInstance ?? (_dragInstance = wrapper.GetNewInstance());
-        //    if (instance is IActor actor)
-        //    {
-        //        //Editor.Instance.DoEvents = false;
-        //        //_preRenderFreq = Engine.TargetRenderFreq;
-        //        //_preUpdateFreq = Engine.TargetUpdateFreq;
-        //        //Engine.TargetRenderFreq = 20.0f;
-        //        //Engine.TargetUpdateFreq = 20.0f;
-        //        BaseRenderPanel.HoveredPanel = RenderPanel;
-        //        RenderPanel.Focus();
-        //        EditorHud hud = EditorPawn.HUD as EditorHud;
-        //        Engine.World.SpawnActor(actor, EditorPawn.RootComponent.WorldPoint + EditorPawn.RootComponent.WorldForwardDir * 20.0f);
-        //        _prevTransformType = hud.TransformMode;
-        //        hud.TransformMode = TransformType.DragDrop;
-        //        hud.HighlightedComponent = actor.RootComponent;
-        //        hud.DoMouseDown();
-        //    }
-        //}
+        private void RenderPanel_DragDrop(object sender, DragEventArgs e)
+        {
 
-        //private void RenderPanel_DragLeave(object sender, EventArgs e)
-        //{
-        //    EditorHud hud = EditorPawn.HUD as EditorHud;
-        //    if (hud.DragComponent != null)
-        //    {
-        //        Engine.World.DespawnActor(hud.DragComponent.OwningActor);
-        //        hud.DoMouseUp();
-        //        hud.TransformMode = _prevTransformType;
-        //    }
-        //    //Engine.TargetUpdateFreq = _preUpdateFreq;
-        //    //Engine.TargetRenderFreq = _preRenderFreq;
-        //    //Editor.Instance.DoEvents = true;
-        //}
+        }
 
-        //private void RenderPanel_DragOver(object sender, DragEventArgs e)
-        //{
-        //    e.Effect = DragDropEffects.Move;
-        //    //RenderPanel.Invalidate();
-        //}
+        private void RenderPanel_DragLeave_1(object sender, EventArgs e)
+        {
 
-        //private void RenderPanel_DragDrop(object sender, DragEventArgs e)
-        //{
-        //    DragHelper.ImageList_DragLeave(Handle);
-        //    _dragInstance = null;
-        //    _lastDraggedNode = null;
-        //    EditorHud hud = EditorPawn.HUD as EditorHud;
-        //    if (hud.DragComponent != null)
-        //    {
-        //        hud.DoMouseUp();
-        //        hud.TransformMode = _prevTransformType;
-        //    }
-        //    //Engine.TargetUpdateFreq = _preUpdateFreq;
-        //    //Engine.TargetRenderFreq = _preRenderFreq;
-        //    //Editor.Instance.DoEvents = true;
-        //}
+        }
     }
 }

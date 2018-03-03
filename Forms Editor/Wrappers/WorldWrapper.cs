@@ -31,8 +31,11 @@ namespace TheraEditor.Wrappers
 
         public override void EditResource()
         {
-            Editor.Instance.CurrentWorld = Resource;
-            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Resource.Settings;
+            ResourceRef.GetInstanceAsync().ContinueWith(t => 
+            {
+                Editor.Instance.CurrentWorld = t.Result;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = t.Result.Settings;
+            });
         }
     }
 }

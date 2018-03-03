@@ -47,7 +47,7 @@ namespace TheraEngine.Animation
                 }
             }
         }
-        public T Last => (T)_first.Prev;
+        public T Last => _first?.Prev as T;
         
         protected internal override Keyframe FirstKey
         {

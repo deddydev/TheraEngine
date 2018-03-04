@@ -78,7 +78,7 @@
             this.BtnImportFile,
             this.BtnNewFile});
             this.ctxContentTree.Name = "ctxContentTree";
-            this.ctxContentTree.Size = new System.Drawing.Size(124, 52);
+            this.ctxContentTree.Size = new System.Drawing.Size(111, 48);
             // 
             // BtnImportFile
             // 
@@ -86,19 +86,19 @@
             this.btnImportModel,
             this.btnImportTexture});
             this.BtnImportFile.Name = "BtnImportFile";
-            this.BtnImportFile.Size = new System.Drawing.Size(123, 24);
+            this.BtnImportFile.Size = new System.Drawing.Size(110, 22);
             this.BtnImportFile.Text = "Import";
             // 
             // btnImportModel
             // 
             this.btnImportModel.Name = "btnImportModel";
-            this.btnImportModel.Size = new System.Drawing.Size(132, 26);
+            this.btnImportModel.Size = new System.Drawing.Size(112, 22);
             this.btnImportModel.Text = "Model";
             // 
             // btnImportTexture
             // 
             this.btnImportTexture.Name = "btnImportTexture";
-            this.btnImportTexture.Size = new System.Drawing.Size(132, 26);
+            this.btnImportTexture.Size = new System.Drawing.Size(112, 22);
             this.btnImportTexture.Text = "Texture";
             // 
             // BtnNewFile
@@ -111,43 +111,43 @@
             this.btnNewLogicComponent,
             this.btnNewMaterial});
             this.BtnNewFile.Name = "BtnNewFile";
-            this.BtnNewFile.Size = new System.Drawing.Size(123, 24);
+            this.BtnNewFile.Size = new System.Drawing.Size(110, 22);
             this.BtnNewFile.Text = "New";
             // 
             // btnNewWorld
             // 
             this.btnNewWorld.Name = "btnNewWorld";
-            this.btnNewWorld.Size = new System.Drawing.Size(205, 26);
+            this.btnNewWorld.Size = new System.Drawing.Size(172, 22);
             this.btnNewWorld.Text = "World";
             // 
             // btnNewMap
             // 
             this.btnNewMap.Name = "btnNewMap";
-            this.btnNewMap.Size = new System.Drawing.Size(205, 26);
+            this.btnNewMap.Size = new System.Drawing.Size(172, 22);
             this.btnNewMap.Text = "Map";
             // 
             // btnNewActor
             // 
             this.btnNewActor.Name = "btnNewActor";
-            this.btnNewActor.Size = new System.Drawing.Size(205, 26);
+            this.btnNewActor.Size = new System.Drawing.Size(172, 22);
             this.btnNewActor.Text = "Actor";
             // 
             // btnNewSceneComponent
             // 
             this.btnNewSceneComponent.Name = "btnNewSceneComponent";
-            this.btnNewSceneComponent.Size = new System.Drawing.Size(205, 26);
+            this.btnNewSceneComponent.Size = new System.Drawing.Size(172, 22);
             this.btnNewSceneComponent.Text = "Scene Component";
             // 
             // btnNewLogicComponent
             // 
             this.btnNewLogicComponent.Name = "btnNewLogicComponent";
-            this.btnNewLogicComponent.Size = new System.Drawing.Size(205, 26);
+            this.btnNewLogicComponent.Size = new System.Drawing.Size(172, 22);
             this.btnNewLogicComponent.Text = "Logic Component";
             // 
             // btnNewMaterial
             // 
             this.btnNewMaterial.Name = "btnNewMaterial";
-            this.btnNewMaterial.Size = new System.Drawing.Size(205, 26);
+            this.btnNewMaterial.Size = new System.Drawing.Size(172, 22);
             this.btnNewMaterial.Text = "Material";
             // 
             // BodyPanel
@@ -157,7 +157,7 @@
             this.BodyPanel.Location = new System.Drawing.Point(0, 40);
             this.BodyPanel.Margin = new System.Windows.Forms.Padding(0);
             this.BodyPanel.Name = "BodyPanel";
-            this.BodyPanel.Size = new System.Drawing.Size(847, 613);
+            this.BodyPanel.Size = new System.Drawing.Size(879, 691);
             this.BodyPanel.TabIndex = 7;
             // 
             // TitlePanel
@@ -170,7 +170,7 @@
             this.TitlePanel.Location = new System.Drawing.Point(0, 0);
             this.TitlePanel.Margin = new System.Windows.Forms.Padding(0);
             this.TitlePanel.Name = "TitlePanel";
-            this.TitlePanel.Size = new System.Drawing.Size(847, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(879, 40);
             this.TitlePanel.TabIndex = 0;
             // 
             // FormTitle
@@ -182,7 +182,7 @@
             this.FormTitle.Location = new System.Drawing.Point(44, 0);
             this.FormTitle.Name = "FormTitle";
             this.FormTitle.Padding = new System.Windows.Forms.Padding(9, 0, 9, 0);
-            this.FormTitle.Size = new System.Drawing.Size(676, 40);
+            this.FormTitle.Size = new System.Drawing.Size(708, 40);
             this.FormTitle.TabIndex = 6;
             this.FormTitle.Text = "Thera Editor Form";
             this.FormTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -193,7 +193,7 @@
             this.WindowButtonsPanel.Controls.Add(this.MaximizeLabel);
             this.WindowButtonsPanel.Controls.Add(this.CloseLabel);
             this.WindowButtonsPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.WindowButtonsPanel.Location = new System.Drawing.Point(720, 0);
+            this.WindowButtonsPanel.Location = new System.Drawing.Point(752, 0);
             this.WindowButtonsPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.WindowButtonsPanel.Name = "WindowButtonsPanel";
             this.WindowButtonsPanel.Padding = new System.Windows.Forms.Padding(0, 0, 0, 8);
@@ -243,7 +243,7 @@
             this.LogoPanel.Location = new System.Drawing.Point(0, 0);
             this.LogoPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.LogoPanel.Name = "LogoPanel";
-            this.LogoPanel.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.LogoPanel.Padding = new System.Windows.Forms.Padding(4);
             this.LogoPanel.Size = new System.Drawing.Size(44, 40);
             this.LogoPanel.TabIndex = 7;
             // 
@@ -268,7 +268,7 @@
             this.MainPanel.Location = new System.Drawing.Point(0, 4);
             this.MainPanel.Margin = new System.Windows.Forms.Padding(0);
             this.MainPanel.Name = "MainPanel";
-            this.MainPanel.Size = new System.Drawing.Size(847, 653);
+            this.MainPanel.Size = new System.Drawing.Size(879, 731);
             this.MainPanel.TabIndex = 7;
             // 
             // TopLeftBorderPanel
@@ -295,7 +295,7 @@
             // 
             this.BottomRightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNWSE;
             this.BottomRightBorderPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BottomRightBorderPanel.Location = new System.Drawing.Point(0, 657);
+            this.BottomRightBorderPanel.Location = new System.Drawing.Point(0, 735);
             this.BottomRightBorderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.BottomRightBorderPanel.Name = "BottomRightBorderPanel";
             this.BottomRightBorderPanel.Size = new System.Drawing.Size(4, 4);
@@ -305,7 +305,7 @@
             // 
             this.BottomLeftBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNESW;
             this.BottomLeftBorderPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BottomLeftBorderPanel.Location = new System.Drawing.Point(0, 657);
+            this.BottomLeftBorderPanel.Location = new System.Drawing.Point(0, 735);
             this.BottomLeftBorderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.BottomLeftBorderPanel.Name = "BottomLeftBorderPanel";
             this.BottomLeftBorderPanel.Size = new System.Drawing.Size(4, 4);
@@ -318,17 +318,17 @@
             this.TopBorderPanel.Location = new System.Drawing.Point(0, 0);
             this.TopBorderPanel.Margin = new System.Windows.Forms.Padding(0);
             this.TopBorderPanel.Name = "TopBorderPanel";
-            this.TopBorderPanel.Size = new System.Drawing.Size(847, 4);
+            this.TopBorderPanel.Size = new System.Drawing.Size(879, 4);
             this.TopBorderPanel.TabIndex = 11;
             // 
             // BottomBorderPanel
             // 
             this.BottomBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNS;
             this.BottomBorderPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BottomBorderPanel.Location = new System.Drawing.Point(0, 657);
+            this.BottomBorderPanel.Location = new System.Drawing.Point(0, 735);
             this.BottomBorderPanel.Margin = new System.Windows.Forms.Padding(0);
             this.BottomBorderPanel.Name = "BottomBorderPanel";
-            this.BottomBorderPanel.Size = new System.Drawing.Size(847, 4);
+            this.BottomBorderPanel.Size = new System.Drawing.Size(879, 4);
             this.BottomBorderPanel.TabIndex = 12;
             // 
             // LeftBorderPanel
@@ -340,7 +340,7 @@
             this.LeftBorderPanel.Location = new System.Drawing.Point(0, 0);
             this.LeftBorderPanel.Margin = new System.Windows.Forms.Padding(0);
             this.LeftBorderPanel.Name = "LeftBorderPanel";
-            this.LeftBorderPanel.Size = new System.Drawing.Size(4, 661);
+            this.LeftBorderPanel.Size = new System.Drawing.Size(4, 739);
             this.LeftBorderPanel.TabIndex = 13;
             // 
             // RightBorderPanel
@@ -349,10 +349,10 @@
             this.RightBorderPanel.Controls.Add(this.BottomRightBorderPanel);
             this.RightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeWE;
             this.RightBorderPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.RightBorderPanel.Location = new System.Drawing.Point(851, 0);
+            this.RightBorderPanel.Location = new System.Drawing.Point(883, 0);
             this.RightBorderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.RightBorderPanel.Name = "RightBorderPanel";
-            this.RightBorderPanel.Size = new System.Drawing.Size(4, 661);
+            this.RightBorderPanel.Size = new System.Drawing.Size(4, 739);
             this.RightBorderPanel.TabIndex = 14;
             // 
             // MiddlePanel
@@ -364,15 +364,14 @@
             this.MiddlePanel.Location = new System.Drawing.Point(4, 0);
             this.MiddlePanel.Margin = new System.Windows.Forms.Padding(0);
             this.MiddlePanel.Name = "MiddlePanel";
-            this.MiddlePanel.Size = new System.Drawing.Size(847, 661);
+            this.MiddlePanel.Size = new System.Drawing.Size(879, 739);
             this.MiddlePanel.TabIndex = 0;
             // 
             // TheraForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.ClientSize = new System.Drawing.Size(855, 661);
+            this.ClientSize = new System.Drawing.Size(887, 739);
             this.Controls.Add(this.MiddlePanel);
             this.Controls.Add(this.RightBorderPanel);
             this.Controls.Add(this.LeftBorderPanel);

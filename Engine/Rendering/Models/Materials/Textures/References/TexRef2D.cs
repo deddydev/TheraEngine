@@ -307,11 +307,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         internal override void AttachToFBO()
         {
-            if (FrameBufferAttachment.HasValue/* && Material != null && Material.HasAttachment(FrameBufferAttachment.Value)*/)
-            {
-                //_texture.Bind();
+            if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
-            }
         }
 
         public static TexRef2D CreateFrameBufferTexture(string name, int width, int height,

@@ -165,15 +165,9 @@ namespace TheraEngine.Components.Scene.Lights
             //These are listed in order of appearance in the shader
             TexRef2D[] refs = new TexRef2D[]
             {
-                new TexRef2D("Depth", width, height,
-                    GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Clamp,
-                    VWrap = ETexWrapMode.Clamp,
-                    FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
-                },
+                TexRef2D.CreateFrameBufferTexture("Depth", width, height, 
+                GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float, 
+                EFramebufferAttachment.DepthAttachment),
             };
             Shader shader = new Shader(ShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, shader);

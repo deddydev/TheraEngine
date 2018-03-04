@@ -145,8 +145,8 @@ namespace TheraEditor.Windows.Forms
         {
             public int Compare(TreeNode x, TreeNode y)
             {
-                bool xNull = ReferenceEquals(x, null);
-                bool yNull = ReferenceEquals(y, null);
+                bool xNull = x is null;
+                bool yNull = y is null;
                 if (xNull)
                 {
                     if (yNull)
@@ -500,6 +500,11 @@ namespace TheraEditor.Windows.Forms
 
                     //Folder or file not found. Add it.
                     BaseWrapper n = BaseWrapper.Wrap(currentPath);
+                    if (n == null)
+                    {
+                        Engine.LogWarning("Could not wrap path {0}", currentPath);
+                        return null;
+                    }
                     current.Nodes.Add(n);
                     current = n;
                 }

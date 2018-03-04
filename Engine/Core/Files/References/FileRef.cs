@@ -69,7 +69,7 @@ namespace TheraEngine.Files
                     ExportReference();
             }
         }
-        public FileRef(T file) : this(file.FilePath)
+        public FileRef(T file) : this(file?.FilePath)
         {
             File = file;
         }

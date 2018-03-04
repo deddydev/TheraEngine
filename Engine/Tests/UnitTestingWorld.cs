@@ -79,8 +79,8 @@ namespace TheraEngine.Tests
             {
                 Rotator r = rotations[i];
                 actor = new BoxActor("Wall" + i,
-                    new Vec3(500.0f, 0.5f, 500.0f), Vec3.TransformPosition(new Vec3(0.0f, -200.0f, 0.0f), r.GetMatrix()),
-                    r, TMaterial.CreateLitColorMaterial(floorColor));
+                    new Vec3(200.0f, 0.5f, 200.0f), Vec3.TransformPosition(new Vec3(0.0f, -200.0f, 0.0f), r.GetMatrix()),
+                    r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo() { UseMotionState = false, });
                 actors.Add(actor);
             }
 

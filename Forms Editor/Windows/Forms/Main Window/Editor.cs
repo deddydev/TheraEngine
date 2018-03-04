@@ -305,8 +305,9 @@ namespace TheraEditor.Windows.Forms
             _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
 
             DockPanel.Theme = new TheraEditorTheme();
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleMode = AutoScaleMode.None;
             DoubleBuffered = false;
+            //menuStrip1.Padding = new Padding(0, (TitlePanel.Height - menuStrip1.Height) / 2, 0, 0);
 
             KeyPreview = true;
             MappableActions = new Dictionary<Keys, Func<bool>>()
@@ -994,7 +995,9 @@ namespace TheraEditor.Windows.Forms
                 saveAsToolStripMenuItem1_Click(sender, e);
                 return;
             }
+            ContentTree.WatchProjectDirectory = false;
             CurrentWorld.Export();
+            ContentTree.WatchProjectDirectory = true;
         }
 
         private void saveAsToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -1008,7 +1011,9 @@ namespace TheraEditor.Windows.Forms
             };
             if (sfd.ShowDialog() == DialogResult.OK)
             {
+                ContentTree.WatchProjectDirectory = false;
                 CurrentWorld.Export(sfd.FileName);
+                ContentTree.WatchProjectDirectory = true;
             }
         }
         private bool CloseWorld()

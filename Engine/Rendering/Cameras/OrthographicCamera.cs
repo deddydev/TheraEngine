@@ -162,7 +162,7 @@ namespace TheraEngine.Rendering.Cameras
             _orthoRight = _orthoRightPercentage * width;
             _orthoBottom = _orthoBottomPercentage * height;
             _orthoTop = _orthoTopPercentage * height;
-            _origin = _originPercentages * width;
+            _origin = _originPercentages.Raw * width;
             base.Resize(width, height);
         }
         protected Vec3 AlignScreenPoint(Vec3 screenPoint)

@@ -97,8 +97,8 @@ namespace TheraEditor.Core
                     int keyState = (int)m.WParam;
                     Control ctrl = Control.FromHandle(m.HWnd);
 
-                    if (ctrl != null)
-                    Engine.PrintLine(ctrl.Name);
+                    //if (ctrl != null)
+                    //    Engine.PrintLine(ctrl.Name);
 
                     //Get cursor position
                     //LParam seems to be off compared to Cursor.Position

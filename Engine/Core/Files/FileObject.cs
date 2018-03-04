@@ -352,7 +352,7 @@ namespace TheraEngine.Files
         //[GridCallable("Save")]
         public void Export()
         {
-            if (string.IsNullOrEmpty(_filePath) || !_filePath.IsValidPath())
+            if (string.IsNullOrEmpty(_filePath))
             {
                 Engine.LogWarning("File was not exported; no path to export to.");
                 return;
@@ -363,7 +363,7 @@ namespace TheraEngine.Files
         //[GridCallable("Save")]
         public void Export(string path)
         {
-            if (string.IsNullOrEmpty(path) || !path.IsValidPath())
+            if (string.IsNullOrEmpty(path))
             {
                 Engine.LogWarning("File was not exported; file path is not valid.");
                 return;

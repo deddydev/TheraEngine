@@ -30,7 +30,7 @@ namespace TheraEngine.Components.Scene.Shapes
             }
         }
 
-        public void InitPhysics(TRigidBodyConstructionInfo info)
+        public void InitPhysicsShape(TRigidBodyConstructionInfo info)
         {
             if (info != null)
             {

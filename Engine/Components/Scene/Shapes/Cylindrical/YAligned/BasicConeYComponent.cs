@@ -40,7 +40,7 @@ namespace TheraEngine.Components.Scene.Shapes
         {
             _radius = radius;
             _height = height;
-            InitPhysics(info);
+            InitPhysicsShape(info);
         }
         public override void Render()
         {

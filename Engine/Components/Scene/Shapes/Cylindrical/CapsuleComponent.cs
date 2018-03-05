@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene.Shapes
         public CapsuleYComponent(float radius, float halfHeight, TRigidBodyConstructionInfo info) : base()
         {
             _capsule = new CapsuleY(Vec3.Zero, Rotator.GetZero(), Vec3.One, radius, halfHeight);
-            InitPhysics(info);
+            InitPhysicsShape(info);
         }
 
         [Browsable(false)]

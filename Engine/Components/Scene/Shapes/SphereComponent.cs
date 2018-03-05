@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene.Shapes
         public SphereComponent(float radius, TRigidBodyConstructionInfo info)
         {
             _sphere = new Sphere(radius, Vec3.Zero);
-            InitPhysics(info);
+            InitPhysicsShape(info);
         }
 
         [Category("Sphere")]

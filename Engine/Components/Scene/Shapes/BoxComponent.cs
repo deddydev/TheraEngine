@@ -18,22 +18,22 @@ namespace TheraEngine.Components.Scene.Shapes
         public BoxComponent(TRigidBodyConstructionInfo info)
         {
             _box = new Box(1.0f);
-            InitPhysics(info);
+            InitPhysicsShape(info);
         }
         public BoxComponent(Vec3 halfExtents, TRigidBodyConstructionInfo info)
         {
             _box = new Box(halfExtents);
-            InitPhysics(info);
+            InitPhysicsShape(info);
         }
         public BoxComponent(float extentsX, float extentsY, float extentsZ, TRigidBodyConstructionInfo info)
         {
             _box = new Box(extentsX, extentsY, extentsZ);
-            InitPhysics(info);
+            InitPhysicsShape(info);
         }
         public BoxComponent(float uniformExtents, TRigidBodyConstructionInfo info)
         {
             _box = new Box(uniformExtents);
-            InitPhysics(info);
+            InitPhysicsShape(info);
         }
         
         [Browsable(false)]

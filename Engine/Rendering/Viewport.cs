@@ -239,6 +239,13 @@ namespace TheraEngine.Rendering
                 Owners.Remove(controller);
         }
         
+        /// <summary>
+        /// Renders the viewport using the given scene, camera, frustum, and optional render target FBO.
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <param name="camera"></param>
+        /// <param name="frustum"></param>
+        /// <param name="target"></param>
         public void Render(Scene scene, Camera camera, Frustum frustum, MaterialFrameBuffer target)
         {
             if (scene == null || scene.Count == 0)

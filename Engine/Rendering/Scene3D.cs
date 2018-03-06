@@ -288,19 +288,23 @@ namespace TheraEngine.Rendering
 
                     //Render the last pass to the actual screen resolution
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
-                    Engine.Renderer.PushRenderArea(v.Region);
                     {
-                        Engine.Renderer.AllowDepthWrite(true);
-                        Engine.Renderer.DepthFunc(EComparison.Lequal);
+                        Engine.Renderer.PushRenderArea(v.Region);
+                        {
+                            Engine.Renderer.AllowDepthWrite(true);
+                            Engine.Renderer.DepthFunc(EComparison.Lequal);
+                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
-                        v.PostProcessFBO.Render();
+                            v.PostProcessFBO.Render();
+
+                            if (v.HUD?.Scene != null)
+                            {
+                                v.HUD.Scene.CollectVisibleRenderables();
+                                v.HUD.Scene.DoRender(v.HUD.Camera, v, null);
+                            }
+                        }
+                        Engine.Renderer.PopRenderArea();
                     }
-                    if (v.HUD?.Scene != null)
-                    {
-                        v.HUD.Scene.CollectVisibleRenderables();
-                        v.HUD.Scene.DoRender(v.HUD.Camera, v, null);
-                    }
-                    Engine.Renderer.PopRenderArea();
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
                 else

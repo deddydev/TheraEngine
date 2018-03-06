@@ -44,26 +44,26 @@ namespace TheraEngine.Rendering.Models
             {
                 Vec3 normal = Vec3.CalculateNormal(bottomLeft, bottomRight, topLeft);
                 return new VertexQuad(
-                    new Vertex(bottomLeft,  normal, new Vec2(0.0f, 1.0f)),
-                    new Vertex(bottomRight, normal, new Vec2(1.0f, 1.0f)),
-                    new Vertex(topRight,    normal, new Vec2(1.0f, 0.0f)),
-                    new Vertex(topLeft,     normal, new Vec2(0.0f, 0.0f)));
+                    new Vertex(bottomLeft,  normal, new Vec2(0.0f, 0.0f)),
+                    new Vertex(bottomRight, normal, new Vec2(1.0f, 0.0f)),
+                    new Vertex(topRight,    normal, new Vec2(1.0f, 1.0f)),
+                    new Vertex(topLeft,     normal, new Vec2(0.0f, 1.0f)));
             }
             else
                 return new VertexQuad(
-                    new Vertex(bottomLeft,  new Vec2(0.0f, 1.0f)),
-                    new Vertex(bottomRight, new Vec2(1.0f, 1.0f)),
-                    new Vertex(topRight,    new Vec2(1.0f, 0.0f)),
-                    new Vertex(topLeft,     new Vec2(0.0f, 0.0f)));
+                    new Vertex(bottomLeft,  new Vec2(0.0f, 0.0f)),
+                    new Vertex(bottomRight, new Vec2(1.0f, 0.0f)),
+                    new Vertex(topRight,    new Vec2(1.0f, 1.0f)),
+                    new Vertex(topLeft,     new Vec2(0.0f, 1.0f)));
         }
         public static VertexQuad MakeQuad(
             Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal)
         {
             return new VertexQuad(
-                new Vertex(bottomLeft,  normal, new Vec2(0.0f, 1.0f)),
-                new Vertex(bottomRight, normal, new Vec2(1.0f, 1.0f)),
-                new Vertex(topRight,    normal, new Vec2(1.0f, 0.0f)),
-                new Vertex(topLeft,     normal, new Vec2(0.0f, 0.0f)));
+                new Vertex(bottomLeft,  normal, new Vec2(0.0f, 0.0f)),
+                new Vertex(bottomRight, normal, new Vec2(1.0f, 0.0f)),
+                new Vertex(topRight,    normal, new Vec2(1.0f, 1.0f)),
+                new Vertex(topLeft,     normal, new Vec2(0.0f, 1.0f)));
         }
         /// <summary>
         /// Makes a quad using positions, influences, and a common normal.
@@ -76,10 +76,10 @@ namespace TheraEngine.Rendering.Models
             Vec3 normal)
         {
             return new VertexQuad(
-                new Vertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, 1.0f)),
-                new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, 1.0f)),
-                new Vertex(topRight,    topRightInf,    normal, new Vec2(1.0f, 0.0f)),
-                new Vertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, 0.0f)));
+                new Vertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, 0.0f)),
+                new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, 0.0f)),
+                new Vertex(topRight,    topRightInf,    normal, new Vec2(1.0f, 1.0f)),
+                new Vertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, 1.0f)));
         }
         public static VertexQuad MakeQuad(
            Vec3 bottomLeft,     InfluenceDef bottomLeftInf,    Vec3 bottomLeftNormal,
@@ -88,10 +88,10 @@ namespace TheraEngine.Rendering.Models
            Vec3 topLeft,        InfluenceDef topLeftInf,       Vec3 topLeftNormal)
         {
             return new VertexQuad(
-                new Vertex(bottomLeft,  bottomLeftInf,  bottomLeftNormal,   new Vec2(0.0f, 1.0f)),
-                new Vertex(bottomRight, bottomRightInf, bottomRightNormal,  new Vec2(1.0f, 1.0f)),
-                new Vertex(topRight,    topRightInf,    topRightNormal,     new Vec2(1.0f, 0.0f)),
-                new Vertex(topLeft,     topLeftInf,     topLeftNormal,      new Vec2(0.0f, 0.0f)));
+                new Vertex(bottomLeft,  bottomLeftInf,  bottomLeftNormal,   new Vec2(0.0f, 0.0f)),
+                new Vertex(bottomRight, bottomRightInf, bottomRightNormal,  new Vec2(1.0f, 0.0f)),
+                new Vertex(topRight,    topRightInf,    topRightNormal,     new Vec2(1.0f, 1.0f)),
+                new Vertex(topLeft,     topLeftInf,     topLeftNormal,      new Vec2(0.0f, 1.0f)));
         }
 
         public static VertexQuad MakeQuad(
@@ -105,17 +105,17 @@ namespace TheraEngine.Rendering.Models
             {
                 Vec3 normal = Vec3.CalculateNormal(bottomLeft, bottomRight, topLeft);
                 return new VertexQuad(
-                    new Vertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, 1.0f)),
-                    new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, 1.0f)),
-                    new Vertex(topRight,    topRightInf,    normal, new Vec2(1.0f, 0.0f)),
-                    new Vertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, 0.0f)));
+                    new Vertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, 0.0f)),
+                    new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, 0.0f)),
+                    new Vertex(topRight,    topRightInf,    normal, new Vec2(1.0f, 1.0f)),
+                    new Vertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, 1.0f)));
             }
             else
                 return new VertexQuad(
-                    new Vertex(bottomLeft,  bottomLeftInf,  new Vec2(0.0f, 1.0f)),
-                    new Vertex(bottomRight, bottomRightInf, new Vec2(1.0f, 1.0f)),
-                    new Vertex(topRight,    topRightInf,    new Vec2(1.0f, 0.0f)),
-                    new Vertex(topLeft,     topLeftInf,     new Vec2(0.0f, 0.0f)));
+                    new Vertex(bottomLeft,  bottomLeftInf,  new Vec2(0.0f, 0.0f)),
+                    new Vertex(bottomRight, bottomRightInf, new Vec2(1.0f, 0.0f)),
+                    new Vertex(topRight,    topRightInf,    new Vec2(1.0f, 1.0f)),
+                    new Vertex(topLeft,     topLeftInf,     new Vec2(0.0f, 1.0f)));
         }
 
         /// <summary>

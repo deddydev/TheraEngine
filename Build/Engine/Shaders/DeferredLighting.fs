@@ -1,7 +1,7 @@
 #version 450
 
 #define MAX_DIR_LIGHTS 1
-#define MAX_SPOT_LIGHTS 1
+#define MAX_SPOT_LIGHTS 3
 #define MAX_POINT_LIGHTS 1
 
 const float PI = 3.14159265359f;

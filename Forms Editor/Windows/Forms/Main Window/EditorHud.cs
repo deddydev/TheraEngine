@@ -122,18 +122,18 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        //public UIViewportComponent TestViewport { get; private set; }
+        public UIViewportComponent TestViewport { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
         protected override UIDockableComponent OnConstruct()
         {
             UIDockableComponent dock = new UIDockableComponent();
-            //TestViewport = new UIViewportComponent
-            //{
-            //    DockStyle = HudDockStyle.None,
-            //    Width = 400,
-            //    Height = 400
-            //};
-            //dock.ChildComponents.Add(TestViewport);
+            TestViewport = new UIViewportComponent
+            {
+                DockStyle = HudDockStyle.None,
+                Width = 400,
+                Height = 400
+            };
+            dock.ChildComponents.Add(TestViewport);
             //TextOverlay = new UITextProjectionComponent()
             //{
             //    TexScale = new Vec2(1.0f),
@@ -274,12 +274,10 @@ namespace TheraEditor.Windows.Forms
             base.OnSpawnedPostComponentSetup();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             OwningWorld.Scene.Add(_highlightPoint);
-            //PerspectiveCameraActor c = new PerspectiveCameraActor();
-            //c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
-            //OwningWorld.SpawnActor(c);
-            //TestViewport.Camera = c.Camera;
-            //TestViewport.Width = 400;
-            //TestViewport.Height = 400;
+            PerspectiveCameraActor c = new PerspectiveCameraActor();
+            c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
+            OwningWorld.SpawnActor(c);
+            TestViewport.Camera = c.Camera;
         }
         public override void OnDespawned()
         {
@@ -436,11 +434,11 @@ namespace TheraEditor.Windows.Forms
                         _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
 
                         Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
-                        TPointPointConstraint p2p = TPointPointConstraint.New(_pickedBody, localPivot);
-                        p2p.ImpulseClamp = 60;
-                        p2p.Tau = 0.1f;
 
-                        _currentConstraint = p2p;
+                        _currentConstraint = TPointPointConstraint.New(_pickedBody, localPivot);
+                        _currentConstraint.ImpulseClamp = 60;
+                        _currentConstraint.Tau = 0.1f;
+                        
                         OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
                     }
                     else

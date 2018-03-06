@@ -190,7 +190,7 @@ namespace System
             public void DebugRender(Color color, float lineWidth)
             {
                 Vec2 halfBounds = (_bounds.Bounds / 2.0f);
-                Engine.Renderer.RenderQuad(_bounds.Position - _bounds.LocalOrigin + halfBounds, Vec3.Forward, halfBounds, false, color, lineWidth);
+                Engine.Renderer.RenderQuad(_bounds.OriginTranslation - _bounds.LocalOrigin + halfBounds, Vec3.Forward, halfBounds, false, color, lineWidth);
             }
             #endregion
 

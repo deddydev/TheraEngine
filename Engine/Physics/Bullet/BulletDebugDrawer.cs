@@ -19,7 +19,8 @@ namespace TheraEngine.Physics
         }
         public override void DrawContactPoint(ref Vector3 pointOnB, ref Vector3 normalOnB, float distance, int lifeTime, Color color)
         {
-
+            Engine.Renderer.RenderPoint(pointOnB, color);
+            Engine.Renderer.RenderLine(pointOnB, pointOnB + normalOnB, color);
         }
         public override void DrawLine(ref Vector3 from, ref Vector3 to, Color color)
         {
@@ -37,31 +38,39 @@ namespace TheraEngine.Physics
         }
         public override void DrawBox(ref Vector3 bbMin, ref Vector3 bbMax, Color color)
         {
-            base.DrawBox(ref bbMin, ref bbMax, color);
+            DrawAabb(ref bbMin, ref bbMax, color);
         }
         public override void DrawBox(ref Vector3 bbMin, ref Vector3 bbMax, ref Matrix trans, Color color)
         {
-            base.DrawBox(ref bbMin, ref bbMax, ref trans, color);
+            Vec3 halfExtents = (bbMax - bbMin) / 2.0f; //half difference
+            Vec3 translation = (bbMax + bbMin) / 2.0f; //average
+            Engine.Renderer.RenderBox(halfExtents, (Matrix4)trans * Matrix4.CreateTranslation(translation), false, color);
         }
         public override void DrawCapsule(float radius, float halfHeight, int upAxis, ref Matrix transform, Color color)
         {
-            base.DrawCapsule(radius, halfHeight, upAxis, ref transform, color);
+            Vec3 upAxisVec = new Vec3();
+            upAxisVec[upAxis] = 1.0f;
+            Engine.Renderer.RenderCapsule(transform, upAxisVec, radius, halfHeight, false, color);
         }
         public override void DrawCylinder(float radius, float halfHeight, int upAxis, ref Matrix transform, Color color)
         {
-            base.DrawCylinder(radius, halfHeight, upAxis, ref transform, color);
+            Vec3 upAxisVec = new Vec3();
+            upAxisVec[upAxis] = 1.0f;
+            Engine.Renderer.RenderCylinder(transform, upAxisVec, radius, halfHeight, false, color);
         }
         public override void DrawCone(float radius, float height, int upAxis, ref Matrix transform, Color color)
         {
-            base.DrawCone(radius, height, upAxis, ref transform, color);
+            Vec3 upAxisVec = new Vec3();
+            upAxisVec[upAxis] = 1.0f;
+            Engine.Renderer.RenderCone(transform, upAxisVec, radius, height, false, color);
         }
         public override void DrawSphere(float radius, ref Matrix transform, Color color)
         {
-            base.DrawSphere(radius, ref transform, color);
+            Engine.Renderer.RenderSphere(transform.Origin, radius, false, color);
         }
         public override void DrawSphere(ref Vector3 p, float radius, Color color)
         {
-            base.DrawSphere(ref p, radius, color);
+            Engine.Renderer.RenderSphere(p, radius, false, color);
         }
         public override void DrawTriangle(ref Vector3 v0, ref Vector3 v1, ref Vector3 v2, Color color, float __unnamed004)
         {

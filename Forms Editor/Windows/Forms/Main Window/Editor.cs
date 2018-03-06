@@ -44,6 +44,10 @@ namespace TheraEditor.Windows.Forms
     }
     public partial class Editor : TheraForm, IMappableShortcutControl
     {
+        #region Statics
+        
+        public static Editor Instance { get; private set; }
+
         public static IEditorControl ActiveRenderForm { get; private set; } = null;
         /// <summary>
         /// This will possess and unpossess the necessary viewports and pawns corresponding to the given editor control.
@@ -90,10 +94,36 @@ namespace TheraEditor.Windows.Forms
         public static Color TurquoiseColor => Color.FromArgb(150, 192, 192);
         public static Color TextColor => Color.FromArgb(224, 224, 224);
 
-        public UndoManager UndoManager { get; } = new UndoManager();
+        #endregion
 
-        private static Editor _instance;
-        public static Editor Instance => _instance/* ?? (_instance = new Editor())*/;
+        public Editor() : base()
+        {
+            Instance = this;
+
+            _editorGameMode = new EditorGameMode();
+            InitializeComponent();
+
+            FormTitle2.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
+            TheraEngineText.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
+            FormTitle2.Text = Text;
+
+            menuStrip1.Renderer = new TheraToolstripRenderer();
+            _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
+
+            DockPanel.Theme = new TheraEditorTheme();
+            AutoScaleMode = AutoScaleMode.None;
+            DoubleBuffered = false;
+            //menuStrip1.Padding = new Padding(0, (TitlePanel.Height - menuStrip1.Height) / 2, 0, 0);
+
+            KeyPreview = true;
+            MappableActions = new Dictionary<Keys, Func<bool>>()
+            {
+                { Keys.Control | Keys.Z, Undo },
+                { Keys.Control | Keys.Y, Redo },
+            };
+        }
+
+        public UndoManager UndoManager { get; } = new UndoManager();
 
         private Project _project;
         private Assembly _gameProgram;
@@ -220,10 +250,6 @@ namespace TheraEditor.Windows.Forms
                     Engine.Run();
 
                     CurrentWorld = _project.OpeningWorldRef?.File;
-
-                    //Type visualStudioType = Type.GetTypeFromProgID("VisualStudio.DTE");
-                    //DTE dte = Activator.CreateInstance(visualStudioType) as DTE;
-                    //dte.MainWindow.Visible = true;
                 }
                 else
                 {
@@ -235,6 +261,13 @@ namespace TheraEditor.Windows.Forms
                     DockPanel.ResumeLayout(true, true);
                 }
             }
+        }
+
+        protected override void OnTextChanged(EventArgs e)
+        {
+            if (FormTitle2 != null)
+                FormTitle2.Text = Text;
+            base.OnTextChanged(e);
         }
 
         public bool IsRenderTicking { get; private set; }
@@ -294,34 +327,6 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public Editor() : base()
-        {
-            _instance = this;
-            
-            _editorGameMode = new EditorGameMode();
-            InitializeComponent();
-
-            menuStrip1.Renderer = new TheraToolstripRenderer();
-            _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
-
-            DockPanel.Theme = new TheraEditorTheme();
-            AutoScaleMode = AutoScaleMode.None;
-            DoubleBuffered = false;
-            //menuStrip1.Padding = new Padding(0, (TitlePanel.Height - menuStrip1.Height) / 2, 0, 0);
-
-            KeyPreview = true;
-            MappableActions = new Dictionary<Keys, Func<bool>>()
-            {
-                { Keys.Control | Keys.Z, Undo },
-                { Keys.Control | Keys.Y, Redo },
-                //{ Keys.Delete,           DeleteSelectedNodes    },
-                //{ Keys.Control | Keys.C, CopySelectedNodes      },
-                //{ Keys.Control | Keys.X, CutSelectedNodes       },
-                //{ Keys.Control | Keys.V, Paste                  },
-                //{ Keys.Control | Keys.A, SelectAllVisibleNodes  },
-            };
-        }
-
         private bool Undo()
         {
             bool canUndo = UndoManager.CanUndo;
@@ -374,6 +379,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
+            
             CheckUpdates();
 
             //xcopy /Y "$(SolutionDir)Libraries\$(Platform)\FreeImage.dll" "$(TargetDir)"
@@ -384,27 +390,13 @@ namespace TheraEditor.Windows.Forms
             if (!string.IsNullOrEmpty(lastOpened))
                 Project = TFileObject.Load<Project>(lastOpened);
             else
-            {
-                Project = null;//new Project() //null
-                               //    {
-                               //        OpeningWorldRef = typeof(UnitTestingWorld),
-                               //        UserSettingsRef = new UserSettings(),
-                               //        EngineSettingsRef = new EngineSettings(),
-                               //        EditorSettingsRef = new EditorSettings(),
-                               //        ProjectStateRef = new ProjectState(),
-                               //    };
-            }
-
-            //if (DesignMode)
-            //    return;
+                Project = null;
         }
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (Project != null && !string.IsNullOrWhiteSpace(Project.FilePath))
-            {
-                Properties.Settings.Default.LastOpened = Project.FilePath;
-                Properties.Settings.Default.Save();
-            }
+            Properties.Settings.Default.LastOpened = Project?.FilePath;
+            Properties.Settings.Default.Save();
+            
             if (CloseProject())
             {
                 SetRenderTicking(false);

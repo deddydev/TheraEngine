@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Drawing.Text;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
 
@@ -32,29 +34,43 @@ namespace TheraEngine.Rendering.UI
             _textDrawer.NeedsRedraw += Redraw;
         }
 
-        private Vec2 _texScale = new Vec2(3.0f);
+        [TSerialize(nameof(TextQuality))]
+        private TextRenderingHint _textQuality = TextRenderingHint.AntiAliasGridFit;
+        [TSerialize(nameof(TextureResolutionMultiplier))]
+        private Vec2 _texRes = new Vec2(3.0f);
+        [TSerialize(nameof(TextDrawer))]
         private TextDrawer _textDrawer;
 
         public TexRef2D TextTexture => Texture<TexRef2D>(0);
         public TextDrawer TextDrawer => _textDrawer;
 
-        public Vec2 TexScale
+        public Vec2 TextureResolutionMultiplier
         {
-            get => _texScale;
+            get => _texRes;
             set
             {
-                _texScale = value;
+                _texRes = value;
                 PerformResize();
             }
         }
+        public TextRenderingHint TextQuality
+        {
+            get => _textQuality;
+            set
+            {
+                _textQuality = value;
+                Redraw(true);
+            }
+        }
 
-        protected void Redraw() => TextDrawer.Draw(TextTexture, TexScale);
+        public void Redraw(bool forceFullRedraw)
+            => TextDrawer.Draw(TextTexture, TextureResolutionMultiplier, TextQuality, forceFullRedraw);
 
         public override Vec2 Resize(Vec2 parentBounds)
         {
             Vec2 rect = base.Resize(parentBounds);
-            TextTexture.Resize((int)(Width * TexScale.X), (int)(Height * TexScale.Y));
-            Redraw();
+            TextTexture.Resize((int)(Width * TextureResolutionMultiplier.X), (int)(Height * TextureResolutionMultiplier.Y));
+            Redraw(true);
             return rect;
         }
     }

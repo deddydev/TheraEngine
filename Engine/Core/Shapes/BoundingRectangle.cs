@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -52,7 +53,7 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         [Description(@"The location of the origin of this rectangle as a world point relative to the bottom left (0, 0).
 Bottom left point of this rectangle is Position - LocalOrigin.")]
-        public Vec2 Position
+        public Vec2 OriginTranslation
         {
             get => _translation + LocalOrigin;
             set => _translation = value - LocalOrigin;
@@ -82,7 +83,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// </summary>
         public float X
         {
-            get => Position.X;
+            get => OriginTranslation.X;
             set => _translation.X = value - LocalOrigin.X;
         }        
         /// <summary>
@@ -90,7 +91,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// </summary>
         public float Y
         {
-            get => Position.Y;
+            get => OriginTranslation.Y;
             set => _translation.Y = value - LocalOrigin.Y;
         }
         /// <summary>
@@ -239,6 +240,13 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
                 _bounds.Y = upperY - value.Y;
             }
         }
+
+        public RectangleF AsRectangleF(float containerHeight)
+        {
+            Vec2 pos = TopLeft;
+            return new RectangleF(pos.X, containerHeight - pos.Y, Width, Height);
+        }
+
         /// <summary>
         /// Top left point in world space regardless of width or height being negative.
         /// </summary>
@@ -380,7 +388,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         }
         public override string ToString()
         {
-            return string.Format("[X:{0} Y:{1} W:{2} H:{3}]", Position.X, Position.Y, Width, Height);
+            return string.Format("[X:{0} Y:{1} W:{2} H:{3}]", OriginTranslation.X, OriginTranslation.Y, Width, Height);
         }
     }
 }

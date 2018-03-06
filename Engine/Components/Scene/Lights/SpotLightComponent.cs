@@ -286,15 +286,11 @@ namespace TheraEngine.Components.Scene.Lights
             //These are listed in order of appearance in the shader
             TexRef2D[] refs = new TexRef2D[]
             {
-                new TexRef2D("SpotDepth", width, height,
-                    GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Clamp,
-                    VWrap = ETexWrapMode.Clamp,
-                    FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
-                },
+                TexRef2D.CreateFrameBufferTexture(
+                    "SpotDepth", width, height,
+                    GetFormat(precision),
+                    EPixelFormat.DepthComponent, EPixelType.Float,
+                    EFramebufferAttachment.DepthAttachment),
             };
             Shader shader = new Shader(ShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("SpotLightShadowMat", new ShaderVar[0], refs, shader);
@@ -307,13 +303,13 @@ namespace TheraEngine.Components.Scene.Lights
 
             _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowDims.X, _shadowDims.Y, 0.0f, 0.0f));
+            {
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                Engine.Renderer.AllowDepthWrite(true);
 
-            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-            Engine.Renderer.AllowDepthWrite(true);
-
-            scene.CollectVisibleRenderables(_shadowCamera.Frustum, true);
-            scene.Render(_shadowCamera, null, null);
-
+                scene.CollectVisibleRenderables(_shadowCamera.Frustum, true);
+                scene.Render(_shadowCamera, null, null);
+            }
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
 

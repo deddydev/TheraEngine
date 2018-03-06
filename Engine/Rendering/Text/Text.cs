@@ -1,154 +1,216 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Text;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+using System.Windows.Forms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Text
 {
-    public class TextData
+    public class UIString : TObject
     {
+        public UIString() { }
+
+        private string _text = string.Empty;
+        private Font _font = new Font("Segoe UI", 9.0f, FontStyle.Regular);
+        private Vec2 _position = Vec2.Zero;
+        private Vec2 _originPercentages = Vec2.Zero;
+        private Vec2 _scale = Vec2.One;
+        private int _order = 0;
+        private float _rotation = 0.0f;
+        private ColorF4 _color = new ColorF4(1.0f);
+        private StringFormat _format = new StringFormat();
+        private BoundingRectangle _bounds = new BoundingRectangle();
+
+        public BoundingRectangle Bounds => _bounds;
+        internal SolidBrush Brush { get; private set; } = new SolidBrush(Color.White);
+        internal TextDrawer Parent { get; set; }
+        internal List<UIString> Overlapping { get; set; } //Set after being drawn
+
         /// <summary>
-        /// Constructs a new text data class.
+        /// The text string to render.
         /// </summary>
-        /// <param name="text">The text string to render.</param>
-        /// <param name="font">The font to render it with.</param>
-        /// <param name="color">The color of the text.</param>
-        /// <param name="position">The 2D location of the text relative to the bottom left (0, 0).</param>
-        /// <param name="originPercentages">The relative position of the origin of the text from the bottom left, as a UV-style coordinate (0 is left/bottom, 1 is right/top).</param>
-        /// <param name="depth">The angle to render this text at.</param>
-        /// <param name="scale">The scale of the text.</param>
-        /// <param name="depth">The order to render this text in. 0.0 is first, 1.0 is last.</param>
-        public TextData(string text, Font font, ColorF4 color, Vec2 position, Vec2 originPercentages, float rotation, Vec2 scale, float depth)
-        {
-            _text = text;
-            _font = font;
-            _brush = new SolidBrush((Color)color);
-            _position = position;
-            _originPercentages = originPercentages;
-            _scale = scale;
-            _depth = depth;
-            _rotation = rotation;
-        }
-
-        private string _text;
-        private Font _font;
-        private Vec2 _position, _originPercentages;
-        private Vec2 _scale;
-        private float _depth;
-        private float _rotation;
-        private ColorF4 _color;
-
-        internal TextDrawer _parent;
-        internal BoundingRectangle _bounds; //Set after being drawn
-        internal List<TextData> _overlapping; //Set after being drawn
-        internal SolidBrush _brush;
-
+        [Category("UI String")]
         public string Text
         {
             get => _text;
             set
             {
-                _text = value;
-                _parent?.TextChanged(this);
+                _text = value ?? string.Empty;
+                _bounds.Bounds = TextRenderer.MeasureText(_text, _font);
+                Parent?.TextChanged(this);
             }
         }
+        /// <summary>
+        /// The font to render the text with.
+        /// </summary>
+        [Category("UI String")]
         public Font Font
         {
             get => _font;
             set
             {
+                if (value == null)
+                    return;
+
                 _font = value;
-                _parent?.TextChanged(this);
+                _bounds.Bounds = TextRenderer.MeasureText(_text, _font);
+                Parent?.TextChanged(this);
             }
         }
-        public ColorF4 Color
+        /// <summary>
+        /// The color of the text.
+        /// </summary>
+        [Category("UI String")]
+        public ColorF4 TextColor
         {
             get => _color;
             set
             {
                 _color = value;
-                _brush = new SolidBrush((Color)_color);
-                _parent?.TextChanged(this);
+                Brush = new SolidBrush((Color)_color);
+                Parent?.TextChanged(this);
             }
         }
+        /// <summary>
+        /// The position of the text string relative to the origin set with OriginPercentages.
+        /// </summary>
+        [Category("UI String")]
         public Vec2 Position
         {
-            get => _position;
+            get => _bounds.OriginTranslation;
             set
             {
-                _position = value;
-                _parent?.TextChanged(this);
+                _bounds.OriginTranslation = value;
+                Parent?.TextChanged(this);
             }
         }
+        /// <summary>
+        /// Where the origin of the text string is. 0,0 is bottom left, 1,1 is top right. Default is 0,0.
+        /// </summary>
+        [Category("UI String")]
         public Vec2 OriginPercentages
         {
-            get => _originPercentages;
+            get => _bounds.LocalOriginPercentage;
             set
             {
-                _originPercentages = value;
-                _parent?.TextChanged(this);
+                _bounds.LocalOriginPercentage = value;
+                Parent?.TextChanged(this);
             }
         }
+        /// <summary>
+        /// How big the text is. Default is 1,1.
+        /// </summary>
+        [Category("UI String")]
         public Vec2 Scale
         {
             get => _scale;
             set
             {
                 _scale = value;
-                _parent?.TextChanged(this);
+                Parent?.TextChanged(this);
             }
         }
-        public float Depth
+        /// <summary>
+        /// The priority this text should render with. 
+        /// A value of 0 is drawn first and higher values are drawn after.
+        /// </summary>
+        [Category("UI String")]
+        public int Order
         {
-            get => _depth;
+            get => _order;
             set
             {
-                _depth = value;
-                _parent?.TextChanged(this);
+                _order = value;
+                Parent?.TextChanged(this);
             }
         }
-
-        public float Rotation { get => _rotation; set => _rotation = value; }
+        /// <summary>
+        /// The rotation in degrees of the text, where positive means counter-clockwise.
+        /// </summary>
+        [Category("UI String")]
+        public float Rotation
+        {
+            get => _rotation;
+            set
+            {
+                _rotation = value;
+                Parent?.TextChanged(this);
+            }
+        }
+        /// <summary>
+        /// Quality and alignment settings.
+        /// </summary>
+        [Category("UI String")]
+        public StringFormat Format
+        {
+            get => _format;
+            set
+            {
+                _format = value;
+                Parent?.TextChanged(this);
+            }
+        }
     }
-
+    public delegate void DelTextRedraw(bool forceFullRedraw);
     public class TextDrawer
     {
-        private SortedDictionary<float, TextData> _text;
-        private LinkedList<TextData> _modified;
-        public event Action NeedsRedraw;
+        private SortedDictionary<int, UIString> _text = new SortedDictionary<int, UIString>();
+        private LinkedList<UIString> _modified = new LinkedList<UIString>();
+        public event DelTextRedraw NeedsRedraw;
+
+        protected void OnDoRedraw(bool forceFullRedraw) 
+            => NeedsRedraw?.Invoke(forceFullRedraw);
 
         public bool Modified => _modified.Count > 0;
 
-        public TextDrawer()
-        {
-            _text = new SortedDictionary<float, TextData>();
-            _modified = new LinkedList<TextData>();
-        }
+        public TextDrawer() { }
         
-        public void Clear()
+        public void Clear(bool redraw = true)
         {
             _text.Clear();
             _modified.Clear();
+
+            if (redraw)
+                OnDoRedraw(true);
         }
 
-        public void Add(TextData text)
+        public void Add(UIString text, bool redraw = true)
         {
-            text._parent = this;
-            _text.Add(text.Depth, text);
+            if (text == null)
+                return;
+
+            text.Parent = this;
+            _text.Add(text.Order, text);
             _modified.AddLast(text);
+
+            if (redraw)
+                OnDoRedraw(false);
+        }
+        public void Add(bool redraw, params UIString[] text) => Add(text, redraw);
+        public void Add(IEnumerable<UIString> text, bool redraw = true)
+        {
+            foreach (UIString str in text)
+                Add(str, false);
+
+            if (redraw)
+                OnDoRedraw(false);
         }
 
-        public unsafe void Draw(TexRef2D texture, Vec2 texScale)
+        public unsafe void Draw(TexRef2D texture, Vec2 texRes, TextRenderingHint textQuality, bool forceFullRedraw)
         {
-            if (texture == null || texture.Mipmaps == null || texture.Mipmaps.Length == 0)
+            if (texture == null ||
+                texture.Mipmaps == null ||
+                texture.Mipmaps.Length == 0)
+                return;
+
+            if (!forceFullRedraw && _modified.Count == 0)
                 return;
 
             Bitmap b = texture.Mipmaps[0].File.Bitmaps[0];
-            //b.MakeTransparent();
 
             //TODO: instead of redrawing the whole image, keep track of overlapping text
             //and only redraw the previous and new regions. Repeat for any other overlapping texts.
@@ -157,40 +219,67 @@ namespace TheraEngine.Rendering.Text
             //Draw text information onto the bitmap
             using (Graphics g = Graphics.FromImage(b))
             {
-                g.Clear(Color.Transparent);
-                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+                //Set quality modes
+                g.TextRenderingHint = textQuality;
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                //g.DrawLine(new Pen(new SolidBrush(Color.Red)), new Point(0, 0), new Point(b.Width, b.Height));
+
+                //Get drawing bounds
                 RectangleF rect = new RectangleF(0, 0, b.Width, b.Height);
-                foreach (TextData text in _text.Values)
+
+                if (forceFullRedraw)
                 {
-                    Vec2 size = g.MeasureString(text.Text, text.Font);
-                    Vec2 localOrigin = size * text.OriginPercentages;
-                    text._bounds = new BoundingRectangle(text.Position, size, text.OriginPercentages);
-                    if (!text._bounds.DisjointWith(b.Width, b.Height))
+                    //Reset canvas
+                    g.ResetClip();
+                    g.Clear(Color.Transparent);
+
+                    foreach (UIString text in _text.Values)
                     {
-                        g.ResetTransform();
-                        g.TranslateTransform(text.Position.X - localOrigin.X, text.Position.Y - localOrigin.Y);
-                        //g.RotateTransformAt(text.Rotation);
-                        g.ScaleTransform(texScale.X, texScale.Y);
-                        g.DrawString(text.Text, text.Font, text._brush, rect,
-                            new StringFormat(StringFormatFlags.FitBlackBox | StringFormatFlags.NoClip | StringFormatFlags.NoWrap));
+                        BoundingRectangle bounds = text.Bounds;
+                        if (!bounds.DisjointWith(b.Width, b.Height))
+                        {
+                            PointF pos = bounds.OriginTranslation;
+
+                            g.ResetTransform();
+                            g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
+                            g.RotateTransformAt(text.Rotation, pos);
+                            g.ScaleTransformAt(texRes.X, texRes.Y, pos);
+                            g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
+                        }
                     }
                 }
+                else
+                {
+                    foreach (UIString text in _modified)
+                    {
+                        BoundingRectangle bounds = text.Bounds;
+                        if (!bounds.DisjointWith(b.Width, b.Height))
+                        {
+                            PointF pos = bounds.OriginTranslation;
+
+                            g.ResetClip();
+                            g.SetClip(bounds.AsRectangleF(b.Height));
+                            g.Clear(Color.Transparent);
+
+                            g.ResetTransform();
+                            g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
+                            g.RotateTransformAt(text.Rotation, pos);
+                            g.ScaleTransformAt(texRes.X, texRes.Y, pos);
+                            g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
+                        }
+                    }
+                }
+
                 g.Flush();
             }
-
-            //b.Save("X:\\Desktop\\test.png", System.Drawing.Imaging.ImageFormat.Png);
             
             _modified.Clear();
         }
-
-        internal void TextChanged(TextData textData)
+        internal void TextChanged(UIString textData)
         {
             _modified.AddLast(textData);
-            NeedsRedraw?.Invoke();
+            OnDoRedraw(false);
         }
     }
 }

@@ -269,6 +269,7 @@ namespace TheraEngine.Rendering
 
                             Engine.Renderer.AllowDepthWrite(true);
 
+                            //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
                             //RenderTree.DebugRender(c?.Frustum, true);
 
                             _passes.Render(ERenderPass3D.OpaqueForward);
@@ -289,8 +290,6 @@ namespace TheraEngine.Rendering
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
                     Engine.Renderer.PushRenderArea(v.Region);
                     {
-                        //Engine.Renderer.CropRenderArea(v.Region);
-
                         Engine.Renderer.AllowDepthWrite(true);
                         Engine.Renderer.DepthFunc(EComparison.Lequal);
 

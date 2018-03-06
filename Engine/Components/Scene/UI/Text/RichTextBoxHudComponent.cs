@@ -1,24 +1,28 @@
 ﻿using System.Drawing;
+using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI.Text
 {
-    public class RichTextBoxHudComponent : UITextComponent
+    public class UIRichTextBoxComponent : UITextComponent
     {
-        private string _text;
-        private bool _wordWrap = true;
-        private Font _font;
-
-        public bool WordWrap { get => _wordWrap; set => _wordWrap = value; }
-        public Font Font { get => _font; set => _font = value; }
-        public string Text { get => _text; set => _text = value; }
-
-        public void WrapText()
+        public UIRichTextBoxComponent() : base()
         {
-            //Bitmap b = TextTexture.Data.Bitmap;
-            //using (Graphics g = Graphics.FromImage(b))
-            //{
-            //    //_text.Split()
-            //}
+            TextDrawer.Add(_string);
+        }
+
+        private UIString _string = new UIString();
+        private bool _horizontalScroll = false, _verticalScroll = true;
+
+        public UIString Text => _string;
+        public bool AllowHorizontalScroll
+        {
+            get => _horizontalScroll;
+            set => _horizontalScroll = value;
+        }
+        public bool AllowVerticalScroll
+        {
+            get => _verticalScroll;
+            set => _verticalScroll = value;
         }
     }
 }

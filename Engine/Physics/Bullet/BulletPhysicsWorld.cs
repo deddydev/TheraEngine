@@ -45,14 +45,15 @@ namespace TheraEngine.Physics
                     //DebugDrawModes.DrawAabb | 
                     DebugDrawModes.DrawConstraints |
                     DebugDrawModes.DrawConstraintLimits |
-                    DebugDrawModes.DrawContactPoints// | 
+                    DebugDrawModes.DrawContactPoints //| 
                     //DebugDrawModes.DrawWireframe |
-                    //DebugDrawModes.FastWireframe
+                    //DebugDrawModes.FastWireframe |
+                    //DebugDrawModes.DrawFeaturesText
                 }
             };
             //_physicsScene.DispatchInfo.UseContinuous = true;
             //_physicsScene.DispatchInfo.AllowedCcdPenetration = 0.1f;
-            _dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
+            _dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
 
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
@@ -136,7 +137,7 @@ namespace TheraEngine.Physics
         {
             _dynamicsWorld.StepSimulation(delta, 7, Engine.RenderPeriod * Engine.TimeDilation);
         }
-        private class CustomOvelapFilter : OverlapFilterCallback
+        private class CustomOverlapFilter : OverlapFilterCallback
         {
             public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
             {
@@ -224,5 +225,9 @@ namespace TheraEngine.Physics
             }
         }
 
+        public override void DrawDebugWorld()
+        {
+            _dynamicsWorld.DebugDrawWorld();
+        }
     }
 }

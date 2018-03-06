@@ -122,14 +122,14 @@ namespace TheraEngine.Physics
                 {
                     _previousLinearFactor = LinearFactor;
                     _previousAngularFactor = AngularFactor;
-                    //IsStatic = true;
+                    IsStatic = true;
                     LinearFactor = 0.0f;
                     AngularFactor = 0.0f;
                     ActivationState = EBodyActivationState.DisableSimulation;
                 }
                 else
                 {
-                    //IsStatic = false;
+                    IsStatic = false;
                     LinearFactor = _previousLinearFactor;
                     AngularFactor = _previousAngularFactor;
                     WorldTransform = Owner.WorldMatrix;

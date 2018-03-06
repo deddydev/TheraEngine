@@ -188,8 +188,12 @@ namespace TheraEngine.Worlds
                     m.BeginPlay(this);
                 }
             }
-            
-            //Engine.Scene.Add(Settings.OriginRebaseBounds);
+
+#if DEBUG
+            if (Settings.EnableOriginRebasing)
+                Scene.Add(Settings.OriginRebaseBounds);
+#endif
+
             //State.Scene.Add(Settings.Bounds);
         }
 

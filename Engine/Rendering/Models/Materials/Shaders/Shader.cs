@@ -15,6 +15,9 @@ namespace TheraEngine.Rendering.Models.Materials
         TessControl,        // https://www.opengl.org/wiki/Tessellation_Control_Shader
         Compute             // https://www.opengl.org/wiki/Compute_Shader
     }
+    [File3rdParty(
+        "fs",   "vs",   "gs",   "tcs",  "tes",  "cs",
+        "frag", "vert", "geom", "tesc", "tese", "comp")]
     [FileExt("shader")]
     [FileDef("Shader")]
     public class Shader : TFileObject

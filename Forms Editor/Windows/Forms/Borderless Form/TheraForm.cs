@@ -213,20 +213,20 @@ namespace TheraEditor.Windows.Forms
             return WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
         }
         
-        private DateTime titleClickTime = DateTime.MinValue;
-        private Point titleClickPosition = Point.Empty;
+        private DateTime _titleClickTime = DateTime.MinValue;
+        private Point _titleClickPosition = Point.Empty;
 
         protected virtual void TitleLabel_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                var clickTime = (DateTime.Now - titleClickTime).TotalMilliseconds;
-                if (clickTime < SystemInformation.DoubleClickTime && e.Location == titleClickPosition)
+                var clickTime = (DateTime.Now - _titleClickTime).TotalMilliseconds;
+                if (clickTime < SystemInformation.DoubleClickTime && e.Location == _titleClickPosition)
                     ToggleMaximize();
                 else
                 {
-                    titleClickTime = DateTime.Now;
-                    titleClickPosition = e.Location;
+                    _titleClickTime = DateTime.Now;
+                    _titleClickPosition = e.Location;
                     DecorationMouseDown(HitTestValues.HTCAPTION);
                 }
             }

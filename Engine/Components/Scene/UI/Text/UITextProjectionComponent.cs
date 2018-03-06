@@ -13,18 +13,5 @@ namespace TheraEngine.Rendering.UI
         public UITextProjectionComponent() : base() { }
 
         private HashSet<ITextProjector> _projectors = new HashSet<ITextProjector>();
-
-        public void Update()
-        {
-
-        }
-
-        public override Vec2 Resize(Vec2 parentBounds)
-        {
-            Vec2 rect = base.Resize(parentBounds);
-            TextTexture.Resize((int)(Width * TexScale.X), (int)(Height * TexScale.Y));
-            Redraw();
-            return rect;
-        }
     }
 }

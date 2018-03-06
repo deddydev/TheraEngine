@@ -194,7 +194,11 @@ namespace TheraEngine.Rendering.Models.Materials
         public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
         
-        public bool ResizingDisabled { get; internal set; }
+        /// <summary>
+        /// If true, calling resize will do nothing.
+        /// Useful for repeating textures that must be a certain size.
+        /// </summary>
+        public bool ResizingDisabled { get; set; }
 
         /// <summary>
         /// Resizes the textures stored in memory.

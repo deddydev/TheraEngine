@@ -312,6 +312,7 @@
     <Compile Include="Animation\Property\BasePropAnimKeyframed.cs" />
     <Compile Include="Components\Logic\ScriptComponent.cs" />
     <Compile Include="Components\Logic\InteractorComponent.cs" />
+    <Compile Include="Components\Scene\ScreenTextComponent.cs" />
     <Compile Include="Components\Scene\Mesh\RenderableMesh.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\OriginRebasableComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Lagged\TranslationLagged.cs" />

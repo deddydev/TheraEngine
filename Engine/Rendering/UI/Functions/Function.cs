@@ -62,11 +62,19 @@ namespace TheraEngine.Rendering.UI.Functions
 
             _headerText = new UITextComponent
             {
-                Name = FunctionName + " Text",
+                Name = FunctionName + " [Header Text]",
                 DockStyle = HudDockStyle.Top,
                 Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
             };
-            _headerText.TextDrawer.Add(new TextData(FunctionName, _headerFont, Color.White, new Vec2(), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            _headerText.TextDrawer.Add(new UIString()
+            {
+                Text = FunctionName,
+                Font = _headerFont,
+                Format = new StringFormat(
+                    //StringFormatFlags.FitBlackBox | 
+                    StringFormatFlags.NoClip |
+                    StringFormatFlags.NoWrap)
+            });
             ChildComponents.Add(_headerText);
         }
 
@@ -85,7 +93,15 @@ namespace TheraEngine.Rendering.UI.Functions
                 Name = arg.Name + " Text",
                 DockStyle = HudDockStyle.None,
             };
-            text.TextDrawer.Add(new TextData(arg.Name, _paramFont, Color.White, new Vec2(0.0f), new Vec2(), 0.0f, Vec2.One, 0.0f));
+            text.TextDrawer.Add(new UIString()
+            {
+                Text = arg.Name,
+                Font = _paramFont,
+                Format = new StringFormat(
+                    //StringFormatFlags.FitBlackBox | 
+                    StringFormatFlags.NoClip |
+                    StringFormatFlags.NoWrap)
+            });
             ChildComponents.Add(text);
 
             if (arg is IFuncExecInput || arg is IFuncValueInput)

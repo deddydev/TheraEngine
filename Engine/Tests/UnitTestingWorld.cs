@@ -23,11 +23,11 @@ namespace TheraEngine.Tests
         protected internal override void OnLoaded()
         {
             int pointLights = 1;
-            int dirLights = 0;
-            int spotLights = 0;
+            int dirLights = 1;
+            int spotLights = 3;
 
-            float margin = 5.0f;
-            float radius = 5.0f;
+            float margin = 2.0f;
+            float radius = 1.0f;
             ColorF4 sphereColor = Color.Red;
             ColorF4 boxColor = Color.Blue;
             ColorF4 floorColor = Color.Gray;
@@ -41,6 +41,10 @@ namespace TheraEngine.Tests
             int count = 4;
             int y = 0;
 
+            Random rand = new Random(800);
+            int maxVel = 50;
+            int maxVelMod = maxVel * 100;
+
             //Create spheres
             for (int x = -count; x <= count; ++x)
                 for (int z = -count; z <= count; ++z)
@@ -48,9 +52,26 @@ namespace TheraEngine.Tests
                     TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor);
                     mat.Parameter<ShaderFloat>("Roughness").Value = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
                     mat.Parameter<ShaderFloat>("Metallic").Value = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
-                    actor = new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(),
-                        mat, new TRigidBodyConstructionInfo() { UseMotionState = true, });
-                    actors.Add(actor);
+                    SphereActor sphere = new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(),
+                        mat, new TRigidBodyConstructionInfo()
+                        {
+                            UseMotionState = true,
+                            SimulatePhysics = true,
+                            CollisionEnabled = true,
+                            CollidesWith = (ushort)(TCollisionGroup.StaticWorld /*| TCollisionGroup.DynamicWorld*/),
+                            CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
+                            Restitution = 1.1f,
+                            Mass = 100.0f,
+                        });
+                    sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
+                        rand.Next(0, maxVelMod) / 100.0f,
+                        rand.Next(0, maxVelMod) / 100.0f,
+                        rand.Next(0, maxVelMod) / 100.0f);
+                    sphere.RootComponent.RigidBodyCollision.LinearVelocity = new Vec3(
+                        rand.Next(0, maxVelMod) / 100.0f,
+                        rand.Next(0, maxVelMod) / 100.0f,
+                        rand.Next(0, maxVelMod) / 100.0f);
+                    actors.Add(sphere);
                 }
 
             //Create boxes
@@ -79,8 +100,17 @@ namespace TheraEngine.Tests
             {
                 Rotator r = rotations[i];
                 actor = new BoxActor("Wall" + i,
-                    new Vec3(200.0f, 0.5f, 200.0f), Vec3.TransformPosition(new Vec3(0.0f, -200.0f, 0.0f), r.GetMatrix()),
-                    r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo() { UseMotionState = false, });
+                    new Vec3(100.0f, 0.5f, 100.0f), Vec3.TransformPosition(new Vec3(0.0f, -100.0f, 0.0f), r.GetMatrix()),
+                    r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo()
+                    {
+                        UseMotionState = false,
+                        SimulatePhysics = false,
+                        CollisionEnabled = true,
+                        CollidesWith = (ushort)TCollisionGroup.All,
+                        CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+                        Restitution = 0.8f,
+                        Mass = 50.0f,
+                    });
                 actors.Add(actor);
             }
 
@@ -191,12 +221,6 @@ namespace TheraEngine.Tests
                 EnableOriginRebasing = false,
             };
         }
-        public override void BeginPlay()
-        {
-            base.BeginPlay();
-
-            //Scene.Add(Settings.OriginRebaseBounds);
-        }
     }
 
     public class SphereTraceActor : Actor<TRComponent>, I3DRenderable
@@ -224,7 +248,7 @@ namespace TheraEngine.Tests
         }
 
         public RenderInfo3D RenderInfo { get; } 
-            = new RenderInfo3D(Rendering.ERenderPass3D.OpaqueForward, null, false, false);
+            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
 
         [Browsable(false)]
         public Shape CullingVolume => null;

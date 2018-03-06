@@ -12,8 +12,15 @@ namespace TheraEngine.Physics
         public bool CollisionEnabled { get; set; } = true;
         [TSerialize]
         public bool SimulatePhysics { get; set; } = true;
+
+        /// <summary>
+        /// Use <see cref="TCollisionGroup"/> or your own enum if you want. Note that the enum must be flags.
+        /// </summary>
         [TSerialize]
         public ushort CollisionGroup { get; set; } = 1;
+        /// <summary>
+        /// Use <see cref="TCollisionGroup"/> or your own enum if you want. Note that the enum must be flags.
+        /// </summary>
         [TSerialize]
         public ushort CollidesWith { get; set; } = 0xFFFF;
 

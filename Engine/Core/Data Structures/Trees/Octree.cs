@@ -107,6 +107,13 @@ namespace System
             else
                 _head.CollectAll(passes, shadowPass);
         }
+
+        /// <summary>
+        /// Renders the octree using debug bounding boxes.
+        /// </summary>
+        /// <param name="f">The frustum to display intersections with. If null, does not show frustum intersections.</param>
+        /// <param name="onlyContainingItems">Only renders subdivisions that contain one or more items.</param>
+        /// <param name="lineWidth">The width of the bounding box lines.</param>
         public void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f)
             => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
 

@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Xml.Serialization;
 using static System.Math;
 using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Memory;
 
 namespace System
 {
@@ -89,8 +91,8 @@ namespace System
 
         public event Action XChanged;
         public event Action YChanged;
-        public event ValueChange XValueChanged;
-        public event ValueChange YValueChanged;
+        public event DelFloatChange XValueChanged;
+        public event DelFloatChange YValueChanged;
         public event Action Changed;
 
         private void BeginUpdate()

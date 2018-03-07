@@ -4,6 +4,8 @@ using static System.TMath;
 using TheraEngine;
 using TheraEngine.Rendering.Models;
 using System.ComponentModel;
+using TheraEngine.Core.Memory;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace System
 {
@@ -15,10 +17,10 @@ namespace System
         public event Action YChanged;
         public event Action ZChanged;
         public event Action WChanged;
-        public event ValueChange XValueChanged;
-        public event ValueChange YValueChanged;
-        public event ValueChange ZValueChanged;
-        public event ValueChange WValueChanged;
+        public event DelFloatChange XValueChanged;
+        public event DelFloatChange YValueChanged;
+        public event DelFloatChange ZValueChanged;
+        public event DelFloatChange WValueChanged;
         public event Action Changed;
 
         //private int _updating = 0;

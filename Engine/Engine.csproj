@@ -215,6 +215,9 @@
     <Reference Include="IronPython.Wpf, Version=2.7.8.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\IronPython.2.7.8\lib\net45\IronPython.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="Jitter, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\JitterPhysics.0.2.0.20\lib\net4\Jitter.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.2.0\lib\net461\MathNet.Numerics.dll</HintPath>
     </Reference>
@@ -327,8 +330,8 @@
     <Compile Include="Components\Scene\UI\Interactable\UIDropDownListComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIInteractableComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIListComponent.cs" />
-    <Compile Include="Components\Scene\UI\Text\DebugPrintHudComponent.cs" />
-    <Compile Include="Components\Scene\UI\Text\RichTextBoxHudComponent.cs" />
+    <Compile Include="Components\Scene\UI\Text\UIDebugPrintComponent.cs" />
+    <Compile Include="Components\Scene\UI\Text\UIRichTextBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextProjectionComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextComponent.cs" />
     <Compile Include="Components\Scene\UI\UI3DComponent.cs" />
@@ -353,6 +356,7 @@
     <Compile Include="Core\Reflection\Attributes\Serialization\File3rdParty.cs" />
     <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
     <Compile Include="Core\Controls\BaseRenderPanel.cs" />
+    <Compile Include="Core\ResourcePool.cs" />
     <Compile Include="Input\ServerPlayerController.cs" />
     <Compile Include="Physics\AbstractPhysicsInterface.cs" />
     <Compile Include="Physics\AbstractPhysicsShapes.cs" />
@@ -380,6 +384,10 @@
     <Compile Include="Physics\Collision Bodies\TCollisionInfo.cs" />
     <Compile Include="Physics\Bullet\TBulletMotionState.cs" />
     <Compile Include="Physics\Constraints\TPointPointConstraint.cs" />
+    <Compile Include="Physics\Jitter\JitterPhysicsWorld.cs" />
+    <Compile Include="Physics\Jitter\JitterPhysicsInterface.cs" />
+    <Compile Include="Physics\Jitter\Shapes\IJitterShape.cs" />
+    <Compile Include="Physics\Jitter\Shapes\JitterBox.cs" />
     <Compile Include="Physics\ShapeTrace.cs" />
     <Compile Include="Physics\RayTrace.cs" />
     <Compile Include="Physics\SupportedByAttribute.cs" />
@@ -930,6 +938,8 @@
     <Folder Include="Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Components\Scene\Shapes\Cylindrical\ZAligned\" />
     <Folder Include="Core\Shapes\Cylindrical\XAligned\" />
+    <Folder Include="Physics\Jitter\Collision Bodies\" />
+    <Folder Include="Physics\Jitter\Constraints\" />
     <Folder Include="Scripting\Visual\" />
   </ItemGroup>
   <ItemGroup>

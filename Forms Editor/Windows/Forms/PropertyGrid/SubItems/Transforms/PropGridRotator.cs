@@ -23,7 +23,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             numericInputBoxYaw.LostFocus += InputLostFocus;
             numericInputBoxRoll.LostFocus += InputLostFocus;
         }
-        protected override object ClassObject => _rotator;
+        protected override object RefObject => _rotator;
 
         public Rotator _rotator;
         protected override void UpdateDisplayInternal()

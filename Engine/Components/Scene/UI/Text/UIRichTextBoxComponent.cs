@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using TheraEngine.Rendering.Text;
+﻿using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI.Text
 {
@@ -11,7 +10,9 @@ namespace TheraEngine.Rendering.UI.Text
         }
 
         private UIString _string = new UIString();
-        private bool _horizontalScroll = false, _verticalScroll = true;
+        private bool 
+            _horizontalScroll = false, 
+            _verticalScroll = true;
 
         public UIString Text => _string;
         public bool AllowHorizontalScroll

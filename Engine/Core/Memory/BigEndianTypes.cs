@@ -1,7 +1,8 @@
-﻿using OpenTK;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using System;
+using TheraEngine.Core.Maths.Transforms;
 
-namespace System
+namespace TheraEngine.Core.Memory
 {
     public static class Endian
     {
@@ -393,9 +394,9 @@ namespace System
             return bm;
         }
 
-        public static implicit operator Matrix3x4(BMatrix43 bm)
+        public static implicit operator OpenTK.Matrix3x4(BMatrix43 bm)
         {
-            Matrix3x4 m = new Matrix3x4();
+            OpenTK.Matrix3x4 m = new OpenTK.Matrix3x4();
             float* dPtr = (float*)&m;
             bfloat* sPtr = (bfloat*)&bm;
             for (int i = 0; i < 12; i++)
@@ -403,7 +404,7 @@ namespace System
             return m;
         }
 
-        public static implicit operator BMatrix43(Matrix3x4 m)
+        public static implicit operator BMatrix43(OpenTK.Matrix3x4 m)
         {
             BMatrix43 bm = new BMatrix43();
             bfloat* dPtr = (bfloat*)&bm;

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -372,6 +373,14 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.Enable(EnableCap.Blend);
                 BlendEquation(r.BlendMode.RgbEquation, r.BlendMode.AlphaEquation);
                 BlendFuncSeparate(r.BlendMode.RgbSrcFactor, r.BlendMode.RgbDstFactor, r.BlendMode.AlphaSrcFactor, r.BlendMode.AlphaDstFactor);
+            }
+            else
+                GL.Disable(EnableCap.Blend);
+
+            if (r.AlphaTest.Enabled)
+            {
+                GL.Enable(EnableCap.AlphaTest);
+                GL.AlphaFunc(AlphaFunction.Never + (int)r.AlphaTest.Comp, r.AlphaTest.Ref);
             }
             else
                 GL.Disable(EnableCap.Blend);

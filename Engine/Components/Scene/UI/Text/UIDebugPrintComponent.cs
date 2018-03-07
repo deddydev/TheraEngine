@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Rendering.UI
 {
-    public class DebugPrintHudComponent : UITextComponent
+    public class UIDebugPrintComponent : UITextComponent
     {
         private ConcurrentQueue<string> _messages = new ConcurrentQueue<string>();
         public void PrintMessage(string message)

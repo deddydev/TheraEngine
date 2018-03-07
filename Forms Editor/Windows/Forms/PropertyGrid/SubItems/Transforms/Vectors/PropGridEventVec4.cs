@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             numericInputBoxZ.LostFocus += InputLostFocus;
             numericInputBoxW.LostFocus += InputLostFocus;
         }
-        protected override object ClassObject => _eventVec4;
+        protected override object RefObject => _eventVec4;
 
         public EventVec4 _eventVec4;
         protected override void UpdateDisplayInternal()

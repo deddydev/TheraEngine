@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using System.ComponentModel;
 using System.IO;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models
 {

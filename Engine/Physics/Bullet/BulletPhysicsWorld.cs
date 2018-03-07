@@ -177,10 +177,12 @@ namespace TheraEngine.Physics
         public override void AddConstraint(TConstraint constraint)
         {
             _dynamicsWorld.AddConstraint(((IBulletConstraint)constraint).Constraint);
+            //Engine.LogWarning("Constraint added");
         }
         public override void RemoveConstraint(TConstraint constraint)
         {
             _dynamicsWorld.RemoveConstraint(((IBulletConstraint)constraint).Constraint);
+            //Engine.LogWarning("Constraint removed");
         }
         public override void Dispose()
         {

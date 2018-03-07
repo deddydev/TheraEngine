@@ -81,21 +81,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     return;
                 
                 _subObject = value;
-
-                Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
-
+                
                 if (_subObject is TObject obj)
                     obj.EditorState.Selected = true;
-
-                ////If scene component, select it in the scene
-                //if (Engine.LocalPlayers.Count > 0 && 
-                //    Engine.LocalPlayers[0]?.ControlledPawn?.HUD is EditorHud hud)
-                //{
-                //    if (_subObject is SceneComponent sceneComp)
-                //        hud.SelectedComponent = sceneComp;
-                //    else
-                //        hud.SelectedComponent = null;
-                //}
                 
                 //Load the properties of the object
                 LoadProperties(_subObject);
@@ -284,6 +272,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             _categories.Values.ToArray()[0].CategoryName = null;
 
                         //pnlProps.ResumeLayout(true);
+
+                        Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
                     }));
             });
         }

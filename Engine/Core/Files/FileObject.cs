@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Files
 {

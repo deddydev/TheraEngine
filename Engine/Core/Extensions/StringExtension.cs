@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using TheraEngine;
+using TheraEngine.Core.Memory;
 
 namespace System
 {

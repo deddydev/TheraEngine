@@ -1,4 +1,4 @@
-﻿namespace System
+﻿namespace TheraEngine.Core.Memory
 {
     public static class VQuant
     {

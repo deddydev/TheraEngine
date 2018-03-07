@@ -1,8 +1,7 @@
 ﻿using System;
 using BulletSharp;
-using TheraEngine.Physics.Bullet.Shapes;
 
-namespace TheraEngine.Physics.Bullet
+namespace TheraEngine.Physics.Bullet.Shapes
 {
     internal class BulletConeX : TCollisionConeX, IBulletShape
     {

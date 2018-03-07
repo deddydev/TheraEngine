@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using TheraEngine.Core.Memory;
 using TheraEngine.Files;
 
-namespace System
+namespace TheraEngine.Core
 {
     [FileDef("Computer Information")]
     [FileExt("compi")]
@@ -14,7 +16,7 @@ namespace System
         [TSerialize]
         public OperatingSystem OSVersion { get; private set; }
         [TSerialize]
-        public Endian.EOrder Endian { get; private set; } = System.Endian.EOrder.Big;
+        public Endian.EOrder Endian { get; private set; } = Memory.Endian.EOrder.Big;
         [TSerialize]
         public int MaxTextureUnits { get; internal set; }
 

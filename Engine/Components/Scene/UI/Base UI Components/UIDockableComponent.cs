@@ -177,10 +177,10 @@ namespace TheraEngine.Rendering.UI
 
         private ISizeable[] _sizeableElements;
 
-        public SizeableElement SizeableWidth { get; } = new SizeableElement();
-        public SizeableElement SizeableHeight { get; } = new SizeableElement();
-        public SizeableElement SizeablePosX { get; } = new SizeableElement();
-        public SizeableElement SizeablePosY { get; } = new SizeableElement();
+        public SizeableElement SizeableWidth { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Width };
+        public SizeableElement SizeableHeight { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Height };
+        public SizeableElement SizeablePosX { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Width };
+        public SizeableElement SizeablePosY { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Height };
         protected SizeableElementQuad Padding { get; } = new SizeableElementQuad();
         protected SizeableElementQuad Anchor { get; } = new SizeableElementQuad();
 

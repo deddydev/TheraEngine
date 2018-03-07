@@ -1,7 +1,8 @@
 ﻿using TheraEngine;
 using System.IO;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Memory
 {
     public static class Memory
     {
@@ -25,7 +26,7 @@ namespace System
                         Linux.memmove(dst, src, size);
                     break;
                 default:
-                    Engine.PrintLine(Environment.OSVersion.Platform.ToString() + " not supported.");
+                    Engine.LogWarning(Environment.OSVersion.Platform.ToString() + " not supported.");
                     break;
             }
         }
@@ -50,7 +51,7 @@ namespace System
                             Linux.memset(dest, value, length);
                         break;
                 default:
-                    Engine.PrintLine(Environment.OSVersion.Platform.ToString() + " not supported.");
+                    Engine.LogWarning(Environment.OSVersion.Platform.ToString() + " not supported.");
                     break;
             }
         }

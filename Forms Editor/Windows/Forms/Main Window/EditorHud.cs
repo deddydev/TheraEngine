@@ -6,7 +6,9 @@ using TheraEngine;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
@@ -56,8 +58,8 @@ namespace TheraEditor.Windows.Forms
         private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
         internal bool MouseDown { get; set; }//=> OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
-        
-        public bool UseTransformTool { get; set; } = true;
+
+        public bool UseTransformTool => _transformType != TransformType.DragDrop;
         public SceneComponent DragComponent
         {
             get => _dragComponent;
@@ -66,8 +68,8 @@ namespace TheraEditor.Windows.Forms
         public SceneComponent SelectedComponent => _selectedComponent;
         public void SetSelectedComponent(bool selectedByViewport, SceneComponent comp)
         {
-            //if (_selectedComponent == comp)
-            //    return;
+            if (_selectedComponent == comp)
+                return;
 
             PreSelectedComponentChanged(selectedByViewport);
             _selectedComponent = comp;
@@ -122,24 +124,32 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        public UIViewportComponent TestViewport { get; private set; }
+
+        public UIViewportComponent SubViewport { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
         protected override UIDockableComponent OnConstruct()
         {
-            UIDockableComponent dock = new UIDockableComponent();
-            TestViewport = new UIViewportComponent
+            UIDockableComponent dock = new UIDockableComponent()
             {
-                DockStyle = HudDockStyle.None,
-                Width = 400,
-                Height = 400
+                DockStyle = HudDockStyle.Fill,
             };
-            dock.ChildComponents.Add(TestViewport);
+
+            SubViewport = new UIViewportComponent();
+            SubViewport.SizeableWidth.Minimum = new SizeableElement();
+            SubViewport.SizeableWidth.Minimum.SetSizingPixels(200.0f, true, ParentBoundsInheritedValue.Width);
+            SubViewport.SizeableWidth.SetSizingPercentageOfParent(0.4f, true, ParentBoundsInheritedValue.Width);
+            SubViewport.SizeableHeight.SetSizingProportion(SubViewport.SizeableWidth, 9.0f / 16.0f, true, ParentBoundsInheritedValue.Height);
+            SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Width);
+            SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
+            dock.ChildComponents.Add(SubViewport);
+
             //TextOverlay = new UITextProjectionComponent()
             //{
             //    TexScale = new Vec2(1.0f),
             //    DockStyle = HudDockStyle.Fill,
             //};
             //dock.ChildComponents.Add(TextOverlay);
+
             return dock;
         }
         protected override void PreConstruct()
@@ -245,7 +255,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _transformType = value;
-                if (UseTransformTool = _transformType != TransformType.DragDrop)
+                if (UseTransformTool)
                     TransformTool3D.Instance.TransformMode = _transformType;
                 else
                     TransformTool3D.DestroyInstance();
@@ -274,10 +284,13 @@ namespace TheraEditor.Windows.Forms
             base.OnSpawnedPostComponentSetup();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             OwningWorld.Scene.Add(_highlightPoint);
+
             PerspectiveCameraActor c = new PerspectiveCameraActor();
             c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
             OwningWorld.SpawnActor(c);
-            TestViewport.Camera = c.Camera;
+            //SubViewport.Camera = c.Camera;
+
+            SubViewport.IsVisible = false;
         }
         public override void OnDespawned()
         {
@@ -366,7 +379,7 @@ namespace TheraEditor.Windows.Forms
                     up * _draggingUniformScale,
                     forward * _draggingUniformScale);
             }
-            else
+            else //Nothing selected
             {
                 SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out dist);
 
@@ -376,6 +389,19 @@ namespace TheraEditor.Windows.Forms
                     Matrix4.CreateScale(OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(_hitPoint, _toolSize));
 
                 HighlightedComponent = comp;
+            }
+        }
+        public void DoMouseDown()
+        {
+            MouseDown = true;
+            SetSelectedComponent(true, HighlightedComponent);
+
+            _dragComponent = _selectedComponent;
+            if (_dragComponent != null)
+            {
+                _prevDragMatrix = _dragComponent.WorldMatrix;
+                Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
+                DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
             }
         }
         public void DoMouseUp()
@@ -397,8 +423,7 @@ namespace TheraEditor.Windows.Forms
                 _dragComponent = null;
             }
 
-            if (HighlightedComponent != null)
-                _highlightPoint.Visible = true;
+            _highlightPoint.Visible = HighlightedComponent != null;
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {
@@ -406,12 +431,19 @@ namespace TheraEditor.Windows.Forms
         }
         private void PostSelectedComponentChanged(bool selectedByViewport)
         {
-            if (OwningWorld == null)
-                return;
-            
+            _dragComponent = null;
+
             if (_selectedComponent != null)
             {
-                _highlightPoint.Visible = false;
+                if (OwningWorld == null)
+                    return;
+
+                if (_selectedComponent is CameraComponent cam)
+                {
+                    SubViewport.Camera = cam.Camera;
+                    SubViewport.IsVisible = true;
+                }
+                
                 if (_selectedComponent.OwningActor is TransformTool3D tool)
                 {
 
@@ -444,20 +476,12 @@ namespace TheraEditor.Windows.Forms
                     else
                     {
                         if (UseTransformTool)
+                        {
                             TransformTool3D.GetInstance(_selectedComponent, _transformType);
+                        }
                         else
                         {
                             TransformTool3D.DestroyInstance();
-                            if (selectedByViewport)
-                            {
-                                _dragComponent = _selectedComponent;
-                                if (_dragComponent != null)
-                                {
-                                    _prevDragMatrix = _dragComponent.WorldMatrix;
-                                    Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
-                                    DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
-                                }
-                            }
                         }
                     }
 
@@ -473,13 +497,9 @@ namespace TheraEditor.Windows.Forms
             }
             else
             {
+                SubViewport.IsVisible = false;
                 TransformTool3D.DestroyInstance();
             }
-        }
-        public void DoMouseDown()
-        {
-            MouseDown = true;
-            SetSelectedComponent(true, HighlightedComponent);
         }
         public class HighlightPoint : I3DRenderable
         {

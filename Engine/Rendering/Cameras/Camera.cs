@@ -213,8 +213,10 @@ namespace TheraEngine.Rendering.Cameras
                     _viewTarget.Changed -= _viewTarget_Changed;
                 _viewTarget = value;
                 if (_viewTarget != null)
+                {
                     _viewTarget.Changed += _viewTarget_Changed;
-                _viewTarget_Changed();
+                    _viewTarget_Changed();
+                }
             }
         }
         

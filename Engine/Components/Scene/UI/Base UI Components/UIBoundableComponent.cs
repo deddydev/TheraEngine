@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
-using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 
@@ -27,11 +23,7 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
 
-        //Used to select a new component when the user moves the gamepad stick.
-        protected UIComponent _left, _right, _down, _up;
-
         protected IQuadtreeNode _renderNode;
-        protected bool _highlightable, _selectable, _scrollable;
         
         protected Vec2 _size = Vec2.Zero;
         protected BoundingRectangle _axisAlignedBounds = new BoundingRectangle();

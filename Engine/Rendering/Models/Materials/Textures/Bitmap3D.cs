@@ -2,6 +2,7 @@
 using TheraEngine.Files;
 using System.ComponentModel;
 using OpenTK;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

@@ -7,26 +7,51 @@ using TheraEngine.Rendering.Models;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
+using System;
+using TheraEngine.Core.Memory;
+using TheraEngine.Timers;
 
-namespace System
+namespace TheraEngine.Core.Maths.Transforms
 {
-    public delegate void ValueChange(float oldValue, float newValue);
-
+    public delegate void DelFloatChange(float oldValue, float newValue);
+    public delegate Vec3 DelGetVec3Value(float delta);
+    
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public unsafe class EventVec3 : IEquatable<EventVec3>, IUniformable3Float, IBufferable, IParsable
+    public unsafe class EventVec3 : TObject, IEquatable<EventVec3>, IUniformable3Float, IBufferable, IParsable, IPoolable
     {
         public event Action XChanged;
         public event Action YChanged;
         public event Action ZChanged;
-        public event ValueChange XValueChanged;
-        public event ValueChange YValueChanged;
-        public event ValueChange ZValueChanged;
+        public event DelFloatChange XValueChanged;
+        public event DelFloatChange YValueChanged;
+        public event DelFloatChange ZValueChanged;
         public event Action Changed;
 
         //private int _updating = 0;
         private float _oldX, _oldY, _oldZ;
         [TSerialize("XYZ", XmlNodeType = EXmlNodeType.Attribute)]
         private Vec3 _data;
+        private EventVec3 _syncX, _syncY, _syncZ, _syncAll;
+        private DelGetVec3Value _setTick = null;
+
+        public void Reset()
+        {
+            _data = Vec3.Zero;
+            _oldX = 0.0f;
+            _oldY = 0.0f;
+            _oldZ = 0.0f;
+            _syncX = null;
+            _syncY = null;
+            _syncZ = null;
+            _syncAll = null;
+            XChanged = null;
+            YChanged = null;
+            ZChanged = null;
+            XValueChanged = null;
+            YValueChanged = null;
+            ZValueChanged = null;
+            Changed = null;
+        }
 
         public void SetRawNoUpdate(Vec3 raw)
         {
@@ -100,8 +125,27 @@ namespace System
             _data.Read(address);
             EndUpdate();
         }
+        private void SyncByFrame(float delta) => Raw = _setTick(delta);
+        public void SyncByFrame(DelGetVec3Value tickMethod)
+        {
+            _setTick = tickMethod;
 
-        private EventVec3 _syncX, _syncY, _syncZ, _syncAll;
+            RegisterTick(
+                ETickGroup.PostPhysics,
+                ETickOrder.Logic,
+                SyncByFrame,
+                Input.Devices.EInputPauseType.TickAlways);
+        }
+        public void ClearSyncByFrame()
+        {
+            UnregisterTick(
+                ETickGroup.PostPhysics,
+                ETickOrder.Logic,
+                SyncByFrame,
+                Input.Devices.EInputPauseType.TickAlways);
+
+            _setTick = null;
+        }
         public void SyncXFrom(EventVec3 other)
         {
             if (_syncAll != null)

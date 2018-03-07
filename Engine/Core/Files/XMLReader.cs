@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using TheraEngine;
+using TheraEngine.Core.Memory;
 
 namespace System.IO
 {

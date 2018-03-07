@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
+using TheraEngine.Core.Maths.Transforms;
 
-namespace System
+namespace TheraEngine.Core.Memory
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct FloatQuantizeHeader

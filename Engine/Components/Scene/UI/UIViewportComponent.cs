@@ -14,11 +14,12 @@ namespace TheraEngine.Rendering.UI
     {
         public event DelSetUniforms SettingUniforms;
 
+        private Viewport _viewport = new Viewport(1.0f, 1.0f);
+        private MaterialFrameBuffer _fbo;
+
         public UIViewportComponent() : base(GetViewportMaterial())
         {
-            _viewport = new Viewport(1.0f, 1.0f);
             _fbo = new MaterialFrameBuffer(InterfaceMaterial);
-            _fbo.Generate();
             _quad.SettingUniforms += SetUniforms;
         }
 
@@ -33,10 +34,10 @@ namespace TheraEngine.Rendering.UI
                         EPixelInternalFormat.Rgba16f,
                         EPixelFormat.Rgba, EPixelType.HalfFloat,
                         EFramebufferAttachment.ColorAttachment1),
-                    TexRef2D.CreateFrameBufferTexture("Depth", 1, 1,
-                        EPixelInternalFormat.DepthComponent32f, 
-                        EPixelFormat.DepthComponent, EPixelType.Float,
-                        EFramebufferAttachment.DepthAttachment),
+                    //TexRef2D.CreateFrameBufferTexture("Depth", 1, 1,
+                    //    EPixelInternalFormat.DepthComponent32f, 
+                    //    EPixelFormat.DepthComponent, EPixelType.Float,
+                    //    EFramebufferAttachment.DepthAttachment),
                 },
                 Engine.LoadEngineShader("ViewportFBO.fs", ShaderMode.Fragment));
         }
@@ -55,19 +56,25 @@ namespace TheraEngine.Rendering.UI
             get => _viewport.Camera;
             set => _viewport.Camera = value;
         }
-
-        private Viewport _viewport;
-        private MaterialFrameBuffer _fbo;
         
         public override Vec2 Resize(Vec2 parentBounds)
         {
             Vec2 r = base.Resize(parentBounds);
-            _viewport.Resize(Width, Height, true, 1.0f, 1.0f);
-            _fbo.ResizeTextures((int)Width, (int)Height);
+
+            float 
+                w = Width.ClampMin(1.0f), 
+                h = Height.ClampMin(1.0f);
+
+            _viewport.Resize(w, h, true, 1.0f, 1.0f);
+            _fbo.ResizeTextures((int)w, (int)h);
+
             return r;
         }
         public override void Render()
         {
+            if (!IsVisible)
+                return;
+
             Scene scene = Camera?.OwningComponent?.OwningScene;
             _viewport.Render(scene, Camera, Camera.Frustum, _fbo);
             base.Render();

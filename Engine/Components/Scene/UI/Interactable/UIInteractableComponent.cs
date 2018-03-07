@@ -5,24 +5,37 @@ using TheraEngine.Input.Devices;
 namespace TheraEngine.Rendering.UI
 {
     /// <summary>
-    /// Hud component that can be interacted with by the player.
+    /// UI component that can be interacted with by the player.
     /// </summary>
-    public class InteractableHudComponent : UIDockableComponent
+    public class UIInteractableComponent : UIDockableComponent
     {
         [Category("Events")]
-        public event Action Highlighted;
+        public event Action LeftClickDown;
         [Category("Events")]
-        public event Action Clicked;
+        public event Action LeftClickUp;
+        [Category("Events")]
+        public event Action RightClickDown;
+        [Category("Events")]
+        public event Action RightClickUp;
+        [Category("Events")]
+        public event Action Scrolled;
+        [Category("Events")]
+        public event Action MouseMove;
+        [Category("Events")]
+        public event Action MouseEnter;
+        [Category("Events")]
+        public event Action MouseExit;
 
-        public virtual void OnHighlighted()
-        {
-            if (_highlightable)
-                Highlighted?.Invoke();
-        }
+        //Used to select a new component when the user moves the gamepad stick.
+        protected UIComponent _left, _right, _down, _up;
+
         public virtual void OnButtonInput(EKey key, ButtonInputType inputType)
         {
-            if (_selectable)
-                Clicked?.Invoke();
+
+        }
+        internal protected virtual void OnLeftClickDown()
+        {
+
         }
     }
 }

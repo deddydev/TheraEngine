@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using TheraEngine;
 
-namespace System
+namespace TheraEngine.Core.Memory
 {
     //Stores a reference to unmanaged data
     public class DataSource : IDisposable

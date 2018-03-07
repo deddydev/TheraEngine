@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Core.Memory;
 using TheraEngine.Files.Serialization;
 
 namespace TheraEngine.Files

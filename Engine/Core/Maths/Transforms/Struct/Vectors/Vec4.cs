@@ -6,8 +6,10 @@ using TheraEngine;
 using TheraEngine.Rendering.Models;
 using System.ComponentModel;
 using System.Globalization;
+using System;
+using TheraEngine.Core.Memory;
 
-namespace System
+namespace TheraEngine.Core.Maths.Transforms
 {
     /// <summary>
     /// A struct containing 4 float values.

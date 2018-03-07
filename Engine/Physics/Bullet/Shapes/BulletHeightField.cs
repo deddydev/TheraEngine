@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
 using BulletSharp;
-using TheraEngine.Physics.Bullet.Shapes;
 
-namespace TheraEngine.Physics.Bullet
+namespace TheraEngine.Physics.Bullet.Shapes
 {
     internal class BulletHeightField : TCollisionHeightField, IBulletShape
     {

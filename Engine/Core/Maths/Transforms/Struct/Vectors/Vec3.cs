@@ -10,6 +10,7 @@ using System.Globalization;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Core.Memory;
 
 namespace System
 {
@@ -991,6 +992,11 @@ namespace System
         #region BulletSharp
         public static implicit operator BulletSharp.Vector3(Vec3 v) => new BulletSharp.Vector3(v.X, v.Y, v.Z);
         public static implicit operator Vec3(BulletSharp.Vector3 v) => new Vec3(v.X, v.Y, v.Z);
+        #endregion
+
+        #region JitterPhysics
+        public static implicit operator Jitter.LinearMath.JVector(Vec3 v) => new Jitter.LinearMath.JVector(v.X, v.Y, v.Z);
+        public static implicit operator Vec3(Jitter.LinearMath.JVector v) => new Vec3(v.X, v.Y, v.Z);
         #endregion
 
         private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;

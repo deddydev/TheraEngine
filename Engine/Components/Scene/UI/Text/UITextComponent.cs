@@ -16,19 +16,7 @@ namespace TheraEngine.Rendering.UI
                 UWrap = ETexWrapMode.Clamp,
                 VWrap = ETexWrapMode.Clamp,
             },
-            new RenderingParameters()
-            {
-                BlendMode = new BlendMode()
-                {
-                    Enabled = true,
-                    RgbSrcFactor = EBlendingFactor.SrcAlpha,
-                    AlphaSrcFactor = EBlendingFactor.SrcAlpha,
-                    RgbDstFactor = EBlendingFactor.OneMinusSrcAlpha,
-                    AlphaDstFactor = EBlendingFactor.OneMinusSrcAlpha,
-                    RgbEquation = EBlendEquationMode.FuncAdd,
-                    AlphaEquation = EBlendEquationMode.FuncAdd,
-                }
-            }))
+            new RenderingParameters(true, null)))
         {
             _textDrawer = new TextDrawer();
             _textDrawer.NeedsRedraw += Redraw;

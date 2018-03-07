@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models
 {

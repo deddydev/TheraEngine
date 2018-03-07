@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -25,11 +26,18 @@ namespace TheraEngine.Rendering.UI
     public class SizeableElement : ISizeable
     {
         internal bool IgnoreUserChanges { get; set; } = false;
-        private float _currValue = 0.0f, _modValue = 0.0f, _resValue = 0.0f;
+
+        private float
+            _currValue = 0.0f,
+            _modValue = 0.0f,
+            _resValue = 0.0f;
         private SizingMode _sizingMode = SizingMode.Ignore;
-        private SizeableElement _propElem = null;
+        private SizeableElement
+            _propElem = null,
+            _minSize,
+            _maxSize;
         private ParentBoundsInheritedValue _parentBoundsInherit = ParentBoundsInheritedValue.Width;
-        private bool _smallerRelative = false;
+        private bool _smallerRelative = true;
 
         public float CurrentValue
         {
@@ -74,6 +82,24 @@ namespace TheraEngine.Rendering.UI
             {
                 if (!IgnoreUserChanges)
                     _propElem = value;
+            }
+        }
+        public SizeableElement Minimum
+        {
+            get => _minSize;
+            set
+            {
+                if (!IgnoreUserChanges)
+                    _minSize = value;
+            }
+        }
+        public SizeableElement Maximum
+        {
+            get => _maxSize;
+            set
+            {
+                if (!IgnoreUserChanges)
+                    _maxSize = value;
             }
         }
         public ParentBoundsInheritedValue ParentBoundsInherited
@@ -130,9 +156,41 @@ namespace TheraEngine.Rendering.UI
                     }
                     break;
             }
+
+            if (Minimum != null)
+                ResultingValue = ResultingValue.ClampMin(Minimum.GetValue(parentBounds));
+
+            if (Maximum != null)
+                ResultingValue = ResultingValue.ClampMax(Maximum.GetValue(parentBounds));
+
             return ResultingValue;
         }
-
+        public void SetSizingPercentageOfParent(float percentage, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        {
+            SmallerRelative = smallerRelative;
+            ParentBoundsInherited = parentDim;
+            SizingOption = SizingMode.PercentageOfParent;
+            ModificationValue = percentage;
+        }
+        public void SetSizingProportion(SizeableElement proportionalElement, float ratio, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        {
+            SmallerRelative = smallerRelative;
+            ParentBoundsInherited = parentDim;
+            SizingOption = SizingMode.Proportion;
+            ProportionElement = proportionalElement;
+            ModificationValue = ratio;
+        }
+        public void SetSizingPixels(float pixels, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        {
+            SmallerRelative = smallerRelative;
+            ParentBoundsInherited = parentDim;
+            SizingOption = SizingMode.Pixels;
+            ModificationValue = pixels;
+        }
+        public void SetSizingIgnored()
+        {
+            SizingOption = SizingMode.Ignore;
+        }
         public void Update(Vec2 parentBounds)
         {
             GetValue(parentBounds);

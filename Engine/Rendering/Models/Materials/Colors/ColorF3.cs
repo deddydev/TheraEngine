@@ -3,6 +3,8 @@ using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Globalization;
 using System;
+using TheraEngine.Core.Memory;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

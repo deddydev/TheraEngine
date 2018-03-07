@@ -3,19 +3,11 @@
 namespace TheraEngine.Rendering.UI
 {
     public delegate void DelScrolling(bool up);
-    public class DropDownListHudComponent : InteractableHudComponent
+    public class DropDownListHudComponent : UIInteractableComponent
     {
-        [Category("Events")]
-        public event DelScrolling Scrolled;
-        public virtual void OnScrolled(bool up)
-        {
-            if (_scrollable)
-                Scrolled?.Invoke(up);
-        }
         public DropDownListHudComponent()
         {
-            _highlightable = true;
-            _selectable = true;
+
         }
     }
 }

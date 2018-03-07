@@ -20,6 +20,30 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public bool HasTransparency => BlendMode.Enabled || AlphaTest.Enabled;
 
+        public RenderingParameters()
+        {
+
+        }
+        public RenderingParameters(bool defaultBlendEnabled, float? defaultAlphaTestDiscardMax)
+        {
+            if (defaultBlendEnabled)
+            {
+                BlendMode.Enabled = true;
+                BlendMode.RgbSrcFactor = EBlendingFactor.SrcAlpha;
+                BlendMode.AlphaSrcFactor = EBlendingFactor.SrcAlpha;
+                BlendMode.RgbDstFactor = EBlendingFactor.OneMinusSrcAlpha;
+                BlendMode.AlphaDstFactor = EBlendingFactor.OneMinusSrcAlpha;
+                BlendMode.RgbEquation = EBlendEquationMode.FuncAdd;
+                BlendMode.AlphaEquation = EBlendEquationMode.FuncAdd;
+            }
+            if (defaultAlphaTestDiscardMax != null)
+            {
+                AlphaTest.Enabled = true;
+                AlphaTest.Ref = 0.5f;
+                AlphaTest.Comp = EComparison.Lequal;
+            }
+        }
+
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool WriteRed { get; set; } = true;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
@@ -47,31 +71,31 @@ namespace TheraEngine.Rendering.Models.Materials
     public class AlphaTest
     {
         private bool _enabled = false;
-        private bool _useConstantAlpha;
-        private float _constantAlphaValue;
-        private bool _useAlphaToCoverage;
-        private float _ref0, _ref1;
-        private EComparison _comp0 = EComparison.Always, _comp1 = EComparison.Always;
-        private ELogicGate _logicGate = ELogicGate.And;
+        //private bool _useConstantAlpha;
+        //private float _constantAlphaValue;
+        //private bool _useAlphaToCoverage;
+        private float _ref0/*, _ref1*/;
+        private EComparison _comp0 = EComparison.Always/*, _comp1 = EComparison.Always*/;
+        //private ELogicGate _logicGate = ELogicGate.And;
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool Enabled { get => _enabled; set => _enabled = value; }
+        //[TSerialize(Condition = "Enabled")]
+        //public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
+        //[TSerialize(Condition = "Enabled")]
+        //public float ConstantAlphaValue { get => _constantAlphaValue; set => _constantAlphaValue = value; }
+        //[TSerialize(Condition = "Enabled")]
+        //public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
         [TSerialize(Condition = "Enabled")]
-        public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
+        public float Ref { get => _ref0; set => _ref0 = value; }
+        //[TSerialize(Condition = "Enabled")]
+        //public float Ref1 { get => _ref1; set => _ref1 = value; }
         [TSerialize(Condition = "Enabled")]
-        public float ConstantAlphaValue { get => _constantAlphaValue; set => _constantAlphaValue = value; }
-        [TSerialize(Condition = "Enabled")]
-        public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
-        [TSerialize(Condition = "Enabled")]
-        public float Ref0 { get => _ref0; set => _ref0 = value; }
-        [TSerialize(Condition = "Enabled")]
-        public float Ref1 { get => _ref1; set => _ref1 = value; }
-        [TSerialize(Condition = "Enabled")]
-        public EComparison Comp0 { get => _comp0; set => _comp0 = value; }
-        [TSerialize(Condition = "Enabled")]
-        public EComparison Comp1 { get => _comp1; set => _comp1 = value; }
-        [TSerialize(Condition = "Enabled")]
-        public ELogicGate LogicGate { get => _logicGate; set => _logicGate = value; }
+        public EComparison Comp { get => _comp0; set => _comp0 = value; }
+        //[TSerialize(Condition = "Enabled")]
+        //public EComparison Comp1 { get => _comp1; set => _comp1 = value; }
+        //[TSerialize(Condition = "Enabled")]
+        //public ELogicGate LogicGate { get => _logicGate; set => _logicGate = value; }
     }
     public class StencilFace
     {

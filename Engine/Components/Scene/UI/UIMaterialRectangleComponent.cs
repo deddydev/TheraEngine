@@ -32,7 +32,8 @@ namespace TheraEngine.Rendering.UI
             get => _quad.Material;
             set => _quad.Material = value;
         }
-        public bool IsRendering { get; set; }
+
+        public bool IsVisible { get; set; } = true;
 
         public BaseTexRef Texture(int index)
         {
@@ -76,8 +77,12 @@ namespace TheraEngine.Rendering.UI
             data[5] = new Vec3(Width, Height, 0.0f);
             return r;
         }
-        
-        public virtual void Render() => _quad.Render(WorldMatrix, Matrix3.Identity);
+
+        public virtual void Render()
+        {
+            if (IsVisible)
+                _quad.Render(WorldMatrix, Matrix3.Identity);
+        }
 
         //public enum BackgroundImageDisplay
         //{

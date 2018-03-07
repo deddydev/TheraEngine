@@ -1,23 +1,25 @@
 ﻿using System;
-using System.Windows.Forms;
-using System.Collections.Generic;
-using TheraEngine.Rendering;
-using TheraEngine.Worlds;
-using TheraEngine.Input;
-using TheraEngine.Audio;
-using TheraEngine.Input.Devices;
-using TheraEngine.Input.Devices.OpenTK;
-using TheraEngine.Input.Devices.DirectX;
-using TheraEngine.Files;
-using TheraEngine.Actors;
-using System.Drawing.Text;
 using System.Collections.Concurrent;
-using TheraEngine.Timers;
+using System.Collections.Generic;
+using System.Drawing.Text;
+using System.IO;
+using System.Windows.Forms;
+using TheraEngine.Actors;
+using TheraEngine.Audio;
+using TheraEngine.Core;
+using TheraEngine.Editor;
+using TheraEngine.Files;
 using TheraEngine.GameModes;
+using TheraEngine.Input;
+using TheraEngine.Input.Devices;
+using TheraEngine.Input.Devices.DirectX;
+using TheraEngine.Input.Devices.OpenTK;
 using TheraEngine.Physics;
 using TheraEngine.Physics.Bullet;
-using System.IO;
-using TheraEngine.Editor;
+using TheraEngine.Physics.Jitter;
+using TheraEngine.Rendering;
+using TheraEngine.Timers;
+using TheraEngine.Worlds;
 
 namespace TheraEngine
 {
@@ -242,6 +244,9 @@ namespace TheraEngine
                 {
                     case PhysicsLibrary.Bullet:
                         _physicsInterface = new BulletPhysicsInterface();
+                        break;
+                    case PhysicsLibrary.Jitter:
+                        _physicsInterface = new JitterPhysicsInterface();
                         break;
                 }
             }

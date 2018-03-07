@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using TheraEngine.Rendering.Models;
 using System.Drawing;
 using System.ComponentModel;
+using TheraEngine.Core.Memory;
 
 namespace System
 {

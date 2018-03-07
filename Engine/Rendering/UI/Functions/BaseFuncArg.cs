@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions
@@ -15,14 +16,12 @@ namespace TheraEngine.Rendering.UI.Functions
         public BaseFuncArg(string name, ColorF4 color) : base(MakeArgMaterial(color))
         {
             _name = name;
-            DockStyle = HudDockStyle.None;
             Size = new Vec2(ConnectionBoxDims);
         }
         public BaseFuncArg(string name, IFunction parent, ColorF4 color) : base(MakeArgMaterial(color))
         {
             _name = name;
             _parent = (UIComponent)parent;
-            DockStyle = HudDockStyle.None;
             Size = new Vec2(ConnectionBoxDims);
         }
 

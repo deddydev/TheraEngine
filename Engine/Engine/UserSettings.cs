@@ -30,7 +30,7 @@ namespace TheraEngine
     {
         Bullet,
         //PhysX,
-        //Jitter,
+        Jitter,
         //Havok,
     }
     public enum WindowState

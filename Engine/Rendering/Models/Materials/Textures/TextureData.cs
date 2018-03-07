@@ -2,6 +2,7 @@
 using System.Drawing;
 using FreeImageAPI;
 using System.Drawing.Imaging;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {

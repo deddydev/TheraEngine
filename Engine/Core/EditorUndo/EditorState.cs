@@ -12,7 +12,7 @@ namespace TheraEngine.Editor
     public class EditorState
     {
         private static EditorState _selectedState, _highlightedState;
-
+        
         public static EditorState SelectedState
         {
             get => _selectedState;

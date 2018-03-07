@@ -3,6 +3,7 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.DirectX
 {

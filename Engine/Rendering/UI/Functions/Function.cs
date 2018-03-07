@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine.Components;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
@@ -58,8 +59,6 @@ namespace TheraEngine.Rendering.UI.Functions
 
         public BaseFunction() : base(MakeFunctionMaterial())
         {
-            DockStyle = HudDockStyle.None;
-
             _headerText = new UITextComponent
             {
                 Name = FunctionName + " [Header Text]",
@@ -91,7 +90,6 @@ namespace TheraEngine.Rendering.UI.Functions
             UITextComponent text = new UITextComponent
             {
                 Name = arg.Name + " Text",
-                DockStyle = HudDockStyle.None,
             };
             text.TextDrawer.Add(new UIString()
             {

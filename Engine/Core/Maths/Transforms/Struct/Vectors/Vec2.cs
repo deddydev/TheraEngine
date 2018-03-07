@@ -7,6 +7,8 @@ using static System.TMath;
 using static System.Math;
 using System.ComponentModel;
 using System.Globalization;
+using TheraEngine.Core.Memory;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace System
 {

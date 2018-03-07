@@ -76,18 +76,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public bool IsReferenceType => DataType.IsClass && DataType != typeof(string);
         
-        protected virtual object ClassObject => null;
+        protected virtual object RefObject => null;
         protected void InputLostFocus(object sender, EventArgs e)
         {
-            if (ClassObject != null && sender is Control ctrl && ctrl.Tag is string propName)
-                SubmitPostManualStateChange(ClassObject, propName);
+            if (RefObject != null && sender is Control ctrl && ctrl.Tag is string propName)
+                SubmitPostManualStateChange(RefObject, propName);
             IsEditing = false;
         }
         protected void InputGotFocus(object sender, EventArgs e)
         {
             IsEditing = true;
-            if (ClassObject != null && sender is Control ctrl && ctrl.Tag is string propName)
-                SubmitPreManualStateChange(ClassObject, propName);
+            if (RefObject != null && sender is Control ctrl && ctrl.Tag is string propName)
+                SubmitPreManualStateChange(RefObject, propName);
         }
 
         public IDataChangeHandler DataChangeHandler { get; set; }

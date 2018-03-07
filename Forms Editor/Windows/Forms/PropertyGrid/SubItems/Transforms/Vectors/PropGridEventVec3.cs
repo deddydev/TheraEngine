@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -21,7 +22,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             numericInputBoxY.LostFocus += InputLostFocus;
             numericInputBoxZ.LostFocus += InputLostFocus;
         }
-        protected override object ClassObject => _eventVec3;
+        protected override object RefObject => _eventVec3;
 
         public EventVec3 _eventVec3;
         protected override void UpdateDisplayInternal()

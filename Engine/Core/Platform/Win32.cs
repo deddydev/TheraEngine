@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using TheraEngine.Core.Memory;
 
 namespace System
 {

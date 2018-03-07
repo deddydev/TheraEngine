@@ -5,6 +5,7 @@ using TheraEngine.Rendering;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using System.Collections.Generic;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine
 {
@@ -87,7 +88,7 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo2D RenderInfo { get; }
-        bool IsRendering { get; set; }
+        bool IsVisible { get; set; }
     }
     public interface I2DBoundable
     {

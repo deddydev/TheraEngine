@@ -269,7 +269,7 @@ namespace TheraEngine.Rendering
 
                             Engine.Renderer.AllowDepthWrite(true);
 
-                            //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
+                            c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
                             //RenderTree.DebugRender(c?.Frustum, true);
 
                             _passes.Render(ERenderPass3D.OpaqueForward);

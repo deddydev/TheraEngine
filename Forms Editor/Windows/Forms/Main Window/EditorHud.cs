@@ -17,6 +17,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Text;
 using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
@@ -131,17 +132,39 @@ namespace TheraEditor.Windows.Forms
         {
             UIDockableComponent dock = new UIDockableComponent()
             {
-                DockStyle = HudDockStyle.Fill,
+                DockStyle = UIDockStyle.Fill,
             };
 
             SubViewport = new UIViewportComponent();
             SubViewport.SizeableWidth.Minimum = new SizeableElement();
             SubViewport.SizeableWidth.Minimum.SetSizingPixels(200.0f, true, ParentBoundsInheritedValue.Width);
             SubViewport.SizeableWidth.SetSizingPercentageOfParent(0.4f, true, ParentBoundsInheritedValue.Width);
-            SubViewport.SizeableHeight.SetSizingProportion(SubViewport.SizeableWidth, 9.0f / 16.0f, true, ParentBoundsInheritedValue.Height);
+            SubViewport.SizeableHeight.SetSizingProportioned(SubViewport.SizeableWidth, 9.0f / 16.0f, true, ParentBoundsInheritedValue.Height);
             SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Width);
             SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
             dock.ChildComponents.Add(SubViewport);
+
+            UITextComponent text = new UITextComponent();
+            text.DockStyle = UIDockStyle.Top;
+            Font f = new Font("Segoe UI", 7.0f, FontStyle.Regular);
+            string t = "Selected Camera View";
+            Size s = TextRenderer.MeasureText(t, f);
+            text.Height = s.Height;
+            text.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, ParentBoundsInheritedValue.Height);
+            text.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, ParentBoundsInheritedValue.Width);
+            StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip);
+            sf.Alignment = StringAlignment.Center;
+            sf.LineAlignment = StringAlignment.Near;
+            text.TextDrawer.Add(true, new UIString()
+            {
+                Font = f,
+                Format = sf,
+                Text = t,
+                TextColor = new ColorF4(1.0f),
+                OriginPercentages = new Vec2(0.0f, 1.0f),
+                Position = new Vec2(0.0f, s.Height),
+            });
+            SubViewport.ChildComponents.Add(text);
 
             //TextOverlay = new UITextProjectionComponent()
             //{
@@ -395,14 +418,6 @@ namespace TheraEditor.Windows.Forms
         {
             MouseDown = true;
             SetSelectedComponent(true, HighlightedComponent);
-
-            _dragComponent = _selectedComponent;
-            if (_dragComponent != null)
-            {
-                _prevDragMatrix = _dragComponent.WorldMatrix;
-                Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
-                DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
-            }
         }
         public void DoMouseUp()
         {
@@ -437,12 +452,6 @@ namespace TheraEditor.Windows.Forms
             {
                 if (OwningWorld == null)
                     return;
-
-                if (_selectedComponent is CameraComponent cam)
-                {
-                    SubViewport.Camera = cam.Camera;
-                    SubViewport.IsVisible = true;
-                }
                 
                 if (_selectedComponent.OwningActor is TransformTool3D tool)
                 {
@@ -454,6 +463,17 @@ namespace TheraEditor.Windows.Forms
                 }
                 else// if (comp != null)
                 {
+                    if (_selectedComponent is CameraComponent cam)
+                    {
+                        SubViewport.Camera = cam.Camera;
+                        SubViewport.IsVisible = true;
+                    }
+                    else
+                    {
+                        SubViewport.Camera = null;
+                        SubViewport.IsVisible = false;
+                    }
+
                     if (_selectedComponent is IRigidCollidable d &&
                         d.RigidBodyCollision != null &&
                         d.RigidBodyCollision.SimulatingPhysics &&
@@ -482,6 +502,14 @@ namespace TheraEditor.Windows.Forms
                         else
                         {
                             TransformTool3D.DestroyInstance();
+
+                            _dragComponent = _selectedComponent;
+                            if (_dragComponent != null)
+                            {
+                                _prevDragMatrix = _dragComponent.WorldMatrix;
+                                Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
+                                DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
+                            }
                         }
                     }
 

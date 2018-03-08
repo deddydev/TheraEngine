@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.UI
                 UWrap = ETexWrapMode.Clamp,
                 VWrap = ETexWrapMode.Clamp,
             },
-            new RenderingParameters(true, null)))
+            new RenderingParameters(true, null)), true)
         {
             _textDrawer = new TextDrawer();
             _textDrawer.NeedsRedraw += Redraw;

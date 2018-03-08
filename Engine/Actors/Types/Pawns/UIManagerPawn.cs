@@ -68,7 +68,7 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             return new T()
             {
-                DockStyle = HudDockStyle.Fill,
+                DockStyle = UIDockStyle.Fill,
             };
         }
         public override void RegisterInput(InputInterface input)

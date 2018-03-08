@@ -15,9 +15,9 @@ namespace TheraEngine.Rendering.UI
 
         public UIMaterialRectangleComponent() 
             : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }
-        public UIMaterialRectangleComponent(TMaterial material)
+        public UIMaterialRectangleComponent(TMaterial material, bool flipVerticalUVCoord = false)
         {
-            VertexQuad quad = VertexQuad.PosZQuad(Width, Height, 0.0f, true);
+            VertexQuad quad = VertexQuad.PosZQuad(Width, Height, 0.0f, true, flipVerticalUVCoord);
             PrimitiveData quadData = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosTex(), quad);
             _quad = new PrimitiveManager(quadData, material);
         }

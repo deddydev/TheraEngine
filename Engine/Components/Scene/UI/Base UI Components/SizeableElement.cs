@@ -165,6 +165,14 @@ namespace TheraEngine.Rendering.UI
 
             return ResultingValue;
         }
+
+        #region Sizing modes
+        public static SizeableElement PercentageOfParent(float percentage, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        {
+            SizeableElement e = new SizeableElement();
+            e.SetSizingPercentageOfParent(percentage, smallerRelative, parentDim);
+            return e;
+        }
         public void SetSizingPercentageOfParent(float percentage, bool smallerRelative, ParentBoundsInheritedValue parentDim)
         {
             SmallerRelative = smallerRelative;
@@ -172,13 +180,25 @@ namespace TheraEngine.Rendering.UI
             SizingOption = SizingMode.PercentageOfParent;
             ModificationValue = percentage;
         }
-        public void SetSizingProportion(SizeableElement proportionalElement, float ratio, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        public static SizeableElement Proportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        {
+            SizeableElement e = new SizeableElement();
+            e.SetSizingProportioned(proportionalElement, ratio, smallerRelative, parentDim);
+            return e;
+        }
+        public void SetSizingProportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative, ParentBoundsInheritedValue parentDim)
         {
             SmallerRelative = smallerRelative;
             ParentBoundsInherited = parentDim;
             SizingOption = SizingMode.Proportion;
             ProportionElement = proportionalElement;
             ModificationValue = ratio;
+        }
+        public static SizeableElement Pixels(float pixels, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        {
+            SizeableElement e = new SizeableElement();
+            e.SetSizingPixels(pixels, smallerRelative, parentDim);
+            return e;
         }
         public void SetSizingPixels(float pixels, bool smallerRelative, ParentBoundsInheritedValue parentDim)
         {
@@ -191,6 +211,8 @@ namespace TheraEngine.Rendering.UI
         {
             SizingOption = SizingMode.Ignore;
         }
+        #endregion
+
         public void Update(Vec2 parentBounds)
         {
             GetValue(parentBounds);

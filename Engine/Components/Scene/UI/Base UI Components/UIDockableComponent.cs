@@ -5,7 +5,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
-    public enum HudDockStyle
+    public enum UIDockStyle
     {
         None,
         Fill,
@@ -184,10 +184,10 @@ namespace TheraEngine.Rendering.UI
         protected SizeableElementQuad Padding { get; } = new SizeableElementQuad();
         protected SizeableElementQuad Anchor { get; } = new SizeableElementQuad();
 
-        private HudDockStyle _dockStyle = HudDockStyle.None;
+        private UIDockStyle _dockStyle = UIDockStyle.None;
         private AnchorFlags _anchorFlags = AnchorFlags.None;
         
-        public HudDockStyle DockStyle
+        public UIDockStyle DockStyle
         {
             get => _dockStyle;
             set
@@ -206,7 +206,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        public bool Docked => _dockStyle != HudDockStyle.None;
+        public bool Docked => _dockStyle != UIDockStyle.None;
         public bool Anchored => _anchorFlags != AnchorFlags.None;
 
         public bool AnchoredBottom
@@ -295,29 +295,29 @@ namespace TheraEngine.Rendering.UI
                     allowBottom = false;
                     switch (_dockStyle)
                     {
-                        case HudDockStyle.Fill:
+                        case UIDockStyle.Fill:
                             _size = parentBounds;
                             _translation = Vec2.Zero;
                             break;
-                        case HudDockStyle.Bottom:
+                        case UIDockStyle.Bottom:
                             _localOriginPercentage = new Vec2(0.0f, 0.0f);
                             _translation = Vec2.Zero;
                             _size.X = parentBounds.X;
                             allowTop = true;
                             break;
-                        case HudDockStyle.Top:
+                        case UIDockStyle.Top:
                             _localOriginPercentage = new Vec2(0.0f, 1.0f);
                             _translation = new Vec2(0.0f, parentBounds.Y);
                             _size.X = parentBounds.X;
                             allowBottom = true;
                             break;
-                        case HudDockStyle.Left:
+                        case UIDockStyle.Left:
                             _localOriginPercentage = new Vec2(0.0f, 0.0f);
                             _translation = Vec2.Zero;
                             _size.Y = parentBounds.Y;
                             allowRight = true;
                             break;
-                        case HudDockStyle.Right:
+                        case UIDockStyle.Right:
                             _localOriginPercentage = new Vec2(1.0f, 0.0f);
                             _translation = new Vec2(parentBounds.X, 0.0f);
                             _size.Y = parentBounds.Y;

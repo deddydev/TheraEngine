@@ -62,7 +62,7 @@ namespace TheraEngine.Rendering.UI.Functions
             _headerText = new UITextComponent
             {
                 Name = FunctionName + " [Header Text]",
-                DockStyle = HudDockStyle.Top,
+                DockStyle = UIDockStyle.Top,
                 Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
             };
             _headerText.TextDrawer.Add(new UIString()

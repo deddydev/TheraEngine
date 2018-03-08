@@ -169,7 +169,7 @@ namespace TheraEditor.Windows.Forms
         {
             UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
             {
-                DockStyle = HudDockStyle.Fill,
+                DockStyle = UIDockStyle.Fill,
                 SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
             };
             _rootTransform = new UIComponent();

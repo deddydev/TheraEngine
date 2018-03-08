@@ -383,7 +383,7 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.AlphaFunc(AlphaFunction.Never + (int)r.AlphaTest.Comp, r.AlphaTest.Ref);
             }
             else
-                GL.Disable(EnableCap.Blend);
+                GL.Disable(EnableCap.AlphaTest);
 
             GL.PointSize(r.PointSize);
             GL.LineWidth(r.LineWidth);

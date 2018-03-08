@@ -22,13 +22,5 @@ namespace TheraEngine
             v.HUD = UI = new UIMaterialEditor(ClientSize);
             v.Camera = UI.Camera;
         }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-
-            //Engine.PrintLine(Size.ToString());
-            //Engine.PrintLine(UI.RootComponent.Size.ToString());
-        }
     }
 }

@@ -65,7 +65,7 @@ namespace TheraEditor.Windows.Forms
         private UIComponent FindComponent()
             => FindComponent(CursorPositionWorld());
         private UIComponent FindComponent(Vec2 cursorWorldPos)
-            => RootComponent.FindComponent(cursorWorldPos);
+            => RootComponent.FindDeepestComponent(cursorWorldPos);
 
         #region Input
         public override void RegisterInput(InputInterface input)

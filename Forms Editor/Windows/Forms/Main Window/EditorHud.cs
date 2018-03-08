@@ -144,25 +144,29 @@ namespace TheraEditor.Windows.Forms
             SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
             dock.ChildComponents.Add(SubViewport);
 
-            UITextComponent text = new UITextComponent();
-            text.DockStyle = UIDockStyle.Top;
-            Font f = new Font("Segoe UI", 7.0f, FontStyle.Regular);
+            Font f = new Font("Segoe UI", 12.0f, FontStyle.Regular);
             string t = "Selected Camera View";
             Size s = TextRenderer.MeasureText(t, f);
-            text.Height = s.Height;
+            UITextComponent text = new UITextComponent
+            {
+                DockStyle = UIDockStyle.Top,
+                Height = s.Height
+            };
             text.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, ParentBoundsInheritedValue.Height);
             text.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, ParentBoundsInheritedValue.Width);
-            StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip);
-            sf.Alignment = StringAlignment.Center;
-            sf.LineAlignment = StringAlignment.Near;
+            StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
+            {
+                //Alignment = StringAlignment.Center,
+                //LineAlignment = StringAlignment.Near
+            };
             text.TextDrawer.Add(true, new UIString()
             {
                 Font = f,
                 Format = sf,
                 Text = t,
                 TextColor = new ColorF4(1.0f),
-                OriginPercentages = new Vec2(0.0f, 1.0f),
-                Position = new Vec2(0.0f, s.Height),
+                //OriginPercentages = new Vec2(0.0f, 1.0f),
+                //Position = new Vec2(0.0f, 0.0f),
             });
             SubViewport.ChildComponents.Add(text);
 
@@ -372,7 +376,7 @@ namespace TheraEditor.Windows.Forms
                 float upDist = 0.0f;
                 if (comp == null)
                 {
-                    hitNormal = Vec3.Up;// v.Camera.GetUpVector();
+                    hitNormal = Vec3.Up;
                     float depth = TMath.DistanceToDepth(DraggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
                     _hitPoint = v.ScreenToWorld(viewportPoint, depth);
                 }

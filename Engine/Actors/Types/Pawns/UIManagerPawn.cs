@@ -116,10 +116,8 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public List<UIComponent> FindAllComponents(Vec2 viewportPoint)
         {
-            return null;
-            //List<I2DBoundable> results = _scene.RenderTree.FindClosest(viewportPoint);
-            //return results?.Select(x => (UIComponent)x).ToList();
-            //return RootComponent.FindComponent(viewportPoint);
+            List<I2DRenderable> results = _scene.RenderTree.FindClosest(viewportPoint);
+            return results?.Select(x => (UIComponent)x).ToList();
         }
         public UIComponent FindClosestComponent(Vec2 viewportPoint)
         {

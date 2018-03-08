@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using TheraEngine;
 using TheraEngine.Core.Shapes;
@@ -31,18 +32,38 @@ namespace System
         public const int MaxChildNodeCount = 4;
 
         private Node _head;
+        internal HashSet<T> AllItems { get; } = new HashSet<T>();
+        public int Count => AllItems.Count;
 
         public BoundingRectangle Bounds => _head.Bounds;
-
-        public int Count { get; private set; } = 0;
-
+        
         public Quadtree(BoundingRectangle bounds) => _head = new Node(bounds, 0, 0, null, this);
         public Quadtree(BoundingRectangle bounds, List<T> items) => Add(items);
 
-        public void Add(T value) => _head.Add(value, -1);
-        public void Add(List<T> value) => _head.Add(value);
-        public void Remove(T value) => _head.Remove(value);
-        
+        public bool Add(T value)
+        {
+            if (!AllItems.Contains(value))
+            {
+                _head.Add(value, -1);
+                return true;
+            }
+            return false;
+        }
+        public void Add(List<T> value)
+        {
+            foreach (T item in value)
+                Add(item);
+        }
+        public bool Remove(T value)
+        {
+            if (AllItems.Contains(value))
+            {
+                _head.Remove(value);
+                return true;
+            }
+            return false;
+        }
+
         public void CollectVisible(BoundingRectangle bounds, RenderPasses2D passes)
             => _head?.CollectVisible(bounds, passes);
 
@@ -52,8 +73,15 @@ namespace System
             => _head?.DebugRender(true, onlyContainingItems, bounds, lineWidth);
         public void DebugRender(bool onlyContainingItems, Color color, float lineWidth)
              => _head?.DebugRender(true, onlyContainingItems, color, lineWidth);
-
-        public void Resize(Vec2 bounds) => _head.Resize(bounds);
+        
+        public void Remake(BoundingRectangle bounds)
+        {
+            _head = new Node(bounds, 0, 0, null, this);
+            var array = AllItems.ToArray();
+            AllItems.Clear();
+            foreach (T item in array)
+                _head.Add(item, -1, true);
+        }
 
         private class Node : IQuadtreeNode
         {
@@ -190,7 +218,7 @@ namespace System
             public void DebugRender(Color color, float lineWidth)
             {
                 Vec2 halfBounds = (_bounds.Bounds / 2.0f);
-                Engine.Renderer.RenderQuad(_bounds.OriginTranslation - _bounds.LocalOrigin + halfBounds, Vec3.Forward, halfBounds, false, color, lineWidth);
+                Engine.Renderer.RenderQuad(_bounds.OriginTranslation - _bounds.LocalOrigin + halfBounds, Vec3.Backward, halfBounds, false, color, lineWidth);
             }
             #endregion
 

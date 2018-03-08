@@ -174,12 +174,11 @@ namespace TheraEngine.Rendering.UI
             else
                 Resize(Vec2.Zero);
         }
-        public virtual UIComponent FindComponent(Vec2 viewportPoint)
+        public virtual UIComponent FindDeepestComponent(Vec2 viewportPoint)
         {
-            //TODO: create 2D quadtree for hud component searching
             foreach (UIComponent c in _children)
             {
-                UIComponent comp = c.FindComponent(viewportPoint);
+                UIComponent comp = c.FindDeepestComponent(viewportPoint);
                 if (comp != null)
                     return comp;
             }

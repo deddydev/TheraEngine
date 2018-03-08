@@ -55,10 +55,7 @@ namespace TheraEditor.Actors.Types.Pawns
             Segment s = v.GetWorldSegment(viewportPoint);
             RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
             if (_hasHit = c.Trace())
-            {
                 _hitPoint = c.HitPointWorld;
-                _screenPoint = v.WorldToScreen(_hitPoint);
-            }
         }
 
         private bool _alt = false;
@@ -74,7 +71,7 @@ namespace TheraEditor.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                float pitch = -y * MouseRotateSpeed;
+                float pitch = y * MouseRotateSpeed;
                 float yaw = -x * MouseRotateSpeed;
 
                 if (EditorHud.SelectedComponent != null)
@@ -91,13 +88,13 @@ namespace TheraEditor.Actors.Types.Pawns
                     Vec3 oldPoint = _hitPoint;
                     _screenPoint = Camera.WorldToScreen(_hitPoint);
                     _screenPoint.X += -x;
-                    _screenPoint.Y += y;
+                    _screenPoint.Y += -y;
                     Vec3 hitPoint = Camera.ScreenToWorld(_screenPoint);
                     Vec3 diff = hitPoint - oldPoint;
                     RootComponent.DesiredTranslation += diff;
                 }
                 else
-                    RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
+                    RootComponent.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
             }
         }
         public override void OnSpawnedPostComponentSetup()

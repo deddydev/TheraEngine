@@ -124,12 +124,12 @@ namespace TheraEngine.Rendering.UI
             _axisAlignedBounds.Bounds = Size;
             base.PerformResize();
         }
-        public override UIComponent FindComponent(Vec2 viewportPoint)
+        public override UIComponent FindDeepestComponent(Vec2 viewportPoint)
         {
             if (!Contains(viewportPoint))
                 return null;
             
-            return base.FindComponent(viewportPoint) ?? this;
+            return base.FindDeepestComponent(viewportPoint) ?? this;
         }
         
         protected override void HandleSingleChildAdded(SceneComponent item)

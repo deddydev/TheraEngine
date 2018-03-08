@@ -34,24 +34,24 @@ namespace TheraEngine.Rendering
         public RenderPasses3D()
         {
             _sorter = new RenderSort();
-            _passes = new List<I3DRenderable>[]
+            _passes = new SortedSet<I3DRenderable>[]
             {
-                new List<I3DRenderable>(),
-                new List<I3DRenderable>(),
-                new List<I3DRenderable>(),
-                new List<I3DRenderable>(),
-                new List<I3DRenderable>(),
+                new SortedSet<I3DRenderable>(_sorter),
+                new SortedSet<I3DRenderable>(_sorter),
+                new SortedSet<I3DRenderable>(_sorter),
+                new SortedSet<I3DRenderable>(_sorter),
+                new SortedSet<I3DRenderable>(_sorter),
             };
         }
 
         private RenderSort _sorter;
-        private List<I3DRenderable>[] _passes;
+        private SortedSet<I3DRenderable>[] _passes;
         
-        public List<I3DRenderable> Skybox => _passes[0];
-        public List<I3DRenderable> OpaqueDeferredLit => _passes[1];
-        public List<I3DRenderable> OpaqueForward => _passes[2];
-        public List<I3DRenderable> TransparentForward => _passes[3];
-        public List<I3DRenderable> OnTopForward => _passes[4];
+        public SortedSet<I3DRenderable> Skybox => _passes[0];
+        public SortedSet<I3DRenderable> OpaqueDeferredLit => _passes[1];
+        public SortedSet<I3DRenderable> OpaqueForward => _passes[2];
+        public SortedSet<I3DRenderable> TransparentForward => _passes[3];
+        public SortedSet<I3DRenderable> OnTopForward => _passes[4];
 
         private class RenderSort : IComparer<I3DRenderable>
         {
@@ -67,7 +67,7 @@ namespace TheraEngine.Rendering
                 if (xOrder > yOrder)
                     return 1;
 
-                return 0;
+                return -1;
             }
         }
 
@@ -85,15 +85,13 @@ namespace TheraEngine.Rendering
 
         public void Add(I3DRenderable item)
         {
-            List<I3DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
+            SortedSet<I3DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
             r.Add(item);
         }
 
-        public void Sort(bool shadowPass)
+        public void SetShadowPass(bool shadowPass)
         {
             _sorter.ShadowPass = shadowPass;
-            foreach (var list in _passes)
-                list.Sort(_sorter);
         }
     }
     /// <summary>
@@ -172,14 +170,12 @@ namespace TheraEngine.Rendering
             //TODO: implement octree on GPU with compute shader instead of here on CPU
             //Also implement occlusion culling along with frustum culling
             RenderTree.CollectVisible(frustum, _passes, shadowPass);
-            _passes.Sort(shadowPass);
         }
         public void CollectVisibleRenderables(Sphere sphere, bool shadowPass)
         {
             //TODO: implement octree on GPU with compute shader instead of here on CPU
             //Also implement occlusion culling along with frustum culling
             RenderTree.CollectVisible(sphere, _passes, shadowPass);
-            _passes.Sort(shadowPass);
         }
 
         public void RenderForward(Camera c, Viewport v, MaterialFrameBuffer target)

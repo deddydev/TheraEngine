@@ -4,30 +4,38 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using TheraEngine;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 
 namespace System
 {
     /// <summary>
-    /// The interface for interacting with an internal quadtree subdivision.
+    /// The interface for interacting with an internal Quadtree subdivision.
     /// </summary>
     public interface IQuadtreeNode
     {
         /// <summary>
-        /// Call this when the boundable item has moved,
-        /// otherwise the quadtree will not be updated.
+        /// Call this when an item that this node contains has moved,
+        /// otherwise the Quadtree will not be updated.
         /// </summary>
-        void ItemMoved(I2DBoundable item);
-        void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangle visibleBounds, float lineWidth);
+        void ItemMoved(I2DRenderable item);
+        void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangle? f, float lineWidth);
         void DebugRender(Color color, float lineWidth);
     }
-    public class Quadtree : Quadtree<I2DBoundable>
+    /// <summary>
+    /// A 3D space partitioning tree that recursively divides aabbs into 4 smaller axis-aligned rectangles depending on the items they contain.
+    /// </summary>
+    public class Quadtree : Quadtree<I2DRenderable>
     {
         public Quadtree(BoundingRectangle bounds) : base(bounds) { }
-        public Quadtree(BoundingRectangle bounds, List<I2DBoundable> items) : base(bounds, items) { }
+        public Quadtree(BoundingRectangle bounds, List<I2DRenderable> items) : base(bounds, items) { }
     }
-    public class Quadtree<T> where T : class, I2DBoundable
+    /// <summary>
+    /// A 3D space partitioning tree that recursively divides aabbs into 4 smaller axis-aligned rectangles depending on the items they contain.
+    /// </summary>
+    /// <typeparam name="T">The item type to use. Must be a class deriving from I2DRenderable.</typeparam>
+    public class Quadtree<T> where T : class, I2DRenderable
     {
         public const int MaxChildNodeCount = 4;
 
@@ -36,24 +44,42 @@ namespace System
         public int Count => AllItems.Count;
 
         public BoundingRectangle Bounds => _head.Bounds;
-        
-        public Quadtree(BoundingRectangle bounds) => _head = new Node(bounds, 0, 0, null, this);
-        public Quadtree(BoundingRectangle bounds, List<T> items) => Add(items);
 
+        public Quadtree(BoundingRectangle bounds) => _head = new Node(bounds, 0, 0, null, this);
+        public Quadtree(BoundingRectangle bounds, List<T> items) : this(bounds) => _head.Add(items);
+
+        public void Remake(BoundingRectangle? newBounds)
+        {
+            _head = new Node(newBounds ?? _head.Bounds, 0, 0, null, this);
+            var array = AllItems.ToArray();
+            AllItems.Clear();
+            foreach (T item in array)
+                if (!_head.Add(item))
+                    _head.ForceAdd(item);
+        }
+        /// <summary>
+        /// Returns true if the item was added, and false if it was already in the tree.
+        /// </summary>
         public bool Add(T value)
         {
             if (!AllItems.Contains(value))
             {
-                _head.Add(value, -1);
+                if (!_head.Add(value))
+                    _head.ForceAdd(value);
                 return true;
             }
             return false;
         }
-        public void Add(List<T> value)
+        public void Add(IEnumerable<T> value)
         {
             foreach (T item in value)
                 Add(item);
         }
+        /// <summary>
+        /// Returns true if the item was found and removed, and false if it wasn't found.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public bool Remove(T value)
         {
             if (AllItems.Contains(value))
@@ -64,24 +90,59 @@ namespace System
             return false;
         }
 
-        public void CollectVisible(BoundingRectangle bounds, RenderPasses2D passes)
-            => _head?.CollectVisible(bounds, passes);
-
-        public List<T> FindClosest(Vec2 point) => _head?.FindClosest(point);
-
-        public void DebugRender(bool onlyContainingItems, BoundingRectangle bounds, float lineWidth)
-            => _head?.DebugRender(true, onlyContainingItems, bounds, lineWidth);
-        public void DebugRender(bool onlyContainingItems, Color color, float lineWidth)
-             => _head?.DebugRender(true, onlyContainingItems, color, lineWidth);
-        
-        public void Remake(BoundingRectangle bounds)
+        //public ThreadSafeList<T> FindAll(float radius, Vec2 point, EContainment containment)
+        //    => FindAll(new Sphere(radius, point), containment);
+        //public ThreadSafeList<T> FindAll(Shape shape, EContainment containment)
+        //{
+        //    ThreadSafeList<T> list = new ThreadSafeList<T>();
+        //    _head.FindAll(shape, list, containment);
+        //    return list;
+        //}
+        public void CollectVisible(BoundingRectangle? r, RenderPasses2D passes)
         {
-            _head = new Node(bounds, 0, 0, null, this);
-            var array = AllItems.ToArray();
-            AllItems.Clear();
-            foreach (T item in array)
-                _head.Add(item, -1, true);
+            if (r != null)
+                _head.CollectVisible(r.Value, passes);
+            else
+                _head.CollectAll(passes);
         }
+        public T FindDeepest(Vec2 point)
+        {
+            T value = null;
+            _head.FindDeepest(point, ref value);
+            return value;
+        }
+        /// <summary>
+        /// Finds all renderables that contain the given point.
+        /// </summary>
+        /// <param name="point">The point that the returned renderables should contain.</param>
+        /// <returns>A list of renderables containing the given point.</returns>
+        public List<T> FindAllIntersecting(Vec2 point)
+        {
+            List<T> intersecting = new List<T>();
+            _head.FindAllIntersecting(point, intersecting);
+            return intersecting;
+        }
+        /// <summary>
+        /// Finds all renderables that contain the given point.
+        /// Orders renderables from least deep to deepest.
+        /// </summary>
+        /// <param name="point">The point that the returned renderables should contain.</param>
+        /// <returns>A sorted set of renderables containing the given point.</returns>
+        public SortedSet<T> FindAllIntersectingSorted(Vec2 point)
+        {
+            RenderPasses2D.RenderSort sorter = new RenderPasses2D.RenderSort();
+            SortedSet<T> intersecting = new SortedSet<T>(sorter);
+            _head.FindAllIntersecting(point, intersecting);
+            return intersecting;
+        }
+        /// <summary>
+        /// Renders the Quadtree using debug bounding boxes.
+        /// </summary>
+        /// <param name="f">The frustum to display intersections with. If null, does not show frustum intersections.</param>
+        /// <param name="onlyContainingItems">Only renders subdivisions that contain one or more items.</param>
+        /// <param name="lineWidth">The width of the bounding box lines.</param>
+        public void DebugRender(BoundingRectangle? f, bool onlyContainingItems, float lineWidth = 2.0f)
+            => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
 
         private class Node : IQuadtreeNode
         {
@@ -93,49 +154,50 @@ namespace System
                 _subNodes = new Node[MaxChildNodeCount];
                 _subDivIndex = subDivIndex;
                 _subDivLevel = subDivLevel;
-                _parent = parent;
+                _parentNode = parent;
                 _owner = owner;
             }
-            
+
             protected int _subDivIndex, _subDivLevel;
             protected BoundingRectangle _bounds;
             protected ThreadSafeList<T> _items;
             protected Node[] _subNodes;
-            protected Node _parent;
+            protected Node _parentNode;
             private Quadtree<T> _owner;
             private ReaderWriterLockSlim _lock;
 
             public Quadtree<T> Owner { get => _owner; set => _owner = value; }
-            public Node ParentNode { get => _parent; set => _parent = value; }
+            public Node ParentNode { get => _parentNode; set => _parentNode = value; }
             public int SubDivIndex { get => _subDivIndex; set => _subDivIndex = value; }
             public int SubDivLevel { get => _subDivLevel; set => _subDivLevel = value; }
             public ThreadSafeList<T> Items => _items;
             public BoundingRectangle Bounds => _bounds;
-            public Vec2 Center => (Min + Max) / 2.0f;
+            public Vec2 Center => _bounds.Translation;
             public Vec2 Min => _bounds.BottomLeft;
             public Vec2 Max => _bounds.TopRight;
-            public Vec2 Extents => _bounds.Bounds;
-
+            public Vec2 Extents => _bounds.Extents;
+            
             public BoundingRectangle GetSubdivision(int index)
             {
-                if (_subNodes != null && _subNodes[index] != null)
-                    return _subNodes[index].Bounds;
+                Node node = _subNodes[index];
+                if (node != null)
+                    return node.Bounds;
 
                 Vec2 center = Center;
                 Vec2 halfExtents = Extents / 2.0f;
                 Vec2 min = Min;
                 switch (index)
                 {
-                    case 0: return new BoundingRectangle(min.X,                 min.Y,                  halfExtents.X, halfExtents.Y);
-                    case 1: return new BoundingRectangle(min.X,                 min.Y + halfExtents.Y,  halfExtents.X, halfExtents.Y);
-                    case 2: return new BoundingRectangle(min.X + halfExtents.X, min.Y + halfExtents.Y,  halfExtents.X, halfExtents.Y);
-                    case 3: return new BoundingRectangle(min.X + halfExtents.X, min.Y,                  halfExtents.X, halfExtents.Y);
+                    case 0: return new BoundingRectangle(min.X, min.Y, halfExtents.X, halfExtents.Y);
+                    case 1: return new BoundingRectangle(min.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
+                    case 2: return new BoundingRectangle(min.X + halfExtents.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
+                    case 3: return new BoundingRectangle(min.X + halfExtents.X, min.Y, halfExtents.X, halfExtents.Y);
                 }
                 return BoundingRectangle.Empty;
             }
 
             #region Child movement
-            public void ItemMoved(I2DBoundable item) => ItemMoved(item as T);
+            public void ItemMoved(I2DRenderable item) => ItemMoved(item as T);
             public void ItemMoved(T item)
             {
                 //TODO: if the item is the only item within its volume, no need to subdivide more!!!
@@ -167,7 +229,7 @@ namespace System
                     if (!ParentNode.TryAddUp(item, shouldDestroy ? _subDivIndex : -1))
                     {
                         //Force add to root node
-                        Owner.Add(item);
+                        Owner._head.ForceAdd(item);
                     }
                 }
             }
@@ -187,39 +249,33 @@ namespace System
                     if (ParentNode != null)
                         return ParentNode.TryAddUp(item, shouldDestroy ? _subDivIndex : -1);
                 }
-
+                
                 return false;
             }
             #endregion
 
             #region Debug
-            public void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangle bounds, float lineWidth)
+            public void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangle? f, float lineWidth)
             {
                 Color color = Color.Red;
                 if (recurse)
                 {
-                    EContainment containment = bounds.ContainmentOf(_bounds);
+                    EContainment containment = f?.ContainmentOf(_bounds) ?? EContainment.Contains;
                     color = containment == EContainment.Intersects ? Color.Green : containment == EContainment.Contains ? Color.White : Color.Red;
                     if (containment != EContainment.Disjoint)
                         foreach (Node n in _subNodes)
-                            n?.DebugRender(true, onlyContainingItems, bounds, lineWidth);
+                            n?.DebugRender(true, onlyContainingItems, f, lineWidth);
                 }
                 if (!onlyContainingItems || _items.Count != 0)
-                    DebugRender(color, lineWidth);
-            }
-            public void DebugRender(bool recurse, bool onlyContainingItems, Color color, float lineWidth)
-            {
-                if (recurse)
-                    foreach (Node n in _subNodes)
-                        n?.DebugRender(true, onlyContainingItems, color, lineWidth);
-                if (!onlyContainingItems || _items.Count != 0)
-                    DebugRender(color, lineWidth);
+                {
+                    for (int i = 0; i < _items.Count; ++i)
+                    {
+                        DebugRender(color, lineWidth);
+                    }
+                }
             }
             public void DebugRender(Color color, float lineWidth)
-            {
-                Vec2 halfBounds = (_bounds.Bounds / 2.0f);
-                Engine.Renderer.RenderQuad(_bounds.OriginTranslation - _bounds.LocalOrigin + halfBounds, Vec3.Backward, halfBounds, false, color, lineWidth);
-            }
+                => Engine.Renderer.RenderQuad(_bounds.Center, new Rotator(90.0f, 0.0f, 0.0f, RotationOrder.YPR), _bounds.Extents, false, color, 1.0f);
             #endregion
 
             #region Visible collection
@@ -236,7 +292,7 @@ namespace System
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I2DRenderable r = _items[i] as I2DRenderable;
-                            if ((c = r.AxisAlignedRegion.ContainmentWithin(bounds)) != EContainment.Disjoint)
+                            if (r.AxisAlignedRegion.ContainmentWithin(bounds) != EContainment.Disjoint)
                                 passes.Add(r);
                         }
                         IsLoopingItems = false;
@@ -248,11 +304,14 @@ namespace System
                     }
                 }
             }
-            private void CollectAll(RenderPasses2D passes)
+            public void CollectAll(RenderPasses2D passes)
             {
                 IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
-                    passes.Add(_items[i] as I2DRenderable);
+                {
+                    if (_items[i] is I2DRenderable r)
+                        passes.Add(r);
+                }
                 IsLoopingItems = false;
 
                 IsLoopingSubNodes = true;
@@ -263,7 +322,11 @@ namespace System
             #endregion
 
             #region Add/Remove
-            internal bool Remove(T item)
+            /// <summary>
+            /// Returns true if this node no longer contains anything.
+            /// </summary>
+            /// <param name="item">The item to remove.</param>
+            public bool Remove(T item)
             {
                 if (_items.Contains(item))
                     QueueRemove(item);
@@ -279,45 +342,34 @@ namespace System
                                 return false;
                         }
                     }
-
+                
                 return _items.Count == 0 && HasNoSubNodesExcept(-1);
             }
             /// <summary>
             /// Adds a list of items to this node. May subdivide.
             /// </summary>
             /// <param name="items">The items to add.</param>
-            /// <param name="force">If true, will add each item regardless of if its culling volume fits within the node's bounds.</param>
+            /// <param name="forceAddToThisNode">If true, will add each item regardless of if its culling volume fits within this node's bounds.</param>
             /// <returns>True if ANY node was added.</returns>
-            internal bool Add(List<T> items, bool force = false)
+            internal void Add(List<T> items)
             {
-                bool addedAny = false;
                 foreach (T item in items)
-                    addedAny = addedAny || Add(item, -1, force);
-                return addedAny;
+                    Add(item);
             }
             /// <summary>
             /// Adds an item to this node. May subdivide.
             /// </summary>
             /// <param name="items">The item to add.</param>
-            /// <param name="force">If true, will add the item regardless of if its culling volume fits within the node's bounds.</param>
+            /// <param name="forceAddToThisNode">If true, will add the item regardless of if its culling volume fits within the node's bounds.</param>
             /// <returns>True if the node was added.</returns>
-            internal bool Add(T item, int ignoreSubNode = -1, bool force = false)
+            internal bool Add(T item, int ignoreSubNode = -1)
             {
                 if (item == null)
                     return false;
-               
-                if (force || item.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
-                {
-                    if (force)
-                    {
-                        if (QueueAdd(item))
-                        {
-                            item.QuadtreeNode = this;
-                            return true;
-                        }
-                    }
+                
+                if (item.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
                     return false;
-                }
+
                 for (int i = 0; i < MaxChildNodeCount; ++i)
                 {
                     if (i == ignoreSubNode)
@@ -331,13 +383,13 @@ namespace System
                     }
                 }
 
-                if (QueueAdd(item))
-                {
-                    item.QuadtreeNode = this;
-                    return true;
-                }
+                return QueueAdd(item);
+            }
 
-                return false;
+            public void ForceAdd(T value)
+            {
+                if (value != null)
+                    QueueAdd(value);
             }
             #endregion
 
@@ -385,7 +437,11 @@ namespace System
                 }
                 else
                 {
-                    _items.Add(item);
+                    if (Owner.AllItems.Add(item))
+                    {
+                        _items.Add(item);
+                        item.QuadtreeNode = this;
+                    }
                     return true;
                 }
             }
@@ -398,7 +454,11 @@ namespace System
                 }
                 else
                 {
-                    _items.Remove(item);
+                    if (Owner.AllItems.Remove(item))
+                    {
+                        _items.Remove(item);
+                        item.QuadtreeNode = null;
+                    }
                     return true;
                 }
             }
@@ -406,74 +466,139 @@ namespace System
             #endregion
 
             #region Convenience methods
-            public List<T> FindClosest(Vec2 point)
+            public T FindNearest(Vec2 point, ref float closestDistance)
             {
-                if (_bounds.Contains(point))
-                {
-                    List<T> list = null;
-                    foreach (Node node in _subNodes)
-                        if (node != null)
-                        {
-                            list = node.FindClosest(point);
-                            if (list != null)
-                                return list;
-                        }
-
-                    if (_items.Count == 0)
-                        return null;
-
-                    list = new List<T>(_items);
-                    for (int i = 0; i < list.Count; ++i)
-                        if (!list[i].Contains(point))
-                            list.RemoveAt(i--);
-
-                    return list;
-                }
-                else
+                if (!_bounds.Contains(point))
                     return null;
+                
+                IsLoopingSubNodes = true;
+                foreach (Node n in _subNodes)
+                {
+                    T t = n?.FindNearest(point, ref closestDistance);
+                    if (t != null)
+                        return t;
+                }
+                IsLoopingSubNodes = false;
+                
+                if (_items.Count == 0)
+                    return null;
+
+                T closest = null;
+
+                IsLoopingItems = true;
+                foreach (T item in _items)
+                {
+                    float dist = item.AxisAlignedRegion.ClosestPoint(point).DistanceToFast(point);
+                    if (dist < closestDistance)
+                    {
+                        closestDistance = dist;
+                        closest = item;
+                    }
+                }
+                IsLoopingItems = false;
+
+                return closest;
             }
-            public List<T> CollectChildren()
+            public void FindDeepest(Vec2 point, ref T currentDeepest)
             {
-                List<T> list = _items;
+                if (!_bounds.Contains(point))
+                    return;
+
+                IsLoopingSubNodes = true;
+                foreach (Node n in _subNodes)
+                    n?.FindDeepest(point, ref currentDeepest);
+                IsLoopingSubNodes = false;
+
+                if (_items.Count == 0)
+                    return;
+
+                IsLoopingItems = true;
+                foreach (T item in _items)
+                    if (item.AxisAlignedRegion.Contains(point) && 
+                        item.RenderInfo.DeeperThan(currentDeepest?.RenderInfo))
+                        currentDeepest = item;
+                IsLoopingItems = false;
+            }
+            public void FindAllIntersecting(Vec2 point, List<T> intersecting)
+            {
+                if (!_bounds.Contains(point))
+                    return;
+
+                IsLoopingSubNodes = true;
+                foreach (Node n in _subNodes)
+                    n?.FindAllIntersecting(point, intersecting);
+                IsLoopingSubNodes = false;
+
+                if (_items.Count == 0)
+                    return;
+                
+                IsLoopingItems = true;
+                foreach (T item in _items)
+                    if (item.AxisAlignedRegion.Contains(point))
+                        intersecting.Add(item);
+                IsLoopingItems = false;
+            }
+            public void FindAllIntersecting(Vec2 point, SortedSet<T> intersecting)
+            {
+                if (!_bounds.Contains(point))
+                    return;
+
+                IsLoopingSubNodes = true;
+                foreach (Node n in _subNodes)
+                    n?.FindAllIntersecting(point, intersecting);
+                IsLoopingSubNodes = false;
+
+                if (_items.Count == 0)
+                    return;
+
+                IsLoopingItems = true;
+                foreach (T item in _items)
+                    if (item.AxisAlignedRegion.Contains(point))
+                        intersecting.Add(item);
+                IsLoopingItems = false;
+            }
+            //public void FindAll(Shape shape, ThreadSafeList<T> list, EContainment containment)
+            //{
+            //    EContainment c = shape.ContainedWithin(Bounds);
+            //    if (c == EContainment.Intersects)
+            //    {
+            //        //Compare each item separately
+            //        IsLoopingItems = true;
+            //        foreach (T item in _items)
+            //            if (item.CullingVolume != null)
+            //            {
+            //                c = shape.Contains(item.CullingVolume);
+            //                if (c == containment)
+            //                    list.Add(item);
+            //            }
+            //        IsLoopingItems = false;
+            //    }
+            //    else if (c == containment)
+            //    {
+            //        //All items already have this containment
+            //        IsLoopingItems = true;
+            //        list.AddRange(_items);
+            //        IsLoopingItems = false;
+            //    }
+            //    else //Not what we want
+            //        return;
+
+            //    IsLoopingSubNodes = true;
+            //    foreach (Node n in _subNodes)
+            //        n?.FindAll(shape, list, containment);
+            //    IsLoopingSubNodes = false;
+            //}
+            /// <summary>
+            /// Simply collects all the items contained in this node and all of its sub nodes.
+            /// </summary>
+            /// <returns></returns>
+            public ThreadSafeList<T> CollectChildren()
+            {
+                ThreadSafeList<T> list = new ThreadSafeList<T>(_items);
                 foreach (Node node in _subNodes)
                     if (node != null)
                         list.AddRange(node.CollectChildren());
                 return list;
-            }
-            public List<T> FindAll(BoundingRectangle bounds, EContainmentFlags containment)
-            {
-                List<T> list = new List<T>();
-
-                //Not searching for anything?
-                if (containment == EContainmentFlags.None)
-                    return list;
-
-                //if (_region.Contains(bounds) == EContainment.Contains)
-                //{
-
-                //}
-
-                return null;
-            }
-            private void FindAllInternal(BoundingRectangle bounds, EContainmentFlags containment, List<T> found)
-            {
-
-            }
-            public void Resize(Vec2 bounds)
-            {
-                _bounds.Bounds *= bounds;
-                _bounds.Translation *= bounds;
-
-                IsLoopingSubNodes = true;
-                foreach (Node node in _subNodes)
-                    if (node != null)
-                        node.Resize(bounds);
-                IsLoopingSubNodes = false;
-
-                IsLoopingItems = true;
-                foreach (T item in _items)
-                    ItemMoved(item);
-                IsLoopingItems = false;
             }
             #endregion
 

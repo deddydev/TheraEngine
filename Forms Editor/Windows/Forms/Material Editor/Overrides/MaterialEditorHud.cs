@@ -75,7 +75,7 @@ namespace TheraEditor.Windows.Forms
             input.RegisterButtonEvent(EMouseButton.RightClick, ButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.RightClick, ButtonInputType.Released, RightClickUp, EInputPauseType.TickAlways);
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
-            input.RegisterMouseMove(MouseMove, false, EInputPauseType.TickAlways);
+            input.RegisterMouseMove(MouseMove, MouseMoveType.Absolute, EInputPauseType.TickAlways);
         }
         private void LeftClickDown()
         {

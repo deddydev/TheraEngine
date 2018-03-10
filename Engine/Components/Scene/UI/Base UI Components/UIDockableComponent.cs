@@ -357,7 +357,7 @@ namespace TheraEngine.Rendering.UI
         {
             if (parentRegion.MaxX != region.MaxX)
                 return BoundingRectangle.FromMinMaxSides(
-                    region.MaxX, parentRegion.MaxX, 
+                    region.MaxX, parentRegion.MaxX,
                     parentRegion.MinY, parentRegion.MaxY,
                     0.0f, 0.0f);
             if (parentRegion.MinX != region.MinX)
@@ -377,7 +377,5 @@ namespace TheraEngine.Rendering.UI
                     0.0f, 0.0f);
             return BoundingRectangle.Empty;
         }
-
-        
     }
 }

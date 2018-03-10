@@ -58,19 +58,14 @@ namespace TheraEngine.Actors.Types.Pawns
         [TSerialize]
         [Category("Movement")]
         public float KeyboardTranslateSpeed { get; set; } = 10.0f;
-
-        //protected override void PostConstruct()
-        //{
-        //    //RootComponent.Translation = new Vec3(0.0f, 20.0f, -40.0f);
-        //    //RootComponent.Rotation.Pitch = -10.0f;
-        //    //Camera_TransformChanged();
-        //    base.PostConstruct();
-        //}
+        [TSerialize]
+        [Category("Movement")]
+        public float KeyboardRotateSpeed { get; set; } = 15.0f;
 
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolled, EInputPauseType.TickAlways);
-            input.RegisterMouseMove(MouseMove, true, EInputPauseType.TickAlways);
+            input.RegisterMouseMove(MouseMove, MouseMoveType.Relative, EInputPauseType.TickAlways);
 
             input.RegisterButtonPressed(EMouseButton.RightClick, OnRightClick, EInputPauseType.TickAlways);
 
@@ -81,6 +76,11 @@ namespace TheraEngine.Actors.Types.Pawns
             input.RegisterButtonPressed(EKey.Q, MoveDown, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.E, MoveUp, EInputPauseType.TickAlways);
 
+            input.RegisterButtonPressed(EKey.Up, PitchUp, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.Down, PitchDown, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.Left, YawLeft, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.Right, YawRight, EInputPauseType.TickAlways);
+            
             input.RegisterButtonPressed(EKey.ControlLeft, OnControl, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.ControlRight, OnControl, EInputPauseType.TickAlways);
 
@@ -94,7 +94,7 @@ namespace TheraEngine.Actors.Types.Pawns
             input.RegisterButtonPressed(GamePadButton.RightBumper, MoveUp, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(GamePadButton.LeftBumper, MoveDown, EInputPauseType.TickAlways);
         }
-        
+
         private void OnTogglePause()
         {
             Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
@@ -126,6 +126,15 @@ namespace TheraEngine.Actors.Types.Pawns
             => _yaw = -value * GamepadRotateSpeed;
         private void OnRightStickY(float value) 
             => _pitch = value * GamepadRotateSpeed;
+
+        private void YawRight(bool pressed)
+            => _yaw -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+        private void YawLeft(bool pressed)
+            => _yaw += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+        private void PitchDown(bool pressed)
+            => _pitch -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+        private void PitchUp(bool pressed)
+            => _pitch += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
 
         private void OnControl(bool pressed)
             => _ctrl = pressed;

@@ -74,7 +74,7 @@ namespace TheraEngine.Actors.Types.Pawns
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickOnlyWhenPaused);
-            input.RegisterMouseMove(MouseMove, false, EInputPauseType.TickOnlyWhenPaused);
+            input.RegisterMouseMove(MouseMove, MouseMoveType.Absolute, EInputPauseType.TickOnlyWhenPaused);
             //input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
 
             //input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, EInputPauseType.TickOnlyWhenPaused);
@@ -114,23 +114,16 @@ namespace TheraEngine.Actors.Types.Pawns
             _cursorPos.Y = y;
         }
 
-        public List<UIComponent> FindAllComponents(Vec2 viewportPoint)
-        {
-            List<I2DRenderable> results = _scene.RenderTree.FindClosest(viewportPoint);
-            return results?.Select(x => (UIComponent)x).ToList();
-        }
-        public UIComponent FindClosestComponent(Vec2 viewportPoint)
-        {
-            List<UIComponent> results = FindAllComponents(viewportPoint);
-            if (results == null)
-                return null;
-            UIComponent current = null;
-            //Larger z-indices means the component is closer
-            foreach (UIComponent comp in results)
-                if (current == null || comp.LayerIndex >= current.LayerIndex)
-                    current = comp;
-            return current;
-            //return RootComponent.FindComponent(viewportPoint);
-        }
+        public List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint)
+            => _scene.RenderTree.FindAllIntersecting(viewportPoint);
+        public I2DRenderable FindDeepestComponent(Vec2 viewportPoint)
+            => _scene.RenderTree.FindDeepest(viewportPoint);
+        //UIComponent current = null;
+        ////Larger z-indices means the component is closer
+        //foreach (UIComponent comp in results)
+        //    if (current == null || comp.LayerIndex >= current.LayerIndex)
+        //        current = comp;
+        //return current;
+        //return RootComponent.FindComponent(viewportPoint);
     }
 }

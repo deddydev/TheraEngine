@@ -68,7 +68,7 @@ namespace TheraEngine.Components
                     OwningWorld.PhysicsWorld.UpdateSingleAabb(p.RigidBodyCollision);
             }
 
-            if (this is I2DBoundable r2d)
+            if (this is I2DRenderable r2d)
                 r2d.QuadtreeNode?.ItemMoved(r2d);
 
             if (this is I3DBoundable r3d)

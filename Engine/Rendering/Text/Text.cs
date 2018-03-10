@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.Text
             set
             {
                 _text = value ?? string.Empty;
-                _bounds.Bounds = TextRenderer.MeasureText(_text, _font);
+                _bounds.Extents = TextRenderer.MeasureText(_text, _font);
                 Parent?.TextChanged(this);
             }
         }
@@ -57,7 +57,7 @@ namespace TheraEngine.Rendering.Text
                     return;
 
                 _font = value;
-                _bounds.Bounds = TextRenderer.MeasureText(_text, _font);
+                _bounds.Extents = TextRenderer.MeasureText(_text, _font);
                 Parent?.TextChanged(this);
             }
         }

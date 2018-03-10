@@ -45,13 +45,14 @@ namespace System
         public Octree(BoundingBox bounds) => _head = new Node(bounds, 0, 0, null, this);
         public Octree(BoundingBox bounds, List<T> items) : this(bounds) => _head.Add(items);
 
-        public void Remake()
+        public void Remake(BoundingBox newBounds = null)
         {
-            _head = new Node(_head.Bounds, 0, 0, null, this);
+            _head = new Node(newBounds ?? _head.Bounds, 0, 0, null, this);
             var array = AllItems.ToArray();
             AllItems.Clear();
             foreach (T item in array)
-                _head.Add(item, -1);
+                if (!_head.Add(item))
+                    _head.ForceAdd(item);
         }
         /// <summary>
         /// Returns true if the item was added, and false if it was already in the tree.
@@ -60,7 +61,8 @@ namespace System
         {
             if (!AllItems.Contains(value))
             {
-                _head.Add(value, -1);
+                if (!_head.Add(value))
+                    _head.ForceAdd(value);
                 return true;
             }
             return false;
@@ -205,7 +207,7 @@ namespace System
                     if (!ParentNode.TryAddUp(item, shouldDestroy ? _subDivIndex : -1))
                     {
                         //Force add to root node
-                        Owner.Add(item);
+                        Owner._head.ForceAdd(item);
                     }
                 }
             }
@@ -263,8 +265,8 @@ namespace System
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
-                            bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
-                            if (allowRender && (r.CullingVolume == null || (c = r.CullingVolume.ContainedWithin(sphere)) != EContainment.Disjoint))
+                            bool allowRender = r != null && (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
+                            if (allowRender && (r.CullingVolume == null || r.CullingVolume.ContainedWithin(sphere) != EContainment.Disjoint))
                                 passes.Add(r);
                         }
                         IsLoopingItems = false;
@@ -569,6 +571,11 @@ namespace System
                 {
                     IsLoopingSubNodes = false;
                 }
+            }
+
+            internal void ForceAdd(T value)
+            {
+                QueueAdd(value);
             }
             #endregion
         }

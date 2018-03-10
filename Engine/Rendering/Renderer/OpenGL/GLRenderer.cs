@@ -780,14 +780,6 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override float GetDepth(float x, float y)
         {
-            //GL.ReadBuffer(ReadBufferMode.FrontAndBack);
-
-            //Viewport v = Engine.CurrentPanel.GetViewport(0);
-            //float[] pixels = new float[(int)v.Width * (int)v.Height];
-            //v._gBuffer.Textures[4].Bind();
-            //GL.GetTexImage(TextureTarget.Texture2D, 0, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, pixels);
-            //return pixels[(int)y * (int)v.Width + (int)x];
-
             float val = 0;
             GL.ReadPixels((int)x, (int)y, 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
             return val;

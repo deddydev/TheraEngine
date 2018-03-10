@@ -475,9 +475,7 @@ namespace TheraEditor.Windows.Forms
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
 
-            //if (DoEvents)
-                Application.DoEvents();
-            //Engine.PrintLine(DateTime.Now.TimeOfDay.ToString());
+            Application.DoEvents();
         }
         //protected override void OnResizeBegin(EventArgs e)
         //{

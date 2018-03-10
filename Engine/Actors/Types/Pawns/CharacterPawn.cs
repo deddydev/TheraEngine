@@ -150,7 +150,7 @@ namespace TheraEngine.Actors.Types.Pawns
             input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, LookUp, true);
             input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, Jump);
 
-            input.RegisterMouseMove(Look, true);
+            input.RegisterMouseMove(Look, MouseMoveType.Relative);
             input.RegisterButtonPressed(EKey.W, MoveForward);
             input.RegisterButtonPressed(EKey.A, MoveLeft);
             input.RegisterButtonPressed(EKey.S, MoveBackward);

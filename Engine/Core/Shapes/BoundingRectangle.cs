@@ -186,7 +186,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// The width and height of this rectangle.
         /// </summary>
-        public Vec2 Bounds
+        public Vec2 Extents
         {
             get => _bounds;
             set => _bounds = value;
@@ -370,25 +370,27 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         public bool Contains(BoundingRectangle other)
         {
             return
-                other.MaxX < MaxX &&
-                other.MinX > MinX &&
-                other.MaxY < MaxY &&
-                other.MinY > MinY;
+                other.MaxX <= MaxX &&
+                other.MinX >= MinX &&
+                other.MaxY <= MaxY &&
+                other.MinY >= MinY;
         }
         /// <summary>
         /// Returns true if intersecting at all (including a same edge). If no edges are touching, returns false.
         /// </summary>
         public bool Intersects(BoundingRectangle other)
         {
-            return
-                MinX <= other.MaxX &&
-                MaxX >= other.MinX &&
-                MinY <= other.MaxY &&
-                MaxY >= other.MinY;
+            return !Contains(other) && !DisjointWith(other);
+                //MinX <= other.MaxX &&
+                //MaxX >= other.MinX &&
+                //MinY <= other.MaxY &&
+                //MaxY >= other.MinY;
         }
         public override string ToString()
         {
             return string.Format("[X:{0} Y:{1} W:{2} H:{3}]", OriginTranslation.X, OriginTranslation.Y, Width, Height);
         }
+
+        public Vec2 ClosestPoint(Vec2 point) => point.Clamped(BottomLeft, TopRight);
     }
 }

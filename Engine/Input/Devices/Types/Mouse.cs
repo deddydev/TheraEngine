@@ -42,9 +42,9 @@ namespace TheraEngine.Input.Devices
         {
             _wheel.Register(func, pauseType, unregister);
         }
-        public void RegisterMouseMove(DelCursorUpdate func, EInputPauseType pauseType, bool relative, bool unregister)
+        public void RegisterMouseMove(DelCursorUpdate func, EInputPauseType pauseType, MouseMoveType type, bool unregister)
         {
-            _cursor.Register(func, pauseType, relative, unregister);
+            _cursor.Register(func, pauseType, type, unregister);
         }
         public ButtonManager LeftClick => _buttonStates[(int)EMouseButton.LeftClick];
         public ButtonManager RightClick => _buttonStates[(int)EMouseButton.RightClick];
@@ -56,23 +56,25 @@ namespace TheraEngine.Input.Devices
     {
         private float _lastX, _lastY;
 
-        List<DelCursorUpdate>[] _onCursorUpdate = new List<DelCursorUpdate>[6];
+        List<DelCursorUpdate>[] _onCursorUpdate = new List<DelCursorUpdate>[9];
 
         internal void Tick(float xPos, float yPos, float delta)
         {
+            OnUnbounded(xPos, yPos);
             Point absolute = Cursor.Position;
             if (BaseRenderPanel.HoveredPanel != null)
                 absolute = (Point)BaseRenderPanel.HoveredPanel.Invoke(BaseRenderPanel.HoveredPanel.PointToClientDelegate, absolute);
             xPos = absolute.X;
             yPos = absolute.Y;
             OnAbsolute(xPos, yPos);
+            //TODO: make relative unbounded
             OnRelative(xPos - _lastX, yPos - _lastY);
             _lastX = xPos;
             _lastY = yPos;
         }
-        public void Register(DelCursorUpdate func, EInputPauseType pauseType, bool relative, bool unregister)
+        public void Register(DelCursorUpdate func, EInputPauseType pauseType, MouseMoveType type, bool unregister)
         {
-            int index = (relative ? 0 : 3) + (int)pauseType;
+            int index = ((int)type * 3) + (int)pauseType;
             if (unregister)
             {
                 List<DelCursorUpdate> list = _onCursorUpdate[index];
@@ -92,15 +94,19 @@ namespace TheraEngine.Input.Devices
         }
         private void OnAbsolute(float x, float y)
         {
-            PerformAction(false, x, y);
+            PerformAction(MouseMoveType.Absolute, x, y);
         }
         private void OnRelative(float x, float y)
         {
-            PerformAction(true, x, y);
+            PerformAction(MouseMoveType.Relative, x, y);
         }
-        protected void PerformAction(bool relative, float x, float y)
+        private void OnUnbounded(float x, float y)
         {
-            int index = relative ? 0 : 3;
+            PerformAction(MouseMoveType.Unbounded, x, y);
+        }
+        protected void PerformAction(MouseMoveType type, float x, float y)
+        {
+            int index = (int)type * 3;
             List<DelCursorUpdate> list = _onCursorUpdate[index];
             if (list != null)
             {
@@ -108,9 +114,8 @@ namespace TheraEngine.Input.Devices
                 for (int j = 0; j < i; ++j)
                     list[j](x, y);
             }
-            list = Engine.IsPaused ?
-                _onCursorUpdate[index + (int)EInputPauseType.TickOnlyWhenPaused] :
-                _onCursorUpdate[index + (int)EInputPauseType.TickOnlyWhenUnpaused];
+            index += (int)(Engine.IsPaused ? EInputPauseType.TickOnlyWhenPaused : EInputPauseType.TickOnlyWhenUnpaused);
+            list = _onCursorUpdate[index];
             if (list != null)
             {
                 int i = list.Count;

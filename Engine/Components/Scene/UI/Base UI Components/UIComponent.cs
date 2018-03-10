@@ -154,10 +154,6 @@ namespace TheraEngine.Rendering.UI
             localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Matrix4.Identity, LocalTranslation, TransformOrder.TRS);
             inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Matrix4.Identity, -LocalTranslation, TransformOrder.SRT);
         }
-        public override void RecalcWorldTransform()
-        {
-            base.RecalcWorldTransform();
-        }
         public virtual Vec2 Resize(Vec2 parentBounds)
         {
             foreach (UIComponent c in _children)

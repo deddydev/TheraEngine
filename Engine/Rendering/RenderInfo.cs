@@ -30,6 +30,19 @@ namespace TheraEngine.Rendering
         public DateTime LastRenderedTime { get; internal set; }
 
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
+
+        public bool DeeperThan(RenderInfo2D other)
+        {
+            if (other == null)
+                return true;
+
+            if (LayerIndex > other.LayerIndex)
+                return true;
+            else if (LayerIndex == other.LayerIndex && IndexWithinLayer > other.IndexWithinLayer)
+                return true;
+            
+            return false;
+        }
     }
     public delegate float DelGetSortOrder(bool shadowPass);
     public class RenderInfo3D

@@ -10,24 +10,24 @@ namespace TheraEngine.Rendering
         public RenderPasses2D()
         {
             _sorter = new RenderSort();
-            _passes = new List<I2DRenderable>[]
+            _passes = new SortedSet<I2DRenderable>[]
             {
-                new List<I2DRenderable>(),
-                new List<I2DRenderable>(),
-                new List<I2DRenderable>(),
-                new List<I2DRenderable>(),
+                new SortedSet<I2DRenderable>(_sorter),
+                new SortedSet<I2DRenderable>(_sorter),
+                new SortedSet<I2DRenderable>(_sorter),
+                new SortedSet<I2DRenderable>(_sorter),
             };
         }
 
         private RenderSort _sorter;
-        private List<I2DRenderable>[] _passes;
+        private SortedSet<I2DRenderable>[] _passes;
 
-        public List<I2DRenderable> Background => _passes[0];
-        public List<I2DRenderable> Opaque => _passes[1];
-        public List<I2DRenderable> Transparent => _passes[2];
-        public List<I2DRenderable> OnTop => _passes[3];
+        public SortedSet<I2DRenderable> Background => _passes[0];
+        public SortedSet<I2DRenderable> Opaque => _passes[1];
+        public SortedSet<I2DRenderable> Transparent => _passes[2];
+        public SortedSet<I2DRenderable> OnTop => _passes[3];
         
-        private class RenderSort : IComparer<I2DRenderable>
+        public class RenderSort : IComparer<I2DRenderable>
         {
             int IComparer<I2DRenderable>.Compare(I2DRenderable x, I2DRenderable y)
             {
@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering
                     return -1;
                 if (x.RenderInfo.IndexWithinLayer > y.RenderInfo.IndexWithinLayer)
                     return 1;
-                return 0;
+                return 1;
             }
         }
 
@@ -56,14 +56,8 @@ namespace TheraEngine.Rendering
 
         public void Add(I2DRenderable item)
         {
-            List<I2DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
+            SortedSet<I2DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
             r.Add(item);
-        }
-
-        public void Sort()
-        {
-            foreach (var list in _passes)
-                list.Sort(_sorter);
         }
     }
     /// <summary>
@@ -113,7 +107,6 @@ namespace TheraEngine.Rendering
 
             //foreach (I2DRenderable r in _renderables)
             //    _passes.Add(r);
-            _passes.Sort();
         }
         
         public void DoRender(Camera c, Viewport v, MaterialFrameBuffer target)
@@ -138,15 +131,15 @@ namespace TheraEngine.Rendering
 
                         Engine.Renderer.AllowDepthWrite(true);
                         _passes.Render(ERenderPass2D.Opaque);
-
-                        RenderTree.DebugRender(true, v.Region, 1.0f);
-
                         _passes.Render(ERenderPass2D.Transparent);
 
                         //Disable depth fail for objects on top
                         Engine.Renderer.DepthFunc(EComparison.Always);
 
                         _passes.Render(ERenderPass2D.OnTop);
+
+                        //Engine.Renderer.EnableDepthTest(false);
+                        RenderTree.DebugRender(v.Region, false, 1.0f);
                     }
                     Engine.Renderer.PopRenderArea();
                 }

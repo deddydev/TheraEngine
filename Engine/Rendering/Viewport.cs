@@ -142,7 +142,7 @@ namespace TheraEngine.Rendering
             set
             {
                 _hud = value;
-                _hud?.Resize(Region.Bounds);
+                _hud?.Resize(Region.Extents);
 
                 Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud == null ? "null" : _hud.GetType().GetFriendlyName()));
             }
@@ -213,7 +213,7 @@ namespace TheraEngine.Rendering
                 _region.Width * internalResolutionWidthScale, 
                 _region.Height * internalResolutionHeightScale);
 
-            HUD?.Resize(_region.Bounds);
+            HUD?.Resize(_region.Extents);
             if (Camera is PerspectiveCamera p)
                 p.Aspect = _region.Width / _region.Height;
         }
@@ -278,30 +278,20 @@ namespace TheraEngine.Rendering
         /// Converts a viewport point relative to actual screen resolution
         /// to a point relative to the internal resolution.
         /// </summary>
-        public Vec2 ToInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Bounds / _region.Bounds);
+        public Vec2 ToInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Extents / _region.Extents);
         /// <summary>
         /// Converts a viewport point relative to the internal resolution
         /// to a point relative to the actual screen resolution.
         /// </summary>
-        public Vec2 FromInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Bounds / _region.Bounds);
+        public Vec2 FromInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Extents / _region.Extents);
         #endregion
 
         #region Picking
-        public unsafe float GetDepth(Vec2 viewportPoint)
+        public float GetDepth(Vec2 viewportPoint)
         {
-            throw new NotImplementedException();
-            Vec2 absolutePoint = viewportPoint;//RelativeToAbsolute(viewportPoint);
-            GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.ReadFramebuffer, 0);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
-            //var depthTex = _gBuffer.Textures[4];
-            //depthTex.Bind();
-            //if (viewportPoint.Y >= depthTex.Height || viewportPoint.Y < 0 || viewportPoint.X >= depthTex.Width || viewportPoint.X < 0)
-            //    return 0;
-            //BitmapData bmd = depthTex.LockBits(new Rectangle(0, 0, depthTex.Width, depthTex.Height), ImageLockMode.ReadWrite, depthTex.PixelFormat);
-            //float depth = *(float*)((byte*)bmd.Scan0 + ((int)viewportPoint.Y * bmd.Stride + (int)viewportPoint.X * 4));
-            //depthTex.UnlockBits(bmd);
-            float depth = Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
-            GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+            float depth = Engine.Renderer.GetDepth(viewportPoint.X, viewportPoint.Y);
             return depth;
         }
         /// <summary>
@@ -326,8 +316,7 @@ namespace TheraEngine.Rendering
         {
             if (testHud)
             {
-                UIComponent hudComp = HUD?.FindClosestComponent(viewportPoint);
-                if (hudComp != null)
+                if (HUD?.FindDeepestComponent(viewportPoint) is UIComponent hudComp)
                 {
                     hitNormal = Vec3.Backward;
                     hitPoint = new Vec3(viewportPoint, 0.0f);
@@ -338,7 +327,7 @@ namespace TheraEngine.Rendering
             if (testWorld)
             {
                 Segment cursor = GetWorldSegment(viewportPoint);
-                
+
                 RayTraceClosest c = new RayTraceClosest(cursor.StartPoint, cursor.EndPoint, 0, 0xFFFF, ignored);
                 if (c.Trace())
                 {
@@ -351,6 +340,7 @@ namespace TheraEngine.Rendering
 
                 //float depth = GetDepth(viewportPoint);
 
+                //Engine.PrintLine(depth.ToString());
                 //Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
                 //ThreadSafeList<I3DRenderable> r = Engine.Scene.RenderTree.FindClosest(worldPoint);
             }

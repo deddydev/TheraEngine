@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
@@ -190,9 +191,9 @@ namespace TheraEngine.Rendering
                 case DebugPrimitiveType.SolidBox:
                     return BoundingBox.SolidMesh(-1.0f, 1.0f);
                 case DebugPrimitiveType.WireQuad:
-                    return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(2.0f).ToLines());
+                    return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
                 case DebugPrimitiveType.SolidQuad:
-                    return PrimitiveData.FromQuads(Culling.None, VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(2.0f));
+                    return PrimitiveData.FromQuads(Culling.None, VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
                 case DebugPrimitiveType.WireCone:
                     return BaseCone.WireMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 20);
             }
@@ -270,13 +271,12 @@ namespace TheraEngine.Rendering
                 m.Render(modelMatrix, Matrix3.Identity);
             //}
         }
-        public virtual void RenderQuad(Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual void RenderQuad(Vec3 centerTranslation, Rotator rotation, Vec2 extents, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
             m.Parameter<ShaderVec4>(0).Value = color;
-            Quat lookat = Quat.BetweenVectors(Vec3.Up, normal);
-            Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateFromQuaternion(lookat) * Matrix4.CreateScale(halfExtents.X, 1.0f, halfExtents.Y);
+            Matrix4 mtx = Matrix4.CreateTranslation(centerTranslation) * Matrix4.CreateFromRotator(rotation) * Matrix4.CreateScale(extents.X, 1.0f, extents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
         public virtual void RenderSphere(Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
@@ -298,7 +298,7 @@ namespace TheraEngine.Rendering
             mesh.Parameter<ShaderVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * halfExtents.AsScaleMatrix();
-            mesh.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
+            mesh.Render(transform, transform/*.Inverted().Transposed()*/.GetRotationMatrix3());
         }
         public void RenderCapsule(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {

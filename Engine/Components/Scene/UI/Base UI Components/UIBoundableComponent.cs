@@ -18,7 +18,10 @@ namespace TheraEngine.Rendering.UI
     }
     public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, I2DBoundable, IEnumerable<UIComponent>
     {
-        public UIBoundableComponent() : base() { }
+        public UIBoundableComponent() : base()
+        {
+
+        }
         
         [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
@@ -26,7 +29,7 @@ namespace TheraEngine.Rendering.UI
         protected IQuadtreeNode _renderNode;
         
         protected Vec2 _size = Vec2.Zero;
-        protected BoundingRectangle _axisAlignedBounds = new BoundingRectangle();
+        protected BoundingRectangle _axisAlignedRegion = new BoundingRectangle();
         
         #region Bounds
         [Category("Transform")]
@@ -90,7 +93,7 @@ namespace TheraEngine.Rendering.UI
         }
         
         [Browsable(false)]
-        public BoundingRectangle AxisAlignedRegion => _axisAlignedBounds;
+        public BoundingRectangle AxisAlignedRegion => _axisAlignedRegion;
         
         public bool Contains(Vec2 cursorPointWorld)
         {
@@ -117,12 +120,19 @@ namespace TheraEngine.Rendering.UI
         public override void RecalcWorldTransform()
         {
             base.RecalcWorldTransform();
+            RemakeAxisAlignedRegion();
         }
-        protected override void PerformResize()
+        public override Vec2 Resize(Vec2 parentBounds)
         {
-            _axisAlignedBounds.Translation = Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
-            _axisAlignedBounds.Bounds = Size;
-            base.PerformResize();
+            Vec2 bounds = base.Resize(parentBounds);
+            RemakeAxisAlignedRegion();
+            return bounds;
+        }
+        protected virtual void RemakeAxisAlignedRegion()
+        {
+            _axisAlignedRegion.Translation = WorldPoint.Xy;
+            _axisAlignedRegion.Extents = Size;
+            //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
         public override UIComponent FindDeepestComponent(Vec2 viewportPoint)
         {
@@ -138,7 +148,5 @@ namespace TheraEngine.Rendering.UI
             if (item is UIComponent c)
                 c.LayerIndex = LayerIndex;
         }
-
-        protected internal override void OriginRebased(Vec3 newOrigin) { }
     }
 }

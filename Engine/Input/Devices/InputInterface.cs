@@ -21,6 +21,7 @@ namespace TheraEngine.Input.Devices
     {
         Relative,
         Absolute,
+        Unbounded,
     }
     /// <summary>
     /// Handles input from keyboards, mice, gamepads, etc.
@@ -127,8 +128,8 @@ namespace TheraEngine.Input.Devices
             => _mouse?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
         public void RegisterMouseScroll(DelMouseScroll func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => _mouse?.RegisterScroll(func, pauseType, _unregister);
-        public void RegisterMouseMove(DelCursorUpdate func, bool relative, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => _mouse?.RegisterMouseMove(func, pauseType, relative, _unregister);
+        public void RegisterMouseMove(DelCursorUpdate func, MouseMoveType type, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+            => _mouse?.RegisterMouseMove(func, pauseType, type, _unregister);
         #endregion
 
         #region Keyboard input registration

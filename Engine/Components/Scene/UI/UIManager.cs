@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
@@ -12,7 +13,8 @@ namespace TheraEngine.Actors.Types.Pawns
     {
         IPawn OwningPawn { get; set; }
         void Resize(Vec2 bounds);
-        UIComponent FindClosestComponent(Vec2 viewportPoint);
+        I2DRenderable FindDeepestComponent(Vec2 viewportPoint);
+        List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint);
         void RemoveRenderableComponent(I2DRenderable r);
         void AddRenderableComponent(I2DRenderable r);
         Scene2D Scene { get; }

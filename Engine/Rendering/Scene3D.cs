@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering
         public SortedSet<I3DRenderable> TransparentForward => _passes[3];
         public SortedSet<I3DRenderable> OnTopForward => _passes[4];
 
-        private class RenderSort : IComparer<I3DRenderable>
+        public class RenderSort : IComparer<I3DRenderable>
         {
             public bool ShadowPass { get; set; }
             int IComparer<I3DRenderable>.Compare(I3DRenderable x, I3DRenderable y)

@@ -103,7 +103,7 @@ namespace System
             if (r != null)
                 _head.CollectVisible(r.Value, passes);
             else
-                _head.CollectAll(passes);
+                _head.CollectAll(passes, true);
         }
         public T FindDeepest(Vec2 point)
         {

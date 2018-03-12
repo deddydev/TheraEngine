@@ -52,7 +52,7 @@ namespace TheraEngine.Tests
                     TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor);
                     mat.Parameter<ShaderFloat>("Roughness").Value = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
                     mat.Parameter<ShaderFloat>("Metallic").Value = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
-                    SphereActor sphere = new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(),
+                    BoxActor sphere = new BoxActor("TestBox" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(),
                         mat, new TRigidBodyConstructionInfo()
                         {
                             UseMotionState = true,

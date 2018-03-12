@@ -126,6 +126,7 @@ namespace TheraEngine.Rendering
                     {
                         //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
+                        //Engine.Renderer.EnableDepthTest(true);
                         Engine.Renderer.AllowDepthWrite(false);
                         _passes.Render(ERenderPass2D.Background);
 
@@ -139,7 +140,7 @@ namespace TheraEngine.Rendering
                         _passes.Render(ERenderPass2D.OnTop);
 
                         //Engine.Renderer.EnableDepthTest(false);
-                        RenderTree.DebugRender(v.Region, false, 1.0f);
+                        RenderTree.DebugRender(v.Region, false, 0.1f);
                     }
                     Engine.Renderer.PopRenderArea();
                 }

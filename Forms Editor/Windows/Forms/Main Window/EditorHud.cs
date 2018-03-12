@@ -127,6 +127,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         public UIViewportComponent SubViewport { get; private set; }
+        public UITextComponent SubViewportText { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
         protected override UIDockableComponent OnConstruct()
         {
@@ -144,22 +145,22 @@ namespace TheraEditor.Windows.Forms
             SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
             dock.ChildComponents.Add(SubViewport);
 
-            Font f = new Font("Segoe UI", 12.0f, FontStyle.Regular);
+            Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
             string t = "Selected Camera View";
             Size s = TextRenderer.MeasureText(t, f);
-            UITextComponent text = new UITextComponent
+            SubViewportText = new UITextComponent
             {
                 DockStyle = UIDockStyle.Top,
                 Height = s.Height
             };
-            text.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, ParentBoundsInheritedValue.Height);
-            text.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, ParentBoundsInheritedValue.Width);
+            SubViewportText.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, ParentBoundsInheritedValue.Height);
+            SubViewportText.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, ParentBoundsInheritedValue.Width);
             StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
             {
                 //Alignment = StringAlignment.Center,
                 //LineAlignment = StringAlignment.Near
             };
-            text.TextDrawer.Add(true, new UIString()
+            SubViewportText.TextDrawer.Add(true, new UIString()
             {
                 Font = f,
                 Format = sf,
@@ -168,7 +169,7 @@ namespace TheraEditor.Windows.Forms
                 //OriginPercentages = new Vec2(0.0f, 1.0f),
                 //Position = new Vec2(0.0f, 0.0f),
             });
-            SubViewport.ChildComponents.Add(text);
+            SubViewport.ChildComponents.Add(SubViewportText);
 
             //TextOverlay = new UITextProjectionComponent()
             //{

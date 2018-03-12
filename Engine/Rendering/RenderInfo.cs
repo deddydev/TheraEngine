@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering
 {
-    public class RenderInfo2D
+    public abstract class RenderInfo
+    {
+        public bool Visible { get; set; } = true;
+    }
+    public class RenderInfo2D : RenderInfo
     {
         /// <summary>
         /// Used by the engine for proper order of rendering.
@@ -45,7 +49,7 @@ namespace TheraEngine.Rendering
         }
     }
     public delegate float DelGetSortOrder(bool shadowPass);
-    public class RenderInfo3D
+    public class RenderInfo3D : RenderInfo
     {
         /// <summary>
         /// Used to render objects in the same pass in a certain order.

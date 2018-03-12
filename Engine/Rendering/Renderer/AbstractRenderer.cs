@@ -286,7 +286,7 @@ namespace TheraEngine.Rendering
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
             m.Parameter<ShaderVec4>(0).Value = color;
-            m.Render(mtx, Matrix3.Identity);
+            m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
         
         public virtual void RenderAABB(Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
@@ -298,7 +298,7 @@ namespace TheraEngine.Rendering
             mesh.Parameter<ShaderVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * halfExtents.AsScaleMatrix();
-            mesh.Render(transform, transform/*.Inverted().Transposed()*/.GetRotationMatrix3());
+            mesh.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
         public void RenderCapsule(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {

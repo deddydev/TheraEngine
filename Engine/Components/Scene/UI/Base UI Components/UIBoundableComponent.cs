@@ -131,7 +131,7 @@ namespace TheraEngine.Rendering.UI
         protected virtual void RemakeAxisAlignedRegion()
         {
             _axisAlignedRegion.Translation = WorldPoint.Xy;
-            _axisAlignedRegion.Extents = Size;
+            _axisAlignedRegion.Extents = Size * WorldScale.Xy;
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
         public override UIComponent FindDeepestComponent(Vec2 viewportPoint)

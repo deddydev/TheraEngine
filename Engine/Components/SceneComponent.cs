@@ -278,8 +278,13 @@ namespace TheraEngine.Components
         /// The position of this component relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldPoint => _worldTransform.Translation;
-
+        public Vec3 WorldPoint => _worldTransform.Translation;        
+        /// <summary>
+        /// The scale of this component relative to the world.
+        /// </summary>
+        [Browsable(false)]
+        public Vec3 WorldScale => _worldTransform.Scale;
+        
         [TSerialize]
         //[Browsable(false)]
         [Category("Scene Component")]

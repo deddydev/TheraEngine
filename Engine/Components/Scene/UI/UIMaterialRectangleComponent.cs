@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -32,9 +31,7 @@ namespace TheraEngine.Rendering.UI
             get => _quad.Material;
             set => _quad.Material = value;
         }
-
-        public bool IsVisible { get; set; } = true;
-
+        
         public BaseTexRef Texture(int index)
         {
             if (_quad.Material.Textures.IndexInRange(index))
@@ -80,8 +77,7 @@ namespace TheraEngine.Rendering.UI
 
         public virtual void Render()
         {
-            if (IsVisible)
-                _quad.Render(WorldMatrix, Matrix3.Identity);
+            _quad.Render(WorldMatrix, Matrix3.Identity);
         }
 
         //public enum BackgroundImageDisplay

@@ -22,10 +22,10 @@ namespace TheraEngine.Rendering.Models.Materials
         public ShaderArray(ArrayHandler<T> defaultValue, ShaderVarType elementType, string name, IShaderVarOwner owner) 
             : base(name, owner) { _value = defaultValue; _elementTypeName = elementType; }
     }
-    public class ArrayHandler<T> : IUniformableArray where T : ShaderVar
+    public class ArrayHandler<T> : IUniformableArray<T> where T : ShaderVar
     {
-        public int Length { get { return Values.Length; } }
-        public IUniformable[] Values
+        public int Length => Values.Length;
+        public T[] Values
         {
             get
             {

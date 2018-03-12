@@ -56,7 +56,7 @@ namespace TheraEngine.Rendering.UI
             get => _viewport.Camera;
             set => _viewport.Camera = value;
         }
-        
+
         public override Vec2 Resize(Vec2 parentBounds)
         {
             Vec2 r = base.Resize(parentBounds);

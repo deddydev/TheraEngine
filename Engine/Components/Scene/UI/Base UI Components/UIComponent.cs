@@ -27,9 +27,22 @@ namespace TheraEngine.Rendering.UI
         protected Vec2 _translation = Vec2.Zero;
         protected Vec2 _scale = Vec2.One;
         protected Vec2 _localOriginPercentage = Vec2.Zero;
+        protected bool _visible = true;
 
         public virtual int LayerIndex { get; set; }
         public virtual int IndexWithinLayer { get; set; }
+        public virtual bool IsVisible
+        {
+            get => _visible;
+            set
+            {
+                _visible = value;
+                if (this is I2DRenderable r)
+                    r.RenderInfo.Visible = value;
+                foreach (UIComponent c in _children)
+                    c.IsVisible = value;
+            }
+        }
 
         [Browsable(false)]
         public override ISocket ParentSocket

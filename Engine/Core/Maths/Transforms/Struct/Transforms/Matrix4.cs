@@ -32,6 +32,16 @@ namespace System
         public float TranslationX { get => Row3.X; set => Row3.X = value; }
         public float TranslationY { get => Row3.Y; set => Row3.Y = value; }
         public float TranslationZ { get => Row3.Z; set => Row3.Z = value; }
+        public Vec3 Scale
+        {
+            get => new Vec3(Row0.X, Row1.Y, Row2.Z);
+            set
+            {
+                Row0.X = value.X;
+                Row1.Y = value.Y;
+                Row2.Z = value.Z;
+            }
+        }
 
         public float* Data { get { fixed (Matrix4* p = &this) return (float*)p; } }
 
@@ -281,7 +291,7 @@ namespace System
         /// </summary>
         public Vec4 Diagonal
         {
-            get { return new Vec4(Row0.X, Row1.Y, Row2.Z, Row3.W); }
+            get => new Vec4(Row0.X, Row1.Y, Row2.Z, Row3.W);
             set
             {
                 Row0.X = value.X;

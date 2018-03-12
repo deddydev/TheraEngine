@@ -141,7 +141,7 @@ namespace System
         /// <param name="f">The frustum to display intersections with. If null, does not show frustum intersections.</param>
         /// <param name="onlyContainingItems">Only renders subdivisions that contain one or more items.</param>
         /// <param name="lineWidth">The width of the bounding box lines.</param>
-        public void DebugRender(BoundingRectangle? f, bool onlyContainingItems, float lineWidth = 2.0f)
+        public void DebugRender(BoundingRectangle? f, bool onlyContainingItems, float lineWidth = 0.1f)
             => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
 
         private class Node : IQuadtreeNode
@@ -255,6 +255,8 @@ namespace System
             #endregion
 
             #region Debug
+            static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, RotationOrder.YPR);
+            static readonly Vec3 Bias = new Vec3(0.0f, 0.0f, 0.1f);
             public void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangle? f, float lineWidth)
             {
                 Color color = Color.Red;
@@ -268,14 +270,19 @@ namespace System
                 }
                 if (!onlyContainingItems || _items.Count != 0)
                 {
+                    BoundingRectangle region;
+                    //bool anyVisible = false;
                     for (int i = 0; i < _items.Count; ++i)
                     {
-                        DebugRender(color, lineWidth);
+                        region = _items[i].AxisAlignedRegion;
+                        Engine.Renderer.RenderQuad(region.Center + Bias, UIRotation, region.Extents, false, Color.Orange, lineWidth);
                     }
+                    //if (anyVisible)
+                        DebugRender(color, lineWidth);
                 }
             }
             public void DebugRender(Color color, float lineWidth)
-                => Engine.Renderer.RenderQuad(_bounds.Center, new Rotator(90.0f, 0.0f, 0.0f, RotationOrder.YPR), _bounds.Extents, false, color, 1.0f);
+                => Engine.Renderer.RenderQuad(_bounds.Center + Bias, UIRotation, _bounds.Extents, false, color, lineWidth);
             #endregion
 
             #region Visible collection
@@ -285,7 +292,7 @@ namespace System
                 if (c != EContainment.Disjoint)
                 {
                     if (c == EContainment.Contains)
-                        CollectAll(passes);
+                        CollectAll(passes, true);
                     else
                     {
                         IsLoopingItems = true;
@@ -304,19 +311,17 @@ namespace System
                     }
                 }
             }
-            public void CollectAll(RenderPasses2D passes)
+            public void CollectAll(RenderPasses2D passes, bool visibleOnly)
             {
                 IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
-                {
-                    if (_items[i] is I2DRenderable r)
+                    if (_items[i] is I2DRenderable r &&  (!visibleOnly || r.RenderInfo.Visible))
                         passes.Add(r);
-                }
                 IsLoopingItems = false;
 
                 IsLoopingSubNodes = true;
                 for (int i = 0; i < MaxChildNodeCount; ++i)
-                    _subNodes[i]?.CollectAll(passes);
+                    _subNodes[i]?.CollectAll(passes, visibleOnly);
                 IsLoopingSubNodes = false;
             }
             #endregion

@@ -88,10 +88,12 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo2D RenderInfo { get; }
-        bool IsVisible { get; set; }
     }
     public interface I2DBoundable
     {
+        /// <summary>
+        /// The axis-aligned bounding box for this UI component.
+        /// </summary>
         BoundingRectangle AxisAlignedRegion { get; }
         IQuadtreeNode QuadtreeNode { get; set; }
         bool Contains(Vec2 point);
@@ -111,10 +113,11 @@ namespace TheraEngine
         void Write(VoidPtr address);
         void Read(VoidPtr address);
     }
-    
-    public interface IShaderVarOwner { }
+
     public interface IUniformable { }
-    
+    public interface IShaderVarOwner : IUniformable { }
+    public interface IUniformableArray : IUniformable { }
+
     public unsafe interface IUniformable1Bool : IUniformable { bool* Data { get; } }
     public unsafe interface IUniformable1Int : IUniformable { int* Data { get; } }
     public unsafe interface IUniformable1UInt : IUniformable { uint* Data { get; } }
@@ -139,5 +142,5 @@ namespace TheraEngine
     public unsafe interface IUniformable4Float : IUniformable { float* Data { get; } }
     public unsafe interface IUniformable4Double : IUniformable { double* Data { get; } }
 
-    public unsafe interface IUniformableArray : IUniformable { IUniformable[] Values { get; } }
+    public unsafe interface IUniformableArray<T> : IUniformableArray where T : IUniformable { T[] Values { get; } }
 }

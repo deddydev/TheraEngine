@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEditor.Core.Extensions;
 
 namespace TheraEditor.Core
 {
@@ -13,6 +14,8 @@ namespace TheraEditor.Core
     /// </summary>
     public class DragDropFilter : IMessageFilter
     {
+        private static DragDropFilter Instance = null;
+
         /// <summary>
         /// Event called when the user drops the dragged data 
         /// and this filter has removed itself from the application filter loop.
@@ -55,21 +58,45 @@ namespace TheraEditor.Core
         /// </summary>
         private DragDropEffects _current;
 
-        public DragDropFilter(object data, DragDropEffects allowedEffects)
+        private DragDropFilter()
         {
-            _mousePoint = Cursor.Position;
-            _data = new DataObject(DataFormats.FileDrop, data);
-            _allowed = allowedEffects;
-            _current = DragDropEffects.Move & allowedEffects;
-            Init();
+
         }
-        public DragDropFilter(IDataObject data, DragDropEffects allowedEffects)
+
+        public static DragDropFilter Initialize(object data, DragDropEffects allowedEffects)
         {
-            _mousePoint = Cursor.Position;
-            _data = data;
-            _allowed = allowedEffects;
-            _current = DragDropEffects.Move & allowedEffects;
-            Init();
+            Instance?.StopFiltering();
+
+            DragDropFilter f = new DragDropFilter()
+            {
+                _mousePoint = Cursor.Position,
+                _data = new DataObject(DataFormats.FileDrop, data),
+                _allowed = allowedEffects,
+                _current = DragDropEffects.Move & allowedEffects,
+            };
+            f.Init();
+
+            Instance = f;
+
+            return f;
+        }
+
+        public static DragDropFilter Initialize(IDataObject data, DragDropEffects allowedEffects)
+        {
+            Instance?.StopFiltering();
+
+            DragDropFilter f = new DragDropFilter()
+            {
+                _mousePoint = Cursor.Position,
+                _data = data,
+                _allowed = allowedEffects,
+                _current = DragDropEffects.Move & allowedEffects,
+            };
+            f.Init();
+
+            Instance = f;
+
+            return f;
         }
 
         /// <summary>
@@ -94,17 +121,20 @@ namespace TheraEditor.Core
             {
                 case WindowsMessage.WM_MOUSEMOVE:
 
-                    int keyState = (int)m.WParam;
-                    Control ctrl = Control.FromHandle(m.HWnd);
-
-                    //if (ctrl != null)
-                    //    Engine.PrintLine(ctrl.Name);
-
                     //Get cursor position
                     //LParam seems to be off compared to Cursor.Position
                     //short x = (short)((int)m.LParam & 0xFFFF);
                     //short y = (short)(((int)m.LParam >> 16) & 0xFFFF);
                     _mousePoint = Cursor.Position;//new Point(x, y);
+
+                    int keyState = (int)m.WParam;
+                    Control ctrl = Control.FromHandle(m.HWnd);
+                    foreach (Form f in Application.OpenForms)
+                    {
+                        Control c = f.FindControlAtCursor();
+                        if (c != null)
+                            ctrl = c;
+                    }
 
                     //Find the owning control that allows dropping data.
                     //Repeats until the control reference is null or the control accepts dropping.
@@ -138,6 +168,8 @@ namespace TheraEditor.Core
                             DragEventArgs dragArgs = new DragEventArgs(_data, keyState, _mousePoint.X, _mousePoint.Y, _allowed, _current);
                             _dragEnter.Invoke(ctrl, new object[] { dragArgs });
                             _current = dragArgs.Effect;
+
+                            Engine.PrintLine("[Drag/Drop] Hovering over " + ctrl.GetType().GetFriendlyName());
                         }
                         else
                             CheckNullTarget();
@@ -159,13 +191,12 @@ namespace TheraEditor.Core
                 case WindowsMessage.WM_LBUTTONDOWN:
                     return true;
                 case WindowsMessage.WM_LBUTTONUP:
-                    Application.RemoveMessageFilter(this);
+                    StopFiltering();
                     if (_hoveredControl != null)
                     {
                         DragEventArgs dragArgs = new DragEventArgs(_data, 0, _mousePoint.X, _mousePoint.Y, _allowed, _current);
                         _dragDrop.Invoke(_hoveredControl, new object[] { dragArgs });
                     }
-                    Done?.Invoke(null, EventArgs.Empty);
                     break;
                 
                 case WindowsMessage.WM_KEYDOWN:
@@ -178,6 +209,17 @@ namespace TheraEditor.Core
                 
             }
             return false;
+        }
+
+        public void StopFiltering()
+        {
+            if (Instance != this)
+                return;
+
+            Application.RemoveMessageFilter(this);
+            Engine.PrintLine("[Drag/Drop] Stopped filtering drag/drop.");
+            Instance = null;
+            Done?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -198,9 +240,8 @@ namespace TheraEditor.Core
             }
             if (!found)
             {
-                Application.RemoveMessageFilter(this);
+                StopFiltering();
                 Editor.Instance.DoDragDrop(_data.GetData(DataFormats.FileDrop), _allowed);
-                Done?.Invoke(null, EventArgs.Empty);
             }
         }
 
@@ -211,6 +252,7 @@ namespace TheraEditor.Core
         public void BeginFiltering()
         {
             Application.AddMessageFilter(this);
+            Engine.PrintLine("[Drag/Drop] Now filtering drag/drop.");
         }
     }
 }

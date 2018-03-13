@@ -372,7 +372,8 @@ namespace System
                 if (item == null)
                     return false;
                 
-                if (item.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
+                if (item.AxisAlignedRegion.IsEmpty() || 
+                    item.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
                     return false;
 
                 for (int i = 0; i < MaxChildNodeCount; ++i)

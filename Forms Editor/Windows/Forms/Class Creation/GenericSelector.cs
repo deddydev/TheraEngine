@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using TheraEditor.Core.Extensions;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -111,7 +112,7 @@ namespace TheraEditor.Windows.Forms
                     (baseType != null && !baseType.IsAssignableFrom(type)) ||
 
                     //Doesn't fit constraints?
-                    !TypeFitsConstraints(type, gvf, tcf)// ||
+                    !type.FitsConstraints(gvf, tcf)// ||
 
                     //Has no default constructor?
                     //type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) == null
@@ -145,24 +146,6 @@ namespace TheraEditor.Windows.Forms
                 box.Controls.Add(menu);
                 BodyPanel.Controls.Add(box);
             }
-        }
-        private bool TypeFitsConstraints(Type t, GenericVarianceFlag gvf, TypeConstraintFlag tcf)
-        {
-            if (gvf != GenericVarianceFlag.None)
-                throw new Exception();
-
-            switch (tcf)
-            {
-                case TypeConstraintFlag.Class:
-                    return t.IsClass;
-                case TypeConstraintFlag.NewClass:
-                    return t.IsClass && t.GetConstructor(new Type[0]) != null;
-                case TypeConstraintFlag.NewStructOrClass:
-                    return t.GetConstructor(new Type[0]) != null;
-                case TypeConstraintFlag.Struct:
-                    return t.IsValueType;
-            }
-            return true;
         }
 
         public Type OriginalClassType { get; private set; }

@@ -160,7 +160,7 @@ namespace TheraEditor.Windows.Forms
                 //Alignment = StringAlignment.Center,
                 //LineAlignment = StringAlignment.Near
             };
-            SubViewportText.TextDrawer.Add(true, new UIString()
+            SubViewportText.TextDrawer.Add(true, new UIString2D()
             {
                 Font = f,
                 Format = sf,

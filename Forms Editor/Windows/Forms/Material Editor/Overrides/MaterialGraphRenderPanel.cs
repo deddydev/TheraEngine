@@ -11,7 +11,7 @@ namespace TheraEngine
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public UIMaterialEditor UI { get; }
         
-        protected override Scene2D GetScene(Viewport v) => UI?.Scene;
+        protected override Scene2D GetScene(Viewport v) => UI?.UIScene;
         protected override Camera GetCamera(Viewport v) => UI?.Camera;
 
         public MaterialGraphRenderPanel()

@@ -13,7 +13,7 @@ namespace TheraEngine.Core.Shapes
         /// A rectangle with a location at 0,0 (bottom left), a size of 0, and a local origin at the bottom left.
         /// </summary>
         public static readonly BoundingRectangle Empty = new BoundingRectangle();
-        
+
         [TSerialize("Translation")]
         private Vec2 _translation;
         [TSerialize("Bounds")]
@@ -85,7 +85,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         {
             get => OriginTranslation.X;
             set => _translation.X = value - LocalOrigin.X;
-        }        
+        }
         /// <summary>
         /// The vertical translation of this rectangle's position. 0 is fully down, positive values are up.
         /// </summary>
@@ -381,10 +381,10 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         public bool Intersects(BoundingRectangle other)
         {
             return !Contains(other) && !DisjointWith(other);
-                //MinX <= other.MaxX &&
-                //MaxX >= other.MinX &&
-                //MinY <= other.MaxY &&
-                //MaxY >= other.MinY;
+            //MinX <= other.MaxX &&
+            //MaxX >= other.MinX &&
+            //MinY <= other.MaxY &&
+            //MaxY >= other.MinY;
         }
         public override string ToString()
         {
@@ -392,5 +392,10 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         }
 
         public Vec2 ClosestPoint(Vec2 point) => point.Clamped(BottomLeft, TopRight);
+
+        public bool IsEmpty()
+        {
+            return IntHeight == 0 || IntWidth == 0;
+        }
     }
 }

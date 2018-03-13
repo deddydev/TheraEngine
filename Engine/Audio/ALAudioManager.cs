@@ -138,10 +138,7 @@ namespace TheraEngine.Audio
         }
         public override void UpdateListener(Vec3 position, Vec3 forward, Vec3 up, Vec3 velocity, float gain, float efxMetersPerUnit = 1.0f)
         {
-            float f;
-            Vector3 v;
-
-            AL.GetListener(ALListenerf.EfxMetersPerUnit, out f);
+            AL.GetListener(ALListenerf.EfxMetersPerUnit, out float f);
             if (f != efxMetersPerUnit)
                 AL.Listener(ALListenerf.EfxMetersPerUnit, efxMetersPerUnit);
 
@@ -149,7 +146,7 @@ namespace TheraEngine.Audio
             if (f != gain)
                 AL.Listener(ALListenerf.Gain, gain);
 
-            AL.GetListener(ALListener3f.Position, out v);
+            AL.GetListener(ALListener3f.Position, out Vector3 v);
             if (v.X != position.X || v.Y != position.Y || v.Z != position.Z)
                 AL.Listener(ALListener3f.Position, position.X, position.Y, position.Z);
 

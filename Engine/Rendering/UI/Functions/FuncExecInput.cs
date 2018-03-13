@@ -24,5 +24,19 @@
             _connectedTo = other;
             _connectedTo?.SetConnection(this);
         }
+        public override bool CanConnectTo(BaseFuncArg other)
+        {
+            if (other != null && other is TOutput input)
+                return true;
+            return false;
+        }
+        public override bool TryConnectTo(BaseFuncArg other)
+        {
+            if (!CanConnectTo(other))
+                return false;
+
+            SetConnection(other as TOutput);
+            return true;
+        }
     }
 }

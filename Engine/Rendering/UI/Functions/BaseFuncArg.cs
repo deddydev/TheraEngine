@@ -9,9 +9,10 @@ namespace TheraEngine.Rendering.UI.Functions
     {
         public static Vec4 RegularColor { get; set; } = new Vec4(0.4f, 0.4f, 0.4f, 1.0f);
         public static Vec4 HighlightedColor { get; set; } = new Vec4(0.4f, 0.6f, 0.6f, 1.0f);
+        public static Vec4 ConnectableColor { get; set; } = new Vec4(0.8f, 0.2f, 0.2f, 1.0f);
 
-        internal const int ConnectionBoxDims = 10;
-        internal const int ConnectionBoxMargin = 3;
+        public const int ConnectionBoxDims = 10;
+        public const int ConnectionBoxMargin = 3;
 
         public BaseFuncArg(string name, ColorF4 color) : base(MakeArgMaterial(color))
         {
@@ -29,11 +30,14 @@ namespace TheraEngine.Rendering.UI.Functions
 
         public override string ToString() => Name;
 
+        public abstract bool CanConnectTo(BaseFuncArg other);
+        public abstract bool TryConnectTo(BaseFuncArg other);
+        
         private static TMaterial MakeArgMaterial(ColorF4 color)
         {
             return TMaterial.CreateUnlitColorMaterialForward(color);
         }
-
+        
         /// <summary>
         /// Returns an interpolated point from this argument to the given point.
         /// Used for rendering the material editor graph.

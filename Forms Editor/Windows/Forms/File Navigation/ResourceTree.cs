@@ -719,7 +719,6 @@ namespace TheraEditor.Windows.Forms
         private BaseWrapper _previousDropNode = null;
         private System.Windows.Forms.Timer _dragTimer = new System.Windows.Forms.Timer();
         private ImageList _draggingImageList = new ImageList();
-        private DragDropFilter _dragFilter = null;
         
         private void TreeView_ItemDrag(object sender, ItemDragEventArgs e)
         {
@@ -764,9 +763,12 @@ namespace TheraEditor.Windows.Forms
                 //DoDragDrop(bmp, DragDropEffects.Move | DragDropEffects.Copy);
 
                 //This filters events in the windows message loop, which is not a blocking operation.
-                _dragFilter = new DragDropFilter(bmp, DragDropEffects.Move | DragDropEffects.Copy);
-                _dragFilter.Done += _dragFilter_Done;
-                _dragFilter.BeginFiltering();
+                DragDropFilter f = DragDropFilter.Initialize(bmp, DragDropEffects.Move | DragDropEffects.Copy);
+                if (f != null)
+                {
+                    f.Done += _dragFilter_Done;
+                    f.BeginFiltering();
+                }
             }
         }
 

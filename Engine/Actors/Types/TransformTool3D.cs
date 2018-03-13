@@ -929,7 +929,7 @@ namespace TheraEngine.Actors.Types
             //Engine.Renderer.RenderLine(dragPoint, dragPoint + _dragPlaneNormal * 10.0f, Color.White);
             //Engine.Renderer.RenderPoint(_lastPoint * _dragMatrix, Color.Magenta);
         }
-        UIString _xText, _yText, _zText;
+        UIString2D _xText, _yText, _zText;
         public override void OnSpawnedPostComponentSetup()
         {
             

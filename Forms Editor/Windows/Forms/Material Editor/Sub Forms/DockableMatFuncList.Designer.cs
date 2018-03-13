@@ -51,9 +51,9 @@ namespace TheraEditor.Windows.Forms
             this.panel1.Controls.Add(this.panel2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(376, 32);
+            this.panel1.Size = new System.Drawing.Size(501, 39);
             this.panel1.TabIndex = 2;
             // 
             // lblFunctions
@@ -62,9 +62,8 @@ namespace TheraEditor.Windows.Forms
             this.lblFunctions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblFunctions.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.lblFunctions.Location = new System.Drawing.Point(0, 0);
-            this.lblFunctions.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblFunctions.Name = "lblFunctions";
-            this.lblFunctions.Size = new System.Drawing.Size(227, 32);
+            this.lblFunctions.Size = new System.Drawing.Size(302, 39);
             this.lblFunctions.TabIndex = 0;
             this.lblFunctions.Text = "Functions";
             this.lblFunctions.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -73,10 +72,9 @@ namespace TheraEditor.Windows.Forms
             // 
             this.label1.Dock = System.Windows.Forms.DockStyle.Right;
             this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.label1.Location = new System.Drawing.Point(227, 0);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Location = new System.Drawing.Point(302, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(44, 32);
+            this.label1.Size = new System.Drawing.Size(59, 39);
             this.label1.TabIndex = 1;
             this.label1.Text = "Find:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -85,11 +83,11 @@ namespace TheraEditor.Windows.Forms
             // 
             this.panel2.Controls.Add(this.textBox1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(271, 0);
-            this.panel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel2.Location = new System.Drawing.Point(361, 0);
+            this.panel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel2.Name = "panel2";
-            this.panel2.Padding = new System.Windows.Forms.Padding(0, 7, 0, 0);
-            this.panel2.Size = new System.Drawing.Size(105, 32);
+            this.panel2.Padding = new System.Windows.Forms.Padding(0, 9, 0, 0);
+            this.panel2.Size = new System.Drawing.Size(140, 39);
             this.panel2.TabIndex = 3;
             // 
             // textBox1
@@ -98,10 +96,10 @@ namespace TheraEditor.Windows.Forms
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.textBox1.Location = new System.Drawing.Point(0, 7);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox1.Location = new System.Drawing.Point(0, 9);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(105, 20);
+            this.textBox1.Size = new System.Drawing.Size(140, 22);
             this.textBox1.TabIndex = 2;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
@@ -119,12 +117,12 @@ namespace TheraEditor.Windows.Forms
             this.betterListView1.ForeColorGroups = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.betterListView1.HeaderStyle = ComponentOwl.BetterListView.BetterListViewHeaderStyle.Sortable;
             this.betterListView1.HideSelectionMode = ComponentOwl.BetterListView.BetterListViewHideSelectionMode.Disable;
-            this.betterListView1.Location = new System.Drawing.Point(0, 32);
-            this.betterListView1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.betterListView1.Location = new System.Drawing.Point(0, 39);
+            this.betterListView1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.betterListView1.MultiSelect = false;
             this.betterListView1.Name = "betterListView1";
             this.betterListView1.ShowGroups = true;
-            this.betterListView1.Size = new System.Drawing.Size(376, 266);
+            this.betterListView1.Size = new System.Drawing.Size(501, 328);
             this.betterListView1.TabIndex = 3;
             this.betterListView1.BeforeDrag += new ComponentOwl.BetterListView.BetterListViewBeforeDragEventHandler(this.BetterListView1_BeforeDrag);
             this.betterListView1.ItemDrag += new ComponentOwl.BetterListView.BetterListViewItemDragEventHandler(this.betterListView1_ItemDrag);
@@ -146,12 +144,12 @@ namespace TheraEditor.Windows.Forms
             // 
             // DockableMatFuncList
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(376, 298);
+            this.ClientSize = new System.Drawing.Size(501, 367);
             this.Controls.Add(this.betterListView1);
             this.Controls.Add(this.panel1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "DockableMatFuncList";
             this.Text = "DockableMatFuncList";
             this.panel1.ResumeLayout(false);

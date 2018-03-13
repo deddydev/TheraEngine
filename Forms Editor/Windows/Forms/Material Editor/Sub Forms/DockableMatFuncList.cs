@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using TheraEditor.Core;
+using TheraEditor.Core.Extensions;
 using TheraEngine;
 using TheraEngine.Rendering.Models.Materials.Functions;
 using TheraEngine.Rendering.UI.Functions;
@@ -25,8 +26,8 @@ namespace TheraEditor.Windows.Forms
             _backBrush = new SolidBrush(betterListView1.BackColor);
             _foreBrush = new SolidBrush(betterListView1.ForeColor);
             
-            betterListView1.DrawColumnHeaderBackground += BetterListView1_DrawColumnHeaderBackground;
-            betterListView1.DrawColumnHeader += BetterListView1_DrawColumnHeader;
+            //betterListView1.DrawColumnHeaderBackground += BetterListView1_DrawColumnHeaderBackground;
+            //betterListView1.DrawColumnHeader += BetterListView1_DrawColumnHeader;
             betterListView1.BeforeDrag += BetterListView1_BeforeDrag;
 
             betterListView1.Items.Clear();
@@ -50,25 +51,71 @@ namespace TheraEditor.Windows.Forms
                         betterListView1.Groups.Add(grp);
                     }
 
-                    MatFuncInfo info = new MatFuncInfo(t, def);
+                    if (t.ContainsGenericParameters)
+                    {
+                        foreach (Type arg in t.GetGenericArguments())
+                        {
+                            arg.GetGenericParameterConstraints(out GenericVarianceFlag gvf, out TypeConstraintFlag tcf);
+                            bool test(Type type)
+                            {
+                                return !(
 
-                    betterListView1.Items.Add(new BetterListViewItem(new string[] { def.Name, def.Description }, grp) { Tag = _funcs.Count });
+                                //Base type isn't requested base type?
+                                (arg.BaseType != null && !arg.BaseType.IsAssignableFrom(type)) ||
 
-                    _funcs.Add(info);
+                                //Doesn't fit constraints?
+                                !type.FitsConstraints(gvf, tcf)// ||
+
+                                //Has no default constructor?
+                                //type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) == null
+                                );
+                            }
+
+                            foreach (Type r in Engine.FindTypes(x => test(x)))
+                            {
+                                MatFuncInfo info = new MatFuncInfo(t.MakeGenericType(r), def);
+
+                                betterListView1.Items.Add(new BetterListViewItem(
+                                    new string[] { def.Name + "[" + r.GetFriendlyName() + "]", def.Description }, grp)
+                                {
+                                    Tag = _funcs.Count
+                                });
+
+                                _funcs.Add(info);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MatFuncInfo info = new MatFuncInfo(t, def);
+
+                        betterListView1.Items.Add(new BetterListViewItem(
+                            new string[] { def.Name, def.Description }, grp)
+                        {
+                            Tag = _funcs.Count
+                        });
+
+                        _funcs.Add(info);
+                    }
                 }
             }
         }
 
-        DragDropFilter _filter;
+        private bool _isDragging = false;
         private void BetterListView1_BeforeDrag(object sender, BetterListViewBeforeDragEventArgs eventArgs)
         {
-            //Use drag drop filter system instead
-            _filter = new DragDropFilter(eventArgs.Data, System.Windows.Forms.DragDropEffects.Move);
-            _filter.Done += _filter_Done;
-            _filter.BeginFiltering();
-
             //Cancel the blocking drag operation
             eventArgs.Cancel = true;
+            if (_isDragging)
+                return;
+            //Use drag drop filter system instead
+            DragDropFilter f = DragDropFilter.Initialize(eventArgs.Data, System.Windows.Forms.DragDropEffects.Move);
+            if (f != null)
+            {
+                _isDragging = true;
+                f.Done += _filter_Done;
+                Editor.Instance.Invoke((Action)(() => f.BeginFiltering()));
+            }
         }
 
         private void betterListView1_ItemDrag(object sender, BetterListViewItemDragEventArgs eventArgs)
@@ -78,7 +125,7 @@ namespace TheraEditor.Windows.Forms
 
         private void _filter_Done(object sender, EventArgs e)
         {
-            _filter = null;
+            _isDragging = false;
         }
 
         private void BetterListView1_DrawColumnHeader(object sender, BetterListViewDrawColumnHeaderEventArgs e)
@@ -96,7 +143,7 @@ namespace TheraEditor.Windows.Forms
             g.DrawRectangle(_backPen, e.ColumnHeaderBounds.BoundsOuter);
         }
 
-        private BindingList<MatFuncInfo> _funcs = new BindingList<MatFuncInfo>();
+        internal BindingList<MatFuncInfo> _funcs = new BindingList<MatFuncInfo>();
         private Dictionary<string, List<int>> _funcDic = new Dictionary<string, List<int>>();
 
         public class MatFuncInfo
@@ -113,6 +160,11 @@ namespace TheraEditor.Windows.Forms
             public override string ToString()
             {
                 return _funcDef.Name;
+            }
+
+            public MaterialFunction CreateNew()
+            {
+                return (MaterialFunction)Activator.CreateInstance(_materialFuncType);
             }
         }
 

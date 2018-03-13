@@ -56,7 +56,7 @@ namespace System
             Vec2[] points = new Vec2[pointCount];
             float timeDelta = 1.0f / (pointCount - 1);
             for (int i = 0; i < pointCount; ++i)
-                points[i] = CubicBezier(p0, p1, p2, p3, timeDelta);
+                points[i] = CubicBezier(p0, p1, p2, p3, timeDelta * i);
 
             return points;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComponentOwl.BetterListView;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using TheraEngine;
@@ -6,9 +7,11 @@ using TheraEngine.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
+using TheraEngine.Rendering.Models.Materials.Functions;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
+using static TheraEditor.Windows.Forms.DockableMatFuncList;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -97,10 +100,29 @@ namespace TheraEditor.Windows.Forms
         //    RenderPanel.EndResize();
         //    base.OnResizeEnd(e);
         //}
-        
+
+        private MaterialFunction _dragged = null;
         private void RenderPanel_DragEnter(object sender, DragEventArgs e)
         {
-            string [] fmts = e.Data.GetFormats();
+            string[] fmts = e.Data.GetFormats();
+            if (fmts == null || fmts.Length == 0)
+                return;
+
+            BetterListViewItemDragData data = e.Data.GetData(fmts[0]) as BetterListViewItemDragData;
+            if (data.Items.Count == 0)
+                return;
+
+            BetterListViewItem item = data.Items[0];
+            MaterialEditorForm editor = DockPanel.FindForm() as MaterialEditorForm;
+            MatFuncInfo info = editor.MaterialFunctions._funcs[(int)item.Tag];
+            _dragged = info.CreateNew();
+
+            UIMaterialEditor ui = RenderPanel.UI;
+            //_dragged.LocalTranslation = ui.CursorPositionWorld() - ui._rootTransform.WorldPoint.Xy;
+            ui.AddMaterialFunction(_dragged);
+            ui._highlightedFunc = _dragged;
+            RenderPanel.Focus();
+            ui.LeftClickDown();
         }
         
         private void RenderPanel_DragOver(object sender, DragEventArgs e)
@@ -115,7 +137,11 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_DragLeave_1(object sender, EventArgs e)
         {
-
+            if (_dragged == null)
+                return;
+            RenderPanel.UI.LeftClickUp();
+            RenderPanel.UI.RemoveMaterialFunction(_dragged);
+            _dragged = null;
         }
     }
 }

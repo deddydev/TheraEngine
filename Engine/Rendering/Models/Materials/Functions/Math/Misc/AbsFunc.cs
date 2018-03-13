@@ -17,10 +17,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         MatFuncValueOutput OutputValue;
         
         public AbsFunc() : base(true) { }
-        protected override string GetOperation()
-        {
-            return "Abs({0})";
-        }
+        protected override string GetOperation() => "Abs({0})";
         protected override List<MatFuncValueInput> GetValueInputs()
         {
             InputValue = new MatFuncValueInput("Value", SignedTypes);

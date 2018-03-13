@@ -9,12 +9,12 @@ namespace TheraEngine.Rendering.UI.Text
             TextDrawer.Add(_string);
         }
 
-        private UIString _string = new UIString();
+        private UIString2D _string = new UIString2D();
         private bool 
             _horizontalScroll = false, 
             _verticalScroll = true;
 
-        public UIString Text => _string;
+        public UIString2D Text => _string;
         public bool AllowHorizontalScroll
         {
             get => _horizontalScroll;

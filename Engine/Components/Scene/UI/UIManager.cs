@@ -17,7 +17,7 @@ namespace TheraEngine.Actors.Types.Pawns
         List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint);
         void RemoveRenderableComponent(I2DRenderable r);
         void AddRenderableComponent(I2DRenderable r);
-        Scene2D Scene { get; }
+        Scene2D UIScene { get; }
         Vec2 CursorPosition();
         Vec2 CursorPositionWorld();
         Vec2 CursorPosition(Viewport v);
@@ -83,7 +83,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public Shape CullingVolume => null;
         public IOctreeNode OctreeNode { get; set; }
-        public Scene2D Scene => _scene;
+        public Scene2D UIScene => _scene;
 
         public UIManager() : base()
         {

@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI
 {
     public interface ITextProjector
     {
-        string[] GetProjectedText();
-        Vec3[] GetTextPositions();
+        UIString3D[] Text { get; }
     }
     public class UITextProjectionComponent : UITextComponent
     {
         public UITextProjectionComponent() : base() { }
 
-        private HashSet<ITextProjector> _projectors = new HashSet<ITextProjector>();
+        public void SubmitProjectors(IEnumerable<ITextProjector> projectors)
+        {
+            TextDrawer.Intersect(projectors.SelectMany(x => x.Text));
+        }
     }
 }

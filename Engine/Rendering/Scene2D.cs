@@ -140,7 +140,7 @@ namespace TheraEngine.Rendering
                         _passes.Render(ERenderPass2D.OnTop);
 
                         //Engine.Renderer.EnableDepthTest(false);
-                        RenderTree.DebugRender(v.Region, false, 0.1f);
+                        //RenderTree.DebugRender(v.Region, false, 0.1f);
                     }
                     Engine.Renderer.PopRenderArea();
                 }

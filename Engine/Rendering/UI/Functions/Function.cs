@@ -65,7 +65,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 DockStyle = UIDockStyle.Top,
                 Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
             };
-            _headerText.TextDrawer.Add(new UIString()
+            _headerText.TextDrawer.Add(new UIString2D()
             {
                 Text = FunctionName,
                 Font = _headerFont,
@@ -84,14 +84,13 @@ namespace TheraEngine.Rendering.UI.Functions
 
         protected void AddParam(BaseFuncArg arg)
         {
-            arg.LocalOriginPercentage = new Vec2(0.0f, 0.5f);
             ChildComponents.Add(arg);
 
             UITextComponent text = new UITextComponent
             {
                 Name = arg.Name + " Text",
             };
-            text.TextDrawer.Add(new UIString()
+            text.TextDrawer.Add(new UIString2D()
             {
                 Text = arg.Name,
                 Font = _paramFont,
@@ -330,16 +329,26 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         private void Arrange2(BaseFuncArg arg, UITextComponent text, Size[] sizes, bool input, int i, float headerHeight, float yTrans)
         {
-            float xTrans;
-            if (input)
-                xTrans = BaseFuncArg.ConnectionBoxMargin;
-            else
-                xTrans = _size.X - BaseFuncArg.ConnectionBoxMargin;
-            arg.LocalTranslation = new Vec2(xTrans, yTrans);
             text.Size = sizes[i];
             int t = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
-            if (!input)
+
+            float xTrans;
+            if (input)
+            {
+                xTrans = BaseFuncArg.ConnectionBoxMargin;
+                arg.LocalOriginPercentage = new Vec2(0.0f, 0.6f);
+
+                text.LocalOriginPercentage = new Vec2(0.0f, 0.0f);
+            }
+            else
+            {
+                xTrans = _size.X - BaseFuncArg.ConnectionBoxMargin;
+                arg.LocalOriginPercentage = new Vec2(1.0f, 0.6f);
+
                 t = -t;
+                text.LocalOriginPercentage = new Vec2(1.0f, 0.0f);
+            }
+            arg.LocalTranslation = new Vec2(xTrans, yTrans);
             text.LocalTranslation = new Vec2(xTrans + t, yTrans);
             arg.LocalTranslationY += text.Height * 0.5f;
         }

@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// UI component that can be interacted with by the player.
     /// </summary>
-    public class UIInteractableComponent : UIDockableComponent
+    public abstract class UIInteractableComponent : UIDockableComponent
     {
         [Category("Events")]
         public event Action LeftClickDown;

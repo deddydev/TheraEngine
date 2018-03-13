@@ -7,29 +7,19 @@ namespace TheraEngine.Core.Shapes
     {
         public Segment(Vec3 startPoint, Vec3 endPoint)
         {
-            _startPoint = startPoint;
-            _endPoint = endPoint;
+            StartPoint = startPoint;
+            EndPoint = endPoint;
         }
-        
-        public Vec3 StartPoint
-        {
-            get => _startPoint;
-            set => _startPoint = value;
-        }
-        public Vec3 EndPoint
-        {
-            get => _endPoint;
-            set => _endPoint = value;
-        }
+
+        public Vec3 StartPoint;
+        public Vec3 EndPoint;
+
         public Vec3 DirectionVector
         {
-            get => _endPoint - _startPoint;
-            set => _endPoint = _startPoint + value;
+            get => EndPoint - StartPoint;
+            set => EndPoint = StartPoint + value;
         }
         
-        private Vec3 _startPoint;
-        private Vec3 _endPoint;
-
         public enum Part
         {
             StartPoint,

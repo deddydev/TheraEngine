@@ -120,39 +120,30 @@ namespace TheraEngine.Rendering.UI.Functions
         public override bool CanConnectTo(TOutput other)
         {
             if (other == null)
-                return true;
-
-            //if (other.IsOutput == IsOutput)
-            //    return false;
-
-            int otherType = other.CurrentArgumentType;
-
-            //Edge case: the other node is just invalid
-            if (otherType < 0)
                 return false;
-
+            
+            int otherType = other.CurrentArgumentType;
             int thisType = CurrentArgumentType;
+
             if (thisType >= 0)
             {
                 if (otherType >= 0)
                     return thisType == otherType;
-
-                //Has to be a multi arg as per the edge case check above
-                TOutput otherMultiArg = other;
-
-                return otherMultiArg.AllowedArgumentTypes.Contains(thisType);
+                
+                return other.AllowedArgumentTypes.Contains(thisType);
             }
             else //this type is invalid, use allowed arg types
             {
                 if (otherType >= 0)
                     return AllowedArgumentTypes.Contains(otherType);
-
-                //Has to be a multi arg as per the edge case check above
-                TOutput otherMultiArg = other;
-
+                
                 //Returns true if there are any matching allowed types between the two
-                return AllowedArgumentTypes.Intersect(otherMultiArg.AllowedArgumentTypes).ToArray().Length != 0;
+                return AllowedArgumentTypes.Intersect(other.AllowedArgumentTypes).ToArray().Length != 0;
             }
         }
+        public override bool CanConnectTo(BaseFuncArg other)
+            => CanConnectTo(other as TOutput);
+        public override bool TryConnectTo(BaseFuncArg other)
+            => TryConnectTo(other as TOutput);
     }
 }

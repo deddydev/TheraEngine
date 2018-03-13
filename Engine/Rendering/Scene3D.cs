@@ -293,10 +293,10 @@ namespace TheraEngine.Rendering
 
                             v.PostProcessFBO.Render();
 
-                            if (v.HUD?.Scene != null)
+                            if (v.HUD?.UIScene != null)
                             {
-                                v.HUD.Scene.CollectVisibleRenderables();
-                                v.HUD.Scene.DoRender(v.HUD.Camera, v, null);
+                                v.HUD.UIScene.CollectVisibleRenderables();
+                                v.HUD.UIScene.DoRender(v.HUD.Camera, v, null);
                             }
                         }
                         Engine.Renderer.PopRenderArea();

@@ -14,7 +14,8 @@ namespace TheraEngine.Rendering.UI.Functions
     {
         public override bool IsOutput => true;
         public EventList<TInput> ConnectedTo => _connectedTo;
-
+        public new TParent ParentSocket => (TParent)base.ParentSocket;
+        
         protected EventList<TInput> _connectedTo = new EventList<TInput>(false);
 
         public FuncValueOutput(string name, params int[] types)

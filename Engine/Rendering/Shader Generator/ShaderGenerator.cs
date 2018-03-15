@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Functions;
@@ -7,11 +9,13 @@ namespace TheraEngine.Rendering
 {
     public class ShaderGenerator
     {
+        public static readonly string OutputColorName = "OutColor";
+
         private const string GLSLVersion = "450";
         private string NewLine = Environment.NewLine;
         
         private string _shaderCode = "";
-        private int tabCount = 0;
+        private int _tabCount = 0;
 
         #region String Helpers
         private string Tabs
@@ -19,7 +23,7 @@ namespace TheraEngine.Rendering
             get
             {
                 string t = "";
-                for (int i = 0; i < tabCount; i++)
+                for (int i = 0; i < _tabCount; i++)
                     t += "\t";
                 return t;
             }
@@ -27,38 +31,43 @@ namespace TheraEngine.Rendering
         public void Reset()
         {
             _shaderCode = "";
-            tabCount = 0;
+            _tabCount = 0;
         }
         public void WriteVersion()
         {
-            wl("#version {0}", GLSLVersion);
+            Line("#version {0}", GLSLVersion);
         }
         public void WriteInVar(int layoutLocation, ShaderVarType type, string name)
         {
-            wl("layout (location = {0}) in {1} {2};", layoutLocation, type.ToString().Substring(1), name);
+            Line("layout (location = {0}) in {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
         public void WriteInVar(ShaderVarType type, string name)
         {
-            wl("in {0} {1};", type.ToString().Substring(1), name);
+            Line("in {0} {1};", type.ToString().Substring(1), name);
         }
         public void WriteUniform(int layoutLocation, ShaderVarType type, string name)
         {
-            wl("layout (location = {0}) uniform {1} {2};", layoutLocation, type.ToString().Substring(1), name);
+            Line("layout (location = {0}) uniform {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
         public void WriteUniform(ShaderVarType type, string name)
         {
-            wl("uniform {0} {1};", type.ToString().Substring(1), name);
+            Line("uniform {0} {1};", type.ToString().Substring(1), name);
         }
         public void Comment(string comment, params object[] args)
         {
-            wl("//" + comment, args);
+            Line("//" + comment, args);
         }
-        public void Begin()
+        public void Loop(int startIndex, int count, string varName = "i")
         {
-            wl("void main()");
+            Line($"for (int {varName} = {startIndex}; {varName} < {count}; ++{varName})");
+        }
+        public void Loop(int count, string varName = "i") => Loop(0, count, varName);
+        public void StartMain()
+        {
+            Line("void main()");
             OpenBracket();
         }
-        public string Finish()
+        public string EndMain()
         {
             CloseBracket();
             string s = _shaderCode;
@@ -69,13 +78,13 @@ namespace TheraEngine.Rendering
         /// Writes the current line and increments to the next line.
         /// Do not use arguments if you need to include brackets in the string.
         /// </summary>
-        public void wl(string str = "", params object[] args)
+        public void Line(string str = "", params object[] args)
         {
             str += NewLine;
 
             //Decrease tabs for every close bracket
             if (args.Length == 0)
-                tabCount -= str.Count(x => x == '}');
+                _tabCount -= str.Count(x => x == '}');
 
             bool s = false;
             int r = str.LastIndexOf(NewLine);
@@ -92,32 +101,69 @@ namespace TheraEngine.Rendering
 
             //Increase tabs for every open bracket
             if (args.Length == 0)
-                tabCount += str.Count(x => x == '{');
+                _tabCount += str.Count(x => x == '{');
         }
         public void OpenBracket()
         {
-            wl("{");
+            Line("{");
         }
         public void CloseBracket()
         {
-            wl("}");
+            Line("}");
         }
         #endregion
 
-        public static TMaterial GenerateMaterial(string name, ResultBasicFunc resultFunction)
+        public static Shader[] GenerateShaders(ResultFunc resultFunction)
         {
             if (resultFunction == null)
                 return null;
 
-            TMaterial m = new TMaterial(name);
+            ShaderGenerator fragGen = new ShaderGenerator();
+            fragGen.WriteVersion();
+            fragGen.StartMain();
 
-            //TODO: determine shader types needed
-            foreach (MatFuncValueInput arg in resultFunction.InputArguments)
-            {
+            SortedDictionary<int, MaterialFunction> deepness = new SortedDictionary<int, MaterialFunction>();
 
-            }
+            VarNameGen nameGen = new VarNameGen();
+            FuncGen(resultFunction, nameGen);
             
-            return m;
+            Shader frag = new Shader(ShaderMode.Fragment, fragGen.EndMain());
+
+            return new Shader[]
+            {
+                frag,
+            };
+        }
+
+        private static void FuncGen(MaterialFunction func, VarNameGen nameGen)
+        {
+            if (func is ShaderMethod m)
+            {
+                string op = m.GetLineSyntax();
+            }
+            else if (func is ShaderLogic l)
+            {
+                string format = l.GetLogicFormat();
+            }
+            foreach (MatFuncValueInput arg in func.InputArguments)
+            {
+                if (arg.ConnectedTo != null)
+                {
+                    MaterialFunction f = arg.ConnectedTo.ParentSocket;
+                    FuncGen(f, nameGen);
+                }
+                else
+                {
+                    Convert.ToSingle(arg.DefaultValue);
+                }
+            }
+        }
+        public sealed class MatNode
+        {
+            public MaterialFunction Func { get; set; }
+            public string[] OutputNames { get; set; }
+            public MatNode[] Children { get; set; }
+            public int Deepness { get; set; } = 0;
         }
     }
 }

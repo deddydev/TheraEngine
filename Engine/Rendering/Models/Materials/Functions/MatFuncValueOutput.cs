@@ -5,6 +5,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public class MatFuncValueOutput : FuncValueOutput<MatFuncValueInput, MaterialFunction>
     {
+        public ShaderVarType ArgumentType => (ShaderVarType)CurrentArgumentType;
+
         public MatFuncValueOutput(string name, params ShaderVarType[] types)
             : base(name, types.Select(x => (int)x).ToArray()) { }
         public MatFuncValueOutput(string name, MaterialFunction parent, params ShaderVarType[] types)

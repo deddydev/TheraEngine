@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public string Description { get; }
         public string Category { get; }
     }
-    public interface IFunction
+    public interface IFunction : IUIComponent
     {
 
     }
@@ -164,14 +164,19 @@ namespace TheraEngine.Rendering.UI.Functions
         where TEIn : BaseFuncExec, IFuncExecInput
         where TEOut : BaseFuncExec, IFuncExecOutput
     {
-        public Function() : base()
+        public Function(bool deferControlArrangement = false) : base()
+        {
+            if (!deferControlArrangement)
+                AddArguments();
+        }
+
+        protected void AddArguments()
         {
             AddExecInput(GetExecInputs());
             AddExecOutput(GetExecOutputs());
             AddValueInput(GetValueInputs());
             AddValueOutput(GetValueOutputs());
             ArrangeControls();
-            PerformResize();
         }
 
         #region Input/Output Exec
@@ -181,38 +186,18 @@ namespace TheraEngine.Rendering.UI.Functions
         public List<TEIn> InputExec => _execInputs;
         [Browsable(false)]
         public List<TEOut> OutputExec => _execOutputs;
-        protected virtual List<TEIn> GetExecInputs() => new List<TEIn>();
-        protected virtual List<TEOut> GetExecOutputs() => new List<TEOut>();
-        protected void AddExecInput(List<TEIn> input)
-        {
-            if (input != null)
-                foreach (TEIn v in input)
-                    HandleExecInputAdded(v);
-            PerformResize();
-        }
+        protected virtual TEIn[] GetExecInputs() => null;
+        protected virtual TEOut[] GetExecOutputs() => null;
+        protected void AddExecInput(TEIn[] input)
+            => input.ForEach(AddExecInput);
+        protected void AddExecOutput(TEOut[] output)
+            => output.ForEach(AddExecOutput);
         protected void AddExecInput(TEIn input)
-        {
-            HandleExecInputAdded(input);
-            PerformResize();
-        }
-        private void HandleExecInputAdded(TEIn input)
         {
             _execInputs.Add(input);
             AddParam(input);
         }
-        protected void AddExecOutput(List<TEOut> output)
-        {
-            if (output != null)
-                foreach (TEOut v in output)
-                    HandleExecOutputAdded(v);
-            PerformResize();
-        }
         protected void AddExecOutput(TEOut output)
-        {
-            HandleExecOutputAdded(output);
-            PerformResize();
-        }
-        private void HandleExecOutputAdded(TEOut output)
         {
             _execOutputs.Add(output);
             AddParam(output);
@@ -226,38 +211,18 @@ namespace TheraEngine.Rendering.UI.Functions
         public List<TVIn> InputArguments => _valueInputs;
         [Browsable(false)]
         public List<TVOut> OutputArguments => _valueOutputs;
-        protected virtual List<TVIn> GetValueInputs() => new List<TVIn>();
-        protected virtual List<TVOut> GetValueOutputs() => new List<TVOut>();
-        protected void AddValueInput(List<TVIn> input)
-        {
-            if (input != null)
-                foreach (TVIn v in input)
-                    HandleValueInputAdded(v);
-            PerformResize();
-        }
+        protected virtual TVIn[] GetValueInputs() => null;
+        protected virtual TVOut[] GetValueOutputs() => null;
+        protected void AddValueInput(TVIn[] input)
+            => input.ForEach(AddValueInput);
+        protected void AddValueOutput(TVOut[] output)
+            => output.ForEach(AddValueOutput);
         protected void AddValueInput(TVIn input)
-        {
-            HandleValueInputAdded(input);
-            PerformResize();
-        }
-        private void HandleValueInputAdded(TVIn input)
         {
             _valueInputs.Add(input);
             AddParam(input);
         }
-        protected void AddValueOutput(List<TVOut> output)
-        {
-            if (output != null)
-                foreach (TVOut v in output)
-                    HandleValueOutputAdded(v);
-            PerformResize();
-        }
         protected void AddValueOutput(TVOut output)
-        {
-            HandleValueOutputAdded(output);
-            PerformResize();
-        }
-        private void HandleValueOutputAdded(TVOut output)
         {
             _valueOutputs.Add(output);
             AddParam(output);
@@ -326,6 +291,8 @@ namespace TheraEngine.Rendering.UI.Functions
             }
 
             //_headerText.LocalTranslation = new Vec2(0.0f, _size.Y);
+
+            PerformResize();
         }
         private void Arrange2(BaseFuncArg arg, UITextComponent text, Size[] sizes, bool input, int i, float headerHeight, float yTrans)
         {

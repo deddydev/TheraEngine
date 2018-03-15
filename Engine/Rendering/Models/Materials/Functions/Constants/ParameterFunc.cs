@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 "Parameter Value",
                 "Provides an animatable value to the shader.",
                 "constant scalar vector parameter value uniform animatable animate animation")]
-    public class ParameterFunc<T> : MaterialFunction, IParameterFunc where T : ShaderVar
+    public class ParameterFunc<T> : ShaderMethod, IParameterFunc where T : ShaderVar
     {
         public ParameterFunc() : base(true) { }
         public ParameterFunc(T value) : base(true) { _value = value; }

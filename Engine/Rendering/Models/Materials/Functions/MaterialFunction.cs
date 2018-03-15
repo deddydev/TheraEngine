@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
@@ -7,119 +8,117 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     public abstract class MaterialFunction
         : Function<MatFuncValueInput, MatFuncValueOutput, MatFuncExecInput, MatFuncExecOutput>
     {
-        /// <summary>
-        /// Determines if this function can be contained within one line.
-        /// Otherwise written as a method located outside of main().
-        /// <para>
-        /// Ex: type thing = FUNC_OPERATION;
-        /// </para>
-        /// otherwise:
-        /// <para>
-        /// type FUNC_NAME(in/out type args) { FUNC_OPERATION }
-        /// </para>
-        /// </summary>
-        [Browsable(false)]
-        public bool Inline { get; private set; } = false;
+        public MaterialFunction(bool deferControlArrangement = false) : base(true) { }
 
-        /// <summary>
-        /// Creates a new material function for material shader generation.
-        /// </summary>
-        /// <param name="inline">       
-        /// Determines if this function can be contained within one line.
-        /// Otherwise written as a method located outside of main().
-        /// <para>
-        /// Ex: type thing = FUNC_OPERATION;
-        /// </para>
-        /// otherwise:
-        /// <para>
-        /// type FUNC_NAME(in/out type args) { FUNC_OPERATION }
-        /// </para>
-        /// </param>
-        public MaterialFunction(bool inline) : base()
+        public string Two(ShaderVarType type)
         {
-            Inline = inline;
-        }
-        public MaterialFunction() : base()
-        {
-
-        }
-        
-        /// <summary>
-        /// Returns the base operation for string.Format.
-        /// </summary>
-        protected abstract string GetOperation();
-        
-        /// <summary>
-        /// Returns the operation of this function on a single line.
-        /// Written either inline or as a method call.
-        /// </summary>
-        /// <param name="inputNames"></param>
-        /// <param name="outputNames"></param>
-        /// <param name="declareOutputs"></param>
-        /// <returns></returns>
-        public string GetLineOperation(
-            string[] inputNames,
-            string[] outputNames,
-            bool declareOutputs = false)
-        {
-            if (inputNames.Length != _valueInputs.Count ||
-                outputNames.Length != _valueOutputs.Count)
-                throw new InvalidOperationException();
-
-            if (Inline)
-                return string.Format(GetOperation(), inputNames);
-
-            string s = "\n";
-            if (declareOutputs)
-                for (int i = 0; i < _valueOutputs.Count; ++i)
+            if (!IsType(type, BooleanTypes))
+                switch (type)
                 {
-                    string name = outputNames[i];
-                    ShaderVarType type = (ShaderVarType)_valueOutputs[i].CurrentArgumentType;
-                    s += type + " " + name + ";\n";
+                    case ShaderVarType._int: return "2";
+                    case ShaderVarType._ivec2: return "ivec2(2)";
+                    case ShaderVarType._ivec3: return "ivec3(2)";
+                    case ShaderVarType._ivec4: return "ivec4(2)";
+                    case ShaderVarType._uint: return "2";
+                    case ShaderVarType._uvec2: return "uvec2(2)";
+                    case ShaderVarType._uvec3: return "uvec3(2)";
+                    case ShaderVarType._uvec4: return "uvec4(2)";
+                    case ShaderVarType._float: return "2.0f";
+                    case ShaderVarType._vec2: return "vec2(2.0f)";
+                    case ShaderVarType._vec3: return "vec3(2.0f)";
+                    case ShaderVarType._vec4: return "vec4(2.0f)";
+                    case ShaderVarType._double: return "2.0";
+                    case ShaderVarType._dvec2: return "dvec2(2.0)";
+                    case ShaderVarType._dvec3: return "dvec3(2.0)";
+                    case ShaderVarType._dvec4: return "dvec4(2.0)";
+                    case ShaderVarType._mat3: throw new NotImplementedException();
+                    case ShaderVarType._mat4: throw new NotImplementedException();
                 }
 
-            s += Name + "(";
-            for (int i = 0; i < _valueInputs.Count; ++i)
-            {
-                s += inputNames[i];
-                if (i != _valueInputs.Count - 1)
-                    s += ", ";
-            }
-            if (_valueOutputs.Count > 0)
-                s += ", ";
-            for (int i = 0; i < _valueOutputs.Count; ++i)
-            {
-                s += outputNames[i];
-                if (i != _valueOutputs.Count - 1)
-                    s += ", ";
-            }
-            s += ")";
-
-            return s;
+            throw new ArgumentException();
         }
-        public string GetGlobalMethodDeclaration()
+        public string One(ShaderVarType type)
         {
-            string s = "void " + FunctionName + "(";
-            bool first = true;
-            foreach (MatFuncValueInput arg in InputArguments)
+            switch (type)
             {
-                if (first)
-                    first = false;
-                else
-                    s += ", ";
-                s += "in " + arg.CurrentArgumentType.ToString().Substring(1) + " " + arg.Name;
+                case ShaderVarType._bool: return "true";
+                case ShaderVarType._bvec2: return "bvec2(true)";
+                case ShaderVarType._bvec3: return "bvec3(true)";
+                case ShaderVarType._bvec4: return "bvec4(true)";
+                case ShaderVarType._int: return "1";
+                case ShaderVarType._ivec2: return "ivec2(1)";
+                case ShaderVarType._ivec3: return "ivec3(1)";
+                case ShaderVarType._ivec4: return "ivec4(1)";
+                case ShaderVarType._uint: return "1";
+                case ShaderVarType._uvec2: return "uvec2(1)";
+                case ShaderVarType._uvec3: return "uvec3(1)";
+                case ShaderVarType._uvec4: return "uvec4(1)";
+                case ShaderVarType._float:  return "1.0f";
+                case ShaderVarType._vec2: return "vec2(1.0f)";
+                case ShaderVarType._vec3: return "vec3(1.0f)";
+                case ShaderVarType._vec4: return "vec4(1.0f)";
+                case ShaderVarType._double: return "1.0";
+                case ShaderVarType._dvec2:  return "dvec2(1.0)";
+                case ShaderVarType._dvec3:  return "dvec3(1.0)";
+                case ShaderVarType._dvec4:  return "dvec4(1.0)";
+                case ShaderVarType._mat3: throw new NotImplementedException();
+                case ShaderVarType._mat4: throw new NotImplementedException();
             }
-            foreach (MatFuncValueOutput arg in OutputArguments)
-            {
-                if (first)
-                    first = false;
-                else
-                    s += ", ";
-                s += "out " + arg.CurrentArgumentType.ToString().Substring(1) + " " + arg.Name;
-            }
-            s += ")\n{\n" + GetOperation() + "\n}\n";
-            return s;
+
+            throw new ArgumentException();
         }
+        public string Zero(ShaderVarType type)
+        {
+            switch (type)
+            {
+                case ShaderVarType._bool: return "false";
+                case ShaderVarType._bvec2: return "bvec2(false)";
+                case ShaderVarType._bvec3: return "bvec3(false)";
+                case ShaderVarType._bvec4: return "bvec4(false)";
+                case ShaderVarType._int: return "0";
+                case ShaderVarType._ivec2: return "ivec2(0)";
+                case ShaderVarType._ivec3: return "ivec3(0)";
+                case ShaderVarType._ivec4: return "ivec4(0)";
+                case ShaderVarType._uint: return "0";
+                case ShaderVarType._uvec2: return "uvec2(0)";
+                case ShaderVarType._uvec3: return "uvec3(0)";
+                case ShaderVarType._uvec4: return "uvec4(0)";
+                case ShaderVarType._float: return "0.0f";
+                case ShaderVarType._vec2: return "vec2(0.0f)";
+                case ShaderVarType._vec3: return "vec3(0.0f)";
+                case ShaderVarType._vec4: return "vec4(0.0f)";
+                case ShaderVarType._double: return "0.0";
+                case ShaderVarType._dvec2: return "dvec2(0.0)";
+                case ShaderVarType._dvec3: return "dvec3(0.0)";
+                case ShaderVarType._dvec4: return "dvec4(0.0)";
+                case ShaderVarType._mat3: throw new NotImplementedException();
+                case ShaderVarType._mat4: throw new NotImplementedException();
+            }
+
+            throw new ArgumentException();
+        }
+        public string Half(ShaderVarType type)
+        {
+            if (IsType(type, FloatingPointTypes))
+                switch (type)
+                {
+                    case ShaderVarType._float: return "0.5f";
+                    case ShaderVarType._vec2: return "vec2(0.5f)";
+                    case ShaderVarType._vec3: return "vec3(0.5f)";
+                    case ShaderVarType._vec4: return "vec4(0.5f)";
+                    case ShaderVarType._double: return "0.5";
+                    case ShaderVarType._dvec2: return "dvec2(0.5)";
+                    case ShaderVarType._dvec3: return "dvec3(0.5)";
+                    case ShaderVarType._dvec4: return "dvec4(0.5)";
+                    case ShaderVarType._mat3: throw new NotImplementedException();
+                    case ShaderVarType._mat4: throw new NotImplementedException();
+                }
+
+            throw new ArgumentException();
+        }
+
+        public static bool IsType(ShaderVarType type, ShaderVarType[] comparedTypes)
+            => comparedTypes.Contains(type);
         
         public static readonly ShaderVarType[] SignedIntTypes = new ShaderVarType[]
         {

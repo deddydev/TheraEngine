@@ -6,16 +6,10 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
-    public class BreakVec2
+    public abstract class ShaderLogic : MaterialFunction
     {
+        public ShaderLogic() : base() { }
 
-    }
-    public class BreakVec3
-    {
-
-    }
-    public class BreakVec4
-    {
-
+        public abstract string GetLogicFormat();
     }
 }

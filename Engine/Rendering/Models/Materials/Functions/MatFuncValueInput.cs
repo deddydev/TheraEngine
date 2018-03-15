@@ -5,11 +5,11 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public class MatFuncValueInput : FuncValueInput<MatFuncValueOutput, MaterialFunction>
     {
-        private bool _enabled;
-        public bool Enabled
+        public object DefaultValue { get; set; }
+        public ShaderVarType ArgumentType
         {
-            get => _enabled;
-            set => _enabled = value;
+            get => (ShaderVarType)CurrentArgumentType;
+            set => CurrentArgumentType = (int)value;
         }
 
         public MatFuncValueInput(string name, params ShaderVarType[] types)

@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         CategoryName,
         "Add",
         "Returns A + B.",
-        "added + concatenate addition")]
+        "added + concatenate addition plus")]
     public class AddFunc : OperatorFunc
     {
         public AddFunc() : base() { }

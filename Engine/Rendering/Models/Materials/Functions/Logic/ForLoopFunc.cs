@@ -8,9 +8,15 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "For Loop",
         "Runs code X amount of times.",
         "loop for foreach repeat repetition")]
-    public class ForLoopFunc : MaterialFunction
+    public class ForLoopFunc : ShaderLogic
     {
-        public ForLoopFunc() : base(true) { }
+        public ForLoopFunc() : base() { }
+
+        public override string GetLogicFormat(RandomVarNameGenerator nameGen)
+        {
+            return @"for (int )";
+        }
+
         protected override string GetOperation() => "for (int i = {0}; {1}, ";
         
         protected override List<MatFuncValueInput> GetValueInputs()

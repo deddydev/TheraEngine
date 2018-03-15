@@ -695,8 +695,8 @@ namespace TheraEngine.Rendering
                 TexRef2D.CreateFrameBufferTexture("Normal", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment1),
-                TexRef2D.CreateFrameBufferTexture("RoughnessMetallicSpecular", width, height,
-                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
+                TexRef2D.CreateFrameBufferTexture("RoughnessMetallicSpecularUnused", width, height,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment2),
                 //CreateFrameBufferTexture("Velocity", width, height,
                 //    EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat,
@@ -705,8 +705,7 @@ namespace TheraEngine.Rendering
                 depthTexture,
             };
             TMaterial deferredMat = new TMaterial(
-                "DeferredLightingMaterial", 
-                deferredRefs, 
+                "DeferredLightingMaterial", deferredRefs, 
                 Engine.LoadEngineShader("DeferredLighting.fs", ShaderMode.Fragment))
             {
                 Requirements = TMaterial.UniformRequirements.NeedsLightsAndCamera,

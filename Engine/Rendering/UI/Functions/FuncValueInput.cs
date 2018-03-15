@@ -12,6 +12,7 @@ namespace TheraEngine.Rendering.UI.Functions
         where TOutput : UIComponent, IFuncValueOutput where TParent : UIComponent, IFunction
     {
         public override bool IsOutput => false;
+        public new TParent OwningActor  => (TParent)base.OwningActor;
         public TOutput ConnectedTo
         {
             get => _connectedTo;

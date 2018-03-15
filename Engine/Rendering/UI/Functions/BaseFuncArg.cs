@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public BaseFuncArg(string name, IFunction parent, ColorF4 color) : base(MakeArgMaterial(color))
         {
             _name = name;
-            _parent = (UIComponent)parent;
+            _parent = parent;
             Size = new Vec2(ConnectionBoxDims);
         }
 

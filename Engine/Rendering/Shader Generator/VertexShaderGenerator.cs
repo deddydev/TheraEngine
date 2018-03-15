@@ -1,11 +1,9 @@
-﻿using System;
-using TheraEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEngine.Rendering
 {
-    public static class VertexShaderGenerator
+    public class VertexShaderGenerator : ShaderGenerator
     {
         public const string FragPosName = "FragPos";
         public const string FragNormName = "FragNorm";
@@ -14,76 +12,67 @@ namespace TheraEngine.Rendering
         public const string FragColorName = "FragColor{0}";
         public const string FragUVName = "FragUV{0}";
 
-        private static ShaderGenerator _generator = new ShaderGenerator();
-        private static VertexShaderDesc _info;
+        private bool _morphsAllowed, _useMorphMultiRig;
+        private VertexShaderDesc _info;
+        private bool UseMorphs => _morphsAllowed && _info._morphCount > 0;
+        private bool MultiRig => _useMorphMultiRig && _info._morphCount > 0;
 
-        private static void WriteLine(string str = "", params object[] args)
-            => _generator.wl(str, args);
-        private static void WriteUniform(int layoutLocation, ShaderVarType type, string name) 
-            => _generator.WriteUniform(layoutLocation, type, name);
-        private static void WriteUniform(ShaderVarType type, string name)
-            => _generator.WriteUniform(type, name);
-        private static void WriteInVar(int layoutLocation, ShaderVarType type, string name)
-            => _generator.WriteInVar(layoutLocation, type, name);
-        private static void WriteInVar(ShaderVarType type, string name)
-            => _generator.WriteInVar(type, name);
-
-        public static Shader Generate(ResultBasicFunc end)
-        {
-            throw new NotImplementedException();
-        }
-        public static Shader Generate(VertexShaderDesc info, bool allowMeshMorphing, bool singleMorphRig, bool allowColorMorphing)
+        public Shader Generate(
+            VertexShaderDesc info, 
+            bool allowMeshMorphing, 
+            bool useMorphMultiRig, 
+            bool allowColorMorphing)
         {
             _info = info;
-
-            allowMeshMorphing = allowMeshMorphing && _info._morphCount > 0;
+            _morphsAllowed = allowMeshMorphing;
+            _useMorphMultiRig = useMorphMultiRig;
 
             //Write #definitions
-            _generator.WriteVersion();
-            WriteLine();
+            WriteVersion();
+            Line();
             
             //Write header in fields (from buffers)
-            WriteBuffers(allowMeshMorphing);
-            WriteLine();
+            WriteBuffers();
+            Line();
 
             //Write header uniforms
-            WriteMatrixUniforms(allowMeshMorphing);
-            WriteLine();
+            WriteMatrixUniforms();
+            Line();
 
             //Write header out fields (to fragment shader)
             WriteOutData();
-            WriteLine();
+            Line();
 
+            //For some reason, this is necessary
             if (Engine.Settings.AllowShaderPipelines)
             {
-                WriteLine("out gl_PerVertex");
-                WriteLine("{");
-                WriteLine("vec4 gl_Position;");
-                WriteLine("float gl_PointSize;");
-                WriteLine("float gl_ClipDistance[];");
-                WriteLine("};");
-                WriteLine();
+                Line("out gl_PerVertex");
+                OpenBracket();
+                Line("vec4 gl_Position;");
+                Line("float gl_PointSize;");
+                Line("float gl_ClipDistance[];");
+                CloseBracket();
+                Line();
             }
-
-            //Write the beginning of the main function
-            _generator.Begin();
+            
+            StartMain();
 
             if (_info.IsWeighted && Engine.Settings.SkinOnGPU)
-                WriteRiggedPNTB(allowMeshMorphing, allowMeshMorphing ? singleMorphRig : true);
+                WriteRiggedPNTB();
             else
-                WriteStaticPNTB(allowMeshMorphing);
+                WriteStaticPNTB();
 
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteLine("{0} = {2}{1};", string.Format(FragColorName, i), i, BufferType.Color.ToString());
+                Line("{0} = {2}{1};", string.Format(FragColorName, i), i, BufferType.Color.ToString());
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteLine("{0} = {2}{1};", string.Format(FragUVName, i), i, BufferType.TexCoord.ToString());
+                Line("{0} = {2}{1};", string.Format(FragUVName, i), i, BufferType.TexCoord.ToString());
 
-            string source = _generator.Finish();
+            string source = EndMain();
             return new Shader(ShaderMode.Vertex, source);
         }
-        private static void WriteBuffers(bool allowMorphs)
+        private void WriteBuffers()
         {
-            int meshCount = allowMorphs ? _info._morphCount + 1 : 1;
+            int meshCount = UseMorphs ? _info._morphCount + 1 : 1;
             bool weighted = Engine.Settings.SkinOnGPU && _info.IsWeighted;
             int location = 0;
 
@@ -151,7 +140,7 @@ namespace TheraEngine.Rendering
             //location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
         }
-        private static void WriteMatrixUniforms(bool morphed)
+        private void WriteMatrixUniforms()
         {
             WriteUniform(ShaderVarType._mat4, ECommonUniform.ModelMatrix.ToString());
             WriteUniform(ShaderVarType._mat3, ECommonUniform.NormalMatrix.ToString());
@@ -164,182 +153,200 @@ namespace TheraEngine.Rendering
                     WriteUniform(ShaderVarType._mat4, Uniform.BonePosMtxName + "[" + (_info._boneCount + 1) + "]");
                     WriteUniform(ShaderVarType._mat4, Uniform.BoneNrmMtxName + "[" + (_info._boneCount + 1) + "]");
                 }
-                if (morphed)
+                if (UseMorphs)
                     WriteUniform(ShaderVarType._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
             }
         }
         /// <summary>
         /// This information is sent to the fragment shader.
         /// </summary>
-        private static void WriteOutData()
+        private void WriteOutData()
         {
-            WriteLine("out vec3 {0};", FragPosName);
+            Line($"out vec3 {FragPosName};");
             if (_info.HasNormals)
-                WriteLine("out vec3 {0};", FragNormName);
+                Line($"out vec3 {FragNormName};");
             if (_info.HasTangents)
-                WriteLine("out vec3 {0};", FragTanName);
+                Line($"out vec3 {FragTanName};");
             if (_info.HasBinormals)
-                WriteLine("out vec3 {0};", FragBinormName);
+                Line($"out vec3 {FragBinormName};");
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteLine("out vec4 {0};", string.Format(FragColorName, i));
+                Line($"out vec4 {string.Format(FragColorName, i)};");
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteLine("out vec2 {0};", string.Format(FragUVName, i));
+                Line($"out vec2 {string.Format(FragUVName, i)};");
         }
-        private static void WriteRiggedPNTB(bool morphed, bool singleRig)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="allowMorphs"></param>
+        /// <param name="singleRig"></param>
+        private void WriteRiggedPNTB()
         {
-            WriteLine("vec4 finalPosition = vec4(0.0);");
-            WriteLine("vec4 basePosition = vec4(Position0, 1.0);");
+            Line("vec4 finalPosition = vec4(0.0f);");
+            Line("vec4 basePosition = vec4(Position0, 1.0f);");
             if (_info.HasNormals || _info.HasTangents || _info.HasBinormals)
             {
                 if (_info.HasNormals)
                 {
-                    WriteLine("vec4 finalNormal = vec4(0.0);");
-                    WriteLine("vec4 baseNormal = vec4(Normal0, 0.0);");
+                    Line("vec4 finalNormal = vec4(0.0f);");
+                    Line("vec4 baseNormal = vec4(Normal0, 0.0f);");
                 }
                 if (_info.HasBinormals)
                 {
-                    WriteLine("vec4 finalBinormal = vec4(0.0);");
-                    WriteLine("vec4 baseBinormal = vec4(Binormal0, 0.0);");
+                    Line("vec4 finalBinormal = vec4(0.0f);");
+                    Line("vec4 baseBinormal = vec4(Binormal0, 0.0f);");
                 }
                 if (_info.HasTangents)
                 {
-                    WriteLine("vec4 finalTangent = vec4(0.0);");
-                    WriteLine("vec4 baseTangent = vec4(Tangent0, 0.0);");
+                    Line("vec4 finalTangent = vec4(0.0f);");
+                    Line("vec4 baseTangent = vec4(Tangent0, 0.0f);");
                 }
             }
-            WriteLine();
-            if (singleRig)
+            Line();
+            if (!MultiRig)
             {
-                WriteLine("int index;");
-                WriteLine("float weight;");
-                //wl("for (int i = 0; i < 4; ++i)");
-                //wl("{");
-                for (int i = 0; i < 4; ++i)
-                {
-                    string part = i == 0 ? "x" : i == 1 ? "y" : i == 2 ? "z" : "w";
+                Line("int index;");
+                Line("float weight;");
 
-                    if (Engine.Settings.UseIntegerWeightingIds)
-                        WriteLine("index = {0}0.{1};", BufferType.MatrixIds.ToString(), part);
+                Loop(4);
+                OpenBracket();
+                //for (int i = 0; i < 4; ++i)
+                //{
+                if (Engine.Settings.UseIntegerWeightingIds)
+                        Line("index = {0}0[i];", BufferType.MatrixIds.ToString());
                     else
-                        WriteLine("index = int({0}0.{1});", BufferType.MatrixIds.ToString(), part);
-                    WriteLine("weight = {0}0.{1};", BufferType.MatrixWeights.ToString(), part);
+                        Line("index = int({0}0[i]);", BufferType.MatrixIds.ToString());
+                    Line("weight = {0}0[i];", BufferType.MatrixWeights.ToString());
 
-                    WriteLine("finalPosition += ({0}[index] * basePosition) * weight;", Uniform.BonePosMtxName.ToString());
+                    Line($"finalPosition += ({Uniform.BonePosMtxName}[index] * basePosition) * weight;");
                     if (_info.HasNormals)
-                        WriteLine("finalNormal += ({0}[index] * baseNormal) * weight;", Uniform.BoneNrmMtxName.ToString());
+                        Line($"finalNormal += ({Uniform.BoneNrmMtxName}[index] * baseNormal) * weight;");
                     if (_info.HasBinormals)
-                        WriteLine("finalBinormal += ({0}[index] * baseBinormal) * weight;", Uniform.BoneNrmMtxName.ToString());
+                        Line($"finalBinormal += ({Uniform.BoneNrmMtxName}[index] * baseBinormal) * weight;");
                     if (_info.HasTangents)
-                        WriteLine("finalTangent += ({0}[index] * baseTangent) * weight;", Uniform.BoneNrmMtxName.ToString());
-                }
-                //wl("}");
-                WriteLine();
-                WriteLine("finalPosition = ModelMatrix * vec4(finalPosition.xyz, 1.0);");
+                        Line($"finalTangent += ({Uniform.BoneNrmMtxName}[index] * baseTangent) * weight;");
+                //}
+                CloseBracket();
+
+                Line();
+                Line("finalPosition = ModelMatrix * vec4(finalPosition.xyz, 1.0f);");
                 if (_info.HasNormals)
-                    WriteLine("{0} = normalize(NormalMatrix * finalNormal.xyz);", FragNormName);
+                    Line($"{FragNormName} = normalize(NormalMatrix * finalNormal.xyz);");
                 if (_info.HasBinormals)
-                    WriteLine("{0} = normalize(NormalMatrix * finalBinormal.xyz);", FragBinormName);
+                    Line($"{FragBinormName} = normalize(NormalMatrix * finalBinormal.xyz);");
                 if (_info.HasTangents)
-                    WriteLine("{0} = normalize(NormalMatrix * finalTangent.xyz);", FragTanName);
+                    Line($"{FragTanName} = normalize(NormalMatrix * finalTangent.xyz);");
             }
             else
             {
-                WriteLine("float totalWeight = 0.0;");
-                WriteLine("for (int i = 0; i < {0}; ++i)", _info._morphCount);
-                WriteLine("totalWeight += MorphWeights[i];");
-                WriteLine();
-                WriteLine("float baseWeight = 1.0 - totalWeight;");
-                WriteLine("float total = totalWeight + baseWeight;");
-                WriteLine();
-                WriteLine("basePosition *= baseWeight;");
+                Line("float totalWeight = 0.0f;");
+                Line($"for (int i = 0; i < {_info._morphCount}; ++i)");
+                Line("totalWeight += MorphWeights[i];");
+                Line();
+                Line("float baseWeight = 1.0f - totalWeight;");
+                Line("float total = totalWeight + baseWeight;");
+                Line();
+                Line("basePosition *= baseWeight;");
                 if (_info.HasNormals)
-                    WriteLine("baseNormal *= baseWeight;");
+                    Line("baseNormal *= baseWeight;");
                 if (_info.HasBinormals)
-                    WriteLine("baseBinormal *= baseWeight;");
+                    Line("baseBinormal *= baseWeight;");
                 if (_info.HasTangents)
-                    WriteLine("baseTangent *= baseWeight;");
-                WriteLine();
-                WriteLine("for (int i = 0; i < 4; ++i)");
-                WriteLine("{");
+                    Line("baseTangent *= baseWeight;");
+                Line();
+
+                Loop(4);
+                OpenBracket();
                 for (int i = 0; i < _info._morphCount; ++i)
                 {
-                    WriteLine("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BonePosMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    Line("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0f) * {2}{3}[i] * {4}[i];", Uniform.BonePosMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
-                        WriteLine("finalNormal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalNormal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasBinormals)
-                        WriteLine("finalBinorm += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalBinorm += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasTangents)
-                        WriteLine("finalTangent += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalTangent += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (i + 1 != _info._morphCount)
-                        WriteLine();
+                        Line();
                 }
-                WriteLine("}");
-                WriteLine("finalPosition = ModelMatrix * (finalPosition / vec4(total, total, total, 1.0));");
+                CloseBracket();
+
+                Line("finalPosition = ModelMatrix * (finalPosition / vec4(total, total, total, 1.0f));");
                 if (_info.HasNormals)
-                    WriteLine("{0} = normalize(NormalMatrix * (finalNormal / total));", FragNormName);
+                    Line($"{FragNormName} = normalize(NormalMatrix * (finalNormal / total));");
                 if (_info.HasBinormals)
-                    WriteLine("{0} = normalize(NormalMatrix * (finalBinormal / total));", FragBinormName);
+                    Line($"{FragBinormName} = normalize(NormalMatrix * (finalBinormal / total));");
                 if (_info.HasTangents)
-                    WriteLine("{0} = normalize(NormalMatrix * (finalTangent / total));", FragTanName);
+                    Line($"{FragTanName} = normalize(NormalMatrix * (finalTangent / total));");
             }
-            WriteLine("{0} = finalPosition.xyz;", FragPosName);
-            WriteLine("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * finalPosition;");
+            Line($"{FragPosName} = finalPosition.xyz;");
+            Line("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * finalPosition;");
         }
-        private static void WriteStaticPNTB(bool morphed)
+
+        /// <summary>
+        /// Writes positions, and optionally normals, tangents, and binormals for a static mesh.
+        /// </summary>
+        /// <param name="allowMorphs">If the mesh should be morphable or not, regardless of whether or not the mesh actually has morphs.</param>
+        private void WriteStaticPNTB()
         {
-            WriteLine("vec4 position = vec4(Position0, 1.0);");
+            Line("vec4 position = vec4(Position0, 1.0f);");
             if (_info.HasNormals)
-                WriteLine("vec3 normal = Normal0;");
+                Line("vec3 normal = Normal0;");
             if (_info.HasBinormals)
-                WriteLine("vec3 binormal = Binormal0;");
+                Line("vec3 binormal = Binormal0;");
             if (_info.HasTangents)
-                WriteLine("vec3 tangent = Tangent0;");
-            WriteLine();
-            if (morphed)
+                Line("vec3 tangent = Tangent0;");
+            Line();
+
+            if (UseMorphs)
             {
-                WriteLine("float totalWeight = 0.0;");
-                WriteLine("for (int i = 0; i < {0}; ++i)", _info._morphCount);
-                WriteLine("totalWeight += {0}[i];", Uniform.MorphWeightsName);
-                WriteLine("float baseWeight = 1.0 - totalWeight;");
-                WriteLine("float invTotal = 1.0 / (totalWeight + baseWeight);");
-                WriteLine();
-                WriteLine("position *= baseWeight;");
+                Line("float totalWeight = 0.0f;");
+                Loop(_info._morphCount);
+                Line($"totalWeight += {Uniform.MorphWeightsName}[i];");
+
+                Line("float baseWeight = 1.0f - totalWeight;");
+                Line("float invTotal = 1.0f / (totalWeight + baseWeight);");
+                Line();
+
+                Line("position *= baseWeight;");
                 if (_info.HasNormals)
-                    WriteLine("normal *= baseWeight;");
+                    Line("normal *= baseWeight;");
                 if (_info.HasBinormals)
-                    WriteLine("binormal *= baseWeight;");
+                    Line("binormal *= baseWeight;");
                 if (_info.HasTangents)
-                    WriteLine("tangent *= baseWeight;");
-                WriteLine();
+                    Line("tangent *= baseWeight;");
+                Line();
+
                 for (int i = 0; i < _info._morphCount; ++i)
                 {
-                    WriteLine("position += vec4(Position{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
+                    Line($"position += vec4(Position{i + 1}, 1.0f) * MorphWeights[{i}];");
                     if (_info.HasNormals)
-                        WriteLine("normal += Normal{0} * MorphWeights[{1}];", i + 1, i);
+                        Line($"normal += Normal{i + 1} * MorphWeights[{i}];");
                     if (_info.HasBinormals)
-                        WriteLine("binormal += Binormal{0} * MorphWeights[{1}];", i + 1, i);
+                        Line($"binormal += Binormal{i + 1} * MorphWeights[{i}];");
                     if (_info.HasTangents)
-                        WriteLine("tangent += Tangent{0} * MorphWeights[{1}];", i + 1, i);
+                        Line($"tangent += Tangent{i + 1} * MorphWeights[{i}];");
                 }
-                WriteLine();
-                WriteLine("position *= invTotal;");
+                Line();
+                Line("position *= invTotal;");
                 if (_info.HasNormals)
-                    WriteLine("normal *= invTotal;");
+                    Line("normal *= invTotal;");
                 if (_info.HasBinormals)
-                    WriteLine("binormal *= invTotal;");
+                    Line("binormal *= invTotal;");
                 if (_info.HasTangents)
-                    WriteLine("tangent *= invTotal;");
-                WriteLine();
+                    Line("tangent *= invTotal;");
+                Line();
             }
-            WriteLine("position = ModelMatrix * position;");
-            WriteLine("{0} = position.xyz;", FragPosName);
-            WriteLine("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * position;");
+
+            Line("position = ModelMatrix * position;");
+            Line($"{FragPosName} = position.xyz;");
+            Line("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * position;");
             if (_info.HasNormals)
-                WriteLine("{0} = normalize(NormalMatrix * normal);", FragNormName);
+                Line($"{FragNormName} = normalize(NormalMatrix * normal);");
             if (_info.HasBinormals)
-                WriteLine("{0} = normalize(NormalMatrix * binormal);", FragBinormName);
+                Line($"{FragBinormName} = normalize(NormalMatrix * binormal);");
             if (_info.HasTangents)
-                WriteLine("{0} = normalize(NormalMatrix * tangent);", FragTanName);
+                Line($"{FragTanName} = normalize(NormalMatrix * tangent);");
         }
     }
 }

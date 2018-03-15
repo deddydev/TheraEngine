@@ -10,10 +10,8 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Components
 {
-    public interface ISceneComponent
+    public interface ISceneComponent : ISocket
     {
-        Matrix4 WorldMatrix { get; set; }
-        Matrix4 InverseWorldMatrix { get; set; }
         Matrix4 LocalMatrix { get; }
         Matrix4 InverseLocalMatrix { get; }
         Scene3D OwningScene { get; set; }
@@ -27,7 +25,6 @@ namespace TheraEngine.Components
         Vec3 WorldUpVec { get; }
         Vec3 WorldForwardVec { get; }
         Vec3 WorldPoint { get; }
-        EventList<SceneComponent> ChildComponents { get; set; }
 
         Matrix4 GetParentMatrix();
         Matrix4 GetInverseParentMatrix();

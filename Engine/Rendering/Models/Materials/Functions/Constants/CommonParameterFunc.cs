@@ -7,13 +7,16 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 "Common Parameter",
                 "Provides a commom engine parameter value to the shader.",
                 "constant scalar parameter")]
-    public class CommonParameterFunc : MaterialFunction
+    public class CommonParameterFunc : ShaderMethod
     {
-        public CommonParameterFunc() : base(true) { }
-        public CommonParameterFunc(ECommonUniform value) : base(true) { _value = value; }
+        public CommonParameterFunc() : base() { }
+        public CommonParameterFunc(ECommonUniform value) : base()
+        {
+            Value = value;
+        }
 
-        ECommonUniform _value;
-        ShaderVarType _type;
+        private ECommonUniform _value;
+        private ShaderVarType _type;
 
         public ECommonUniform Value
         {

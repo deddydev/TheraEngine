@@ -8,6 +8,7 @@
         where TOutput : UIComponent, IFuncExecOutput where TParent : UIComponent, IFunction
     {
         public override bool IsOutput => false;
+        public new TParent OwningActor => (TParent)base.OwningActor;
 
         public FuncExecInput(string name)
             : base(name) { }

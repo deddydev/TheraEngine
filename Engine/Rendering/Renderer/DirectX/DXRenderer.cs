@@ -46,11 +46,6 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
         
-        public override int[] CreateQueries(int type, int count)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void RenderCurrentPrimitiveManager()
         {
             throw new NotImplementedException();
@@ -515,12 +510,7 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override int GenerateShader(params string[] source)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor)
         {
             throw new NotImplementedException();
@@ -552,6 +542,21 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void EnableDepthTest(bool enabled)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int[] CreateQueries(EQueryTarget type, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetShaderSource(int bindingId, params string[] sources)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CompileShader(int bindingId, out string info)
         {
             throw new NotImplementedException();
         }

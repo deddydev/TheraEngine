@@ -35,7 +35,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
         protected override int CreateObject()
             => Engine.Renderer.CreateTextures(TextureTarget, 1)[0];
-        protected override void OnGenerated()
+        protected override void PostGenerated()
             => PushData();
 
         public abstract void PushData();

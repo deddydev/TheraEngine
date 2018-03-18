@@ -110,6 +110,7 @@ namespace TheraEditor.Windows.Forms
         #region Input
         public override void RegisterInput(InputInterface input)
         {
+            input.RegisterButtonPressed(EKey.AltLeft, b => _altDown = b, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, LeftClickDown, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, LeftClickUp, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.RightClick, ButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
@@ -117,6 +118,7 @@ namespace TheraEditor.Windows.Forms
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
             input.RegisterMouseMove(MouseMove, MouseMoveType.Absolute, EInputPauseType.TickAlways);
         }
+        private bool _altDown = false;
         internal void LeftClickDown()
         {
             _selectedFunc = _draggedFunc = _highlightedFunc;
@@ -126,28 +128,58 @@ namespace TheraEditor.Windows.Forms
             {
                 if (_draggedArg.IsOutput)
                 {
+                    if (_altDown && _draggedArg is IFuncValueOutput output)
+                    {
+                        foreach (IFuncValueInput input in output)
+                            OnArgumentsDisconnected(input, output);
+                        output.ClearConnections();
+                    }
+
                     UpdateCursorBezier(_draggedArg.WorldPoint.Xy, _lastWorldPos - BoxDim());
                 }
                 else
                 {
-                    if (_draggedArg is IBaseFuncExec exec)
+                    //if (_draggedArg is IBaseFuncExec exec)
+                    //{
+                    //    exec.ClearConnection();
+                    //}
+                    //else 
+                    if (_draggedArg is IFuncValueInput input)
                     {
-                        exec.ClearConnection();
-                    }
-                    else if (_draggedArg is IFuncValueInput input)
-                    {
+                        OnArgumentsDisconnected(input, input.Connection);
                         input.ClearConnection();
                     }
                     UpdateCursorBezier(_lastWorldPos - BoxDim(), _draggedArg.WorldPoint.Xy);
                 }
             }
         }
+
+        private void OnArgumentsDisconnected(IFuncValueInput input, IFuncValueOutput output)
+        {
+            GenerateShaders();
+        }
+        private void OnArgumentsConnected(IFuncValueInput input, IFuncValueOutput output)
+        {
+            GenerateShaders();
+        }
+
+        private void GenerateShaders()
+        {
+            ShaderFile[] shaders = EndFunc.GenerateShaders();
+            TargetMaterial.SetShaders(EndFunc.GenerateShaders());
+            
+        }
+
         internal void LeftClickUp()
         {
             if (_draggedArg != null && _highlightedArg != null &&
-                !ReferenceEquals(_draggedArg, _highlightedArg))
+                !ReferenceEquals(_draggedArg, _highlightedArg) &&
+                _draggedArg.TryConnectTo(_highlightedArg))
             {
-                _draggedArg.TryConnectTo(_highlightedArg);
+                if (_draggedArg is IFuncValueInput input1 && _highlightedArg is IFuncValueOutput output1)
+                    OnArgumentsConnected(input1, output1);
+                else if (_highlightedArg is IFuncValueInput input2 && _draggedArg is IFuncValueOutput output2)
+                    OnArgumentsConnected(input2, output2);
             }
 
             _draggedFunc = null;
@@ -284,7 +316,7 @@ namespace TheraEditor.Windows.Forms
         }
         private TMaterial GetGraphMaterial()
         {
-            Shader frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", ShaderMode.Fragment);
+            ShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", ShaderMode.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[] 
             {
                 new ShaderVec3(new Vec3(0.1f, 0.12f, 0.13f), "LineColor"),
@@ -311,8 +343,8 @@ namespace TheraEditor.Windows.Forms
             float boxDim = BoxDim();
             foreach (MaterialFunction m in _materialFuncCache)
                 foreach (var input in m.InputArguments)
-                    if (input.ConnectedTo != null)
-                        DrawBezier(input.ConnectedTo.WorldPoint.Xy + boxDim, input.WorldPoint.Xy + boxDim);
+                    if (input.Connection != null)
+                        DrawBezier(input.Connection.WorldPoint.Xy + boxDim, input.WorldPoint.Xy + boxDim);
 
             if (_draggedArg == null)
                 return;

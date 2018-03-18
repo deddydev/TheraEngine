@@ -187,7 +187,7 @@ namespace TheraEngine.Rendering.OpenGL
                     GL.CreateProgramPipelines(count, ids);
                     break;
                 case EObjectType.Query:
-                    throw new Exception("Call CreateQueries instead.");
+                    throw new InvalidOperationException("Call CreateQueries instead.");
                 case EObjectType.Renderbuffer:
                     GL.CreateRenderbuffers(count, ids);
                     break;
@@ -195,7 +195,7 @@ namespace TheraEngine.Rendering.OpenGL
                     GL.CreateSamplers(count, ids);
                     break;
                 case EObjectType.Texture:
-                    throw new Exception("Call CreateTextures instead.");
+                    throw new InvalidOperationException("Call CreateTextures instead.");
                 case EObjectType.TransformFeedback:
                     GL.CreateTransformFeedbacks(count, ids);
                     break;
@@ -215,7 +215,7 @@ namespace TheraEngine.Rendering.OpenGL
             GL.CreateTextures((TextureTarget)(int)target, count, ids);
             return ids;
         }
-        public override int[] CreateQueries(int type, int count)
+        public override int[] CreateQueries(EQueryTarget type, int count)
         {
             int[] ids = new int[count];
             GL.CreateQueries((QueryTarget)type, count, ids);
@@ -252,47 +252,37 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.BindFragDataLocation(bindingId, location, name);
         }
-        public override int GenerateShader(params string[] source)
+        public override void SetShaderSource(int bindingId, params string[] sources)
         {
-            int handle = GL.CreateShader(_currentShaderMode);
-            if (handle == 0)
-            {
-                Engine.LogWarning("GL.CreateShader did not return a valid binding id.");
-                return 0;
-            }
-            
-            GL.ShaderSource(handle, source.Length, source, source.Select(x => x.Length).ToArray());
-            GL.CompileShader(handle);
+            GL.ShaderSource(bindingId, sources.Length, sources, sources.Select(x => x.Length).ToArray());
+            //GL.GetShaderSource(bindingId, )
+        }
+        public override bool CompileShader(int bindingId, out string info)
+        {
+            GL.CompileShader(bindingId);
+            GL.GetShader(bindingId, ShaderParameter.CompileStatus, out int status);
 
-#if DEBUG
-            GL.GetShader(handle, ShaderParameter.CompileStatus, out int status);
-            if (status == 0 || ForceShaderOutput)
+            bool success = status != 0;
+            if (!success)
             {
-                GL.GetShaderInfoLog(handle, out string info);
-
-                if (string.IsNullOrEmpty(info) && status == 0)
+                GL.GetShaderInfoLog(bindingId, out info);
+                if (string.IsNullOrEmpty(info))
                     Engine.LogWarning("Unable to compile shader, but no error was returned.");
                 else
-                {
                     Engine.LogWarning(info);
-                    for (int i = 0; i < source.Length; ++i)
-                    {
-                        Engine.PrintLine("\n\nSource {0}\n", i.ToString());
-
-                        //Split the source by new lines
-                        string[] s = source[i].Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-
-                        //Add the line number to the source so we can go right to errors on specific lines
-                        int lineNumber = 1;
-                        foreach (string line in s)
-                            Engine.PrintLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
-                    }
-                    Engine.PrintLine("\n\n");
-                }
             }
-#endif
-            return handle;
+            else
+                info = null;
+            return success;
         }
+        //public override int GenerateShader()
+        //{
+        //    int handle = GL.CreateShader(_currentShaderMode);
+        //    if (handle == 0)
+        //        Engine.LogWarning("GL.CreateShader did not return a valid binding id.");
+            
+        //    return handle;
+        //}
         public override void SetProgramParameter(int programBindingId, EProgParam parameter, int value)
             => GL.ProgramParameter(programBindingId, (ProgramParameterName)(int)parameter, value);
         public override void BindPipeline(int pipelineBindingId)
@@ -330,7 +320,7 @@ namespace TheraEngine.Rendering.OpenGL
             foreach (int i in shaderHandles)
             {
                 GL.DetachShader(handle, i);
-                GL.DeleteShader(i);
+                //GL.DeleteShader(i);
             }
             
             return handle;

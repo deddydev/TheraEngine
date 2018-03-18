@@ -616,6 +616,16 @@ namespace TheraEngine.Rendering
         ColorBufferBit      = 0b01000,
         CoverageBufferBitNv = 0b10000,
     }
+    public enum EQueryTarget
+    {
+        TimeElapsed = 35007,
+        SamplesPassed = 35092,
+        AnySamplesPassed = 35887,
+        PrimitivesGenerated = 35975,
+        TransformFeedbackPrimitivesWritten = 35976,
+        AnySamplesPassedConservative = 36202,
+        Timestamp = 36392
+    }
     public enum ETexTarget
     {
         Texture1D                       = 3552,

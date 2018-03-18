@@ -69,7 +69,7 @@ vec3 HSVtoRGB(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }";
         
-        public static Shader LitTextureFragForward()
+        public static ShaderFile LitTextureFragForward()
         {
             string source = @"
 #version 450
@@ -100,9 +100,9 @@ void main()
     OutColor = texColor * vec4(totalLight, 1.0);
 }
 ";
-            return new Shader(ShaderMode.Fragment, source);
+            return new ShaderFile(ShaderMode.Fragment, source);
         }
-        public static Shader TextureFragDeferred()
+        public static ShaderFile TextureFragDeferred()
         {
             string source = @"
 #version 450
@@ -128,9 +128,9 @@ void main()
     RMSI = vec4(Roughness, Metallic, Specular, IndexOfRefraction);
 }
 ";
-            return new Shader(ShaderMode.Fragment, source);
+            return new ShaderFile(ShaderMode.Fragment, source);
         }
-        public static Shader LitColorFragDeferred()
+        public static ShaderFile LitColorFragDeferred()
         {
             string source = @"
 #version 450
@@ -155,14 +155,14 @@ void main()
     RMSI = vec4(Roughness, Metallic, Specular, IndexOfRefraction);
 }
 ";
-            return new Shader(ShaderMode.Fragment, source);
+            return new ShaderFile(ShaderMode.Fragment, source);
         }
         /// <summary>
         /// Provides a fragment shader that outputs the color 
         /// of a single texture with no shading
         /// for a forward shading setup.
         /// </summary>
-        public static Shader UnlitTextureFragForward()
+        public static ShaderFile UnlitTextureFragForward()
         {
             string source = @"
 #version 450
@@ -181,13 +181,13 @@ void main()
     //    discard;
 }
 ";
-            return new Shader(ShaderMode.Fragment, source);
+            return new ShaderFile(ShaderMode.Fragment, source);
         }
         /// <summary>
         /// Provides a fragment shader that outputs a single color
         /// with no shading for a forward shading setup.
         /// </summary>
-        public static Shader UnlitColorFragForward()
+        public static ShaderFile UnlitColorFragForward()
         {
             string source = @"
 #version 450
@@ -195,9 +195,9 @@ layout (location = 0) out vec4 OutColor;
 uniform vec4 MatColor;
 void main() { OutColor = MatColor; }
 ";
-            return new Shader(ShaderMode.Fragment, source);
+            return new ShaderFile(ShaderMode.Fragment, source);
         }
-        public static Shader LitColorFragForward()
+        public static ShaderFile LitColorFragForward()
         {
             string source = @"
 #version 450
@@ -225,7 +225,7 @@ void main()
     OutColor = MatColor * vec4(totalLight, 1.0);
 }
 ";
-            return new Shader(ShaderMode.Fragment, source);
+            return new ShaderFile(ShaderMode.Fragment, source);
         }
         public static string LightingCalcForward()
             => LightingCalcBasic("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity", "1.0");
@@ -517,7 +517,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, floa
 }
 ";
         }
-        public static Shader LightingSetupPhysicallyBased()
+        public static ShaderFile LightingSetupPhysicallyBased()
         {
             string source = @"
 const float PI = 3.14159265359;
@@ -888,7 +888,7 @@ void main()
     color = vec4(result, 1);
 }
 ";
-            return new Shader(ShaderMode.Fragment, source);
+            return new ShaderFile(ShaderMode.Fragment, source);
         }
     }
 }

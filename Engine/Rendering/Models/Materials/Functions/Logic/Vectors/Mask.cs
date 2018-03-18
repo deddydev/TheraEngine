@@ -6,50 +6,50 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
-    public class BreakVec2 : MaterialFunction
+    public class BreakVec2 : ShaderMethod
     {
         protected override string GetOperation()
         {
             throw new NotImplementedException();
         }
-        protected override List<MatFuncValueInput> GetValueInputs()
+        protected override MatFuncValueInput[] GetValueInputs()
         {
-            return new List<MatFuncValueInput>()
+            return new MatFuncValueInput[]
             {
                 new MatFuncValueInput("Vector", ShaderVarType._vec2),
             };
         }
     }
-    public class BreakVec3 : MaterialFunction
+    public class BreakVec3 : ShaderMethod
     {
         protected override string GetOperation()
         {
             throw new NotImplementedException();
         }
-        protected override List<MatFuncValueInput> GetValueInputs()
+        protected override MatFuncValueInput[] GetValueInputs()
         {
-            return new List<MatFuncValueInput>()
+            return new MatFuncValueInput[]
             {
                 new MatFuncValueInput("Vector", ShaderVarType._vec3),
             };
         }
     }
-    public class BreakVec4 : MaterialFunction
+    public class BreakVec4 : ShaderMethod
     {
         protected override string GetOperation()
         {
-
+            throw new NotImplementedException();
         }
-        protected override List<MatFuncValueInput> GetValueInputs()
+        protected override MatFuncValueInput[] GetValueInputs()
         {
-            return new List<MatFuncValueInput>()
+            return new MatFuncValueInput[]
             {
                 new MatFuncValueInput("Vector", ShaderVarType._vec4),
             };
         }
-        protected override List<MatFuncValueOutput> GetValueOutputs()
+        protected override MatFuncValueOutput[] GetValueOutputs()
         {
-            return new List<MatFuncValueOutput>()
+            return new MatFuncValueOutput[]
             {
                 new MatFuncValueOutput("X", ShaderVarType._float),
                 new MatFuncValueOutput("Y", ShaderVarType._float),

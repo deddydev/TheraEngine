@@ -55,9 +55,9 @@ namespace TheraEngine
             Application.Run(new RenderForm(game));
         }
 
-        public static Shader LoadEngineShader(string fileName, ShaderMode mode)
+        public static ShaderFile LoadEngineShader(string fileName, ShaderMode mode)
         {
-            return new Shader(mode, new TextFile(EngineShaderPath(fileName)));
+            return new ShaderFile(mode, new TextFile(EngineShaderPath(fileName)));
         }
         public static string EngineShaderPath(string fileName)
         {

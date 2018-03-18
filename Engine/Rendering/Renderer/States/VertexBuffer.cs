@@ -322,7 +322,7 @@ namespace TheraEngine.Rendering.Models
                 return -1;
             }
         }
-        protected override void OnGenerated()
+        protected override void PostGenerated()
         {
             Engine.Renderer.InitializeBuffer(this);
         }

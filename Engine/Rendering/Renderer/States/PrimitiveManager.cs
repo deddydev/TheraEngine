@@ -54,7 +54,7 @@ namespace TheraEngine.Rendering.Models
 
         private VertexBuffer _indexBuffer;
         private EDrawElementType _elementType;
-        internal Shader _vertexShader;
+        internal ShaderFile _vertexShader;
 
         //Skeleton information
         private Bone _singleBind;
@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering.Models
                 {
                     _bufferInfo = _data.BufferInfo;
 
-                    _vertexShader = VertexShaderGenerator.Generate(_bufferInfo, false, false, false);
+                    _vertexShader = new VertexShaderGenerator().Generate(_bufferInfo, false, false, false);
                     if (Engine.Settings.AllowShaderPipelines)
                     {
                         if (_vertexProgram != null)
@@ -466,7 +466,7 @@ namespace TheraEngine.Rendering.Models
             _lastRenderedModelMatrix = modelMatrix;
         }
         private void OnSettingUniforms() => SettingUniforms?.Invoke();
-        protected override void OnGenerated()
+        protected override void PostGenerated()
         {
             //Create vertex shader program here
             if (Engine.Settings.AllowShaderPipelines)

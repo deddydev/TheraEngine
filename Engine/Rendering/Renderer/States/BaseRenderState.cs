@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Rendering
 {
+    /// <summary>
+    /// Identifies a render object that is handled by the renderer and needs to be generated/destroyed during runtime.
+    /// </summary>
     public abstract class BaseRenderState : TObject, IDisposable
     {
         internal const int NullBindingId = 0;
@@ -94,7 +97,7 @@ namespace TheraEngine.Rendering
         {
             _type = type;
             CurrentBind.BindingId = bindingId;
-            OnGenerated();
+            PostGenerated();
         }
 
         private void DestroyContextBind(int index)
@@ -142,18 +145,20 @@ namespace TheraEngine.Rendering
                 return BindingId;
 
             Engine.Renderer.CheckErrors();
+            PreGenerated();
             int id = CreateObject();
             if (id == 0)
                 throw new Exception("Unable to create render object.");
             Engine.Renderer.CheckErrors();
 
             CurrentBind.BindingId = id;
-            OnGenerated();
+            PostGenerated();
             Engine.Renderer.CheckErrors();
             Generated?.Invoke();
             Engine.Renderer.CheckErrors();
             return id;
         }
+
         /// <summary>
         /// Removes this render object from the current context.
         /// Call after capturing a context.
@@ -200,11 +205,12 @@ namespace TheraEngine.Rendering
         /// Do not call. Override if special generation necessary.
         /// </summary>
         /// <returns></returns>
-        protected virtual int CreateObject() { return Engine.Renderer.CreateObjects(_type, 1)[0]; }
+        protected virtual int CreateObject() => Engine.Renderer.CreateObjects(_type, 1)[0];
+        protected virtual void PreGenerated() { }
         /// <summary>
         /// Called directly after this object is created on the current context.
         /// </summary>
-        protected virtual void OnGenerated() { }
+        protected virtual void PostGenerated() { }
         /// <summary>
         /// Called directly before this object is deleted from the current context.
         /// </summary>
@@ -280,7 +286,7 @@ namespace TheraEngine.Rendering
         #endregion
     }
     /// <summary>
-    /// The type of render object that is handled by the renderer and needs to be generated/destroyed.
+    /// The type of render object that is handled by the renderer.
     /// </summary>
     public enum EObjectType
     {

@@ -12,25 +12,25 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     {
         public ForLoopFunc() : base() { }
 
-        public override string GetLogicFormat(RandomVarNameGenerator nameGen)
+        public override string GetLogicFormat()
         {
             return @"for (int )";
         }
 
-        protected override string GetOperation() => "for (int i = {0}; {1}, ";
+        //protected override string GetOperation() => "for (int i = {0}; {1}, ";
         
-        protected override List<MatFuncValueInput> GetValueInputs()
+        protected override MatFuncValueInput[] GetValueInputs()
         {
-            return new List<MatFuncValueInput>()
+            return new MatFuncValueInput[]
             {
                 new MatFuncValueInput("Start Index", ShaderVarType._int),
                 new MatFuncValueInput("Loop Operation", ShaderVarType._bool),
                 //TODO: material function argument for each loop?
             };
         }
-        protected override List<MatFuncValueOutput> GetValueOutputs()
+        protected override MatFuncValueOutput[] GetValueOutputs()
         {
-            return new List<MatFuncValueOutput>()
+            return new MatFuncValueOutput[]
             {
                 new MatFuncValueOutput("Loop Index", ShaderVarType._int),
                 new MatFuncValueOutput("Loop Count", ShaderVarType._bool),

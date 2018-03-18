@@ -12,9 +12,9 @@ namespace TheraEngine.Animation
 
             }
         }
-        protected override List<AnimFuncValueInput> GetValueInputs()
+        protected override AnimFuncValueInput[] GetValueInputs()
         {
-            return new List<AnimFuncValueInput>()
+            return new AnimFuncValueInput[]
             {
                 new AnimFuncValueInput("Condition")
             };

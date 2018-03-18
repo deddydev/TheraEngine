@@ -425,6 +425,7 @@
     <Compile Include="Rendering\PrimitiveRenderWrapper.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffers\MaterialFrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffers\QuadFrameBuffer.cs" />
+    <Compile Include="Rendering\Renderer\States\RenderShader.cs" />
     <Compile Include="Rendering\RenderInfo.cs" />
     <Compile Include="Rendering\Shader Generator\VarNameGen.cs" />
     <Compile Include="Rendering\Text\UITextDrawer.cs" />

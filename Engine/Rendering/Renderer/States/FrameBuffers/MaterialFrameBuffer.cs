@@ -56,7 +56,7 @@ namespace TheraEngine.Rendering
             base.Bind(type);
         }
 
-        protected override void OnGenerated()
+        protected override void PostGenerated()
         {
             Compile();
         }

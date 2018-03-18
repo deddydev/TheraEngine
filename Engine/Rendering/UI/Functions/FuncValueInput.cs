@@ -5,7 +5,7 @@ namespace TheraEngine.Rendering.UI.Functions
 {
     public interface IFuncValueInput : IBaseFuncValue
     {
-        void SetConnection(IFuncValueOutput other);
+        IFuncValueOutput Connection { get; set; }
         void ClearConnection();
     }
     public class FuncValueInput<TOutput, TParent> : BaseFuncValue<TOutput>, IFuncValueInput
@@ -13,11 +13,17 @@ namespace TheraEngine.Rendering.UI.Functions
     {
         public override bool IsOutput => false;
         public new TParent OwningActor  => (TParent)base.OwningActor;
-        public TOutput ConnectedTo
+        public TOutput Connection
         {
             get => _connectedTo;
-            set => TryConnectTo(value);
+            set => ConnectTo(value);
         }
+        IFuncValueOutput IFuncValueInput.Connection
+        {
+            get => Connection;
+            set => ConnectTo(value as TOutput);
+        }
+        
         protected TOutput _connectedTo;
 
         public FuncValueInput(string name, params int[] types)
@@ -43,24 +49,22 @@ namespace TheraEngine.Rendering.UI.Functions
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
         }
 
-        public bool TryConnectTo(TOutput other)
+        public bool ConnectTo(TOutput other)
         {
             if (!CanConnectTo(other))
                 return false;
             SetConnection(other);
             return true;
         }
-        public virtual void SetConnection(IFuncValueOutput other)
-            => SetConnection(other as TOutput);
-        public virtual void SetConnection(TOutput other)
+        protected virtual void SetConnection(TOutput other)
         {
-            _connectedTo?.RemoveConnection(this);
+            _connectedTo?.CallbackRemoveConnection(this);
             _connectedTo = other;
-            _connectedTo?.AddConnection(this);
+            _connectedTo?.CallbackAddConnection(this);
         }
         public virtual void ClearConnection()
         {
-            _connectedTo?.RemoveConnection(this);
+            _connectedTo?.CallbackRemoveConnection(this);
             _connectedTo = null;
         }
 
@@ -120,7 +124,7 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         public override bool CanConnectTo(TOutput other)
         {
-            if (other == null)
+            if (other == null || Connection == other)
                 return false;
             
             int otherType = other.CurrentArgumentType;
@@ -145,6 +149,6 @@ namespace TheraEngine.Rendering.UI.Functions
         public override bool CanConnectTo(BaseFuncArg other)
             => CanConnectTo(other as TOutput);
         public override bool TryConnectTo(BaseFuncArg other)
-            => TryConnectTo(other as TOutput);
+            => ConnectTo(other as TOutput);
     }
 }

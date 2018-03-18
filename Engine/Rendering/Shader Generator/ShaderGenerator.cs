@@ -113,7 +113,7 @@ namespace TheraEngine.Rendering
         }
         #endregion
 
-        public static Shader[] GenerateShaders(ResultFunc resultFunction)
+        public static ShaderFile[] GenerateShaders(ResultFunc resultFunction)
         {
             if (resultFunction == null)
                 return null;
@@ -127,9 +127,9 @@ namespace TheraEngine.Rendering
             VarNameGen nameGen = new VarNameGen();
             FuncGen(resultFunction, nameGen);
             
-            Shader frag = new Shader(ShaderMode.Fragment, fragGen.EndMain());
+            ShaderFile frag = new ShaderFile(ShaderMode.Fragment, fragGen.EndMain());
 
-            return new Shader[]
+            return new ShaderFile[]
             {
                 frag,
             };
@@ -139,7 +139,7 @@ namespace TheraEngine.Rendering
         {
             if (func is ShaderMethod m)
             {
-                string op = m.GetLineSyntax();
+                //string op = m.GetLineSyntax();
             }
             else if (func is ShaderLogic l)
             {
@@ -147,9 +147,9 @@ namespace TheraEngine.Rendering
             }
             foreach (MatFuncValueInput arg in func.InputArguments)
             {
-                if (arg.ConnectedTo != null)
+                if (arg.Connection != null)
                 {
-                    MaterialFunction f = arg.ConnectedTo.ParentSocket;
+                    MaterialFunction f = arg.Connection.ParentSocket;
                     FuncGen(f, nameGen);
                 }
                 else

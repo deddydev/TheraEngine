@@ -359,13 +359,12 @@ namespace TheraEngine.Rendering
 
         public abstract int[] CreateTextures(ETexTarget target, int count);
         public int CreateTexture(ETexTarget target) => CreateTextures(target, 1)[0];
-
-        public abstract int[] CreateQueries(int type, int count);
+        
+        public abstract int[] CreateQueries(EQueryTarget type, int count);
+        public int CreateQuery(EQueryTarget type) => CreateQueries(type, 1)[0];
 
         public T[] CreateObjects<T>(EObjectType type, int count) where T : BaseRenderState
-        {
-            return CreateObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
-        }
+            => CreateObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
 
         public abstract void DeleteObject(EObjectType type, int bindingId);
         public abstract void DeleteObjects(EObjectType type, int[] bindingIds);
@@ -379,13 +378,9 @@ namespace TheraEngine.Rendering
         public void RenderPrimitiveManager(IPrimitiveManager manager, bool preservePreviouslyBound = true)
         {
             IPrimitiveManager prev = _currentPrimitiveManager;
-            CheckErrors();
             BindPrimitiveManager(manager);
-            CheckErrors();
             RenderCurrentPrimitiveManager();
-            CheckErrors();
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
-            CheckErrors();
         }
         public abstract void RenderCurrentPrimitiveManager();
         public abstract void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer);
@@ -432,13 +427,9 @@ namespace TheraEngine.Rendering
 
         public abstract void SetBindFragDataLocation(int bindingId, int location, string name);
         public abstract void SetShaderMode(ShaderMode type);
-        /// <summary>
-        /// Creates a new shader.
-        /// </summary>
-        /// <param name="type">The type of shader</param>
-        /// <param name="source">The code for the shader</param>
-        /// <returns>The shader's handle.</returns>
-        public abstract int GenerateShader(params string[] source);
+        public abstract void SetShaderSource(int bindingId, params string[] sources);
+        public abstract bool CompileShader(int bindingId, out string info);
+        //public abstract int GenerateShader();
         /// <summary>
         /// Creates a new shader program with the given shaders.
         /// </summary>

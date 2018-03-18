@@ -4,64 +4,69 @@ using System.Linq;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
-    public interface IFuncValueOutput : IBaseFuncValue
+    public interface IFuncValueOutput : IBaseFuncValue, IEnumerable<IFuncValueInput>
     {
-        void AddConnection(IFuncValueInput other);
-        void RemoveConnection(IFuncValueInput other);
+        void CallbackAddConnection(IFuncValueInput other);
+        void CallbackRemoveConnection(IFuncValueInput other);
+        void ClearConnections();
+        bool ConnectionsContains(IFuncValueInput other);
     }
     public class FuncValueOutput<TInput, TParent> : BaseFuncValue<TInput>, IFuncValueOutput
         where TInput : class, IFuncValueInput where TParent : class, IFunction
     {
         public override bool IsOutput => true;
-        public EventList<TInput> ConnectedTo => _connectedTo;
+        public EventList<TInput> Connections => _connections;
         public new TParent ParentSocket => (TParent)base.ParentSocket;
         
-        protected EventList<TInput> _connectedTo = new EventList<TInput>(false);
+        protected EventList<TInput> _connections = new EventList<TInput>(false);
 
         public FuncValueOutput(string name, params int[] types)
             : base(name)
         {
             AllowedArgumentTypes = types;
-            _connectedTo.PostAdded += _connectedTo_Added;
-            _connectedTo.PostRemoved += _connectedTo_Removed;
+            _connections.PostAdded += _connectedTo_Added;
+            _connections.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TParent parent, params int[] types)
             : base(name, parent)
         {
             AllowedArgumentTypes = types;
-            _connectedTo.PostAdded += _connectedTo_Added;
-            _connectedTo.PostRemoved += _connectedTo_Removed;
+            _connections.PostAdded += _connectedTo_Added;
+            _connections.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TInput linkedMultiArg)
             : base(name)
         {
             SyncedArguments.Add(linkedMultiArg);
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
-            _connectedTo.PostAdded += _connectedTo_Added;
-            _connectedTo.PostRemoved += _connectedTo_Removed;
+            _connections.PostAdded += _connectedTo_Added;
+            _connections.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TParent parent, TInput linkedMultiArg)
             : base(name, parent)
         {
             SyncedArguments.Add(linkedMultiArg);
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
-            _connectedTo.PostAdded += _connectedTo_Added;
-            _connectedTo.PostRemoved += _connectedTo_Removed;
+            _connections.PostAdded += _connectedTo_Added;
+            _connections.PostRemoved += _connectedTo_Removed;
         }
         
-        public bool TryConnectTo(TInput other)
+        public bool ConnectTo(TInput other)
         {
             if (!CanConnectTo(other))
                 return false;
-            _connectedTo.Add(other);
+            _connections.Add(other);
             return true;
         }
-        public virtual void AddConnection(IFuncValueInput other) => DoConnection(other as TInput);
-        public virtual void DoConnection(TInput other) { _connectedTo.Add(other, false, false); }
-        public virtual void RemoveConnection(IFuncValueInput other) => ClearConnection(other as TInput);
-        public virtual void ClearConnection(TInput other) { _connectedTo.Remove(other, false, false); }
-        private void _connectedTo_Added(TInput item) { item.SetConnection(this); }
-        private void _connectedTo_Removed(TInput item) { item.ClearConnection(); }
+
+        public void CallbackAddConnection(IFuncValueInput other) => CallbackAddConnection(other as TInput);
+        public virtual void CallbackAddConnection(TInput other) => _connections.Add(other, false, false);
+        public void CallbackRemoveConnection(IFuncValueInput other) => CallbackRemoveConnection(other as TInput);
+        public virtual void CallbackRemoveConnection(TInput other) => _connections.Remove(other, false, false);
+        public void ClearConnections() => _connections.Clear();
+        
+        private void _connectedTo_Added(TInput item) => item.Connection = this;
+        private void _connectedTo_Removed(TInput item) => item.ClearConnection();
 
         /// <summary>
         /// Returns interpolated point from the connected output argument to this argument.
@@ -91,17 +96,17 @@ namespace TheraEngine.Rendering.UI.Functions
         /// <returns>The interpolated point.</returns>
         public Vec2 BezierToInputArg(int argIndex, float time)
         {
-            if (_connectedTo == null ||
-                argIndex >= _connectedTo.Count ||
+            if (_connections == null ||
+                argIndex >= _connections.Count ||
                 argIndex < 0 ||
-                _connectedTo[argIndex] == null)
+                _connections[argIndex] == null)
                 return ScreenTranslation;
 
-            return BezierToPoint((_connectedTo[argIndex]).ScreenTranslation, time);
+            return BezierToPoint((_connections[argIndex]).ScreenTranslation, time);
         }
         public override bool CanConnectTo(TInput other)
         {
-            if (other == null)
+            if (other == null || Connections.Contains(other))
                 return false;
 
             int otherType = other.CurrentArgumentType;
@@ -126,6 +131,10 @@ namespace TheraEngine.Rendering.UI.Functions
         public override bool CanConnectTo(BaseFuncArg other)
             => CanConnectTo(other as TInput);
         public override bool TryConnectTo(BaseFuncArg other)
-            => TryConnectTo(other as TInput);
+            => ConnectTo(other as TInput);
+
+        IEnumerator<IFuncValueInput> IEnumerable<IFuncValueInput>.GetEnumerator() => _connections.GetEnumerator();
+
+        public bool ConnectionsContains(IFuncValueInput other) => _connections.Contains(other);
     }
 }

@@ -20,69 +20,56 @@ namespace TheraEngine.Rendering.Models.Materials
         "frag", "vert", "geom", "tesc", "tese", "comp")]
     [FileExt("shader")]
     [FileDef("Shader")]
-    public class Shader : TFileObject
+    public class ShaderFile : TFileObject
     {
-        public event EventHandler Compiled;
+        public event Action SourceChanged;
 
-        public bool NeedsCompile => _sourceChanged;
-        public ShaderMode ShaderType => _type;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public ShaderMode Type { get; set; }
         public GlobalFileRef<TextFile>[] Sources => _sources;
-
-        private bool _sourceChanged = false;
-        [TSerialize("Type", XmlNodeType = EXmlNodeType.Attribute)]
-        private ShaderMode _type;
-        [TSerialize("Sources")]
+        
+        [TSerialize(nameof(Sources))]
         private GlobalFileRef<TextFile>[] _sources;
 
-        public Shader() { }
-        public Shader(ShaderMode type)
+        #region Constructors
+        public ShaderFile() { }
+        public ShaderFile(ShaderMode type)
         {
-            _type = type;
+            Type = type;
         }
-        public Shader(ShaderMode type, string source)
+        public ShaderFile(ShaderMode type, string source)
         {
-            _type = type;
+            Type = type;
             _sources = new GlobalFileRef<TextFile>[] { TextFile.FromText(source) };
-            _sourceChanged = true;
         }
-        public Shader(ShaderMode type, params string[] sources)
+        public ShaderFile(ShaderMode type, params string[] sources)
         {
-            _type = type;
+            Type = type;
             _sources = sources.Select(x => new GlobalFileRef<TextFile>(x)).ToArray();
-            _sourceChanged = true;
         }
-        public Shader(ShaderMode type, params TextFile[] files)
+        public ShaderFile(ShaderMode type, params TextFile[] files)
         {
-            _type = type;
+            Type = type;
             _sources = files.Select(x => new GlobalFileRef<TextFile>(x)).ToArray();
-            _sourceChanged = true;
         }
-        public Shader(ShaderMode type, params GlobalFileRef<TextFile>[] references)
+        public ShaderFile(ShaderMode type, params GlobalFileRef<TextFile>[] references)
         {
-            _type = type;
+            Type = type;
             _sources = references;
-            _sourceChanged = true;
         }
+        #endregion
+
         public void SetSource(string source)
         {
             _sources = new GlobalFileRef<TextFile>[] { TextFile.FromText(source) };
-            _sourceChanged = true;
+            OnSourceChanged();
         }
         public void SetSources(string[] sources)
         {
             _sources = sources.Select(x => new GlobalFileRef<TextFile>(TextFile.FromText(x))).ToArray();
-            _sourceChanged = true;
+            OnSourceChanged();
         }
-        internal int Compile()
-        {
-            _sourceChanged = false;
 
-            Engine.Renderer.SetShaderMode(_type);
-            int id = Engine.Renderer.GenerateShader(_sources.Select(x => x.File?.Text).ToArray());
-
-            Compiled?.Invoke(this, null);
-
-            return id;
-        }
+        private void OnSourceChanged() => SourceChanged?.Invoke();
     }
 }

@@ -20,15 +20,15 @@ namespace TheraEngine.Animation
             bone.FrameState.Rotation.SetRotations(Quat.LookAt(sourcePoint, destPoint, Vec3.TransformVector(Vec3.Forward, bone.Parent.WorldMatrix)).ToYawPitchRoll());
         }
 
-        protected override List<AnimFuncValueInput> GetValueInputs()
+        protected override AnimFuncValueInput[] GetValueInputs()
         {
-            return new List<AnimFuncValueInput>()
+            return new AnimFuncValueInput[]
             {
                 new AnimFuncValueInput("Bone", AnimArgType.String),
                 new AnimFuncValueInput("Point", AnimArgType.Vec3, AnimArgType.Bone, AnimArgType.Matrix4),
             };
         }
-        protected override List<AnimFuncValueOutput> GetValueOutputs()
+        protected override AnimFuncValueOutput[] GetValueOutputs()
         {
             return base.GetValueOutputs();
         }

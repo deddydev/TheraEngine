@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
@@ -11,17 +12,23 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     public class IfFunc : ShaderLogic
     {
         public IfFunc() : base() { }
-        protected override string GetOperation()
+
+        public override string GetLogicFormat()
         {
-            return "if ({0})";
+            throw new NotImplementedException();
         }
-        protected override List<MatFuncValueInput> GetValueInputs()
+
+        //protected override string GetOperation()
+        //{
+        //    return "if ({0})";
+        //}
+        protected override MatFuncValueInput[] GetValueInputs()
         {
             return base.GetValueInputs();
         }
-        protected override List<MatFuncValueOutput> GetValueOutputs()
+        protected override MatFuncValueOutput[] GetValueOutputs()
         {
-            return new List<MatFuncValueOutput>()
+            return new MatFuncValueOutput[]
             {
 
             };

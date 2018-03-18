@@ -26,13 +26,13 @@ namespace TheraEngine.Rendering.Models.Materials
         private ResultFunc _editorMaterialEnd;
 #endif
 
-        private List<Shader> _geometryShaders = new List<Shader>();
-        private List<Shader> _tessEvalShaders = new List<Shader>();
-        private List<Shader> _tessCtrlShaders = new List<Shader>();
-        private List<Shader> _fragmentShaders = new List<Shader>();
+        private List<ShaderFile> _geometryShaders = new List<ShaderFile>();
+        private List<ShaderFile> _tessEvalShaders = new List<ShaderFile>();
+        private List<ShaderFile> _tessCtrlShaders = new List<ShaderFile>();
+        private List<ShaderFile> _fragmentShaders = new List<ShaderFile>();
 
         [TSerialize("Shaders")]
-        private List<Shader> _shaders = new List<Shader>();
+        private List<ShaderFile> _shaders = new List<ShaderFile>();
 
         [TSerialize("FBOAttachments", Condition = "OverrideFBOAttachments")]
         private EDrawBuffersAttachment[] _fboAttachments;
@@ -99,7 +99,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             get
             {
-                if (_program != null && !_program.IsActive)
+                if (_program != null && _program.IsActive)
                     _program.Generate();
                 return _program;
             }
@@ -115,7 +115,7 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        public List<Shader> FragmentShaders => _fragmentShaders;
+        public List<ShaderFile> FragmentShaders => _fragmentShaders;
 
         public enum UniformRequirements
         {
@@ -279,40 +279,43 @@ namespace TheraEngine.Rendering.Models.Materials
         public TMaterial()
             : this("NewMaterial", new RenderingParameters()) { }
 
-        public TMaterial(string name, params Shader[] shaders)
+        public TMaterial(string name, params ShaderFile[] shaders)
             : this(name, new RenderingParameters(), new ShaderVar[0], new BaseTexRef[0], shaders) { }
 
-        public TMaterial(string name, RenderingParameters renderParams, params Shader[] shaders)
+        public TMaterial(string name, RenderingParameters renderParams, params ShaderFile[] shaders)
             : this(name, renderParams, new ShaderVar[0], new BaseTexRef[0], shaders) { }
 
-        public TMaterial(string name, ShaderVar[] vars, params Shader[] shaders)
+        public TMaterial(string name, ShaderVar[] vars, params ShaderFile[] shaders)
             : this(name, new RenderingParameters(), vars, new BaseTexRef[0], shaders) { }
         
-        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, params Shader[] shaders)
+        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, params ShaderFile[] shaders)
             : this(name, renderParams, vars, new BaseTexRef[0], shaders) { }
 
-        public TMaterial(string name, BaseTexRef[] textures, params Shader[] shaders)
+        public TMaterial(string name, BaseTexRef[] textures, params ShaderFile[] shaders)
             : this(name, new RenderingParameters(), new ShaderVar[0], textures, shaders) { }
 
-        public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params Shader[] shaders)
+        public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params ShaderFile[] shaders)
             : this(name, renderParams, new ShaderVar[0], textures, shaders) { }
 
-        public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params Shader[] shaders)
+        public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params ShaderFile[] shaders)
             : this(name, new RenderingParameters(), vars, textures, shaders) { }
 
-        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, BaseTexRef[] textures, params Shader[] shaders)
+        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, BaseTexRef[] textures, params ShaderFile[] shaders)
         {
             _name = name;
             _parameters = vars ?? new ShaderVar[0];
             Textures = textures ?? new BaseTexRef[0];
             RenderParams = renderParams ?? new RenderingParameters();
 
-            _shaders.AddRange(shaders);
-
-            ShadersChanged();
+            SetShaders(shaders);
         }
 
-        public void AddShader(Shader shader)
+        public void SetShaders(ShaderFile[] shaders)
+        {
+            _shaders.AddRange(shaders);
+            ShadersChanged();
+        }
+        public void AddShader(ShaderFile shader)
         {
             _shaders.Add(shader);
             ShadersChanged();
@@ -328,13 +331,14 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_program != null)
             {
                 _program.Generated -= _program_Generated;
+                _program.Destroy();
                 _program = null;
             }
 
             if (_shaders != null)
-                foreach (Shader s in _shaders)
+                foreach (ShaderFile s in _shaders)
                 {
-                    switch (s.ShaderType)
+                    switch (s.Type)
                     {
                         case ShaderMode.Vertex:
                             throw new InvalidOperationException("Vertex shaders cannot be included in materials.");
@@ -355,6 +359,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             if (Engine.Settings != null && Engine.Settings.AllowShaderPipelines)
             {
+                _program?.Destroy();
                 _program = new RenderProgram(_shaders);
                 _program.Generated += _program_Generated;
             }
@@ -399,7 +404,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => CreateLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static TMaterial CreateLitTextureMaterial(bool deferred)
         {
-            Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
+            ShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
@@ -409,7 +414,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => CreateLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static TMaterial CreateLitTextureMaterial(TexRef2D texture, bool deferred)
         {
-            Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
+            ShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", new TexRef2D[] { texture }, frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
@@ -437,7 +442,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public static TMaterial CreateLitColorMaterial(ColorF4 color, bool deferred)
         {
             ShaderVar[] parameters;
-            Shader frag;
+            ShaderFile frag;
             if (deferred)
             {
                 frag = ShaderHelpers.LitColorFragDeferred();
@@ -590,7 +595,7 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
 //    OutColor = MatColor * vec4(totalLight, 1.0);
 //}
 
-            Shader s = new Shader(ShaderMode.Fragment, source);
+            ShaderFile s = new ShaderFile(ShaderMode.Fragment, source);
             return new TMaterial("BlinnMaterial", parameters, s)
             {
                 Requirements = UniformRequirements.NeedsLightsAndCamera

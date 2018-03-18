@@ -169,7 +169,7 @@ namespace TheraEngine.Components.Scene.Lights
                 GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float, 
                 EFramebufferAttachment.DepthAttachment),
             };
-            Shader shader = new Shader(ShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
+            ShaderFile shader = new ShaderFile(ShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, shader);
             mat.RenderParams.CullMode = Culling.None;
             return mat;

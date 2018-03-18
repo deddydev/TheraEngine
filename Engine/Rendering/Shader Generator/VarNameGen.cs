@@ -20,6 +20,8 @@ namespace TheraEngine.Rendering
 
             }
             ++_generatedNameCount;
+
+            return "";
         }
     }
 }

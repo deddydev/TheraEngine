@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering
             return base.CreateObject();
         }
 
-        protected override void OnGenerated()
+        protected override void PostGenerated()
         {
             
         }

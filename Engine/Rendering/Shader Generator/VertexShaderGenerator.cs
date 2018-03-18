@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering
         private bool UseMorphs => _morphsAllowed && _info._morphCount > 0;
         private bool MultiRig => _useMorphMultiRig && _info._morphCount > 0;
 
-        public Shader Generate(
+        public ShaderFile Generate(
             VertexShaderDesc info, 
             bool allowMeshMorphing, 
             bool useMorphMultiRig, 
@@ -68,7 +68,7 @@ namespace TheraEngine.Rendering
                 Line("{0} = {2}{1};", string.Format(FragUVName, i), i, BufferType.TexCoord.ToString());
 
             string source = EndMain();
-            return new Shader(ShaderMode.Vertex, source);
+            return new ShaderFile(ShaderMode.Vertex, source);
         }
         private void WriteBuffers()
         {

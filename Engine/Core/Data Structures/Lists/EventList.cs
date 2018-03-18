@@ -2,6 +2,9 @@
 
 namespace System.Collections.Generic
 {
+    /// <summary>
+    /// A derivation of <see cref="ThreadSafeList{T}"/> that monitors all operations and provides events for each kind of operation.
+    /// </summary>
     public class EventList<T> : ThreadSafeList<T>, IList
     {
         public delegate void SingleHandler(T item);

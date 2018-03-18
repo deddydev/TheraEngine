@@ -27,6 +27,6 @@
             return base.GetGlobalVarDec();
         }
 
-        public Shader[] GenerateShaders() => new ShaderGenerator().GenerateShaders(this);
+        public ShaderFile[] GenerateShaders() => ShaderGenerator.GenerateShaders(this);
     }
 }

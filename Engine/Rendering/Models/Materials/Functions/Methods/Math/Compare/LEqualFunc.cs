@@ -4,7 +4,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         CategoryName,
-        "Less Or Equal",
+        "A <= B",
         "Returns true bool/bvec if A's individual components are less than or equal to B's.",
         "less than or equals to <=")]
     public class LEqualFunc : ComparableFunc

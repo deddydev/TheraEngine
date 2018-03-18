@@ -4,7 +4,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         CategoryName,
-        "Equal",
+        "A == B",
         "Returns true bool/bvec if A's and B's individual components are equal.",
         "equals == equality")]
     public class EqualFunc : ComparableFunc

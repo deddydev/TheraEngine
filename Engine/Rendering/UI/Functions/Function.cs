@@ -36,8 +36,9 @@ namespace TheraEngine.Rendering.UI.Functions
     public abstract class BaseFunction : UIMaterialRectangleComponent, IShaderVarOwner, IFunction
     {
         public static Vec4 RegularColor { get; set; } = new Vec4(0.1f, 0.1f, 0.1f, 1.0f);
+        public static Vec4 SelectedColor { get; set; } = new Vec4(0.1f, 0.2f, 0.25f, 1.0f);
         public static Vec4 HighlightedColor { get; set; } = new Vec4(0.1f, 0.3f, 0.4f, 1.0f);
-
+        
         [Browsable(false)]
         public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();
         [Browsable(false)]
@@ -236,15 +237,18 @@ namespace TheraEngine.Rendering.UI.Functions
             int totalHeaderPadding = HeaderPadding * 2;
             headerSize.Height += totalHeaderPadding;
             headerSize.Width += totalHeaderPadding;
-
+            
             int connectionBoxBounds = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
-            Size[] inputTextSizes = new Size[_valueInputs.Count + _execInputs.Count];
-            Size[] outputTextSizes = new Size[_valueOutputs.Count + _execOutputs.Count];
+            int rows = _valueInputs.Count + _execInputs.Count;
+            Size[] inputTextSizes = new Size[rows];
+            Size[] outputTextSizes = new Size[rows];
+            int[] maxHeights = new int[rows];
             int maxRows = Math.Max(inputTextSizes.Length, outputTextSizes.Length);
 
             int middleMargin = 2;
 
             int maxRowWidth = 0;
+            int maxRowHeight = 0;
             int currentRowWidth;
             _size.Y = headerSize.Height + BaseFuncArg.ConnectionBoxMargin * 2.0f;
             for (int i = 0; i < maxRows; ++i)
@@ -262,9 +266,11 @@ namespace TheraEngine.Rendering.UI.Functions
                     Arrange1(_valueOutputs[i - _execOutputs.Count], i, outputTextSizes, ref currentRowWidth);
 
                 maxRowWidth = Math.Max(maxRowWidth, currentRowWidth);
-                _size.Y += TMath.Max(connectionBoxBounds,
+                maxRowHeight = TMath.Max(connectionBoxBounds,
                     i < inputTextSizes.Length ? inputTextSizes[i].Height : 0,
                     i < outputTextSizes.Length ? outputTextSizes[i].Height : 0);
+                maxHeights[i] = maxRowHeight;
+                _size.Y += maxRowHeight;
             }
             SizeableHeight.CurrentValue = _size.Y;
 
@@ -280,23 +286,23 @@ namespace TheraEngine.Rendering.UI.Functions
                 yTrans -= height;
 
                 if (i < _execInputs.Count)
-                    Arrange2(_execInputs[i], _inputParamTexts[i], inputTextSizes, true, i, headerSize.Height, yTrans);
+                    Arrange2(_execInputs[i], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Height, yTrans, maxHeights[i]);
                 else if (i - _execInputs.Count < _valueInputs.Count)
-                    Arrange2(_valueInputs[i - _execInputs.Count], _inputParamTexts[i], inputTextSizes, true, i, headerSize.Height, yTrans);
+                    Arrange2(_valueInputs[i - _execInputs.Count], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Height, yTrans, maxHeights[i]);
 
                 if (i < _execOutputs.Count)
-                    Arrange2(_execOutputs[i], _outputParamTexts[i], outputTextSizes, false, i, headerSize.Height, yTrans);
+                    Arrange2(_execOutputs[i], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Height, yTrans, maxHeights[i]);
                 else if (i - _execOutputs.Count < _valueOutputs.Count)
-                    Arrange2(_valueOutputs[i - _execOutputs.Count], _outputParamTexts[i], outputTextSizes, false, i, headerSize.Height, yTrans);
+                    Arrange2(_valueOutputs[i - _execOutputs.Count], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Height, yTrans, maxHeights[i]);
             }
 
             //_headerText.LocalTranslation = new Vec2(0.0f, _size.Y);
 
             PerformResize();
         }
-        private void Arrange2(BaseFuncArg arg, UITextComponent text, Size[] sizes, bool input, int i, float headerHeight, float yTrans)
+        private void Arrange2(BaseFuncArg arg, UITextComponent text, Size size, bool input, float headerHeight, float yTrans, int maxRowHeight)
         {
-            text.Size = sizes[i];
+            text.Size = size;
             int t = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
 
             float xTrans;
@@ -317,7 +323,7 @@ namespace TheraEngine.Rendering.UI.Functions
             }
             arg.LocalTranslation = new Vec2(xTrans, yTrans);
             text.LocalTranslation = new Vec2(xTrans + t, yTrans);
-            arg.LocalTranslationY += text.Height * 0.5f;
+            arg.LocalTranslationY += maxRowHeight * 0.5f;
         }
         private void Arrange1(BaseFuncArg arg, int i, Size[] sizes, ref int currentRowWidth)
         {

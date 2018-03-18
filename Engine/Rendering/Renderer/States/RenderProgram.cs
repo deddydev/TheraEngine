@@ -15,6 +15,9 @@ namespace TheraEngine.Rendering
             {
                 _shaders = value;
 
+                if (_shaders.Any(x => x == null))
+                    _shaders = _shaders.Where(x => x!= null).ToList();
+
                 //Force a recompilation.
                 //TODO: recompile shaders without destroying program.
                 //Need to attach shaders by id to the program and recompile.
@@ -24,18 +27,24 @@ namespace TheraEngine.Rendering
 
         public int AddShader(ShaderFile shader)
         {
+            if (shader == null)
+                return -1;
             _shaders.Add(new RenderShader(shader));
             Destroy();
             return _shaders.Count - 1;
         }
         public int AddShader(RenderShader shader)
         {
+            if (shader == null)
+                return -1;
             _shaders.Add(shader);
             Destroy();
             return _shaders.Count - 1;
         }
         public void RemoveShader(RenderShader shader)
         {
+            if (shader == null)
+                return;
             _shaders.Remove(shader);
             Destroy();
         }
@@ -60,8 +69,19 @@ namespace TheraEngine.Rendering
 
         protected override int CreateObject()
         {
-            int[] ids = _shaders.Where(x => x != null).Select(x => x.BindingId).ToArray();
-            return Engine.Renderer.GenerateProgram(ids, Engine.Settings.AllowShaderPipelines);
+            int[] ids = new int[_shaders.Count];
+
+            //Generate shader objects
+            for (int i = 0; i < ids.Length; ++i)
+                ids[i] = _shaders[i].BindingId;
+
+            int id = Engine.Renderer.GenerateProgram(ids, Engine.Settings.AllowShaderPipelines);
+
+            //Destroy shader objects. We don't need them now.
+            for (int i = 0; i < ids.Length; ++i)
+                _shaders[i].Destroy();
+
+            return id;
         }
 
         public void Use() => Engine.Renderer.UseProgram(BindingId);

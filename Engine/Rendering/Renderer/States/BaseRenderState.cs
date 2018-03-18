@@ -31,7 +31,6 @@ namespace TheraEngine.Rendering
             }
 
             internal bool Active => BindingId > NullBindingId/* || _generatedFailSafe*/;
-
             internal int BindingId
             {
                 get => _bindingId;
@@ -45,15 +44,8 @@ namespace TheraEngine.Rendering
                 }
             }
 
-            internal void Destroy()
-            {
-                _parent.DestroyContextBind(_index);
-            }
-
-            public override string ToString()
-            {
-                return _parent.ToString();
-            }
+            internal void Destroy() => _parent.DestroyContextBind(_index);
+            public override string ToString() => _parent.ToString();
         }
 
         private ContextBind CurrentBind
@@ -78,9 +70,8 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public EObjectType Type => _type;
-
-        private EObjectType _type;
+        public EObjectType Type { get; private set; }
+        
         /// <summary>
         /// List of all render contexts this object has been generated on.
         /// </summary>
@@ -92,10 +83,10 @@ namespace TheraEngine.Rendering
 
         public event Action Generated;
 
-        public BaseRenderState(EObjectType type) { _type = type; }
+        public BaseRenderState(EObjectType type) => Type = type;
         public BaseRenderState(EObjectType type, int bindingId)
         {
-            _type = type;
+            Type = type;
             CurrentBind.BindingId = bindingId;
             PostGenerated();
         }
@@ -195,7 +186,7 @@ namespace TheraEngine.Rendering
 
             PreDeleted();
 
-            Engine.Renderer.DeleteObject(_type, _currentBind._bindingId);
+            Engine.Renderer.DeleteObject(Type, _currentBind._bindingId);
 
             _currentBind._bindingId = 0;
             _currentBind._context = null;
@@ -204,8 +195,8 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Do not call. Override if special generation necessary.
         /// </summary>
-        /// <returns></returns>
-        protected virtual int CreateObject() => Engine.Renderer.CreateObjects(_type, 1)[0];
+        /// <returns>The handle to the object.</returns>
+        protected virtual int CreateObject() => Engine.Renderer.CreateObject(Type);
         protected virtual void PreGenerated() { }
         /// <summary>
         /// Called directly after this object is created on the current context.
@@ -220,36 +211,31 @@ namespace TheraEngine.Rendering
         /// </summary>
         protected virtual void PostDeleted() { }
         /// <summary>
-        /// Called by a context when it is being destroyed.
+        /// Deletes this object from ALL contexts.
         /// </summary>
         internal void Destroy()
         {
-            //if (currentContextOnly)
-            //    Delete();
-            //else
-            //{
-                foreach (ContextBind b in _owners)
-                    if (b._context != null && !b._context.IsContextDisposed())
-                    {
-                        b._context.Capture();
-                        Delete();
-                    }
-            //}
+            ContextBind b;
+            int prevCount;
+            while ((prevCount = _owners.Count) > 0)
+            {
+                b = _owners[0];
+                if (b._context != null && !b._context.IsContextDisposed())
+                {
+                    b._context.Capture();
+                    Delete();
+                    if (prevCount == _owners.Count)
+                        _owners.RemoveAt(0);
+                }
+                else
+                    _owners.RemoveAt(0);
+            }
         }
 
-        public override int GetHashCode()
-        {
-            return ToString().GetHashCode();
-        }
-        public override string ToString()
-        {
-            return Type.ToString() + CurrentBind._bindingId;
-        }
-        public override bool Equals(object obj)
-        {
-            return obj != null && ToString().Equals(obj.ToString());
-        }
-
+        public override int GetHashCode() => ToString().GetHashCode();
+        public override string ToString() => Type.ToString() + CurrentBind._bindingId;
+        public override bool Equals(object obj) => obj != null && ToString().Equals(obj.ToString());
+        
         #region IDisposable Support
         protected bool _disposedValue = false; // To detect redundant calls
 

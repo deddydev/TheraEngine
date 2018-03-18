@@ -83,7 +83,7 @@ namespace TheraEngine
         [Category("Object")]
         public virtual string Name
         {
-            get => string.IsNullOrEmpty(_name) ? GetType().GetFriendlyName("[", "]") : _name;
+            get => _name ?? GetType().GetFriendlyName("[", "]");
             set
             {
                 string oldName = _name;

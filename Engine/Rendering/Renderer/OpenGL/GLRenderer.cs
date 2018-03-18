@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Memory;
+using System.Text;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -254,8 +255,8 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void SetShaderSource(int bindingId, params string[] sources)
         {
-            GL.ShaderSource(bindingId, sources.Length, sources, sources.Select(x => x.Length).ToArray());
-            //GL.GetShaderSource(bindingId, )
+            int[] lengths = sources.Select(x => x.Length).ToArray();
+            GL.ShaderSource(bindingId, sources.Length, sources, lengths);
         }
         public override bool CompileShader(int bindingId, out string info)
         {

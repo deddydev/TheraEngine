@@ -70,6 +70,9 @@ namespace System
             return array;
         }
         public static void ForEach<T>(this T[] data, Action<T> method)
-            => Array.ForEach(data, method);
+        {
+            if (data != null && method != null)
+                Array.ForEach(data, method);
+        }
     }
 }

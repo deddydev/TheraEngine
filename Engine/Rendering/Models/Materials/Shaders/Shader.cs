@@ -15,6 +15,9 @@ namespace TheraEngine.Rendering.Models.Materials
         TessControl,        // https://www.opengl.org/wiki/Tessellation_Control_Shader
         Compute             // https://www.opengl.org/wiki/Compute_Shader
     }
+    /// <summary>
+    /// A shader script file.
+    /// </summary>
     [File3rdParty(
         "fs",   "vs",   "gs",   "tcs",  "tes",  "cs",
         "frag", "vert", "geom", "tesc", "tese", "comp")]
@@ -22,6 +25,9 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileDef("Shader")]
     public class ShaderFile : TFileObject
     {
+        /// <summary>
+        /// Called when one or more sources for this shader are changed.
+        /// </summary>
         public event Action SourceChanged;
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
@@ -70,6 +76,6 @@ namespace TheraEngine.Rendering.Models.Materials
             OnSourceChanged();
         }
 
-        private void OnSourceChanged() => SourceChanged?.Invoke();
+        protected void OnSourceChanged() => SourceChanged?.Invoke();
     }
 }

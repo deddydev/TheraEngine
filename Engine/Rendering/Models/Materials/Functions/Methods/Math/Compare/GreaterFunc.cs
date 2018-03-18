@@ -4,7 +4,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         CategoryName,
-        "Greater",
+        "A > B",
         "Returns true bool/bvec if A's individual components are greater than B's.",
         "greater than >")]
     public class GreaterFunc : ComparableFunc

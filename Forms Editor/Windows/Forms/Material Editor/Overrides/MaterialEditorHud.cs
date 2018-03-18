@@ -88,7 +88,7 @@ namespace TheraEditor.Windows.Forms
         private BaseFuncArg _highlightedArg = null;
         private BaseFuncArg _draggedArg = null;
         internal UIComponent _rootTransform;
-        bool _rightClickDown = false;
+        private bool _rightClickDown = false;
         private List<MaterialFunction> _materialFuncCache = new List<MaterialFunction>();
 
         private UIComponent FindComponent()
@@ -111,6 +111,7 @@ namespace TheraEditor.Windows.Forms
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterButtonPressed(EKey.AltLeft, b => _altDown = b, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EKey.ControlLeft, b => _ctrlDown = b, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, LeftClickDown, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, LeftClickUp, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.RightClick, ButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
@@ -119,13 +120,19 @@ namespace TheraEditor.Windows.Forms
             input.RegisterMouseMove(MouseMove, MouseMoveType.Absolute, EInputPauseType.TickAlways);
         }
         private bool _altDown = false;
+        private bool _ctrlDown = false;
         internal void LeftClickDown()
         {
-            _selectedFunc = _draggedFunc = _highlightedFunc;
-            _selectedArg = _draggedArg = _highlightedArg;
+            if (_selectedFunc != null && _selectedFunc != _highlightedFunc)
+                _selectedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
+            
+            _selectedFunc = _highlightedFunc;
+            _selectedArg = _highlightedArg;
             _lastWorldPos = CursorPositionWorld();
-            if (_draggedArg != null)
+
+            if (_selectedArg != null)
             {
+                _draggedArg = _selectedArg;
                 if (_draggedArg.IsOutput)
                 {
                     if (_altDown && _draggedArg is IFuncValueOutput output)
@@ -151,6 +158,10 @@ namespace TheraEditor.Windows.Forms
                     }
                     UpdateCursorBezier(_lastWorldPos - BoxDim(), _draggedArg.WorldPoint.Xy);
                 }
+            }
+            else
+            {
+                _draggedFunc = _selectedFunc;
             }
         }
 
@@ -198,15 +209,7 @@ namespace TheraEditor.Windows.Forms
         protected override void MouseMove(float x, float y)
         {
             Vec2 pos = CursorPosition();
-            if (_draggedFunc != null)
-            {
-                Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
-                screenPoint += pos - _cursorPos;
-                Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
-                _draggedFunc.LocalTranslation += Vec3.TransformVector((newFocusPoint - _lastWorldPos), _draggedFunc.InverseWorldMatrix).Xy;
-                _lastWorldPos = newFocusPoint;
-            }
-            else if (_draggedArg != null)
+            if (_draggedArg != null)
             {
                 Vec2 posW = Viewport.ScreenToWorld(pos).Xy;
                 if (_draggedArg.IsOutput)
@@ -218,6 +221,18 @@ namespace TheraEditor.Windows.Forms
                     UpdateCursorBezier(posW - BoxDim(), _draggedArg.WorldPoint.Xy);
                 }
                 RegularHighlight();
+            }
+            else if (_draggedFunc != null)
+            {
+                Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
+                screenPoint += pos - _cursorPos;
+                Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
+                Vec2 diff = newFocusPoint - _lastWorldPos;
+                if (_ctrlDown)
+                    RecursiveDrag(_draggedFunc, diff);
+                else
+                    _draggedFunc.LocalTranslation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
+                _lastWorldPos = newFocusPoint;
             }
             else if (_rightClickDown)
             {
@@ -236,6 +251,13 @@ namespace TheraEditor.Windows.Forms
             }
             _cursorPos = pos;
         }
+        private void RecursiveDrag(MaterialFunction f, Vec2 diff)
+        {
+            f.LocalTranslation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
+            foreach (var input in f.InputArguments)
+                if (input.Connection != null)
+                    RecursiveDrag(input.Connection.ParentSocket, diff);
+        }
         private void RegularHighlight()
         {
             UIComponent comp = FindComponent();
@@ -244,8 +266,8 @@ namespace TheraEditor.Windows.Forms
                 comp = (UIComponent)comp.ParentSocket;
 
             if (_highlightedFunc != null && comp != _highlightedFunc)
-                _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
-
+                _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = _highlightedFunc == _selectedFunc ? BaseFunction.SelectedColor : BaseFunction.RegularColor;
+            
             if (_highlightedArg != null && comp != _highlightedArg)
             {
                 _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncArg.RegularColor;

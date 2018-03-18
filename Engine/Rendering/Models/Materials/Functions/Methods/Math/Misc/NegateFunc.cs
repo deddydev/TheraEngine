@@ -9,12 +9,12 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// </summary>
     [FunctionDefinition(
         OperatorFunc.CategoryName,
-        "Negate",
+        "-Value",
         "Returns 0 - value.",
         "negate negative zero - value minus")]
     public class NegateFunc : ShaderMethod
     {
-        public NegateFunc() : base(true) { }
+        public NegateFunc() : base(SignedTypes) { }
         protected override string GetOperation() => "-{0}";
         protected override MatFuncValueInput[] GetValueInputs()
         {

@@ -51,7 +51,7 @@ namespace TheraEngine.Rendering
                 Line("vec4 gl_Position;");
                 Line("float gl_PointSize;");
                 Line("float gl_ClipDistance[];");
-                CloseBracket();
+                CloseBracket(true);
                 Line();
             }
             
@@ -157,20 +157,26 @@ namespace TheraEngine.Rendering
                     WriteUniform(ShaderVarType._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
             }
         }
+
         /// <summary>
         /// This information is sent to the fragment shader.
         /// </summary>
         private void WriteOutData()
         {
             Line($"out vec3 {FragPosName};");
+
             if (_info.HasNormals)
                 Line($"out vec3 {FragNormName};");
+
             if (_info.HasTangents)
                 Line($"out vec3 {FragTanName};");
+
             if (_info.HasBinormals)
                 Line($"out vec3 {FragBinormName};");
+
             for (int i = 0; i < _info._colorCount; ++i)
                 Line($"out vec4 {string.Format(FragColorName, i)};");
+
             for (int i = 0; i < _info._texcoordCount; ++i)
                 Line($"out vec2 {string.Format(FragUVName, i)};");
         }

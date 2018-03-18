@@ -3,10 +3,10 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-                "Constants",
-                "Constant Value",
-                "Hardcodes a constant value in the shader.",
-                "constant scalar vector parameter value")]
+        "Constants",
+        "Constant Value",
+        "Hardcodes a constant value in the shader.",
+        "constant scalar vector parameter value")]
     public class ConstantFunc<T> : ShaderMethod where T : ShaderVar
     {
         public ConstantFunc() : this(default) { }

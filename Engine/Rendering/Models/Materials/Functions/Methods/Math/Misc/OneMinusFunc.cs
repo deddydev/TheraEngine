@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// </summary>
     [FunctionDefinition(
         "Helpers",
-        "One Minus Value",
+        "1 - Value",
         "Returns 1 - value.",
         "one minus value 1 - subtract")]
     public class OneMinusFunc : ShaderMethod

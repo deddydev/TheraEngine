@@ -107,9 +107,12 @@ namespace TheraEngine.Rendering
         {
             Line("{");
         }
-        public void CloseBracket()
+        public void CloseBracket(bool includeSemicolon = false)
         {
-            Line("}");
+            if (includeSemicolon)
+                Line("};");
+            else
+                Line("}");
         }
         #endregion
 

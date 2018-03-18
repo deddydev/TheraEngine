@@ -118,7 +118,7 @@ namespace TheraEditor.Windows.Forms
             _dragged = info.CreateNew();
 
             UIMaterialEditor ui = RenderPanel.UI;
-            //_dragged.LocalTranslation = ui.CursorPositionWorld() - ui._rootTransform.WorldPoint.Xy;
+            _dragged.LocalTranslation = Vec3.TransformPosition(ui.CursorPositionWorld(), ui._rootTransform.InverseWorldMatrix).Xy;
             ui.AddMaterialFunction(_dragged);
             ui._highlightedFunc = _dragged;
             RenderPanel.Focus();

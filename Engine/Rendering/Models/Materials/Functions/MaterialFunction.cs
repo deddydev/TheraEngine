@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     public abstract class MaterialFunction
         : Function<MatFuncValueInput, MatFuncValueOutput, MatFuncExecInput, MatFuncExecOutput>
     {
-        public MaterialFunction(bool deferControlArrangement = false) : base(true) { }
+        public MaterialFunction(bool deferControlArrangement = false) : base(deferControlArrangement) { }
 
         public string Two(ShaderVarType type)
         {

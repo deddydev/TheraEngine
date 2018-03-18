@@ -8,13 +8,13 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// </summary>
     [FunctionDefinition(
         "Helpers",
-        "Absolute Value",
+        "|Value|",
         "Returns the absolute value of the given value; |value|", 
         "absolute value")]
     public class AbsFunc : ShaderMethod
     {
         public AbsFunc() : base(SignedTypes) { }
-        protected override string GetOperation() => "Abs({0})";
+        protected override string GetOperation() => "abs({0})";
         protected override MatFuncValueInput[] GetValueInputs()
         {
             MatFuncValueInput InputValue = new MatFuncValueInput("Value", OutputArguments[0]);

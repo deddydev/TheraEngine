@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "Constant Value",
         "Hardcodes a constant value in the shader.",
         "constant scalar vector parameter value")]
-    public class ConstantFunc<T> : ShaderMethod where T : ShaderVar
+    public class ConstantFunc<T> : BaseConstantFunc where T : ShaderVar
     {
         public ConstantFunc() : this(default) { }
         public ConstantFunc(T value) : base(ShaderVar.TypeAssociations[typeof(T)]) => _value = value;
@@ -20,5 +20,14 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         }
 
         protected override string GetOperation() => _value.GetValueString();
+
+        public override ShaderVar GetVar() => Value;
+    }
+    public abstract class BaseConstantFunc : ShaderMethod
+    {
+        public BaseConstantFunc() : this(default) { }
+        public BaseConstantFunc(params ShaderVarType[] types) : base(types) { }
+
+        public abstract ShaderVar GetVar();
     }
 }

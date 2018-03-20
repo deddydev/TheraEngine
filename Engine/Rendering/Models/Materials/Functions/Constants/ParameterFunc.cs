@@ -2,18 +2,14 @@
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
-    public interface IParameterFunc
-    {
-        void SetUniform(int programBindingId);
-    }
     [FunctionDefinition(
                 "Constants",
                 "Parameter Value",
                 "Provides an animatable value to the shader.",
                 "constant scalar vector parameter value uniform animatable animate animation")]
-    public class ParameterFunc<T> : ShaderMethod, IParameterFunc where T : ShaderVar
+    public class ParameterFunc<T> : BaseParameterFunc where T : ShaderVar
     {
-        public ParameterFunc() : base(true) { }
+        public ParameterFunc() : this(default) { }
         public ParameterFunc(T value) : base(ShaderVar.TypeAssociations[typeof(T)]) { _value = value; }
         
         T _value;
@@ -35,7 +31,17 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 return "";
             return _value.GetUniformDeclaration(layoutId);
         }
-        public void SetUniform(int programBindingId)
+        public override void SetUniform(int programBindingId)
             => _value?.SetProgramUniform(programBindingId);
+
+        public override ShaderVar GetVar() => Value;
+    }
+    public abstract class BaseParameterFunc : ShaderMethod
+    {
+        public BaseParameterFunc() : this(default) { }
+        public BaseParameterFunc(params ShaderVarType[] types) : base(types) { }
+        
+        public abstract void SetUniform(int programBindingId);
+        public abstract ShaderVar GetVar();
     }
 }

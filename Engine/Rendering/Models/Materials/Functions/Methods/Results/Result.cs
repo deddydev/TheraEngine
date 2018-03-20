@@ -17,7 +17,7 @@
             HasGlobalVarDec = true;
         }
 
-        public bool Generate() => MaterialGenerator.Generate(
-            this, out ShaderFile[] shaderFiles, out ShaderVar[] shaderVars);
+        public bool Generate(out ShaderFile[] shaderFiles, out ShaderVar[] shaderVars) 
+            => MaterialGenerator.Generate(this, out shaderFiles, out shaderVars);
     }
 }

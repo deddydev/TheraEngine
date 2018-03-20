@@ -9,19 +9,17 @@ namespace TheraEngine.Rendering
     public class VarNameGen
     {
         private int _generatedNameCount = 0;
-        private string _selection = "abcdefghijklmnopqrstuvwxyz0123456789";
+        private string _selection = "abcdefghijklmnopqrstuvwxyz";
         
         public string New()
         {
-            int digitCount = ((_generatedNameCount) % _selection.Length) + 1;
-
-            for (int i = 1; i < digitCount; ++i)
-            {
-
-            }
+            int digitCount = (_generatedNameCount % _selection.Length) + 1;
+            int digitIndex = _generatedNameCount / _selection.Length;
+            string s = "";
+            for (int i = 0; i < digitCount; ++i)
+                s += _selection[digitIndex];
             ++_generatedNameCount;
-
-            return "";
+            return s;
         }
     }
 }

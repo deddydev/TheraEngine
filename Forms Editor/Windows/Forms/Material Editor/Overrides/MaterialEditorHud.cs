@@ -141,8 +141,10 @@ namespace TheraEditor.Windows.Forms
         }
         private void GenerateShaders()
         {
-            ShaderFile[] shaders = EndFunc.GenerateShaders();
-            TargetMaterial.SetShaders(shaders);
+            if (!EndFunc.Generate(out ShaderFile[] shaderFiles, out ShaderVar[] shaderVars))
+                return;
+            TargetMaterial.Parameters = shaderVars;
+            TargetMaterial.SetShaders(shaderFiles);
         }
 
         private ResultFunc Decompile(TMaterial mat)

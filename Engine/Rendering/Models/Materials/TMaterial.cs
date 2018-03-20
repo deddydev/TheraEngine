@@ -34,16 +34,15 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Shaders")]
         private List<ShaderFile> _shaders = new List<ShaderFile>();
 
-        [TSerialize("FBOAttachments", Condition = "OverrideFBOAttachments")]
+        [TSerialize(nameof(FBODrawAttachments), Condition = "OverrideFBOAttachments")]
         private EDrawBuffersAttachment[] _fboAttachments;
-        [TSerialize("OverrideFBOAttachments", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(nameof(OverrideFBOAttachments), XmlNodeType = EXmlNodeType.Attribute)]
         private bool _overrideAttachments = false;
 
         private RenderProgram _program;
         private FrameBuffer _frameBuffer;
         private UniformRequirements _requirements = UniformRequirements.None;
 
-        [TSerialize("Parameters")]
         protected ShaderVar[] _parameters;
         protected BaseTexRef[] _textures;
 
@@ -81,10 +80,15 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public T2 Parameter<T2>(string name) where T2 : ShaderVar
             => Parameters.FirstOrDefault(x => x.Name == name) as T2;
-        
-        public ShaderVar[] Parameters => _parameters;
 
         [TSerialize]
+        public ShaderVar[] Parameters
+        {
+            get => _parameters;
+            set => _parameters = value;
+        }
+
+        [TSerialize(Order = 1)]
         public BaseTexRef[] Textures
         {
             get => _textures;
@@ -141,6 +145,7 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
+        [TSerialize]
         public bool OverrideFBOAttachments
         {
             get => _overrideAttachments;

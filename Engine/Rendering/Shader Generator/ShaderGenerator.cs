@@ -126,6 +126,7 @@ namespace TheraEngine.Rendering
                 return false;
             }
 
+            List<ShaderVar> vars = new List<ShaderVar>();
             MaterialGenerator fragGen = new MaterialGenerator();
             fragGen.WriteVersion();
             fragGen.StartMain();
@@ -138,12 +139,23 @@ namespace TheraEngine.Rendering
             VarNameGen nameGen = new VarNameGen();
             FuncGen(resultFunction, nameGen, 0, deepness);
 
-            var funcs = deepness.OrderByDescending(x => x.Key).Select(x => x.Value).ToArray();
-            foreach (var list in funcs)
+            var funcLists = deepness.OrderByDescending(x => x.Key).Select(x => x.Value).ToArray();
+            HashSet<MaterialFunction> written = new HashSet<MaterialFunction>();
+            foreach (var list in funcLists)
             {
                 foreach (var func in list)
                 {
-                    
+                    if (written.Add(func))
+                    {
+                        if (func is BaseConstantFunc constant)
+                        {
+
+                        }
+                        else if (func is BaseParameterFunc parameter)
+                        {
+
+                        }
+                    }
                 }
             }
 
@@ -153,6 +165,7 @@ namespace TheraEngine.Rendering
             {
                 frag,
             };
+            shaderVars = vars.ToArray();
 
             return true;
         }
@@ -169,7 +182,11 @@ namespace TheraEngine.Rendering
                     output.UserObject = nameGen.New();
             foreach (MatFuncValueInput input in func.InputArguments)
                 if (input.Connection != null)
+                {
+                    if (!deepnessDic.ContainsKey(deepness))
+                        deepnessDic.Add(deepness, new List<MaterialFunction>());
                     FuncGen(input.Connection.ParentSocket, nameGen, deepness, deepnessDic);
+                }
         }
         public sealed class MatNode
         {

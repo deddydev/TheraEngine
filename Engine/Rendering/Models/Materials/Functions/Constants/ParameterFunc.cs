@@ -7,30 +7,25 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 "Parameter Value",
                 "Provides an animatable value to the shader.",
                 "constant scalar vector parameter value uniform animatable animate animation")]
-    public class ParameterFunc<T> : BaseParameterFunc where T : ShaderVar
+    public class ParameterFunc<T> : BaseParameterFunc where T : ShaderVar, new()
     {
         public ParameterFunc() : this(default) { }
-        public ParameterFunc(T value) : base(ShaderVar.TypeAssociations[typeof(T)]) { _value = value; }
+        public ParameterFunc(T value) : base(ShaderVar.TypeAssociations[typeof(T)])
+        {
+            Value = value;
+            HasGlobalVarDec = true;
+        }
         
         T _value;
 
         public T Value
         {
             get => _value;
-            set => _value = value;
+            set => _value = value ?? new T();
         }
-        protected override string GetOperation()
-        {
-            if (_value == null)
-                return "";
-            return _value.ToString();
-        }
-        public string GetUniformDeclaration(int layoutId = -1)
-        {
-            if (_value == null)
-                return "";
-            return _value.GetUniformDeclaration(layoutId);
-        }
+
+        protected override string GetOperation() => _value.GetValueString();
+        public override string GetGlobalVarDec() => _value.GetUniformDeclaration();
         public override void SetUniform(int programBindingId)
             => _value?.SetProgramUniform(programBindingId);
 

@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             MatFuncValueInput Refraction = new MatFuncValueInput("Refraction", ShaderVarType._float);
             return new MatFuncValueInput[] { Albedo, Opacity, Roughness, Metallic, Specularity, Refraction };
         }
-        protected override string GetGlobalVarDec()
+        public override string GetGlobalVarDec()
         {
             return @"layout(location = 0) out vec4 AlbedoOpacity;
 layout(location = 1) out vec3 Normal;

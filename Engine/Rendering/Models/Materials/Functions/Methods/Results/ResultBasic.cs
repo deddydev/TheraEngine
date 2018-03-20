@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using TheraEngine.Rendering.UI.Functions;
+﻿using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
@@ -23,7 +22,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         }
         protected override string GetOperation()
             => "OutColor = vec4({0}, {1})";
-        protected override string GetGlobalVarDec()
+        public override string GetGlobalVarDec()
             => "layout(location = 0) out vec4 OutColor;";
     }
 }

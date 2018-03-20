@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
@@ -317,7 +318,14 @@ namespace TheraEditor.Windows.Forms
             
             if (_highlightedArg != null && comp != _highlightedArg)
             {
-                _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncValue.RegularColor;
+                if (_highlightedArg is BaseFuncValue value)
+                {
+                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = value.GetTypeColor();
+                }
+                else
+                {
+                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncExec.DefaultColor;
+                }
                 UIMaterialRectangleComponent r = _highlightedArg.ParentSocket as UIMaterialRectangleComponent;
                 r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
             }
@@ -349,7 +357,7 @@ namespace TheraEditor.Windows.Forms
                 }
                 else
                 {
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncValue.HighlightedColor;
+                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value += new Vec4(0.2f);//BaseFuncValue.HighlightedColor;
                 }
             }
         }

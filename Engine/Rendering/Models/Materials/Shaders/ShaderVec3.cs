@@ -12,6 +12,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private BoolVec3 _value;
@@ -37,6 +38,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private Vec3 _value;
@@ -62,6 +64,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location) 
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private DVec3 _value;
@@ -87,6 +90,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private IVec3 _value;
@@ -112,6 +116,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private UVec3 _value;

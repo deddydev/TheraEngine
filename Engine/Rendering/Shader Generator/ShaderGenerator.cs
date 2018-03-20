@@ -129,7 +129,6 @@ namespace TheraEngine.Rendering
             List<ShaderVar> vars = new List<ShaderVar>();
             MaterialGenerator fragGen = new MaterialGenerator();
             fragGen.WriteVersion();
-            fragGen.StartMain();
 
             SortedDictionary<int, List<MaterialFunction>> deepness = new SortedDictionary<int, List<MaterialFunction>>
             {
@@ -137,7 +136,9 @@ namespace TheraEngine.Rendering
             };
 
             VarNameGen nameGen = new VarNameGen();
-            FuncGen(resultFunction, nameGen, 0, deepness);
+            Prepass(resultFunction, nameGen, 0, deepness, fragGen);
+
+            fragGen.StartMain();
 
             var funcLists = deepness.OrderByDescending(x => x.Key).Select(x => x.Value).ToArray();
             HashSet<MaterialFunction> written = new HashSet<MaterialFunction>();
@@ -147,45 +148,54 @@ namespace TheraEngine.Rendering
                 {
                     if (written.Add(func))
                     {
-                        if (func is BaseConstantFunc constant)
+                        if (func is ShaderMethod method)
                         {
-
+                            string syntax = method.GetCodeSyntax(out bool returnsInline);
+                            if (returnsInline)
+                            {
+                                fragGen.Line(syntax);
+                            }
+                            else
+                            {
+                                fragGen.Line(syntax);
+                            }
                         }
-                        else if (func is BaseParameterFunc parameter)
+                        else
                         {
-
+                            throw new Exception();
                         }
                     }
                 }
             }
-
-            ShaderFile frag = new ShaderFile(ShaderMode.Fragment, fragGen.EndMain());
-
+            
             shaderFiles = new ShaderFile[]
             {
-                frag,
+                new ShaderFile(ShaderMode.Fragment, fragGen.EndMain()),
             };
             shaderVars = vars.ToArray();
 
             return true;
         }
 
-        private static void FuncGen(
+        private static void Prepass(
             MaterialFunction func, 
             VarNameGen nameGen, 
             int deepness,
-            SortedDictionary<int, List<MaterialFunction>> deepnessDic)
+            SortedDictionary<int, List<MaterialFunction>> deepnessDic,
+            MaterialGenerator fragGen)
         {
             deepnessDic[deepness++].Add(func);
+            if (func is ShaderMethod method && method.HasGlobalVarDec)
+                fragGen.Line(method.GetGlobalVarDec());
             foreach (MatFuncValueOutput output in func.OutputArguments)
                 if (output.Connections.Count > 0)
-                    output.UserObject = nameGen.New();
+                    output.OutputVarName = nameGen.New();
             foreach (MatFuncValueInput input in func.InputArguments)
                 if (input.Connection != null)
                 {
                     if (!deepnessDic.ContainsKey(deepness))
                         deepnessDic.Add(deepness, new List<MaterialFunction>());
-                    FuncGen(input.Connection.ParentSocket, nameGen, deepness, deepnessDic);
+                    Prepass(input.Connection.ParentSocket, nameGen, deepness, deepnessDic, fragGen);
                 }
         }
         public sealed class MatNode

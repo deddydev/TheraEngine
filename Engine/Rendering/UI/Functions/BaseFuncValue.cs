@@ -11,8 +11,9 @@ namespace TheraEngine.Rendering.UI.Functions
     {
         int CurrentArgumentType { get; set; }
         int[] AllowedArgumentTypes { get; }
+        HashSet<IBaseFuncValue> SyncedArguments { get; }
     }
-    public abstract class BaseFuncValue : BaseFuncArg
+    public abstract class BaseFuncValue : BaseFuncArg, IBaseFuncValue
     {
         public static ColorF4 NoTypeColor { get; } = new ColorF4(0.4f, 1.0f);
         public static ColorF4 RegularColor { get; set; } = new ColorF4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -22,7 +23,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public BaseFuncValue(string name, ColorF4 color) : base(name, color) { }
         public BaseFuncValue(string name, IFunction parent, ColorF4 color) : base(name, parent, color) { }
 
-        public List<IBaseFuncValue> SyncedArguments => _syncedArgs;
+        public HashSet<IBaseFuncValue> SyncedArguments => _syncedArgs;
         public int[] AllowedArgumentTypes
         {
             get => _allowedArgTypes;
@@ -48,6 +49,12 @@ namespace TheraEngine.Rendering.UI.Functions
             get => _currentArgType;
             set
             {
+                if (_currentArgType == value)
+                {
+                    foreach (var arg in _syncedArgs.Where(x => x.CurrentArgumentType != _currentArgType))
+                        arg.CurrentArgumentType = _currentArgType;
+                    return;
+                }
                 _currentArgType = value;
                 InterfaceMaterial.Parameter<ShaderVec4>(0).Value = GetTypeColor();
                 foreach (IBaseFuncValue v in SyncedArguments)
@@ -59,28 +66,36 @@ namespace TheraEngine.Rendering.UI.Functions
         protected int ClearArgType()
             => AllowedArgumentTypes.Length == 1 ? AllowedArgumentTypes[0] : -1;
 
-        protected int DetermineBestArgType(IFuncValueInput input, IFuncValueOutput output)
+        protected static int DetermineBestArgType(IFuncValueInput input, IFuncValueOutput output)
         {
-            if (AllowedArgumentTypes.Length == 1)
-                return AllowedArgumentTypes[0];
-            else if (SyncedArguments.Count > 0)
+            if (input.AllowedArgumentTypes.Length == 1)
+                return input.AllowedArgumentTypes[0];
+            else if (output.AllowedArgumentTypes.Length == 1)
+                return output.AllowedArgumentTypes[0];
+            else if (input.SyncedArguments.Count > 0)
             {
-
+                return -1;
+            }
+            else if (output.SyncedArguments.Count > 0)
+            {
+                return -1;
             }
             else
             {
-
+                //No synchronized arguments, but various argument types to choose from.
+                //Leave as invalid?
+                return -1;
             }
         }
 
         protected virtual void OnCurrentArgTypeChanged() { }
 
-        private List<IBaseFuncValue> _syncedArgs = new List<IBaseFuncValue>();
+        private HashSet<IBaseFuncValue> _syncedArgs = new HashSet<IBaseFuncValue>();
         private int[] _allowedArgTypes = null;
         private int _currentArgType = -1;
 
         public void SetSyncedArguments(params IBaseFuncValue[] args)
-            => _syncedArgs = args.ToList();
+            => _syncedArgs = new HashSet<IBaseFuncValue>(args);
         public override string ToString() => Name;
 
         public virtual Vec4 GetTypeColor() => NoTypeColor;

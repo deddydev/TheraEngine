@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public FuncValueOutput(string name, TInput linkedMultiArg)
             : base(name)
         {
-            SyncedArguments.Add(linkedMultiArg);
+            SyncedArguments.IntersectWith(linkedMultiArg.SyncedArguments);
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
             _connections.PostAdded += _connectedTo_Added;
             _connections.PostRemoved += _connectedTo_Removed;
@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public FuncValueOutput(string name, TParent parent, TInput linkedMultiArg)
             : base(name, parent)
         {
-            SyncedArguments.Add(linkedMultiArg);
+            SyncedArguments.IntersectWith(linkedMultiArg.SyncedArguments);
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
             _connections.PostAdded += _connectedTo_Added;
             _connections.PostRemoved += _connectedTo_Removed;
@@ -67,12 +67,14 @@ namespace TheraEngine.Rendering.UI.Functions
         {
             _connections.Add(other, false, false);
             Connected?.Invoke(other);
+            CurrentArgumentType = DetermineBestArgType(other, this);
         }
         public void SecondaryRemoveConnection(IFuncValueInput other) => CallbackRemoveConnection(other as TInput);
         public virtual void CallbackRemoveConnection(TInput other)
         {
             _connections.Remove(other, false, false);
             Disconnected?.Invoke(other);
+            CurrentArgumentType = ClearArgType();
         }
         public void ClearConnections() => _connections.Clear();
 
@@ -80,11 +82,13 @@ namespace TheraEngine.Rendering.UI.Functions
         {
             item.Connection = this;
             Connected?.Invoke(item);
+            CurrentArgumentType = DetermineBestArgType(item, this);
         }
         private void _connectedTo_Removed(TInput item)
         {
             item.ClearConnection();
             Disconnected?.Invoke(item);
+            CurrentArgumentType = ClearArgType();
         }
 
         /// <summary>

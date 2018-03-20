@@ -1,10 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class ShaderMethod : MaterialFunction
     {
+        private bool _returnInline;
+
         /// <summary>
         /// If true, writes within the given scope.
         /// If false, writes a method before main.
@@ -21,7 +24,11 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         /// If false, uses its own space. Use as many lines as necessary and include semicolons.
         /// </summary>
         [Browsable(false)]
-        public bool ReturnsInline => Inline || OutputArguments.Count == 1;
+        public bool ReturnsInline
+        {
+            get => Inline || OutputArguments.Count == 1 || _returnInline;
+            set => _returnInline = value;
+        }
         
         public ShaderMethod() : base() { }
         public ShaderMethod(bool inline) : base() { Inline = inline; }
@@ -36,21 +43,29 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         /// Returns the base operation for string.Format.
         /// </summary>
         protected abstract string GetOperation();
-        protected virtual string GetGlobalVarDec() => null;
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputNames"></param>
-        /// <param name="outputNames"></param>
-        /// <returns></returns>
-        public string GetLineSyntax(
-            string[] inputNames,
-            string[] outputNames)
+        public virtual string GetGlobalVarDec()
         {
-            if (inputNames.Length != _valueInputs.Count ||
-                outputNames.Length != _valueOutputs.Count)
-                throw new ArgumentException();
+            if (!Inline)
+                return GetMethodSyntax();
+            return string.Empty;
+        }
+        
+        public string GetCodeSyntax(out bool returnsInline)
+        {
+            returnsInline = ReturnsInline;
+            if (ReturnsInline)
+                return GetLineSyntax();
+            else
+                return GetOperation();
+        }
+
+        public virtual string GetLineSyntax()
+        {
+            if (!ReturnsInline)
+                throw new InvalidOperationException();
+
+            string[] inputNames = GetInputNames();
+            string[] outputNames = GetOutputNames();
 
             if (Inline)
                 return string.Format(GetOperation(), inputNames);
@@ -73,6 +88,12 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
             return s;
         }
+
+        private string[] GetOutputNames()
+            => OutputArguments.Select(x => x.OutputVarName).ToArray();
+        private string[] GetInputNames()
+            => InputArguments.Select(x => x.Connection == null ? x.DefaultValue.GetValueString() : x.Connection.OutputVarName).ToArray();
+        
         public string GetMethodSyntax()
         {
             string type;

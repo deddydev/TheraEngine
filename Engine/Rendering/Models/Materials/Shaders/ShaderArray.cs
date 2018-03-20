@@ -15,6 +15,7 @@ namespace TheraEngine.Rendering.Models.Materials
             //Engine.Renderer.Uniform();
         }
         internal override string GetValueString() { return _value.ToString(); }
+        public override object GenericValue => Value;
 
         public ShaderVarType _elementTypeName;
         private ArrayHandler<T> _value;

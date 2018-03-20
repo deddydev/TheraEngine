@@ -11,6 +11,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public BoolVec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private BoolVec2 _value;
@@ -34,6 +35,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public Vec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private Vec2 _value;
@@ -57,6 +59,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public DVec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private DVec2 _value;
@@ -80,6 +83,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public IVec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private IVec2 _value;
@@ -103,6 +107,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public UVec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private UVec2 _value;

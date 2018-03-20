@@ -15,6 +15,7 @@
         public ResultFunc() : base(false)
         {
             HasGlobalVarDec = true;
+            ReturnsInline = false;
         }
 
         public bool Generate(out ShaderFile[] shaderFiles, out ShaderVar[] shaderVars) 

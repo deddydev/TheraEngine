@@ -2,10 +2,11 @@
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
-    public class TextureSample : ShaderMethod
+    public class Texture2DSample : ShaderMethod
     {
-        public TextureSample() : base(ShaderVarType._vec4) { }
+        public Texture2DSample() : base(ShaderVarType._vec4) { HasGlobalVarDec = true; }
         protected override string GetOperation() => "texture({0}, {1})";
+        public override string GetGlobalVarDec() => "uniform sampler2D Texture";
         protected override MatFuncValueInput[] GetValueInputs()
         {
             MatFuncValueInput uv = new MatFuncValueInput("UVs", ShaderVarType._vec2);

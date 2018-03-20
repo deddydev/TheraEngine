@@ -8,6 +8,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     {
         public ShaderVarType ArgumentType => (ShaderVarType)CurrentArgumentType;
 
+        internal string OutputVarName { get; set; }
+
         public override Vec4 GetTypeColor()
             => ShaderVar.GetTypeColor(ArgumentType);
 

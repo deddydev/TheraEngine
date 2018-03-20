@@ -16,6 +16,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe bool* Data { get { fixed (bool* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private bool _value;
@@ -42,7 +43,8 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         [Browsable(false)]
         public unsafe float* Data { get { fixed (float* ptr = &_value) return ptr; } }
-        internal override string GetValueString() => _value.ToString();
+        internal override string GetValueString() => _value.ToString() + "f";
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private float _value;
@@ -70,6 +72,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe double* Data { get { fixed (double* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private double _value;
@@ -97,6 +100,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe int* Data { get { fixed (int* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private int _value;
@@ -124,6 +128,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe uint* Data { get { fixed (uint* ptr = &_value) return ptr; } }
         internal override string GetValueString() => _value.ToString();
+        public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private uint _value;

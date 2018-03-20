@@ -43,13 +43,13 @@ namespace TheraEngine.Rendering.UI.Functions
             : base(name)
         {
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
-            SyncedArguments.Add(linkedMultiArg);
+            SyncedArguments.IntersectWith(linkedMultiArg.SyncedArguments);
         }
         public FuncValueInput(string name, TParent parent, IBaseFuncValue linkedMultiArg)
             : base(name, parent)
         {
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
-            SyncedArguments.Add(linkedMultiArg);
+            SyncedArguments.IntersectWith(linkedMultiArg.SyncedArguments);
         }
 
         public bool ConnectTo(TOutput other)
@@ -82,6 +82,7 @@ namespace TheraEngine.Rendering.UI.Functions
             {
                 _connectedTo.SecondaryRemoveConnection(this);
                 Disconnected?.Invoke(_connectedTo);
+                CurrentArgumentType = ClearArgType();
             }
             _connectedTo = null;
         }

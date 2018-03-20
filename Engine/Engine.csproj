@@ -654,7 +654,7 @@
     <Compile Include="Rendering\Cameras\PostProcessSettings.cs" />
     <Compile Include="Rendering\Models\Materials\TMaterial.cs" />
     <Compile Include="Rendering\Models\Materials\TMaterialInstance.cs" />
-    <Compile Include="Rendering\Models\Materials\Shaders\Shader.cs" />
+    <Compile Include="Rendering\Models\Materials\Shaders\ShaderFile.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Vertex\VertexPrimitive.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Vertex\VertexQuad.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Vertex\VertexTriangleStrip.cs" />

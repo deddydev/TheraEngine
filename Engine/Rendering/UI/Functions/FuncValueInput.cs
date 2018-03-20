@@ -42,14 +42,14 @@ namespace TheraEngine.Rendering.UI.Functions
         public FuncValueInput(string name, IBaseFuncValue linkedMultiArg)
             : base(name)
         {
-            SyncedArguments.Add(linkedMultiArg);
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
+            SyncedArguments.Add(linkedMultiArg);
         }
         public FuncValueInput(string name, TParent parent, IBaseFuncValue linkedMultiArg)
             : base(name, parent)
         {
-            SyncedArguments.Add(linkedMultiArg);
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
+            SyncedArguments.Add(linkedMultiArg);
         }
 
         public bool ConnectTo(TOutput other)
@@ -65,14 +65,17 @@ namespace TheraEngine.Rendering.UI.Functions
             {
                 _connectedTo.SecondaryRemoveConnection(this);
                 Disconnected?.Invoke(_connectedTo);
+                CurrentArgumentType = ClearArgType();
             }
             _connectedTo = other;
             if (_connectedTo != null)
             {
                 _connectedTo.CallbackAddConnection(this);
                 Connected?.Invoke(_connectedTo);
+                CurrentArgumentType = DetermineBestArgType(this, _connectedTo);
             }
         }
+
         public virtual void ClearConnection()
         {
             if (_connectedTo != null)

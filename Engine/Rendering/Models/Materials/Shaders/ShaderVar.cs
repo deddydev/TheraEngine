@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -39,12 +42,50 @@ namespace TheraEngine.Rendering.Models.Materials
         _mat3,
         _mat4,
     }
+
+    public interface IShaderVarType { }
+
+    public interface IShaderNumericType : IShaderVarType { }
+    public interface IShaderBooleanType : IShaderVarType { }
+    public interface IShaderMatrixType : IShaderVarType { }
+    public interface IShaderSignedIntType : IShaderVarType { }
+    public interface IShaderUnsignedIntType : IShaderVarType { }
+    public interface IShaderFloatType : IShaderVarType { }
+    public interface IShaderDoubleType : IShaderVarType { }
+
+    public interface IShaderNonVectorType : IShaderVarType { }
+    public interface IShaderVectorType : IShaderVarType { }
+    
+    public interface IShaderVec2Type : IShaderVarType { }
+    public interface IShaderVec3Type : IShaderVarType { }
+    public interface IShaderVec4Type : IShaderVarType { }
+
+    public interface IShaderVectorBoolType : IShaderVarType { }
+    public interface IShaderVectorSignedIntType : IShaderVarType { }
+    public interface IShaderVectorUnsignedIntType : IShaderVarType { }
+    public interface IShaderVectorFloatType : IShaderVarType { }
+    public interface IShaderVectorDoubleType : IShaderVarType { }
+    
+    public interface IShaderNonDecimalType : IShaderVarType { }
+    public interface IShaderDecimalType : IShaderVarType { }
+
+    public interface IShaderSignedType : IShaderVarType { }
+    public interface IShaderUnsignedType : IShaderVarType { }
+
     public abstract class ShaderVar : TObject, IShaderVarOwner
     {
         internal const string CategoryName = "Material Parameter";
         internal const string ValueName = "Value";
-
         public const string NoName = "NoName";
+
+        #region Type caches
+        public ShaderVarType[] GetTypesMatching<T>() where T : IShaderVarType
+        {
+            Type varType = typeof(T);
+            Type shaderType = typeof(ShaderVar);
+            var types = Engine.FindTypes(t => t.IsSubclassOf(shaderType) && varType.IsAssignableFrom(t));
+            return types.Select(x => TypeAssociations[x]).Distinct().ToArray();
+        }
         public static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
         {
             { typeof(ShaderBool),   ShaderVarType._bool   },
@@ -120,6 +161,102 @@ namespace TheraEngine.Rendering.Models.Materials
             { ShaderVarType._bvec3,  typeof(BoolVec3)   },
             { ShaderVarType._bvec4,  typeof(BoolVec4)   },
         };
+        public static readonly ShaderVarType[] SignedIntTypes = new ShaderVarType[]
+        {
+            ShaderVarType._int,
+            ShaderVarType._ivec2,
+            ShaderVarType._ivec3,
+            ShaderVarType._ivec4,
+        };
+        public static readonly ShaderVarType[] UnsignedIntTypes = new ShaderVarType[]
+        {
+            ShaderVarType._uint,
+            ShaderVarType._uvec2,
+            ShaderVarType._uvec3,
+            ShaderVarType._uvec4,
+        };
+        public static readonly ShaderVarType[] IntegerTypes = new ShaderVarType[]
+        {
+            ShaderVarType._int,
+            ShaderVarType._uint,
+            ShaderVarType._ivec2,
+            ShaderVarType._uvec2,
+            ShaderVarType._ivec3,
+            ShaderVarType._uvec3,
+            ShaderVarType._ivec4,
+            ShaderVarType._uvec4,
+        };
+        public static readonly ShaderVarType[] FloatingPointTypes = new ShaderVarType[]
+        {
+            ShaderVarType._float,
+            ShaderVarType._double,
+            ShaderVarType._vec2,
+            ShaderVarType._dvec2,
+            ShaderVarType._vec3,
+            ShaderVarType._dvec3,
+            ShaderVarType._vec4,
+            ShaderVarType._dvec4,
+        };
+        public static readonly ShaderVarType[] NumericTypes = new ShaderVarType[]
+        {
+            ShaderVarType._float,
+            ShaderVarType._double,
+            ShaderVarType._int,
+            ShaderVarType._uint,
+            ShaderVarType._vec2,
+            ShaderVarType._ivec2,
+            ShaderVarType._uvec2,
+            ShaderVarType._dvec2,
+            ShaderVarType._vec3,
+            ShaderVarType._ivec3,
+            ShaderVarType._uvec3,
+            ShaderVarType._dvec3,
+            ShaderVarType._vec4,
+            ShaderVarType._ivec4,
+            ShaderVarType._uvec4,
+            ShaderVarType._dvec4,
+        };
+        public static readonly ShaderVarType[] SignedTypes = new ShaderVarType[]
+        {
+            ShaderVarType._float,
+            ShaderVarType._double,
+            ShaderVarType._int,
+            ShaderVarType._vec2,
+            ShaderVarType._ivec2,
+            ShaderVarType._dvec2,
+            ShaderVarType._vec3,
+            ShaderVarType._ivec3,
+            ShaderVarType._dvec3,
+            ShaderVarType._vec4,
+            ShaderVarType._ivec4,
+            ShaderVarType._dvec4,
+        };
+        public static readonly ShaderVarType[] BooleanTypes = new ShaderVarType[]
+        {
+            ShaderVarType._bool,
+            ShaderVarType._bvec2,
+            ShaderVarType._bvec3,
+            ShaderVarType._bvec4,
+        };
+        public static readonly ShaderVarType[] VectorTypes = new ShaderVarType[]
+        {
+            ShaderVarType._vec2,
+            ShaderVarType._ivec2,
+            ShaderVarType._uvec2,
+            ShaderVarType._dvec2,
+            ShaderVarType._bvec2,
+            ShaderVarType._vec3,
+            ShaderVarType._ivec3,
+            ShaderVarType._uvec3,
+            ShaderVarType._dvec3,
+            ShaderVarType._bvec3,
+            ShaderVarType._vec4,
+            ShaderVarType._ivec4,
+            ShaderVarType._uvec4,
+            ShaderVarType._dvec4,
+            ShaderVarType._bvec4,
+        };
+        #endregion
 
         public event Action<ShaderVar> ValueChanged;
 
@@ -145,6 +282,8 @@ namespace TheraEngine.Rendering.Models.Materials
                 base.Name = (value ?? "").ReplaceWhitespace("");
             }
         }
+
+        public abstract object GenericValue { get; }
 
         internal void SetProgramUniform(int programBindingId, string name)
         {
@@ -196,6 +335,39 @@ namespace TheraEngine.Rendering.Models.Materials
         internal virtual string AccessorTree()
         {
             return Name;
+        }
+
+        internal static Vec4 GetTypeColor(ShaderVarType argumentType)
+        {
+            switch (argumentType)
+            {
+                case ShaderVarType._bool:
+                case ShaderVarType._bvec2:
+                case ShaderVarType._bvec3:
+                case ShaderVarType._bvec4:
+                    return (ColorF4)Color.Red;
+                case ShaderVarType._int:
+                case ShaderVarType._ivec2:
+                case ShaderVarType._ivec3:
+                case ShaderVarType._ivec4:
+                    return (ColorF4)Color.HotPink;
+                case ShaderVarType._uint:
+                case ShaderVarType._uvec2:
+                case ShaderVarType._uvec3:
+                case ShaderVarType._uvec4:
+                    return (ColorF4)Color.Orange;
+                case ShaderVarType._float:
+                case ShaderVarType._vec2:
+                case ShaderVarType._vec3:
+                case ShaderVarType._vec4:
+                    return (ColorF4)Color.Blue;
+                case ShaderVarType._double:
+                case ShaderVarType._dvec2:
+                case ShaderVarType._dvec3:
+                case ShaderVarType._dvec4:
+                    return (ColorF4)Color.Green;
+            }
+            return BaseFuncValue.NoTypeColor;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "inverse divided divison one 1 over value")]
     public class InverseFunc : ShaderMethod
     {
-        public InverseFunc() : base(FloatingPointTypes) { }
+        public InverseFunc() : base(ShaderVar.FloatingPointTypes) { }
         protected override string GetOperation()
             => One(InputArguments[0].ArgumentType) + " / {0}";
         protected override MatFuncValueInput[] GetValueInputs()

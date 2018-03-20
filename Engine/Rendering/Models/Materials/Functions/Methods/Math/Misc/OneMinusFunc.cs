@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "one minus value 1 - subtract")]
     public class OneMinusFunc : ShaderMethod
     {
-        public OneMinusFunc() : base(NumericTypes) { }
+        public OneMinusFunc() : base(ShaderVar.NumericTypes) { }
         protected override string GetOperation()
             => One(InputArguments[0].ArgumentType) + " - {0}";
         protected override MatFuncValueInput[] GetValueInputs()

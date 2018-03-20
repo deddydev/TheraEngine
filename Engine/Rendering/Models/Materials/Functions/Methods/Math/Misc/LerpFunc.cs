@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "lerp mix linear interpolate blend")]
     public class LerpFunc : ShaderMethod
     {
-        public LerpFunc() : base(FloatingPointTypes) { }
+        public LerpFunc() : base(ShaderVar.FloatingPointTypes) { }
         protected override string GetOperation() => "mix({0}, {1}, {2})";
         protected override MatFuncValueInput[] GetValueInputs()
         {

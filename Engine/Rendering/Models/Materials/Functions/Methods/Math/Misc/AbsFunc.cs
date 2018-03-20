@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "absolute value")]
     public class AbsFunc : ShaderMethod
     {
-        public AbsFunc() : base(SignedTypes) { }
+        public AbsFunc() : base(ShaderVar.SignedTypes) { }
         protected override string GetOperation() => "abs({0})";
         protected override MatFuncValueInput[] GetValueInputs()
         {

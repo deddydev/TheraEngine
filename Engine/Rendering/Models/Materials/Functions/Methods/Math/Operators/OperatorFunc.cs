@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     {
         public const string CategoryName = "Basic Operators";
         
-        public OperatorFunc() : base(NumericTypes) { }
+        public OperatorFunc() : base(ShaderVar.NumericTypes) { }
         protected override MatFuncValueInput[] GetValueInputs()
         {
             MatFuncValueInput A = new MatFuncValueInput("A", OutputArguments[0]);

@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
         public string Two(ShaderVarType type)
         {
-            if (!IsType(type, BooleanTypes))
+            if (!IsType(type, ShaderVar.BooleanTypes))
                 switch (type)
                 {
                     case ShaderVarType._int: return "2";
@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         }
         public string Half(ShaderVarType type)
         {
-            if (IsType(type, FloatingPointTypes))
+            if (IsType(type, ShaderVar.FloatingPointTypes))
                 switch (type)
                 {
                     case ShaderVarType._float: return "0.5f";
@@ -121,101 +121,6 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         public static bool IsType(ShaderVarType type, ShaderVarType[] comparedTypes)
             => comparedTypes.Contains(type);
         
-        public static readonly ShaderVarType[] SignedIntTypes = new ShaderVarType[]
-        {
-            ShaderVarType._int,
-            ShaderVarType._ivec2,
-            ShaderVarType._ivec3,
-            ShaderVarType._ivec4,
-        };
-        public static readonly ShaderVarType[] UnsignedIntTypes = new ShaderVarType[]
-        {
-            ShaderVarType._uint,
-            ShaderVarType._uvec2,
-            ShaderVarType._uvec3,
-            ShaderVarType._uvec4,
-        };
-        public static readonly ShaderVarType[] IntegerTypes = new ShaderVarType[]
-        {
-            ShaderVarType._int,
-            ShaderVarType._uint,
-            ShaderVarType._ivec2,
-            ShaderVarType._uvec2,
-            ShaderVarType._ivec3,
-            ShaderVarType._uvec3,
-            ShaderVarType._ivec4,
-            ShaderVarType._uvec4,
-        };
-        public static readonly ShaderVarType[] FloatingPointTypes = new ShaderVarType[]
-        {
-            ShaderVarType._float,
-            ShaderVarType._double,
-            ShaderVarType._vec2,
-            ShaderVarType._dvec2,
-            ShaderVarType._vec3,
-            ShaderVarType._dvec3,
-            ShaderVarType._vec4,
-            ShaderVarType._dvec4,
-        };
-        public static readonly ShaderVarType[] NumericTypes = new ShaderVarType[]
-        {
-            ShaderVarType._float,
-            ShaderVarType._double,
-            ShaderVarType._int,
-            ShaderVarType._uint,
-            ShaderVarType._vec2,
-            ShaderVarType._ivec2,
-            ShaderVarType._uvec2,
-            ShaderVarType._dvec2,
-            ShaderVarType._vec3,
-            ShaderVarType._ivec3,
-            ShaderVarType._uvec3,
-            ShaderVarType._dvec3,
-            ShaderVarType._vec4,
-            ShaderVarType._ivec4,
-            ShaderVarType._uvec4,
-            ShaderVarType._dvec4,
-        };
-        public static readonly ShaderVarType[] SignedTypes = new ShaderVarType[]
-        {
-            ShaderVarType._float,
-            ShaderVarType._double,
-            ShaderVarType._int,
-            ShaderVarType._vec2,
-            ShaderVarType._ivec2,
-            ShaderVarType._dvec2,
-            ShaderVarType._vec3,
-            ShaderVarType._ivec3,
-            ShaderVarType._dvec3,
-            ShaderVarType._vec4,
-            ShaderVarType._ivec4,
-            ShaderVarType._dvec4,
-        };
-        public static readonly ShaderVarType[] BooleanTypes = new ShaderVarType[]
-        {
-            ShaderVarType._bool,
-            ShaderVarType._bvec2,
-            ShaderVarType._bvec3,
-            ShaderVarType._bvec4,
-        };
-        public static readonly ShaderVarType[] VectorTypes = new ShaderVarType[]
-        {
-            ShaderVarType._vec2,
-            ShaderVarType._ivec2,
-            ShaderVarType._uvec2,
-            ShaderVarType._dvec2,
-            ShaderVarType._bvec2,
-            ShaderVarType._vec3,
-            ShaderVarType._ivec3,
-            ShaderVarType._uvec3,
-            ShaderVarType._dvec3,
-            ShaderVarType._bvec3,
-            ShaderVarType._vec4,
-            ShaderVarType._ivec4,
-            ShaderVarType._uvec4,
-            ShaderVarType._dvec4,
-            ShaderVarType._bvec4,
-        };
         public void CollectInputTreeRecursive(HashSet<MaterialFunction> tree)
         {
             if (tree.Add(this))

@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.UI.Functions
 {
     public interface IBaseFuncValue : IUIComponent
     {
-        int CurrentArgumentType { get; }
+        int CurrentArgumentType { get; set; }
         int[] AllowedArgumentTypes { get; }
     }
     public abstract class BaseFuncValue : BaseFuncArg
@@ -22,13 +22,6 @@ namespace TheraEngine.Rendering.UI.Functions
         public BaseFuncValue(string name, ColorF4 color) : base(name, color) { }
         public BaseFuncValue(string name, IFunction parent, ColorF4 color) : base(name, parent, color) { }
 
-        public virtual Vec4 GetTypeColor() => NoTypeColor;
-    }
-    public abstract class BaseFuncValue<TOutput> : BaseFuncValue where TOutput : IBaseFuncValue
-    {
-        public BaseFuncValue(string name) : base(name, NoTypeColor) { }
-        public BaseFuncValue(string name, IFunction parent) : base(name, parent, NoTypeColor) { }
-        
         public List<IBaseFuncValue> SyncedArguments => _syncedArgs;
         public int[] AllowedArgumentTypes
         {
@@ -57,18 +50,47 @@ namespace TheraEngine.Rendering.UI.Functions
             {
                 _currentArgType = value;
                 InterfaceMaterial.Parameter<ShaderVec4>(0).Value = GetTypeColor();
+                foreach (IBaseFuncValue v in SyncedArguments)
+                    v.CurrentArgumentType = CurrentArgumentType;
+                OnCurrentArgTypeChanged();
             }
         }
+
+        protected int ClearArgType()
+            => AllowedArgumentTypes.Length == 1 ? AllowedArgumentTypes[0] : -1;
+
+        protected int DetermineBestArgType(IFuncValueInput input, IFuncValueOutput output)
+        {
+            if (AllowedArgumentTypes.Length == 1)
+                return AllowedArgumentTypes[0];
+            else if (SyncedArguments.Count > 0)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+
+        protected virtual void OnCurrentArgTypeChanged() { }
 
         private List<IBaseFuncValue> _syncedArgs = new List<IBaseFuncValue>();
         private int[] _allowedArgTypes = null;
         private int _currentArgType = -1;
 
-        public abstract bool CanConnectTo(TOutput other);
-
         public void SetSyncedArguments(params IBaseFuncValue[] args)
             => _syncedArgs = args.ToList();
         public override string ToString() => Name;
+
+        public virtual Vec4 GetTypeColor() => NoTypeColor;
+    }
+    public abstract class BaseFuncValue<TOutput> : BaseFuncValue where TOutput : IBaseFuncValue
+    {
+        public BaseFuncValue(string name) : base(name, NoTypeColor) { }
+        public BaseFuncValue(string name, IFunction parent) : base(name, parent, NoTypeColor) { }
+        
+        public abstract bool CanConnectTo(TOutput other);
     }
     public enum ArgumentSyncType
     {

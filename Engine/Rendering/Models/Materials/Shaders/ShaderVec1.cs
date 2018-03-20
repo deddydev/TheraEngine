@@ -2,7 +2,10 @@
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public class ShaderBool : ShaderVar, IUniformable1Bool
+    public class ShaderBool : ShaderVar, 
+        IUniformable1Bool,
+        IShaderBooleanType,
+        IShaderNonVectorType
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._bool;
@@ -23,7 +26,13 @@ namespace TheraEngine.Rendering.Models.Materials
         public ShaderBool(bool defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner) => _value = defaultValue;
     }
-    public class ShaderFloat : ShaderVar, IUniformable1Float
+    public class ShaderFloat : ShaderVar, 
+        IUniformable1Float,
+        IShaderFloatType,
+        IShaderNonVectorType,
+        IShaderNumericType,
+        IShaderDecimalType,
+        IShaderSignedType
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._float;
@@ -44,7 +53,13 @@ namespace TheraEngine.Rendering.Models.Materials
         public ShaderFloat(float defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner) => _value = defaultValue;
     }
-    public class ShaderDouble : ShaderVar, IUniformable1Double
+    public class ShaderDouble : ShaderVar, 
+        IUniformable1Double,
+        IShaderDoubleType, 
+        IShaderNonVectorType,
+        IShaderNumericType,
+        IShaderDecimalType, 
+        IShaderSignedType
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._double;
@@ -65,7 +80,13 @@ namespace TheraEngine.Rendering.Models.Materials
         public ShaderDouble(double defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner) => _value = defaultValue;
     }
-    public class ShaderInt : ShaderVar, IUniformable1Int
+    public class ShaderInt : ShaderVar, 
+        IUniformable1Int,
+        IShaderSignedIntType, 
+        IShaderNonVectorType,
+        IShaderNumericType,
+        IShaderNonDecimalType,
+        IShaderSignedType
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._int;
@@ -86,7 +107,13 @@ namespace TheraEngine.Rendering.Models.Materials
         public ShaderInt(int defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner) => _value = defaultValue;
     }
-    public class ShaderUInt : ShaderVar, IUniformable1UInt
+    public class ShaderUInt : ShaderVar,
+        IUniformable1UInt,
+        IShaderUnsignedIntType,
+        IShaderUnsignedType,
+        IShaderNonDecimalType, 
+        IShaderNumericType,
+        IShaderNonVectorType
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._uint;

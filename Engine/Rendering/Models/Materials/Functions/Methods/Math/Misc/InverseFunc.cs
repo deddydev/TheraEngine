@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// </summary>
     [FunctionDefinition(
         "Helpers",
-        "1 / Value",
+        "Inverse",
         "Returns 1 / value.",
         "inverse divided divison one 1 over value")]
     public class InverseFunc : ShaderMethod

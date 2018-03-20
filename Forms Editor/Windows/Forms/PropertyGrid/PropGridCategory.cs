@@ -115,6 +115,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             };
             label.MouseEnter += Label_MouseEnter;
             label.MouseLeave += Label_MouseLeave;
+            tblProps.BeginUpdate();
             tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tblProps.RowCount = tblProps.RowStyles.Count;
             tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
@@ -148,6 +149,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.Padding = new Padding(0);
                 tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
             }
+            tblProps.EndUpdate();
 
             return label;
         }

@@ -103,19 +103,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             string path = GetValue()?.ToString() ?? string.Empty;
-            OpenFileDialog ofd = new OpenFileDialog()
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = "All files (*.*)|*.*",
                 Multiselect = _multiLine,
                 FileName = path,
-            };
-
-            if (path.IsValidPath())
-                ofd.InitialDirectory = Path.GetDirectoryName(path);
-
-            if (ofd.ShowDialog() == DialogResult.OK)
+            })
             {
-                UpdateValue(string.Join(Environment.NewLine, ofd.FileNames), true);
+                if (path.IsValidPath())
+                    ofd.InitialDirectory = Path.GetDirectoryName(path);
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    UpdateValue(string.Join(Environment.NewLine, ofd.FileNames), true);
+                }
             }
         }
     }

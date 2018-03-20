@@ -26,6 +26,8 @@
     }
     public enum ECommonUniform
     {
+        UpdateDelta,
+
         ModelMatrix,
         WorldToCameraSpaceMatrix,
         ProjMatrix,
@@ -56,7 +58,5 @@
         //CameraForward,
         //CameraUp,
         //CameraRight,
-
-        RenderDelta,
     }
 }

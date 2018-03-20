@@ -1,25 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Actors;
+using TheraEngine.Editor;
 using TheraEngine.Files;
+using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
-using TheraEngine.Actors;
 using WeifenLuo.WinFormsUI.Docking;
-using System.Collections.Generic;
-using Microsoft.CSharp;
-using System.CodeDom.Compiler;
-using TheraEngine.Editor;
-using System.Diagnostics;
-using TheraEngine.GameModes;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -362,24 +360,27 @@ namespace TheraEditor.Windows.Forms
 
             if (type.IsGenericTypeDefinition)
             {
-                GenericsSelector gs = new GenericsSelector(type);
-                if (gs.ShowDialog() == DialogResult.OK)
-                    type = gs.FinalClassType;
-                else
-                    return null;
+                using (GenericsSelector gs = new GenericsSelector(type))
+                {
+                    if (gs.ShowDialog() == DialogResult.OK)
+                        type = gs.FinalClassType;
+                    else
+                        return null;
+                }
             }
 
-            ObjectCreator creator = new ObjectCreator();
-            if (creator.Initialize(type, allowDerivedTypes))
-                creator.ShowDialog();
+            using (ObjectCreator creator = new ObjectCreator())
+            {
+                if (creator.Initialize(type, allowDerivedTypes))
+                    creator.ShowDialog();
 
-            return creator.ConstructedObject;
+                return creator.ConstructedObject;
+            }
         }
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
-            
             CheckUpdates();
 
             //xcopy /Y "$(SolutionDir)Libraries\$(Platform)\FreeImage.dll" "$(TargetDir)"
@@ -489,13 +490,15 @@ namespace TheraEditor.Windows.Forms
         //}
         private void BtnOpenWorld_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog()
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = TFileObject.GetFilter<World>(),
                 Multiselect = false
-            };
-            if (ofd.ShowDialog() == DialogResult.OK)
-                CurrentWorld = TFileObject.Load<World>(ofd.FileName);
+            })
+            {
+                if (ofd.ShowDialog() == DialogResult.OK)
+                    CurrentWorld = TFileObject.Load<World>(ofd.FileName);
+            }
         }
 
         private void BtnNewMaterial_Click(object sender, EventArgs e)
@@ -553,24 +556,26 @@ namespace TheraEditor.Windows.Forms
             if (!CloseProject())
                 return;
 
-            FolderBrowserDialog fbd = new FolderBrowserDialog()
+            using (FolderBrowserDialog fbd = new FolderBrowserDialog()
             {
                 ShowNewFolderButton = true,
                 Description = "",
-            };
-
-            if (fbd.ShowDialog() == DialogResult.OK)
-                Project = Project.Create(fbd.SelectedPath, "NewProject");
+            })
+            {
+                if (fbd.ShowDialog() == DialogResult.OK)
+                    Project = Project.Create(fbd.SelectedPath, "NewProject");
+            }
         }
         public void OpenProject()
         {
-            OpenFileDialog ofd = new OpenFileDialog()
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = TFileObject.GetFilter<Project>(),
-            };
-
-            if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
-                Project = TFileObject.Load<Project>(ofd.FileName);
+            })
+            {
+                if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
+                    Project = TFileObject.Load<Project>(ofd.FileName);
+            }
         }
         private void BtnProjectSettings_Click(object sender, EventArgs e)
         {
@@ -958,13 +963,13 @@ namespace TheraEditor.Windows.Forms
         }
         private void BtnSaveProjectAs_Click(object sender, EventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog()
+            using (SaveFileDialog sfd = new SaveFileDialog()
             {
                 Filter = TFileObject.GetFilter<Project>(),
-            };
-            if (sfd.ShowDialog() == DialogResult.OK)
+            })
             {
-                _project.Export(sfd.FileName);
+                if (sfd.ShowDialog() == DialogResult.OK)
+                    _project.Export(sfd.FileName);
             }
         }
         private void newToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -995,15 +1000,17 @@ namespace TheraEditor.Windows.Forms
             if (CurrentWorld == null)
                 return;
 
-            SaveFileDialog sfd = new SaveFileDialog()
+            using (SaveFileDialog sfd = new SaveFileDialog()
             {
                 Filter = TFileObject.GetFilter<World>(),
-            };
-            if (sfd.ShowDialog() == DialogResult.OK)
+            })
             {
-                ContentTree.WatchProjectDirectory = false;
-                CurrentWorld.Export(sfd.FileName);
-                ContentTree.WatchProjectDirectory = true;
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    ContentTree.WatchProjectDirectory = false;
+                    CurrentWorld.Export(sfd.FileName);
+                    ContentTree.WatchProjectDirectory = true;
+                }
             }
         }
         private bool CloseWorld()
@@ -1037,13 +1044,14 @@ namespace TheraEditor.Windows.Forms
         }
         public void OpenWorld()
         {
-            OpenFileDialog ofd = new OpenFileDialog()
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = TFileObject.GetFilter<World>(),
-            };
-
-            if (ofd.ShowDialog() == DialogResult.OK && CloseWorld())
-                CurrentWorld = TFileObject.Load<World>(ofd.FileName);
+            })
+            {
+                if (ofd.ShowDialog() == DialogResult.OK && CloseWorld())
+                    CurrentWorld = TFileObject.Load<World>(ofd.FileName);
+            }
         }
     }
 }

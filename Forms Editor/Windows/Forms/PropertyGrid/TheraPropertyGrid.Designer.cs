@@ -51,6 +51,7 @@
             this.lblSceneComps.TabIndex = 0;
             this.lblSceneComps.Text = "Scene Components";
             this.lblSceneComps.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblSceneComps.Visible = false;
             // 
             // lblLogicComps
             // 
@@ -63,6 +64,7 @@
             this.lblLogicComps.TabIndex = 1;
             this.lblLogicComps.Text = "Logic Components";
             this.lblLogicComps.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblLogicComps.Visible = false;
             this.lblLogicComps.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblLogicComps_MouseDown);
             this.lblLogicComps.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lblLogicComps_MouseUp);
             // 
@@ -77,6 +79,7 @@
             this.lblProperties.TabIndex = 2;
             this.lblProperties.Text = "Properties";
             this.lblProperties.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblProperties.Visible = false;
             this.lblProperties.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblProperties_MouseDown);
             this.lblProperties.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lblProperties_MouseUp);
             // 
@@ -94,6 +97,7 @@
             this.treeViewSceneComps.Name = "treeViewSceneComps";
             this.treeViewSceneComps.Size = new System.Drawing.Size(631, 31);
             this.treeViewSceneComps.TabIndex = 3;
+            this.treeViewSceneComps.Visible = false;
             this.treeViewSceneComps.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewSceneComps_BeforeSelect);
             this.treeViewSceneComps.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSceneComps_MouseDown);
             // 
@@ -106,12 +110,13 @@
             this.lstLogicComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lstLogicComps.FormattingEnabled = true;
             this.lstLogicComps.IntegralHeight = false;
-            this.lstLogicComps.ItemHeight = 25;
+            this.lstLogicComps.ItemHeight = 20;
             this.lstLogicComps.Location = new System.Drawing.Point(0, 140);
             this.lstLogicComps.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.lstLogicComps.Name = "lstLogicComps";
             this.lstLogicComps.Size = new System.Drawing.Size(631, 31);
             this.lstLogicComps.TabIndex = 4;
+            this.lstLogicComps.Visible = false;
             this.lstLogicComps.SelectedIndexChanged += new System.EventHandler(this.lstLogicComps_SelectedIndexChanged);
             // 
             // pnlProps
@@ -174,7 +179,6 @@
             // 
             // TheraPropertyGrid
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));

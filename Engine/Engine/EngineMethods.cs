@@ -358,6 +358,9 @@ namespace TheraEngine
         //#endif
         //        }
         public static string OutputString { get; private set; }
+        public static bool DesignMode 
+            => Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) >= 0;
+
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>

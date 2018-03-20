@@ -24,6 +24,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public static Dictionary<Type, Type> FullEditorTypes = new Dictionary<Type, Type>();
         static TheraPropertyGrid()
         {
+            if (Engine.DesignMode)
+                return;
+
             var propControls = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)));
             foreach (var propControlType in propControls)
             {
@@ -57,12 +60,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         internal static GameTimer UpdateTimer = new GameTimer();
         protected override void OnHandleCreated(EventArgs e)
         {
-            UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
+            if (!Engine.DesignMode)
+                UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
             base.OnHandleCreated(e);
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            UpdateTimer.Stop();
+            if (!Engine.DesignMode)
+                UpdateTimer.Stop();
             base.OnHandleDestroyed(e);
         }
 
@@ -92,11 +97,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private bool _updating;
         private IFileObject _targetObject;
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IFileObject TargetObject
         {
             get => _targetObject;
             set
             {
+                if (InvokeRequired)
+                {
+                    Invoke((Action)(() => TargetObject = value));
+                    return;
+                }
+
                 if (_targetObject == value)
                     return;
 
@@ -109,32 +122,40 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
 
                 _targetObject = value;
-                  
+
                 lblObjectName.Visible = Enabled = _targetObject != null;
-                if (!Enabled)
-                    return;
-
-                btnSave.Visible = _targetObject.EditorState.IsDirty;
-
-                lblObjectName.Text = string.Format("{0} [{1}]",
-                    _targetObject.ToString(), 
-                    _targetObject.GetType().GetFriendlyName());
-
-                lblObjectName.Visible = true;
-
-                if (_targetObject is IActor actor)
+                if (Enabled)
                 {
-                    _updating = true;
-                    treeViewSceneComps.Nodes.Clear();
-                    PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor.RootComponent);
-                    PopulateLogicComponentList(actor.LogicComponents);
+                    btnSave.Visible = _targetObject.EditorState.IsDirty;
 
-                    lblProperties.Visible = true;
-                    lblSceneComps.Visible = true;
-                    treeViewSceneComps.Visible = true;
-                    _updating = false;
+                    lblObjectName.Text = string.Format("{0} [{1}]",
+                        _targetObject.ToString(),
+                        _targetObject.GetType().GetFriendlyName());
+                    
+                    if (_targetObject is IActor actor)
+                    {
+                        _updating = true;
+                        treeViewSceneComps.Nodes.Clear();
+                        PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor.RootComponent);
+                        PopulateLogicComponentList(actor.LogicComponents);
 
-                    //treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
+                        lblProperties.Visible = true;
+                        lblSceneComps.Visible = true;
+                        treeViewSceneComps.Visible = true;
+                        _updating = false;
+
+                        //treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
+                    }
+                    else
+                    {
+                        _updating = true;
+                        lblLogicComps.Visible = false;
+                        lblSceneComps.Visible = false;
+                        lblProperties.Visible = false;
+                        treeViewSceneComps.Visible = false;
+                        lstLogicComps.Visible = false;
+                        _updating = false;
+                    }
                 }
                 else
                 {
@@ -200,8 +221,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 Type targetObjectType = obj.GetType();
                 props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance).
-                    Where(x => !x.IsSpecialName && (x.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false)).ToArray();
+                methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
                 Parallel.For(0, props.Length, i =>
                 {
                     PropertyInfo prop = props[i];
@@ -237,19 +257,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Parallel.For(0, methods.Length, i =>
                 {
                     MethodInfo method = methods[i];
-                    object[] attribs = method.GetCustomAttributes(true);
-                    MethodData m = new MethodData()
+                    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
                     {
-                        Method = method,
-                        Attribs = attribs,
-                        DisplayName = (attribs.FirstOrDefault(x => x is GridCallable) as GridCallable)?.DisplayName ?? method.Name,
-                    };
-                    
-                    methodInfo.TryAdd(i, m);
+                        object[] attribs = method.GetCustomAttributes(true);
+                        MethodData m = new MethodData()
+                        {
+                            Method = method,
+                            Attribs = attribs,
+                            DisplayName = (attribs.FirstOrDefault(x => x is GridCallable) as GridCallable)?.DisplayName ?? method.Name,
+                        };
+
+                        methodInfo.TryAdd(i, m);
+                    }
                 });
             }).ContinueWith(t =>
             {
                 if (!Disposing && !IsDisposed)
+                {
                     Invoke((Action)(() =>
                     {
                         for (int i = 0; i < props.Length; ++i)
@@ -259,7 +283,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             PropertyData p = propInfo[i];
                             CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
                         }
-                        
+
                         for (int i = 0; i < methods.Length; ++i)
                         {
                             if (!methodInfo.ContainsKey(i))
@@ -270,11 +294,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                         if (Editor.Instance.Project.EditorSettings.PropertyGrid.IgnoreLoneSubCategories && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
-
-                        //pnlProps.ResumeLayout(true);
-
+                        
                         Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
+                        //pnlProps.ResumeLayout(true);
                     }));
+                }
             });
         }
 
@@ -574,13 +598,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                SaveFileDialog sfd = new SaveFileDialog
+                using (SaveFileDialog sfd = new SaveFileDialog
                 {
                     Filter = TargetObject.GetFilter()
-                };
-                if (sfd.ShowDialog() == DialogResult.OK)
+                })
                 {
-                    TargetObject.Export(sfd.FileName);
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                        TargetObject.Export(sfd.FileName);
                 }
             }
             btnSave.Visible = false;

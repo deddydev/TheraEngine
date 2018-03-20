@@ -17,16 +17,7 @@
             HasGlobalVarDec = true;
         }
 
-        protected override string GetOperation()
-        {
-            return ShaderGenerator.OutputColorName + " = {0}";
-        }
-        protected override string GetGlobalVarDec()
-        {
-            return "layout(location = 0) out vec4 OutColor;";
-            return base.GetGlobalVarDec();
-        }
-
-        public ShaderFile[] GenerateShaders() => ShaderGenerator.GenerateShaders(this);
+        public bool Generate() => MaterialGenerator.Generate(
+            this, out ShaderFile[] shaderFiles, out ShaderVar[] shaderVars);
     }
 }

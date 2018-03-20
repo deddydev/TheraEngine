@@ -152,12 +152,14 @@ namespace TheraEditor.Windows.Forms
                     ClassType = ClassType.MakeGenericType(_preSelectedGenericTypeArgs);
                 else
                 {
-                    GenericsSelector selector = new GenericsSelector(ClassType);
-                    DialogResult result = selector.ShowDialog();
-                    if (result == DialogResult.OK)
-                        ClassType = selector.FinalClassType;
-                    else
-                        return;
+                    using (GenericsSelector selector = new GenericsSelector(ClassType))
+                    {
+                        DialogResult result = selector.ShowDialog();
+                        if (result == DialogResult.OK)
+                            ClassType = selector.FinalClassType;
+                        else
+                            return;
+                    }
                 }
             }
 

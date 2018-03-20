@@ -555,13 +555,15 @@ namespace TheraEditor.Windows.Forms
                                 {
                                     if (d == DialogResult.Yes)
                                     {
-                                        SaveFileDialog sfd = new SaveFileDialog()
+                                        using (SaveFileDialog sfd = new SaveFileDialog()
                                         {
                                             Filter = b.SingleInstance.GetFilter()
-                                        };
-                                        if (sfd.ShowDialog(f) == DialogResult.OK)
+                                        })
                                         {
-                                            b.SingleInstance.Export(sfd.FileName);
+                                            if (sfd.ShowDialog(f) == DialogResult.OK)
+                                            {
+                                                b.SingleInstance.Export(sfd.FileName);
+                                            }
                                         }
                                     }
                                     b.Reload();

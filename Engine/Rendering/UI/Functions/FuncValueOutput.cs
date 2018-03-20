@@ -7,13 +7,16 @@ namespace TheraEngine.Rendering.UI.Functions
     public interface IFuncValueOutput : IBaseFuncValue, IEnumerable<IFuncValueInput>
     {
         void CallbackAddConnection(IFuncValueInput other);
-        void CallbackRemoveConnection(IFuncValueInput other);
+        void SecondaryRemoveConnection(IFuncValueInput other);
         void ClearConnections();
         bool ConnectionsContains(IFuncValueInput other);
     }
     public class FuncValueOutput<TInput, TParent> : BaseFuncValue<TInput>, IFuncValueOutput
         where TInput : class, IFuncValueInput where TParent : class, IFunction
     {
+        public delegate void DelConnected(TInput other);
+        public event DelConnected Connected, Disconnected;
+
         public override bool IsOutput => true;
         public EventList<TInput> Connections => _connections;
         public new TParent ParentSocket => (TParent)base.ParentSocket;
@@ -60,13 +63,29 @@ namespace TheraEngine.Rendering.UI.Functions
         }
 
         public void CallbackAddConnection(IFuncValueInput other) => CallbackAddConnection(other as TInput);
-        public virtual void CallbackAddConnection(TInput other) => _connections.Add(other, false, false);
-        public void CallbackRemoveConnection(IFuncValueInput other) => CallbackRemoveConnection(other as TInput);
-        public virtual void CallbackRemoveConnection(TInput other) => _connections.Remove(other, false, false);
+        public virtual void CallbackAddConnection(TInput other)
+        {
+            _connections.Add(other, false, false);
+            Connected?.Invoke(other);
+        }
+        public void SecondaryRemoveConnection(IFuncValueInput other) => CallbackRemoveConnection(other as TInput);
+        public virtual void CallbackRemoveConnection(TInput other)
+        {
+            _connections.Remove(other, false, false);
+            Disconnected?.Invoke(other);
+        }
         public void ClearConnections() => _connections.Clear();
-        
-        private void _connectedTo_Added(TInput item) => item.Connection = this;
-        private void _connectedTo_Removed(TInput item) => item.ClearConnection();
+
+        private void _connectedTo_Added(TInput item)
+        {
+            item.Connection = this;
+            Connected?.Invoke(item);
+        }
+        private void _connectedTo_Removed(TInput item)
+        {
+            item.ClearConnection();
+            Disconnected?.Invoke(item);
+        }
 
         /// <summary>
         /// Returns interpolated point from the connected output argument to this argument.
@@ -74,36 +93,36 @@ namespace TheraEngine.Rendering.UI.Functions
         /// </summary>
         /// <param name="t">Time from one point to the other, 0.0f to 1.0f continuous.</param>
         /// <returns>The interpolated point.</returns>
-        public Vec2 BezierToPoint(Vec2 otherPoint, float time)
-        {
-            Vec2 p0 = ScreenTranslation;
+        //public Vec2 BezierToPoint(Vec2 otherPoint, float time)
+        //{
+        //    Vec2 p0 = ScreenTranslation;
 
-            Vec2 p1 = p0;
-            p1.X += 10.0f;
+        //    Vec2 p1 = p0;
+        //    p1.X += 10.0f;
 
-            Vec2 p3 = otherPoint;
+        //    Vec2 p3 = otherPoint;
 
-            Vec2 p2 = p3;
-            p2.X -= 10.0f;
+        //    Vec2 p2 = p3;
+        //    p2.X -= 10.0f;
 
-            return Interp.CubicBezier(p0, p1, p2, p3, time);
-        }
+        //    return Interp.CubicBezier(p0, p1, p2, p3, time);
+        //}
         /// <summary>
         /// Returns interpolated point from the connected output argument to this argument.
         /// Used for rendering the material editor graph.
         /// </summary>
         /// <param name="t">Time from one point to the other, 0.0f to 1.0f continuous.</param>
         /// <returns>The interpolated point.</returns>
-        public Vec2 BezierToInputArg(int argIndex, float time)
-        {
-            if (_connections == null ||
-                argIndex >= _connections.Count ||
-                argIndex < 0 ||
-                _connections[argIndex] == null)
-                return ScreenTranslation;
+        //public Vec2 BezierToInputArg(int argIndex, float time)
+        //{
+        //    if (_connections == null ||
+        //        argIndex >= _connections.Count ||
+        //        argIndex < 0 ||
+        //        _connections[argIndex] == null)
+        //        return ScreenTranslation;
 
-            return BezierToPoint((_connections[argIndex]).ScreenTranslation, time);
-        }
+        //    return BezierToPoint((_connections[argIndex]).ScreenTranslation, time);
+        //}
         public override bool CanConnectTo(TInput other)
         {
             if (other == null || Connections.Contains(other))

@@ -9,14 +9,19 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 "constant scalar parameter")]
     public class CommonParameterFunc : ShaderMethod
     {
-        public CommonParameterFunc() : base() { }
-        public CommonParameterFunc(ECommonUniform value) : base()
+        public CommonParameterFunc() : base(ShaderVarType._float)
         {
-            Value = value;
+
         }
 
+        public CommonParameterFunc(ECommonUniform value) : base(ShaderVarType._float) => Value = value;
+        
         private ECommonUniform _value;
-        private ShaderVarType _type;
+        private ShaderVarType Type
+        {
+            get => (ShaderVarType)OutputArguments[0].CurrentArgumentType;
+            set => OutputArguments[0].AllowedArgumentTypes = new int[] { (int)value };
+        }
 
         public ECommonUniform Value
         {
@@ -32,25 +37,25 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                     case ECommonUniform.CameraFarZ:
                     case ECommonUniform.CameraNearZ:
                     case ECommonUniform.CameraAspect:
-                    case ECommonUniform.RenderDelta:
-                        _type = ShaderVarType._float;
+                    case ECommonUniform.UpdateDelta:
+                        Type = ShaderVarType._float;
                         break;
 
                     case ECommonUniform.ScreenOrigin:
-                        _type = ShaderVarType._vec2;
+                        Type = ShaderVarType._vec2;
                         break;
 
                     case ECommonUniform.CameraPosition:
-                    //case ECommonUniform.CameraForward:
-                    //case ECommonUniform.CameraUp:
-                    //case ECommonUniform.CameraRight:
-                        _type = ShaderVarType._vec3;
+                        //case ECommonUniform.CameraForward:
+                        //case ECommonUniform.CameraUp:
+                        //case ECommonUniform.CameraRight:
+                        Type = ShaderVarType._vec3;
                         break;
                 }
             }
         }
         public string GetDeclaration()
-            => _type.ToString().Substring(1) + _value.ToString();
+            => Type.ToString().Substring(1) + _value.ToString();
         protected override string GetOperation()
             => _value.ToString();
     }

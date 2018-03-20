@@ -218,30 +218,34 @@ namespace TheraEditor.Wrappers
                 Type fileType = button.Tag as Type;
                 if (fileType.ContainsGenericParameters)
                 {
-                    GenericsSelector gs = new GenericsSelector(fileType);
-                    if (gs.ShowDialog() == DialogResult.OK)
-                        fileType = gs.FinalClassType;
-                    else
-                        return;
+                    using (GenericsSelector gs = new GenericsSelector(fileType))
+                    {
+                        if (gs.ShowDialog() == DialogResult.OK)
+                            fileType = gs.FinalClassType;
+                        else
+                            return;
+                    }
                 }
-                OpenFileDialog ofd = new OpenFileDialog()
+                using (OpenFileDialog ofd = new OpenFileDialog()
                 {
                     Filter = TFileObject.GetFilter(fileType, true, true, false),
                     Title = "Import File"
-                };
-                DialogResult r = ofd.ShowDialog(Editor.Instance);
-                if (r == DialogResult.OK)
+                })
                 {
-                    TFileObject file = TFileObject.Load(fileType, ofd.FileName);
+                    DialogResult r = ofd.ShowDialog(Editor.Instance);
+                    if (r == DialogResult.OK)
+                    {
+                        TFileObject file = TFileObject.Load(fileType, ofd.FileName);
 
-                    FolderWrapper folderNode = GetInstance<FolderWrapper>();
-                    string dir = folderNode.FilePath as string;
+                        FolderWrapper folderNode = GetInstance<FolderWrapper>();
+                        string dir = folderNode.FilePath as string;
 
-                    //folderNode.TreeView.WatchProjectDirectory = false;
-                    file.Export(dir, file.Name, FileFormat.XML);
-                    //folderNode.TreeView.WatchProjectDirectory = true;
+                        //folderNode.TreeView.WatchProjectDirectory = false;
+                        file.Export(dir, file.Name, FileFormat.XML);
+                        //folderNode.TreeView.WatchProjectDirectory = true;
 
-                    //folderNode.Nodes.Add(Wrap(file));
+                        //folderNode.Nodes.Add(Wrap(file));
+                    }
                 }
             }
         }

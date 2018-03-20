@@ -220,10 +220,10 @@ namespace TheraEngine.Rendering.UI
     }
     public class SizeableElementQuad : ISizeable
     {
-        public SizeableElement Left { get; set; }
-        public SizeableElement Right { get; set; }
-        public SizeableElement Top { get; set; }
-        public SizeableElement Bottom { get; set; }
+        public SizeableElement Left { get; set; } = new SizeableElement();
+        public SizeableElement Right { get; set; } = new SizeableElement();
+        public SizeableElement Top { get; set; } = new SizeableElement();
+        public SizeableElement Bottom { get; set; } = new SizeableElement();
 
         public Vec4 GetLRTB(Vec2 parentBounds)
         {

@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     public class ParameterFunc<T> : ShaderMethod, IParameterFunc where T : ShaderVar
     {
         public ParameterFunc() : base(true) { }
-        public ParameterFunc(T value) : base(true) { _value = value; }
+        public ParameterFunc(T value) : base(ShaderVar.TypeAssociations[typeof(T)]) { _value = value; }
         
         T _value;
 

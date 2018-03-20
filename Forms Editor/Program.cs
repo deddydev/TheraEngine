@@ -31,8 +31,8 @@ namespace TheraEditor
         {
             List<EditorState> dirty = Editor.Instance.GetDirtyFiles();
             Exception ex = e.Exception;
-            IssueDialog d = new IssueDialog(ex, dirty);
-            d.ShowDialog();
+            using (IssueDialog d = new IssueDialog(ex, dirty))
+                d.ShowDialog();
         }
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -41,8 +41,8 @@ namespace TheraEditor
             {
                 List<EditorState> dirty = Editor.Instance.GetDirtyFiles();
                 Exception ex = e.ExceptionObject as Exception;
-                IssueDialog d = new IssueDialog(ex, dirty);
-                d.ShowDialog();
+                using (IssueDialog d = new IssueDialog(ex, dirty))
+                    d.ShowDialog();
             }
         }
 

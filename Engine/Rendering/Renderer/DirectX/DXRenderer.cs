@@ -480,11 +480,7 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override int GenerateProgram(int[] shaderHandles, bool separable)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public override void ActiveShaderProgram(int pipelineBindingId, int programBindingId)
         {
@@ -557,6 +553,26 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override bool CompileShader(int bindingId, out string info)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GenerateProgram(bool separable)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AttachShader(int shaderBindingId, int programBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DetachShader(int shaderBindingId, int programBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LinkProgram(int bindingId, out string info)
         {
             throw new NotImplementedException();
         }

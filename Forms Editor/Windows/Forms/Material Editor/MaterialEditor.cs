@@ -1,6 +1,7 @@
 ﻿using System;
 using TheraEngine;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Functions;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -18,6 +19,9 @@ namespace TheraEditor.Windows.Forms
             base.OnLoad(e);
             MaterialGraph.Focus();
             MaterialFunctions.Focus();
+            MaterialFunctionProperties.Focus();
+            MaterialProperties.Focus();
+            MaterialGraph.RenderPanel.UI.SelectedFunctionChanged += UI_SelectedFunctionChanged;
         }
         private DockableMatFuncList _matFuncs = null;
         public DockableMatFuncList MaterialFunctions
@@ -47,6 +51,34 @@ namespace TheraEditor.Windows.Forms
                 return _materialGraph;
             }
         }
+        private DockableMatFuncProps _matFuncProps = null;
+        public DockableMatFuncProps MaterialFunctionProperties
+        {
+            get
+            {
+                if (_matFuncProps == null || _matFuncProps.IsDisposed)
+                {
+                    Engine.PrintLine("Created material function property grid");
+                    _matFuncProps = new DockableMatFuncProps();
+                    _matFuncProps.Show(dockPanel1, DockState.DockLeft);
+                }
+                return _matFuncProps;
+            }
+        }
+        private DockableMatProps _matProps = null;
+        public DockableMatProps MaterialProperties
+        {
+            get
+            {
+                if (_matProps == null || _matProps.IsDisposed)
+                {
+                    Engine.PrintLine("Created material property grid");
+                    _matProps = new DockableMatProps();
+                    _matProps.Show(MaterialFunctionProperties.Pane, DockAlignment.Top, 0.5);
+                }
+                return _matProps;
+            }
+        }
         public MaterialEditorForm(TMaterial m) : this()
         {
             Material = m;
@@ -54,7 +86,16 @@ namespace TheraEditor.Windows.Forms
         public TMaterial Material
         {
             get => MaterialGraph.RenderPanel.UI.TargetMaterial;
-            set => MaterialGraph.RenderPanel.UI.TargetMaterial = value;
+            set
+            {
+                MaterialGraph.RenderPanel.UI.TargetMaterial = value;
+                MaterialProperties.TargetMaterial = value;
+            }
+        }
+
+        private void UI_SelectedFunctionChanged(MaterialFunction func)
+        {
+            //MaterialFunctionProperties.TargetFunc = func;
         }
     }
 }

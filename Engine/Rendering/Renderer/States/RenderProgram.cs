@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering
                 _shaders = value;
 
                 if (_shaders.Any(x => x == null))
-                    _shaders = _shaders.Where(x => x!= null).ToList();
+                    _shaders = _shaders.Where(x => x != null).ToList();
 
                 //Force a recompilation.
                 //TODO: recompile shaders without destroying program.
@@ -24,6 +24,7 @@ namespace TheraEngine.Rendering
                 Destroy();
             }
         }
+        public bool IsValid { get; private set; } = false;
 
         public int AddShader(ShaderFile shader)
         {
@@ -67,24 +68,45 @@ namespace TheraEngine.Rendering
         public RenderProgram(params RenderShader[] shaders)
             : base(EObjectType.Program) => SetShaders(shaders);
 
+        public override void Destroy()
+        {
+            base.Destroy();
+            IsValid = false;
+        }
+
         protected override int CreateObject()
         {
-            int[] ids = new int[_shaders.Count];
+            IsValid = true;
+
+            int id = Engine.Renderer.GenerateProgram(Engine.Settings.AllowShaderPipelines);
 
             //Generate shader objects
-            for (int i = 0; i < ids.Length; ++i)
-                ids[i] = _shaders[i].BindingId;
+            RenderShader shader;
+            for (int i = 0; i < _shaders.Count; ++i)
+            {
+                shader = _shaders[i];
+                Engine.Renderer.AttachShader(shader.BindingId, id);
+                IsValid = IsValid && shader.IsCompiled;
+            }
 
-            int id = Engine.Renderer.GenerateProgram(ids, Engine.Settings.AllowShaderPipelines);
+            bool valid = Engine.Renderer.LinkProgram(id, out string info);
+            IsValid = IsValid && valid;
 
             //Destroy shader objects. We don't need them now.
-            for (int i = 0; i < ids.Length; ++i)
-                _shaders[i].Destroy();
+            for (int i = 0; i < _shaders.Count; ++i)
+            {
+                shader = _shaders[i];
+                Engine.Renderer.DetachShader(shader.BindingId, id);
+                shader.Destroy();
+            }
 
             return id;
         }
-
-        public void Use() => Engine.Renderer.UseProgram(BindingId);
+        
+        public void Use()
+        {
+            Engine.Renderer.UseProgram(BindingId);
+        }
 
         public IEnumerator<RenderShader> GetEnumerator()
             => ((IEnumerable<RenderShader>)_shaders).GetEnumerator();

@@ -218,6 +218,18 @@
     <Compile Include="Windows\Forms\Borderless Form\TheraForm.Designer.cs">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.Designer.cs">
+      <DependentUpon>DockableMatProps.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatFuncProps.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatFuncProps.Designer.cs">
+      <DependentUpon>DockableMatFuncProps.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatFuncList.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -702,6 +714,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Borderless Form\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.resx">
+      <DependentUpon>DockableMatProps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Material Editor\Sub Forms\DockableMatFuncProps.resx">
+      <DependentUpon>DockableMatFuncProps.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Material Editor\Sub Forms\DockableMatFuncList.resx">
       <DependentUpon>DockableMatFuncList.cs</DependentUpon>

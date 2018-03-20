@@ -126,11 +126,13 @@ namespace TheraEditor.Windows.Forms
                         Type f = button.Tag as Type;
                         if (f.ContainsGenericParameters)
                         {
-                            GenericsSelector gs = new GenericsSelector(f);
-                            if (gs.ShowDialog() == DialogResult.OK)
-                                f = gs.FinalClassType;
-                            else
-                                return;
+                            using (GenericsSelector gs = new GenericsSelector(f))
+                            {
+                                if (gs.ShowDialog() == DialogResult.OK)
+                                    f = gs.FinalClassType;
+                                else
+                                    return;
+                            }
                         }
 
                         root.Text = f.GetFriendlyName();

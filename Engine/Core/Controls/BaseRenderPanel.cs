@@ -171,7 +171,7 @@ namespace TheraEngine
                 returnValue = (T2)panel.Invoke(method);
                 return true;
             }
-            returnValue = default(T2);
+            returnValue = default;
             return false;
         }
 
@@ -357,8 +357,8 @@ namespace TheraEngine
         }
         public void CreateContext()
         {
-            //if (DesignMode)
-            //    return;
+            if (Engine.DesignMode)
+                return;
 
             switch (Engine.RenderLibrary)
             {

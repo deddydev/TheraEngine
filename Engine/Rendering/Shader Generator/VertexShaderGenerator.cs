@@ -3,7 +3,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
-    public class VertexShaderGenerator : ShaderGenerator
+    public class VertexShaderGenerator : MaterialGenerator
     {
         public const string FragPosName = "FragPos";
         public const string FragNormName = "FragNorm";

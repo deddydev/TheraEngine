@@ -7,10 +7,8 @@ using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEngine.Rendering
 {
-    public class ShaderGenerator
+    public class MaterialGenerator
     {
-        public static readonly string OutputColorName = "OutColor";
-
         private const string GLSLVersion = "450";
         private string NewLine = Environment.NewLine;
         
@@ -116,50 +114,62 @@ namespace TheraEngine.Rendering
         }
         #endregion
 
-        public static ShaderFile[] GenerateShaders(ResultFunc resultFunction)
+        public static bool Generate(
+            ResultFunc resultFunction,
+            out ShaderFile[] shaderFiles,
+            out ShaderVar[] shaderVars)
         {
             if (resultFunction == null)
-                return null;
+            {
+                shaderFiles = null;
+                shaderVars = null;
+                return false;
+            }
 
-            ShaderGenerator fragGen = new ShaderGenerator();
+            MaterialGenerator fragGen = new MaterialGenerator();
             fragGen.WriteVersion();
             fragGen.StartMain();
 
-            SortedDictionary<int, MaterialFunction> deepness = new SortedDictionary<int, MaterialFunction>();
+            SortedDictionary<int, List<MaterialFunction>> deepness = new SortedDictionary<int, List<MaterialFunction>>
+            {
+                { 0, new List<MaterialFunction>() }
+            };
 
             VarNameGen nameGen = new VarNameGen();
-            FuncGen(resultFunction, nameGen);
-            
+            FuncGen(resultFunction, nameGen, 0, deepness);
+
+            var funcs = deepness.OrderByDescending(x => x.Key).Select(x => x.Value).ToArray();
+            foreach (var list in funcs)
+            {
+                foreach (var func in list)
+                {
+                    
+                }
+            }
+
             ShaderFile frag = new ShaderFile(ShaderMode.Fragment, fragGen.EndMain());
 
-            return new ShaderFile[]
+            shaderFiles = new ShaderFile[]
             {
                 frag,
             };
+
+            return true;
         }
 
-        private static void FuncGen(MaterialFunction func, VarNameGen nameGen)
+        private static void FuncGen(
+            MaterialFunction func, 
+            VarNameGen nameGen, 
+            int deepness,
+            SortedDictionary<int, List<MaterialFunction>> deepnessDic)
         {
-            if (func is ShaderMethod m)
-            {
-                //string op = m.GetLineSyntax();
-            }
-            else if (func is ShaderLogic l)
-            {
-                string format = l.GetLogicFormat();
-            }
-            foreach (MatFuncValueInput arg in func.InputArguments)
-            {
-                if (arg.Connection != null)
-                {
-                    MaterialFunction f = arg.Connection.ParentSocket;
-                    FuncGen(f, nameGen);
-                }
-                else
-                {
-                    Convert.ToSingle(arg.DefaultValue);
-                }
-            }
+            deepnessDic[deepness++].Add(func);
+            foreach (MatFuncValueOutput output in func.OutputArguments)
+                if (output.Connections.Count > 0)
+                    output.UserObject = nameGen.New();
+            foreach (MatFuncValueInput input in func.InputArguments)
+                if (input.Connection != null)
+                    FuncGen(input.Connection.ParentSocket, nameGen, deepness, deepnessDic);
         }
         public sealed class MatNode
         {

@@ -38,17 +38,16 @@
             // 
             // pnlMain
             // 
-            this.pnlMain.AutoSize = true;
-            this.pnlMain.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pnlMain.Controls.Add(this.materialControl1);
             this.pnlMain.Controls.Add(this.pnlVisDist);
-            this.pnlMain.Size = new System.Drawing.Size(0, 176);
+            this.pnlMain.Size = new System.Drawing.Size(0, 178);
             // 
             // propGridSingle1
             // 
             this.propGridSingle1.AutoSize = true;
             this.propGridSingle1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.propGridSingle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.propGridSingle1.DataChangeHandler = null;
             this.propGridSingle1.DataType = null;
             this.propGridSingle1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propGridSingle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
@@ -89,25 +88,25 @@
             this.materialControl1.AutoSize = true;
             this.materialControl1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.materialControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.materialControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.materialControl1.CameraFovY = 45F;
             this.materialControl1.Dock = System.Windows.Forms.DockStyle.Top;
             this.materialControl1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.materialControl1.Location = new System.Drawing.Point(0, 27);
             this.materialControl1.Margin = new System.Windows.Forms.Padding(0);
             this.materialControl1.Material = null;
             this.materialControl1.Name = "materialControl1";
-            this.materialControl1.Size = new System.Drawing.Size(0, 149);
+            this.materialControl1.Size = new System.Drawing.Size(0, 151);
             this.materialControl1.TabIndex = 2;
             // 
             // LODControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.DropDownName = "LOD";
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "LODControl";
-            this.Size = new System.Drawing.Size(10, 201);
+            this.Size = new System.Drawing.Size(10, 203);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
             this.pnlVisDist.ResumeLayout(false);

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using TheraEngine.Rendering.UI.Functions;
+﻿using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
@@ -8,7 +7,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     /// </summary>
     [FunctionDefinition(
         "Helpers",
-        "|Value|",
+        "Absolute Value",
         "Returns the absolute value of the given value; |value|", 
         "absolute value")]
     public class AbsFunc : ShaderMethod

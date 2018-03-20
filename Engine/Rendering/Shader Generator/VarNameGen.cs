@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering
         private int _generatedNameCount = 0;
         private string _selection = "abcdefghijklmnopqrstuvwxyz0123456789";
         
-        public string NewName()
+        public string New()
         {
             int digitCount = ((_generatedNameCount) % _selection.Length) + 1;
 

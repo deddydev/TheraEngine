@@ -265,7 +265,7 @@ namespace TheraEngine.Rendering.UI
                 PerformResize();
             }
         }
-        
+
         public override unsafe Vec2 Resize(Vec2 parentBounds)
         {
             Vec2 leftOver = parentBounds;

@@ -162,7 +162,9 @@ namespace TheraEditor.Windows.Forms
 
         private void btnFont_Click(object sender, EventArgs e)
         {
-            FontDialog fd = new FontDialog()
+            Font prevFont = TextBox.Font;
+            Color prevColor = TextBox.ForeColor;
+            using (FontDialog fd = new FontDialog()
             {
                 Font = TextBox.Font,
                 ShowHelp = false,
@@ -171,16 +173,15 @@ namespace TheraEditor.Windows.Forms
                 ShowColor = true,
                 Color = TextBox.ForeColor,
                 AllowScriptChange = false,
-            };
-            fd.Apply += Fd_Apply;
-            Font prevFont = TextBox.Font;
-            Color prevColor = TextBox.ForeColor;
-            if (fd.ShowDialog() == DialogResult.OK)
+            })
             {
-                prevFont = fd.Font;
-                prevColor = fd.Color;
+                fd.Apply += Fd_Apply;
+                if (fd.ShowDialog() == DialogResult.OK)
+                {
+                    prevFont = fd.Font;
+                    prevColor = fd.Color;
+                }
             }
-
             TextBox.Font = prevFont;
             TextBox.ForeColor = prevColor;
             btnFont.Text = string.Format("{0} {1} pt", TextBox.Font.Name, Math.Round(TextBox.Font.SizeInPoints));
@@ -196,18 +197,20 @@ namespace TheraEditor.Windows.Forms
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog()
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = TFileObject.GetFilter<TextFile>(false, true, true) + "|All files (*.*)|*.*",
                 Multiselect = true
-            };
-            if (ofd.ShowDialog() == DialogResult.OK)
+            })
             {
-                string text = "";
-                foreach (string path in ofd.FileNames)
-                    text += File.ReadAllText(path, TextFile.GetEncoding(path));
-                TextBox.Text = text;
-                TextBox.IsChanged = false;
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    string text = "";
+                    foreach (string path in ofd.FileNames)
+                        text += File.ReadAllText(path, TextFile.GetEncoding(path));
+                    TextBox.Text = text;
+                    TextBox.IsChanged = false;
+                }
             }
         }
 
@@ -222,26 +225,30 @@ namespace TheraEditor.Windows.Forms
 
         private void btnSaveAs_Click(object sender, EventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog()
+            using (SaveFileDialog sfd = new SaveFileDialog()
             {
                 Filter = TFileObject.GetFilter<TextFile>(false, true, true) + "|All files (*.*)|*.*",
-            };
-            if (sfd.ShowDialog() == DialogResult.OK)
+            })
             {
-                File.WriteAllText(sfd.FileName, TextBox.Text);
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllText(sfd.FileName, TextBox.Text);
+                }
             }
         }
 
         private void btnSelectPaths_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog()
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = "All files (*.*)|*.*",
                 Multiselect = true
-            };
-            if (ofd.ShowDialog() == DialogResult.OK)
+            })
             {
-                TextBox.Text = TextBox.Text.Insert(TextBox.SelectionStart, string.Join(Environment.NewLine, ofd.FileNames));
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    TextBox.Text = TextBox.Text.Insert(TextBox.SelectionStart, string.Join(Environment.NewLine, ofd.FileNames));
+                }
             }
         }
 

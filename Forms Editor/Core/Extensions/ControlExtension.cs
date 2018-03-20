@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace TheraEditor.Core.Extensions
@@ -26,6 +27,14 @@ namespace TheraEditor.Core.Extensions
             if (form.Bounds.Contains(pos))
                 return form.FindControlAtPoint(form.PointToClient(pos));
             return null;
+        }
+
+        public static void InvokeIfNecessary(this Control control, Delegate del)
+        {
+            if (control.InvokeRequired)
+                control.Invoke(del);
+            else
+                del.DynamicInvoke();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Rendering.UI.Functions;
@@ -215,5 +216,12 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             ShaderVarType._dvec4,
             ShaderVarType._bvec4,
         };
+        public void CollectInputTreeRecursive(HashSet<MaterialFunction> tree)
+        {
+            if (tree.Add(this))
+                foreach (var input in InputArguments)
+                    if (input.Connection != null)
+                        input.Connection.ParentSocket.CollectInputTreeRecursive(tree);
+        }
     }
 }

@@ -298,33 +298,40 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.ActiveShaderProgram(pipelineBindingId, programBindingId);
         }
-        public override int GenerateProgram(int[] shaderHandles, bool separable)
+        public override int GenerateProgram(bool separable)
         {
             int handle = GL.CreateProgram();
             GL.ProgramParameter(handle, ProgramParameterName.ProgramSeparable, separable ? 1 : 0);
-
-            foreach (int i in shaderHandles)
-                GL.AttachShader(handle, i);
             
-            GL.LinkProgram(handle);
-            GL.GetProgram(handle, GetProgramParameterName.LinkStatus, out int status);
+          
+            return handle;
+        }
+        public override void AttachShader(int shaderBindingId, int programBindingId)
+        {
+            GL.AttachShader(programBindingId, shaderBindingId);
+        }
+        public override void DetachShader(int shaderBindingId, int programBindingId)
+        {
+            GL.DetachShader(programBindingId, shaderBindingId);
+        }
+        public override bool LinkProgram(int bindingId, out string info)
+        {
+            GL.LinkProgram(bindingId);
+            GL.GetProgram(bindingId, GetProgramParameterName.LinkStatus, out int status);
             if (status == 0)
             {
-                GL.GetProgramInfoLog(handle, out string info);
+                GL.GetProgramInfoLog(bindingId, out info);
                 if (string.IsNullOrEmpty(info))
                     Engine.LogWarning("Unable to link program, but no error was returned.");
                 else
                     Engine.LogWarning(info);
+                return false;
             }
-
-            //We don't need these anymore now that they're part of the program
-            foreach (int i in shaderHandles)
+            else
             {
-                GL.DetachShader(handle, i);
-                //GL.DeleteShader(i);
+                info = null;
+                return true;
             }
-            
-            return handle;
         }
         public override void SetActiveTexture(int unit)
         {

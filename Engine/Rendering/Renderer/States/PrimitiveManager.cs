@@ -133,7 +133,13 @@ namespace TheraEngine.Rendering.Models
         }
         public TMaterial Material
         {
-            get => _material;
+            get
+            {
+                if (_material.Program.IsValid)
+                    return _material;
+                else
+                    return TMaterial.InvalidMaterial;
+            }
             set => _material = value;
         }
 

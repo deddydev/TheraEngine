@@ -13,6 +13,7 @@ using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEditor.Windows.Forms
 {
+    public delegate void DelSelectedFunctionChanged(MaterialFunction func);
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
@@ -20,6 +21,8 @@ namespace TheraEditor.Windows.Forms
     {
         public UIMaterialEditor() : base() { }
         public UIMaterialEditor(Vec2 bounds) : base(bounds) { }
+
+        public event DelSelectedFunctionChanged SelectedFunctionChanged;
 
         public TMaterial TargetMaterial
         {
@@ -52,29 +55,9 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public void RemoveMaterialFunction(MaterialFunction func)
-        {
-            if (func == null)
-                return;
-
-            func.DetachFromParent();
-            _materialFuncCache.Remove(func);
-        }
-
         RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 0, 0);
-
         public BoundingRectangle AxisAlignedRegion { get; } = new BoundingRectangle();
-
         public IQuadtreeNode QuadtreeNode { get; set; }
-
-        public void AddMaterialFunction(MaterialFunction func)
-        {
-            if (func == null)
-                return;
-
-            _rootTransform.ChildComponents.Add(func);
-            _materialFuncCache.Add(func);
-        }
 
         private TMaterial _targetMaterial;
         private ResultFunc _endFunc;
@@ -96,6 +79,34 @@ namespace TheraEditor.Windows.Forms
         private UIComponent FindComponent(Vec2 cursorWorldPos)
             => RootComponent.FindDeepestComponent(cursorWorldPos);
 
+        public void AddMaterialFunction(MaterialFunction func)
+        {
+            if (func == null)
+                return;
+
+            _rootTransform.ChildComponents.Add(func);
+            _materialFuncCache.Add(func);
+        }
+        public void RemoveMaterialFunction(MaterialFunction func)
+        {
+            if (func == null)
+                return;
+
+            func.DetachFromParent();
+            _materialFuncCache.Remove(func);
+        }
+
+        protected override UIMaterialRectangleComponent OnConstruct()
+        {
+            UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
+            {
+                DockStyle = UIDockStyle.Fill,
+                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
+            };
+            _rootTransform = new UIComponent();
+            root.ChildComponents.Add(_rootTransform);
+            return root;
+        }
         public override void OnSpawnedPostComponentSetup()
         {
             base.OnSpawnedPostComponentSetup();
@@ -105,6 +116,43 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnDespawned();
             UIScene.Remove(this);
+        }
+        private TMaterial GetGraphMaterial()
+        {
+            ShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", ShaderMode.Fragment);
+            return new TMaterial("MatEditorGraphBG", new ShaderVar[]
+            {
+                new ShaderVec3(new Vec3(0.1f, 0.12f, 0.13f), "LineColor"),
+                new ShaderVec3(new Vec3(0.25f, 0.27f, 0.3f), "BGColor"),
+                new ShaderFloat(1.0f, "Scale"),
+                new ShaderFloat(0.15f, "LineWidth"),
+                new ShaderVec2(new Vec2(0.0f), "Translation"),
+            },
+            frag);
+        }
+
+        private void OnArgumentsDisconnected(IFuncValueInput input, IFuncValueOutput output)
+        {
+            GenerateShaders();
+        }
+        private void OnArgumentsConnected(IFuncValueInput input, IFuncValueOutput output)
+        {
+            GenerateShaders();
+        }
+        private void GenerateShaders()
+        {
+            ShaderFile[] shaders = EndFunc.GenerateShaders();
+            TargetMaterial.SetShaders(shaders);
+        }
+
+        private ResultFunc Decompile(TMaterial mat)
+        {
+            return new ResultPBRFunc() { Material = _targetMaterial };
+        }
+
+        public bool Contains(Vec2 point)
+        {
+            throw new NotImplementedException();
         }
 
         #region Input
@@ -163,24 +211,9 @@ namespace TheraEditor.Windows.Forms
             {
                 _draggedFunc = _selectedFunc;
             }
-        }
 
-        private void OnArgumentsDisconnected(IFuncValueInput input, IFuncValueOutput output)
-        {
-            GenerateShaders();
+            SelectedFunctionChanged?.Invoke(_selectedFunc);
         }
-        private void OnArgumentsConnected(IFuncValueInput input, IFuncValueOutput output)
-        {
-            GenerateShaders();
-        }
-
-        private void GenerateShaders()
-        {
-            ShaderFile[] shaders = EndFunc.GenerateShaders();
-            TargetMaterial.SetShaders(EndFunc.GenerateShaders());
-            
-        }
-
         internal void LeftClickUp()
         {
             if (_draggedArg != null && _highlightedArg != null &&
@@ -194,6 +227,7 @@ namespace TheraEditor.Windows.Forms
             }
 
             _draggedFunc = null;
+            _inputTree = null;
             _draggedArg = null;
         }
         private void RightClickDown()
@@ -210,55 +244,66 @@ namespace TheraEditor.Windows.Forms
         {
             Vec2 pos = CursorPosition();
             if (_draggedArg != null)
-            {
-                Vec2 posW = Viewport.ScreenToWorld(pos).Xy;
-                if (_draggedArg.IsOutput)
-                {
-                    UpdateCursorBezier(_draggedArg.WorldPoint.Xy, posW - BoxDim());
-                }
-                else
-                {
-                    UpdateCursorBezier(posW - BoxDim(), _draggedArg.WorldPoint.Xy);
-                }
-                RegularHighlight();
-            }
+                HandleDragArg(pos, _draggedArg);
             else if (_draggedFunc != null)
-            {
-                Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
-                screenPoint += pos - _cursorPos;
-                Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
-                Vec2 diff = newFocusPoint - _lastWorldPos;
-                if (_ctrlDown)
-                    RecursiveDrag(_draggedFunc, diff);
-                else
-                    _draggedFunc.LocalTranslation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
-                _lastWorldPos = newFocusPoint;
-            }
+                HandleDragFunc(pos, _draggedFunc);
             else if (_rightClickDown)
-            {
-                Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
-                screenPoint += pos - _cursorPos;
-                Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
-                _rootTransform.LocalTranslation += newFocusPoint - _lastWorldPos;
-                _lastWorldPos = newFocusPoint;
-
-                TMaterial mat = RootComponent.InterfaceMaterial;
-                mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
-            }
+                HandleDragView(pos);
             else
-            {
-                RegularHighlight();
-            }
+                HighlightGraph();
             _cursorPos = pos;
         }
-        private void RecursiveDrag(MaterialFunction f, Vec2 diff)
+
+        #region Dragging
+        private Vec2 GetWorldCursorDiff(Vec2 cursorPosScreen)
         {
-            f.LocalTranslation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
-            foreach (var input in f.InputArguments)
-                if (input.Connection != null)
-                    RecursiveDrag(input.Connection.ParentSocket, diff);
+            Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
+            screenPoint += cursorPosScreen - _cursorPos;
+            Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
+            Vec2 diff = newFocusPoint - _lastWorldPos;
+            _lastWorldPos = newFocusPoint;
+            return diff;
         }
-        private void RegularHighlight()
+        private void HandleDragArg(Vec2 cursorPosScreen, BaseFuncArg draggedArg)
+        {
+            Vec2 posW = Viewport.ScreenToWorld(cursorPosScreen).Xy;
+            if (draggedArg.IsOutput)
+                UpdateCursorBezier(draggedArg.WorldPoint.Xy, posW - BoxDim());
+            else
+                UpdateCursorBezier(posW - BoxDim(), draggedArg.WorldPoint.Xy);
+            HighlightGraph();
+        }
+        private void HandleDragView(Vec2 cursorPosScreen)
+        {
+            _rootTransform.LocalTranslation += GetWorldCursorDiff(cursorPosScreen);
+
+            TMaterial mat = RootComponent.InterfaceMaterial;
+            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+        }
+        private void HandleDragFunc(Vec2 cursorPosScreen, MaterialFunction draggedFunc)
+        {
+            Vec2 diff = GetWorldCursorDiff(cursorPosScreen);
+            if (_ctrlDown)
+            {
+                if (_inputTree == null)
+                {
+                    _inputTree = new HashSet<MaterialFunction>();
+                    draggedFunc.CollectInputTreeRecursive(_inputTree);
+                }
+                DragInputs(diff);
+            }
+            else
+                draggedFunc.LocalTranslation += Vec3.TransformVector(diff, draggedFunc.InverseWorldMatrix).Xy;
+        }
+        private HashSet<MaterialFunction> _inputTree = null;
+        private void DragInputs(Vec2 diff)
+        {
+            foreach (MaterialFunction f in _inputTree)
+                f.LocalTranslation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
+        }
+        #endregion
+
+        private void HighlightGraph()
         {
             UIComponent comp = FindComponent();
 
@@ -270,7 +315,7 @@ namespace TheraEditor.Windows.Forms
             
             if (_highlightedArg != null && comp != _highlightedArg)
             {
-                _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncArg.RegularColor;
+                _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncValue.RegularColor;
                 UIMaterialRectangleComponent r = _highlightedArg.ParentSocket as UIMaterialRectangleComponent;
                 r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
             }
@@ -298,21 +343,13 @@ namespace TheraEditor.Windows.Forms
                     {
                         UpdateCursorBezier(_highlightedArg.WorldPoint.Xy, _draggedArg.WorldPoint.Xy);
                     }
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncArg.ConnectableColor;
+                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncValue.ConnectableColor;
                 }
                 else
                 {
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncArg.HighlightedColor;
+                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncValue.HighlightedColor;
                 }
             }
-        }
-        private Segment _cursorBezier = new Segment();
-        private void UpdateCursorBezier(Vec2 start, Vec2 end)
-        {
-            _cursorBezier.StartPoint = start;
-            _cursorBezier.EndPoint = end;
-
-            //_cursorBezier.StartPoint.Xy += BaseFuncArg.ConnectionBoxDims * 0.5f;
         }
         protected override void OnScrolledInput(bool down)
         {
@@ -325,40 +362,15 @@ namespace TheraEditor.Windows.Forms
         }
         #endregion
 
-        protected override UIMaterialRectangleComponent OnConstruct()
+        #region Bezier Rendering
+        private Segment _cursorBezier = new Segment();
+        private void UpdateCursorBezier(Vec2 start, Vec2 end)
         {
-            UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
-            {
-                DockStyle = UIDockStyle.Fill,
-                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
-            };
-            _rootTransform = new UIComponent();
-            root.ChildComponents.Add(_rootTransform);
-            return root;
-        }
-        private TMaterial GetGraphMaterial()
-        {
-            ShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", ShaderMode.Fragment);
-            return new TMaterial("MatEditorGraphBG", new ShaderVar[] 
-            {
-                new ShaderVec3(new Vec3(0.1f, 0.12f, 0.13f), "LineColor"),
-                new ShaderVec3(new Vec3(0.25f, 0.27f, 0.3f), "BGColor"),
-                new ShaderFloat(1.0f, "Scale"),
-                new ShaderFloat(0.15f, "LineWidth"),
-                new ShaderVec2(new Vec2(0.0f), "Translation"),
-            },
-            frag);
-        }
-        private ResultFunc Decompile(TMaterial mat)
-        {
-            return new ResultPBRFunc() { Material = _targetMaterial };
-        }
+            _cursorBezier.StartPoint = start;
+            _cursorBezier.EndPoint = end;
 
-        public bool Contains(Vec2 point)
-        {
-            throw new NotImplementedException();
+            //_cursorBezier.StartPoint.Xy += BaseFuncArg.ConnectionBoxDims * 0.5f;
         }
-
         public float BoxDim() => (BaseFuncArg.ConnectionBoxDims * 0.5f) * _rootTransform.ScaleX;
         public void Render()
         {
@@ -389,5 +401,6 @@ namespace TheraEditor.Windows.Forms
                     points[i],
                     Color.Orange, 1.0f);
         }
+        #endregion
     }
 }

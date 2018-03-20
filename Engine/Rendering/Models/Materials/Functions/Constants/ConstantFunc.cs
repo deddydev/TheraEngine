@@ -10,10 +10,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     public class ConstantFunc<T> : ShaderMethod where T : ShaderVar
     {
         public ConstantFunc() : this(default) { }
-        public ConstantFunc(T value)
-        {
-            _value = value;
-        }
+        public ConstantFunc(T value) : base(ShaderVar.TypeAssociations[typeof(T)]) => _value = value;
         
         private T _value;
         public T Value
@@ -22,7 +19,6 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             set => _value = value;
         }
 
-        protected override string GetOperation()
-            => _value.ToString();
+        protected override string GetOperation() => _value.GetValueString();
     }
 }

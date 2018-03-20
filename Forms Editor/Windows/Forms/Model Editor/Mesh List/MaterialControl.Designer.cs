@@ -45,13 +45,16 @@
             this.basicRenderPanel1.Size = new System.Drawing.Size(140, 139);
             this.basicRenderPanel1.TabIndex = 0;
             this.basicRenderPanel1.VsyncMode = TheraEngine.VSyncMode.Disabled;
+            this.basicRenderPanel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.BasicRenderPanel1_MouseDown);
+            this.basicRenderPanel1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.BasicRenderPanel1_MouseMove);
+            this.basicRenderPanel1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.BasicRenderPanel1_MouseUp);
             // 
-            // panel1
+            // pnlRenderPreview
             // 
             this.pnlRenderPreview.Controls.Add(this.basicRenderPanel1);
             this.pnlRenderPreview.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlRenderPreview.Location = new System.Drawing.Point(0, 0);
-            this.pnlRenderPreview.Name = "panel1";
+            this.pnlRenderPreview.Name = "pnlRenderPreview";
             this.pnlRenderPreview.Padding = new System.Windows.Forms.Padding(5);
             this.pnlRenderPreview.Size = new System.Drawing.Size(150, 149);
             this.pnlRenderPreview.TabIndex = 1;
@@ -65,18 +68,22 @@
             this.lblMaterialName.TabIndex = 2;
             this.lblMaterialName.Text = "Material Name";
             // 
-            // panel2
+            // pnlMatInfo
             // 
             this.pnlMatInfo.AutoSize = true;
             this.pnlMatInfo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.pnlMatInfo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.pnlMatInfo.Controls.Add(this.pnlRenderPreview);
             this.pnlMatInfo.Controls.Add(this.lblMaterialName);
             this.pnlMatInfo.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlMatInfo.Location = new System.Drawing.Point(0, 0);
             this.pnlMatInfo.MinimumSize = new System.Drawing.Size(479, 149);
-            this.pnlMatInfo.Name = "panel2";
-            this.pnlMatInfo.Size = new System.Drawing.Size(479, 149);
+            this.pnlMatInfo.Name = "pnlMatInfo";
+            this.pnlMatInfo.Size = new System.Drawing.Size(677, 149);
             this.pnlMatInfo.TabIndex = 3;
+            this.pnlMatInfo.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PnlMatInfo_MouseDown);
+            this.pnlMatInfo.MouseEnter += new System.EventHandler(this.PnlMatInfo_MouseEnter);
+            this.pnlMatInfo.MouseLeave += new System.EventHandler(this.PnlMatInfo_MouseLeave);
             // 
             // tblUniforms
             // 
@@ -91,23 +98,21 @@
             this.tblUniforms.RowCount = 1;
             this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.Size = new System.Drawing.Size(0, 0);
+            this.tblUniforms.Size = new System.Drawing.Size(677, 0);
             this.tblUniforms.TabIndex = 0;
             // 
             // MaterialControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(43)))), ((int)(((byte)(50)))));
             this.Controls.Add(this.tblUniforms);
             this.Controls.Add(this.pnlMatInfo);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MaterialControl";
-            this.Size = new System.Drawing.Size(0, 149);
+            this.Size = new System.Drawing.Size(677, 389);
             this.pnlRenderPreview.ResumeLayout(false);
             this.pnlMatInfo.ResumeLayout(false);
             this.pnlMatInfo.PerformLayout();

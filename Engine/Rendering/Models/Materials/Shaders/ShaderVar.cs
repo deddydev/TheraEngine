@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering.Models.Materials
             { typeof(ShaderBVec3),  ShaderVarType._bvec3  },
             { typeof(ShaderBVec4),  ShaderVarType._bvec4  },
         };
-        public static Dictionary<ShaderVarType, Type> GLTypeAssociations = new Dictionary<ShaderVarType, Type>()
+        public static Dictionary<ShaderVarType, Type> ShaderTypeAssociations = new Dictionary<ShaderVarType, Type>()
         {
             { ShaderVarType._bool,   typeof(ShaderBool)   },
             { ShaderVarType._int,    typeof(ShaderInt)    },

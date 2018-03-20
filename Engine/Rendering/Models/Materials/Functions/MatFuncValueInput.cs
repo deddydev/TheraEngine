@@ -5,7 +5,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public class MatFuncValueInput : FuncValueInput<MatFuncValueOutput, MaterialFunction>
     {
-        public object DefaultValue { get; set; }
+        public ShaderVar DefaultValue { get; set; }
         public ShaderVarType ArgumentType
         {
             get => (ShaderVarType)CurrentArgumentType;

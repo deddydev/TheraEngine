@@ -167,15 +167,23 @@ namespace TheraEngine.Rendering.UI
             localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Matrix4.Identity, LocalTranslation, TransformOrder.TRS);
             inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Matrix4.Identity, -LocalTranslation, TransformOrder.SRT);
         }
+        private bool _resizing = false;
         public virtual Vec2 Resize(Vec2 parentBounds)
         {
+            if (_resizing)
+                return parentBounds;
+            _resizing = true;
             foreach (UIComponent c in _children)
                 c.Resize(parentBounds);
             RecalcLocalTransform();
+            _resizing = false;
             return parentBounds;
         }
         protected virtual void PerformResize()
         {
+            if (_resizing)
+                return;
+
             if (ParentSocket is UIBoundableComponent comp)
                 Resize(comp.Size);
             else if (OwningActor != null)

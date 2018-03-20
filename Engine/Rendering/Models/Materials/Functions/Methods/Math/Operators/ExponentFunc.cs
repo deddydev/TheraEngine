@@ -4,7 +4,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         CategoryName,
-        "A^B",
+        "Exponent",
         "Returns A to the power of B.",
         "exponent ^ power to raise")]
     public class ExponentFunc : OperatorFunc

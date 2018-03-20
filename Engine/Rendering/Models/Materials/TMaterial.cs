@@ -99,7 +99,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             get
             {
-                if (_program != null && _program.IsActive)
+                if (_program != null && !_program.IsActive)
                     _program.Generate();
                 return _program;
             }
@@ -153,6 +153,9 @@ namespace TheraEngine.Rendering.Models.Materials
                     CollectFBOAttachments();
             }
         }
+
+        public static TMaterial InvalidMaterial { get; }
+            = CreateUnlitColorMaterialForward(Color.Magenta);
 
         private void CollectFBOAttachments()
         {

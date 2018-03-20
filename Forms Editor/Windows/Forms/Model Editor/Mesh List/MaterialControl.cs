@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
+using TheraEngine;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -122,7 +123,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            if (Engine.DesignMode)
                 return;
 
             float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
@@ -147,7 +148,7 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            if (LicenseManager.UsageMode == LicenseUsageMode.Runtime)
+            if (!Engine.DesignMode)
                 basicRenderPanel1.UnregisterTick();
 
             base.OnHandleDestroyed(e);
@@ -164,7 +165,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _material = value;
 
-                if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+                if (Engine.DesignMode)
                     return;
 
                 tblUniforms.Controls.Clear();

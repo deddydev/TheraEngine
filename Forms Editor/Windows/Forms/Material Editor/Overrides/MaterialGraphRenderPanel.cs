@@ -16,7 +16,7 @@ namespace TheraEngine
 
         public MaterialGraphRenderPanel()
         {
-            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            if (Engine.DesignMode)
                 return;
             Viewport v = AddViewport();
             v.HUD = UI = new UIMaterialEditor(ClientSize);

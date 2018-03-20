@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             _object = GetValue();
 
-            string typeName = DataType.GetFriendlyName();
+            string typeName = (_object?.GetType() ?? DataType).GetFriendlyName();
             lblObjectTypeName.Text = IListOwner != null ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
 
             if ((checkBox1.Checked = _object == null))
@@ -169,8 +169,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Action _mouseDown;
         private void MouseDownEditor()
         {
-            Form f = Activator.CreateInstance(_editorType, GetValue()) as Form;
-            f?.ShowDialog();
+            using (Form f = Activator.CreateInstance(_editorType, GetValue()) as Form)
+                f?.ShowDialog();
         }
         private void MouseDownProperties()
         {

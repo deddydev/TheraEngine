@@ -430,12 +430,10 @@ namespace TheraEngine.Rendering
         public abstract void SetShaderSource(int bindingId, params string[] sources);
         public abstract bool CompileShader(int bindingId, out string info);
         //public abstract int GenerateShader();
-        /// <summary>
-        /// Creates a new shader program with the given shaders.
-        /// </summary>
-        /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
-        /// <returns></returns>
-        public abstract int GenerateProgram(int[] shaderHandles, bool separable);
+        public abstract int GenerateProgram(bool separable);
+        public abstract void AttachShader(int shaderBindingId, int programBindingId);
+        public abstract void DetachShader(int shaderBindingId, int programBindingId);
+        public abstract bool LinkProgram(int bindingId, out string info);
         //public virtual void UseMaterial(Material material)
         //{
         //    _currentMaterial = material;

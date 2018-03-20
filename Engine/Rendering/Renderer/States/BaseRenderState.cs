@@ -213,7 +213,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Deletes this object from ALL contexts.
         /// </summary>
-        internal void Destroy()
+        public virtual void Destroy()
         {
             ContextBind b;
             int prevCount;

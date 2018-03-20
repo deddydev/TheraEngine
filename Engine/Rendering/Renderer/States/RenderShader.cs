@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public bool IsCompiled { get; private set; }
+        public bool IsCompiled { get; private set; } = false;
         public RenderProgram OwningProgram { get; set; }
 
         public RenderShader() : base(EObjectType.Shader) { }
@@ -39,6 +39,7 @@ namespace TheraEngine.Rendering
         private void File_SourceChanged()
         {
             _sourceCache = File.Sources.Select(x => x.File?.Text).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+            IsCompiled = false;
             if (!IsActive)
                 return;
             Engine.Renderer.SetShaderMode(File.Type);

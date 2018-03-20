@@ -116,20 +116,18 @@ namespace TheraEngine.Editor
             {
                 return string.Format("{0}[{1}] {2} -> {3}",
                     List.ToString(), Index.ToString(),
-                    OldValue.ToString(), NewValue.ToString());
+                  OldValue?.ToString() ?? "null", NewValue?.ToString() ?? "null");
             }
 
             public override string DisplayChangeAsUndo()
             {
                 return string.Format("{0}[{1}] {2} <- {3}",
                     List.ToString(), Index.ToString(),
-                    OldValue.ToString(), NewValue.ToString());
+                    OldValue?.ToString() ?? "null", NewValue?.ToString() ?? "null");
             }
 
             public override string ToString()
-            {
-                return DisplayChangeAsRedo();
-            }
+                => DisplayChangeAsRedo();
         }
         public class PropertyValueChange : LocalValueChange
         {

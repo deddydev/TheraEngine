@@ -15,7 +15,7 @@ namespace TheraEngine
     public interface IObjectBase
     {
         string Name { get; set; }
-        object UserData { get; set; }
+        object UserObject { get; set; }
 
 #if EDITOR
         EditorState EditorState { get; set; }
@@ -72,7 +72,7 @@ namespace TheraEngine
         //[BrowsableIf("_userData != null")]
         [Browsable(false)]
         [Category("Object")]
-        public object UserData
+        public object UserObject
         {
             get => _userData;
             set => _userData = value;

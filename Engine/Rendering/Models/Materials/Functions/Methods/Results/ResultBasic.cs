@@ -14,7 +14,6 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     public class ResultBasicFunc : ResultFunc
     {
         public ResultBasicFunc() : base() { }
-
         protected override MatFuncValueInput[] GetValueInputs()
         {
             MatFuncValueInput Color = new MatFuncValueInput("Color", ShaderVarType._vec3);
@@ -22,5 +21,9 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             MatFuncValueInput  WorldPositionOffset = new MatFuncValueInput("WorldPositionOffset", ShaderVarType._vec3);
             return new MatFuncValueInput[] { Color, Opacity, WorldPositionOffset };
         }
+        protected override string GetOperation()
+            => "OutColor = vec4({0}, {1})";
+        protected override string GetGlobalVarDec()
+            => "layout(location = 0) out vec4 OutColor;";
     }
 }

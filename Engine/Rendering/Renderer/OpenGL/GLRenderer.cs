@@ -302,8 +302,6 @@ namespace TheraEngine.Rendering.OpenGL
         {
             int handle = GL.CreateProgram();
             GL.ProgramParameter(handle, ProgramParameterName.ProgramSeparable, separable ? 1 : 0);
-            
-          
             return handle;
         }
         public override void AttachShader(int shaderBindingId, int programBindingId)

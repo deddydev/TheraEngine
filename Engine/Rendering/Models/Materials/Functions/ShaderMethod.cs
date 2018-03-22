@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
@@ -39,6 +40,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             AddArguments();
         }
 
+        public List<MeshParam> NecessaryMeshParams { get; } = new List<MeshParam>();
+
         /// <summary>
         /// Returns the base operation for string.Format.
         /// </summary>
@@ -56,7 +59,24 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             if (ReturnsInline)
                 return GetLineSyntax();
             else
-                return GetOperation();
+            {
+                string[] outputNames = GetOutputNames();
+                string[] inputNames = GetInputNames();
+                if (outputNames.Length > 0)
+                {
+                    if (inputNames.Length > 0)
+                        return string.Format(GetOperation(), inputNames, outputNames);
+                    else
+                        return string.Format(GetOperation(), GetOutputNames());
+                }
+                else
+                {
+                    if (inputNames.Length > 0)
+                        return string.Format(GetOperation(), inputNames);
+                    else
+                        return string.Format(GetOperation());
+                }
+            }
         }
 
         public virtual string GetLineSyntax()
@@ -89,10 +109,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             return s;
         }
 
-        private string[] GetOutputNames()
+        public string[] GetOutputNames()
             => OutputArguments.Select(x => x.OutputVarName).ToArray();
-        private string[] GetInputNames()
-            => InputArguments.Select(x => x.Connection == null ? x.DefaultValue.GetValueString() : x.Connection.OutputVarName).ToArray();
+        public string[] GetInputNames()
+            => InputArguments.Select(x => x.Connection == null ? x.DefaultValue?.GetShaderValueString() ?? "" : x.Connection.OutputVarName).ToArray();
         
         public string GetMethodSyntax()
         {

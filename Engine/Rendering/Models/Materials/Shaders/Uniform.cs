@@ -24,6 +24,15 @@
         //    return GetLocation(lastEnum) + 1;
         //}
     }
+    public enum EMeshValue
+    {
+        FragPos,
+        FragNorm,
+        FragBinorm,
+        FragTan,
+        FragColor,
+        FragUV,
+    }
     public enum ECommonUniform
     {
         UpdateDelta,

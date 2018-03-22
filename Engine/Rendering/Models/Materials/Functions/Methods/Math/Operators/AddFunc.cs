@@ -4,7 +4,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         CategoryName,
-        "A + B",
+        "Add",
         "Returns A + B.",
         "added + concatenate addition plus")]
     public class AddFunc : OperatorFunc

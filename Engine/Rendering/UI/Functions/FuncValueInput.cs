@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public new TParent OwningActor  => (TParent)base.OwningActor;
         public TOutput Connection
         {
-            get => _connectedTo;
+            get => _connection;
             set => ConnectTo(value);
         }
         IFuncValueOutput IFuncValueInput.Connection
@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering.UI.Functions
             set => ConnectTo(value as TOutput);
         }
         
-        protected TOutput _connectedTo;
+        protected TOutput _connection;
 
         public FuncValueInput(string name, params int[] types)
             : base(name)
@@ -43,13 +43,17 @@ namespace TheraEngine.Rendering.UI.Functions
             : base(name)
         {
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
-            SyncedArguments.IntersectWith(linkedMultiArg.SyncedArguments);
+            SyncedArguments.UnionWith(linkedMultiArg.SyncedArguments);
+            SyncedArguments.Add(linkedMultiArg);
+            linkedMultiArg.SyncedArguments.Add(this);
         }
         public FuncValueInput(string name, TParent parent, IBaseFuncValue linkedMultiArg)
             : base(name, parent)
         {
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
-            SyncedArguments.IntersectWith(linkedMultiArg.SyncedArguments);
+            SyncedArguments.UnionWith(linkedMultiArg.SyncedArguments);
+            SyncedArguments.Add(linkedMultiArg);
+            linkedMultiArg.SyncedArguments.Add(this);
         }
 
         public bool ConnectTo(TOutput other)
@@ -61,30 +65,36 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         protected virtual void SetConnection(TOutput other)
         {
-            if (_connectedTo != null)
+            if (_connection != null)
             {
-                _connectedTo.SecondaryRemoveConnection(this);
-                Disconnected?.Invoke(_connectedTo);
-                CurrentArgumentType = ClearArgType();
+                _connection.SecondaryRemoveConnection(this);
+                Disconnected?.Invoke(_connection);
             }
-            _connectedTo = other;
-            if (_connectedTo != null)
+            _connection = other;
+            if (_connection != null)
             {
-                _connectedTo.CallbackAddConnection(this);
-                Connected?.Invoke(_connectedTo);
-                CurrentArgumentType = DetermineBestArgType(this, _connectedTo);
+                _connection.CallbackAddConnection(this);
+                DetermineBestArgType(_connection);
+                Connected?.Invoke(_connection);
             }
+            else
+                DetermineBestArgType(null);
         }
 
         public virtual void ClearConnection()
         {
-            if (_connectedTo != null)
+            if (_connection != null)
             {
-                _connectedTo.SecondaryRemoveConnection(this);
-                Disconnected?.Invoke(_connectedTo);
-                CurrentArgumentType = ClearArgType();
+                _connection.SecondaryRemoveConnection(this);
+                DetermineBestArgType(null);
+                Disconnected?.Invoke(_connection);
             }
-            _connectedTo = null;
+            _connection = null;
+        }
+
+        protected override void OnCurrentArgTypeChanged()
+        {
+            _connection.CurrentArgumentType = CurrentArgumentType;
         }
 
         /// <summary>
@@ -167,7 +177,7 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         public override bool CanConnectTo(BaseFuncArg other)
             => CanConnectTo(other as TOutput);
-        public override bool TryConnectTo(BaseFuncArg other)
+        public override bool ConnectTo(BaseFuncArg other)
             => ConnectTo(other as TOutput);
     }
 }

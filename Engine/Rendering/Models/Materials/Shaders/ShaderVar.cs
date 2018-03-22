@@ -327,7 +327,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return string.Format("{0} {1}", TypeName.ToString().Substring(1), Name);
         }
-        internal abstract string GetValueString();
+        internal abstract string GetShaderValueString();
         /// <summary>
         /// Ex: this is float '.x', parent is vec4 '[0]', parent is mat4 'tomato': tomato[0].x
         /// </summary>

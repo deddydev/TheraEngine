@@ -33,8 +33,11 @@ namespace TheraEditor.Wrappers
         {
             ResourceRef.GetInstanceAsync().ContinueWith(t => 
             {
-                Editor.Instance.CurrentWorld = t.Result;
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = t.Result.Settings;
+                if (t.Result != null)
+                {
+                    Editor.Instance.CurrentWorld = t.Result;
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = t.Result.Settings;
+                }
             });
         }
     }

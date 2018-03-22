@@ -4,7 +4,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         CategoryName,
-        "A != B",
+        "Not Equal",
         "Returns true bool/bvec if A's and B's individual components are not equal.",
         "does not equals != equality")]
     public class NEqualFunc : ComparableFunc

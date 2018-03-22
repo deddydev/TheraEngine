@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
@@ -675,6 +676,7 @@ namespace TheraEngine.Rendering
 
         //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
 
+        [Conditional("DEBUG")]
         public abstract void CheckErrors();
 
         #region Frame Buffers

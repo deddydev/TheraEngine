@@ -40,7 +40,9 @@ namespace TheraEngine.Rendering.UI.Functions
         public FuncValueOutput(string name, TInput linkedMultiArg)
             : base(name)
         {
-            SyncedArguments.IntersectWith(linkedMultiArg.SyncedArguments);
+            SyncedArguments.UnionWith(linkedMultiArg.SyncedArguments);
+            SyncedArguments.Add(linkedMultiArg);
+            linkedMultiArg.SyncedArguments.Add(this);
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
             _connections.PostAdded += _connectedTo_Added;
             _connections.PostRemoved += _connectedTo_Removed;
@@ -48,7 +50,9 @@ namespace TheraEngine.Rendering.UI.Functions
         public FuncValueOutput(string name, TParent parent, TInput linkedMultiArg)
             : base(name, parent)
         {
-            SyncedArguments.IntersectWith(linkedMultiArg.SyncedArguments);
+            SyncedArguments.UnionWith(linkedMultiArg.SyncedArguments);
+            SyncedArguments.Add(linkedMultiArg);
+            linkedMultiArg.SyncedArguments.Add(this);
             AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
             _connections.PostAdded += _connectedTo_Added;
             _connections.PostRemoved += _connectedTo_Removed;
@@ -66,29 +70,35 @@ namespace TheraEngine.Rendering.UI.Functions
         public virtual void CallbackAddConnection(TInput other)
         {
             _connections.Add(other, false, false);
+            DetermineBestArgType(other);
             Connected?.Invoke(other);
-            CurrentArgumentType = DetermineBestArgType(other, this);
         }
         public void SecondaryRemoveConnection(IFuncValueInput other) => CallbackRemoveConnection(other as TInput);
         public virtual void CallbackRemoveConnection(TInput other)
         {
             _connections.Remove(other, false, false);
+            DetermineBestArgType(null);
             Disconnected?.Invoke(other);
-            CurrentArgumentType = ClearArgType();
         }
         public void ClearConnections() => _connections.Clear();
 
         private void _connectedTo_Added(TInput item)
         {
             item.Connection = this;
+            DetermineBestArgType(item);
             Connected?.Invoke(item);
-            CurrentArgumentType = DetermineBestArgType(item, this);
         }
         private void _connectedTo_Removed(TInput item)
         {
             item.ClearConnection();
+            DetermineBestArgType(item);
             Disconnected?.Invoke(item);
-            CurrentArgumentType = ClearArgType();
+        }
+
+        protected override void OnCurrentArgTypeChanged()
+        {
+            foreach (var input in _connections)
+                input.CurrentArgumentType = CurrentArgumentType;
         }
 
         /// <summary>
@@ -153,7 +163,7 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         public override bool CanConnectTo(BaseFuncArg other)
             => CanConnectTo(other as TInput);
-        public override bool TryConnectTo(BaseFuncArg other)
+        public override bool ConnectTo(BaseFuncArg other)
             => ConnectTo(other as TInput);
 
         IEnumerator<IFuncValueInput> IEnumerable<IFuncValueInput>.GetEnumerator() => _connections.GetEnumerator();

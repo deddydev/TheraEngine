@@ -31,7 +31,7 @@
                 return true;
             return false;
         }
-        public override bool TryConnectTo(BaseFuncArg other)
+        public override bool ConnectTo(BaseFuncArg other)
         {
             if (!CanConnectTo(other))
                 return false;

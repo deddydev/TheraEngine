@@ -85,12 +85,36 @@ namespace TheraEngine.Rendering
             for (int i = 0; i < _shaders.Count; ++i)
             {
                 shader = _shaders[i];
-                Engine.Renderer.AttachShader(shader.BindingId, id);
-                IsValid = IsValid && shader.IsCompiled;
+                shader.Generate();
+                if (IsValid = IsValid && shader.IsCompiled)
+                    Engine.Renderer.AttachShader(shader.BindingId, id);
+                else
+                    return id;
             }
 
             bool valid = Engine.Renderer.LinkProgram(id, out string info);
-            IsValid = IsValid && valid;
+            if (!(IsValid = IsValid && valid))
+            {
+                if (info.Contains("Vertex"))
+                {
+                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == ShaderMode.Vertex);
+                    string source = s.GetSource(true, true);
+                    Engine.PrintLine(source);
+                }
+                else if (info.Contains("Geometry"))
+                {
+                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == ShaderMode.Geometry);
+                    string source = s.GetSource(true, true);
+                    Engine.PrintLine(source);
+                }
+                else if (info.Contains("Fragment"))
+                {
+                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == ShaderMode.Fragment);
+                    string source = s.GetSource(true, true);
+                    Engine.PrintLine(source);
+                }
+                return id;
+            }
 
             //Destroy shader objects. We don't need them now.
             for (int i = 0; i < _shaders.Count; ++i)

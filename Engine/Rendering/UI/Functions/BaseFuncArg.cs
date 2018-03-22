@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public override string ToString() => Name;
 
         public abstract bool CanConnectTo(BaseFuncArg other);
-        public abstract bool TryConnectTo(BaseFuncArg other);
+        public abstract bool ConnectTo(BaseFuncArg other);
         
         private static TMaterial MakeArgMaterial(ColorF4 color)
         {

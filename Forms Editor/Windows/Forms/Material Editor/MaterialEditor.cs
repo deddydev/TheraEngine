@@ -90,6 +90,9 @@ namespace TheraEditor.Windows.Forms
             {
                 MaterialGraph.RenderPanel.UI.TargetMaterial = value;
                 MaterialProperties.TargetMaterial = value;
+                Text = "Material Editor";
+                if (value != null)
+                    Text += value.Name + "[" + value.FilePath + "]";
             }
         }
 

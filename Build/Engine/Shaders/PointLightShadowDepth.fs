@@ -1,5 +1,6 @@
-#version 330 core
-in vec3 FragPos;
+#version 450
+
+layout (location = 0) in vec3 FragPos;
 
 uniform vec3 LightPos;
 uniform float FarPlaneDist;

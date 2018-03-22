@@ -4,7 +4,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         CategoryName,
-        "A - B",
+        "Subtract",
         "Returns A - B.",
         "subtracted - subtraction minus negative dash")]
     public class SubtractFunc : OperatorFunc

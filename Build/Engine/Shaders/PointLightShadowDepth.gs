@@ -1,10 +1,23 @@
-#version 330 core
+#version 450
 layout (triangles) in;
 layout (triangle_strip, max_vertices=18) out;
 
+in gl_PerVertex
+{
+  vec4 gl_Position;
+  float gl_PointSize;
+  float gl_ClipDistance[];
+} gl_in[];
+out gl_PerVertex
+{
+  vec4 gl_Position;
+  float gl_PointSize;
+  float gl_ClipDistance[];
+};
+
 uniform mat4 ShadowMatrices[6];
 
-out vec3 FragPos;
+layout (location = 0) out vec3 FragPos;
 
 void main()
 {

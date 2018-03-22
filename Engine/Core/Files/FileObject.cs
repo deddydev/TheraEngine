@@ -173,6 +173,8 @@ namespace TheraEngine.Files
                 ext = path.ToLowerInvariant();
             if (File3rdParty.Has3rdPartyExtension(ext))
                 return FileFormat.ThirdParty;
+            if (ext.Length == 0)
+                return FileFormat.ThirdParty;
             switch (ext[0])
             {
                 default: return FileFormat.ThirdParty;

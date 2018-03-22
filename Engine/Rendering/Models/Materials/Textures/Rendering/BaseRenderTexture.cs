@@ -34,7 +34,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             => Engine.Renderer.ClearTexImage(BindingId, level, clearColor);
 
         protected override int CreateObject()
-            => Engine.Renderer.CreateTextures(TextureTarget, 1)[0];
+            => Engine.Renderer.CreateTexture(TextureTarget);
         protected override void PostGenerated()
             => PushData();
 

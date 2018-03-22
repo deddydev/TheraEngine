@@ -54,7 +54,7 @@ namespace TheraEngine.Actors.Types
         }
 
         public void GenerateHeightFieldCollision(
-            DataSource heightData,
+            VoidPtr heightDataPtr, int dataLength,
             int width, int length,
             float minHeight, float maxHeight,
             TCollisionHeightField.EHeightValueType valueType)
@@ -63,7 +63,7 @@ namespace TheraEngine.Actors.Types
             _minMaxHeight = new Vec2(minHeight, maxHeight);
             _heightValueType = valueType;
 
-            _heightData = new DataSource(heightData.Address, heightData.Length, true);
+            _heightData = new DataSource(heightDataPtr, dataLength, true);
             UnmanagedMemoryStream stream = _heightData.AsStream();
 
             _heightFieldShape = TCollisionHeightField.New(
@@ -84,6 +84,7 @@ namespace TheraEngine.Actors.Types
         }
         public void GenerateHeightFieldMesh(TMaterial material)
         {
+
             PrimitiveData data = PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), null);
             _mesh = new PrimitiveManager(data, material);
         }

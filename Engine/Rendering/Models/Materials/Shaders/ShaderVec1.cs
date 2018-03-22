@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         [Browsable(false)]
         public unsafe bool* Data { get { fixed (bool* ptr = &_value) return ptr; } }
-        internal override string GetValueString() => _value.ToString();
+        internal override string GetShaderValueString() => _value.ToString().ToLowerInvariant();
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         [Browsable(false)]
         public unsafe float* Data { get { fixed (float* ptr = &_value) return ptr; } }
-        internal override string GetValueString() => _value.ToString() + "f";
+        internal override string GetShaderValueString() => _value.ToString("0.0######") + "f";
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -71,7 +71,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         [Browsable(false)]
         public unsafe double* Data { get { fixed (double* ptr = &_value) return ptr; } }
-        internal override string GetValueString() => _value.ToString();
+        internal override string GetShaderValueString() => _value.ToString("0.0######");
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -99,7 +99,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         [Browsable(false)]
         public unsafe int* Data { get { fixed (int* ptr = &_value) return ptr; } }
-        internal override string GetValueString() => _value.ToString();
+        internal override string GetShaderValueString() => _value.ToString();
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -127,7 +127,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         [Browsable(false)]
         public unsafe uint* Data { get { fixed (uint* ptr = &_value) return ptr; } }
-        internal override string GetValueString() => _value.ToString();
+        internal override string GetShaderValueString() => _value.ToString();
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]

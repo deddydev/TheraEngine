@@ -177,6 +177,12 @@ namespace TheraEngine.Rendering.OpenGL
                 _control.Reset();
         }
 
+        private unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
+        {
+            string s = new string((char*)message);
+            Engine.PrintLine("OPENGL DEBUG: {0} {1} {2} {3} {4}", source, type, id, severity, s);
+        }
+
         public unsafe override void Initialize()
         {
             GetCurrentSubContext();
@@ -193,7 +199,11 @@ namespace TheraEngine.Rendering.OpenGL
             GL.ClearDepth(1.0f);
             GL.Enable(EnableCap.TextureCubeMap);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
-
+            GL.Enable(EnableCap.DebugOutputSynchronous);
+            //GL.Enable(EnableCap.DebugOutput);
+            GL.DebugMessageCallback(HandleDebugMessage, IntPtr.Zero);
+            int[] ids = { };
+            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, ids, true);
             //Modify depth range so there is no loss of precision with scale and bias conversion
             GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.NegativeOneToOne);
 

@@ -8,7 +8,7 @@ const float PI = 3.14159265359f;
 const float InvPI = 0.31831f;
 
 layout (location = 0) out vec4 OutColor; //Final Deferred Pass Color. Used later by the Post Process fragment shader.
-in vec3 FragPos; //
+layout (location = 0) in vec3 FragPos;
 
 uniform sampler2D Texture0; //AlbedoOpacity
 uniform sampler2D Texture1; //Normal

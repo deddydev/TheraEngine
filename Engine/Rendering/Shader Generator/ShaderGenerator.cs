@@ -43,6 +43,14 @@ namespace TheraEngine.Rendering
         {
             Line("in {0} {1};", type.ToString().Substring(1), name);
         }
+        public void WriteOutVar(int layoutLocation, ShaderVarType type, string name)
+        {
+            Line("layout (location = {0}) out {1} {2};", layoutLocation, type.ToString().Substring(1), name);
+        }
+        public void WriteOutVar(ShaderVarType type, string name)
+        {
+            Line("out {0} {1};", type.ToString().Substring(1), name);
+        }
         public void WriteUniform(int layoutLocation, ShaderVarType type, string name)
         {
             Line("layout (location = {0}) uniform {1} {2};", layoutLocation, type.ToString().Substring(1), name);
@@ -136,16 +144,16 @@ namespace TheraEngine.Rendering
             };
 
             VarNameGen nameGen = new VarNameGen();
-            Prepass(resultFunction, nameGen, 0, deepness, fragGen);
-
+            HashSet<MeshParam> meshParamUsage = new HashSet<MeshParam>();
+            Prepass(resultFunction, nameGen, 0, deepness, fragGen, meshParamUsage);
+            foreach (MeshParam p in meshParamUsage)
+                fragGen.Line(p.GetVariableInDeclaration());
             fragGen.StartMain();
 
             var funcLists = deepness.OrderByDescending(x => x.Key).Select(x => x.Value).ToArray();
             HashSet<MaterialFunction> written = new HashSet<MaterialFunction>();
             foreach (var list in funcLists)
-            {
                 foreach (var func in list)
-                {
                     if (written.Add(func))
                     {
                         if (func is ShaderMethod method)
@@ -153,7 +161,9 @@ namespace TheraEngine.Rendering
                             string syntax = method.GetCodeSyntax(out bool returnsInline);
                             if (returnsInline)
                             {
-                                fragGen.Line(syntax);
+                                string type = method.OutputArguments[0].ArgumentType.ToString().Substring(1);
+                                string name = method.GetOutputNames()[0];
+                                fragGen.Line(string.Format("{0} {1} = {2};", type, name, syntax));
                             }
                             else
                             {
@@ -165,8 +175,6 @@ namespace TheraEngine.Rendering
                             throw new Exception();
                         }
                     }
-                }
-            }
             
             shaderFiles = new ShaderFile[]
             {
@@ -182,11 +190,17 @@ namespace TheraEngine.Rendering
             VarNameGen nameGen, 
             int deepness,
             SortedDictionary<int, List<MaterialFunction>> deepnessDic,
-            MaterialGenerator fragGen)
+            MaterialGenerator fragGen,
+            HashSet<MeshParam> meshParamUsage)
         {
             deepnessDic[deepness++].Add(func);
-            if (func is ShaderMethod method && method.HasGlobalVarDec)
-                fragGen.Line(method.GetGlobalVarDec());
+            if (func is ShaderMethod method)
+            {
+                if (method.HasGlobalVarDec)
+                    fragGen.Line(method.GetGlobalVarDec());
+                foreach (MeshParam p in method.NecessaryMeshParams)
+                    meshParamUsage.Add(p);
+            }
             foreach (MatFuncValueOutput output in func.OutputArguments)
                 if (output.Connections.Count > 0)
                     output.OutputVarName = nameGen.New();
@@ -195,7 +209,7 @@ namespace TheraEngine.Rendering
                 {
                     if (!deepnessDic.ContainsKey(deepness))
                         deepnessDic.Add(deepness, new List<MaterialFunction>());
-                    Prepass(input.Connection.ParentSocket, nameGen, deepness, deepnessDic, fragGen);
+                    Prepass(input.Connection.ParentSocket, nameGen, deepness, deepnessDic, fragGen, meshParamUsage);
                 }
         }
         public sealed class MatNode

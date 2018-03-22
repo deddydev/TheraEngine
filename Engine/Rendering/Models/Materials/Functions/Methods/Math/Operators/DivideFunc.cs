@@ -4,7 +4,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
         CategoryName,
-        "A / B",
+        "Divide",
         "Returns A / B.",
         "divided division /")]
     public class DivideFunc : OperatorFunc

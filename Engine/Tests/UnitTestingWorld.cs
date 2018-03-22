@@ -15,6 +15,11 @@ using TheraEngine.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Worlds.Maps;
 using TheraEngine.Rendering;
 using TheraEngine.Actors.Types.Lights;
+using TheraEngine.Actors.Types;
+using TheraEngine.Rendering.Textures;
+using TheraEngine.Files;
+using System.Drawing.Imaging;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Tests
 {
@@ -38,6 +43,7 @@ namespace TheraEngine.Tests
             List<IActor> actors = new List<IActor>();
             IActor actor;
 
+            #region Meshes
             int count = 4;
             int y = 0;
 
@@ -113,26 +119,10 @@ namespace TheraEngine.Tests
                     });
                 actors.Add(actor);
             }
+            #endregion
 
-            //Create shape tracer
-            //actor = new SphereTraceActor();
-            //actors.Add(actor);
-
-            //float rotationsPerSecond = 0.1f, testRadius = 30.0f, testHeight = 20.0f;
-            //PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
-            //    1.0f / rotationsPerSecond, true, second =>
-            //{
-            //    float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
-            //    //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
-            //    Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
-            //    return new Vec3(coord.X, testHeight, -coord.Y);
-            //});
-            //AnimationContainer anim = new AnimationContainer(
-            //    "RotationTrace", "Translation.Raw", false, animMethod);
-            //actor.RootComponent.AddAnimation(anim, true, false, 
-            //    ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
-
-            //Create world light
+            #region Lights
+            //Create world lights
             if (dirLights > 0)
             {
                 float lightAngle = 360.0f / dirLights;
@@ -149,7 +139,25 @@ namespace TheraEngine.Tests
                     actors.Add(dirlight);
                 }
             }
-
+            //Create point lights
+            if (pointLights > 0)
+            {
+                float lightAngle = 360.0f / pointLights * TMath.DegToRadMultf;
+                float lightPosRadius = 50.0f;
+                float upTrans = 20.0f;
+                for (int i = 0; i < pointLights; i++)
+                {
+                    PointLightComponent comp = new PointLightComponent(400.0f, 5.0f, (ColorF3)Color.White, 2000.0f, 0.0f)
+                    {
+                        Translation = new Vec3(
+                            TMath.Cosf(i * lightAngle) * lightPosRadius,
+                            upTrans,
+                            TMath.Sinf(i * lightAngle) * lightPosRadius)
+                    };
+                    Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
+                    actors.Add(pointLight);
+                }
+            }
             //Create spot light
             if (spotLights > 0)
             {
@@ -179,6 +187,37 @@ namespace TheraEngine.Tests
                     actors.Add(spotlight);
                 }
             }
+            #endregion
+
+            Actor<LandscapeComponent> landscape = new Actor<LandscapeComponent>();
+            TextureFile2D f = Load<TextureFile2D>("");
+            Bitmap bmp = f.Bitmaps[0];
+            BitmapData d = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+            DataSource source = new DataSource(d.Scan0, d.Width * d.Height * d.Stride, true);
+            landscape.RootComponent.GenerateHeightFieldCollision(
+                d.Scan0, d.Width * d.Height * d.Stride, 
+                d.Width, d.Height,
+                0.0f, 1024.0f,
+                TCollisionHeightField.EHeightValueType.Byte);
+            actors.Add(landscape);
+
+            //Create shape tracer
+            //actor = new SphereTraceActor();
+            //actors.Add(actor);
+
+            //float rotationsPerSecond = 0.1f, testRadius = 30.0f, testHeight = 20.0f;
+            //PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
+            //    1.0f / rotationsPerSecond, true, second =>
+            //{
+            //    float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
+            //    //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
+            //    Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
+            //    return new Vec3(coord.X, testHeight, -coord.Y);
+            //});
+            //AnimationContainer anim = new AnimationContainer(
+            //    "RotationTrace", "Translation.Raw", false, animMethod);
+            //actor.RootComponent.AddAnimation(anim, true, false, 
+            //    ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create camera shake test
             //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
@@ -193,26 +232,6 @@ namespace TheraEngine.Tests
             //shakeComp.ChildComponents.Add(camComp);
             //Actor<PositionComponent> testScreenshake = new Actor<PositionComponent>(posComp);
             //actors.Add(testScreenshake);
-
-            //Create point lights
-            if (pointLights > 0)
-            {
-                float lightAngle = 360.0f / pointLights * TMath.DegToRadMultf;
-                float lightPosRadius = 50.0f;
-                float upTrans = 20.0f;
-                for (int i = 0; i < pointLights; i++)
-                {
-                    PointLightComponent comp = new PointLightComponent(400.0f, 5.0f, (ColorF3)Color.White, 2000.0f, 0.0f)
-                    {
-                        Translation = new Vec3(
-                            TMath.Cosf(i * lightAngle) * lightPosRadius,
-                            upTrans,
-                            TMath.Sinf(i * lightAngle) * lightPosRadius)
-                    };
-                    Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
-                    actors.Add(pointLight);
-                }
-            }
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {

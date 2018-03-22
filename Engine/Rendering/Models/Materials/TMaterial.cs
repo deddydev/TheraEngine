@@ -320,6 +320,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public void SetShaders(ShaderFile[] shaders)
         {
+            _shaders.Clear();
             _shaders.AddRange(shaders);
             ShadersChanged();
         }

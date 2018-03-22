@@ -62,30 +62,72 @@ namespace TheraEngine.Rendering.UI.Functions
                 OnCurrentArgTypeChanged();
             }
         }
-
-        protected int ClearArgType()
-            => AllowedArgumentTypes.Length == 1 ? AllowedArgumentTypes[0] : -1;
-
-        protected static int DetermineBestArgType(IFuncValueInput input, IFuncValueOutput output)
+        
+        protected void DetermineBestArgType(IBaseFuncValue other)
         {
-            if (input.AllowedArgumentTypes.Length == 1)
-                return input.AllowedArgumentTypes[0];
-            else if (output.AllowedArgumentTypes.Length == 1)
-                return output.AllowedArgumentTypes[0];
-            else if (input.SyncedArguments.Count > 0)
+            int[] theseTypes = AllowedArgumentTypes;
+            if (other != null)
             {
-                return -1;
-            }
-            else if (output.SyncedArguments.Count > 0)
-            {
-                return -1;
+                int[] otherTypes = other.AllowedArgumentTypes;
+                if (theseTypes.Length == 1)
+                {
+                    if (otherTypes.Contains(theseTypes[0]))
+                    {
+                        CurrentArgumentType = theseTypes[0];
+                        return;
+                    }
+                }
+                else if (otherTypes.Length == 1)
+                {
+                    if (theseTypes.Contains(otherTypes[0]))
+                    {
+                        CurrentArgumentType = otherTypes[0];
+                        return;
+                    }
+                }
+
+                IBaseFuncValue vThis = SyncedArguments.FirstOrDefault(x => x.CurrentArgumentType >= 0);
+                IBaseFuncValue vOther = other.SyncedArguments.FirstOrDefault(x => x.CurrentArgumentType >= 0);
+                if (vThis != null)
+                {
+                    if (vOther != null)
+                    {
+                        if (vThis.CurrentArgumentType == vOther.CurrentArgumentType)
+                        {
+                            CurrentArgumentType = vThis.CurrentArgumentType;
+                            return;
+                        }
+                    }
+                    else if (vThis != null)
+                    {
+                        CurrentArgumentType = vThis.CurrentArgumentType;
+                        return;
+                    }
+                }
+                else if (vOther != null)
+                {
+                    CurrentArgumentType = vOther.CurrentArgumentType;
+                    return;
+                }
             }
             else
             {
-                //No synchronized arguments, but various argument types to choose from.
-                //Leave as invalid?
-                return -1;
+                if (theseTypes.Length == 1)
+                {
+                    CurrentArgumentType = theseTypes[0];
+                    return;
+                }
+                else
+                {
+                    IBaseFuncValue v = SyncedArguments.FirstOrDefault(x => x.CurrentArgumentType >= 0);
+                    if (v != null)
+                    {
+                        CurrentArgumentType = v.CurrentArgumentType;
+                        return;
+                    }
+                }
             }
+            CurrentArgumentType = -1;
         }
 
         protected virtual void OnCurrentArgTypeChanged() { }

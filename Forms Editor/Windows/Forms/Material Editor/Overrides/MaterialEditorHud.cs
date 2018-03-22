@@ -133,13 +133,9 @@ namespace TheraEditor.Windows.Forms
         }
 
         private void OnArgumentsDisconnected(IFuncValueInput input, IFuncValueOutput output)
-        {
-            GenerateShaders();
-        }
+            => GenerateShaders();
         private void OnArgumentsConnected(IFuncValueInput input, IFuncValueOutput output)
-        {
-            GenerateShaders();
-        }
+            => GenerateShaders();
         private void GenerateShaders()
         {
             if (!EndFunc.Generate(out ShaderFile[] shaderFiles, out ShaderVar[] shaderVars))
@@ -221,7 +217,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (_draggedArg != null && _highlightedArg != null &&
                 !ReferenceEquals(_draggedArg, _highlightedArg) &&
-                _draggedArg.TryConnectTo(_highlightedArg))
+                _draggedArg.ConnectTo(_highlightedArg))
             {
                 if (_draggedArg is IFuncValueInput input1 && _highlightedArg is IFuncValueOutput output1)
                     OnArgumentsConnected(input1, output1);
@@ -378,8 +374,6 @@ namespace TheraEditor.Windows.Forms
         {
             _cursorBezier.StartPoint = start;
             _cursorBezier.EndPoint = end;
-
-            //_cursorBezier.StartPoint.Xy += BaseFuncArg.ConnectionBoxDims * 0.5f;
         }
         public float BoxDim() => (BaseFuncArg.ConnectionBoxDims * 0.5f) * _rootTransform.ScaleX;
         public void Render()
@@ -388,28 +382,26 @@ namespace TheraEditor.Windows.Forms
             foreach (MaterialFunction m in _materialFuncCache)
                 foreach (var input in m.InputArguments)
                     if (input.Connection != null)
-                        DrawBezier(input.Connection.WorldPoint.Xy + boxDim, input.WorldPoint.Xy + boxDim);
+                        DrawBezier(input.Connection.WorldPoint.Xy + boxDim, input.WorldPoint.Xy + boxDim, input.GetTypeColor());
 
             if (_draggedArg == null)
                 return;
 
             Vec2 start = _cursorBezier.StartPoint.Xy + boxDim;
             Vec2 end = _cursorBezier.EndPoint.Xy + boxDim;
-            DrawBezier(start, end);
+            DrawBezier(start, end, Color.LightGray);
         }
         public float BezierTangentDist { get; set; } = 100.0f;
-        private void DrawBezier(Vec2 start, Vec2 end)
+        private void DrawBezier(Vec2 start, Vec2 end, ColorF4 color)
         {
-            Vec2 diff = new Vec2(BezierTangentDist * _rootTransform.ScaleX, 0.0f);
-            //if (end.X < start.X)
-            //    diff.X = -diff.X;
-
+            float dist = start.DistanceToFast(end).ClampMax(BezierTangentDist);
+            Vec2 diff = new Vec2(dist * _rootTransform.ScaleX, 0.0f);
             Vec2[] points = Interp.GetBezierPoints(start, start + diff, end - diff, end, 20);
             for (int i = 1; i < points.Length; ++i)
                 Engine.Renderer.RenderLine(
                     points[i - 1],
                     points[i],
-                    Color.Orange, 1.0f);
+                    color, 1.0f);
         }
         #endregion
     }

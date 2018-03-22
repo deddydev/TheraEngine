@@ -11,6 +11,12 @@ namespace TheraEngine.Rendering
         public const string FragTanName = "FragTan";
         public const string FragColorName = "FragColor{0}";
         public const string FragUVName = "FragUV{0}";
+        public const int FragPosBaseLoc = 0;
+        public const int FragNormBaseLoc = 1;
+        public const int FragTanBaseLoc = 2;
+        public const int FragBinormBaseLoc = 3;
+        public const int FragColorBaseLoc = 4;
+        public const int FragUVBaseLoc = 6;
 
         private bool _morphsAllowed, _useMorphMultiRig;
         private VertexShaderDesc _info;
@@ -163,22 +169,22 @@ namespace TheraEngine.Rendering
         /// </summary>
         private void WriteOutData()
         {
-            Line($"out vec3 {FragPosName};");
+            WriteOutVar(0, ShaderVarType._vec3, FragPosName);
 
             if (_info.HasNormals)
-                Line($"out vec3 {FragNormName};");
+                WriteOutVar(1, ShaderVarType._vec3, FragNormName);
 
             if (_info.HasTangents)
-                Line($"out vec3 {FragTanName};");
+                WriteOutVar(2, ShaderVarType._vec3, FragTanName);
 
             if (_info.HasBinormals)
-                Line($"out vec3 {FragBinormName};");
+                WriteOutVar(3, ShaderVarType._vec3, FragBinormName);
 
             for (int i = 0; i < _info._colorCount; ++i)
-                Line($"out vec4 {string.Format(FragColorName, i)};");
+                WriteOutVar(4 + i, ShaderVarType._vec4, string.Format(FragColorName, i));
 
             for (int i = 0; i < _info._texcoordCount; ++i)
-                Line($"out vec2 {string.Format(FragUVName, i)};");
+                WriteOutVar(6 + i, ShaderVarType._vec2, string.Format(FragUVName, i));
         }
 
         /// <summary>

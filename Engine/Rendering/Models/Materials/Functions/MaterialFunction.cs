@@ -16,6 +16,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             if (!IsType(type, ShaderVar.BooleanTypes))
                 switch (type)
                 {
+                    default:
                     case ShaderVarType._int: return "2";
                     case ShaderVarType._ivec2: return "ivec2(2)";
                     case ShaderVarType._ivec3: return "ivec3(2)";
@@ -46,6 +47,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 case ShaderVarType._bvec2: return "bvec2(true)";
                 case ShaderVarType._bvec3: return "bvec3(true)";
                 case ShaderVarType._bvec4: return "bvec4(true)";
+                default:
                 case ShaderVarType._int: return "1";
                 case ShaderVarType._ivec2: return "ivec2(1)";
                 case ShaderVarType._ivec3: return "ivec3(1)";
@@ -66,7 +68,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 case ShaderVarType._mat4: throw new NotImplementedException();
             }
 
-            throw new ArgumentException();
+            //throw new ArgumentException();
         }
         public string Zero(ShaderVarType type)
         {
@@ -76,6 +78,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                 case ShaderVarType._bvec2: return "bvec2(false)";
                 case ShaderVarType._bvec3: return "bvec3(false)";
                 case ShaderVarType._bvec4: return "bvec4(false)";
+                default:
                 case ShaderVarType._int: return "0";
                 case ShaderVarType._ivec2: return "ivec2(0)";
                 case ShaderVarType._ivec3: return "ivec3(0)";
@@ -107,6 +110,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                     case ShaderVarType._vec2: return "vec2(0.5f)";
                     case ShaderVarType._vec3: return "vec3(0.5f)";
                     case ShaderVarType._vec4: return "vec4(0.5f)";
+                    default:
                     case ShaderVarType._double: return "0.5";
                     case ShaderVarType._dvec2: return "dvec2(0.5)";
                     case ShaderVarType._dvec3: return "dvec3(0.5)";

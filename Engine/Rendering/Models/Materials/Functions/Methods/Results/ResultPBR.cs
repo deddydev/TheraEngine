@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "result output final return physically based rendering PBR albedo roughness shininess specularity metallic refraction")]
     public class ResultPBRFunc : ResultFunc
     {
-        public ResultPBRFunc() : base() { }
+        public ResultPBRFunc() : base() { NecessaryMeshParams.Add(new MeshParam(EMeshValue.FragNorm, 0)); }
         protected override MatFuncValueInput[] GetValueInputs()
         {
             MatFuncValueInput Albedo = new MatFuncValueInput("Albedo", ShaderVarType._vec3);

@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             set => _value = value ?? new T();
         }
 
-        protected override string GetOperation() => _value.GetValueString();
+        protected override string GetOperation() => _value.GetShaderValueString();
         public override string GetGlobalVarDec() => _value.GetUniformDeclaration();
         public override void SetUniform(int programBindingId)
             => _value?.SetProgramUniform(programBindingId);

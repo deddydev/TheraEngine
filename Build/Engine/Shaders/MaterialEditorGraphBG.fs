@@ -2,8 +2,8 @@
 
 out vec4 OutColor;
 
-in vec3 FragPos;
-in vec2 FragUV0;
+layout (location = 0) in vec3 FragPos;
+layout (location = 6) in vec2 FragUV0;
 
 uniform vec3 LineColor;
 uniform vec3 BGColor;

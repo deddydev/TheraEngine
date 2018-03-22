@@ -947,7 +947,8 @@ namespace TheraEditor.Windows.Forms
 
         public List<EditorState> GetDirtyFiles()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return new List<EditorState>();
         }
 
         private void BtnNewProject_Click(object sender, EventArgs e) => CreateNewProject();

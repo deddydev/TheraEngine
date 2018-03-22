@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
+    [FunctionDefinition(
+        "Textures",
+        "Texture 2D Sample",
+        "Gets an RGBA color from the selected texture.",
+        "texture 2D sample rgba")]
     public class Texture2DSample : ShaderMethod
     {
         public Texture2DSample() : base(ShaderVarType._vec4) { HasGlobalVarDec = true; }

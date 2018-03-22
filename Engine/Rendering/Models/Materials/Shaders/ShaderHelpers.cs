@@ -83,9 +83,9 @@ uniform vec3 CameraPosition;
 
 uniform sampler2D Texture0;
 
-in vec3 FragPos;
-in vec3 FragNorm;
-in vec2 FragUV0;
+layout (location = 0) in vec3 FragPos;
+layout (location = 1) in vec3 FragNorm;
+layout (location = 6) in vec2 FragUV0;
 
 " + LightingDeclBasic() + @"
 
@@ -118,8 +118,8 @@ uniform float Roughness = 0.0f;
 uniform float Metallic = 0.0f;
 uniform float IndexOfRefraction = 1.0f;
 
-in vec3 FragNorm;
-in vec2 FragUV0;
+layout (location = 1) in vec3 FragNorm;
+layout (location = 6) in vec2 FragUV0;
 
 void main()
 {
@@ -146,7 +146,7 @@ uniform float Roughness = 0.0f;
 uniform float Metallic = 0.0f;
 uniform float IndexOfRefraction = 1.0f;
 
-in vec3 FragNorm;
+layout (location = 1) in vec3 FragNorm;
 
 void main()
 {
@@ -171,8 +171,8 @@ layout (location = 0) out vec4 OutColor;
 
 uniform sampler2D Texture0;
 
-in vec3 FragPos;
-in vec2 FragUV0;
+layout (location = 0) in vec3 FragPos;
+layout (location = 6) in vec2 FragUV0;
 
 void main()
 {
@@ -211,8 +211,8 @@ uniform float MatShininess;
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
 
-in vec3 FragPos;
-in vec3 FragNorm;
+layout (location = 0) in vec3 FragPos;
+layout (location = 1) in vec3 FragNorm;
 
 " + LightingDeclBasic() + @"
 

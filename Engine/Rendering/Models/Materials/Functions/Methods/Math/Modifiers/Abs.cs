@@ -2,21 +2,19 @@
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
-    /// <summary>
-    /// Returns the absolute value of the input value
-    /// </summary>
     [FunctionDefinition(
-        "Helpers",
-        "Absolute Value",
+        CategoryName,
+        "Abs",
         "Returns the absolute value of the given value; |value|", 
         "absolute value")]
-    public class AbsFunc : ShaderMethod
+    public class AbsFunc : ModifierFunc
     {
         public AbsFunc() : base(ShaderVar.SignedTypes) { }
+        override funcna
         protected override string GetOperation() => "abs({0})";
         protected override MatFuncValueInput[] GetValueInputs()
         {
-            MatFuncValueInput InputValue = new MatFuncValueInput("Value", OutputArguments[0]);
+            MatFuncValueInput InputValue = new MatFuncValueInput(string.Empty, OutputArguments[0]);
             return new MatFuncValueInput[] { InputValue };
         }
     }

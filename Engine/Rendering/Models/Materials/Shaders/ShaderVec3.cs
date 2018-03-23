@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderBVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._bvec3;
+        public override EShaderVarType TypeName => EShaderVarType._bvec3;
         [Category(CategoryName)]
         public BoolVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
@@ -28,21 +28,21 @@ namespace TheraEngine.Rendering.Models.Materials
             : base(name, owner)
         {
             _value = defaultValue;
-            _fields.Add("x", new ShaderBool(defaultValue.X, "X", this));
-            _fields.Add("y", new ShaderBool(defaultValue.Y, "Y", this));
-            _fields.Add("z", new ShaderBool(defaultValue.Z, "Z", this));
+            _fields.Add(".x", new ShaderBool(defaultValue.X, "X", this));
+            _fields.Add(".y", new ShaderBool(defaultValue.Y, "Y", this));
+            _fields.Add(".z", new ShaderBool(defaultValue.Z, "Z", this));
         }
     }
     public class ShaderVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._vec3;
+        public override EShaderVarType TypeName => EShaderVarType._vec3;
         [Category(CategoryName)]
         public Vec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetShaderValueString()
-             => $"vec3({_value.X:.0######}f, {_value.Y:.0######}f, {_value.Z:.0######}f)";
+             => $"vec3({_value.X:0.0######}f, {_value.Y:0.0######}f, {_value.Z:0.0######}f)";
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -55,21 +55,21 @@ namespace TheraEngine.Rendering.Models.Materials
             : base(name, owner)
         {
             _value = defaultValue;
-            _fields.Add("x", new ShaderFloat(defaultValue.X, "X", this));
-            _fields.Add("y", new ShaderFloat(defaultValue.Y, "Y", this));
-            _fields.Add("z", new ShaderFloat(defaultValue.Z, "Z", this));
+            _fields.Add(".x", new ShaderFloat(defaultValue.X, "X", this));
+            _fields.Add(".y", new ShaderFloat(defaultValue.Y, "Y", this));
+            _fields.Add(".z", new ShaderFloat(defaultValue.Z, "Z", this));
         }
     }
     public class ShaderDVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._dvec3;
+        public override EShaderVarType TypeName => EShaderVarType._dvec3;
         [Category(CategoryName)]
         public DVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) 
             => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetShaderValueString()
-            => $"dvec3({_value.X:.0######}, {_value.Y:.0######}, {_value.Z:.0######})";
+            => $"dvec3({_value.X:0.0######}, {_value.Y:0.0######}, {_value.Z:0.0######})";
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -82,15 +82,15 @@ namespace TheraEngine.Rendering.Models.Materials
             : base(name, owner)
         {
             _value = defaultValue;
-            _fields.Add("x", new ShaderDouble(defaultValue.X, "X", this));
-            _fields.Add("y", new ShaderDouble(defaultValue.Y, "Y", this));
-            _fields.Add("z", new ShaderDouble(defaultValue.Z, "Z", this));
+            _fields.Add(".x", new ShaderDouble(defaultValue.X, "X", this));
+            _fields.Add(".y", new ShaderDouble(defaultValue.Y, "Y", this));
+            _fields.Add(".z", new ShaderDouble(defaultValue.Z, "Z", this));
         }
     }
     public class ShaderIVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._ivec3;
+        public override EShaderVarType TypeName => EShaderVarType._ivec3;
         [Category(CategoryName)]
         public IVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
@@ -112,15 +112,15 @@ namespace TheraEngine.Rendering.Models.Materials
             : base(name, owner)
         {
             _value = defaultValue;
-            _fields.Add("x", new ShaderDouble(defaultValue.X, "X", this));
-            _fields.Add("y", new ShaderDouble(defaultValue.Y, "Y", this));
-            _fields.Add("z", new ShaderDouble(defaultValue.Z, "Z", this));
+            _fields.Add(".x", new ShaderDouble(defaultValue.X, "X", this));
+            _fields.Add(".y", new ShaderDouble(defaultValue.Y, "Y", this));
+            _fields.Add(".z", new ShaderDouble(defaultValue.Z, "Z", this));
         }
     }
     public class ShaderUVec3 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._uvec3;
+        public override EShaderVarType TypeName => EShaderVarType._uvec3;
         [Category(CategoryName)]
         public UVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
@@ -142,9 +142,9 @@ namespace TheraEngine.Rendering.Models.Materials
             : base(name, owner)
         {
             _value = defaultValue;
-            _fields.Add("x", new ShaderUInt(defaultValue.X, "X", this));
-            _fields.Add("y", new ShaderUInt(defaultValue.Y, "Y", this));
-            _fields.Add("z", new ShaderUInt(defaultValue.Z, "Z", this));
+            _fields.Add(".x", new ShaderUInt(defaultValue.X, "X", this));
+            _fields.Add(".y", new ShaderUInt(defaultValue.Y, "Y", this));
+            _fields.Add(".z", new ShaderUInt(defaultValue.Z, "Z", this));
         }
     }
 }

@@ -8,15 +8,15 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     public class MatFuncValueInput : FuncValueInput<MatFuncValueOutput, MaterialFunction>
     {
         public ShaderVar DefaultValue { get; private set; } = null;
-        public ShaderVarType ArgumentType
+        public EShaderVarType ArgumentType
         {
-            get => (ShaderVarType)CurrentArgumentType;
+            get => (EShaderVarType)CurrentArgumentType;
             set => CurrentArgumentType = (int)value;
         }
 
         protected override void OnCurrentArgTypeChanged()
         {
-            if (ArgumentType == ShaderVarType.Invalid)
+            if (ArgumentType == EShaderVarType._invalid)
                 DefaultValue = null;
             else
                 DefaultValue = (ShaderVar)Activator.CreateInstance(ShaderVar.ShaderTypeAssociations[ArgumentType]);
@@ -24,9 +24,9 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         public override Vec4 GetTypeColor()
             => ShaderVar.GetTypeColor(ArgumentType);
 
-        public MatFuncValueInput(string name, params ShaderVarType[] types)
+        public MatFuncValueInput(string name, params EShaderVarType[] types)
             : base(name, types.Select(x => (int)x).ToArray()) { }
-        public MatFuncValueInput(string name, MaterialFunction parent, params ShaderVarType[] types)
+        public MatFuncValueInput(string name, MaterialFunction parent, params EShaderVarType[] types)
             : base(name, parent, types.Select(x => (int)x).ToArray()) { }
         public MatFuncValueInput(string name, IBaseFuncValue linkedMultiArg)
             : base(name, linkedMultiArg) { }

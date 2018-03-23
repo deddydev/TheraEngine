@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.Models.Materials
         IShaderNonVectorType
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._bool;
+        public override EShaderVarType TypeName => EShaderVarType._bool;
         [Category(CategoryName)]
         public bool Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
@@ -36,7 +36,7 @@ namespace TheraEngine.Rendering.Models.Materials
         IShaderSignedType
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._float;
+        public override EShaderVarType TypeName => EShaderVarType._float;
         [Category(CategoryName)]
         public float Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
@@ -64,7 +64,7 @@ namespace TheraEngine.Rendering.Models.Materials
         IShaderSignedType
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._double;
+        public override EShaderVarType TypeName => EShaderVarType._double;
         [Category(CategoryName)]
         public double Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
@@ -92,7 +92,7 @@ namespace TheraEngine.Rendering.Models.Materials
         IShaderSignedType
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._int;
+        public override EShaderVarType TypeName => EShaderVarType._int;
         [Category(CategoryName)]
         public int Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)
@@ -120,7 +120,7 @@ namespace TheraEngine.Rendering.Models.Materials
         IShaderNonVectorType
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._uint;
+        public override EShaderVarType TypeName => EShaderVarType._uint;
         [Category(CategoryName)]
         public uint Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location)

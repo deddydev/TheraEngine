@@ -3,13 +3,14 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-        CategoryName,
+        ComparisonCategoryName,
         "Equal",
         "Returns true bool/bvec if A's and B's individual components are equal.",
         "equals == equality")]
     public class EqualFunc : ComparableFunc
     {
         public EqualFunc() : base() { }
-        protected override string GetOperator() => "==";
+        protected override string GetScalarOperator() => "==";
+        protected override string GetVectorFuncName() => "equal";
     }
 }

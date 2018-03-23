@@ -8,26 +8,90 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Functions;
 using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
+    public enum EGLSLVersion
+    {
+        Invalid = -1,
+
+        /// <summary>
+        /// OpenGL 2.0 April 2004
+        /// </summary>
+        Ver_110,
+        /// <summary>
+        /// OpenGL 2.1 September 2006
+        /// </summary>
+        Ver_120,
+        /// <summary>
+        /// OpenGL 3.0 August 2008
+        /// </summary>
+        Ver_130,
+        /// <summary>
+        /// OpenGL 3.1 March 2009
+        /// </summary>
+        Ver_140,
+        /// <summary>
+        /// OpenGL 3.2 August 2009
+        /// </summary>
+        Ver_150,
+        /// <summary>
+        /// OpenGL 3.3 February 2010
+        /// </summary>
+        Ver_330,
+        /// <summary>
+        /// OpenGL 4.0 March 2010
+        /// </summary>
+        Ver_400,
+        /// <summary>
+        /// OpenGL 4.1 July 2010
+        /// </summary>
+        Ver_410,
+        /// <summary>
+        /// OpenGL 4.2 August 2011
+        /// </summary>
+        Ver_420,
+        /// <summary>
+        /// OpenGL 4.3 August 2012
+        /// </summary>
+        Ver_430,
+        /// <summary>
+        /// OpenGL 4.4 July 2013
+        /// </summary>
+        Ver_440,
+        /// <summary>
+        /// OpenGL 4.5 August 2014
+        /// </summary>
+        Ver_450,
+        /// <summary>
+        /// OpenGL 4.6 July 2017
+        /// </summary>
+        Ver_460,
+    }
     public class FunctionDefinition : Attribute
     {
-        public FunctionDefinition(string category, string name, string description, string keywords)
+        public FunctionDefinition(
+            string category,
+            string name,
+            string description,
+            string keywords,
+            int operationCount = 1)
         {
             Keywords = keywords.Split(' ').ToList();
             Description = description;
             Name = name;
             Category = category;
+            OperationCount = operationCount;
         }
 
         public List<string> Keywords { get; }
         public string Name { get; }
         public string Description { get; }
         public string Category { get; }
+        public int OperationCount { get; }
     }
     public interface IFunction : IUIComponent
     {
@@ -51,6 +115,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public string Category => Definition?.Category;
 
         protected UITextComponent _headerText;
+        protected UIString2D _headerString;
         protected List<UITextComponent> _inputParamTexts = new List<UITextComponent>();
         protected List<UITextComponent> _outputParamTexts = new List<UITextComponent>();
 
@@ -66,7 +131,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 DockStyle = UIDockStyle.Top,
                 Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
             };
-            _headerText.TextDrawer.Add(new UIString2D()
+            _headerText.TextDrawer.Add(_headerString = new UIString2D()
             {
                 Text = FunctionName,
                 Font = _headerFont,
@@ -171,7 +236,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 AddArguments();
         }
 
-        protected void AddArguments()
+        protected virtual void AddArguments()
         {
             AddExecInput(GetExecInputs());
             AddExecOutput(GetExecOutputs());
@@ -189,10 +254,8 @@ namespace TheraEngine.Rendering.UI.Functions
         public List<TEOut> OutputExec => _execOutputs;
         protected virtual TEIn[] GetExecInputs() => null;
         protected virtual TEOut[] GetExecOutputs() => null;
-        protected void AddExecInput(TEIn[] input)
-            => input.ForEach(AddExecInput);
-        protected void AddExecOutput(TEOut[] output)
-            => output.ForEach(AddExecOutput);
+        protected void AddExecInput(TEIn[] input) => input.ForEach(AddExecInput);
+        protected void AddExecOutput(TEOut[] output) => output.ForEach(AddExecOutput);
         protected void AddExecInput(TEIn input)
         {
             _execInputs.Add(input);
@@ -214,10 +277,8 @@ namespace TheraEngine.Rendering.UI.Functions
         public List<TVOut> OutputArguments => _valueOutputs;
         protected virtual TVIn[] GetValueInputs() => null;
         protected virtual TVOut[] GetValueOutputs() => null;
-        protected void AddValueInput(TVIn[] input)
-            => input.ForEach(AddValueInput);
-        protected void AddValueOutput(TVOut[] output)
-            => output.ForEach(AddValueOutput);
+        protected void AddValueInput(TVIn[] input) => input.ForEach(AddValueInput);
+        protected void AddValueOutput(TVOut[] output) => output.ForEach(AddValueOutput);
         protected void AddValueInput(TVIn input)
         {
             _valueInputs.Add(input);
@@ -231,15 +292,18 @@ namespace TheraEngine.Rendering.UI.Functions
         #endregion
 
         #region Control Arrangement
-        private void ArrangeControls()
+        public void ArrangeControls()
         {
-            Size headerSize = TextRenderer.MeasureText(FunctionName, _headerFont);
+            Vec2 headerSize = _headerString.Bounds.Extents;
             int totalHeaderPadding = HeaderPadding * 2;
-            headerSize.Height += totalHeaderPadding;
-            headerSize.Width += totalHeaderPadding;
+            headerSize.Y += totalHeaderPadding;
+            headerSize.X += totalHeaderPadding;
             
             int connectionBoxBounds = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
-            int rows = _valueInputs.Count + _execInputs.Count;
+            int rows = Math.Max(
+                _valueInputs.Count + _execInputs.Count,
+                _valueOutputs.Count + _execOutputs.Count);
+
             Size[] inputTextSizes = new Size[rows];
             Size[] outputTextSizes = new Size[rows];
             int[] maxHeights = new int[rows];
@@ -250,7 +314,7 @@ namespace TheraEngine.Rendering.UI.Functions
             int maxRowWidth = 0;
             int maxRowHeight = 0;
             int currentRowWidth;
-            _size.Y = headerSize.Height + BaseFuncArg.ConnectionBoxMargin * 2.0f;
+            _size.Y = headerSize.Y + BaseFuncArg.ConnectionBoxMargin * 2.0f;
             for (int i = 0; i < maxRows; ++i)
             {
                 currentRowWidth = middleMargin;
@@ -274,9 +338,9 @@ namespace TheraEngine.Rendering.UI.Functions
             }
             SizeableHeight.CurrentValue = _size.Y;
 
-            _size.X = SizeableWidth.CurrentValue = Math.Max(maxRowWidth, headerSize.Width);
+            _size.X = SizeableWidth.CurrentValue = Math.Max(maxRowWidth, headerSize.X);
 
-            float yTrans = _size.Y - headerSize.Height - BaseFuncArg.ConnectionBoxMargin;
+            float yTrans = _size.Y - headerSize.Y - BaseFuncArg.ConnectionBoxMargin;
             for (int i = 0; i < maxRows; ++i)
             {
                 int height = TMath.Max(connectionBoxBounds,
@@ -286,14 +350,14 @@ namespace TheraEngine.Rendering.UI.Functions
                 yTrans -= height;
 
                 if (i < _execInputs.Count)
-                    Arrange2(_execInputs[i], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Height, yTrans, maxHeights[i]);
+                    Arrange2(_execInputs[i], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Y, yTrans, maxHeights[i]);
                 else if (i - _execInputs.Count < _valueInputs.Count)
-                    Arrange2(_valueInputs[i - _execInputs.Count], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Height, yTrans, maxHeights[i]);
+                    Arrange2(_valueInputs[i - _execInputs.Count], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Y, yTrans, maxHeights[i]);
 
                 if (i < _execOutputs.Count)
-                    Arrange2(_execOutputs[i], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Height, yTrans, maxHeights[i]);
+                    Arrange2(_execOutputs[i], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Y, yTrans, maxHeights[i]);
                 else if (i - _execOutputs.Count < _valueOutputs.Count)
-                    Arrange2(_valueOutputs[i - _execOutputs.Count], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Height, yTrans, maxHeights[i]);
+                    Arrange2(_valueOutputs[i - _execOutputs.Count], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Y, yTrans, maxHeights[i]);
             }
 
             //_headerText.LocalTranslation = new Vec2(0.0f, _size.Y);

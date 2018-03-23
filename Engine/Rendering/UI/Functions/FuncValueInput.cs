@@ -26,7 +26,8 @@ namespace TheraEngine.Rendering.UI.Functions
             get => Connection;
             set => ConnectTo(value as TOutput);
         }
-        
+        public override bool HasConnection => Connection != null;
+
         protected TOutput _connection;
 
         public FuncValueInput(string name, params int[] types)

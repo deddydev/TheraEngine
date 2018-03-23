@@ -3,7 +3,7 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-        CategoryName,
+        OperatorCategoryName,
         "Multiply",
         "Returns A * B.",
         "multiply multiplied multiplication *")]

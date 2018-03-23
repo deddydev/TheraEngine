@@ -2,11 +2,29 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
+    [Flags]
+    public enum EShaderStageFlag
+    {
+        None        = 0b000000,
+        Fragment    = 0b000001,
+        Vertex      = 0b000010,
+        Geometry    = 0b000100,
+        TessEval    = 0b001000,
+        TessCtrl    = 0b010000,
+        Compute     = 0b100000,
+        All         = 0b111111,
+    }
     public abstract class ShaderMethod : MaterialFunction
     {
+        public const string OperatorCategoryName = "Operators";
+        public const string ComparisonCategoryName = "Comparisons";
+        public const string TrigCategoryName = "Trigonometry";
+        public const string ModifierCategoryName = "Modifiers";
+
         private bool _returnInline;
 
         /// <summary>
@@ -30,17 +48,23 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             get => Inline || OutputArguments.Count == 1 || _returnInline;
             set => _returnInline = value;
         }
-        
-        public ShaderMethod() : base() { }
-        public ShaderMethod(bool inline) : base() { Inline = inline; }
-        public ShaderMethod(params ShaderVarType[] outputTypes) : base(true)
-        {
-            AddValueOutput(new MatFuncValueOutput(string.Empty, outputTypes));
-            Inline = true;
-            AddArguments();
-        }
+        public EShaderStageFlag UsableIn { get; } = EShaderStageFlag.All;
 
+        public ShaderMethod() : this(true, EShaderStageFlag.All) { }
+        public ShaderMethod(bool inline, EShaderStageFlag usableIn = EShaderStageFlag.All) : base()
+        {
+            Inline = inline;
+            UsableIn = usableIn;
+        }
+        //public ShaderMethod(params EShaderVarType[] outputTypes) : base(true)
+        //{
+        //    AddValueOutput(new MatFuncValueOutput(string.Empty, outputTypes));
+        //    Inline = true;
+        //    AddArguments();
+        //}
+        
         public List<MeshParam> NecessaryMeshParams { get; } = new List<MeshParam>();
+        public List<EEngineUniform> NecessaryEngineParams { get; } = new List<EEngineUniform>();
 
         /// <summary>
         /// Returns the base operation for string.Format.

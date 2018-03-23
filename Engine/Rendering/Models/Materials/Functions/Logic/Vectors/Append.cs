@@ -1,13 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
+    [FunctionDefinition(
+        "Vectors",
+        "Append",
+        "Adds components to a vector.",
+        "append vector components add")]
     public class AppendVector : ShaderMethod
     {
+        public override void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override string GetOperation()
         {
             throw new NotImplementedException();

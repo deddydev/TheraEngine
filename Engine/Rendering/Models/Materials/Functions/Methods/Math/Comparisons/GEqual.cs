@@ -3,13 +3,14 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-        CategoryName,
+        ComparisonCategoryName,
         "Greater Or Equal",
         "Returns true bool/bvec if A's individual components are greater than or equal to B's.",
         "greater than or equals to >=")]
     public class GEqualFunc : ComparableFunc
     {
         public GEqualFunc() : base() { }
-        protected override string GetOperator() => ">=";
+        protected override string GetScalarOperator() => ">=";
+        protected override string GetVectorFuncName() => "greaterThanEqual";
     }
 }

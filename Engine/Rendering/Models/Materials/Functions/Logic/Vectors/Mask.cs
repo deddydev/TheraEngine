@@ -10,6 +10,11 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "mask vector components select remove choose break")]
     public class Mask : ShaderMethod
     {
+        public override void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override string GetOperation()
         {
             throw new NotImplementedException();
@@ -18,7 +23,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         {
             return new MatFuncValueInput[]
             {
-                new MatFuncValueInput("Vector", ShaderVarType._vec2),
+                new MatFuncValueInput("Vector", EShaderVarType._vec2),
             };
         }
     }

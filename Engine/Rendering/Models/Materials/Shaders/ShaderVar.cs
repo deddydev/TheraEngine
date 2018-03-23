@@ -9,9 +9,36 @@ using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public enum ShaderVarType : int
+    public enum EGenShaderVarType
     {
-        Invalid = -1,
+        Bool,
+        Int,
+        Uint,
+        Float,
+        Double,
+
+        Vec2, Vec3, Vec4,
+        BVec2, BVec3, BVec4,
+        IVec2, IVec3, IVec4,
+        UVec2, UVec3, UVec4,
+        DVec2, DVec3, DVec4,
+        Mat3, Mat4,
+
+        GenBool,
+        GenInt,
+        GenUInt,
+        GenFloat,
+        GenDouble,
+
+        VecBool,
+        VecInt,
+        VecUint,
+        VecFloat,
+        VecDouble,
+    }
+    public enum EShaderVarType : int
+    {
+        _invalid = -1,
 
         _bool,
         _int,
@@ -79,182 +106,196 @@ namespace TheraEngine.Rendering.Models.Materials
         public const string NoName = "NoName";
 
         #region Type caches
-        public ShaderVarType[] GetTypesMatching<T>() where T : IShaderVarType
+        public EShaderVarType[] GetTypesMatching<T>() where T : IShaderVarType
         {
             Type varType = typeof(T);
             Type shaderType = typeof(ShaderVar);
             var types = Engine.FindTypes(t => t.IsSubclassOf(shaderType) && varType.IsAssignableFrom(t));
             return types.Select(x => TypeAssociations[x]).Distinct().ToArray();
         }
-        public static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
+        public static Dictionary<Type, EShaderVarType> TypeAssociations = new Dictionary<Type, EShaderVarType>()
         {
-            { typeof(ShaderBool),   ShaderVarType._bool   },
-            { typeof(ShaderInt),    ShaderVarType._int    },
-            { typeof(ShaderUInt),   ShaderVarType._uint   },
-            { typeof(ShaderFloat),  ShaderVarType._float  },
-            { typeof(ShaderDouble), ShaderVarType._double },
-            { typeof(ShaderVec2),   ShaderVarType._vec2   },
-            { typeof(ShaderVec3),   ShaderVarType._vec3   },
-            { typeof(ShaderVec4),   ShaderVarType._vec4   },
-            { typeof(ShaderMat3),   ShaderVarType._mat3   },
-            { typeof(ShaderMat4),   ShaderVarType._mat4   },
-            { typeof(ShaderIVec2),  ShaderVarType._ivec2  },
-            { typeof(ShaderIVec3),  ShaderVarType._ivec3  },
-            { typeof(ShaderIVec4),  ShaderVarType._ivec4  },
-            { typeof(ShaderUVec2),  ShaderVarType._uvec2  },
-            { typeof(ShaderUVec3),  ShaderVarType._uvec3  },
-            { typeof(ShaderUVec4),  ShaderVarType._uvec4  },
-            { typeof(ShaderDVec2),  ShaderVarType._dvec2  },
-            { typeof(ShaderDVec3),  ShaderVarType._dvec3  },
-            { typeof(ShaderDVec4),  ShaderVarType._dvec4  },
-            { typeof(ShaderBVec2),  ShaderVarType._bvec2  },
-            { typeof(ShaderBVec3),  ShaderVarType._bvec3  },
-            { typeof(ShaderBVec4),  ShaderVarType._bvec4  },
+            { typeof(ShaderBool),   EShaderVarType._bool   },
+            { typeof(ShaderInt),    EShaderVarType._int    },
+            { typeof(ShaderUInt),   EShaderVarType._uint   },
+            { typeof(ShaderFloat),  EShaderVarType._float  },
+            { typeof(ShaderDouble), EShaderVarType._double },
+            { typeof(ShaderVec2),   EShaderVarType._vec2   },
+            { typeof(ShaderVec3),   EShaderVarType._vec3   },
+            { typeof(ShaderVec4),   EShaderVarType._vec4   },
+            { typeof(ShaderMat3),   EShaderVarType._mat3   },
+            { typeof(ShaderMat4),   EShaderVarType._mat4   },
+            { typeof(ShaderIVec2),  EShaderVarType._ivec2  },
+            { typeof(ShaderIVec3),  EShaderVarType._ivec3  },
+            { typeof(ShaderIVec4),  EShaderVarType._ivec4  },
+            { typeof(ShaderUVec2),  EShaderVarType._uvec2  },
+            { typeof(ShaderUVec3),  EShaderVarType._uvec3  },
+            { typeof(ShaderUVec4),  EShaderVarType._uvec4  },
+            { typeof(ShaderDVec2),  EShaderVarType._dvec2  },
+            { typeof(ShaderDVec3),  EShaderVarType._dvec3  },
+            { typeof(ShaderDVec4),  EShaderVarType._dvec4  },
+            { typeof(ShaderBVec2),  EShaderVarType._bvec2  },
+            { typeof(ShaderBVec3),  EShaderVarType._bvec3  },
+            { typeof(ShaderBVec4),  EShaderVarType._bvec4  },
         };
-        public static Dictionary<ShaderVarType, Type> ShaderTypeAssociations = new Dictionary<ShaderVarType, Type>()
+        public static Dictionary<EShaderVarType, Type> ShaderTypeAssociations = new Dictionary<EShaderVarType, Type>()
         {
-            { ShaderVarType._bool,   typeof(ShaderBool)   },
-            { ShaderVarType._int,    typeof(ShaderInt)    },
-            { ShaderVarType._uint,   typeof(ShaderUInt)   },
-            { ShaderVarType._float,  typeof(ShaderFloat)  },
-            { ShaderVarType._double, typeof(ShaderDouble) },
-            { ShaderVarType._vec2,   typeof(ShaderVec2)   },
-            { ShaderVarType._vec3,   typeof(ShaderVec3)   },
-            { ShaderVarType._vec4,   typeof(ShaderVec4)   },
-            { ShaderVarType._mat3,   typeof(ShaderMat3)   },
-            { ShaderVarType._mat4,   typeof(ShaderMat4)   },
-            { ShaderVarType._ivec2,  typeof(ShaderIVec2)  },
-            { ShaderVarType._ivec3,  typeof(ShaderIVec3)  },
-            { ShaderVarType._ivec4,  typeof(ShaderIVec4)  },
-            { ShaderVarType._uvec2,  typeof(ShaderUVec2)  },
-            { ShaderVarType._uvec3,  typeof(ShaderUVec3)  },
-            { ShaderVarType._uvec4,  typeof(ShaderUVec4)  },
-            { ShaderVarType._dvec2,  typeof(ShaderDVec2)  },
-            { ShaderVarType._dvec3,  typeof(ShaderDVec3)  },
-            { ShaderVarType._dvec4,  typeof(ShaderDVec4)  },
-            { ShaderVarType._bvec2,  typeof(ShaderBVec2)  },
-            { ShaderVarType._bvec3,  typeof(ShaderBVec3)  },
-            { ShaderVarType._bvec4,  typeof(ShaderBVec4)  },
+            { EShaderVarType._bool,   typeof(ShaderBool)   },
+            { EShaderVarType._int,    typeof(ShaderInt)    },
+            { EShaderVarType._uint,   typeof(ShaderUInt)   },
+            { EShaderVarType._float,  typeof(ShaderFloat)  },
+            { EShaderVarType._double, typeof(ShaderDouble) },
+            { EShaderVarType._vec2,   typeof(ShaderVec2)   },
+            { EShaderVarType._vec3,   typeof(ShaderVec3)   },
+            { EShaderVarType._vec4,   typeof(ShaderVec4)   },
+            { EShaderVarType._mat3,   typeof(ShaderMat3)   },
+            { EShaderVarType._mat4,   typeof(ShaderMat4)   },
+            { EShaderVarType._ivec2,  typeof(ShaderIVec2)  },
+            { EShaderVarType._ivec3,  typeof(ShaderIVec3)  },
+            { EShaderVarType._ivec4,  typeof(ShaderIVec4)  },
+            { EShaderVarType._uvec2,  typeof(ShaderUVec2)  },
+            { EShaderVarType._uvec3,  typeof(ShaderUVec3)  },
+            { EShaderVarType._uvec4,  typeof(ShaderUVec4)  },
+            { EShaderVarType._dvec2,  typeof(ShaderDVec2)  },
+            { EShaderVarType._dvec3,  typeof(ShaderDVec3)  },
+            { EShaderVarType._dvec4,  typeof(ShaderDVec4)  },
+            { EShaderVarType._bvec2,  typeof(ShaderBVec2)  },
+            { EShaderVarType._bvec3,  typeof(ShaderBVec3)  },
+            { EShaderVarType._bvec4,  typeof(ShaderBVec4)  },
         };
-        public static Dictionary<ShaderVarType, Type> AssemblyTypeAssociations = new Dictionary<ShaderVarType, Type>()
+        public static Dictionary<EShaderVarType, Type> AssemblyTypeAssociations = new Dictionary<EShaderVarType, Type>()
         {
-            { ShaderVarType._bool,   typeof(bool)       },
-            { ShaderVarType._int,    typeof(int)        },
-            { ShaderVarType._uint,   typeof(uint)       },
-            { ShaderVarType._float,  typeof(float)      },
-            { ShaderVarType._double, typeof(double)     },
-            { ShaderVarType._vec2,   typeof(Vec2)       },
-            { ShaderVarType._vec3,   typeof(Vec3)       },
-            { ShaderVarType._vec4,   typeof(Vec4)       },
-            { ShaderVarType._mat3,   typeof(Matrix3)    },
-            { ShaderVarType._mat4,   typeof(Matrix4)    },
-            { ShaderVarType._ivec2,  typeof(IVec2)      },
-            { ShaderVarType._ivec3,  typeof(IVec3)      },
-            { ShaderVarType._ivec4,  typeof(IVec4)      },
-            { ShaderVarType._uvec2,  typeof(UVec2)      },
-            { ShaderVarType._uvec3,  typeof(UVec3)      },
-            { ShaderVarType._uvec4,  typeof(UVec4)      },
-            { ShaderVarType._dvec2,  typeof(DVec2)      },
-            { ShaderVarType._dvec3,  typeof(DVec3)      },
-            { ShaderVarType._dvec4,  typeof(DVec4)      },
-            { ShaderVarType._bvec2,  typeof(BoolVec2)   },
-            { ShaderVarType._bvec3,  typeof(BoolVec3)   },
-            { ShaderVarType._bvec4,  typeof(BoolVec4)   },
+            { EShaderVarType._bool,   typeof(bool)       },
+            { EShaderVarType._int,    typeof(int)        },
+            { EShaderVarType._uint,   typeof(uint)       },
+            { EShaderVarType._float,  typeof(float)      },
+            { EShaderVarType._double, typeof(double)     },
+            { EShaderVarType._vec2,   typeof(Vec2)       },
+            { EShaderVarType._vec3,   typeof(Vec3)       },
+            { EShaderVarType._vec4,   typeof(Vec4)       },
+            { EShaderVarType._mat3,   typeof(Matrix3)    },
+            { EShaderVarType._mat4,   typeof(Matrix4)    },
+            { EShaderVarType._ivec2,  typeof(IVec2)      },
+            { EShaderVarType._ivec3,  typeof(IVec3)      },
+            { EShaderVarType._ivec4,  typeof(IVec4)      },
+            { EShaderVarType._uvec2,  typeof(UVec2)      },
+            { EShaderVarType._uvec3,  typeof(UVec3)      },
+            { EShaderVarType._uvec4,  typeof(UVec4)      },
+            { EShaderVarType._dvec2,  typeof(DVec2)      },
+            { EShaderVarType._dvec3,  typeof(DVec3)      },
+            { EShaderVarType._dvec4,  typeof(DVec4)      },
+            { EShaderVarType._bvec2,  typeof(BoolVec2)   },
+            { EShaderVarType._bvec3,  typeof(BoolVec3)   },
+            { EShaderVarType._bvec4,  typeof(BoolVec4)   },
         };
-        public static readonly ShaderVarType[] SignedIntTypes = new ShaderVarType[]
+        public static readonly EShaderVarType[] SignedIntTypes = new EShaderVarType[]
         {
-            ShaderVarType._int,
-            ShaderVarType._ivec2,
-            ShaderVarType._ivec3,
-            ShaderVarType._ivec4,
+            EShaderVarType._int,
+            EShaderVarType._ivec2,
+            EShaderVarType._ivec3,
+            EShaderVarType._ivec4,
         };
-        public static readonly ShaderVarType[] UnsignedIntTypes = new ShaderVarType[]
+        public static readonly EShaderVarType[] UnsignedIntTypes = new EShaderVarType[]
         {
-            ShaderVarType._uint,
-            ShaderVarType._uvec2,
-            ShaderVarType._uvec3,
-            ShaderVarType._uvec4,
+            EShaderVarType._uint,
+            EShaderVarType._uvec2,
+            EShaderVarType._uvec3,
+            EShaderVarType._uvec4,
         };
-        public static readonly ShaderVarType[] IntegerTypes = new ShaderVarType[]
+        public static readonly EShaderVarType[] IntegerTypes = new EShaderVarType[]
         {
-            ShaderVarType._int,
-            ShaderVarType._uint,
-            ShaderVarType._ivec2,
-            ShaderVarType._uvec2,
-            ShaderVarType._ivec3,
-            ShaderVarType._uvec3,
-            ShaderVarType._ivec4,
-            ShaderVarType._uvec4,
+            EShaderVarType._int,
+            EShaderVarType._uint,
+            EShaderVarType._ivec2,
+            EShaderVarType._uvec2,
+            EShaderVarType._ivec3,
+            EShaderVarType._uvec3,
+            EShaderVarType._ivec4,
+            EShaderVarType._uvec4,
         };
-        public static readonly ShaderVarType[] FloatingPointTypes = new ShaderVarType[]
+        public static readonly EShaderVarType[] DecimalTypes = new EShaderVarType[]
         {
-            ShaderVarType._float,
-            ShaderVarType._double,
-            ShaderVarType._vec2,
-            ShaderVarType._dvec2,
-            ShaderVarType._vec3,
-            ShaderVarType._dvec3,
-            ShaderVarType._vec4,
-            ShaderVarType._dvec4,
+            EShaderVarType._float,
+            EShaderVarType._double,
+            EShaderVarType._vec2,
+            EShaderVarType._dvec2,
+            EShaderVarType._vec3,
+            EShaderVarType._dvec3,
+            EShaderVarType._vec4,
+            EShaderVarType._dvec4,
         };
-        public static readonly ShaderVarType[] NumericTypes = new ShaderVarType[]
+        public static readonly EShaderVarType[] FloatTypes = new EShaderVarType[]
         {
-            ShaderVarType._float,
-            ShaderVarType._double,
-            ShaderVarType._int,
-            ShaderVarType._uint,
-            ShaderVarType._vec2,
-            ShaderVarType._ivec2,
-            ShaderVarType._uvec2,
-            ShaderVarType._dvec2,
-            ShaderVarType._vec3,
-            ShaderVarType._ivec3,
-            ShaderVarType._uvec3,
-            ShaderVarType._dvec3,
-            ShaderVarType._vec4,
-            ShaderVarType._ivec4,
-            ShaderVarType._uvec4,
-            ShaderVarType._dvec4,
+            EShaderVarType._float,
+            EShaderVarType._vec2,
+            EShaderVarType._vec3,
+            EShaderVarType._vec4,
         };
-        public static readonly ShaderVarType[] SignedTypes = new ShaderVarType[]
+        public static readonly EShaderVarType[] DoubleTypes = new EShaderVarType[]
         {
-            ShaderVarType._float,
-            ShaderVarType._double,
-            ShaderVarType._int,
-            ShaderVarType._vec2,
-            ShaderVarType._ivec2,
-            ShaderVarType._dvec2,
-            ShaderVarType._vec3,
-            ShaderVarType._ivec3,
-            ShaderVarType._dvec3,
-            ShaderVarType._vec4,
-            ShaderVarType._ivec4,
-            ShaderVarType._dvec4,
+            EShaderVarType._double,
+            EShaderVarType._dvec2,
+            EShaderVarType._dvec3,
+            EShaderVarType._dvec4,
         };
-        public static readonly ShaderVarType[] BooleanTypes = new ShaderVarType[]
+        public static readonly EShaderVarType[] NumericTypes = new EShaderVarType[]
         {
-            ShaderVarType._bool,
-            ShaderVarType._bvec2,
-            ShaderVarType._bvec3,
-            ShaderVarType._bvec4,
+            EShaderVarType._float,
+            EShaderVarType._double,
+            EShaderVarType._int,
+            EShaderVarType._uint,
+            EShaderVarType._vec2,
+            EShaderVarType._ivec2,
+            EShaderVarType._uvec2,
+            EShaderVarType._dvec2,
+            EShaderVarType._vec3,
+            EShaderVarType._ivec3,
+            EShaderVarType._uvec3,
+            EShaderVarType._dvec3,
+            EShaderVarType._vec4,
+            EShaderVarType._ivec4,
+            EShaderVarType._uvec4,
+            EShaderVarType._dvec4,
         };
-        public static readonly ShaderVarType[] VectorTypes = new ShaderVarType[]
+        public static readonly EShaderVarType[] SignedTypes = new EShaderVarType[]
         {
-            ShaderVarType._vec2,
-            ShaderVarType._ivec2,
-            ShaderVarType._uvec2,
-            ShaderVarType._dvec2,
-            ShaderVarType._bvec2,
-            ShaderVarType._vec3,
-            ShaderVarType._ivec3,
-            ShaderVarType._uvec3,
-            ShaderVarType._dvec3,
-            ShaderVarType._bvec3,
-            ShaderVarType._vec4,
-            ShaderVarType._ivec4,
-            ShaderVarType._uvec4,
-            ShaderVarType._dvec4,
-            ShaderVarType._bvec4,
+            EShaderVarType._float,
+            EShaderVarType._double,
+            EShaderVarType._int,
+            EShaderVarType._vec2,
+            EShaderVarType._ivec2,
+            EShaderVarType._dvec2,
+            EShaderVarType._vec3,
+            EShaderVarType._ivec3,
+            EShaderVarType._dvec3,
+            EShaderVarType._vec4,
+            EShaderVarType._ivec4,
+            EShaderVarType._dvec4,
+        };
+        public static readonly EShaderVarType[] BooleanTypes = new EShaderVarType[]
+        {
+            EShaderVarType._bool,
+            EShaderVarType._bvec2,
+            EShaderVarType._bvec3,
+            EShaderVarType._bvec4,
+        };
+        public static readonly EShaderVarType[] VectorTypes = new EShaderVarType[]
+        {
+            EShaderVarType._vec2,
+            EShaderVarType._ivec2,
+            EShaderVarType._uvec2,
+            EShaderVarType._dvec2,
+            EShaderVarType._bvec2,
+            EShaderVarType._vec3,
+            EShaderVarType._ivec3,
+            EShaderVarType._uvec3,
+            EShaderVarType._dvec3,
+            EShaderVarType._bvec3,
+            EShaderVarType._vec4,
+            EShaderVarType._ivec4,
+            EShaderVarType._uvec4,
+            EShaderVarType._dvec4,
+            EShaderVarType._bvec4,
         };
         #endregion
 
@@ -269,7 +310,7 @@ namespace TheraEngine.Rendering.Models.Materials
         protected Dictionary<string, ShaderVar> _fields = new Dictionary<string, ShaderVar>();
 
         internal IShaderVarOwner Owner => _owner;
-        public abstract ShaderVarType TypeName { get; }
+        public abstract EShaderVarType TypeName { get; }
 
         [TString(false, false, false, false)]
         [Category(CategoryName)]
@@ -337,34 +378,34 @@ namespace TheraEngine.Rendering.Models.Materials
             return Name;
         }
 
-        internal static Vec4 GetTypeColor(ShaderVarType argumentType)
+        internal static Vec4 GetTypeColor(EShaderVarType argumentType)
         {
             switch (argumentType)
             {
-                case ShaderVarType._bool:
-                case ShaderVarType._bvec2:
-                case ShaderVarType._bvec3:
-                case ShaderVarType._bvec4:
+                case EShaderVarType._bool:
+                case EShaderVarType._bvec2:
+                case EShaderVarType._bvec3:
+                case EShaderVarType._bvec4:
                     return (ColorF4)Color.Red;
-                case ShaderVarType._int:
-                case ShaderVarType._ivec2:
-                case ShaderVarType._ivec3:
-                case ShaderVarType._ivec4:
+                case EShaderVarType._int:
+                case EShaderVarType._ivec2:
+                case EShaderVarType._ivec3:
+                case EShaderVarType._ivec4:
                     return (ColorF4)Color.HotPink;
-                case ShaderVarType._uint:
-                case ShaderVarType._uvec2:
-                case ShaderVarType._uvec3:
-                case ShaderVarType._uvec4:
+                case EShaderVarType._uint:
+                case EShaderVarType._uvec2:
+                case EShaderVarType._uvec3:
+                case EShaderVarType._uvec4:
                     return (ColorF4)Color.Orange;
-                case ShaderVarType._float:
-                case ShaderVarType._vec2:
-                case ShaderVarType._vec3:
-                case ShaderVarType._vec4:
+                case EShaderVarType._float:
+                case EShaderVarType._vec2:
+                case EShaderVarType._vec3:
+                case EShaderVarType._vec4:
                     return (ColorF4)Color.Blue;
-                case ShaderVarType._double:
-                case ShaderVarType._dvec2:
-                case ShaderVarType._dvec3:
-                case ShaderVarType._dvec4:
+                case EShaderVarType._double:
+                case EShaderVarType._dvec2:
+                case EShaderVarType._dvec3:
+                case EShaderVarType._dvec4:
                     return (ColorF4)Color.Green;
             }
             return BaseFuncValue.NoTypeColor;

@@ -80,6 +80,8 @@ namespace TheraEngine.Rendering.Text
 
         public unsafe void Draw(TexRef2D texture, Vec2 texRes, TextRenderingHint textQuality, bool forceFullRedraw)
         {
+            forceFullRedraw = true;
+
             if (texture == null ||
                 texture.Mipmaps == null ||
                 texture.Mipmaps.Length == 0)

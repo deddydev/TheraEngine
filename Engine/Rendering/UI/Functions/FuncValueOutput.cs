@@ -20,43 +20,45 @@ namespace TheraEngine.Rendering.UI.Functions
         public override bool IsOutput => true;
         public EventList<TInput> Connections => _connections;
         public new TParent ParentSocket => (TParent)base.ParentSocket;
-        
+
+        public override bool HasConnection => Connections.Count > 0;
+
         protected EventList<TInput> _connections = new EventList<TInput>(false);
 
-        public FuncValueOutput(string name, params int[] types)
+        public FuncValueOutput(string name/*, params int[] types*/)
             : base(name)
         {
-            AllowedArgumentTypes = types;
+            //AllowedArgumentTypes = types;
             _connections.PostAdded += _connectedTo_Added;
             _connections.PostRemoved += _connectedTo_Removed;
         }
-        public FuncValueOutput(string name, TParent parent, params int[] types)
+        public FuncValueOutput(string name, TParent parent/*, params int[] types*/)
             : base(name, parent)
         {
-            AllowedArgumentTypes = types;
+            //AllowedArgumentTypes = types;
             _connections.PostAdded += _connectedTo_Added;
             _connections.PostRemoved += _connectedTo_Removed;
         }
-        public FuncValueOutput(string name, TInput linkedMultiArg)
-            : base(name)
-        {
-            SyncedArguments.UnionWith(linkedMultiArg.SyncedArguments);
-            SyncedArguments.Add(linkedMultiArg);
-            linkedMultiArg.SyncedArguments.Add(this);
-            AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
-            _connections.PostAdded += _connectedTo_Added;
-            _connections.PostRemoved += _connectedTo_Removed;
-        }
-        public FuncValueOutput(string name, TParent parent, TInput linkedMultiArg)
-            : base(name, parent)
-        {
-            SyncedArguments.UnionWith(linkedMultiArg.SyncedArguments);
-            SyncedArguments.Add(linkedMultiArg);
-            linkedMultiArg.SyncedArguments.Add(this);
-            AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
-            _connections.PostAdded += _connectedTo_Added;
-            _connections.PostRemoved += _connectedTo_Removed;
-        }
+        //public FuncValueOutput(string name, TInput linkedMultiArg)
+        //    : base(name)
+        //{
+        //    SyncedArguments.UnionWith(linkedMultiArg.SyncedArguments);
+        //    SyncedArguments.Add(linkedMultiArg);
+        //    linkedMultiArg.SyncedArguments.Add(this);
+        //    AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
+        //    _connections.PostAdded += _connectedTo_Added;
+        //    _connections.PostRemoved += _connectedTo_Removed;
+        //}
+        //public FuncValueOutput(string name, TParent parent, TInput linkedMultiArg)
+        //    : base(name, parent)
+        //{
+        //    SyncedArguments.UnionWith(linkedMultiArg.SyncedArguments);
+        //    SyncedArguments.Add(linkedMultiArg);
+        //    linkedMultiArg.SyncedArguments.Add(this);
+        //    AllowedArgumentTypes = linkedMultiArg.AllowedArgumentTypes;
+        //    _connections.PostAdded += _connectedTo_Added;
+        //    _connections.PostRemoved += _connectedTo_Removed;
+        //}
         
         public bool ConnectTo(TInput other)
         {

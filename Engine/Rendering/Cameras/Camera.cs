@@ -464,16 +464,16 @@ namespace TheraEngine.Rendering.Cameras
 
         public virtual void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.WorldToCameraSpaceMatrix),    WorldToCameraSpaceMatrix);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ProjMatrix),                  ProjectionMatrix);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraToWorldSpaceMatrix),    CameraToWorldSpaceMatrix);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.InvProjMatrix),               InverseProjectionMatrix);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ScreenWidth),                 Width);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ScreenHeight),                Height);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ScreenOrigin),                Origin);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraNearZ),                 NearZ);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraFarZ),                  FarZ);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraPosition),              WorldPoint);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.WorldToCameraSpaceMatrix),    WorldToCameraSpaceMatrix);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.ProjMatrix),                  ProjectionMatrix);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraToWorldSpaceMatrix),    CameraToWorldSpaceMatrix);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.InvProjMatrix),               InverseProjectionMatrix);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.ScreenWidth),                 Width);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.ScreenHeight),                Height);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.ScreenOrigin),                Origin);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraNearZ),                 NearZ);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraFarZ),                  FarZ);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraPosition),              WorldPoint);
 
             //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraForward),               GetForwardVector());
             //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraUp),                    GetUpVector());

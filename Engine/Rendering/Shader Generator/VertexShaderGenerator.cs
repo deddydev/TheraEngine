@@ -85,7 +85,7 @@ namespace TheraEngine.Rendering
             #region Positions
             BufferType type = BufferType.Position;
             for (int i = 0; i < meshCount; ++i)
-                WriteInVar(location + i, ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
+                WriteInVar(location + i, EShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering
             type = BufferType.Normal;
             if (_info.HasNormals)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(location + i, ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
+                    WriteInVar(location + i, EShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
@@ -101,7 +101,7 @@ namespace TheraEngine.Rendering
             type = BufferType.Binormal;
             if (_info.HasBinormals)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(location + i, ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
+                    WriteInVar(location + i, EShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering
             type = BufferType.Tangent;
             if (_info.HasTangents)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(location + i, ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
+                    WriteInVar(location + i, EShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
@@ -117,7 +117,7 @@ namespace TheraEngine.Rendering
             type = BufferType.MatrixIds;
             if (weighted)
             {
-                ShaderVarType varType = Engine.Settings.UseIntegerWeightingIds ? ShaderVarType._ivec4 : ShaderVarType._vec4;
+                EShaderVarType varType = Engine.Settings.UseIntegerWeightingIds ? EShaderVarType._ivec4 : EShaderVarType._vec4;
                 for (int i = 0; i < meshCount; ++i)
                     WriteInVar(location + i, varType, VertexAttribInfo.GetAttribName(type, i));
             }
@@ -128,39 +128,39 @@ namespace TheraEngine.Rendering
             type = BufferType.MatrixWeights;
             if (weighted)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(location + i, ShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.MatrixWeights, i));
+                    WriteInVar(location + i, EShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.MatrixWeights, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
             #region Colors
             type = BufferType.Color;
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteInVar(location + i, ShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.Color, i));
+                WriteInVar(location + i, EShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.Color, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
             #region TexCoords
             type = BufferType.TexCoord;
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteInVar(location + i, ShaderVarType._vec2, VertexAttribInfo.GetAttribName(BufferType.TexCoord, i));
+                WriteInVar(location + i, EShaderVarType._vec2, VertexAttribInfo.GetAttribName(BufferType.TexCoord, i));
             //location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
         }
         private void WriteMatrixUniforms()
         {
-            WriteUniform(ShaderVarType._mat4, ECommonUniform.ModelMatrix.ToString());
-            WriteUniform(ShaderVarType._mat3, ECommonUniform.NormalMatrix.ToString());
-            WriteUniform(ShaderVarType._mat4, ECommonUniform.WorldToCameraSpaceMatrix.ToString());
-            WriteUniform(ShaderVarType._mat4, ECommonUniform.ProjMatrix.ToString());
+            WriteUniform(EShaderVarType._mat4, EEngineUniform.ModelMatrix.ToString());
+            WriteUniform(EShaderVarType._mat3, EEngineUniform.NormalMatrix.ToString());
+            WriteUniform(EShaderVarType._mat4, EEngineUniform.WorldToCameraSpaceMatrix.ToString());
+            WriteUniform(EShaderVarType._mat4, EEngineUniform.ProjMatrix.ToString());
             if (_info.IsWeighted)
             {
                 if (Engine.Settings.SkinOnGPU)
                 {
-                    WriteUniform(ShaderVarType._mat4, Uniform.BonePosMtxName + "[" + (_info._boneCount + 1) + "]");
-                    WriteUniform(ShaderVarType._mat4, Uniform.BoneNrmMtxName + "[" + (_info._boneCount + 1) + "]");
+                    WriteUniform(EShaderVarType._mat4, Uniform.BonePosMtxName + "[" + (_info._boneCount + 1) + "]");
+                    WriteUniform(EShaderVarType._mat4, Uniform.BoneNrmMtxName + "[" + (_info._boneCount + 1) + "]");
                 }
                 if (UseMorphs)
-                    WriteUniform(ShaderVarType._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
+                    WriteUniform(EShaderVarType._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
             }
         }
 
@@ -169,22 +169,22 @@ namespace TheraEngine.Rendering
         /// </summary>
         private void WriteOutData()
         {
-            WriteOutVar(0, ShaderVarType._vec3, FragPosName);
+            WriteOutVar(0, EShaderVarType._vec3, FragPosName);
 
             if (_info.HasNormals)
-                WriteOutVar(1, ShaderVarType._vec3, FragNormName);
+                WriteOutVar(1, EShaderVarType._vec3, FragNormName);
 
             if (_info.HasTangents)
-                WriteOutVar(2, ShaderVarType._vec3, FragTanName);
+                WriteOutVar(2, EShaderVarType._vec3, FragTanName);
 
             if (_info.HasBinormals)
-                WriteOutVar(3, ShaderVarType._vec3, FragBinormName);
+                WriteOutVar(3, EShaderVarType._vec3, FragBinormName);
 
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteOutVar(4 + i, ShaderVarType._vec4, string.Format(FragColorName, i));
+                WriteOutVar(4 + i, EShaderVarType._vec4, string.Format(FragColorName, i));
 
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteOutVar(6 + i, ShaderVarType._vec2, string.Format(FragUVName, i));
+                WriteOutVar(6 + i, EShaderVarType._vec2, string.Format(FragUVName, i));
         }
 
         /// <summary>

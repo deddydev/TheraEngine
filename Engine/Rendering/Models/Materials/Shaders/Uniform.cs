@@ -13,7 +13,7 @@
         //{
         //    return info.GetLocation();
         //}
-        public static int GetLocation(int programBindingId, ECommonUniform u)
+        public static int GetLocation(int programBindingId, EEngineUniform u)
         {
             return Engine.Renderer.GetUniformLocation(programBindingId, u.ToString());
             //return VertexBuffer.MaxBufferCount + (int)u;
@@ -33,7 +33,7 @@
         FragColor,
         FragUV,
     }
-    public enum ECommonUniform
+    public enum EEngineUniform
     {
         UpdateDelta,
 

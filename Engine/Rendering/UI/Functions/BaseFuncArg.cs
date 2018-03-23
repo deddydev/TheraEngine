@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.UI.Functions
     public abstract class BaseFuncArg : UIMaterialRectangleComponent
     {
         public const int ConnectionBoxDims = 10;
-        public const int ConnectionBoxMargin = 3;
+        public const int ConnectionBoxMargin = 5;
 
         public BaseFuncArg(string name, ColorF4 color) : base(MakeArgMaterial(color))
         {

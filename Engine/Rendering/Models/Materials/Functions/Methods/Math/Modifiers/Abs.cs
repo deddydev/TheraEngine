@@ -3,19 +3,20 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-        CategoryName,
+        ModifierCategoryName,
         "Abs",
         "Returns the absolute value of the given value; |value|", 
         "absolute value")]
-    public class AbsFunc : ModifierFunc
+    public class AbsFunc : BasicCustomOverloadFunc
     {
-        public AbsFunc() : base(ShaderVar.SignedTypes) { }
-        override funcna
-        protected override string GetOperation() => "abs({0})";
-        protected override MatFuncValueInput[] GetValueInputs()
-        {
-            MatFuncValueInput InputValue = new MatFuncValueInput(string.Empty, OutputArguments[0]);
-            return new MatFuncValueInput[] { InputValue };
-        }
+        public AbsFunc() : base() { }
+        protected override string GetFuncName() => "abs";
+        protected override MatFuncOverload[] GetInOutOverloads()
+            => new MatFuncOverload[]
+            {
+                new MatFuncOverload(EGLSLVersion.Ver_110, EGenShaderVarType.GenFloat),
+                new MatFuncOverload(EGLSLVersion.Ver_130, EGenShaderVarType.GenInt),
+                new MatFuncOverload(EGLSLVersion.Ver_410, EGenShaderVarType.GenDouble),
+            };
     }
 }

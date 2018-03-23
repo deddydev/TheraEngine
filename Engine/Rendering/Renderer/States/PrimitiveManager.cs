@@ -443,24 +443,24 @@ namespace TheraEngine.Rendering.Models
             
             SetSkinningUniforms(vtxId);
             
-            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ModelMatrix), modelMatrix);
+            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, EEngineUniform.ModelMatrix), modelMatrix);
             //Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.PrevModelMatrix), _lastRenderedModelMatrix);
-            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
+            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, EEngineUniform.NormalMatrix), normalMatrix);
 
             if (AbstractRenderer.CurrentCamera != null)
             {
-                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix),
+                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, EEngineUniform.WorldToCameraSpaceMatrix),
                     AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
-                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix),
+                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, EEngineUniform.ProjMatrix),
                     AbstractRenderer.CurrentCamera.ProjectionMatrix);
             }
             else
             {
                 //No camera? Everything will be rendered in world space instead of camera space.
                 //This is used by point lights to render depth cubemaps, for example.
-                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix),
+                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, EEngineUniform.WorldToCameraSpaceMatrix),
                     Matrix4.Identity);
-                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix),
+                Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, EEngineUniform.ProjMatrix),
                     Matrix4.Identity);
             }
 

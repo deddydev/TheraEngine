@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderBVec2 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._bvec2;
+        public override EShaderVarType TypeName => EShaderVarType._bvec2;
         [Category(CategoryName)]
         public BoolVec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
@@ -31,12 +31,12 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderVec2 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._vec2;
+        public override EShaderVarType TypeName => EShaderVarType._vec2;
         [Category(CategoryName)]
         public Vec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetShaderValueString()
-             => $"vec2({_value.X:.0######}f, {_value.Y:.0######}f)";
+             => $"vec2({_value.X:0.0######}f, {_value.Y:0.0######}f)";
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -56,12 +56,12 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderDVec2 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._dvec2;
+        public override EShaderVarType TypeName => EShaderVarType._dvec2;
         [Category(CategoryName)]
         public DVec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetShaderValueString()
-            => $"dvec2({_value.X:.0######}, {_value.Y:.0######})";
+            => $"dvec2({_value.X:0.0######}, {_value.Y:0.0######})";
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -81,7 +81,7 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderIVec2 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._ivec2;
+        public override EShaderVarType TypeName => EShaderVarType._ivec2;
         [Category(CategoryName)]
         public IVec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
@@ -106,7 +106,7 @@ namespace TheraEngine.Rendering.Models.Materials
     public class ShaderUVec2 : ShaderVar
     {
         [Browsable(false)]
-        public override ShaderVarType TypeName => ShaderVarType._uvec2;
+        public override EShaderVarType TypeName => EShaderVarType._uvec2;
         [Category(CategoryName)]
         public UVec2 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);

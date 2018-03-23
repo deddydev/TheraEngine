@@ -13,16 +13,23 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     public class ResultBasicFunc : ResultFunc
     {
         public ResultBasicFunc() : base() { }
-        protected override MatFuncValueInput[] GetValueInputs()
-        {
-            MatFuncValueInput Color = new MatFuncValueInput("Color", ShaderVarType._vec3);
-            MatFuncValueInput Opacity = new MatFuncValueInput("Opacity", ShaderVarType._float);
-            MatFuncValueInput  WorldPositionOffset = new MatFuncValueInput("WorldPositionOffset", ShaderVarType._vec3);
-            return new MatFuncValueInput[] { Color, Opacity, WorldPositionOffset };
-        }
         protected override string GetOperation()
             => "OutColor = vec4({0}, {1})";
         public override string GetGlobalVarDec()
             => "layout(location = 0) out vec4 OutColor;";
+        public override void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads)
+        {
+            inputNames = new string[] { "Color", "Opacity", "World Position Offset" };
+            outputNames = new string[] { };
+            overloads = new MatFuncOverload[]
+            {
+                new MatFuncOverload(EGLSLVersion.Ver_110, new EGenShaderVarType[]
+                {
+                    EGenShaderVarType.Vec3,
+                    EGenShaderVarType.Float,
+                    EGenShaderVarType.Vec3,
+                }, true)
+            };
+        }
     }
 }

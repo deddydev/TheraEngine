@@ -12,29 +12,44 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         "result output final return physically based rendering PBR albedo roughness shininess specularity metallic refraction")]
     public class ResultPBRFunc : ResultFunc
     {
-        public ResultPBRFunc() : base() { NecessaryMeshParams.Add(new MeshParam(EMeshValue.FragNorm, 0)); }
-        protected override MatFuncValueInput[] GetValueInputs()
+        public ResultPBRFunc() : base()
         {
-            MatFuncValueInput Albedo = new MatFuncValueInput("Albedo", ShaderVarType._vec3);
-            MatFuncValueInput Opacity = new MatFuncValueInput("Opacity", ShaderVarType._float);
-            MatFuncValueInput Roughness = new MatFuncValueInput("Roughness", ShaderVarType._float);
-            MatFuncValueInput Metallic = new MatFuncValueInput("Metallic", ShaderVarType._float);
-            MatFuncValueInput Specularity = new MatFuncValueInput("Specularity", ShaderVarType._float);
-            MatFuncValueInput Refraction = new MatFuncValueInput("Refraction", ShaderVarType._float);
-            return new MatFuncValueInput[] { Albedo, Opacity, Roughness, Metallic, Specularity, Refraction };
+            NecessaryMeshParams.Add(new MeshParam(EMeshValue.FragNorm, 0));
         }
         public override string GetGlobalVarDec()
         {
-            return @"layout(location = 0) out vec4 AlbedoOpacity;
+            return @"
+layout(location = 0) out vec4 AlbedoOpacity;
 layout(location = 1) out vec3 Normal;
 layout(location = 2) out vec4 RMSI;";
         }
 
         protected override string GetOperation()
         {
-            return @"AlbedoOpacity = vec4({0}, {1});
-Normal = FragNorm;
-RMSI = vec4({2}, {3}, {4}, {5});";
+            return @"
+AlbedoOpacity = vec4({0}, {1});
+Normal = {2};
+RMSI = vec4({3}, {4}, {5}, {6});";
+        }
+
+        public override void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads)
+        {
+            inputNames = new string[] { "Albedo", "Opacity", "World Normal", "Roughness", "Metallic", "Specularity", "Refraction", "World Position Offset" };
+            outputNames = new string[] { };
+            overloads = new MatFuncOverload[]
+            {
+                new MatFuncOverload(EGLSLVersion.Ver_110, new EGenShaderVarType[]
+                {
+                    EGenShaderVarType.Vec3,
+                    EGenShaderVarType.Float,
+                    EGenShaderVarType.Vec3,
+                    EGenShaderVarType.Float,
+                    EGenShaderVarType.Float,
+                    EGenShaderVarType.Float,
+                    EGenShaderVarType.Float,
+                    EGenShaderVarType.Vec3,
+                }, true)
+            };
         }
     }
 }

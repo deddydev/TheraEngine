@@ -3,7 +3,7 @@
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     [FunctionDefinition(
-        CategoryName,
+        OperatorCategoryName,
         "Divide",
         "Returns A / B.",
         "divided division /")]

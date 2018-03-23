@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Functions;
+using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering
 {
     public class MaterialGenerator
     {
-        private const string GLSLVersion = "450";
+        private const EGLSLVersion GLSLCurrentVersion = EGLSLVersion.Ver_450;
         private string NewLine = Environment.NewLine;
         
         private string _shaderCode = "";
@@ -31,31 +32,35 @@ namespace TheraEngine.Rendering
             _shaderCode = "";
             _tabCount = 0;
         }
+        public void WriteVersion(EGLSLVersion version)
+        {
+            Line("#version {0}", version.ToString().Substring(4));
+        }
         public void WriteVersion()
         {
-            Line("#version {0}", GLSLVersion);
+            WriteVersion(GLSLCurrentVersion);
         }
-        public void WriteInVar(int layoutLocation, ShaderVarType type, string name)
+        public void WriteInVar(int layoutLocation, EShaderVarType type, string name)
         {
             Line("layout (location = {0}) in {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
-        public void WriteInVar(ShaderVarType type, string name)
+        public void WriteInVar(EShaderVarType type, string name)
         {
             Line("in {0} {1};", type.ToString().Substring(1), name);
         }
-        public void WriteOutVar(int layoutLocation, ShaderVarType type, string name)
+        public void WriteOutVar(int layoutLocation, EShaderVarType type, string name)
         {
             Line("layout (location = {0}) out {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
-        public void WriteOutVar(ShaderVarType type, string name)
+        public void WriteOutVar(EShaderVarType type, string name)
         {
             Line("out {0} {1};", type.ToString().Substring(1), name);
         }
-        public void WriteUniform(int layoutLocation, ShaderVarType type, string name)
+        public void WriteUniform(int layoutLocation, EShaderVarType type, string name)
         {
             Line("layout (location = {0}) uniform {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
-        public void WriteUniform(ShaderVarType type, string name)
+        public void WriteUniform(EShaderVarType type, string name)
         {
             Line("uniform {0} {1};", type.ToString().Substring(1), name);
         }
@@ -136,7 +141,6 @@ namespace TheraEngine.Rendering
 
             List<ShaderVar> vars = new List<ShaderVar>();
             MaterialGenerator fragGen = new MaterialGenerator();
-            fragGen.WriteVersion();
 
             SortedDictionary<int, List<MaterialFunction>> deepness = new SortedDictionary<int, List<MaterialFunction>>
             {
@@ -145,9 +149,20 @@ namespace TheraEngine.Rendering
 
             VarNameGen nameGen = new VarNameGen();
             HashSet<MeshParam> meshParamUsage = new HashSet<MeshParam>();
-            Prepass(resultFunction, nameGen, 0, deepness, fragGen, meshParamUsage);
+            HashSet<EEngineUniform> engineParamUsage = new HashSet<EEngineUniform>();
+            List<string> globalDeclarations = new List<string>();
+
+            EGLSLVersion maxGLSLVer = EGLSLVersion.Ver_110;
+            Prepass(resultFunction, nameGen, 0, deepness, fragGen, meshParamUsage, engineParamUsage, globalDeclarations, ref maxGLSLVer);
+
+            fragGen.WriteVersion();
+            foreach (string p in globalDeclarations)
+                fragGen.Line(p);
             foreach (MeshParam p in meshParamUsage)
                 fragGen.Line(p.GetVariableInDeclaration());
+            foreach (EEngineUniform p in engineParamUsage)
+                fragGen.WriteUniform(EngineParameterFunc.GetUniformType(p), p.ToString());
+
             fragGen.StartMain();
 
             var funcLists = deepness.OrderByDescending(x => x.Key).Select(x => x.Value).ToArray();
@@ -175,10 +190,14 @@ namespace TheraEngine.Rendering
                             throw new Exception();
                         }
                     }
-            
+
+            string fragStr = fragGen.EndMain();
+
+            Engine.PrintLine("Generated Fragment Shader, " + maxGLSLVer.ToString() + ":\n" + fragStr);
+
             shaderFiles = new ShaderFile[]
             {
-                new ShaderFile(ShaderMode.Fragment, fragGen.EndMain()),
+                new ShaderFile(ShaderMode.Fragment, fragStr),
             };
             shaderVars = vars.ToArray();
 
@@ -191,25 +210,45 @@ namespace TheraEngine.Rendering
             int deepness,
             SortedDictionary<int, List<MaterialFunction>> deepnessDic,
             MaterialGenerator fragGen,
-            HashSet<MeshParam> meshParamUsage)
+            HashSet<MeshParam> meshParamUsage,
+            HashSet<EEngineUniform> engineParamUsage,
+            List<string> globalDeclarations,
+            ref EGLSLVersion maxGLSLVer)
         {
             deepnessDic[deepness++].Add(func);
             if (func is ShaderMethod method)
             {
                 if (method.HasGlobalVarDec)
-                    fragGen.Line(method.GetGlobalVarDec());
+                {
+                    string s = method.GetGlobalVarDec();
+                    if (!string.IsNullOrWhiteSpace(s))
+                        globalDeclarations.Add(s);
+                }
+
                 foreach (MeshParam p in method.NecessaryMeshParams)
                     meshParamUsage.Add(p);
+
+                foreach (EEngineUniform p in method.NecessaryEngineParams)
+                    engineParamUsage.Add(p);
+
+                maxGLSLVer = (EGLSLVersion)Math.Max((int)maxGLSLVer, (int)method.Overloads[method.CurrentOverloadIndex].Version);
             }
+
             foreach (MatFuncValueOutput output in func.OutputArguments)
                 if (output.Connections.Count > 0)
                     output.OutputVarName = nameGen.New();
+
             foreach (MatFuncValueInput input in func.InputArguments)
                 if (input.Connection != null)
                 {
                     if (!deepnessDic.ContainsKey(deepness))
                         deepnessDic.Add(deepness, new List<MaterialFunction>());
-                    Prepass(input.Connection.ParentSocket, nameGen, deepness, deepnessDic, fragGen, meshParamUsage);
+
+                    Prepass(
+                        input.Connection.ParentSocket,
+                        nameGen, deepness, deepnessDic, fragGen, 
+                        meshParamUsage, engineParamUsage, globalDeclarations,
+                        ref maxGLSLVer);
                 }
         }
         public sealed class MatNode

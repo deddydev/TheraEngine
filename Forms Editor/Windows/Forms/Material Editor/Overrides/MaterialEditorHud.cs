@@ -342,18 +342,17 @@ namespace TheraEditor.Windows.Forms
                     _draggedArg.CanConnectTo(_highlightedArg))
                 {
                     if (_draggedArg.IsOutput)
-                    {
                         UpdateCursorBezier(_draggedArg.WorldPoint.Xy, _highlightedArg.WorldPoint.Xy);
-                    }
                     else
-                    {
                         UpdateCursorBezier(_highlightedArg.WorldPoint.Xy, _draggedArg.WorldPoint.Xy);
-                    }
+                    
                     _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncValue.ConnectableColor;
                 }
                 else
                 {
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value += new Vec4(0.2f);//BaseFuncValue.HighlightedColor;
+                    Vec4 value = _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value;
+                    value = new Vec4(0.8f);
+                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = value;
                 }
             }
         }

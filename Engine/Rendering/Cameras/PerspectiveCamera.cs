@@ -112,9 +112,9 @@ namespace TheraEngine.Rendering.Cameras
         public override void SetUniforms(int programBindingId)
         {
             base.SetUniforms(programBindingId);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraFovX), _fovX);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraFovY), _fovY);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraAspect), _aspect);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraFovX), _fovX);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraFovY), _fovY);
+            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraAspect), _aspect);
         }
         public override void Resize(float width, float height)
         {

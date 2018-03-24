@@ -20,12 +20,13 @@ using TheraEngine.Rendering.Textures;
 using TheraEngine.Files;
 using System.Drawing.Imaging;
 using TheraEngine.Core.Memory;
+using TheraEngine.ThirdParty;
 
 namespace TheraEngine.Tests
 {
     public class UnitTestingWorld : World
     {
-        protected internal override void OnLoaded()
+        protected unsafe internal override void OnLoaded()
         {
             int pointLights = 1;
             int dirLights = 1;
@@ -66,7 +67,7 @@ namespace TheraEngine.Tests
                             CollisionEnabled = true,
                             CollidesWith = (ushort)(TCollisionGroup.StaticWorld /*| TCollisionGroup.DynamicWorld*/),
                             CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
-                            Restitution = 1.1f,
+                            Restitution = 0.8f,
                             Mass = 100.0f,
                         });
                     sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
@@ -102,23 +103,23 @@ namespace TheraEngine.Tests
             };
 
             //Create walls
-            for (int i = 0; i < 6; ++i)
-            {
-                Rotator r = rotations[i];
-                actor = new BoxActor("Wall" + i,
-                    new Vec3(100.0f, 0.5f, 100.0f), Vec3.TransformPosition(new Vec3(0.0f, -100.0f, 0.0f), r.GetMatrix()),
-                    r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo()
-                    {
-                        UseMotionState = false,
-                        SimulatePhysics = false,
-                        CollisionEnabled = true,
-                        CollidesWith = (ushort)TCollisionGroup.All,
-                        CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
-                        Restitution = 0.8f,
-                        Mass = 50.0f,
-                    });
-                actors.Add(actor);
-            }
+            //for (int i = 0; i < 6; ++i)
+            //{
+            //    Rotator r = rotations[i];
+            //    actor = new BoxActor("Wall" + i,
+            //        new Vec3(100.0f, 0.5f, 100.0f), Vec3.TransformPosition(new Vec3(0.0f, -100.0f, 0.0f), r.GetMatrix()),
+            //        r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo()
+            //        {
+            //            UseMotionState = false,
+            //            SimulatePhysics = false,
+            //            CollisionEnabled = true,
+            //            CollidesWith = (ushort)TCollisionGroup.All,
+            //            CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+            //            Restitution = 0.8f,
+            //            Mass = 50.0f,
+            //        });
+            //    actors.Add(actor);
+            //}
             #endregion
 
             #region Lights
@@ -189,16 +190,34 @@ namespace TheraEngine.Tests
             }
             #endregion
 
+            int wh = 50;
+            FastNoise noise = new FastNoise((int)DateTime.Now.Ticks);
+            //noise.SetFrequency(1.0f);
+            DataSource source = new DataSource(wh * wh * 4);
+            float* data = (float*)source.Address;
+            float temp;
+            for (int r = 0; r < wh; ++r)
+                for (int x = 0; x < wh; ++x)
+                {
+                    temp = noise.GetPerlin(x, r) * 50.0f;
+                    *data++ = temp;
+                }
+
+            TRigidBodyConstructionInfo landscapeInfo = new TRigidBodyConstructionInfo()
+            {
+                CollidesWith = (ushort)TCollisionGroup.All,
+                CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+            };
+
             Actor<LandscapeComponent> landscape = new Actor<LandscapeComponent>();
-            TextureFile2D f = Load<TextureFile2D>("");
-            Bitmap bmp = f.Bitmaps[0];
-            BitmapData d = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-            DataSource source = new DataSource(d.Scan0, d.Width * d.Height * d.Stride, true);
+            //TextureFile2D f = Load<TextureFile2D>("");
+            //Bitmap bmp = f.Bitmaps[0];
+            //BitmapData d = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+            //DataSource source = new DataSource(d.Scan0, d.Width * d.Height * d.Stride, true);
             landscape.RootComponent.GenerateHeightFieldCollision(
-                d.Scan0, d.Width * d.Height * d.Stride, 
-                d.Width, d.Height,
-                0.0f, 1024.0f,
-                TCollisionHeightField.EHeightValueType.Byte);
+                source, wh, wh, 0.0f, 50.0f,
+                TCollisionHeightField.EHeightValueType.Single);
+            //landscape.RootComponent.Translation.Y -= 50.0f;
             actors.Add(landscape);
 
             //Create shape tracer

@@ -13,6 +13,11 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     {
         public IfFunc() : base() { }
 
+        public override void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string GetLogicFormat()
         {
             throw new NotImplementedException();

@@ -16,7 +16,7 @@ namespace TheraEngine.Animation
         {
             return new AnimFuncValueInput[]
             {
-                new AnimFuncValueInput("Condition")
+                //new AnimFuncValueInput("Condition")
             };
         }
 

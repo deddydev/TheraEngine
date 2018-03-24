@@ -19,8 +19,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public static ColorF4 RegularColor { get; set; } = new ColorF4(0.4f, 0.4f, 0.4f, 1.0f);
         public static ColorF4 HighlightedColor { get; set; } = new ColorF4(0.4f, 0.6f, 0.6f, 1.0f);
         public static ColorF4 ConnectableColor { get; set; } = new ColorF4(0.8f, 0.2f, 0.2f, 1.0f);
-
-        public BaseFuncValue(string name, ColorF4 color) : base(name, color) { }
+        
         public BaseFuncValue(string name, IFunction parent, ColorF4 color) : base(name, parent, color) { }
 
         //public HashSet<IBaseFuncValue> SyncedArguments => _syncedArgs;
@@ -139,7 +138,6 @@ namespace TheraEngine.Rendering.UI.Functions
     }
     public abstract class BaseFuncValue<TOutput> : BaseFuncValue where TOutput : IBaseFuncValue
     {
-        public BaseFuncValue(string name) : base(name, NoTypeColor) { }
         public BaseFuncValue(string name, IFunction parent) : base(name, parent, NoTypeColor) { }
         
         public abstract bool CanConnectTo(TOutput other);

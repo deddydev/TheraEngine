@@ -30,26 +30,5 @@ namespace TheraEngine.Rendering.UI.Functions
             _connectedTo = null;
             temp?.ClearConnection();
         }
-
-        /// <summary>
-        /// Returns an interpolated point from this argument to the connected argument.
-        /// Used for rendering the material editor graph.
-        /// </summary>
-        /// <param name="t">Time from one point to the other, 0.0f to 1.0f continuous.</param>
-        /// <returns>The interpolated point.</returns>
-        //public Vec2 BezierToConnectedArgPoint(float time)
-        //{
-        //    if (_connectedTo == null)
-        //        return ScreenTranslation;
-
-        //    return BezierToPointAsPoint(_connectedTo.ScreenTranslation, time);
-        //}
-        //public Vec2[] BezierToConnectedArgPoints(int count)
-        //{
-        //    if (_connectedTo == null)
-        //        return new Vec2[0];
-
-        //    return BezierToPointAsPoints(_connectedTo.ScreenTranslation, count);
-        //}
     }
 }

@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using TheraEngine.Components.Scene.Shapes;
-using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine.Actors.Types
 {
@@ -57,45 +56,101 @@ namespace TheraEngine.Actors.Types
             VoidPtr heightDataPtr, int dataLength,
             int width, int length,
             float minHeight, float maxHeight,
-            TCollisionHeightField.EHeightValueType valueType)
+            TCollisionHeightField.EHeightValueType valueType,
+            TRigidBodyConstructionInfo bodyInfo)
+            => GenerateHeightFieldCollision(new DataSource(heightDataPtr, dataLength, true),
+                width, length, minHeight, maxHeight, valueType, bodyInfo);
+        
+        public void GenerateHeightFieldCollision(
+            DataSource heightData,
+            int width, int length,
+            float minHeight, float maxHeight,
+            TCollisionHeightField.EHeightValueType valueType,
+            TRigidBodyConstructionInfo bodyInfo)
         {
             _dimensions = new IVec2(width, length);
             _minMaxHeight = new Vec2(minHeight, maxHeight);
             _heightValueType = valueType;
 
-            _heightData = new DataSource(heightDataPtr, dataLength, true);
+            _heightData = heightData;
             UnmanagedMemoryStream stream = _heightData.AsStream();
 
             _heightFieldShape = TCollisionHeightField.New(
                 _dimensions.X, _dimensions.Y, stream, 1.0f, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
 
+            BoundingBox box = _heightFieldShape.GetAabb(Matrix4.Identity);
             float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
             _heightOffsetTransform = Matrix4.CreateTranslation(0.0f, offset, 0.0f);
             _heightOffsetTransformInv = Matrix4.CreateTranslation(0.0f, -offset, 0.0f);
 
-            InitPhysicsShape(new TRigidBodyConstructionInfo()
+            if (bodyInfo != null)
             {
-                Mass = 0,
-                LocalInertia = Vec3.Zero,
-                CollisionShape = _heightFieldShape,
-            });
+                bodyInfo.Mass = 0;
+                bodyInfo.LocalInertia = Vec3.Zero;
+                bodyInfo.CollisionShape = _heightFieldShape;
+                bodyInfo.UseMotionState = false;
+                bodyInfo.SleepingEnabled = false;
+                InitPhysicsShape(bodyInfo);
+            }
 
-            GenerateHeightFieldMesh(null);
+            GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.Orange), 0.5f);
         }
-        public void GenerateHeightFieldMesh(TMaterial material)
+        public unsafe float GetHeight(int x, int y)
         {
+            float* heightPtr = (float*)_heightData.Address;
+            return heightPtr[x + y * _dimensions.X];
+        }
+        public unsafe void GenerateHeightFieldMesh(TMaterial material, float precision = 1.0f)
+        {
+            float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
 
-            PrimitiveData data = PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), null);
+            List<VertexTriangle> list = new List<VertexTriangle>();
+            Vec3 topLeft, topRight, bottomLeft, bottomRight;
+            float xInc = 1.0f;
+            float yInc = 1.0f;
+            float* heightPtr = (float*)_heightData.Address;
+            float halfX = (_dimensions.X - 1) * 0.5f;
+            float halfY = (_dimensions.Y - 1) * 0.5f;
+            for (int x = 0; x < _dimensions.X - 1; ++x)
+            {
+                int nextX = x + 1;
+                for (int y = 0; y < _dimensions.Y - 1; ++y)
+                {
+                    int nextY = y + 1;
+
+                    topLeft     = new Vec3(x * xInc - halfX,        heightPtr[x + y * _dimensions.X] - offset,            y * yInc - halfY);
+                    topRight    = new Vec3(nextX * xInc - halfX,    heightPtr[nextX + y * _dimensions.X] - offset,        y * yInc - halfY);
+                    bottomLeft  = new Vec3(x * xInc - halfX,        heightPtr[x + nextY * _dimensions.X] - offset,        nextY * yInc - halfY);
+                    bottomRight = new Vec3(nextX * xInc - halfX,    heightPtr[nextX + nextY * _dimensions.X] - offset,    nextY * yInc - halfY);
+
+                    Vec3 triNorm1 = -Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
+                    Vec3 triNorm2 = -Vec3.CalculateNormal(topLeft, bottomRight, topRight);
+
+                    list.Add(new VertexTriangle(
+                        new Vertex(topLeft, triNorm1, Vec2.Zero),
+                        new Vertex(bottomLeft, triNorm1, Vec2.Zero),
+                        new Vertex(bottomRight, triNorm1, Vec2.Zero)));
+                    list.Add(new VertexTriangle(
+                        new Vertex(topLeft, triNorm2, Vec2.Zero),
+                        new Vertex(bottomRight, triNorm2, Vec2.Zero),
+                        new Vertex(topRight, triNorm2, Vec2.Zero)));
+                }
+            }
+
+            PrimitiveData data = PrimitiveData.FromTriangleList(Culling.None, VertexShaderDesc.PosNormTex(), list);
+            material.RenderParams.CullMode = Culling.None;
             _mesh = new PrimitiveManager(data, material);
         }
 
         public override void OnSpawned()
         {
+            OwningScene.Add(this);
             base.OnSpawned();
         }
 
         public override void OnDespawned()
         {
+            OwningScene.Remove(this);
             base.OnDespawned();
         }
         

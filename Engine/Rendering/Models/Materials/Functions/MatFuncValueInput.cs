@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.UI.Functions;
 
@@ -23,14 +22,10 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         }
         public override Vec4 GetTypeColor()
             => ShaderVar.GetTypeColor(ArgumentType);
+        
+        public override bool CanConnectTo(MatFuncValueOutput other)
+            => MaterialFunction.CanConnect(this, other);
 
-        public MatFuncValueInput(string name, params EShaderVarType[] types)
-            : base(name, types.Select(x => (int)x).ToArray()) { }
-        public MatFuncValueInput(string name, MaterialFunction parent, params EShaderVarType[] types)
-            : base(name, parent, types.Select(x => (int)x).ToArray()) { }
-        public MatFuncValueInput(string name, IBaseFuncValue linkedMultiArg)
-            : base(name, linkedMultiArg) { }
-        public MatFuncValueInput(string name, MaterialFunction parent, IBaseFuncValue linkedMultiArg)
-            : base(name, parent, linkedMultiArg) { }
+        public MatFuncValueInput(string name, MaterialFunction parent) : base(name, parent) { }
     }
 }

@@ -12,6 +12,11 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     {
         public ForLoopFunc() : base() { }
 
+        public override void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override string GetLogicFormat()
         {
             return @"for (int )";
@@ -23,8 +28,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         {
             return new MatFuncValueInput[]
             {
-                new MatFuncValueInput("Start Index", EShaderVarType._int),
-                new MatFuncValueInput("Loop Operation", EShaderVarType._bool),
+                //new MatFuncValueInput("Start Index", EShaderVarType._int),
+                //new MatFuncValueInput("Loop Operation", EShaderVarType._bool),
                 //TODO: material function argument for each loop?
             };
         }
@@ -32,8 +37,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         {
             return new MatFuncValueOutput[]
             {
-                new MatFuncValueOutput("Loop Index", EShaderVarType._int),
-                new MatFuncValueOutput("Loop Count", EShaderVarType._bool),
+                //new MatFuncValueOutput("Loop Index", EShaderVarType._int),
+                //new MatFuncValueOutput("Loop Count", EShaderVarType._bool),
                 //TODO: material function argument for each loop?
             };
         }

@@ -125,7 +125,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
         private void Param_Changed()
         {
-            OutputArguments[0].AllowedArgumentTypes = new int[] { (int)Param.Type };
+            //OutputArguments[0].AllowedArgumentTypes = new int[] { (int)Param.Type };
             Overloads[0].Outputs[0] = (EGenShaderVarType)Param.Type;
             _headerString.Text = Param.GetVariableName();
             ArrangeControls();

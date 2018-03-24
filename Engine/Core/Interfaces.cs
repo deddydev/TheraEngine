@@ -96,7 +96,7 @@ namespace TheraEngine
         /// </summary>
         BoundingRectangle AxisAlignedRegion { get; }
         IQuadtreeNode QuadtreeNode { get; set; }
-        bool Contains(Vec2 point);
+        //bool Contains(Vec2 point);
     }
     public interface IRenderable
     {

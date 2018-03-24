@@ -45,9 +45,9 @@ namespace TheraEngine.Physics
                     //DebugDrawModes.DrawAabb | 
                     DebugDrawModes.DrawConstraints |
                     DebugDrawModes.DrawConstraintLimits |
-                    DebugDrawModes.DrawContactPoints //| 
+                    DebugDrawModes.DrawContactPoints
                     //DebugDrawModes.DrawWireframe |
-                    //DebugDrawModes.FastWireframe |
+                    //DebugDrawModes.FastWireframe
                     //DebugDrawModes.DrawFeaturesText
                 }
             };

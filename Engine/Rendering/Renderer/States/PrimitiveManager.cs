@@ -135,7 +135,7 @@ namespace TheraEngine.Rendering.Models
         {
             get
             {
-                if (_material.Program.IsValid)
+                if (_material?.Program != null && _material.Program.IsValid)
                     return _material;
                 else
                     return TMaterial.InvalidMaterial;

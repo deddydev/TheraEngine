@@ -24,8 +24,8 @@ namespace TheraEngine.Animation
         {
             return new AnimFuncValueInput[]
             {
-                new AnimFuncValueInput("Bone", AnimArgType.String),
-                new AnimFuncValueInput("Point", AnimArgType.Vec3, AnimArgType.Bone, AnimArgType.Matrix4),
+                //new AnimFuncValueInput("Bone", AnimArgType.String),
+                //new AnimFuncValueInput("Point", AnimArgType.Vec3, AnimArgType.Bone, AnimArgType.Matrix4),
             };
         }
         protected override AnimFuncValueOutput[] GetValueOutputs()

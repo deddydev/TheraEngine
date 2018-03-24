@@ -24,15 +24,15 @@ namespace TheraEngine.Rendering.Models
         public IndexQuad(IndexPoint point0, IndexPoint point1, IndexPoint point2, IndexPoint point3, bool forwardSlash = false)
             : base(point0, point1, point2, point3)
         {
-            IndexLine e01 = point0.LinkTo(point1);
-            IndexLine e13 = point1.LinkTo(point3);
-            IndexLine e32 = point3.LinkTo(point2);
-            IndexLine e20 = point2.LinkTo(point0);
+            //IndexLine e01 = point0.LinkTo(point1);
+            //IndexLine e13 = point1.LinkTo(point3);
+            //IndexLine e32 = point3.LinkTo(point2);
+            //IndexLine e20 = point2.LinkTo(point0);
 
-            e01.AddFace(this);
-            e13.AddFace(this);
-            e32.AddFace(this);
-            e20.AddFace(this);
+            //e01.AddFace(this);
+            //e13.AddFace(this);
+            //e32.AddFace(this);
+            //e20.AddFace(this);
 
             _forwardSlash = forwardSlash;
 

@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         {
             return new MatFuncValueInput[]
             {
-                new MatFuncValueInput("Vector", EShaderVarType._vec2),
+                //new MatFuncValueInput("Vector", EShaderVarType._vec2),
             };
         }
     }

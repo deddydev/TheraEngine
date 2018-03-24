@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         protected virtual string GetInputAName() => "A";
         protected virtual string GetInputBName() => "B";
         protected override string GetOperation()
-            => CurrentOverloadIndex < 4 ? "({0} " + GetScalarOperator() + " {1})" : GetVectorFuncName() + "({0}, {1})";
+            => CurrentValidOverloads[0] < 4 ? "({0} " + GetScalarOperator() + " {1})" : GetVectorFuncName() + "({0}, {1})";
         protected abstract string GetScalarOperator();
         protected abstract string GetVectorFuncName();
         public override void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads)

@@ -233,10 +233,10 @@ namespace TheraEngine.Rendering.UI.Functions
         public Function(bool deferControlArrangement = false) : base()
         {
             if (!deferControlArrangement)
-                AddArguments();
+                CollectArguments();
         }
 
-        protected virtual void AddArguments()
+        protected virtual void CollectArguments()
         {
             AddExecInput(GetExecInputs());
             AddExecOutput(GetExecOutputs());

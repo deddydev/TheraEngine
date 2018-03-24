@@ -74,12 +74,7 @@ namespace TheraEditor.Windows.Forms
         internal UIComponent _rootTransform;
         private bool _rightClickDown = false;
         private List<MaterialFunction> _materialFuncCache = new List<MaterialFunction>();
-
-        private UIComponent FindComponent()
-            => FindComponent(CursorPositionWorld());
-        private UIComponent FindComponent(Vec2 cursorWorldPos)
-            => RootComponent.FindDeepestComponent(cursorWorldPos);
-
+        
         public void AddMaterialFunction(MaterialFunction func)
         {
             if (func == null)
@@ -148,12 +143,7 @@ namespace TheraEditor.Windows.Forms
         {
             return new ResultPBRFunc() { Material = _targetMaterial };
         }
-
-        public bool Contains(Vec2 point)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         #region Input
         public override void RegisterInput(InputInterface input)
         {

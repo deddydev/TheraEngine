@@ -178,5 +178,10 @@ namespace TheraEngine.Actors.Types.Pawns
             //    _renderables.AddAfter(first, component);
             //}
         }
+
+        public UIComponent FindComponent()
+            => FindComponent(CursorPositionWorld());
+        public UIComponent FindComponent(Vec2 cursorWorldPos)
+            => RootComponent.FindDeepestComponent(cursorWorldPos);
     }
 }

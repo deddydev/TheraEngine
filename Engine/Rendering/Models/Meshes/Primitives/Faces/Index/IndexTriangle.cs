@@ -24,13 +24,13 @@ namespace TheraEngine.Rendering.Models
             _points.Add(point1);
             _points.Add(point2);
 
-            IndexLine e01 = point0.LinkTo(point1);
-            IndexLine e12 = point1.LinkTo(point2);
-            IndexLine e20 = point2.LinkTo(point0);
+            //IndexLine e01 = point0.LinkTo(point1);
+            //IndexLine e12 = point1.LinkTo(point2);
+            //IndexLine e20 = point2.LinkTo(point0);
 
-            e01.AddFace(this);
-            e12.AddFace(this);
-            e20.AddFace(this);
+            //e01.AddFace(this);
+            //e12.AddFace(this);
+            //e20.AddFace(this);
         }
 
         public override List<IndexTriangle> ToTriangles()

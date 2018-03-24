@@ -9,32 +9,49 @@ using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    [Flags]
     public enum EGenShaderVarType
     {
-        Bool,
-        Int,
-        Uint,
-        Float,
-        Double,
+        Bool    = 0x000001,
+        Int     = 0x000002,
+        Uint    = 0x000004,
+        Float   = 0x000008,
+        Double  = 0x000010,
 
-        Vec2, Vec3, Vec4,
-        BVec2, BVec3, BVec4,
-        IVec2, IVec3, IVec4,
-        UVec2, UVec3, UVec4,
-        DVec2, DVec3, DVec4,
-        Mat3, Mat4,
+        Vec2    = 0x000020,
+        Vec3    = 0x000040,
+        Vec4    = 0x000080,
 
-        GenBool,
-        GenInt,
-        GenUInt,
-        GenFloat,
-        GenDouble,
+        BVec2   = 0x000100,
+        BVec3   = 0x000200,
+        BVec4   = 0x000400,
 
-        VecBool,
-        VecInt,
-        VecUint,
-        VecFloat,
-        VecDouble,
+        IVec2   = 0x000800,
+        IVec3   = 0x001000,
+        IVec4   = 0x002000,
+
+        UVec2   = 0x004000,
+        UVec3   = 0x008000,
+        UVec4   = 0x010000,
+
+        DVec2   = 0x020000,
+        DVec3   = 0x040000,
+        DVec4   = 0x080000,
+
+        Mat3    = 0x100000,
+        Mat4    = 0x200000,
+
+        GenBool     = Bool   | BVec2 | BVec3 | BVec4,
+        GenInt      = Int    | IVec2 | IVec3 | IVec4,
+        GenUInt     = Uint   | UVec2 | UVec3 | UVec4,
+        GenFloat    = Float  |  Vec2 |  Vec3 |  Vec4,
+        GenDouble   = Double | DVec2 | DVec3 | DVec4,
+
+        VecBool     = BVec2 | BVec3 | BVec4,
+        VecInt      = IVec2 | IVec3 | IVec4,
+        VecUint     = UVec2 | UVec3 | UVec4,
+        VecFloat    =  Vec2 |  Vec3 |  Vec4,
+        VecDouble   = DVec2 | DVec3 | DVec4,
     }
     public enum EShaderVarType : int
     {

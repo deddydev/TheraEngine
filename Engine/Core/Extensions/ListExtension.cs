@@ -46,5 +46,22 @@
             //float seconds = Engine.EndTimer(id);
             //Engine.DebugPrint("Radix Sort took " + seconds + " seconds.");
         }
+        public static IList<T> FillWith<T>(this IList<T> list, T value)
+        {
+            for (int i = 0; i < list.Count; i++)
+                list[i] = value;
+
+            return list;
+        }
+        public static IList<T> FillWith<T>(this IList<T> list, Func<int, T> factory)
+        {
+            if (factory == null)
+                return list;
+
+            for (int i = 0; i < list.Count; i++)
+                list[i] = factory(i);
+
+            return list;
+        }
     }
 }

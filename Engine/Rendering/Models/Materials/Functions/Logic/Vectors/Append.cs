@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         {
             return new MatFuncValueOutput[]
             {
-                new MatFuncValueOutput("")
+                //new MatFuncValueOutput("")
             };
         }
     }

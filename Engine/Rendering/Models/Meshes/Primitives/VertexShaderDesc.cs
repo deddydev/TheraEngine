@@ -50,6 +50,10 @@ namespace TheraEngine.Rendering.Models
         {
             return new VertexShaderDesc() { _texcoordCount = texCoordCount, _hasNormals = true };
         }
+        public static VertexShaderDesc PosNorm()
+        {
+            return new VertexShaderDesc() { _hasNormals = true };
+        }
         public static VertexShaderDesc JustPositions()
         {
             return new VertexShaderDesc();

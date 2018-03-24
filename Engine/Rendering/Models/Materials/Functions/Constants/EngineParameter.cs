@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             set
             {
                 Overloads[0].Outputs[0] = (EGenShaderVarType)value;
-                OutputArguments[0].AllowedArgumentTypes = new int[] { (int)value };
+                //OutputArguments[0].AllowedArgumentTypes = new int[] { (int)value };
             }
         }
 

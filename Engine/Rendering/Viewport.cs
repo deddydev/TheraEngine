@@ -316,7 +316,7 @@ namespace TheraEngine.Rendering
         {
             if (testHud)
             {
-                if (HUD?.FindDeepestComponent(viewportPoint) is UIComponent hudComp)
+                if (HUD?.FindDeepestComponent(viewportPoint) is UIComponent hudComp && hudComp.IsVisible)
                 {
                     hitNormal = Vec3.Backward;
                     hitPoint = new Vec3(viewportPoint, 0.0f);

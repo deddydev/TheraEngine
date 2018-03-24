@@ -21,12 +21,12 @@ namespace TheraEngine.Rendering.Models
             if (points.Length < 3)
                 throw new Exception("A triangle strip needs 3 or more points.");
             _points = points.ToList();
-            for (int i = 0; i < _points.Count - 1; ++i)
-            {
-                _points[i].LinkTo(_points[i + 1]);
-                if (i + 2 < _points.Count)
-                    _points[i].LinkTo(_points[i + 2]);
-            }
+            //for (int i = 0; i < _points.Count - 1; ++i)
+            //{
+            //    _points[i].LinkTo(_points[i + 1]);
+            //    if (i + 2 < _points.Count)
+            //        _points[i].LinkTo(_points[i + 2]);
+            //}
         }
 
         public override List<IndexTriangle> ToTriangles()

@@ -11,17 +11,93 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         public MaterialFunction(bool deferControlArrangement = false) : base(deferControlArrangement) { }
 
         public MatFuncOverload[] Overloads { get; private set; }
-        public int CurrentOverloadIndex { get; protected set; }
-
+        public List<int> CurrentValidOverloads { get; } = new List<int>();
+        
         public abstract void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads);
-        protected override void AddArguments()
+        protected override void CollectArguments()
         {
             GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads);
+
             Overloads = overloads;
+            CurrentValidOverloads.Clear();
+            for (int i = 0; i < Overloads.Length; ++i)
+                CurrentValidOverloads.Add(i);
+
             if (overloads.Where(x => x.Inputs.Length != inputNames.Length || x.Outputs.Length != outputNames.Length).ToArray().Length > 0)
                 throw new InvalidOperationException();
+
+            foreach (string inputName in inputNames)
+                AddValueInput(new MatFuncValueInput(inputName, this));
+            foreach (string outputName in outputNames)
+                AddValueOutput(new MatFuncValueOutput(outputName, this));
+
+            ArrangeControls();
         }
 
+        public static bool CanConnect(MatFuncValueInput input, MatFuncValueOutput output)
+        {
+            if (input == null || output == null)
+                return false;
+
+            MaterialFunction inFunc = input.ParentSocket;
+            MaterialFunction outFunc = output.ParentSocket;
+            for (int i = 0; i < outFunc.CurrentValidOverloads.Count; ++i)
+            {
+                MatFuncOverload outOverload = outFunc.Overloads[i];
+                for (int x = 0; x < inFunc.CurrentValidOverloads.Count; ++x)
+                {
+                    MatFuncOverload inOverload = inFunc.Overloads[x];
+                    foreach (EGenShaderVarType outGen in outOverload.Outputs)
+                        foreach (EGenShaderVarType inGen in inOverload.Inputs)
+                            if ((outGen & inGen) != 0)
+                                return true;
+                }
+            }
+            return false;
+        }
+
+        public void RecalcValidOverloads()
+        {
+            CurrentValidOverloads.Clear();
+            foreach (MatFuncValueInput input in _valueInputs)
+            {
+                if (input.HasConnection)
+                {
+
+                }
+            }
+            foreach (MatFuncValueOutput output in _valueOutputs)
+            {
+                if (output.HasConnection)
+                {
+
+                }
+            }
+            if (CurrentValidOverloads.Count == 1)
+            {
+                MatFuncOverload overload = Overloads[CurrentValidOverloads[0]];
+                for (int i = 0; i < _valueInputs.Count; ++i)
+                {
+                    //_valueInputs[i].CurrentArgumentType = overload.Inputs[i];
+                }
+                foreach (MatFuncValueOutput output in _valueOutputs)
+                {
+
+                }
+            }
+            else
+            {
+                foreach (MatFuncValueInput input in _valueInputs)
+                {
+                    input.CurrentArgumentType = -1;
+                }
+                foreach (MatFuncValueOutput output in _valueOutputs)
+                {
+                    output.CurrentArgumentType = -1;
+                }
+            }
+        }
+        
         public void CollectInputTreeRecursive(HashSet<MaterialFunction> tree)
         {
             if (tree.Add(this))

@@ -180,8 +180,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //Update the display in case the property's set method modified the submitted data
                 UpdateDisplay();
             }
-            else
-                throw new InvalidOperationException();
+            //else
+            //    throw new InvalidOperationException();
         }
 
         /// <summary>

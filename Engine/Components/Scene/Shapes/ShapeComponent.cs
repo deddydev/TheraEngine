@@ -11,7 +11,7 @@ namespace TheraEngine.Components.Scene.Shapes
     public abstract class ShapeComponent : TRComponent, I3DRenderable, IRigidCollidable
     {
         [Category("Rendering")]
-        public RenderInfo3D RenderInfo { get; } 
+        public RenderInfo3D RenderInfo { get; protected set; } 
             = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
 
         [Browsable(false)]

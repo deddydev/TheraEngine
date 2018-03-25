@@ -63,7 +63,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             {
                 if (input.HasConnection)
                 {
-
+                    
                 }
             }
             foreach (MatFuncValueOutput output in _valueOutputs)

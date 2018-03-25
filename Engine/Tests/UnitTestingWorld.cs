@@ -190,7 +190,7 @@ namespace TheraEngine.Tests
             }
             #endregion
 
-            int wh = 50;
+            int wh = 65;
             FastNoise noise = new FastNoise((int)DateTime.Now.Ticks);
             //noise.SetFrequency(1.0f);
             DataSource source = new DataSource(wh * wh * 4);
@@ -216,7 +216,8 @@ namespace TheraEngine.Tests
             //DataSource source = new DataSource(d.Scan0, d.Width * d.Height * d.Stride, true);
             landscape.RootComponent.GenerateHeightFieldCollision(
                 source, wh, wh, 0.0f, 50.0f,
-                TCollisionHeightField.EHeightValueType.Single);
+                TCollisionHeightField.EHeightValueType.Single,
+                landscapeInfo);
             //landscape.RootComponent.Translation.Y -= 50.0f;
             actors.Add(landscape);
 

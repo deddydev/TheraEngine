@@ -7,6 +7,7 @@ using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -35,7 +36,7 @@ namespace TheraEngine.Actors.Types
 
         public LandscapeComponent()
         {
-            
+            RenderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, true, true);
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
@@ -93,49 +94,112 @@ namespace TheraEngine.Actors.Types
                 InitPhysicsShape(bodyInfo);
             }
 
-            GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.Orange), 0.5f);
+            GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.Orange), 4);
         }
         public unsafe float GetHeight(int x, int y)
         {
             float* heightPtr = (float*)_heightData.Address;
             return heightPtr[x + y * _dimensions.X];
         }
-        public unsafe void GenerateHeightFieldMesh(TMaterial material, float precision = 1.0f)
+        public unsafe void GenerateHeightFieldMesh(TMaterial material, int stride = 1)
         {
             float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
 
             List<VertexTriangle> list = new List<VertexTriangle>();
             Vec3 topLeft, topRight, bottomLeft, bottomRight;
-            float xInc = 1.0f;
-            float yInc = 1.0f;
+            Vec2 topLeftUV, topRightUV, bottomLeftUV, bottomRightUV;
             float* heightPtr = (float*)_heightData.Address;
-            float halfX = (_dimensions.X - 1) * 0.5f;
-            float halfY = (_dimensions.Y - 1) * 0.5f;
-            for (int x = 0; x < _dimensions.X - 1; ++x)
+            int xInc = stride, yInc = stride;
+            int xDim = _dimensions.X - 1, yDim = _dimensions.Y - 1;
+            float halfX = xDim * 0.5f, halfY = yDim * 0.5f;
+            float uInc = 1.0f / xDim, vInc = 1.0f / yDim;
+            int nextX = 0, nextY = 0;
+            int xTriStride = _dimensions.X / xInc * 2;
+            int triIndex;
+            int x1, y1;
+            Vertex[] vertexNormals = new Vertex[6];
+            Vec3 normal;
+            void AverageNormals(int x, int y)
             {
-                int nextX = x + 1;
-                for (int y = 0; y < _dimensions.Y - 1; ++y)
+                x1 = x / xInc;
+                y1 = y / yInc;
+
+                //Engine.PrintLine(x + " " + y);
+
+                //topleftleft
+                triIndex = (x1 - 1) * 2 + 0 + (y1 - 1) * xTriStride;
+                vertexNormals[0] = list.IndexInRange(triIndex) ? list[triIndex].Vertex2 : null;
+                //topleftright
+                triIndex = (x1 - 1) * 2 + 1 + (y1 - 1) * xTriStride;
+                vertexNormals[1] = list.IndexInRange(triIndex) ? list[triIndex].Vertex1 : null;
+                //toprightleft
+                triIndex = (x1 - 0) * 2 + 0 + (y1 - 1) * xTriStride;
+                vertexNormals[2] = list.IndexInRange(triIndex) ? list[triIndex].Vertex1 : null;
+
+                //toprightright
+                //triIndex = (x1 - 0) * 2 + 1 + (y1 - 1) * xTriStride;
+                //vertexNormals[0] = list.IndexInRange(triIndex) ? list[triIndex] : null;
+                //bottomleftleft
+                //triIndex = (x1 - 1) * 2 + 0 + (y1 - 0) * xTriStride;
+                //vertexNormals[0] = list.IndexInRange(triIndex) ? list[triIndex] : null;
+
+                //bottomleftright
+                triIndex = (x1 - 1) * 2 + 1 + (y1 - 0) * xTriStride;
+                vertexNormals[3] = list.IndexInRange(triIndex) ? list[triIndex].Vertex2 : null;
+                //bottomrightleft
+                triIndex = (x1 - 0) * 2 + 0 + (y1 - 0) * xTriStride;
+                vertexNormals[4] = list.IndexInRange(triIndex) ? list[triIndex].Vertex0 : null;
+                //bottomrightright
+                triIndex = (x1 - 0) * 2 + 1 + (y1 - 0) * xTriStride;
+                vertexNormals[5] = list.IndexInRange(triIndex) ? list[triIndex].Vertex0 : null;
+
+                normal = Vec3.Zero;
+                vertexNormals.ForEach(vtx =>
                 {
-                    int nextY = y + 1;
-
-                    topLeft     = new Vec3(x * xInc - halfX,        heightPtr[x + y * _dimensions.X] - offset,            y * yInc - halfY);
-                    topRight    = new Vec3(nextX * xInc - halfX,    heightPtr[nextX + y * _dimensions.X] - offset,        y * yInc - halfY);
-                    bottomLeft  = new Vec3(x * xInc - halfX,        heightPtr[x + nextY * _dimensions.X] - offset,        nextY * yInc - halfY);
-                    bottomRight = new Vec3(nextX * xInc - halfX,    heightPtr[nextX + nextY * _dimensions.X] - offset,    nextY * yInc - halfY);
-
-                    Vec3 triNorm1 = -Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
-                    Vec3 triNorm2 = -Vec3.CalculateNormal(topLeft, bottomRight, topRight);
-
-                    list.Add(new VertexTriangle(
-                        new Vertex(topLeft, triNorm1, Vec2.Zero),
-                        new Vertex(bottomLeft, triNorm1, Vec2.Zero),
-                        new Vertex(bottomRight, triNorm1, Vec2.Zero)));
-                    list.Add(new VertexTriangle(
-                        new Vertex(topLeft, triNorm2, Vec2.Zero),
-                        new Vertex(bottomRight, triNorm2, Vec2.Zero),
-                        new Vertex(topRight, triNorm2, Vec2.Zero)));
-                }
+                    if (vtx != null)
+                        normal += vtx._normal;
+                });
+                normal.Normalize();
+                vertexNormals.ForEach(vtx =>
+                {
+                    if (vtx != null)
+                        vtx._normal = normal;
+                });
             }
+            for (int y = 0; y < yDim; y += yInc)
+            {
+                nextY = y + yInc;
+                for (int x = 0; x < xDim; x += xInc)
+                {
+                    nextX = x + xInc;
+
+                    topLeft     = new Vec3(x - halfX,        heightPtr[x + y * _dimensions.X] - offset,            y - halfY);
+                    topRight    = new Vec3(nextX - halfX,    heightPtr[nextX + y * _dimensions.X] - offset,        y - halfY);
+                    bottomLeft  = new Vec3(x - halfX,        heightPtr[x + nextY * _dimensions.X] - offset,        nextY - halfY);
+                    bottomRight = new Vec3(nextX - halfX,    heightPtr[nextX + nextY * _dimensions.X] - offset,    nextY - halfY);
+
+                    topLeftUV   = new Vec2(x * uInc, y * vInc);
+                    topRightUV  = new Vec2(nextX * uInc, y * vInc);
+                    bottomLeftUV = new Vec2(x * uInc, nextY * vInc);
+                    bottomRightUV = new Vec2(nextX * uInc, nextY * vInc);
+
+                    Vec3 triNorm1 = Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
+                    Vec3 triNorm2 = Vec3.CalculateNormal(topLeft, bottomRight, topRight);
+
+                    list.Add(new VertexTriangle(
+                        new Vertex(topLeft, triNorm1, topLeftUV),
+                        new Vertex(bottomLeft, triNorm1, bottomLeftUV),
+                        new Vertex(bottomRight, triNorm1, bottomRightUV)));
+                    list.Add(new VertexTriangle(
+                        new Vertex(topLeft, triNorm2, topLeftUV),
+                        new Vertex(bottomRight, triNorm2, bottomRightUV),
+                        new Vertex(topRight, triNorm2, topRightUV)));
+                    
+                    AverageNormals(x, y);
+                }
+                AverageNormals(nextX, y);
+            }
+            AverageNormals(nextX, nextY);
 
             PrimitiveData data = PrimitiveData.FromTriangleList(Culling.None, VertexShaderDesc.PosNormTex(), list);
             material.RenderParams.CullMode = Culling.None;

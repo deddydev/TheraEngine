@@ -28,9 +28,10 @@ namespace TheraEngine.Tests
     {
         protected unsafe internal override void OnLoaded()
         {
+            bool testLandscape = false;
             int pointLights = 1;
-            int dirLights = 1;
-            int spotLights = 3;
+            int dirLights = 0;
+            int spotLights = 0;
 
             float margin = 2.0f;
             float radius = 1.0f;
@@ -45,12 +46,13 @@ namespace TheraEngine.Tests
             IActor actor;
 
             #region Meshes
-            int count = 4;
+            int count = 6;
             int y = 0;
 
             Random rand = new Random(800);
             int maxVel = 50;
             int maxVelMod = maxVel * 100;
+            int halfMax = maxVelMod / 2;
 
             //Create spheres
             for (int x = -count; x <= count; ++x)
@@ -62,22 +64,33 @@ namespace TheraEngine.Tests
                     BoxActor sphere = new BoxActor("TestBox" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(),
                         mat, new TRigidBodyConstructionInfo()
                         {
+                            Mass = 100.0f,
+                            Friction = 0.5f,
+                            Restitution = 0.1f,
+                            LinearDamping = 0.2f,
+                            AngularDamping = 0.2f,
                             UseMotionState = true,
+                            RollingFriction = 0.5f,
                             SimulatePhysics = true,
                             CollisionEnabled = true,
-                            CollidesWith = (ushort)(TCollisionGroup.StaticWorld /*| TCollisionGroup.DynamicWorld*/),
+                            SleepingEnabled = true,
+                            //DeactivationTime = 1.0f,
+                            //CcdMotionThreshold = 0.4f,
+                            //CustomMaterialCallback = true,
+                            //CcdSweptSphereRadius = radius * 0.95f,
+                            CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
                             CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
-                            Restitution = 0.8f,
-                            Mass = 100.0f,
+                            //LinearSleepingThreshold = 1.0f,
+                            //AngularSleepingThreshold = 0.3f,
                         });
                     sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
-                        rand.Next(0, maxVelMod) / 100.0f,
-                        rand.Next(0, maxVelMod) / 100.0f,
-                        rand.Next(0, maxVelMod) / 100.0f);
+                        rand.Next(-halfMax, halfMax) / maxVel,
+                        rand.Next(-halfMax, halfMax) / maxVel,
+                        rand.Next(-halfMax, halfMax) / maxVel);
                     sphere.RootComponent.RigidBodyCollision.LinearVelocity = new Vec3(
-                        rand.Next(0, maxVelMod) / 100.0f,
-                        rand.Next(0, maxVelMod) / 100.0f,
-                        rand.Next(0, maxVelMod) / 100.0f);
+                        rand.Next(-halfMax, halfMax) / maxVel,
+                        rand.Next(-halfMax, halfMax) / maxVel,
+                        rand.Next(-halfMax, halfMax) / maxVel);
                     actors.Add(sphere);
                 }
 
@@ -103,23 +116,23 @@ namespace TheraEngine.Tests
             };
 
             //Create walls
-            //for (int i = 0; i < 6; ++i)
-            //{
-            //    Rotator r = rotations[i];
-            //    actor = new BoxActor("Wall" + i,
-            //        new Vec3(100.0f, 0.5f, 100.0f), Vec3.TransformPosition(new Vec3(0.0f, -100.0f, 0.0f), r.GetMatrix()),
-            //        r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo()
-            //        {
-            //            UseMotionState = false,
-            //            SimulatePhysics = false,
-            //            CollisionEnabled = true,
-            //            CollidesWith = (ushort)TCollisionGroup.All,
-            //            CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
-            //            Restitution = 0.8f,
-            //            Mass = 50.0f,
-            //        });
-            //    actors.Add(actor);
-            //}
+            for (int i = 0; i < 6; ++i)
+            {
+                Rotator r = rotations[i];
+                actor = new BoxActor("Wall" + i,
+                    new Vec3(100.0f, 0.5f, 100.0f), Vec3.TransformPosition(new Vec3(0.0f, -100.0f, 0.0f), r.GetMatrix()),
+                    r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo()
+                    {
+                        UseMotionState = false,
+                        SimulatePhysics = false,
+                        CollisionEnabled = true,
+                        CollidesWith = (ushort)(~TCollisionGroup.StaticWorld & TCollisionGroup.All),
+                        CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+                        Restitution = 0.5f,
+                        Mass = 50.0f,
+                    });
+                actors.Add(actor);
+            }
             #endregion
 
             #region Lights
@@ -190,37 +203,41 @@ namespace TheraEngine.Tests
             }
             #endregion
 
-            int wh = 65;
-            FastNoise noise = new FastNoise((int)DateTime.Now.Ticks);
-            //noise.SetFrequency(1.0f);
-            DataSource source = new DataSource(wh * wh * 4);
-            float* data = (float*)source.Address;
-            float temp;
-            for (int r = 0; r < wh; ++r)
-                for (int x = 0; x < wh; ++x)
-                {
-                    temp = noise.GetPerlin(x, r) * 50.0f;
-                    *data++ = temp;
-                }
-
-            TRigidBodyConstructionInfo landscapeInfo = new TRigidBodyConstructionInfo()
+            if (testLandscape)
             {
-                CollidesWith = (ushort)TCollisionGroup.All,
-                CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
-            };
+                int wh = 300;
+                FastNoise noise = new FastNoise((int)DateTime.Now.Ticks);
+                //noise.SetFrequency(10.0f);
+                DataSource source = new DataSource(wh * wh * 4);
+                float* data = (float*)source.Address;
+                float temp;
+                for (int r = 0; r < wh; ++r)
+                    for (int x = 0; x < wh; ++x)
+                    {
+                        temp = noise.GetCubic(x, r) * 50.0f;
+                        *data++ = temp;
+                    }
 
-            Actor<LandscapeComponent> landscape = new Actor<LandscapeComponent>();
-            //TextureFile2D f = Load<TextureFile2D>("");
-            //Bitmap bmp = f.Bitmaps[0];
-            //BitmapData d = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-            //DataSource source = new DataSource(d.Scan0, d.Width * d.Height * d.Stride, true);
-            landscape.RootComponent.GenerateHeightFieldCollision(
-                source, wh, wh, 0.0f, 50.0f,
-                TCollisionHeightField.EHeightValueType.Single,
-                landscapeInfo);
-            //landscape.RootComponent.Translation.Y -= 50.0f;
-            actors.Add(landscape);
+                TRigidBodyConstructionInfo landscapeInfo = new TRigidBodyConstructionInfo()
+                {
+                    CollidesWith = (ushort)TCollisionGroup.All,
+                    CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+                    IsKinematic = true,
+                };
 
+                Actor<LandscapeComponent> landscape = new Actor<LandscapeComponent>();
+                //TextureFile2D f = Load<TextureFile2D>("");
+                //Bitmap bmp = f.Bitmaps[0];
+                //BitmapData d = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                //DataSource source = new DataSource(d.Scan0, d.Width * d.Height * d.Stride, true);
+                landscape.RootComponent.GenerateHeightFieldCollision(
+                    source, wh, wh, 0.0f, 25.0f,
+                    TCollisionHeightField.EHeightValueType.Single,
+                    landscapeInfo);
+                landscape.RootComponent.GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.LightBlue), 1);
+                //landscape.RootComponent.Translation.Y -= 50.0f;
+                actors.Add(landscape);
+            }
             //Create shape tracer
             //actor = new SphereTraceActor();
             //actors.Add(actor);

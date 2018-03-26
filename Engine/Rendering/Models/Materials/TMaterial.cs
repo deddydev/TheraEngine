@@ -34,13 +34,13 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize("Shaders")]
         private List<ShaderFile> _shaders = new List<ShaderFile>();
 
-        [TSerialize(nameof(FBODrawAttachments), Condition = "OverrideFBOAttachments")]
-        private EDrawBuffersAttachment[] _fboAttachments;
-        [TSerialize(nameof(OverrideFBOAttachments), XmlNodeType = EXmlNodeType.Attribute)]
-        private bool _overrideAttachments = false;
+        //[TSerialize(nameof(FBODrawAttachments), Condition = "OverrideFBOAttachments")]
+        //private EDrawBuffersAttachment[] _fboAttachments;
+        //[TSerialize(nameof(OverrideFBOAttachments), XmlNodeType = EXmlNodeType.Attribute)]
+        //private bool _overrideAttachments = false;
 
         private RenderProgram _program;
-        private FrameBuffer _frameBuffer;
+        //private FrameBuffer _frameBuffer;
         private UniformRequirements _requirements = UniformRequirements.None;
 
         protected ShaderVar[] _parameters;
@@ -94,8 +94,13 @@ namespace TheraEngine.Rendering.Models.Materials
             get => _textures;
             set
             {
+                if (_textures != null)
+                    foreach (BaseTexRef t in _textures)
+                        t.Material = null;
                 _textures = value;
-                CollectFBOAttachments();
+                if (_textures != null)
+                    foreach (BaseTexRef t in _textures)
+                        t.Material = this;
             }
         }
         public int UniqueID => _uniqueID;
@@ -109,15 +114,15 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        public FrameBuffer FrameBuffer
-        {
-            get => _frameBuffer;
-            set
-            {
-                _frameBuffer = value;
-                CollectFBOAttachments();
-            }
-        }
+        //public FrameBuffer FrameBuffer
+        //{
+        //    get => _frameBuffer;
+        //    set
+        //    {
+        //        _frameBuffer = value;
+        //        CollectFBOAttachments();
+        //    }
+        //}
 
         public List<ShaderFile> FragmentShaders => _fragmentShaders;
 
@@ -135,42 +140,41 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _requirements = value;
         }
 
-        public EDrawBuffersAttachment[] FBODrawAttachments
-        {
-            get => _fboAttachments;
-            set
-            {
-                _fboAttachments = value;
-                _overrideAttachments = true;
-            }
-        }
+        //public EDrawBuffersAttachment[] FBODrawAttachments
+        //{
+        //    get => _fboAttachments;
+        //    set
+        //    {
+        //        _fboAttachments = value;
+        //        _overrideAttachments = true;
+        //    }
+        //}
 
-        [TSerialize]
-        public bool OverrideFBOAttachments
-        {
-            get => _overrideAttachments;
-            set
-            {
-                if (_overrideAttachments == value)
-                    return;
-                _overrideAttachments = value;
-                if (!_overrideAttachments)
-                    CollectFBOAttachments();
-            }
-        }
+        //[TSerialize]
+        //public bool OverrideFBOAttachments
+        //{
+        //    get => _overrideAttachments;
+        //    set
+        //    {
+        //        if (_overrideAttachments == value)
+        //            return;
+        //        _overrideAttachments = value;
+        //        if (!_overrideAttachments)
+        //            CollectFBOAttachments();
+        //    }
+        //}
 
         public static TMaterial InvalidMaterial { get; }
             = CreateUnlitColorMaterialForward(Color.Magenta);
 
-        private void CollectFBOAttachments()
+        public EDrawBuffersAttachment[] CollectFBOAttachments()
         {
             if (_textures != null && _textures.Length > 0)
             {
                 List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
                 foreach (BaseTexRef tref in _textures)
                 {
-                    tref.Material = this;
-                    if (!tref.FrameBufferAttachment.HasValue || _overrideAttachments)
+                    if (!tref.FrameBufferAttachment.HasValue)
                         continue;
                     switch (tref.FrameBufferAttachment.Value)
                     {
@@ -184,26 +188,24 @@ namespace TheraEngine.Rendering.Models.Materials
                     }
                     fboAttachments.Add((EDrawBuffersAttachment)(int)tref.FrameBufferAttachment.Value);
                 }
-                if (!_overrideAttachments)
-                    _fboAttachments = fboAttachments.ToArray();
+                return fboAttachments.ToArray();
             }
-            else if(!_overrideAttachments)
-                _fboAttachments = null;
+            return new EDrawBuffersAttachment[0];
         }
-        internal bool HasAttachment(EFramebufferAttachment value)
-        {
-            switch (value)
-            {
-                case EFramebufferAttachment.Color:
-                case EFramebufferAttachment.Depth:
-                case EFramebufferAttachment.DepthAttachment:
-                case EFramebufferAttachment.DepthStencilAttachment:
-                case EFramebufferAttachment.Stencil:
-                case EFramebufferAttachment.StencilAttachment:
-                    return true;
-            }
-            return _fboAttachments.Contains((EDrawBuffersAttachment)(int)value);
-        }
+        //internal bool HasAttachment(EFramebufferAttachment value)
+        //{
+        //    switch (value)
+        //    {
+        //        case EFramebufferAttachment.Color:
+        //        case EFramebufferAttachment.Depth:
+        //        case EFramebufferAttachment.DepthAttachment:
+        //        case EFramebufferAttachment.DepthStencilAttachment:
+        //        case EFramebufferAttachment.Stencil:
+        //        case EFramebufferAttachment.StencilAttachment:
+        //            return true;
+        //    }
+        //    return _fboAttachments.Contains((EDrawBuffersAttachment)(int)value);
+        //}
         public void GenerateTextures(bool loadSynchronously = false)
         {
             if (_textures != null)

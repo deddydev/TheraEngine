@@ -66,16 +66,7 @@ namespace TheraEditor.Windows.Forms
             get => _dragComponent;
             set => _dragComponent = value;
         }
-        public SceneComponent SelectedComponent => _selectedComponent;
-        public void SetSelectedComponent(bool selectedByViewport, SceneComponent comp)
-        {
-            if (_selectedComponent == comp)
-                return;
-
-            PreSelectedComponentChanged(selectedByViewport);
-            _selectedComponent = comp;
-            PostSelectedComponentChanged(selectedByViewport);
-        }
+        
         public SceneComponent HighlightedComponent
         {
             get => _highlightPoint.HighlightedComponent;
@@ -341,7 +332,6 @@ namespace TheraEditor.Windows.Forms
         }
         public void MouseMove(Viewport v, Vec2 viewportPoint)
         {
-            float dist;
             if (TransformTool3D.Instance.IsSpawned)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
@@ -352,13 +342,7 @@ namespace TheraEditor.Windows.Forms
                 }
                 else
                 {
-                    Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
-                    if (c != null)
-                    {
-                        SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out dist);
-                        _highlightPoint.Transform = Matrix4.CreateTranslation(_hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
-                        HighlightedComponent = comp;
-                    }
+                    HighlightScene(v, viewportPoint);
                 }
             }
             else if (_currentConstraint != null)
@@ -369,7 +353,7 @@ namespace TheraEditor.Windows.Forms
             else if (_dragComponent != null)
             {
                 IRigidCollidable p = _dragComponent as IRigidCollidable;
-                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
+                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out float dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 if (dist > DraggingTestDistance)
                     comp = null;
@@ -380,10 +364,6 @@ namespace TheraEditor.Windows.Forms
                     hitNormal = Vec3.Up;
                     float depth = TMath.DistanceToDepth(DraggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
                     _hitPoint = v.ScreenToWorld(viewportPoint, depth);
-                }
-                else if (p != null)
-                {
-
                 }
 
                 Vec3 rightCameraVector = v.Camera.RightVector;
@@ -409,20 +389,113 @@ namespace TheraEditor.Windows.Forms
             }
             else //Nothing selected
             {
-                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out dist);
-
-                _highlightPoint.Transform = 
-                    Matrix4.CreateTranslation(_hitPoint) * 
-                    hitNormal.LookatAngles().GetMatrix() *
-                    Matrix4.CreateScale(OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(_hitPoint, _toolSize));
-
-                HighlightedComponent = comp;
+                HighlightScene(v, viewportPoint);
             }
+        }
+        private void HighlightScene(Viewport v, Vec2 viewportPoint)
+        {
+            Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
+            if (c == null)
+                return;
+
+            SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out float dist);
+
+            _highlightPoint.Transform =
+                Matrix4.CreateTranslation(_hitPoint) *
+                hitNormal.LookatAngles().GetMatrix() *
+                Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
+
+            HighlightedComponent = comp;
         }
         public void DoMouseDown()
         {
             MouseDown = true;
             SetSelectedComponent(true, HighlightedComponent);
+
+            if (_selectedComponent is CameraComponent cam)
+            {
+                SubViewport.Camera = cam.Camera;
+                SubViewport.IsVisible = true;
+            }
+            else
+            {
+                SubViewport.Camera = null;
+                SubViewport.IsVisible = false;
+            }
+
+            if (_selectedComponent is IRigidCollidable d &&
+                d.RigidBodyCollision != null &&
+                d.RigidBodyCollision.SimulatingPhysics &&
+                !d.RigidBodyCollision.IsKinematic &&
+                !Engine.IsPaused)
+            {
+                _dragComponent = null;
+                TransformTool3D.DestroyInstance();
+
+                _pickedBody = d.RigidBodyCollision;
+                _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
+
+                Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
+
+                _currentConstraint = TPointPointConstraint.New(_pickedBody, localPivot);
+                _currentConstraint.ImpulseClamp = 60;
+                _currentConstraint.Tau = 0.1f;
+
+                OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
+            }
+            else
+            {
+                if (UseTransformTool)
+                {
+                    TransformTool3D.GetInstance(_selectedComponent, _transformType);
+                }
+                else
+                {
+                    TransformTool3D.DestroyInstance();
+
+                    _dragComponent = _selectedComponent;
+                    if (_dragComponent != null)
+                    {
+                        _prevDragMatrix = _dragComponent.WorldMatrix;
+                        Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
+                        DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
+                    }
+                }
+            }
+
+            //if (IsSimulatedBody(out IRigidCollidable body))
+            //{
+            //    _dragComponent = null;
+            //    TransformTool3D.DestroyInstance();
+
+            //    _pickedBody = body.RigidBodyCollision;
+            //    _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
+
+            //    Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
+
+            //    _currentConstraint = TPointPointConstraint.New(_pickedBody, localPivot);
+            //    _currentConstraint.ImpulseClamp = 60;
+            //    _currentConstraint.Tau = 0.1f;
+
+            //    OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
+            //}
+        }
+        private bool IsSimulatedBody(out IRigidCollidable body)
+        {
+            if (_selectedComponent is IRigidCollidable d &&
+                d.RigidBodyCollision != null &&
+                d.RigidBodyCollision.SimulatingPhysics &&
+                !d.RigidBodyCollision.IsKinematic &&
+                !Engine.IsPaused)
+            {
+                body = d;
+                return true;
+            }
+            else
+            {
+                body = null;
+                return false;
+            }
         }
         public void DoMouseUp()
         {
@@ -445,6 +518,16 @@ namespace TheraEditor.Windows.Forms
 
             _highlightPoint.Visible = HighlightedComponent != null;
         }
+        public SceneComponent SelectedComponent => _selectedComponent;
+        public void SetSelectedComponent(bool selectedByViewport, SceneComponent comp)
+        {
+            if (_selectedComponent == comp)
+                return;
+
+            PreSelectedComponentChanged(selectedByViewport);
+            _selectedComponent = comp;
+            PostSelectedComponentChanged(selectedByViewport);
+        }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {
 
@@ -457,7 +540,8 @@ namespace TheraEditor.Windows.Forms
             {
                 if (OwningWorld == null)
                     return;
-                
+
+                _highlightPoint.Visible = false;
                 if (_selectedComponent.OwningActor is TransformTool3D tool)
                 {
 
@@ -468,56 +552,6 @@ namespace TheraEditor.Windows.Forms
                 }
                 else// if (comp != null)
                 {
-                    if (_selectedComponent is CameraComponent cam)
-                    {
-                        SubViewport.Camera = cam.Camera;
-                        SubViewport.IsVisible = true;
-                    }
-                    else
-                    {
-                        SubViewport.Camera = null;
-                        SubViewport.IsVisible = false;
-                    }
-
-                    if (_selectedComponent is IRigidCollidable d &&
-                        d.RigidBodyCollision != null &&
-                        d.RigidBodyCollision.SimulatingPhysics &&
-                        !Engine.IsPaused)
-                    {
-                        _dragComponent = null;
-                        TransformTool3D.DestroyInstance();
-
-                        _pickedBody = d.RigidBodyCollision;
-                        _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
-
-                        Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
-
-                        _currentConstraint = TPointPointConstraint.New(_pickedBody, localPivot);
-                        _currentConstraint.ImpulseClamp = 60;
-                        _currentConstraint.Tau = 0.1f;
-                        
-                        OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
-                    }
-                    else
-                    {
-                        if (UseTransformTool)
-                        {
-                            TransformTool3D.GetInstance(_selectedComponent, _transformType);
-                        }
-                        else
-                        {
-                            TransformTool3D.DestroyInstance();
-
-                            _dragComponent = _selectedComponent;
-                            if (_dragComponent != null)
-                            {
-                                _prevDragMatrix = _dragComponent.WorldMatrix;
-                                Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
-                                DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
-                            }
-                        }
-                    }
-
                     TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
                     if (t != null)
                     {

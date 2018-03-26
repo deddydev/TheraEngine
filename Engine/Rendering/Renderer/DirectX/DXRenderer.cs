@@ -576,5 +576,10 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

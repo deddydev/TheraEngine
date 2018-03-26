@@ -25,26 +25,37 @@ namespace System
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
     /// </summary>
-    public class Octree : Octree<I3DBoundable>
+    public class Octree : Octree<I3DRenderable>
     {
         public Octree(BoundingBox bounds) : base(bounds) { }
-        public Octree(BoundingBox bounds, List<I3DBoundable> items) : base(bounds, items) { }
+        public Octree(BoundingBox bounds, List<I3DRenderable> items) : base(bounds, items) { }
     }
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
     /// </summary>
     /// <typeparam name="T">The item type to use. Must be a class deriving from I3DBoundable.</typeparam>
-    public class Octree<T> where T : class, I3DBoundable
+    public class Octree<T> where T : class, I3DRenderable
     {
         public const int MaxChildNodeCount = 8;
 
         private Node _head;
-        internal HashSet<T> AllItems { get; } = new HashSet<T>();
+        internal HashSet<T> AllItems { get; } = new HashSet<T>(new RenderEquality());
         public int Count => AllItems.Count;
 
         public Octree(BoundingBox bounds) => _head = new Node(bounds, 0, 0, null, this);
         public Octree(BoundingBox bounds, List<T> items) : this(bounds) => _head.Add(items);
 
+        public class RenderEquality : IEqualityComparer<I3DRenderable>
+        {
+            public bool Equals(I3DRenderable x, I3DRenderable y)
+            {
+                return x.RenderInfo.SceneID == y.RenderInfo.SceneID;
+            }
+            public int GetHashCode(I3DRenderable obj)
+            {
+                return obj.RenderInfo.SceneID;
+            }
+        }
         public void Remake(BoundingBox newBounds = null)
         {
             _head = new Node(newBounds ?? _head.Bounds, 0, 0, null, this);
@@ -438,6 +449,7 @@ namespace System
                 {
                     if (Owner.AllItems.Add(item))
                     {
+                        item.RenderInfo.SceneID = Owner.AllItems.Count - 1;
                         _items.Add(item);
                         item.OctreeNode = this;
                     }
@@ -455,6 +467,7 @@ namespace System
                 {
                     if (Owner.AllItems.Remove(item))
                     {
+                        item.RenderInfo.SceneID = -1;
                         _items.Remove(item);
                         item.OctreeNode = null;
                     }

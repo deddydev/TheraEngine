@@ -22,7 +22,7 @@ namespace TheraEngine.Actors.Types
         private PrimitiveManager _mesh;
         private DataSource _heightData;
         private TCollisionHeightField.EHeightValueType _heightValueType = TCollisionHeightField.EHeightValueType.Single;
-        private Matrix4 _heightOffsetTransform, _heightOffsetTransformInv;
+        //private Matrix4 _heightOffsetTransform, _heightOffsetTransformInv;
 
         public TMaterial Material
         {
@@ -49,8 +49,8 @@ namespace TheraEngine.Actors.Types
                 t = _translation.AsTranslationMatrix(),
                 it = (-_translation).AsTranslationMatrix();
 
-            localTransform = t * r * _heightOffsetTransform;
-            inverseLocalTransform = _heightOffsetTransformInv * ir * it;
+            localTransform = t * r;
+            inverseLocalTransform = ir * it;
         }
 
         public void GenerateHeightFieldCollision(
@@ -79,10 +79,10 @@ namespace TheraEngine.Actors.Types
             _heightFieldShape = TCollisionHeightField.New(
                 _dimensions.X, _dimensions.Y, stream, 1.0f, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
 
-            BoundingBox box = _heightFieldShape.GetAabb(Matrix4.Identity);
-            float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
-            _heightOffsetTransform = Matrix4.CreateTranslation(0.0f, offset, 0.0f);
-            _heightOffsetTransformInv = Matrix4.CreateTranslation(0.0f, -offset, 0.0f);
+            //BoundingBox box = _heightFieldShape.GetAabb(Matrix4.Identity);
+            //float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
+            //_heightOffsetTransform = Matrix4.CreateTranslation(0.0f, offset, 0.0f);
+            //_heightOffsetTransformInv = Matrix4.CreateTranslation(0.0f, -offset, 0.0f);
 
             if (bodyInfo != null)
             {
@@ -94,7 +94,7 @@ namespace TheraEngine.Actors.Types
                 InitPhysicsShape(bodyInfo);
             }
 
-            GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.Orange), 4);
+            //GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.Orange), 4);
         }
         public unsafe float GetHeight(int x, int y)
         {
@@ -116,24 +116,18 @@ namespace TheraEngine.Actors.Types
             int nextX = 0, nextY = 0;
             int xTriStride = _dimensions.X / xInc * 2;
             int triIndex;
-            int x1, y1;
             Vertex[] vertexNormals = new Vertex[6];
             Vec3 normal;
             void AverageNormals(int x, int y)
             {
-                x1 = x / xInc;
-                y1 = y / yInc;
-
-                //Engine.PrintLine(x + " " + y);
-
                 //topleftleft
-                triIndex = (x1 - 1) * 2 + 0 + (y1 - 1) * xTriStride;
+                triIndex = (x - 1) * 2 + 0 + (y - 1) * xTriStride;
                 vertexNormals[0] = list.IndexInRange(triIndex) ? list[triIndex].Vertex2 : null;
                 //topleftright
-                triIndex = (x1 - 1) * 2 + 1 + (y1 - 1) * xTriStride;
+                triIndex = (x - 1) * 2 + 1 + (y - 1) * xTriStride;
                 vertexNormals[1] = list.IndexInRange(triIndex) ? list[triIndex].Vertex1 : null;
                 //toprightleft
-                triIndex = (x1 - 0) * 2 + 0 + (y1 - 1) * xTriStride;
+                triIndex = (x - 0) * 2 + 0 + (y - 1) * xTriStride;
                 vertexNormals[2] = list.IndexInRange(triIndex) ? list[triIndex].Vertex1 : null;
 
                 //toprightright
@@ -144,13 +138,13 @@ namespace TheraEngine.Actors.Types
                 //vertexNormals[0] = list.IndexInRange(triIndex) ? list[triIndex] : null;
 
                 //bottomleftright
-                triIndex = (x1 - 1) * 2 + 1 + (y1 - 0) * xTriStride;
+                triIndex = (x - 1) * 2 + 1 + (y - 0) * xTriStride;
                 vertexNormals[3] = list.IndexInRange(triIndex) ? list[triIndex].Vertex2 : null;
                 //bottomrightleft
-                triIndex = (x1 - 0) * 2 + 0 + (y1 - 0) * xTriStride;
+                triIndex = (x - 0) * 2 + 0 + (y - 0) * xTriStride;
                 vertexNormals[4] = list.IndexInRange(triIndex) ? list[triIndex].Vertex0 : null;
                 //bottomrightright
-                triIndex = (x1 - 0) * 2 + 1 + (y1 - 0) * xTriStride;
+                triIndex = (x - 0) * 2 + 1 + (y - 0) * xTriStride;
                 vertexNormals[5] = list.IndexInRange(triIndex) ? list[triIndex].Vertex0 : null;
 
                 normal = Vec3.Zero;
@@ -166,10 +160,10 @@ namespace TheraEngine.Actors.Types
                         vtx._normal = normal;
                 });
             }
-            for (int y = 0; y < yDim; y += yInc)
+            for (int y = 0; y < yDim; )
             {
                 nextY = y + yInc;
-                for (int x = 0; x < xDim; x += xInc)
+                for (int x = 0; x < xDim; )
                 {
                     nextX = x + xInc;
 
@@ -178,10 +172,10 @@ namespace TheraEngine.Actors.Types
                     bottomLeft  = new Vec3(x - halfX,        heightPtr[x + nextY * _dimensions.X] - offset,        nextY - halfY);
                     bottomRight = new Vec3(nextX - halfX,    heightPtr[nextX + nextY * _dimensions.X] - offset,    nextY - halfY);
 
-                    topLeftUV   = new Vec2(x * uInc, y * vInc);
-                    topRightUV  = new Vec2(nextX * uInc, y * vInc);
-                    bottomLeftUV = new Vec2(x * uInc, nextY * vInc);
-                    bottomRightUV = new Vec2(nextX * uInc, nextY * vInc);
+                    topLeftUV       = new Vec2(x * uInc, y * vInc);
+                    topRightUV      = new Vec2(nextX * uInc, y * vInc);
+                    bottomLeftUV    = new Vec2(x * uInc, nextY * vInc);
+                    bottomRightUV   = new Vec2(nextX * uInc, nextY * vInc);
 
                     Vec3 triNorm1 = Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
                     Vec3 triNorm2 = Vec3.CalculateNormal(topLeft, bottomRight, topRight);
@@ -195,14 +189,18 @@ namespace TheraEngine.Actors.Types
                         new Vertex(bottomRight, triNorm2, bottomRightUV),
                         new Vertex(topRight, triNorm2, topRightUV)));
                     
-                    AverageNormals(x, y);
-                }
-                AverageNormals(nextX, y);
-            }
-            AverageNormals(nextX, nextY);
+                    AverageNormals(x / xInc, y / yInc);
 
-            PrimitiveData data = PrimitiveData.FromTriangleList(Culling.None, VertexShaderDesc.PosNormTex(), list);
-            material.RenderParams.CullMode = Culling.None;
+                    x += xInc;
+                }
+                AverageNormals(nextX / xInc, y / yInc);
+
+                y += yInc;
+            }
+            AverageNormals(nextX / xInc, nextY / yInc);
+
+            PrimitiveData data = PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), list);
+            material.RenderParams.CullMode = Culling.Back;
             _mesh = new PrimitiveManager(data, material);
         }
 

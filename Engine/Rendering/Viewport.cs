@@ -30,9 +30,12 @@ namespace TheraEngine.Rendering
         private BoundingRectangle _region;
         private Camera _worldCamera;
         private BaseRenderPanel _owningPanel;
-
+        
         private SSAOInfo _ssaoInfo = new SSAOInfo();
         internal QuadFrameBuffer GBufferFBO;
+        internal PingPongFrameBuffer PingPongBloomBlurFBO;
+        internal QuadFrameBuffer SSAOBlurFBO;
+        internal QuadFrameBuffer ForwardPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
 
         private BoundingRectangle _internalResolution = new BoundingRectangle();
@@ -189,6 +192,9 @@ namespace TheraEngine.Rendering
             //Engine.PrintLine("Internal resolution changed: {0}x{1}", w, h);
 
             GBufferFBO?.ResizeTextures(w, h);
+            PingPongBloomBlurFBO?.ResizeTextures(w, h);
+            SSAOBlurFBO?.ResizeTextures(w, h);
+            ForwardPassFBO?.ResizeTextures(w, h);
             PostProcessFBO?.ResizeTextures(w, h);
 
             _worldCamera?.Resize(w, h);
@@ -637,6 +643,27 @@ namespace TheraEngine.Rendering
             //If deferred, we have to render to a quad first, then render that to post process
             if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
                 InitGBuffer(width, height, depthTexture);
+        }
+        private void InitForwardFBO(int width, int height, TexRef2D depthTexture)
+        {
+            TexRef2D[] forwardRefs = new TexRef2D[]
+            {
+                TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
+                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
+                    EFramebufferAttachment.ColorAttachment0),
+                depthTexture
+            };
+            TMaterial forwardMat = new TMaterial(
+                "ForwardMat",
+                forwardRefs,
+                Engine.LoadEngineShader("PostProcess.fs", ShaderMode.Fragment));
+
+            //postProcessMat.RenderParams.DepthTest.Enabled = true;
+            //postProcessMat.RenderParams.DepthTest.UpdateDepth = false;
+            //postProcessMat.RenderParams.DepthTest.Function = EComparison.Always;
+
+            //PostProcessFBO = new QuadFrameBuffer(postProcessMat);
+            //PostProcessFBO.SettingUniforms += _postProcessGBuffer_SettingUniforms;
         }
         private void InitPostFBO(int width, int height, TexRef2D depthTexture)
         {

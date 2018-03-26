@@ -685,6 +685,7 @@ namespace TheraEngine.Rendering
         public abstract void CheckFrameBufferErrors();
         public abstract void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);
         public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel);
+        public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);
 
         public abstract void SetDrawBuffer(EDrawBuffersAttachment attachment);
         public abstract void SetDrawBuffer(int bindingId, EDrawBuffersAttachment attachment);

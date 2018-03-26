@@ -326,7 +326,7 @@ namespace TheraEngine.Rendering
             AbstractRenderer.PopCurrent3DScene();
             AbstractRenderer.PopCurrentCamera();
         }
-        public void Add(I3DBoundable obj)
+        public void Add(I3DRenderable obj)
         {
             if (RenderTree?.Add(obj) == true)
             {
@@ -335,7 +335,7 @@ namespace TheraEngine.Rendering
                 //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
             }
         }
-        public void Remove(I3DBoundable obj)
+        public void Remove(I3DRenderable obj)
         {
             if (RenderTree?.Remove(obj) == true)
             {

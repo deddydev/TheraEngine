@@ -36,5 +36,6 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public abstract Task<BaseRenderTexture> GetTextureGenericAsync();
         internal abstract void AttachToFBO();
+        public abstract void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0);
     }
 }

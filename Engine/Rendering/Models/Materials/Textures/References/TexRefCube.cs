@@ -208,14 +208,15 @@ namespace TheraEngine.Rendering.Models.Materials
             //        Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer,
             //            FrameBufferAttachment.Value, ETexTarget.TextureCubeMapPositiveX + x, _texture.BindingId, i);
         }
-
+        
         internal override void AttachToFBO()
         {
-            if (FrameBufferAttachment.HasValue && Material != null && Material.HasAttachment(FrameBufferAttachment.Value))
-                OpenTK.Graphics.OpenGL.GL.FramebufferTexture(
-                    OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,
-                    OpenTK.Graphics.OpenGL.FramebufferAttachment.DepthAttachment,
-                    _texture.BindingId, 0);
+            if (FrameBufferAttachment.HasValue)
+                AttachToFBO(FrameBufferAttachment.Value);
+        }
+        public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
+        {
+            Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
         }
 
         private bool _isLoading = false;

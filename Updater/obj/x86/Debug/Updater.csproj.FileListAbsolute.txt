@@ -1,10 +1,3 @@
-C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.exe.config
-C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.exe
-C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.pdb
-C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.csproj.CoreCompileInputs.cache
-C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.exe
-C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.pdb
-C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.csprojResolveAssemblyReference.cache
 X:\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.exe.config
 X:\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.exe
 X:\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.pdb
@@ -12,3 +5,10 @@ X:\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.csprojResolveAssemblyR
 X:\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.csproj.CoreCompileInputs.cache
 X:\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.exe
 X:\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.exe.config
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.exe
+C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\Updater.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.csprojResolveAssemblyReference.cache
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.csproj.CoreCompileInputs.cache
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.exe
+C:\Users\David\Documents\Repositories\TheraEngine\Updater\obj\x86\Debug\Updater.pdb

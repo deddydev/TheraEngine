@@ -19,6 +19,7 @@ using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using TheraEngine.Actors;
 using System.Threading.Tasks;
+using Valve.VR;
 
 namespace TheraEngine
 {
@@ -129,6 +130,24 @@ namespace TheraEngine
 
             //Preload transition world now
             await Game.TransitionWorldRef.LoadNewInstanceAsync();
+
+            try
+            {
+                EVRInitError peError = EVRInitError.None;
+                CVRSystem system = OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene);
+                if (system == null)
+                {
+                    LogWarning(peError.ToString());
+                }
+                else
+                {
+                    PrintLine("VR system initialized. " + peError.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
         }
 
         public static bool ShuttingDown { get; private set; }

@@ -45,6 +45,12 @@ namespace TheraEngine.Physics.Bullet
             rigidBody.SimulatingPhysics = info.SimulatePhysics;
             rigidBody.CollisionEnabled = info.CollisionEnabled;
             rigidBody.SleepingEnabled = info.SleepingEnabled;
+            rigidBody.IsKinematic = info.IsKinematic;
+            rigidBody.CustomMaterialCallback = info.CustomMaterialCallback;
+            rigidBody.CcdMotionThreshold = info.CcdMotionThreshold;
+            rigidBody.DeactivationTime = info.DeactivationTime;
+            rigidBody.CcdSweptSphereRadius = info.CcdSweptSphereRadius;
+            rigidBody.ContactProcessingThreshold = info.ContactProcessingThreshold;
 
             return rigidBody;
         }

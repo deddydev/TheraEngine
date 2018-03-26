@@ -66,6 +66,9 @@ namespace TheraEngine.Rendering
 
         [Browsable(false)]
         public DateTime LastRenderedTime { get; internal set; }
+
+        public int SceneID { get; set; } = -1;
+
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
 
         public DelGetSortOrder RenderOrderFunc;

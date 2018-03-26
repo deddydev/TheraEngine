@@ -15,13 +15,13 @@ namespace TheraEngine.Rendering
             {
                 if (_material == value)
                     return;
-                if (_material != null && _material.FrameBuffer == this)
-                    _material.FrameBuffer = null;
+                //if (_material != null && _material.FrameBuffer == this)
+                //    _material.FrameBuffer = null;
                 _material = value;
-                if (_material != null)
-                {
-                    _material.FrameBuffer = this;
-                }
+                //if (_material != null)
+                //{
+                //    _material.FrameBuffer = this;
+                //}
             }
         }
 
@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering
         
         public void Compile()
         {
-            Compile(Material.FBODrawAttachments);
+            Compile(Material.CollectFBOAttachments());
         }
         public void Compile(EDrawBuffersAttachment[] drawAttachments)
         {

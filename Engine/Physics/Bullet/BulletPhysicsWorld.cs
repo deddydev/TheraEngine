@@ -26,7 +26,7 @@ namespace TheraEngine.Physics
         private BroadphaseInterface _physicsBroadphase;
         private CollisionConfiguration _collisionConfig;
         private CollisionDispatcher _collisionDispatcher;
-        private ConstraintSolver _constraintSolver;
+        private MultiBodyConstraintSolver _constraintSolver;
         private BulletDebugDrawer _physicsDebugDrawer;
 
         public BulletPhysicsWorld()
@@ -34,8 +34,8 @@ namespace TheraEngine.Physics
             _physicsBroadphase = new DbvtBroadphase();
             _collisionConfig = new DefaultCollisionConfiguration();
             _collisionDispatcher = new CollisionDispatcher(_collisionConfig);
-            _constraintSolver = new SequentialImpulseConstraintSolver() { RandSeed = Seed, };
-            _dynamicsWorld = new DiscreteDynamicsWorld(_collisionDispatcher, _physicsBroadphase, _constraintSolver, _collisionConfig)
+            _constraintSolver = new MultiBodyConstraintSolver() { RandSeed = Seed, };
+            _dynamicsWorld = new MultiBodyDynamicsWorld(_collisionDispatcher, _physicsBroadphase, _constraintSolver, _collisionConfig)
             {
                 Gravity = Gravity,
                 DebugDrawer = _physicsDebugDrawer = new BulletDebugDrawer()
@@ -51,9 +51,11 @@ namespace TheraEngine.Physics
                     //DebugDrawModes.DrawFeaturesText
                 }
             };
-            //_physicsScene.DispatchInfo.UseContinuous = true;
-            //_physicsScene.DispatchInfo.AllowedCcdPenetration = 0.1f;
+            _dynamicsWorld.DispatchInfo.DispatchFunction = DispatcherInfo.DispatchFunc.Discrete;
+            _dynamicsWorld.DispatchInfo.UseContinuous = true;
+            _dynamicsWorld.DispatchInfo.AllowedCcdPenetration = 0.1f;
             _dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
+            //_dynamicsWorld.PairCache.SetInternalGhostPairCallback(new CustomOverlappingPair());
 
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
@@ -136,6 +138,23 @@ namespace TheraEngine.Physics
         public override void StepSimulation(float delta)
         {
             _dynamicsWorld.StepSimulation(delta, 7, Engine.RenderPeriod * Engine.TimeDilation);
+        }
+        private class CustomOverlappingPair : OverlappingPairCallback
+        {
+            public override BroadphasePair AddOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override IntPtr RemoveOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1, Dispatcher dispatcher)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void RemoveOverlappingPairsContainingProxy(BroadphaseProxy proxy0, Dispatcher dispatcher)
+            {
+                throw new NotImplementedException();
+            }
         }
         private class CustomOverlapFilter : OverlapFilterCallback
         {

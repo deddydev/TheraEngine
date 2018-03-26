@@ -264,7 +264,7 @@ namespace TheraEngine.Actors.Types
         private void UpdateScreenSpace(float delta)
         {
             if (_targetSocket != null)
-                TranformChanged(null);
+                TransformChanged(null);
         }
 
         [Category("Transform Tool 3D")]
@@ -357,7 +357,7 @@ namespace TheraEngine.Actors.Types
 //#if EDITOR
 //                    _targetSocket.Selected = false;
 //#endif
-                    _targetSocket.RegisterWorldMatrixChanged(Instance.TranformChanged, true);
+                    _targetSocket.RegisterWorldMatrixChanged(Instance.TransformChanged, true);
                 }
                 _targetSocket = value;
                 if (_targetSocket != null)
@@ -367,7 +367,7 @@ namespace TheraEngine.Actors.Types
 //#endif
                     
                     RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
-                    _targetSocket.RegisterWorldMatrixChanged(Instance.TranformChanged, false);
+                    _targetSocket.RegisterWorldMatrixChanged(Instance.TransformChanged, false);
                 }
                 else
                     RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
@@ -444,6 +444,9 @@ namespace TheraEngine.Actors.Types
 
         public static TransformTool3D GetInstance(ISocket comp, TransformType transformType)
         {
+            if (Engine.World == null)
+                return null;
+
             if (!Instance.IsSpawned)
                 Engine.World.SpawnActor(Instance);
 
@@ -453,13 +456,15 @@ namespace TheraEngine.Actors.Types
             return Instance;
         }
 
-        private void TranformChanged(ISocket socket)
+        private void TransformChanged(ISocket socket)
         {
             if (!_pressed)
             {
+                _pressed = true;
                 RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
+                _pressed = false;
             }
         }
 

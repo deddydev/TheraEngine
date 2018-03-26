@@ -55,6 +55,18 @@ namespace TheraEngine.Physics
         public float LinearSleepingThreshold { get; set; } = 0.8f;
         [TSerialize]
         public float AdditionalAngularDampingFactor { get; set; } = 0.01f;
+        [TSerialize]
+        public bool IsKinematic { get; set; } = false;
+        [TSerialize]
+        public bool CustomMaterialCallback { get; set; } = true;
+        [TSerialize]
+        public float CcdMotionThreshold { get; set; } = 0.0f;
+        [TSerialize]
+        public float DeactivationTime { get; set; } = 0.0f;
+        [TSerialize]
+        public float CcdSweptSphereRadius { get; set; } = 0.0f;
+        [TSerialize]
+        public float ContactProcessingThreshold { get; set; } = 0.0f;
 
         /// <summary>
         /// Inertia vector relative to the rigid body's local frame space. 

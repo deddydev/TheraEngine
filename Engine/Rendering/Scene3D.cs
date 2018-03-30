@@ -232,7 +232,7 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.PushRenderArea(v.InternalResolution);
                     {
                         //Render to deferred framebuffer.
-                        v.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        v.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                             Engine.Renderer.DepthFunc(EComparison.Lequal);
@@ -243,8 +243,22 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.AllowDepthWrite(true);
                             _passes.Render(ERenderPass3D.OpaqueDeferredLit);
                         }
+                        v.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                        v.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        {
+                            Engine.Renderer.AllowDepthWrite(false);
+                            v.SSAOFBO.RenderFullscreen();
+                        }
+                        v.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                        v.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        {
+                            Engine.Renderer.AllowDepthWrite(false);
+                            v.SSAOBlurFBO.RenderFullscreen();
+                        }
                         v.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-                        
+
                         //Now render to final post process framebuffer.
                         v.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
@@ -274,7 +288,7 @@ namespace TheraEngine.Rendering
                         v.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         v.PingPongBloomBlurFBO.Reset();
-                        for (int i = 0; i <= 10; ++i)
+                        for (int i = 0; i <= 2; ++i)
                         {
                             v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
                             if (i == 0)
@@ -285,8 +299,9 @@ namespace TheraEngine.Rendering
                             v.PingPongBloomBlurFBO.Switch();
                         }
 
-                        //No need to render to this buffer. 
-                        //HDR scene color, bloom final, and depth textures are already ready to go.
+                        //No need to render to post process. 
+                        //HDR scene color, bloom, and depth are already finalized.
+
                         //v.PostProcessFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         //{
                         //    Engine.Renderer.AllowDepthWrite(false);

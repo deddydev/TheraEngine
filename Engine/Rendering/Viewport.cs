@@ -32,9 +32,10 @@ namespace TheraEngine.Rendering
         private BaseRenderPanel _owningPanel;
         
         private SSAOInfo _ssaoInfo = new SSAOInfo();
+        internal QuadFrameBuffer SSAOFBO;
+        internal QuadFrameBuffer SSAOBlurFBO;
         internal QuadFrameBuffer GBufferFBO;
         internal PingPongFrameBuffer PingPongBloomBlurFBO;
-        internal QuadFrameBuffer SSAOBlurFBO;
         internal QuadFrameBuffer ForwardPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
 
@@ -191,12 +192,10 @@ namespace TheraEngine.Rendering
 
             //Engine.PrintLine("Internal resolution changed: {0}x{1}", w, h);
 
-            GBufferFBO?.ResizeTextures(w, h);
-            PingPongBloomBlurFBO?.ResizeTextures(w / 2, h / 2);
-            SSAOBlurFBO?.ResizeTextures(w, h);
-            ForwardPassFBO?.ResizeTextures(w, h);
-            PostProcessFBO?.ResizeTextures(w, h);
-
+            if (_fboTextures != null)
+                foreach (TexRef2D fboTex in _fboTextures)
+                    fboTex.Resize(w, h);
+            
             _worldCamera?.Resize(w, h);
         }
 
@@ -626,12 +625,17 @@ namespace TheraEngine.Rendering
             Depth24Stencil8,
             Depth32Stencil8,
         }
+        private TexRef2D[] _fboTextures;
         internal unsafe void InitFBOs()
         {
             int width = InternalResolution.IntWidth;
             int height = InternalResolution.IntHeight;
-
-            _ssaoInfo.Generate();
+            int i = 0;
+            const string ShaderPath = "Scene3D";
+            RenderingParameters renderParams = new RenderingParameters();
+            renderParams.DepthTest.Enabled = true;
+            renderParams.DepthTest.UpdateDepth = false;
+            renderParams.DepthTest.Function = EComparison.Always;
 
             TexRef2D depthTexture = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
                 EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float,
@@ -640,76 +644,154 @@ namespace TheraEngine.Rendering
             //If forward, we can render directly to the post process FBO.
             //If deferred, we have to render to a quad first, then render that to post process
             if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
-                InitGBuffer(width, height, depthTexture);
+            {
+                _fboTextures = new TexRef2D[7];
+                _ssaoInfo.Generate();
 
-            InitForwardFBO(width, height, depthTexture, out TexRef2D hdrSceneTex);
-            InitPingPongBloomFBO(width / 2, height / 2, out TexRef2D blurResult);
-            InitSSAOBlurFBO(width, height);
-            InitPostFBO(width, height, depthTexture, hdrSceneTex, blurResult);
-        }
-        private unsafe void InitGBuffer(int width, int height, TexRef2D depthTexture)
-        {
-            #region SSAO Noise
-            TexRef2D ssaoNoise = new TexRef2D("SSAONoise",
-                _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
-                EPixelInternalFormat.Rgb16, EPixelFormat.Bgr, EPixelType.UnsignedShort,
-                PixelFormat.Format64bppArgb)
-            {
-                MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest,
-                UWrap = ETexWrapMode.Repeat,
-                VWrap = ETexWrapMode.Repeat,
-                ResizingDisabled = true,
-            };
-            Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
-            BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
-            ushort* values = (ushort*)data.Scan0;
-            Vec3[] noise = _ssaoInfo.Noise;
-            foreach (Vec3 v in noise)
-            {
-                *values++ = (ushort)(v.X * ushort.MaxValue);
-                *values++ = (ushort)(v.Y * ushort.MaxValue);
-                *values++ = (ushort)(v.Z * ushort.MaxValue);
-                //*values++ = 0;
-            }
-            bmp.UnlockBits(data);
-            #endregion
+                #region SSAO Noise
+                TexRef2D ssaoNoise = new TexRef2D("SSAONoise",
+                    _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
+                    EPixelInternalFormat.Rgb16, EPixelFormat.Bgr, EPixelType.UnsignedShort,
+                    PixelFormat.Format64bppArgb)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.Repeat,
+                    VWrap = ETexWrapMode.Repeat,
+                    ResizingDisabled = true,
+                };
+                Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
+                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
+                ushort* values = (ushort*)data.Scan0;
+                Vec3[] noise = _ssaoInfo.Noise;
+                foreach (Vec3 v in noise)
+                {
+                    *values++ = (ushort)(v.X * ushort.MaxValue);
+                    *values++ = (ushort)(v.Y * ushort.MaxValue);
+                    *values++ = (ushort)(v.Z * ushort.MaxValue);
+                    //*values++ = 0;
+                }
+                bmp.UnlockBits(data);
+                #endregion
 
-            TexRef2D[] deferredRefs = new TexRef2D[]
-            {
-                //These are the textures the deferred pass meshes must render to
-                //They are then used by the deferred material to assemble the final image in RenderFullscreen
-                TexRef2D.CreateFrameBufferTexture("AlbedoOpacity", width, height,
-                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
-                    EFramebufferAttachment.ColorAttachment0),
-                TexRef2D.CreateFrameBufferTexture("Normal", width, height,
-                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
-                    EFramebufferAttachment.ColorAttachment1),
-                TexRef2D.CreateFrameBufferTexture("RoughnessMetallicSpecularUnused", width, height,
-                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
-                    EFramebufferAttachment.ColorAttachment2),
+                TexRef2D albedoOpacityTexture = TexRef2D.CreateFrameBufferTexture("AlbedoOpacity", width, height,
+                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat);
+                TexRef2D normalTexture = TexRef2D.CreateFrameBufferTexture("Normal", width, height,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat);
+                TexRef2D rmsiTexture = TexRef2D.CreateFrameBufferTexture("RoughnessMetallicSpecularUnused", width, height,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgba, EPixelType.HalfFloat);
+                TexRef2D ssaoTexture = TexRef2D.CreateFrameBufferTexture("OutputIntensity", width, height,
+                    EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat,
+                    EFramebufferAttachment.ColorAttachment0);
+
+                _fboTextures[i++] = albedoOpacityTexture;
+                _fboTextures[i++] = normalTexture;
+                _fboTextures[i++] = rmsiTexture;
+                _fboTextures[i++] = ssaoTexture;
+
+                ShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "SSAOGen.fs"), ShaderMode.Fragment);
+                ShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "SSAOBlur.fs"), ShaderMode.Fragment);
+                ShaderFile deferredShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "DeferredLighting.fs"), ShaderMode.Fragment);
+
                 //TexRef2D.CreateFrameBufferTexture("Velocity", width, height,
                 //    EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat,
                 //    EFramebufferAttachment.ColorAttachment3),
-                ssaoNoise,
-                depthTexture,
-            };
-            TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", deferredRefs,
-                Engine.LoadEngineShader("DeferredLighting.fs", ShaderMode.Fragment))
+
+                #region SSAO
+                TexRef2D[] ssaoRefs = new TexRef2D[]
+                {
+                    normalTexture,
+                    ssaoNoise,
+                    depthTexture,
+                };
+                TMaterial ssaoMat = new TMaterial("SSAOMat", TMaterial.UniformRequirements.NeedsCamera, renderParams, ssaoRefs, ssaoShader);
+                
+                SSAOFBO = new QuadFrameBuffer(ssaoMat);
+                SSAOFBO.SettingUniforms += SSAO_SetUniforms;
+                SSAOFBO.SetRenderTargets(
+                    (albedoOpacityTexture, EFramebufferAttachment.ColorAttachment0, 0),
+                    (normalTexture, EFramebufferAttachment.ColorAttachment1, 0),
+                    (rmsiTexture, EFramebufferAttachment.ColorAttachment2, 0),
+                    (depthTexture, EFramebufferAttachment.DepthAttachment, 0));
+
+                #endregion
+
+                #region SSAO Blur
+                TexRef2D[] ssaoBlurRefs = new TexRef2D[]
+                {
+                    ssaoTexture
+                };
+                TMaterial ssaoBlurMat = new TMaterial("SSAOBlurMat", TMaterial.UniformRequirements.NeedsCamera, renderParams, ssaoBlurRefs, ssaoBlurShader);
+                
+                SSAOBlurFBO = new QuadFrameBuffer(ssaoBlurMat);
+                SSAOBlurFBO.SettingUniforms += SSAOBlurFBO_SettingUniforms;
+                #endregion
+
+                #region Deferred Lighting
+                TexRef2D[] deferredLightingRefs = new TexRef2D[]
+                {
+                    albedoOpacityTexture,
+                    normalTexture,
+                    rmsiTexture,
+                    ssaoTexture,
+                    depthTexture,
+                };
+                TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", TMaterial.UniformRequirements.NeedsLightsAndCamera, renderParams, deferredLightingRefs, deferredShader);
+                
+                GBufferFBO = new QuadFrameBuffer(deferredMat);
+                GBufferFBO.SettingUniforms += GBuffer_SetUniforms;
+                #endregion
+            }
+            else
             {
-                Requirements = TMaterial.UniformRequirements.NeedsLightsAndCamera,
+                _fboTextures = new TexRef2D[3];
+            }
+
+            TexRef2D hdrSceneTex = TexRef2D.CreateFrameBufferTexture("HDRSceneColor", width, height,
+                EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
+                EFramebufferAttachment.ColorAttachment0);
+            TexRef2D blurResult = TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
+                EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte,
+                EFramebufferAttachment.ColorAttachment0);
+
+            _fboTextures[i++] = hdrSceneTex;
+            _fboTextures[i++] = blurResult;
+            _fboTextures[i++] = depthTexture;
+
+            ShaderFile forwardShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "ForwardPass.fs"), ShaderMode.Fragment);
+            ShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "BloomBlur.fs"), ShaderMode.Fragment);
+            ShaderFile postProcessShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "PostProcess.fs"), ShaderMode.Fragment);
+
+            TexRef2D[] forwardRefs = new TexRef2D[]
+            {
+                hdrSceneTex,
+                depthTexture
             };
-
-            //Don't overwrite the depth texture generated by the deferred pass (and used by the forward pass)
-            //when rendering the screen-space quad that shows the deferred pass
-            deferredMat.RenderParamsRef.File.DepthTest.Enabled = true;
-            deferredMat.RenderParamsRef.File.DepthTest.UpdateDepth = false;
-            deferredMat.RenderParamsRef.File.DepthTest.Function = EComparison.Always;
-
-            GBufferFBO = new QuadFrameBuffer(deferredMat);
-            GBufferFBO.SettingUniforms += GBuffer_SetUniforms;
+            TMaterial forwardMat = new TMaterial("ForwardMat", renderParams, forwardRefs, forwardShader);
+            ForwardPassFBO = new QuadFrameBuffer(forwardMat);
+            
+            TexRef2D[] blurRefs = new TexRef2D[]
+            {
+                blurResult,
+            };
+            TMaterial bloomBlurMat = new TMaterial("BloomBlurMat", renderParams, blurRefs, bloomBlurShader);
+            PingPongBloomBlurFBO = new PingPongFrameBuffer(bloomBlurMat, bloomBlurMat, null);
+            
+            TexRef2D[] postProcessRefs = new TexRef2D[]
+            {
+                hdrSceneTex,
+                blurResult,
+                depthTexture
+            };
+            TMaterial postProcessMat = new TMaterial("PostProcessMat", renderParams, postProcessRefs, postProcessShader);
+            PostProcessFBO = new QuadFrameBuffer(postProcessMat);
+            PostProcessFBO.SettingUniforms += _postProcessGBuffer_SettingUniforms;
         }
+
         private void GBuffer_SetUniforms(int programBindingId)
+            => _worldCamera?.SetUniforms(programBindingId);
+        
+        private void SSAO_SetUniforms(int programBindingId)
         {
             if (_worldCamera == null)
                 return;
@@ -717,96 +799,12 @@ namespace TheraEngine.Rendering
             _worldCamera.SetUniforms(programBindingId);
             _worldCamera.PostProcess.AmbientOcclusion.SetUniforms(programBindingId);
         }
-        /// <summary>
-        /// Outputs BloomColor Vec3, MRT 0.
-        /// </summary>
-        private void InitForwardFBO(int width, int height, TexRef2D depthTexture, out TexRef2D hdrSceneTex)
-        {
-            //This is the texture the forward pass renders to.
-            //Must be the only texture (aside from depth) as that is the whole point of a forward pass.
-            hdrSceneTex =
-                TexRef2D.CreateFrameBufferTexture("HDRSceneColor", width, height,
-                EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
-                EFramebufferAttachment.ColorAttachment0);
-            TexRef2D[] forwardRefs = new TexRef2D[]
-            {
-                hdrSceneTex,
-                depthTexture
-            };
-            TMaterial forwardMat = new TMaterial("ForwardMat", forwardRefs,
-                Engine.LoadEngineShader("ForwardPass.fs", ShaderMode.Fragment));
-
-            forwardMat.RenderParams.DepthTest.Enabled = true;
-            forwardMat.RenderParams.DepthTest.UpdateDepth = false;
-            forwardMat.RenderParams.DepthTest.Function = EComparison.Always;
-
-            ForwardPassFBO = new QuadFrameBuffer(forwardMat);
-        }
-        private void InitPingPongBloomFBO(int width, int height, out TexRef2D blurResult)
-        {
-            blurResult = TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
-                    EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte,
-                    EFramebufferAttachment.ColorAttachment0);
-            TexRef2D[] blurRefs = new TexRef2D[]
-            {
-                blurResult,
-            };
-            TMaterial bloomBlurMat = new TMaterial("BloomBlurMat", blurRefs,
-                Engine.LoadEngineShader("BloomBlur.fs", ShaderMode.Fragment));
-
-            bloomBlurMat.RenderParams.DepthTest.Enabled = true;
-            bloomBlurMat.RenderParams.DepthTest.UpdateDepth = false;
-            bloomBlurMat.RenderParams.DepthTest.Function = EComparison.Always;
-
-            PingPongBloomBlurFBO = new PingPongFrameBuffer(bloomBlurMat, bloomBlurMat, null);
-        }
-        private void InitSSAOBlurFBO(int width, int height)
-        {
-            TexRef2D[] blurRefs = new TexRef2D[]
-            {
-                TexRef2D.CreateFrameBufferTexture("OutputIntensity", width, height,
-                    EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat,
-                    EFramebufferAttachment.ColorAttachment0),
-            };
-            TMaterial forwardMat = new TMaterial("BloomBlurMat", blurRefs,
-                Engine.LoadEngineShader("BloomBlur.fs", ShaderMode.Fragment));
-
-            forwardMat.RenderParams.DepthTest.Enabled = true;
-            forwardMat.RenderParams.DepthTest.UpdateDepth = false;
-            forwardMat.RenderParams.DepthTest.Function = EComparison.Always;
-
-            SSAOBlurFBO = new QuadFrameBuffer(forwardMat);
-            SSAOBlurFBO.SettingUniforms += SSAOBlurFBO_SettingUniforms;
-        }
 
         private void SSAOBlurFBO_SettingUniforms(int programBindingId)
         {
 
         }
-
-        private void InitPostFBO(int width, int height, TexRef2D depthTexture, TexRef2D hdrSceneTex, TexRef2D blurResult)
-        {
-            TexRef2D[] postProcessRefs = new TexRef2D[]
-            {
-                hdrSceneTex,
-                blurResult,
-                //TexRef2D.CreateFrameBufferTexture("Bloom", width, height,
-                //    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
-                //    EFramebufferAttachment.ColorAttachment0),
-                depthTexture
-            };
-            TMaterial postProcessMat = new TMaterial(
-                "PostProcessMat",
-                postProcessRefs,
-                Engine.LoadEngineShader("PostProcess.fs", ShaderMode.Fragment));
-
-            postProcessMat.RenderParams.DepthTest.Enabled = true;
-            postProcessMat.RenderParams.DepthTest.UpdateDepth = false;
-            postProcessMat.RenderParams.DepthTest.Function = EComparison.Always;
-
-            PostProcessFBO = new QuadFrameBuffer(postProcessMat);
-            PostProcessFBO.SettingUniforms += _postProcessGBuffer_SettingUniforms;
-        }
+        
         #endregion
     }
 }

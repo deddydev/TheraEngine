@@ -15,13 +15,10 @@ uniform sampler2D Texture1; //Normal
 uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
 uniform sampler2D Texture3; //SSAO Intensity
 uniform sampler2D Texture4; //Depth
+
 uniform sampler2D DirShadowMaps[MAX_DIR_LIGHTS];
 uniform sampler2D SpotShadowMaps[MAX_SPOT_LIGHTS];
 uniform samplerCube PointShadowMaps[MAX_POINT_LIGHTS];
-
-uniform vec3 SSAOSamples[64];
-uniform float SSAORadius = 0.75f;
-uniform float SSAOPower = 4.0f;
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
@@ -339,35 +336,7 @@ void main()
     vec3 FragPosVS = ViewPosFromDepth(Depth, uv);
     vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0f)).xyz;
 
-    ivec2 res = textureSize(Texture0, 0);
-    vec2 noiseScale = vec2(res.x * 0.25f, res.y * 0.25f);
-
-    vec3 randomVec = vec3(texture(Texture3, uv * noiseScale).rg * 2.0f - 1.0f, 0.0f);
-    vec3 n = normalize(vec3(WorldToCameraSpaceMatrix * vec4(Normal, 0.0f)));
-    vec3 tangent = normalize(randomVec - n * dot(randomVec, n));
-    vec3 bitangent = cross(n, tangent);
-    mat3 TBN = mat3(tangent, bitangent, n); 
-
-    int kernelSize = 64;
-    float bias = 0.025f;
-
-    float occlusion = 0.0f;
-    for (int i = 0; i < kernelSize; ++i)
-    {
-        vec3 noiseSample = TBN * SSAOSamples[i];
-        noiseSample = FragPosVS + noiseSample * SSAORadius;
-
-        vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
-        offset.xyz = (offset.xyz / offset.w) * 0.5f + 0.5f;
-
-        float sampleDepth = ViewPosFromDepth(texture(Texture4, offset.xy).r, offset.xy).z;
-
-        float rangeCheck = smoothstep(0.0f, 1.0f, SSAORadius / abs(FragPosVS.z - sampleDepth));
-        occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0f : 0.0f) * rangeCheck;  
-    }
-
-    occlusion = pow(1.0f - (occlusion / kernelSize), SSAOPower);
-
+    float occlusion = texture(Texture3, uv).r;
     vec3 totalLight = CalcTotalLight(Normal, FragPosWS, AlbedoOpacity, RMSI, occlusion);
     OutColor = AlbedoOpacity.rgb * totalLight;
 }

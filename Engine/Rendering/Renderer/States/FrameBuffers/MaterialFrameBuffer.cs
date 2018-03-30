@@ -15,43 +15,34 @@ namespace TheraEngine.Rendering
             {
                 if (_material == value)
                     return;
-                //if (_material != null && _material.FrameBuffer == this)
-                //    _material.FrameBuffer = null;
                 _material = value;
-                //if (_material != null)
-                //{
-                //    _material.FrameBuffer = this;
-                //}
+                SetRenderTargets(_material);
             }
         }
 
-        public BaseTexRef[] Textures => Material?.Textures;
-        public void ResizeTextures(int width, int height)
-            => Material?.Resize2DTextures(width, height);
-        
-        public void Compile()
-        {
-            Compile(Material.CollectFBOAttachments());
-        }
-        public void Compile(EDrawBuffersAttachment[] drawAttachments)
-        {
-            if (Material == null)
-                return;
-            if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.World))
-                return;
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            Material.GenerateTextures(true);
-            foreach (BaseTexRef tref in Material.Textures)
-                tref.AttachToFBO();
-            Engine.Renderer.SetDrawBuffers(drawAttachments);
-            Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
-            CheckErrors();
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-            Engine.PrintLine("COMPILED FBO " + BindingId);
-        }
-        protected override void PostGenerated()
-        {
-            Compile();
-        }
+        //public void Compile()
+        //{
+        //    Compile(Material.CollectFBOAttachments());
+        //}
+        //public void Compile(EDrawBuffersAttachment[] drawAttachments)
+        //{
+        //    if (Material == null)
+        //        return;
+        //    if (BaseRenderPanel.NeedsInvoke(Compile, BaseRenderPanel.PanelType.World))
+        //        return;
+        //    Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+        //    Material.GenerateTextures(true);
+        //    foreach (BaseTexRef tref in Material.Textures)
+        //        tref.AttachToFBO();
+        //    Engine.Renderer.SetDrawBuffers(drawAttachments);
+        //    Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
+        //    CheckErrors();
+        //    Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+        //    Engine.PrintLine("COMPILED FBO " + BindingId);
+        //}
+        //protected override void PostGenerated()
+        //{
+        //    Compile();
+        //}
     }
 }

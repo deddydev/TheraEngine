@@ -84,8 +84,8 @@ namespace TheraEngine.Rendering.OpenGL
                 else
                     break;
             }
-            if (error.Length > 0)
-                throw new Exception(error);
+            //if (error.Length > 0)
+            //    throw new Exception(error);
         }
 
         #region Objects

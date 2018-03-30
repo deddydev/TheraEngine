@@ -26,18 +26,14 @@ namespace TheraEngine.Rendering.UI
         private static TMaterial GetViewportMaterial()
         {
             return new TMaterial("ViewportMat",
-                new RenderingParameters(),
+                TMaterial.UniformRequirements.None,
                 new ShaderVar[0],
                 new BaseTexRef[]
                 {
                     TexRef2D.CreateFrameBufferTexture("OutColor", 1, 1,
                         EPixelInternalFormat.Rgba16f,
                         EPixelFormat.Rgba, EPixelType.HalfFloat,
-                        EFramebufferAttachment.ColorAttachment1),
-                    //TexRef2D.CreateFrameBufferTexture("Depth", 1, 1,
-                    //    EPixelInternalFormat.DepthComponent32f, 
-                    //    EPixelFormat.DepthComponent, EPixelType.Float,
-                    //    EFramebufferAttachment.DepthAttachment),
+                        EFramebufferAttachment.ColorAttachment0),
                 },
                 Engine.LoadEngineShader("ViewportFBO.fs", ShaderMode.Fragment));
         }

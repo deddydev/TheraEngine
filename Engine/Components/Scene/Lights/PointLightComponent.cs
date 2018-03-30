@@ -153,7 +153,7 @@ namespace TheraEngine.Components.Scene.Lights
                 _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(resolution));
                 _shadowMap.Material.SettingUniforms += SetShadowDepthUniforms;
 
-                _shadowMap.Compile();
+                _shadowMap.Generate();
             }
             else
                 _shadowMap.ResizeTextures(resolution, resolution);

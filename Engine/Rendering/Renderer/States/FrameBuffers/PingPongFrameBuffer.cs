@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering
         //Using two triangles may introduce tearing on the line through the screen,
         //because the two triangles may not be rasterized at the exact same time.
         private PrimitiveManager _fullScreenTriangle;
-         
+        
         public PingPongFrameBuffer(TMaterial pingMat, TMaterial pongMat, TMaterial initialPassMaterial)
         {
             _materials[0] = pingMat;
@@ -57,9 +57,11 @@ namespace TheraEngine.Rendering
                _fullScreenTriangle.Material.Program.BindingId :
                _fullScreenTriangle.VertexFragProgram.BindingId;
 
+            Engine.Renderer.Uniform(fragId, "Ping", Ping ? 0.0f : 1.0f);
+
             SettingUniforms?.Invoke(fragId);
         }
-        public void Bind(EFramebufferTarget target)
+        public void BindCurrentTarget(EFramebufferTarget target)
         {
             _fbos[Ping ? 0 : 1].Bind(target);
         }
@@ -73,12 +75,19 @@ namespace TheraEngine.Rendering
             _fbos[0].Material = _fullScreenTriangle.Material = _materials[2] ?? _materials[0];
             Ping = true;
         }
-        public void Render()
+        public void RenderFullscreenAndSwitch()
+        {
+            RenderFullscreen();
+            Switch();
+        }
+        public void RenderFullscreen()
         {
             AbstractRenderer.PushCurrentCamera(_quadCamera);
             _fullScreenTriangle.Render(Matrix4.Identity, Matrix3.Identity);
             AbstractRenderer.PopCurrentCamera();
-
+        }
+        public void Switch()
+        {
             Ping = !Ping;
             int i = Ping ? 0 : 1;
             _fullScreenTriangle.Material = _fbos[i].Material;

@@ -166,6 +166,9 @@ namespace TheraEditor.Windows.Forms
             return value;
         }
 
+        private DockableAnalytics _analyticsForm;
+        public DockableAnalytics Analytics => GetForm(ref _analyticsForm);
+
         private DockableOutputWindow _outputForm;
         public DockableOutputWindow OutputForm => GetForm(ref _outputForm);
 
@@ -479,7 +482,7 @@ namespace TheraEditor.Windows.Forms
             Application.DoEvents();
         }
         //protected override void OnResizeBegin(EventArgs e)
-        //{
+        //{\
         //    RenderForm.RenderPanel.BeginResize();
         //    base.OnResizeBegin(e);
         //}
@@ -488,29 +491,6 @@ namespace TheraEditor.Windows.Forms
         //    RenderForm.RenderPanel.EndResize();
         //    base.OnResizeEnd(e);
         //}
-        private void BtnOpenWorld_Click(object sender, EventArgs e)
-        {
-            using (OpenFileDialog ofd = new OpenFileDialog()
-            {
-                Filter = TFileObject.GetFilter<World>(),
-                Multiselect = false
-            })
-            {
-                if (ofd.ShowDialog() == DialogResult.OK)
-                    CurrentWorld = TFileObject.Load<World>(ofd.FileName);
-            }
-        }
-
-        private void BtnNewMaterial_Click(object sender, EventArgs e)
-        {
-            new MaterialEditorForm().Show();
-        }
-
-        private void BtnNewWorld_Click(object sender, EventArgs e)
-        {
-            CurrentWorld = new World();
-        }
-
         public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; }
             = new GlobalFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
 
@@ -576,26 +556,6 @@ namespace TheraEditor.Windows.Forms
                 if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
                     Project = TFileObject.Load<Project>(ofd.FileName);
             }
-        }
-        private void BtnProjectSettings_Click(object sender, EventArgs e)
-        {
-            PropertyGridForm.PropertyGrid.TargetObject = Project;
-        }
-        private void BtnEngineSettings_Click(object sender, EventArgs e)
-        {
-            PropertyGridForm.PropertyGrid.TargetObject = Project?.EngineSettingsRef;
-        }
-        private void BtnEditorSettings_Click(object sender, EventArgs e)
-        {
-            PropertyGridForm.PropertyGrid.TargetObject = DefaultSettingsRef;
-        }
-        private void BtnUserSettings_Click(object sender, EventArgs e)
-        {
-            PropertyGridForm.PropertyGrid.TargetObject = Project?.UserSettingsRef;
-        }
-        private void BtnWorldSettings_Click(object sender, EventArgs e)
-        {
-            PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.SettingsRef;
         }
         private void CboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -739,19 +699,6 @@ namespace TheraEditor.Windows.Forms
             }
             base.OnKeyDown(e);
         }
-        private void BtPlay_Click(object sender, EventArgs e)
-        {
-            GameState = EEditorGameplayState.Attached;
-        }
-        private void btnPlayDetached_Click(object sender, EventArgs e)
-        {
-            GameState = EEditorGameplayState.Detached;
-        }
-        private void EndGameplay()
-        {
-            GameState = EEditorGameplayState.Editing;
-        }
-        
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (CloseProject())
@@ -771,52 +718,6 @@ namespace TheraEditor.Windows.Forms
             TheraEngineText.ForeColor = ActiveBorderColor;
             base.OnActivated(e);
         }
-
-        private void BtnViewActorTree_Click(object sender, EventArgs e)
-        {
-            ActorTreeForm.Focus();
-        }
-
-        private void Viewport1ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RenderForm1.Focus();
-        }
-
-        private void viewport2ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RenderForm2.Focus();
-        }
-
-        private void viewport3ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RenderForm3.Focus();
-        }
-
-        private void viewport4ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RenderForm4.Focus();
-        }
-
-        private void btnViewFileTree_Click(object sender, EventArgs e)
-        {
-            FileTreeForm.Focus();
-        }
-
-        private void btnViewPropertyGrid_Click(object sender, EventArgs e)
-        {
-            PropertyGridForm.Focus();
-        }
-
-        private void btnViewOutput_Click(object sender, EventArgs e)
-        {
-            OutputForm.Focus();
-        }
-
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-        
         private IDockContent GetContentFromPersistString(string persistString)
         {
             if (persistString == typeof(DockableActorTree).ToString())
@@ -848,42 +749,6 @@ namespace TheraEditor.Windows.Forms
                 }
                 return null;
             }
-        }
-
-        private void btnUndo_Click(object sender, EventArgs e) => UndoManager.Undo();
-        private void btnRedo_Click(object sender, EventArgs e) => UndoManager.Redo();
-
-        private void btnViewTools_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnCompile_Click(object sender, EventArgs e)
-        {
-            Project.Compile();
-        }
-
-        private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
-            Engine.PrintLine($"Launched Visual Studio {dte.Edition} {dte.Version}.");
-            dte.MainWindow.Visible = true;
-            dte.UserControl = true;
-            VisualStudioManager.VSInstanceClosed();
-        }
-
-        private void btnContact_Click(object sender, EventArgs e)
-        {
-
-        }
-        private void btnDocumentation_Click(object sender, EventArgs e)
-        {
-
-        }
-        private void btnCheckForUpdates_Click(object sender, EventArgs e) => CheckUpdates();
-        private void btnAbout_Click(object sender, EventArgs e)
-        {
-
         }
 
         private async void CheckUpdates(bool manual = true)
@@ -951,69 +816,6 @@ namespace TheraEditor.Windows.Forms
             return new List<EditorState>();
         }
 
-        private void BtnNewProject_Click(object sender, EventArgs e) => CreateNewProject();
-        private void BtnOpenProject_Click(object sender, EventArgs e) => OpenProject();
-        private void BtnSaveProject_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(_project.FilePath))
-            {
-                BtnSaveProjectAs_Click(sender, e);
-                return;
-            }
-            _project.Export();
-        }
-        private void BtnSaveProjectAs_Click(object sender, EventArgs e)
-        {
-            using (SaveFileDialog sfd = new SaveFileDialog()
-            {
-                Filter = TFileObject.GetFilter<Project>(),
-            })
-            {
-                if (sfd.ShowDialog() == DialogResult.OK)
-                    _project.Export(sfd.FileName);
-            }
-        }
-        private void newToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            CreateNewWorld();
-        }
-        private void openToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            OpenWorld();
-        }
-        private void saveToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            if (CurrentWorld == null)
-                return;
-
-            if (string.IsNullOrEmpty(CurrentWorld.FilePath))
-            {
-                saveAsToolStripMenuItem1_Click(sender, e);
-                return;
-            }
-            ContentTree.WatchProjectDirectory = false;
-            CurrentWorld.Export();
-            ContentTree.WatchProjectDirectory = true;
-        }
-
-        private void saveAsToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            if (CurrentWorld == null)
-                return;
-
-            using (SaveFileDialog sfd = new SaveFileDialog()
-            {
-                Filter = TFileObject.GetFilter<World>(),
-            })
-            {
-                if (sfd.ShowDialog() == DialogResult.OK)
-                {
-                    ContentTree.WatchProjectDirectory = false;
-                    CurrentWorld.Export(sfd.FileName);
-                    ContentTree.WatchProjectDirectory = true;
-                }
-            }
-        }
         private bool CloseWorld()
         {
             if (CurrentWorld != null)
@@ -1048,6 +850,7 @@ namespace TheraEditor.Windows.Forms
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = TFileObject.GetFilter<World>(),
+                Multiselect = false
             })
             {
                 if (ofd.ShowDialog() == DialogResult.OK && CloseWorld())

@@ -2,25 +2,22 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using TheraEngine.Actors;
+using TheraEngine.Actors.Types;
+using TheraEngine.Actors.Types.ComponentActors.Shapes;
+using TheraEngine.Actors.Types.Lights;
+using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds;
-using TheraEngine.Actors;
-using TheraEngine.Components.Scene.Lights;
-using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Actors.Types.ComponentActors.Shapes;
-using TheraEngine.Worlds.Maps;
 using TheraEngine.Rendering;
-using TheraEngine.Actors.Types.Lights;
-using TheraEngine.Actors.Types;
-using TheraEngine.Rendering.Textures;
-using TheraEngine.Files;
-using System.Drawing.Imaging;
-using TheraEngine.Core.Memory;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.ThirdParty;
+using TheraEngine.Worlds;
+using TheraEngine.Worlds.Maps;
 
 namespace TheraEngine.Tests
 {
@@ -28,7 +25,7 @@ namespace TheraEngine.Tests
     {
         protected unsafe internal override void OnLoaded()
         {
-            bool testLandscape = false;
+            bool testLandscape = true;
             int pointLights = 1;
             int dirLights = 0;
             int spotLights = 0;
@@ -46,7 +43,7 @@ namespace TheraEngine.Tests
             IActor actor;
 
             #region Meshes
-            int count = 6;
+            int count = 4;
             int y = 0;
 
             Random rand = new Random(800);
@@ -78,7 +75,7 @@ namespace TheraEngine.Tests
                             //CcdMotionThreshold = 0.4f,
                             //CustomMaterialCallback = true,
                             //CcdSweptSphereRadius = radius * 0.95f,
-                            CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
+                            CollidesWith = (ushort)(TCollisionGroup.StaticWorld/* | TCollisionGroup.DynamicWorld*/),
                             CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
                             //LinearSleepingThreshold = 1.0f,
                             //AngularSleepingThreshold = 0.3f,
@@ -220,7 +217,7 @@ namespace TheraEngine.Tests
 
                 TRigidBodyConstructionInfo landscapeInfo = new TRigidBodyConstructionInfo()
                 {
-                    CollidesWith = (ushort)TCollisionGroup.All,
+                    CollidesWith = (ushort)(TCollisionGroup.All & ~TCollisionGroup.StaticWorld),
                     CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
                     IsKinematic = true,
                 };

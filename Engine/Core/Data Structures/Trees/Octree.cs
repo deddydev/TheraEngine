@@ -37,9 +37,11 @@ namespace System
     public class Octree<T> where T : class, I3DRenderable
     {
         public const int MaxChildNodeCount = 8;
+        
+        internal int ItemID = 0;
 
         private Node _head;
-        internal HashSet<T> AllItems { get; } = new HashSet<T>(new RenderEquality());
+        internal HashSet<T> AllItems { get; } = new HashSet<T>();
         public int Count => AllItems.Count;
 
         public Octree(BoundingBox bounds) => _head = new Node(bounds, 0, 0, null, this);
@@ -48,13 +50,9 @@ namespace System
         public class RenderEquality : IEqualityComparer<I3DRenderable>
         {
             public bool Equals(I3DRenderable x, I3DRenderable y)
-            {
-                return x.RenderInfo.SceneID == y.RenderInfo.SceneID;
-            }
+                => x.RenderInfo.SceneID == y.RenderInfo.SceneID;
             public int GetHashCode(I3DRenderable obj)
-            {
-                return obj.RenderInfo.SceneID;
-            }
+                => obj.RenderInfo.SceneID;
         }
         public void Remake(BoundingBox newBounds = null)
         {
@@ -205,7 +203,9 @@ namespace System
                         BoundingBox bounds = GetSubdivision(i);
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
-                            QueueRemove(item);
+                            bool shouldDestroy = Remove(item);
+                            if (shouldDestroy)
+                                ClearSubNode(_subDivIndex);
                             CreateSubNode(bounds, i)?.Add(item);
                             break;
                         }
@@ -447,9 +447,8 @@ namespace System
                 }
                 else
                 {
-                    if (Owner.AllItems.Add(item))
+                    if (Owner.Cache(item))
                     {
-                        item.RenderInfo.SceneID = Owner.AllItems.Count - 1;
                         _items.Add(item);
                         item.OctreeNode = this;
                     }
@@ -465,9 +464,8 @@ namespace System
                 }
                 else
                 {
-                    if (Owner.AllItems.Remove(item))
+                    if (Owner.Uncache(item))
                     {
-                        item.RenderInfo.SceneID = -1;
                         _items.Remove(item);
                         item.OctreeNode = null;
                     }
@@ -591,6 +589,20 @@ namespace System
                 QueueAdd(value);
             }
             #endregion
+        }
+
+        private bool Uncache(T item)
+        {
+            bool exists = AllItems.Remove(item);
+            item.RenderInfo.SceneID = -1;
+            return exists;
+        }
+
+        private bool Cache(T item)
+        {
+            bool success = AllItems.Add(item);
+            item.RenderInfo.SceneID = ItemID++;
+            return success;
         }
     }
 }

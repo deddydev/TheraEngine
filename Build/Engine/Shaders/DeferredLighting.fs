@@ -7,13 +7,13 @@
 const float PI = 3.14159265359f;
 const float InvPI = 0.31831f;
 
-layout(location = 0) out vec4 OutColor; //Final Deferred Pass Color. Used later by the Post Process fragment shader.
+layout(location = 0) out vec3 OutColor; //Final Deferred Pass Color. Used later by the Post Process fragment shader.
 layout(location = 0) in vec3 FragPos;
 
 uniform sampler2D Texture0; //AlbedoOpacity
 uniform sampler2D Texture1; //Normal
 uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
-uniform sampler2D Texture3; //SSAO Noise
+uniform sampler2D Texture3; //SSAO Intensity
 uniform sampler2D Texture4; //Depth
 uniform sampler2D DirShadowMaps[MAX_DIR_LIGHTS];
 uniform sampler2D SpotShadowMaps[MAX_SPOT_LIGHTS];
@@ -44,41 +44,41 @@ uniform int PointLightCount;
 
 struct BaseLight
 {
-	vec3 Color;
-	float DiffuseIntensity;
-	float AmbientIntensity;
+    vec3 Color;
+    float DiffuseIntensity;
+    float AmbientIntensity;
     //vec3 Padding;
 };
 struct DirLight
 {
-	BaseLight Base;
-	mat4 WorldToLightSpaceProjMatrix;
+    BaseLight Base;
+    mat4 WorldToLightSpaceProjMatrix;
 
-	vec3 Direction;
+    vec3 Direction;
     //float Padding;
 };
 struct PointLight
 {
-	BaseLight Base;
+    BaseLight Base;
 
-	vec3 Position;
-	float Radius;
-	float Brightness;
+    vec3 Position;
+    float Radius;
+    float Brightness;
     //vec3 Padding;
 };
 struct SpotLight
 {
-	BaseLight Base;
-	mat4 WorldToLightSpaceProjMatrix;
+    BaseLight Base;
+    mat4 WorldToLightSpaceProjMatrix;
 
-	vec3 Position;
-	vec3 Direction;
-	float Radius;
-	float Brightness;
-	float Exponent;
+    vec3 Position;
+    vec3 Direction;
+    float Radius;
+    float Brightness;
+    float Exponent;
 
-	float InnerCutoff;
-	float OuterCutoff;
+    float InnerCutoff;
+    float OuterCutoff;
     //vec2 Padding;
 };
 
@@ -358,8 +358,7 @@ void main()
         noiseSample = FragPosVS + noiseSample * SSAORadius;
 
         vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
-        offset.xyz /= offset.w;
-        offset.xyz = offset.xyz * 0.5f + 0.5f;
+        offset.xyz = (offset.xyz / offset.w) * 0.5f + 0.5f;
 
         float sampleDepth = ViewPosFromDepth(texture(Texture4, offset.xy).r, offset.xy).z;
 
@@ -370,5 +369,5 @@ void main()
     occlusion = pow(1.0f - (occlusion / kernelSize), SSAOPower);
 
     vec3 totalLight = CalcTotalLight(Normal, FragPosWS, AlbedoOpacity, RMSI, occlusion);
-    OutColor = vec4(AlbedoOpacity.rgb * totalLight, 1.0f);
+    OutColor = AlbedoOpacity.rgb * totalLight;
 }

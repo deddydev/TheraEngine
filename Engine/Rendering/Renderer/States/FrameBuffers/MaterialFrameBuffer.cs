@@ -49,13 +49,6 @@ namespace TheraEngine.Rendering
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
             Engine.PrintLine("COMPILED FBO " + BindingId);
         }
-        public override void Bind(EFramebufferTarget type)
-        {
-            if (!IsActive)
-                Generate();
-            base.Bind(type);
-        }
-
         protected override void PostGenerated()
         {
             Compile();

@@ -212,7 +212,7 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.CropRenderArea(v.Region);
 
                     //Render final post process quad
-                    v.PostProcessFBO.Render();
+                    v.PostProcessFBO.RenderFullscreen();
                 }
                 Engine.Renderer.PopRenderArea();
             }
@@ -244,15 +244,9 @@ namespace TheraEngine.Rendering
                             _passes.Render(ERenderPass3D.OpaqueDeferredLit);
                         }
                         v.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                        //Engine.Renderer.BlitFrameBuffer(
-                        //v.GBufferFBO.BindingId, v.PostProcessFBO.BindingId,
-                        //0, 0, v.InternalResolution.IntWidth, v.InternalResolution.IntHeight,
-                        //0, 0, v.InternalResolution.IntWidth, v.InternalResolution.IntHeight,
-                        //EClearBufferMask.DepthBufferBit, EBlitFramebufferFilter.Nearest);
-
+                        
                         //Now render to final post process framebuffer.
-                        v.PostProcessFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        v.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             //No need to clear anything, 
                             //color will be fully overwritten by the previous pass, 
@@ -261,12 +255,12 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.AllowDepthWrite(false);
 
                             //Render the deferred pass result
-                            v.GBufferFBO.Render();
+                            v.GBufferFBO.RenderFullscreen();
 
                             Engine.Renderer.AllowDepthWrite(true);
 
-                            c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
-                            //RenderTree.DebugRender(c?.Frustum, true);
+                            //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
+                            RenderTree.DebugRender(c?.Frustum, true);
 
                             _passes.Render(ERenderPass3D.OpaqueForward);
                             //Render forward transparent objects next
@@ -277,12 +271,35 @@ namespace TheraEngine.Rendering
                             _passes.Render(ERenderPass3D.OnTopForward);
                             Engine.Renderer.EnableDepthTest(true);
                         }
-                        v.PostProcessFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        v.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                        v.PingPongBloomBlurFBO.Reset();
+                        for (int i = 0; i <= 10; ++i)
+                        {
+                            v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
+                            if (i == 0)
+                                v.ForwardPassFBO.RenderFullscreen();
+                            else
+                                v.PingPongBloomBlurFBO.RenderFullscreen();
+                            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
+                            v.PingPongBloomBlurFBO.Switch();
+                        }
+
+                        //No need to render to this buffer. 
+                        //HDR scene color, bloom final, and depth textures are already ready to go.
+                        //v.PostProcessFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        //{
+                        //    Engine.Renderer.AllowDepthWrite(false);
+                        //    v.PingPongBloomBlurFBO.RenderFullscreenAndSwitch();
+                        //}
+                        //v.PostProcessFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
                     }
+
                     //Disable internal resolution
                     Engine.Renderer.PopRenderArea();
 
-                    //Render the last pass to the actual screen resolution
+                    //Render the last pass to the actual screen resolution, 
+                    //or the provided target FBO
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
                         Engine.Renderer.PushRenderArea(v.Region);
@@ -291,7 +308,7 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.DepthFunc(EComparison.Lequal);
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
-                            v.PostProcessFBO.Render();
+                            v.PostProcessFBO.RenderFullscreen();
 
                             if (v.HUD?.UIScene != null)
                             {

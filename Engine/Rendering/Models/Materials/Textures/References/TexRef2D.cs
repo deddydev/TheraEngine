@@ -326,8 +326,8 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 MinFilter = ETexMinFilter.Nearest,
                 MagFilter = ETexMagFilter.Nearest,
-                UWrap = ETexWrapMode.Clamp,
-                VWrap = ETexWrapMode.Clamp,
+                UWrap = ETexWrapMode.ClampToEdge,
+                VWrap = ETexWrapMode.ClampToEdge,
                 FrameBufferAttachment = bufAttach,
             };
         }

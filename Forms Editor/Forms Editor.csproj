@@ -218,6 +218,15 @@
     <Compile Include="Windows\Forms\Borderless Form\TheraForm.Designer.cs">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Main Window\Form\Editor_ButtonClick.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableAnalytics.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableAnalytics.Designer.cs">
+      <DependentUpon>DockableAnalytics.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -643,16 +652,16 @@
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableWorldRenderForm.Designer.cs">
       <DependentUpon>DockableWorldRenderForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\TheraEditorTheme.cs">
+    <Compile Include="Windows\Forms\Main Window\Misc\TheraEditorTheme.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor.cs">
+    <Compile Include="Windows\Forms\Main Window\Form\Editor_Designer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Editor.Designer.cs">
-      <DependentUpon>Editor.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Main Window\Form\Editor_Designer.Designer.cs">
+      <DependentUpon>Editor_Designer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\EditorHud.cs" />
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorHud.cs" />
     <Compile Include="EditorSettings.cs" />
     <Compile Include="Windows\Forms\Borderless Form\BorderlessFormBase.cs">
       <SubType>Form</SubType>
@@ -679,10 +688,10 @@
     <Compile Include="Windows\Forms\File Navigation\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\EditorWorldRenderPanel.cs">
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorWorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\UndoManager.cs" />
+    <Compile Include="Windows\Forms\Main Window\Misc\UndoManager.cs" />
     <Compile Include="Windows\Forms\VisualStudioManager.cs" />
     <Compile Include="Windows\Forms\Misc\TransparentPanel.cs">
       <SubType>Component</SubType>
@@ -714,6 +723,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Borderless Form\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableAnalytics.resx">
+      <DependentUpon>DockableAnalytics.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.resx">
       <DependentUpon>DockableMatProps.cs</DependentUpon>
@@ -781,8 +793,8 @@
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableWorldRenderForm.resx">
       <DependentUpon>DockableWorldRenderForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Editor.resx">
-      <DependentUpon>Editor.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Main Window\Form\Editor_Designer.resx">
+      <DependentUpon>Editor_Designer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Class Creation\ObjectCreator.resx">
       <DependentUpon>ObjectCreator.cs</DependentUpon>
@@ -963,7 +975,6 @@
   <ItemGroup>
     <Folder Include="Windows\Forms\Cutscene Editor\" />
     <Folder Include="Windows\Forms\HUD Editor\" />
-    <Folder Include="Windows\Forms\Main Window\Overrides\" />
     <Folder Include="Windows\Forms\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
     <Folder Include="Windows\Forms\Particle Editor\" />

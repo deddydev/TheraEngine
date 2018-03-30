@@ -89,5 +89,7 @@ namespace TheraEngine.Rendering
         {
             return RenderOrderFunc == null ? 0.0f : RenderOrderFunc(shadowPass);
         }
+
+        public override int GetHashCode() => SceneID;
     }
 }

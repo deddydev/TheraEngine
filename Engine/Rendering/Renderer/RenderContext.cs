@@ -4,12 +4,14 @@ using System.Threading;
 
 namespace TheraEngine.Rendering
 {
+    public delegate void DelContextsChanged(RenderContext context, bool added);
     public abstract class RenderContext : IDisposable
     {
         public delegate void ContextChangedEventHandler(bool isCurrent);
         public event ContextChangedEventHandler ContextChanged;
         public event EventHandler ResetOccured;
 
+        public static event DelContextsChanged BoundContextsChanged;
         public static List<RenderContext> BoundContexts = new List<RenderContext>();
 
         private VSyncMode _vsyncMode;
@@ -41,7 +43,7 @@ namespace TheraEngine.Rendering
         }
         
         public BaseRenderPanel Control => _control;
-        internal List<BaseRenderState.ContextBind> States => _states;
+        public List<BaseRenderState.ContextBind> States => _states;
         public VSyncMode VSyncMode
         {
             get => _vsyncMode;
@@ -86,6 +88,7 @@ namespace TheraEngine.Rendering
             if (_control != null)
                 _control.Resize += OnResized;
             BoundContexts.Add(this);
+            BoundContextsChanged?.Invoke(this, true);
         }
 
         private void OnResized(object sender, EventArgs e)
@@ -232,7 +235,10 @@ namespace TheraEngine.Rendering
                         state.Destroy();
                     States.Clear();
                     if (BoundContexts.Contains(this))
+                    {
                         BoundContexts.Remove(this);
+                        BoundContextsChanged?.Invoke(this, false);
+                    }
                     Release();
                     _control.Resize -= OnResized;
                     _control = null;

@@ -1,4 +1,4 @@
-#version 330 core
+#version 450
 layout(location = 0) out float OutIntensity;
 layout(location = 6) in vec2 FragUV0;
 uniform sampler2D Texture0;
@@ -16,4 +16,4 @@ void main()
         }
     }
     OutIntensity = result / 16.0f;
-}  
+}

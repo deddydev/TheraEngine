@@ -998,9 +998,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"
-xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"
-xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"
+copy /Y "$(SolutionDir)Libraries\$(PlatformName)\FreeImage.dll" "$(TargetDir)"
+copy /Y "$(SolutionDir)Libraries\$(PlatformName)\openvr_api.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
   </Target>

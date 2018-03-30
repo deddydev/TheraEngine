@@ -68,11 +68,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Disconnected?.Invoke(item);
         }
 
-        protected override void OnCurrentArgTypeChanged()
-        {
-            foreach (var input in _connections)
-                input.CurrentArgumentType = CurrentArgumentType;
-        }
+        protected virtual void DetermineBestArgType(TInput connection) { }
         
         public override bool CanConnectTo(TInput other)
         {

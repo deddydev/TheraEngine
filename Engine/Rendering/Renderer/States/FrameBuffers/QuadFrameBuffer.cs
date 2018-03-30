@@ -49,7 +49,10 @@ namespace TheraEngine.Rendering
 
             SettingUniforms?.Invoke(fragId);
         }
-        public void Render()
+        /// <summary>
+        /// Renders the FBO to the entire region set by Engine.Renderer.PushRenderArea().
+        /// </summary>
+        public void RenderFullscreen()
         {
             AbstractRenderer.PushCurrentCamera(_quadCamera);
             _fullScreenTriangle.Render(Matrix4.Identity, Matrix3.Identity);

@@ -8,30 +8,27 @@ namespace TheraEngine.Rendering
     /// </summary>
     public abstract class BaseRenderState : TObject, IDisposable
     {
-        internal const int NullBindingId = 0;
-        internal class ContextBind
+        public const int NullBindingId = 0;
+        public class ContextBind
         {
             //internal bool _generatedFailSafe = false;
             internal int _bindingId = NullBindingId;
-            internal BaseRenderState _parent;
+            private BaseRenderState _parentState;
             internal RenderContext _context = null;
-            internal int _index;
-            internal ContextBind(RenderContext c, BaseRenderState parent, int index)
+            internal ContextBind(RenderContext context, BaseRenderState parentState, int contextIndex)
             {
-                _parent = parent;
-                _context = c;
-                _index = index;
-                c?.States.Add(this);
+                _parentState = parentState;
+                _context = context;
+                ContextIndex = contextIndex;
+                context?.States.Add(this);
             }
 
-            internal int Index
-            {
-                get => _index;
-                set => _index = value;
-            }
+            public DateTime? GenerationTime { get; internal set; } = null;
+            public string GenerationStackTrace { get; internal set; }
+            public int ContextIndex { get; internal set; }
 
-            internal bool Active => BindingId > NullBindingId/* || _generatedFailSafe*/;
-            internal int BindingId
+            public bool Active => BindingId > NullBindingId/* || _generatedFailSafe*/;
+            public int BindingId
             {
                 get => _bindingId;
                 set
@@ -44,11 +41,13 @@ namespace TheraEngine.Rendering
                 }
             }
 
-            internal void Destroy() => _parent.DestroyContextBind(_index);
-            public override string ToString() => _parent.ToString();
+            public BaseRenderState ParentState => _parentState;
+
+            public void Destroy() => _parentState.DestroyContextBind(ContextIndex);
+            public override string ToString() => _parentState.ToString();
         }
 
-        private ContextBind CurrentBind
+        internal ContextBind CurrentBind
         {
             get
             {
@@ -71,7 +70,7 @@ namespace TheraEngine.Rendering
         }
 
         public EObjectType Type { get; private set; }
-        
+
         /// <summary>
         /// List of all render contexts this object has been generated on.
         /// </summary>
@@ -93,22 +92,23 @@ namespace TheraEngine.Rendering
 
         private void DestroyContextBind(int index)
         {
-            if (_currentBind != null && _currentBind._index == index)
+            if (_currentBind != null && _currentBind.ContextIndex == index)
                 _currentBind = null;
             if (index >= 0 && index < _owners.Count)
             {
                 _owners.RemoveAt(index);
                 for (int i = index; i < _owners.Count; ++i)
-                    --_owners[i].Index;
+                    --_owners[i].ContextIndex;
             }
         }
 
-        private void GetCurrentBind()
+        private bool GetCurrentBind()
         {
             if (RenderContext.Captured == null)
             {
                 _currentBind = new ContextBind(null, this, -1);
                 //throw new Exception("No context bound.");
+                return false;
             }
             else if (_currentBind == null || _currentBind._context != RenderContext.Captured)
             {
@@ -118,6 +118,7 @@ namespace TheraEngine.Rendering
                 else
                     _owners.Add(_currentBind = new ContextBind(RenderContext.Captured, this, _owners.Count));
             }
+            return true;
         }
 
         /// <summary>
@@ -130,20 +131,25 @@ namespace TheraEngine.Rendering
                 return value;
 
             //Make sure current bind is up to date
-            GetCurrentBind();
+            bool hasBind = GetCurrentBind();
+
+            if (!hasBind)
+            {
+                Engine.LogWarning("Unable to create render object: no captured render context.");
+                return NullBindingId;
+            }
 
             if (IsActive)
                 return BindingId;
-
-            Engine.Renderer.CheckErrors();
+            
             PreGenerated();
             int id = CreateObject();
             if (id != 0)
             {
-                Engine.Renderer.CheckErrors();
                 CurrentBind.BindingId = id;
+                CurrentBind.GenerationStackTrace = Engine.GetStackTrace();
+                CurrentBind.GenerationTime = DateTime.Now;
                 PostGenerated();
-                Engine.Renderer.CheckErrors();
                 Generated?.Invoke();
                 Engine.Renderer.CheckErrors();
             }
@@ -178,7 +184,7 @@ namespace TheraEngine.Rendering
             }
             else
             {
-                int index = _currentBind.Index;
+                int index = _currentBind.ContextIndex;
                 if (index >= 0 && index < _owners.Count)
                     _owners.RemoveAt(index);
             }
@@ -192,6 +198,8 @@ namespace TheraEngine.Rendering
 
             _currentBind._bindingId = 0;
             _currentBind._context = null;
+            _currentBind.GenerationStackTrace = null;
+            _currentBind.GenerationTime = null;
             PostDeleted();
         }
         /// <summary>
@@ -235,7 +243,7 @@ namespace TheraEngine.Rendering
         }
 
         public override int GetHashCode() => ToString().GetHashCode();
-        public override string ToString() => Type.ToString() + CurrentBind._bindingId;
+        public override string ToString() => Type.ToString() + BindingId;
         public override bool Equals(object obj) => obj != null && ToString().Equals(obj.ToString());
         
         #region IDisposable Support

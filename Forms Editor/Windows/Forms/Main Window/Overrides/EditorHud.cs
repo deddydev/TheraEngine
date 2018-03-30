@@ -411,74 +411,6 @@ namespace TheraEditor.Windows.Forms
         {
             MouseDown = true;
             SetSelectedComponent(true, HighlightedComponent);
-
-            if (_selectedComponent is CameraComponent cam)
-            {
-                SubViewport.Camera = cam.Camera;
-                SubViewport.IsVisible = true;
-            }
-            else
-            {
-                SubViewport.Camera = null;
-                SubViewport.IsVisible = false;
-            }
-
-            if (_selectedComponent is IRigidCollidable d &&
-                d.RigidBodyCollision != null &&
-                d.RigidBodyCollision.SimulatingPhysics &&
-                !d.RigidBodyCollision.IsKinematic &&
-                !Engine.IsPaused)
-            {
-                _dragComponent = null;
-                TransformTool3D.DestroyInstance();
-
-                _pickedBody = d.RigidBodyCollision;
-                _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
-
-                Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
-
-                _currentConstraint = TPointPointConstraint.New(_pickedBody, localPivot);
-                _currentConstraint.ImpulseClamp = 60;
-                _currentConstraint.Tau = 0.1f;
-
-                OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
-            }
-            else
-            {
-                if (UseTransformTool)
-                {
-                    TransformTool3D.GetInstance(_selectedComponent, _transformType);
-                }
-                else
-                {
-                    TransformTool3D.DestroyInstance();
-
-                    _dragComponent = _selectedComponent;
-                    if (_dragComponent != null)
-                    {
-                        _prevDragMatrix = _dragComponent.WorldMatrix;
-                        Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
-                        DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
-                    }
-                }
-            }
-
-            //if (IsSimulatedBody(out IRigidCollidable body))
-            //{
-            //    _dragComponent = null;
-            //    TransformTool3D.DestroyInstance();
-
-            //    _pickedBody = body.RigidBodyCollision;
-            //    _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
-
-            //    Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
-
-            //    _currentConstraint = TPointPointConstraint.New(_pickedBody, localPivot);
-            //    _currentConstraint.ImpulseClamp = 60;
-            //    _currentConstraint.Tau = 0.1f;
-
-            //    OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
-            //}
         }
         private bool IsSimulatedBody(out IRigidCollidable body)
         {
@@ -552,6 +484,56 @@ namespace TheraEditor.Windows.Forms
                 }
                 else// if (comp != null)
                 {
+                    if (_selectedComponent is CameraComponent cam)
+                    {
+                        SubViewport.Camera = cam.Camera;
+                        SubViewport.IsVisible = true;
+                    }
+                    else
+                    {
+                        SubViewport.Camera = null;
+                        SubViewport.IsVisible = false;
+                    }
+
+                    if (_selectedComponent is IRigidCollidable d &&
+                        d.RigidBodyCollision != null &&
+                        d.RigidBodyCollision.SimulatingPhysics &&
+                        !d.RigidBodyCollision.IsKinematic &&
+                        !Engine.IsPaused)
+                    {
+                        _dragComponent = null;
+                        TransformTool3D.DestroyInstance();
+
+                        _pickedBody = d.RigidBodyCollision;
+                        _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
+
+                        Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
+
+                        _currentConstraint = TPointPointConstraint.New(_pickedBody, localPivot);
+                        _currentConstraint.ImpulseClamp = 60;
+                        _currentConstraint.Tau = 0.6f;
+
+                        OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
+                    }
+                    else
+                    {
+                        if (UseTransformTool)
+                        {
+                            TransformTool3D.GetInstance(_selectedComponent, _transformType);
+                        }
+                        else
+                        {
+                            TransformTool3D.DestroyInstance();
+
+                            _dragComponent = _selectedComponent;
+                            if (_dragComponent != null)
+                            {
+                                _prevDragMatrix = _dragComponent.WorldMatrix;
+                                Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
+                                DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
+                            }
+                        }
+                    }
                     TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
                     if (t != null)
                     {

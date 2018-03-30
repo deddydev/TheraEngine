@@ -130,24 +130,25 @@ namespace TheraEngine
 
             //Preload transition world now
             await Game.TransitionWorldRef.LoadNewInstanceAsync();
+        }
 
+        public static CVRSystem InitializeVR()
+        {
+            CVRSystem system = null;
             try
             {
                 EVRInitError peError = EVRInitError.None;
-                CVRSystem system = OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene);
+                system = OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene);
                 if (system == null)
-                {
                     LogWarning(peError.ToString());
-                }
                 else
-                {
-                    PrintLine("VR system initialized. " + peError.ToString());
-                }
+                    PrintLine("VR system initialized. Result Code: " + peError.ToString());
             }
             catch (Exception ex)
             {
                 LogException(ex);
             }
+            return system;
         }
 
         public static bool ShuttingDown { get; private set; }
@@ -413,12 +414,18 @@ namespace TheraEngine
             if (args != null && args.Length > 0)
                 message = string.Format(message, args);
 
+            message += Environment.NewLine + GetStackTrace(4);
+            PrintLine("[{1}] {0}", message, DateTime.Now);
+#endif
+        }
+
+        public static string GetStackTrace(int lineIgnoreCount = 3, bool ignoreBeforeWndProc = true)
+        {
             //Format and print stack trace
             string stackTrace = Environment.StackTrace;
             string atStr = "   at ";
-
-            //Most 3 recent calls don't matter
-            int at4th = stackTrace.FindOccurrence(0, 3, atStr);
+            
+            int at4th = stackTrace.FindOccurrence(0, lineIgnoreCount, atStr);
             if (at4th > 0)
                 stackTrace = stackTrace.Substring(at4th);
 
@@ -430,10 +437,8 @@ namespace TheraEngine
                 if (at > 0)
                     stackTrace = stackTrace.Substring(0, at);
             }
-            
-            message += Environment.NewLine + stackTrace;
-            PrintLine("[{1}] {0}", message, DateTime.Now);
-#endif
+
+            return stackTrace;
         }
 
         #endregion

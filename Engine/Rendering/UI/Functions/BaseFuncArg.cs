@@ -24,6 +24,7 @@ namespace TheraEngine.Rendering.UI.Functions
 
         public abstract bool IsOutput { get; }
         public override string ToString() => Name;
+        public int ArgumentIndex { get; internal set; }
 
         public abstract bool CanConnectTo(BaseFuncArg other);
         public abstract bool ConnectTo(BaseFuncArg other);

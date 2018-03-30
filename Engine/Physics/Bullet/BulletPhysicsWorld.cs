@@ -32,7 +32,7 @@ namespace TheraEngine.Physics
         public BulletPhysicsWorld()
         {
             _physicsBroadphase = new DbvtBroadphase();
-            _collisionConfig = new DefaultCollisionConfiguration();
+            _collisionConfig = new SoftBodyRigidBodyCollisionConfiguration();
             _collisionDispatcher = new CollisionDispatcher(_collisionConfig);
             _constraintSolver = new MultiBodyConstraintSolver() { RandSeed = Seed, };
             _dynamicsWorld = new MultiBodyDynamicsWorld(_collisionDispatcher, _physicsBroadphase, _constraintSolver, _collisionConfig)
@@ -51,10 +51,10 @@ namespace TheraEngine.Physics
                     //DebugDrawModes.DrawFeaturesText
                 }
             };
-            _dynamicsWorld.DispatchInfo.DispatchFunction = DispatcherInfo.DispatchFunc.Discrete;
-            _dynamicsWorld.DispatchInfo.UseContinuous = true;
-            _dynamicsWorld.DispatchInfo.AllowedCcdPenetration = 0.1f;
-            _dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
+            //_dynamicsWorld.DispatchInfo.DispatchFunction = DispatcherInfo.DispatchFunc.Discrete;
+            //_dynamicsWorld.DispatchInfo.UseContinuous = true;
+            //_dynamicsWorld.DispatchInfo.AllowedCcdPenetration = 0.1f;
+            //_dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
             //_dynamicsWorld.PairCache.SetInternalGhostPairCallback(new CustomOverlappingPair());
 
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
@@ -74,8 +74,25 @@ namespace TheraEngine.Physics
             //drivers._driver0.ContactEnded(drivers._driver1);
             //drivers._driver1.ContactEnded(drivers._driver0);
         }
-        private static void ManifoldPoint_ContactAdded(ManifoldPoint cp, CollisionObjectWrapper colObj0Wrap, int partId0, int index0, CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
+        private static void ManifoldPoint_ContactAdded(ManifoldPoint cp,
+            CollisionObjectWrapper colObj0Wrap, int partId0, int index0,
+            CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
         {
+            //if (colObj1Wrap.CollisionShape.ShapeType == BroadphaseNativeType.TriangleShape)
+            //{
+            //    var triShape = (TriangleShape)colObj1Wrap.CollisionShape;
+            //    var v = triShape.Vertices;
+            //    Vector3 faceNormalLs = Vec3.Cross(v[1] - v[0], v[2] - v[0]);
+            //    faceNormalLs.Normalize();
+            //    Vector3 faceNormalWs = Vec3.TransformVector(faceNormalLs, ((Matrix4)colObj1Wrap.WorldTransform).GetRotationMatrix4());
+            //    float nDotF = Vec3.Dot(faceNormalWs, cp.NormalWorldOnB);
+            //    if (nDotF <= 0.0f)
+            //    {
+            //        // flip the contact normal to be aligned with the face normal
+            //        cp.NormalWorldOnB += -2.0f * nDotF * faceNormalWs;
+            //    }
+            //}
+
             TCollisionObject obj1 = colObj0Wrap.CollisionObject.UserObject as TCollisionObject;
             TCollisionObject obj2 = colObj1Wrap.CollisionObject.UserObject as TCollisionObject;
             obj1.OnCollided(obj2, CreateCollisionInfo(cp));

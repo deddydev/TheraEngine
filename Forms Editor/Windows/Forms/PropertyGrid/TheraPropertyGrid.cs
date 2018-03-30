@@ -76,7 +76,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
 
         private object _subObject;
-        private object SubObject
+        public object SubObject
         {
             get => _subObject;
             set
@@ -84,7 +84,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //Do nothing if target object is the same
                 if (_subObject == value)
                     return;
-                
+
+                if (_subObject != null)
+                {
+                    pnlProps.Controls.Clear();
+                    foreach (var category in _categories.Values)
+                        category.DestroyProperties();
+                    _categories.Clear();
+                }
+
                 _subObject = value;
                 
                 if (_subObject is TObject obj)
@@ -112,15 +120,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 if (_targetObject == value)
                     return;
-
-                if (_targetObject != null)
-                {
-                    pnlProps.Controls.Clear();
-                    foreach (var category in _categories.Values)
-                        category.DestroyProperties();
-                    _categories.Clear();
-                }
-
+                
                 _targetObject = value;
 
                 lblObjectName.Visible = Enabled = _targetObject != null;
@@ -613,11 +613,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
         {
+            if (TargetObject == null)
+                return;
             btnSave.Visible = true;
             Editor.Instance.UndoManager.AddChange(TargetObject.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
         }
         public void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
         {
+            if (TargetObject == null)
+                return;
             btnSave.Visible = true;
             Editor.Instance.UndoManager.AddChange(TargetObject.EditorState, oldValue, newValue, listOwner, listIndex);
         }

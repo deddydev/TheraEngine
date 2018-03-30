@@ -30,42 +30,42 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
                     Type = EShaderVarType._vec3;
                     ShaderBaseLocation = VertexShaderGenerator.FragPosBaseLoc;
                     MaxCount = 1;
-                    Index.ClampMax(MaxCount - 1);
+                    Index = Index.ClampMax(MaxCount - 1);
                     ShaderLocation = ShaderBaseLocation + Index;
                     break;
                 case EMeshValue.FragNorm:
                     Type = EShaderVarType._vec3;
                     ShaderBaseLocation = VertexShaderGenerator.FragNormBaseLoc;
                     MaxCount = 1;
-                    Index.ClampMax(MaxCount - 1);
+                    Index = Index.ClampMax(MaxCount - 1);
                     ShaderLocation = ShaderBaseLocation + Index;
                     break;
                 case EMeshValue.FragBinorm:
                     Type = EShaderVarType._vec3;
                     ShaderBaseLocation = VertexShaderGenerator.FragBinormBaseLoc;
                     MaxCount = 1;
-                    Index.ClampMax(MaxCount - 1);
+                    Index = Index.ClampMax(MaxCount - 1);
                     ShaderLocation = ShaderBaseLocation + Index;
                     break;
                 case EMeshValue.FragTan:
                     Type = EShaderVarType._vec3;
                     ShaderBaseLocation = VertexShaderGenerator.FragTanBaseLoc;
                     MaxCount = 1;
-                    Index.ClampMax(MaxCount - 1);
+                    Index = Index.ClampMax(MaxCount - 1);
                     ShaderLocation = ShaderBaseLocation + Index;
                     break;
                 case EMeshValue.FragUV:
                     Type = EShaderVarType._vec2;
                     ShaderBaseLocation = VertexShaderGenerator.FragUVBaseLoc;
                     MaxCount = VertexShaderDesc.MaxTexCoords;
-                    Index.ClampMax(MaxCount - 1);
+                    Index = Index.ClampMax(MaxCount - 1);
                     ShaderLocation = ShaderBaseLocation + Index;
                     break;
                 case EMeshValue.FragColor:
                     Type = EShaderVarType._vec4;
                     ShaderBaseLocation = VertexShaderGenerator.FragColorBaseLoc;
                     MaxCount = VertexShaderDesc.MaxColors;
-                    Index.ClampMax(MaxCount - 1);
+                    Index = Index.ClampMax(MaxCount - 1);
                     ShaderLocation = ShaderBaseLocation + Index;
                     break;
             }
@@ -77,8 +77,12 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             get => _index;
             set
             {
-                _index = value.Clamp(0, MaxCount - 1);
-                Update();
+                int temp = value.Clamp(0, MaxCount - 1);
+                if (_index != temp)
+                {
+                    _index = temp;
+                    Update();
+                }
             }
         }
         public EMeshValue Value
@@ -155,7 +159,18 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
         public override void GetDefinition(out string[] inputNames, out string[] outputNames, out MatFuncOverload[] overloads)
         {
-            throw new NotImplementedException();
+            inputNames = new string[]
+            {
+
+            };
+            outputNames = new string[]
+            {
+                string.Empty,
+            };
+            overloads = new MatFuncOverload[]
+            {
+                new MatFuncOverload(EGLSLVersion.Ver_110, EGenShaderVarType.Vec3, false),
+            };
         }
     }
 }

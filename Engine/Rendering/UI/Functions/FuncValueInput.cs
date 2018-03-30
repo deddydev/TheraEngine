@@ -57,6 +57,8 @@ namespace TheraEngine.Rendering.UI.Functions
                 DetermineBestArgType(null);
         }
 
+        protected virtual void DetermineBestArgType(TOutput connection) { }
+
         public virtual void ClearConnection()
         {
             if (_connection != null)

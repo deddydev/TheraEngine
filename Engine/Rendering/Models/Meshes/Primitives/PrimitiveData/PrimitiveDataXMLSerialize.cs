@@ -105,23 +105,31 @@ namespace TheraEngine.Rendering.Models
                 writer.WriteStartElement(nameof(Influences));
                 writer.WriteAttributeString("Count", _influences.Length.ToString());
                 {
-                    writer.WriteStartElement("Counts");
-                    foreach (InfluenceDef inf in _influences)
-                        writer.WriteString(inf.WeightCount.ToString() + " ");
-                    
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Indices");
-                    foreach (InfluenceDef inf in _influences)
-                        for (int i = 0; i < inf.WeightCount; ++i)
-                            writer.WriteString(_utilizedBones.IndexOf(inf.Weights[i].Bone).ToString() + " ");
+                    if (string.IsNullOrEmpty(_singleBindBone) && _utilizedBones != null)
+                    {
+                        writer.WriteStartElement("Counts");
+                        {
+                            foreach (InfluenceDef inf in _influences)
+                                writer.WriteString(inf.WeightCount.ToString() + " ");
+                        }
+                        writer.WriteEndElement();
 
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("Weights");
-                    foreach (InfluenceDef inf in _influences)
-                        for (int i = 0; i < inf.WeightCount; ++i)
-                            writer.WriteString(inf.Weights[i].Weight.ToString() + " ");
+                        writer.WriteStartElement("Indices");
+                        {
+                            foreach (InfluenceDef inf in _influences)
+                                for (int i = 0; i < inf.WeightCount; ++i)
+                                    writer.WriteString(_utilizedBones.IndexOf(inf.Weights[i].Bone).ToString() + " ");
+                        }
+                        writer.WriteEndElement();
 
-                    writer.WriteEndElement();
+                        writer.WriteStartElement("Weights");
+                        {
+                            foreach (InfluenceDef inf in _influences)
+                                for (int i = 0; i < inf.WeightCount; ++i)
+                                    writer.WriteString(inf.Weights[i].Weight.ToString() + " ");
+                        }
+                        writer.WriteEndElement();
+                    }
                 }
                 writer.WriteEndElement();
             }
@@ -138,28 +146,41 @@ namespace TheraEngine.Rendering.Models
                     _influences = new InfluenceDef[count];
                 }
             }
-            int[] boneCounts = null, indices = null;
-            float[] weights = null;
-            string s;
-            while (reader.BeginElement())
+            if (string.IsNullOrEmpty(_singleBindBone) && _utilizedBones != null)
             {
-                s = reader.ReadElementString();
-                if (reader.Name.Equals("Counts", true))
-                    boneCounts = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
-                else if (reader.Name.Equals("Indices", true))
-                    indices = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
-                else if (reader.Name.Equals("Weights", true))
-                    weights = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => float.Parse(x)).ToArray();
-                reader.EndElement();
+                int[] boneCounts = null, indices = null;
+                float[] weights = null;
+                string s;
+                while (reader.BeginElement())
+                {
+                    s = reader.ReadElementString();
+                    if (reader.Name.Equals("Counts", true))
+                        boneCounts = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
+                    else if (reader.Name.Equals("Indices", true))
+                        indices = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
+                    else if (reader.Name.Equals("Weights", true))
+                        weights = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => float.Parse(x)).ToArray();
+                    reader.EndElement();
+                }
+                int k = 0;
+                for (int i = 0; i < _influences.Length; ++i)
+                {
+                    InfluenceDef inf = new InfluenceDef();
+                    for (int boneIndex = 0; boneIndex < boneCounts[i]; ++boneIndex, ++k)
+                        inf.AddWeight(new BoneWeight(_utilizedBones[indices[k]], weights[k]));
+                    _influences[i] = inf;
+                }
             }
-            int k = 0;
-            for (int i = 0; i < _influences.Length; ++i)
+            else
             {
-                InfluenceDef inf = new InfluenceDef();
-                for (int boneIndex = 0; boneIndex < boneCounts[i]; ++boneIndex, ++k)
-                    inf.AddWeight(new BoneWeight(_utilizedBones[indices[k]], weights[k]));
-                _influences[i] = inf;
+                for (int i = 0; i < _influences.Length; ++i)
+                {
+                    InfluenceDef inf = new InfluenceDef();
+                    inf.AddWeight(new BoneWeight(_singleBindBone, 1.0f));
+                    _influences[i] = inf;
+                }
             }
+
             return true;
         }
     }

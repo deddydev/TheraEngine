@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using TheraEngine.Core.Shapes;
 
@@ -156,6 +157,17 @@ namespace TheraEngine.Physics
             => Engine.Physics.NewCapsuleZ(radius, height);
     }
     #endregion
+
+    public abstract class TCollisionCompoundShape : TCollisionShape
+    {
+        public static TCollisionCompoundShape New((Matrix4 localTransform, TCollisionShape shape)[] shapes)
+            => Engine.Physics.NewCompoundShape(shapes);
+    }
+    public abstract class TCollisionConvexHull : TCollisionShape
+    {
+        public static TCollisionConvexHull New(IEnumerable<Vec3> points)
+            => Engine.Physics.NewConvexHull(points);
+    }
 
     public abstract class TCollisionHeightField : TCollisionShape
     {

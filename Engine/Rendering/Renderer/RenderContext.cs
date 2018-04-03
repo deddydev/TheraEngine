@@ -100,11 +100,11 @@ namespace TheraEngine.Rendering
         protected void GetCurrentSubContext()
         {
             Thread thread = Thread.CurrentThread;
-            //lock (_subContexts)
-            //{
+            lock (_subContexts)
+            {
                 if (!_subContexts.ContainsKey(thread.ManagedThreadId))
                     CreateContextForThread(thread);
-            //}
+            }
             _currentSubContext = _subContexts[thread.ManagedThreadId];
             _currentSubContext.SetCurrent(true);
         }

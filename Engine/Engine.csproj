@@ -371,6 +371,8 @@
     <Compile Include="Physics\AbstractPhysicsShapes.cs" />
     <Compile Include="Physics\AbstractPhysicsWorld.cs" />
     <Compile Include="Physics\Bullet\BulletPhysicsInterface.cs" />
+    <Compile Include="Physics\Bullet\Shapes\BulletConvexHull.cs" />
+    <Compile Include="Physics\Bullet\Shapes\BulletCompoundShape.cs" />
     <Compile Include="Physics\Bullet\Shapes\BulletHeightField.cs" />
     <Compile Include="Physics\Bullet\Shapes\BulletCylinder.cs" />
     <Compile Include="Physics\Bullet\Shapes\BulletCapsule.cs" />
@@ -393,6 +395,7 @@
     <Compile Include="Physics\Collision Bodies\TCollisionInfo.cs" />
     <Compile Include="Physics\Bullet\TBulletMotionState.cs" />
     <Compile Include="Physics\Constraints\TPointPointConstraint.cs" />
+    <Compile Include="Physics\ConvexDecomposition.cs" />
     <Compile Include="Physics\Jitter\JitterPhysicsWorld.cs" />
     <Compile Include="Physics\Jitter\JitterPhysicsInterface.cs" />
     <Compile Include="Physics\Jitter\Shapes\IJitterShape.cs" />
@@ -700,7 +703,6 @@
     <Compile Include="Rendering\Renderer\States\FrameBuffers\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
     <Compile Include="Rendering\Renderer\States\VertexBuffer.cs" />
-    <None Include="Rendering\Renderer\States\DisplayList.cs" />
     <Compile Include="Rendering\Text\LocalizedString.cs" />
     <Compile Include="Rendering\Text\VariableStringTable.cs" />
     <Compile Include="Rendering\Text\LocalizedStringTable.cs" />

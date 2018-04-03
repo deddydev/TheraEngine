@@ -62,8 +62,8 @@ namespace TheraEngine.Tests
                         mat, new TRigidBodyConstructionInfo()
                         {
                             Mass = 100.0f,
-                            Friction = 0.5f,
-                            Restitution = 0.1f,
+                            Friction = 1.0f,
+                            Restitution = 0.0f,
                             LinearDamping = 0.2f,
                             AngularDamping = 0.2f,
                             UseMotionState = true,
@@ -71,14 +71,14 @@ namespace TheraEngine.Tests
                             SimulatePhysics = true,
                             CollisionEnabled = true,
                             SleepingEnabled = true,
-                            //DeactivationTime = 1.0f,
-                            //CcdMotionThreshold = 0.4f,
-                            //CustomMaterialCallback = true,
-                            //CcdSweptSphereRadius = radius * 0.95f,
-                            CollidesWith = (ushort)(TCollisionGroup.StaticWorld/* | TCollisionGroup.DynamicWorld*/),
+                            DeactivationTime = 0.4f,
+                            CcdMotionThreshold = 0.4f,
+                            CustomMaterialCallback = true,
+                            LinearSleepingThreshold = 0.3f,
+                            AngularSleepingThreshold = 0.3f,
+                            CcdSweptSphereRadius = radius * 0.95f,
                             CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
-                            //LinearSleepingThreshold = 1.0f,
-                            //AngularSleepingThreshold = 0.3f,
+                            CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
                         });
                     sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
                         rand.Next(-halfMax, halfMax) / maxVel,
@@ -202,7 +202,7 @@ namespace TheraEngine.Tests
 
             if (testLandscape)
             {
-                int wh = 300;
+                int wh = 200;
                 FastNoise noise = new FastNoise((int)DateTime.Now.Ticks);
                 //noise.SetFrequency(10.0f);
                 DataSource source = new DataSource(wh * wh * 4);
@@ -228,7 +228,7 @@ namespace TheraEngine.Tests
                 //BitmapData d = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
                 //DataSource source = new DataSource(d.Scan0, d.Width * d.Height * d.Stride, true);
                 landscape.RootComponent.GenerateHeightFieldCollision(
-                    source, wh, wh, 0.0f, 25.0f,
+                    source, wh, wh, -50.0f, 50.0f,
                     TCollisionHeightField.EHeightValueType.Single,
                     landscapeInfo);
                 landscape.RootComponent.GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.LightBlue), 1);

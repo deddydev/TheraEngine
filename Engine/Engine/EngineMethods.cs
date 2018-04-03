@@ -56,7 +56,7 @@ namespace TheraEngine
             Application.Run(new RenderForm(game));
         }
 
-        public static ShaderFile LoadEngineShader(string fileName, ShaderMode mode)
+        public static ShaderFile LoadEngineShader(string fileName, EShaderMode mode)
         {
             return new ShaderFile(mode, new TextFile(EngineShaderPath(fileName)));
         }
@@ -130,25 +130,38 @@ namespace TheraEngine
 
             //Preload transition world now
             await Game.TransitionWorldRef.LoadNewInstanceAsync();
+
+            InitializeVR();
         }
 
-        public static CVRSystem InitializeVR()
+        public static EVRInitError InitializeVR()
         {
-            CVRSystem system = null;
+            if (!OpenVR.IsRuntimeInstalled())
+            {
+                LogWarning("VR runtime not installed.");
+                return EVRInitError.Init_InstallationNotFound;
+            }
+            if (!OpenVR.IsHmdPresent())
+            {
+                LogWarning("VR headset not found.");
+                return EVRInitError.Init_HmdNotFound;
+            }
+
+            EVRInitError peError = EVRInitError.None;
+
             try
             {
-                EVRInitError peError = EVRInitError.None;
-                system = OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene);
-                if (system == null)
+                if (OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene) == null)
                     LogWarning(peError.ToString());
                 else
-                    PrintLine("VR system initialized. Result Code: " + peError.ToString());
+                    PrintLine("VR system initialized. Result code: " + peError.ToString());
             }
             catch (Exception ex)
             {
                 LogException(ex);
             }
-            return system;
+
+            return peError;
         }
 
         public static bool ShuttingDown { get; private set; }

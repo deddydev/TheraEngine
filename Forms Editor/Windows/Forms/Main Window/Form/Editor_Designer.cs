@@ -467,6 +467,9 @@ namespace TheraEditor.Windows.Forms
         }
         private void Redraw()
         {
+            if (BaseRenderPanel.WorldPanel == null)
+                return;
+
             BaseRenderPanel.WorldPanel.CaptureContext();
 
             if (Engine.Scene != null)

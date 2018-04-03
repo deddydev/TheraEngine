@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Rendering.Models.Materials;
+using System;
 
 namespace TheraEngine.Rendering.Cameras
 {
@@ -16,53 +17,45 @@ namespace TheraEngine.Rendering.Cameras
     {
         public PostProcessSettings()
         {
-            _vignetteSettings = new VignetteSettings();
-            _colorGradeSettings = new ColorGradeSettings();
-            _depthOfFieldSettings = new DepthOfFieldSettings();
-            _bloomSettings = new BloomSettings();
-            _lensFlareSettings = new LensFlareSettings();
-            _antiAliasSettings = new AntiAliasSettings();
-            _ambientOcclusionSettings = new AmbientOcclusionSettings();
+            Vignette = new VignetteSettings();
+            ColorGrading = new ColorGradeSettings();
+            DepthOfField = new DepthOfFieldSettings();
+            Bloom = new BloomSettings();
+            LensFlare = new LensFlareSettings();
+            AntiAliasing = new AntiAliasSettings();
+            AmbientOcclusion = new AmbientOcclusionSettings();
         }
-
-        [TSerialize("Vignette")]
-        VignetteSettings _vignetteSettings;
-        [TSerialize("DOF")]
-        DepthOfFieldSettings _depthOfFieldSettings;
-        [TSerialize("ColorGrade")]
-        ColorGradeSettings _colorGradeSettings;
-        [TSerialize("Bloom")]
-        BloomSettings _bloomSettings;
-        [TSerialize("Lens Flare")]
-        LensFlareSettings _lensFlareSettings;
-        [TSerialize("Anti-Alias")]
-        AntiAliasSettings _antiAliasSettings;
-        [TSerialize("SSAO")]
-        AmbientOcclusionSettings _ambientOcclusionSettings;
-
+        
+        [TSerialize("AntiAliasing")]
         [DisplayName("Anti-Aliasing")]
         [Category("Post-Process Settings")]
-        public AntiAliasSettings AntiAliasing { get => _antiAliasSettings; set => _antiAliasSettings = value; }
+        public AntiAliasSettings AntiAliasing { get; set; }
+        [TSerialize("LensFlare")]
         [Category("Post-Process Settings")]
-        public LensFlareSettings LensFlare { get => _lensFlareSettings; set => _lensFlareSettings = value; }
+        public LensFlareSettings LensFlare { get; set; }
+        [TSerialize("Bloom")]
         [Category("Post-Process Settings")]
-        public BloomSettings Bloom { get => _bloomSettings; set => _bloomSettings = value; }
+        public BloomSettings Bloom { get; set; }
+        [TSerialize("ColorGrade")]
         [Category("Post-Process Settings")]
-        public ColorGradeSettings ColorGrading { get => _colorGradeSettings; set => _colorGradeSettings = value; }
+        public ColorGradeSettings ColorGrading { get; set; }
+        [TSerialize("DOF")]
         [Category("Post-Process Settings")]
-        public DepthOfFieldSettings DepthOfField { get => _depthOfFieldSettings; set => _depthOfFieldSettings = value; }
+        public DepthOfFieldSettings DepthOfField { get; set; }
+        [TSerialize("Vignette")]
         [Category("Post-Process Settings")]
-        public VignetteSettings Vignette { get => _vignetteSettings; set => _vignetteSettings = value; }
+        public VignetteSettings Vignette { get; set; }
+        [TSerialize("SSAO")]
         [Category("Post-Process Settings")]
-        public AmbientOcclusionSettings AmbientOcclusion { get => _ambientOcclusionSettings; set => _ambientOcclusionSettings = value; }
-        
+        public AmbientOcclusionSettings AmbientOcclusion { get; set; }
+
         internal void SetUniforms(int programBindingId)
         {
-            _vignetteSettings.SetUniforms(programBindingId);
-            _depthOfFieldSettings.SetUniforms(programBindingId);
-            _colorGradeSettings.SetUniforms(programBindingId);
-            _bloomSettings.SetUniforms(programBindingId);
-            _lensFlareSettings.SetUniforms(programBindingId);
+            Vignette.SetUniforms(programBindingId);
+            DepthOfField.SetUniforms(programBindingId);
+            ColorGrading.SetUniforms(programBindingId);
+            Bloom.SetUniforms(programBindingId);
+            LensFlare.SetUniforms(programBindingId);
         }
 
         internal static string ShaderSetup()
@@ -73,35 +66,22 @@ namespace TheraEngine.Rendering.Cameras
             string color = ColorGradeSettings.WriteShaderSetup();
             string dof = DepthOfFieldSettings.WriteShaderSetup();
             return
-                "\n" + vignette +
-                "\n" + lensFlare +
-                "\n" + bloom +
-                "\n" + color +
-                "\n" + dof;
+                Environment.NewLine + vignette +
+                Environment.NewLine + lensFlare +
+                Environment.NewLine + bloom +
+                Environment.NewLine + color +
+                Environment.NewLine + dof;
         }
     }
     public class AmbientOcclusionSettings : PostSettings
     {
-        private float _radius = 0.75f;
-        private float _power = 4.0f;
-
-        //[DragRange(0.0f, 100.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [TSerialize]
         [Category("Ambient Occlusion Settings")]
-        public float Radius
-        {
-            get => _radius;
-            set => _radius = value;
-        }
-
-        //[DragRange(0.0f, 100.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        public float Radius { get; set; } = 0.75f;
+        
+        [TSerialize]
         [Category("Ambient Occlusion Settings")]
-        public float Power
-        {
-            get => _power;
-            set => _power = value;
-        }
+        public float Power { get; set; } = 4.0f;
 
         internal void SetUniforms(int programBindingId)
         {
@@ -111,23 +91,18 @@ namespace TheraEngine.Rendering.Cameras
     }
     public class VignetteSettings : PostSettings
     {
-        private ColorF3 _color = new ColorF3(0.0f, 0.0f, 0.0f);
-        private float _intensity = 15.0f;
-        private float _power = 0.0f;
-
+        [TSerialize]
         [Category("Vignette Settings")]
-        public ColorF3 Color { get => _color; set => _color = value; }
-
-        //[DragRange(0.0f, 100.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
-        [Category("Vignette Settings")]
-        public float Intensity { get => _intensity; set => _intensity = value; }
-
-        //[DragRange(0.0f, 100.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
-        [Category("Vignette Settings")]
-        public float Power { get => _power; set => _power = value; }
+        public ColorF3 Color { get; set; } = new ColorF3(0.0f, 0.0f, 0.0f);
         
+        [TSerialize]
+        [Category("Vignette Settings")]
+        public float Intensity { get; set; } = 15.0f;
+        
+        [TSerialize]
+        [Category("Vignette Settings")]
+        public float Power { get; set; } = 0.0f;
+
         internal void SetUniforms(int programBindingId)
         {
             Engine.Renderer.Uniform(programBindingId, "Vignette.Color", Color);
@@ -149,8 +124,6 @@ uniform VignetteStruct Vignette;";
     }
     public class DepthOfFieldSettings : PostSettings
     {
-        public float _nearDist, _farDist;
-
         internal void SetUniforms(int programBindingId)
         {
 
@@ -167,29 +140,19 @@ uniform VignetteStruct Vignette;";
         {
             Contrast = 0.0f;
         }
-
-        private EventColorF3 _tint = new ColorF3(1.0f, 1.0f, 1.0f);
-
-        private float _exposure = 1.0f;
+        
         private float _contrast;
-        private float _gamma = 2.2f;
-
-        private float _hue = 1.0f;
-        private float _saturation = 1.0f;
-        private float _brightness = 1.0f;
-
         private float _contrastUniformValue;
 
+        [TSerialize]
         [Category("Color Grade Settings")]
-        public EventColorF3 Tint { get => _tint; set => _tint = value; }
+        public EventColorF3 Tint { get; set; } = new ColorF3(1.0f, 1.0f, 1.0f);
 
-        //[DragRange(0.0f, 100.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [TSerialize]
         [Category("Color Grade Settings")]
-        public float Exposure { get => _exposure; set => _exposure = value; }
+        public float Exposure { get; set; } = 1.0f;
 
-        //[DragRange(-100.0f, 100.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [TSerialize]
         [Category("Color Grade Settings")]
         public float Contrast
         {
@@ -202,34 +165,28 @@ uniform VignetteStruct Vignette;";
             }
         }
 
-        //[DragRange(0.0f, 50.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [TSerialize]
         [Category("Color Grade Settings")]
-        public float Gamma { get => _gamma; set => _gamma = value; }
+        public float Gamma { get; set; } = 2.2f;
 
-        //[DragRange(0.0f, 1.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [TSerialize]
         [Category("Color Grade Settings")]
-        public float Hue { get => _hue; set => _hue = value; }
+        public float Hue { get; set; } = 1.0f;
 
-        //[DragRange(0.0f, 2.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [TSerialize]
         [Category("Color Grade Settings")]
-        public float Saturation { get => _saturation; set => _saturation = value; }
-
-        //[DragRange(0.0f, 100.0f)]
-        //[Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        public float Saturation { get; set; } = 1.0f;
+        
+        [TSerialize]
         [Category("Color Grade Settings")]
-        public float Brightness { get => _brightness; set => _brightness = value; }
+        public float Brightness { get; set; } = 1.0f;
 
         internal void SetUniforms(int programBindingId)
         {
             Engine.Renderer.Uniform(programBindingId, "ColorGrade.Tint", Tint.Raw);
-
             Engine.Renderer.Uniform(programBindingId, "ColorGrade.Exposure", Exposure);
             Engine.Renderer.Uniform(programBindingId, "ColorGrade.Contrast", _contrastUniformValue);
             Engine.Renderer.Uniform(programBindingId, "ColorGrade.Gamma", Gamma);
-
             Engine.Renderer.Uniform(programBindingId, "ColorGrade.Hue", Hue);
             Engine.Renderer.Uniform(programBindingId, "ColorGrade.Saturation", Saturation);
             Engine.Renderer.Uniform(programBindingId, "ColorGrade.Brightness", Brightness);
@@ -255,22 +212,28 @@ uniform ColorGradeStruct ColorGrade;";
     }
     public class BloomSettings : PostSettings
     {
-        public float _intensity;
+        [TSerialize]
+        [Category("Bloom Settings")]
+        public float Intensity { get; set; } = 1.0f;
+        [TSerialize]
+        [Category("Bloom Settings")]
+        public float Threshold { get; set; } = 1.0f;
 
         internal void SetUniforms(int programBindingId)
         {
-
+            Engine.Renderer.Uniform(programBindingId, "BloomIntensity", Intensity);
+            Engine.Renderer.Uniform(programBindingId, "BloomThreshold", Threshold);
         }
 
         internal static string WriteShaderSetup()
         {
-            return @"";
+            return @"
+uniform float BloomIntensity = 1.0f;
+uniform float BloomThreshold = 1.0f;";
         }
     }
     public class LensFlareSettings : PostSettings
     {
-        public float _intensity;
-
         internal void SetUniforms(int programBindingId)
         {
 

@@ -115,7 +115,7 @@ namespace TheraEditor.Windows.Forms
         }
         private TMaterial GetGraphMaterial()
         {
-            ShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", ShaderMode.Fragment);
+            ShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", EShaderMode.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
             {
                 new ShaderVec3(new Vec3(0.1f, 0.12f, 0.13f), "LineColor"),

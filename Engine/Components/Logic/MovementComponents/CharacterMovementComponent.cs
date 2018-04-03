@@ -375,7 +375,7 @@ namespace TheraEngine.Components.Logic.Movement
             //TODO: use friction between surfaces, not just a constant angle
             return TMath.AngleBetween(Vec3.Up, normal) <= _maxWalkAngle;
         }
-        public void OnHit(TRigidBody other, TCollisionInfo point)
+        public void OnHit(TRigidBody other, TContactInfo point)
         {
             //A is the ground, B is the character
             _worldGroundContactPoint = point.PositionWorldOnA;

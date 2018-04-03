@@ -51,16 +51,49 @@ namespace TheraEngine.Physics
                     //DebugDrawModes.DrawFeaturesText
                 }
             };
+
             //_dynamicsWorld.DispatchInfo.DispatchFunction = DispatcherInfo.DispatchFunc.Discrete;
             //_dynamicsWorld.DispatchInfo.UseContinuous = true;
             //_dynamicsWorld.DispatchInfo.AllowedCcdPenetration = 0.1f;
-            //_dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
             //_dynamicsWorld.PairCache.SetInternalGhostPairCallback(new CustomOverlappingPair());
+            _dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
+            _dynamicsWorld.ApplySpeculativeContactRestitution = true;
+            _dynamicsWorld.SetInternalTickCallback(CustomTickCallback);
 
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
             ManifoldPoint.ContactAdded += ManifoldPoint_ContactAdded;
+            CompoundCollisionAlgorithm.CompoundChildShapePairCallback = CompoundChildShapeCallback;
         }
+        public void CustomTickCallback(DynamicsWorld world, float timeStep)
+        {
+            return;
+
+            int numManifolds = world.Dispatcher.NumManifolds;
+            for (int i = 0; i < numManifolds; i++)
+            {
+                PersistentManifold contactManifold = world.Dispatcher.GetManifoldByIndexInternal(i);
+                CollisionObject body0 = contactManifold.Body0;
+                CollisionObject body1 = contactManifold.Body1;
+
+                int numContacts = contactManifold.NumContacts;
+                for (int j = 0; j < numContacts; j++)
+                {
+                    ManifoldPoint pt = contactManifold.GetContactPoint(j);
+                    if (pt.Distance < 0.0f)
+                    {
+                        Vector3 ptA = pt.PositionWorldOnA;
+                        Vector3 ptB = pt.PositionWorldOnB;
+                        Vector3 normalOnB = pt.NormalWorldOnB;
+                    }
+                }
+            }
+        }
+        private bool CompoundChildShapeCallback(CollisionShape pShape0, CollisionShape pShape)
+        {
+            return true;
+        }
+
         private static void PersistentManifold_ContactProcessed(ManifoldPoint cp, CollisionObject body0, CollisionObject body1)
         {
             //PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
@@ -78,29 +111,35 @@ namespace TheraEngine.Physics
             CollisionObjectWrapper colObj0Wrap, int partId0, int index0,
             CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
         {
-            //if (colObj1Wrap.CollisionShape.ShapeType == BroadphaseNativeType.TriangleShape)
+            //if (colObj0Wrap.CollisionObject.CollisionShape.ShapeType == BroadphaseNativeType.CompoundShape)
             //{
-            //    var triShape = (TriangleShape)colObj1Wrap.CollisionShape;
-            //    var v = triShape.Vertices;
-            //    Vector3 faceNormalLs = Vec3.Cross(v[1] - v[0], v[2] - v[0]);
-            //    faceNormalLs.Normalize();
-            //    Vector3 faceNormalWs = Vec3.TransformVector(faceNormalLs, ((Matrix4)colObj1Wrap.WorldTransform).GetRotationMatrix4());
-            //    float nDotF = Vec3.Dot(faceNormalWs, cp.NormalWorldOnB);
-            //    if (nDotF <= 0.0f)
-            //    {
-            //        // flip the contact normal to be aligned with the face normal
-            //        cp.NormalWorldOnB += -2.0f * nDotF * faceNormalWs;
-            //    }
+            //    CompoundShape compound = colObj0Wrap.CollisionObject.CollisionShape as CompoundShape;
+            //    CollisionShape childShape = compound.GetChildShape(index0);
+            //}
+            //if (colObj1Wrap.CollisionObject.CollisionShape.ShapeType == BroadphaseNativeType.CompoundShape)
+            //{
+            //    CompoundShape compound = colObj1Wrap.CollisionObject.CollisionShape as CompoundShape;
+            //    CollisionShape childShape = compound.GetChildShape(index1);
             //}
 
             TCollisionObject obj1 = colObj0Wrap.CollisionObject.UserObject as TCollisionObject;
             TCollisionObject obj2 = colObj1Wrap.CollisionObject.UserObject as TCollisionObject;
-            obj1.OnCollided(obj2, CreateCollisionInfo(cp));
+            TContactInfo contact = CreateCollisionInfo(cp);
+            if (obj1.HasContactResponse && obj2.HasContactResponse)
+            {
+                obj1.OnCollided(obj2, contact, true);
+                obj2.OnCollided(obj1, contact, false);
+            }
+            else
+            {
+                obj1.OnOverlapped(obj2, contact, true);
+                obj2.OnOverlapped(obj1, contact, false);
+            }
         }
 
-        private static TCollisionInfo CreateCollisionInfo(ManifoldPoint point)
+        private static TContactInfo CreateCollisionInfo(ManifoldPoint point)
         {
-            return new TCollisionInfo()
+            return new TContactInfo()
             {
                 AppliedImpulse = point.AppliedImpulse,
                 AppliedImpulseLateral1 = point.AppliedImpulseLateral1,
@@ -154,7 +193,7 @@ namespace TheraEngine.Physics
         }
         public override void StepSimulation(float delta)
         {
-            _dynamicsWorld.StepSimulation(delta, 7, Engine.RenderPeriod * Engine.TimeDilation);
+            _dynamicsWorld.StepSimulation(delta, 2, Engine.RenderPeriod * Engine.TimeDilation);
         }
         private class CustomOverlappingPair : OverlappingPairCallback
         {
@@ -222,45 +261,45 @@ namespace TheraEngine.Physics
         }
         public override void Dispose()
         {
-            if (_dynamicsWorld != null)
+            if (_dynamicsWorld == null)
+                return;
+            
+            //Remove and dispose of constraints
+            int i;
+            for (i = _dynamicsWorld.NumConstraints - 1; i >= 0; --i)
             {
-                //Remove and dispose of constraints
-                int i;
-                for (i = _dynamicsWorld.NumConstraints - 1; i >= 0; --i)
-                {
-                    TypedConstraint constraint = _dynamicsWorld.GetConstraint(i);
-                    _dynamicsWorld.RemoveConstraint(constraint);
-                    constraint.Dispose();
-                }
-
-                //Remove the rigidbodies from the dynamics world and delete them
-                for (i = _dynamicsWorld.NumCollisionObjects - 1; i >= 0; --i)
-                {
-                    CollisionObject obj = _dynamicsWorld.CollisionObjectArray[i];
-                    if (obj is RigidBody body && body.MotionState != null)
-                        body.MotionState.Dispose();
-                    _dynamicsWorld.RemoveCollisionObject(obj);
-                    obj.Dispose();
-                }
-
-                _dynamicsWorld.Dispose();
-                _dynamicsWorld = null;
-
-                _constraintSolver?.Dispose();
-                _constraintSolver = null;
-
-                _physicsBroadphase?.Dispose();
-                _physicsBroadphase = null;
-
-                _collisionDispatcher?.Dispose();
-                _collisionDispatcher = null;
-
-                _collisionConfig?.Dispose();
-                _collisionConfig = null;
-
-                _physicsDebugDrawer?.Dispose();
-                _physicsDebugDrawer = null;
+                TypedConstraint constraint = _dynamicsWorld.GetConstraint(i);
+                _dynamicsWorld.RemoveConstraint(constraint);
+                constraint.Dispose();
             }
+
+            //Remove the rigidbodies from the dynamics world and delete them
+            for (i = _dynamicsWorld.NumCollisionObjects - 1; i >= 0; --i)
+            {
+                CollisionObject obj = _dynamicsWorld.CollisionObjectArray[i];
+                if (obj is RigidBody body && body.MotionState != null)
+                    body.MotionState.Dispose();
+                _dynamicsWorld.RemoveCollisionObject(obj);
+                obj.Dispose();
+            }
+
+            _dynamicsWorld.Dispose();
+            _dynamicsWorld = null;
+
+            _constraintSolver?.Dispose();
+            _constraintSolver = null;
+
+            _physicsBroadphase?.Dispose();
+            _physicsBroadphase = null;
+
+            _collisionDispatcher?.Dispose();
+            _collisionDispatcher = null;
+
+            _collisionConfig?.Dispose();
+            _collisionConfig = null;
+
+            _physicsDebugDrawer?.Dispose();
+            _physicsDebugDrawer = null;
         }
 
         public override void DrawDebugWorld()

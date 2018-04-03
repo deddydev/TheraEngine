@@ -29,7 +29,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 _rigidBodyCollision = null;
             else
             {
-                info.CollisionShape = model.File.Collision;
+                info.CollisionShape = model.File.CollisionShape;
                 info.InitialWorldTransform = WorldMatrix;
                 _rigidBodyCollision = TRigidBody.New(this, info);
                 _rigidBodyCollision.TransformChanged += RigidBodyTransformUpdated;

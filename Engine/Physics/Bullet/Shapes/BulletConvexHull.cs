@@ -1,13 +1,13 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using BulletSharp;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Physics.Bullet.Shapes
 {
-    internal class BulletHeightField : TCollisionHeightField, IBulletShape
+    internal class BulletConvexHull : TCollisionConvexHull, IBulletShape
     {
-        public HeightfieldTerrainShape Shape { get; }
+        public ConvexHullShape Shape { get; }
         CollisionShape IBulletShape.Shape => Shape;
         
         public override float Margin
@@ -20,31 +20,15 @@ namespace TheraEngine.Physics.Bullet.Shapes
             get => Shape.LocalScaling;
             set => Shape.LocalScaling = value;
         }
-
-        public BulletHeightField(
-            int heightStickWidth,
-            int heightStickLength,
-            Stream heightfieldData,
-            float heightScale,
-            float minHeight,
-            float maxHeight,
-            int upAxis,
-            PhyScalarType heightDataType,
-            bool flipQuadEdges)
-        {
-            Shape = new HeightfieldTerrainShape(
-                  heightStickWidth,
-                  heightStickLength,
-                  heightfieldData,
-                  heightScale,
-                  minHeight,
-                  maxHeight,
-                  upAxis,
-                  heightDataType,
-                  flipQuadEdges);
-            Shape.SetUseDiamondSubdivision();
-        }
         
+        public BulletConvexHull() : base()
+        {
+            Shape = new ConvexHullShape();
+        }
+        public BulletConvexHull(IEnumerable<Vec3> points)
+        {
+            Shape = new ConvexHullShape(points.Select(x => (Vector3)x));
+        }
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {

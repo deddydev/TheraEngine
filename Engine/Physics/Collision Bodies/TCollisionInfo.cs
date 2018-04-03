@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Physics
 {
-    public class TCollisionInfo
+    public class TContactInfo
     {
         public float Distance { get; set; }
         public bool LateralFrictionInitialized { get; set; }

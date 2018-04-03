@@ -1,22 +1,24 @@
-﻿using System;
+﻿using BulletSharp;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using TheraEngine.Animation;
+using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Physics;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Components.Scene.Lights;
 using static TheraEngine.Rendering.Models.Collada.COLLADA;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryAnimations.Animation;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryImages;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
 using static TheraEngine.Rendering.Models.Collada.Source;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Maths;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -82,7 +84,7 @@ namespace TheraEngine.Rendering.Models
                             if (visualScene != null)
                             {
                                 ModelScene modelScene = new ModelScene();
-                                
+
                                 var nodes = visualScene.NodeElements;
 
                                 //Collect information for objects and root bones
@@ -90,7 +92,7 @@ namespace TheraEngine.Rendering.Models
                                 List<ObjectInfo> objects = new List<ObjectInfo>();
                                 List<Camera> cameras = new List<Camera>();
                                 List<LightComponent> lights = new List<LightComponent>();
-                                
+
                                 foreach (var node in nodes)
                                 {
                                     Bone b = EnumNode(null, node, nodes, objects, baseTransform, Matrix4.Identity, lights, cameras, options.IgnoreFlags);
@@ -112,6 +114,9 @@ namespace TheraEngine.Rendering.Models
                                             obj.Initialize(modelScene.StaticModel, visualScene);
                                         else
                                             Engine.LogWarning("Object " + obj._node.Name + " needs bones, but no bones were found.");
+
+                                    //modelScene.StaticModel.CollisionShape = ConvexDecomposition.Calculate(
+                                    //    modelScene.StaticModel.RigidChildren.Select(x => x.LODs[0].PrimitivesRef.File));
                                 }
                                 else
                                 {
@@ -125,7 +130,7 @@ namespace TheraEngine.Rendering.Models
                                     foreach (ObjectInfo obj in objects)
                                         obj.Initialize(modelScene.SkeletalModel, visualScene);
                                 }
-                                
+
                                 data.Models.Add(modelScene);
 
                                 if (!options.IgnoreFlags.HasFlag(IgnoreFlags.Animations))
@@ -161,7 +166,6 @@ namespace TheraEngine.Rendering.Models
             }
             return data;
         }
-        
         private enum InterpType
         {
             STEP,
@@ -226,7 +230,35 @@ namespace TheraEngine.Rendering.Models
                         }
                         else if (child is LibraryControllers.Controller.Morph morph)
                         {
-                            //var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as COLLADA.LibraryGeometries.Geometry;
+                            var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as LibraryGeometries.Geometry;
+                            if (baseMesh == null)
+                            {
+                                Engine.LogWarning("Morph base mesh '" + morph.BaseMeshUrl.TargetID + "' does not point to a valid geometry entry.");
+                                continue;
+                            }
+                            var targets = morph.TargetsElement;
+                            InputUnshared morphTargets = null, morphWeights = null;
+                            foreach (var input in targets.InputElements)
+                            {
+                                switch (input.CommonSemanticType)
+                                {
+                                    case ESemantic.MORPH_TARGET:
+                                        morphTargets = input;
+                                        break;
+                                    case ESemantic.MORPH_WEIGHT:
+                                        morphWeights = input;
+                                        break;
+                                }
+                            }
+                            if (morphTargets == null || morphWeights == null)
+                            {
+                                Engine.LogWarning("Morph set for '" + morph.BaseMeshUrl.TargetID  + "' does not have valid target and weight inputs.");
+                                continue;
+                            }
+                            foreach (Source s in  morph.SourceElements)
+                            {
+                                
+                            }
                             Engine.LogWarning("Importing morphs is not yet supported.");
                         }
                     }
@@ -241,7 +273,6 @@ namespace TheraEngine.Rendering.Models
                         objects.Add(new ObjectInfo(geometry, null, bindMatrix, geomRef, parent, node));
                     else
                         Engine.LogWarning(geomRef.Url.URI + " does not point to a valid geometry entry.");
-                   
                 }
                 //Camera?
                 else if (inst is InstanceCamera camRef)
@@ -294,9 +325,13 @@ namespace TheraEngine.Rendering.Models
                 _parent = parent;
             }
 
+            /// <summary>
+            /// If true, object has bone skinning information.
+            /// If false, object is static.
+            /// </summary>
             public bool UsesController => _rig != null;
 
-            public void Initialize(SkeletalModel model, VisualScene scene)
+            public void Initialize(SkeletalModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)
             {
                 PrimitiveData data;
                 if (_rig != null)
@@ -304,7 +339,7 @@ namespace TheraEngine.Rendering.Models
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
-                data.GenerateBinormalTangentBuffers(0, 0, 0);
+                data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);
 
                 TMaterial m = null;
                 if (_inst?.
@@ -320,15 +355,15 @@ namespace TheraEngine.Rendering.Models
                 
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, data, m));
             }
-            public void Initialize(StaticModel model, VisualScene scene)
+            public void Initialize(StaticModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)
             {
                 PrimitiveData data;
                 if (_rig != null)
                     data = DecodePrimitivesWeighted(scene, _bindMatrix, _geoEntry, _rig);
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
-
-                data.GenerateBinormalTangentBuffers(0, 0, 0);
+                
+                data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);
 
                 TMaterial m = null;
                 if (_inst?.
@@ -463,19 +498,19 @@ namespace TheraEngine.Rendering.Models
                     switch (input.CommonSemanticType)
                     {
                         case ESemantic.INPUT:
-                            inputData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            inputData = source.GetArrayElement<Source.FloatArray>().StringContent.Values;
                             break;
                         case ESemantic.OUTPUT:
-                            outputData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            outputData = source.GetArrayElement<Source.FloatArray>().StringContent.Values;
                             break;
                         case ESemantic.INTERPOLATION:
                             interpTypeData = source.GetArrayElement<NameArray>().StringContent.Values;
                             break;
                         case ESemantic.IN_TANGENT:
-                            inTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            inTanData = source.GetArrayElement<Source.FloatArray>().StringContent.Values;
                             break;
                         case ESemantic.OUT_TANGENT:
-                            outTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
+                            outTanData = source.GetArrayElement<Source.FloatArray>().StringContent.Values;
                             break;
                     }
                 }

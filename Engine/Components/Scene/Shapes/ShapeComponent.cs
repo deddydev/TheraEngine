@@ -59,12 +59,17 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public override void OnSpawned()
         {
+            Visible = VisibleByDefault;
             _rigidBodyCollision?.Spawn();
+            if (Visible)
+                OwningScene.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             _rigidBodyCollision?.Despawn();
+            if (Visible)
+                OwningScene.Remove(this);
             base.OnDespawned();
         }
 
@@ -75,7 +80,7 @@ namespace TheraEngine.Components.Scene.Shapes
         [TSerialize("IsVisible")]
         protected bool _isVisible;
         [TSerialize("VisibleByDefault")]
-        protected bool _visibleByDefault;
+        protected bool _visibleByDefault = true;
         [TSerialize("VisibleInEditorOnly")]
         protected bool _visibleInEditorOnly;
         [TSerialize("HiddenFromOwner")]
@@ -87,7 +92,19 @@ namespace TheraEngine.Components.Scene.Shapes
         public bool Visible
         {
             get => _isVisible;
-            set => _isVisible = value;
+            set
+            {
+                if (_isVisible == value)
+                    return;
+                _isVisible = value;
+                if (IsSpawned && OwningScene != null)
+                {
+                    if (_isVisible)
+                        OwningScene.Add(this);
+                    else
+                        OwningScene.Remove(this);
+                }
+            }
         }
         [Category("Rendering")]
         public bool VisibleByDefault => _visibleByDefault;
@@ -120,7 +137,7 @@ namespace TheraEngine.Components.Scene.Shapes
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (IsSpawned)
+            if (IsSpawned && !Visible)
             {
                 if (selected)
                     OwningScene.Add(this);

@@ -75,19 +75,24 @@ namespace TheraEngine.Rendering.Models
                 if (reader.Name.Equals("Count", true))
                     count = int.Parse(reader.Value);
             }
+            _facePoints = new List<FacePoint>(count);
+
             bool hasInfs = _influences != null && _influences.Length > 0;
+
             int bufferCount = _buffers.Count;
-            int valuesPerPoint = bufferCount + (hasInfs ? 1 : 0);
             string values = reader.ReadElementString();
-            int[] points = values.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
-            _facePoints = new List<FacePoint>(points.Length / valuesPerPoint);
-            for (int i = 0, x = 0; x < points.Length; ++i)
+            int[] indices = values.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
+            
+            for (int i = 0, m = 0; i < count; ++i)
             {
                 FacePoint p = new FacePoint(i, this);
+                
                 if (hasInfs)
-                    p._influenceIndex = points[x++];
+                    p._influenceIndex = indices[m++];
+
                 for (int r = 0; r < bufferCount; ++r)
-                    p.BufferIndices.Add(points[x++]);
+                    p.BufferIndices.Add(indices[m++]);
+
                 _facePoints.Add(p);
             }
             return true;

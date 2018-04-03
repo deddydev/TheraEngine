@@ -164,31 +164,31 @@ float ReadPointShadowMap(in int lightIndex, in float farPlaneDist, in vec3 fragT
     float bias = GetShadowBias(NoL, 2.5f, 0.15f, 5.0f);
 
     //Hard shadow
-	float closestDepth = texture(PointShadowMaps[lightIndex], fragToLightWS).r * farPlaneDist;
-	float shadow = lightDist - bias > closestDepth ? 0.0f : 1.0f;
+    float closestDepth = texture(PointShadowMaps[lightIndex], fragToLightWS).r * farPlaneDist;
+    float shadow = lightDist - bias > closestDepth ? 0.0f : 1.0f;
 
     //PCF shadow
-	//float shadow = 0.0;
-	//vec2 texelSize = 1.0f / textureSize(map, 0);
-	//for (int x = -1; x <= 1; ++x)
-	//{
-	//    for (int y = -1; y <= 1; ++y)
-	//    {
- //           for (int z = -1; z <= 1; ++z)
-	//        {
-	//            float pcfDepth = texture(map, fragToLightWS + vec3(x, y, z) * texelSize).r * farPlaneDist;
-	//            shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;    
- //           }
-	//    }    
-	//}
-	//shadow *= 0.111111111f; //divided by 9
+    //float shadow = 0.0;
+    //vec2 texelSize = 1.0f / textureSize(map, 0);
+    //for (int x = -1; x <= 1; ++x)
+    //{
+    //    for (int y = -1; y <= 1; ++y)
+    //    {
+    //           for (int z = -1; z <= 1; ++z)
+    //        {
+    //            float pcfDepth = texture(map, fragToLightWS + vec3(x, y, z) * texelSize).r * farPlaneDist;
+    //            shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;    
+    //        }
+    //    }    
+    //}
+    //shadow *= 0.111111111f; //divided by 9
 
-	return shadow;
+    return shadow;
 }
 
 float Attenuate(in float dist, in float radius)
 {
-	return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
+    return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
 }
 
 void CalcColor(in BaseLight light, in float NoL, in float NoH, in float NoV, in float HoV, in float attn, in vec4 albedoOpacity, in vec4 rmsi, out vec3 color, out vec3 ambient)
@@ -217,7 +217,7 @@ void CalcColor(in BaseLight light, in float NoL, in float NoH, in float NoV, in 
 }
 vec3 ColorCombine(vec3 color, vec3 ambient, float shadow, float ambOcc)
 {
-	return (ambient + color * shadow) * ambOcc;
+	return (ambient + color * shadow);
 }
 vec3 CalcDirLight(in int lightIndex, in vec3 N, in vec3 V, in vec3 fragPosWS, in vec4 albedoOpacity, in vec4 rmsi, in float ambOcc)
 {
@@ -301,7 +301,7 @@ vec3 CalcSpotLight(in int lightIndex, in vec3 N, in vec3 V, in vec3 fragPosWS, i
 vec3 CalcTotalLight(in vec3 N, in vec3 fragPosWS, in vec4 albedoOpacity, in vec4 rmsi, in float ambOcc)
 {
     vec3 totalLight = GlobalAmbient;
-	vec3 V = normalize(CameraPosition - fragPosWS);
+    vec3 V = normalize(CameraPosition - fragPosWS);
 
     int i;
     for (i = 0; i < DirLightCount; ++i)
@@ -331,12 +331,12 @@ void main()
     vec4 AlbedoOpacity = texture(Texture0, uv);
     vec3 Normal = texture(Texture1, uv).rgb;
     vec4 RMSI = vec4(texture(Texture2, uv).rgb, 1.0f);
+    float Occlusion = texture(Texture3, uv).r;
     float Depth = texture(Texture4, uv).r;
 
     vec3 FragPosVS = ViewPosFromDepth(Depth, uv);
     vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0f)).xyz;
 
-    float occlusion = texture(Texture3, uv).r;
-    vec3 totalLight = CalcTotalLight(Normal, FragPosWS, AlbedoOpacity, RMSI, occlusion);
-    OutColor = AlbedoOpacity.rgb * totalLight;
+    vec3 totalLight = CalcTotalLight(Normal, FragPosWS, AlbedoOpacity, RMSI, Occlusion);
+    OutColor = AlbedoOpacity.rgb * (totalLight * vec3(Occlusion));
 }

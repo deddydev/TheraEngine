@@ -197,7 +197,7 @@ namespace TheraEngine.Rendering
 
             shaderFiles = new ShaderFile[]
             {
-                new ShaderFile(ShaderMode.Fragment, fragStr),
+                new ShaderFile(EShaderMode.Fragment, fragStr),
             };
             shaderVars = vars.ToArray();
 

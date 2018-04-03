@@ -11,7 +11,7 @@ namespace TheraEngine.Physics
         DisableSleep = 4,
         DisableSimulation = 5
     }
-    public delegate void DelOnHit(TRigidBody me, TRigidBody other, TCollisionInfo collisionPoint);
+    public delegate void DelOnHit(TRigidBody me, TRigidBody other, TContactInfo collisionPoint);
     public abstract class TRigidBody : TCollisionObject
     {
         public DelOnHit OnHit;
@@ -101,7 +101,7 @@ namespace TheraEngine.Physics
                 if (_sleepingEnabled)
                 {
                     if (ActivationState == EBodyActivationState.DisableSleep)
-                        ActivationState = EBodyActivationState.Active;
+                        ActivationState = EBodyActivationState.WantsSleep;
                 }
                 else
                 {

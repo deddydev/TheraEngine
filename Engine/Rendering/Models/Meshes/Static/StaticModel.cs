@@ -45,16 +45,16 @@ namespace TheraEngine.Rendering.Models
             _name = name;
         }
 
-        private TCollisionShape _collision;
+        private TCollisionShape _collisionShape;
 
         public List<StaticRigidSubMesh> RigidChildren => _rigidChildren;
         public List<StaticSoftSubMesh> SoftChildren => _softChildren;
 
         [TSerialize]
-        public TCollisionShape Collision
+        public TCollisionShape CollisionShape
         {
-            get => _collision;
-            set => _collision = value;
+            get => _collisionShape;
+            set => _collisionShape = value;
         }
 
         //[CustomXMLSerializeMethod(nameof(Collision))]

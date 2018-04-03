@@ -32,22 +32,21 @@ namespace TheraEngine.Physics
         TSoftBody SoftBodyCollision { get; }
     }
     public delegate void DelMatrixUpdate(Matrix4 transform);
-    public delegate void DelCollision(TCollisionObject me, TCollisionObject other, TCollisionInfo info);
+    public delegate void DelCollision(TCollisionObject me, TCollisionObject other, TContactInfo info, bool isA);
     [FileExt("coll")]
     [FileDef("Collision Object", "Defines a collision object used by the physics engine for collision simulation.")]
     public abstract class TCollisionObject : TFileObject
     {
         public event DelMatrixUpdate TransformChanged;
         protected internal void OnTransformChanged(Matrix4 worldTransform)
-        {
-            TransformChanged?.Invoke(worldTransform);
-        }
-        public event DelCollision Collision;
-        protected internal void OnCollided(TCollisionObject other, TCollisionInfo info)
-        {
-            Collision?.Invoke(this, other, info);
-        }
-
+            => TransformChanged?.Invoke(worldTransform);
+        
+        public event DelCollision Collided, Overlapped;
+        protected internal void OnCollided(TCollisionObject other, TContactInfo info, bool isA)
+            => Collided?.Invoke(this, other, info, isA);
+        protected internal void OnOverlapped(TCollisionObject other, TContactInfo info, bool isA)
+            => Overlapped?.Invoke(this, other, info, isA);
+        
         protected TCollisionObject(ICollidable owner, TCollisionShape shape)
         {
             Owner = owner;

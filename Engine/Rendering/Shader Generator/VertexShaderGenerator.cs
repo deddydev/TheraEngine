@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering
                 Line("{0} = {2}{1};", string.Format(FragUVName, i), i, BufferType.TexCoord.ToString());
 
             string source = EndMain();
-            return new ShaderFile(ShaderMode.Vertex, source);
+            return new ShaderFile(EShaderMode.Vertex, source);
         }
         private void WriteBuffers()
         {

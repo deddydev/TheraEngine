@@ -93,8 +93,6 @@ namespace TheraEngine.Actors.Types
                 bodyInfo.SleepingEnabled = false;
                 InitPhysicsShape(bodyInfo);
             }
-
-            //GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.Orange), 4);
         }
         public unsafe float GetHeight(int x, int y)
         {
@@ -103,6 +101,9 @@ namespace TheraEngine.Actors.Types
         }
         public unsafe void GenerateHeightFieldMesh(TMaterial material, int stride = 1)
         {
+            if (_heightFieldShape == null)
+                throw new InvalidOperationException();
+
             float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
 
             List<VertexTriangle> list = new List<VertexTriangle>();
@@ -202,18 +203,6 @@ namespace TheraEngine.Actors.Types
             PrimitiveData data = PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), list);
             material.RenderParams.CullMode = Culling.Back;
             _mesh = new PrimitiveManager(data, material);
-        }
-
-        public override void OnSpawned()
-        {
-            OwningScene.Add(this);
-            base.OnSpawned();
-        }
-
-        public override void OnDespawned()
-        {
-            OwningScene.Remove(this);
-            base.OnDespawned();
         }
         
         public override Shape CullingVolume => null;

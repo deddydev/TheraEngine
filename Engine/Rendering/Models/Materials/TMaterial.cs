@@ -113,17 +113,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 return _program;
             }
         }
-
-        //public FrameBuffer FrameBuffer
-        //{
-        //    get => _frameBuffer;
-        //    set
-        //    {
-        //        _frameBuffer = value;
-        //        CollectFBOAttachments();
-        //    }
-        //}
-
+        
         public List<ShaderFile> FragmentShaders => _fragmentShaders;
 
         public enum UniformRequirements
@@ -378,18 +368,18 @@ namespace TheraEngine.Rendering.Models.Materials
                 {
                     switch (s.Type)
                     {
-                        case ShaderMode.Vertex:
+                        case EShaderMode.Vertex:
                             throw new InvalidOperationException("Vertex shaders cannot be included in materials.");
-                        case ShaderMode.Fragment:
+                        case EShaderMode.Fragment:
                             _fragmentShaders.Add(s);
                             break;
-                        case ShaderMode.Geometry:
+                        case EShaderMode.Geometry:
                             _geometryShaders.Add(s);
                             break;
-                        case ShaderMode.TessControl:
+                        case EShaderMode.TessControl:
                             _tessCtrlShaders.Add(s);
                             break;
-                        case ShaderMode.TessEvaluation:
+                        case EShaderMode.TessEvaluation:
                             _tessEvalShaders.Add(s);
                             break;
                     }
@@ -633,7 +623,7 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
 //    OutColor = MatColor * vec4(totalLight, 1.0);
 //}
 
-            ShaderFile s = new ShaderFile(ShaderMode.Fragment, source);
+            ShaderFile s = new ShaderFile(EShaderMode.Fragment, source);
             return new TMaterial("BlinnMaterial", parameters, s)
             {
                 Requirements = UniformRequirements.NeedsLightsAndCamera

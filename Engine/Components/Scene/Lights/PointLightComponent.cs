@@ -184,8 +184,8 @@ namespace TheraEngine.Components.Scene.Lights
                     FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                 },
             };
-            ShaderFile fragShader = Engine.LoadEngineShader("PointLightShadowDepth.fs", ShaderMode.Fragment);
-            ShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", ShaderMode.Geometry);
+            ShaderFile fragShader = Engine.LoadEngineShader("PointLightShadowDepth.fs", EShaderMode.Fragment);
+            ShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", EShaderMode.Geometry);
             TMaterial mat = new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader, geomShader);
             mat.RenderParams.CullMode = Culling.None;
             return mat;

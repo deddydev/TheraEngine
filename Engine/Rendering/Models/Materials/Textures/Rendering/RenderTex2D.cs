@@ -69,6 +69,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             }
         }
 
+        //TODO: use subimage2d instead for updates; use PBO per texture for quick data updates
         public override void PushData()
         {
             if (BaseRenderPanel.NeedsInvoke(PushData, BaseRenderPanel.PanelType.Rendering))

@@ -158,7 +158,6 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
-            //AttachToFBO();
         }
 
         private bool _isLoading = false;
@@ -225,6 +224,7 @@ namespace TheraEngine.Rendering.Models.Materials
                         h /= 2;
                     }
                 }
+
             _texture?.Resize(width, height);
         }
 
@@ -329,8 +329,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
-                MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest,
+                MinFilter = ETexMinFilter.Linear,
+                MagFilter = ETexMagFilter.Linear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 FrameBufferAttachment = bufAttach,
@@ -341,8 +341,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
-                MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest,
+                MinFilter = ETexMinFilter.Linear,
+                MagFilter = ETexMagFilter.Linear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
             };

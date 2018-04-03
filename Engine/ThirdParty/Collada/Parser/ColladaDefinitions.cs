@@ -28,6 +28,7 @@ namespace TheraEngine.Rendering.Models
                 => (T)GetElement(root);
             public IID GetElement(COLLADA root)
                 => IsLocal ? root?.GetIDEntry(URI.Substring(1)) : null;
+            public string TargetID => IsLocal ? URI.Substring(1) : URI;
         }
         public class SidRef : IParsable
         {

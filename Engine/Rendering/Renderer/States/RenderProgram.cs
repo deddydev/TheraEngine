@@ -97,19 +97,19 @@ namespace TheraEngine.Rendering
             {
                 if (info.Contains("Vertex"))
                 {
-                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == ShaderMode.Vertex);
+                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Vertex);
                     string source = s.GetSource(true, true);
                     Engine.PrintLine(source);
                 }
                 else if (info.Contains("Geometry"))
                 {
-                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == ShaderMode.Geometry);
+                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Geometry);
                     string source = s.GetSource(true, true);
                     Engine.PrintLine(source);
                 }
                 else if (info.Contains("Fragment"))
                 {
-                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == ShaderMode.Fragment);
+                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Fragment);
                     string source = s.GetSource(true, true);
                     Engine.PrintLine(source);
                 }

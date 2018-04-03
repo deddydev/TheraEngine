@@ -6,7 +6,7 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public enum ShaderMode
+    public enum EShaderMode
     {
         Fragment,           // https://www.opengl.org/wiki/Fragment_Shader
         Vertex,             // https://www.opengl.org/wiki/Vertex_Shader
@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public event Action SourceChanged;
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public ShaderMode Type { get; set; }
+        public EShaderMode Type { get; set; }
         public GlobalFileRef<TextFile>[] Sources => _sources;
         
         [TSerialize(nameof(Sources))]
@@ -39,26 +39,26 @@ namespace TheraEngine.Rendering.Models.Materials
 
         #region Constructors
         public ShaderFile() { }
-        public ShaderFile(ShaderMode type)
+        public ShaderFile(EShaderMode type)
         {
             Type = type;
         }
-        public ShaderFile(ShaderMode type, string source)
+        public ShaderFile(EShaderMode type, string source)
         {
             Type = type;
             _sources = new GlobalFileRef<TextFile>[] { TextFile.FromText(source) };
         }
-        public ShaderFile(ShaderMode type, params string[] sources)
+        public ShaderFile(EShaderMode type, params string[] sources)
         {
             Type = type;
             _sources = sources.Select(x => new GlobalFileRef<TextFile>(x)).ToArray();
         }
-        public ShaderFile(ShaderMode type, params TextFile[] files)
+        public ShaderFile(EShaderMode type, params TextFile[] files)
         {
             Type = type;
             _sources = files.Select(x => new GlobalFileRef<TextFile>(x)).ToArray();
         }
-        public ShaderFile(ShaderMode type, params GlobalFileRef<TextFile>[] references)
+        public ShaderFile(EShaderMode type, params GlobalFileRef<TextFile>[] references)
         {
             Type = type;
             _sources = references;

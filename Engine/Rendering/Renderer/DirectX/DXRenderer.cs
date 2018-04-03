@@ -195,7 +195,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void SetShaderMode(ShaderMode type)
+        public override void SetShaderMode(EShaderMode type)
         {
             throw new NotImplementedException();
         }
@@ -280,12 +280,7 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override void PushTextureData(ETexTarget texTarget, int mipLevel, EPixelInternalFormat internalFormat, int width, int height, EPixelFormat pixelFormat, EPixelType type, byte[] data)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
         {
             throw new NotImplementedException();
@@ -578,6 +573,41 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MemoryBarrier(EMemoryBarrierFlags flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MemoryBarrierByRegion(EMemoryBarrierRegionFlags flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DispatchCompute(int numGroupsX, int numGroupsY, int numGroupsZ)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DispatchComputeIndirect(int offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PushTextureData<T>(ETexTarget texTarget, int mipLevel, EPixelInternalFormat internalFormat, int width, int height, EPixelFormat pixelFormat, EPixelType type, T[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PushTextureSubData(ETexTarget texTarget, int mipLevel, int xOffset, int yOffset, int width, int height, EPixelFormat format, EPixelType type, VoidPtr data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PushTextureSubData<T>(ETexTarget texTarget, int mipLevel, int xOffset, int yOffset, int width, int height, EPixelFormat format, EPixelType type, T[] data)
         {
             throw new NotImplementedException();
         }

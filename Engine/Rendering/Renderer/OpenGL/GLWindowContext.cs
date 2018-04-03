@@ -206,7 +206,6 @@ namespace TheraEngine.Rendering.OpenGL
             GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, ids, true);
             //Modify depth range so there is no loss of precision with scale and bias conversion
             GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.NegativeOneToOne);
-
             //GL.Enable(EnableCap.FramebufferSrgb);
 
             //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);

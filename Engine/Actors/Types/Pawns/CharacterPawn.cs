@@ -207,7 +207,7 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             _viewRotation.Pitch += value * _gamePadYLookInputMultiplier;
         }
-        protected void OnHit(TRigidBody me, TRigidBody other, TCollisionInfo point)
+        protected void OnHit(TRigidBody me, TRigidBody other, TContactInfo point)
         {
             //Engine.DebugPrint(((ObjectBase)other).Name + " collided with " + Name);
             _movement.OnHit(other, point);

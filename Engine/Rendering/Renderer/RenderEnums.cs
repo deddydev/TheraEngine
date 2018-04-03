@@ -217,6 +217,36 @@ namespace TheraEngine.Rendering
         Triangles,
     }
     [Flags]
+    public enum EMemoryBarrierFlags
+    {
+        AllBarrierBits = -1,
+        VertexAttribArrayBarrierBit = 1,
+        ElementArrayBarrierBit = 2,
+        UniformBarrierBit = 4,
+        TextureFetchBarrierBit = 8,
+        ShaderImageAccessBarrierBit = 32,
+        CommandBarrierBit = 64,
+        PixelBufferBarrierBit = 128,
+        TextureUpdateBarrierBit = 256,
+        BufferUpdateBarrierBit = 512,
+        FramebufferBarrierBit = 1024,
+        TransformFeedbackBarrierBit = 2048,
+        AtomicCounterBarrierBit = 4096,
+        ShaderStorageBarrierBit = 8192,
+        ClientMappedBufferBarrierBit = 16384,
+        QueryBufferBarrierBit = 32768
+    }
+    [Flags]
+    public enum EMemoryBarrierRegionFlags
+    {
+        GlAllBarrierBits = -1,
+        GlUniformBarrierBit = 4,
+        GlTextureFetchBarrierBit = 8,
+        GlShaderImageAccessBarrierBit = 32,
+        GlFramebufferBarrierBit = 1024,
+        GlAtomicCounterBarrierBit = 4096
+    }
+    [Flags]
     public enum EBufferClear
     {
         Color = 1,

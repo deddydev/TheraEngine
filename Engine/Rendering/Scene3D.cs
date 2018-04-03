@@ -181,41 +181,91 @@ namespace TheraEngine.Rendering
         public void RenderForward(Camera c, Viewport v, MaterialFrameBuffer target)
         {
             AbstractRenderer.PushCurrentCamera(c);
+            AbstractRenderer.PushCurrent3DScene(this);
             {
                 foreach (IPreRendered p in _preRenderList)
                     p.PreRender(c);
 
-                //Enable internal resolution
-                Engine.Renderer.PushRenderArea(v.InternalResolution);
+                if (v != null)
                 {
-                    v.PostProcessFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                    //Enable internal resolution
+                    Engine.Renderer.PushRenderArea(v.InternalResolution);
                     {
-                        //Initial scene setup
-                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                        Engine.Renderer.AllowDepthWrite(true);
+                        v.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        {
+                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                            Engine.Renderer.AllowDepthWrite(false);
+                            _passes.Render(ERenderPass3D.Skybox);
+                            Engine.Renderer.AllowDepthWrite(true);
 
-                        //Render forward opaque objects first
-                        _passes.Render(ERenderPass3D.OpaqueForward);
-                        //Render forward transparent objects next
-                        _passes.Render(ERenderPass3D.TransparentForward);
-                        
-                        //Render forward on-top objects last
-                        _passes.Render(ERenderPass3D.OnTopForward);
+                            //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
+                            //RenderTree.DebugRender(c?.Frustum, true);
+
+                            _passes.Render(ERenderPass3D.OpaqueForward);
+                            _passes.Render(ERenderPass3D.TransparentForward);
+                            Engine.Renderer.EnableDepthTest(false);
+                            _passes.Render(ERenderPass3D.OnTopForward);
+                            Engine.Renderer.EnableDepthTest(true);
+                        }
+                        v.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                        v.PingPongBloomBlurFBO.Reset();
+                        for (int i = 0; i <= 11; ++i)
+                        {
+                            v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
+                            if (i == 0)
+                                v.ForwardPassFBO.RenderFullscreen();
+                            else
+                                v.PingPongBloomBlurFBO.RenderFullscreen();
+                            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
+                            v.PingPongBloomBlurFBO.Switch();
+                        }
                     }
-                    v.PostProcessFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-                }
-                Engine.Renderer.PopRenderArea();
+                    Engine.Renderer.PopRenderArea();
 
-                //Render the last pass to the actual screen resolution
-                Engine.Renderer.PushRenderArea(v.Region);
+                    //Render the last pass to the actual screen resolution, 
+                    //or the provided target FBO
+                    target?.Bind(EFramebufferTarget.DrawFramebuffer);
+                    {
+                        Engine.Renderer.PushRenderArea(v.Region);
+                        {
+                            Engine.Renderer.AllowDepthWrite(true);
+                            Engine.Renderer.DepthFunc(EComparison.Lequal);
+                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+
+                            v.PostProcessFBO.RenderFullscreen();
+
+                            if (v.HUD?.UIScene != null)
+                            {
+                                v.HUD.UIScene.CollectVisibleRenderables();
+                                v.HUD.UIScene.DoRender(v.HUD.Camera, v, null);
+                            }
+                        }
+                        Engine.Renderer.PopRenderArea();
+                    }
+                    target?.Unbind(EFramebufferTarget.DrawFramebuffer);
+                }
+                else
                 {
-                    Engine.Renderer.CropRenderArea(v.Region);
+                    target?.Bind(EFramebufferTarget.DrawFramebuffer);
+                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
-                    //Render final post process quad
-                    v.PostProcessFBO.RenderFullscreen();
+                    Engine.Renderer.AllowDepthWrite(false);
+                    _passes.Render(ERenderPass3D.Skybox);
+
+                    Engine.Renderer.AllowDepthWrite(true);
+                    _passes.Render(ERenderPass3D.OpaqueDeferredLit);
+                    _passes.Render(ERenderPass3D.OpaqueForward);
+                    _passes.Render(ERenderPass3D.TransparentForward);
+
+                    //Render forward on-top objects last
+                    //Disable depth fail for objects on top
+                    Engine.Renderer.DepthFunc(EComparison.Always);
+                    _passes.Render(ERenderPass3D.OnTopForward);
+                    target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
-                Engine.Renderer.PopRenderArea();
             }
+            AbstractRenderer.PopCurrent3DScene();
             AbstractRenderer.PopCurrentCamera();
         }
         public void RenderDeferred(Camera c, Viewport v, MaterialFrameBuffer target)
@@ -274,7 +324,7 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.AllowDepthWrite(true);
 
                             //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
-                            RenderTree.DebugRender(c?.Frustum, true);
+                            //RenderTree.DebugRender(c?.Frustum, true);
 
                             _passes.Render(ERenderPass3D.OpaqueForward);
                             //Render forward transparent objects next
@@ -288,7 +338,7 @@ namespace TheraEngine.Rendering
                         v.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         v.PingPongBloomBlurFBO.Reset();
-                        for (int i = 0; i <= 2; ++i)
+                        for (int i = 0; i <= 11; ++i)
                         {
                             v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
                             if (i == 0)
@@ -298,19 +348,7 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
                             v.PingPongBloomBlurFBO.Switch();
                         }
-
-                        //No need to render to post process. 
-                        //HDR scene color, bloom, and depth are already finalized.
-
-                        //v.PostProcessFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        //{
-                        //    Engine.Renderer.AllowDepthWrite(false);
-                        //    v.PingPongBloomBlurFBO.RenderFullscreenAndSwitch();
-                        //}
-                        //v.PostProcessFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
                     }
-
-                    //Disable internal resolution
                     Engine.Renderer.PopRenderArea();
 
                     //Render the last pass to the actual screen resolution, 

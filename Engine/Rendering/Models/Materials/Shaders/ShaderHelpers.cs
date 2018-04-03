@@ -100,7 +100,7 @@ void main()
     OutColor = texColor * vec4(totalLight, 1.0);
 }
 ";
-            return new ShaderFile(ShaderMode.Fragment, source);
+            return new ShaderFile(EShaderMode.Fragment, source);
         }
         public static ShaderFile TextureFragDeferred()
         {
@@ -128,7 +128,7 @@ void main()
     RMSI = vec4(Roughness, Metallic, Specular, IndexOfRefraction);
 }
 ";
-            return new ShaderFile(ShaderMode.Fragment, source);
+            return new ShaderFile(EShaderMode.Fragment, source);
         }
         public static ShaderFile LitColorFragDeferred()
         {
@@ -155,7 +155,7 @@ void main()
     RMSI = vec4(Roughness, Metallic, Specular, IndexOfRefraction);
 }
 ";
-            return new ShaderFile(ShaderMode.Fragment, source);
+            return new ShaderFile(EShaderMode.Fragment, source);
         }
         /// <summary>
         /// Provides a fragment shader that outputs the color 
@@ -181,7 +181,7 @@ void main()
     //    discard;
 }
 ";
-            return new ShaderFile(ShaderMode.Fragment, source);
+            return new ShaderFile(EShaderMode.Fragment, source);
         }
         /// <summary>
         /// Provides a fragment shader that outputs a single color
@@ -195,7 +195,7 @@ layout (location = 0) out vec4 OutColor;
 uniform vec4 MatColor;
 void main() { OutColor = MatColor; }
 ";
-            return new ShaderFile(ShaderMode.Fragment, source);
+            return new ShaderFile(EShaderMode.Fragment, source);
         }
         public static ShaderFile LitColorFragForward()
         {
@@ -225,7 +225,7 @@ void main()
     OutColor = MatColor * vec4(totalLight, 1.0);
 }
 ";
-            return new ShaderFile(ShaderMode.Fragment, source);
+            return new ShaderFile(EShaderMode.Fragment, source);
         }
         public static string LightingCalcForward()
             => LightingCalcBasic("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity", "1.0");
@@ -888,7 +888,7 @@ void main()
     color = vec4(result, 1);
 }
 ";
-            return new ShaderFile(ShaderMode.Fragment, source);
+            return new ShaderFile(EShaderMode.Fragment, source);
         }
     }
 }

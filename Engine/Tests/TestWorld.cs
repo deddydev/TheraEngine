@@ -303,7 +303,7 @@ namespace TheraEngine.Tests
             });
         }
 
-        private void PhysicsDriver_OnHit(TCollisionObject me, TCollisionObject other, TCollisionInfo point)
+        private void PhysicsDriver_OnHit(TCollisionObject me, TCollisionObject other, TContactInfo point)
         {
             ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me.Owner).ModelRef.File.RigidChildren[0].LODs[0].MaterialRef.File.Parameters[0];
             color.Value = (ColorF4)Color.Green;

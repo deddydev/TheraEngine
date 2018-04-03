@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace TheraEngine.Physics.Jitter
@@ -57,7 +58,17 @@ namespace TheraEngine.Physics.Jitter
             //=> new JitterCapsuleZ(radius, height);
         public override TCollisionHeightField NewHeightField(int heightStickWidth, int heightStickLength, Stream heightfieldData, float heightScale, float minHeight, float maxHeight, int upAxis, TCollisionHeightField.EHeightValueType heightDataType, bool flipQuadEdges)
             => throw new NotImplementedException();
-            //=> new JitterHeightField(heightStickLength, heightStickLength, heightfieldData, heightScale, minHeight, maxHeight, upAxis, (PhyScalarType)(int)heightDataType, flipQuadEdges);
+
+        public override TCollisionCompoundShape NewCompoundShape((Matrix4 localTransform, TCollisionShape shape)[] shapes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override TCollisionConvexHull NewConvexHull(IEnumerable<Vec3> points)
+        {
+            throw new NotImplementedException();
+        }
+        //=> new JitterHeightField(heightStickLength, heightStickLength, heightfieldData, heightScale, minHeight, maxHeight, upAxis, (PhyScalarType)(int)heightDataType, flipQuadEdges);
         #endregion
     }
 }

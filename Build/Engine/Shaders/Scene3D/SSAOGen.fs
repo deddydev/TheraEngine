@@ -21,8 +21,7 @@ uniform mat4 InvProjMatrix;
 
 vec3 ViewPosFromDepth(float depth, vec2 uv)
 {
-    float z = depth * 2.0f - 1.0f;
-    vec4 clipSpacePosition = vec4(uv * 2.0f - 1.0f, z, 1.0f);
+    vec4 clipSpacePosition = vec4(vec3(uv, depth) * 2.0f - 1.0f, 1.0f);
     vec4 viewSpacePosition = InvProjMatrix * clipSpacePosition;
     return viewSpacePosition.xyz / viewSpacePosition.w;
 }
@@ -46,24 +45,31 @@ void main()
     vec3 n = normalize(vec3(WorldToCameraSpaceMatrix * vec4(Normal, 0.0f)));
     vec3 tangent = normalize(randomVec - n * dot(randomVec, n));
     vec3 bitangent = cross(n, tangent);
-    mat3 TBN = mat3(tangent, bitangent, n); 
+    mat3 TBN = mat3(tangent, bitangent, n);
 
     int kernelSize = 64;
     float bias = 0.025f;
 
+    vec3 noiseSample;
+    vec4 offset;
+    vec3 viewPos;
+    float sampleDepth;
+    float rangeCheck;
     float occlusion = 0.0f;
+
     for (int i = 0; i < kernelSize; ++i)
     {
-        vec3 noiseSample = TBN * SSAOSamples[i];
+        noiseSample = TBN * SSAOSamples[i];
         noiseSample = FragPosVS + noiseSample * SSAORadius;
 
-        vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
+        offset = ProjMatrix * vec4(noiseSample, 1.0f);
         offset.xyz /= offset.w;
         offset.xyz = offset.xyz * 0.5f + 0.5f;
+	
+	viewPos = ViewPosFromDepth(texture(Texture2, offset.xy).r, offset.xy);
+        sampleDepth = viewPos.z;
 
-        float sampleDepth = ViewPosFromDepth(texture(Texture2, offset.xy).r, offset.xy).z;
-
-        float rangeCheck = smoothstep(0.0f, 1.0f, SSAORadius / abs(FragPosVS.z - sampleDepth));
+        rangeCheck = smoothstep(0.0f, 1.0f, SSAORadius / abs(FragPosVS.z - sampleDepth));
         occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0f : 0.0f) * rangeCheck;  
     }
 

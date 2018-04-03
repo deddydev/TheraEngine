@@ -26,8 +26,6 @@ namespace TheraEngine.Rendering.UI
         private static TMaterial GetViewportMaterial()
         {
             return new TMaterial("ViewportMat",
-                TMaterial.UniformRequirements.None,
-                new ShaderVar[0],
                 new BaseTexRef[]
                 {
                     TexRef2D.CreateFrameBufferTexture("OutColor", 1, 1,
@@ -35,7 +33,7 @@ namespace TheraEngine.Rendering.UI
                         EPixelFormat.Rgba, EPixelType.HalfFloat,
                         EFramebufferAttachment.ColorAttachment0),
                 },
-                Engine.LoadEngineShader("ViewportFBO.fs", ShaderMode.Fragment));
+                Engine.LoadEngineShader("ViewportFBO.fs", EShaderMode.Fragment));
         }
 
         private void SetUniforms()

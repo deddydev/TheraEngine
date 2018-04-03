@@ -132,7 +132,7 @@ namespace TheraEngine.Rendering.Models
         private static ShaderFile GetOBJFragmentShader(bool forward)
         {
             if (forward)
-                return new ShaderFile(ShaderMode.Fragment, @"
+                return new ShaderFile(EShaderMode.Fragment, @"
 #version 450
 
 layout (location = 0) out vec4 OutColor;
@@ -162,7 +162,7 @@ void main()
     OutColor = vec4(diffuseColor * totalLight, 1.0);
 }");
             else
-                return new ShaderFile(ShaderMode.Fragment, @"
+                return new ShaderFile(EShaderMode.Fragment, @"
 #version 450
 
 layout (location = 0) out vec4 AlbedoSpec;

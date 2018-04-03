@@ -397,7 +397,10 @@ namespace TheraEngine.Rendering
         public abstract void SetLineSize(float size);
         public abstract int GetStencilIndex(float x, float y);
         public abstract float GetDepth(float x, float y);
-        
+
+        public abstract void MemoryBarrier(EMemoryBarrierFlags flags);
+        public abstract void MemoryBarrierByRegion(EMemoryBarrierRegionFlags flags);
+
         #region Shaders
         /*
          * ---Shader initialization routine---
@@ -422,33 +425,23 @@ namespace TheraEngine.Rendering
          * 
          */
 
-        //protected static RenderProgram _currentRenderProgram;
-        //protected static Material _currentMaterial;
         private TMaterial _fragmentShaderOverride;
 
         public abstract void SetBindFragDataLocation(int bindingId, int location, string name);
-        public abstract void SetShaderMode(ShaderMode type);
+        public abstract void SetShaderMode(EShaderMode type);
         public abstract void SetShaderSource(int bindingId, params string[] sources);
         public abstract bool CompileShader(int bindingId, out string info);
-        //public abstract int GenerateShader();
         public abstract int GenerateProgram(bool separable);
         public abstract void AttachShader(int shaderBindingId, int programBindingId);
         public abstract void DetachShader(int shaderBindingId, int programBindingId);
         public abstract bool LinkProgram(int bindingId, out string info);
-        //public virtual void UseMaterial(Material material)
-        //{
-        //    _currentMaterial = material;
-        //    _currentMaterial?.SetUniforms(0);
-        //}
         public abstract void ActiveShaderProgram(int pipelineBindingId, int programBindingId);
         public abstract void SetProgramParameter(int programBindingId, EProgParam parameter, int value);
         public abstract void UseProgram(int programBindingId);
-        //{
-        //    _currentRenderProgram = program;
-        //    _currentRenderProgram?.SetUniforms();
-        //}
         public abstract void BindPipeline(int pipelineBindingId);
         public abstract void SetPipelineStage(int pipelineBindingId, EProgramStageMask mask, int programBindingId);
+        public abstract void DispatchCompute(int numGroupsX, int numGroupsY, int numGroupsZ);
+        public abstract void DispatchComputeIndirect(int offset);
 
         /// <summary>
         /// Sets various render parameters before rendering a mesh such as culling and blending.
@@ -460,41 +453,60 @@ namespace TheraEngine.Rendering
         private ConcurrentDictionary<int, ConcurrentDictionary<string, int>> _attribCache = 
             new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
 
+        /// <summary>
+        /// Retrieves the attribute location from the program.
+        /// Caches if found.
+        /// </summary>
+        /// <param name="programBindingId"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public int GetAttribLocation(int programBindingId, string name)
         {
-            if (_attribCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> dic))
-            {
-                return dic.GetOrAdd(name, n => OnGetAttribLocation(programBindingId, n));
-            }
+            if (_attribCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> progDic))
+                return progDic.GetOrAdd(name, n => OnGetAttribLocation(programBindingId, n));
             else
             {
-                var dic2 = new ConcurrentDictionary<string, int>();
+                progDic = new ConcurrentDictionary<string, int>();
                 int loc = OnGetAttribLocation(programBindingId, name);
-                if (!dic2.TryAdd(name, loc))
-                    throw new Exception();
-                if (!_attribCache.TryAdd(programBindingId, dic2))
+                if (!progDic.TryAdd(name, loc) || !_attribCache.TryAdd(programBindingId, progDic))
                     throw new Exception();
                 return loc;
             }
         }
+        /// <summary>
+        /// Retrieves the attribute location from the program.
+        /// </summary>
+        /// <param name="programBindingId"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         protected abstract int OnGetAttribLocation(int programBindingId, string name);
+
+        /// <summary>
+        /// Retrieves the uniform location from the program.
+        /// Caches if found.
+        /// </summary>
+        /// <param name="programBindingId"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public int GetUniformLocation(int programBindingId, string name)
         {
-            if (_uniformCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> dic))
-            {
-                return dic.GetOrAdd(name, n => OnGetUniformLocation(programBindingId, n));
-            }
+            if (_uniformCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> progDic))
+                return progDic.GetOrAdd(name, n => OnGetUniformLocation(programBindingId, n));
             else
             {
-                var dic2 = new ConcurrentDictionary<string, int>();
+                progDic = new ConcurrentDictionary<string, int>();
                 int loc = OnGetUniformLocation(programBindingId, name);
-                if (!dic2.TryAdd(name, loc))
-                    throw new Exception();
-                if (!_uniformCache.TryAdd(programBindingId, dic2))
+                if (!progDic.TryAdd(name, loc) || !_uniformCache.TryAdd(programBindingId, progDic))
                     throw new Exception();
                 return loc;
             }
         }
+        /// <summary>
+        /// Retrieves the uniform location from the program.
+        /// </summary>
+        /// <param name="programBindingId"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         protected abstract int OnGetUniformLocation(int programBindingId, string name);
 
         //public void Uniform(string name, params IUniformable4Int[] p) => Uniform(GetUniformLocation(name), p);
@@ -663,7 +675,7 @@ namespace TheraEngine.Rendering
             EPixelFormat pixelFormat,
             EPixelType type,
             VoidPtr data);
-        public abstract void PushTextureData(
+        public abstract void PushTextureData<T>(
             ETexTarget texTarget,
             int mipLevel,
             EPixelInternalFormat internalFormat,
@@ -671,7 +683,28 @@ namespace TheraEngine.Rendering
             int height,
             EPixelFormat pixelFormat,
             EPixelType type,
-            byte[] data);
+            T[] data) where T : struct;
+        public abstract void PushTextureSubData(
+            ETexTarget texTarget,
+            int mipLevel,
+            int xOffset,
+            int yOffset,
+            int width,
+            int height,
+            EPixelFormat format,
+            EPixelType type,
+            VoidPtr data);
+        public abstract void PushTextureSubData<T>(
+             ETexTarget texTarget,
+             int mipLevel,
+             int xOffset,
+             int yOffset,
+             int width,
+             int height,
+             EPixelFormat format,
+             EPixelType type,
+             T[] data) where T : struct;
+
         public abstract void BindTexture(ETexTarget texTarget, int bindingId);
 
         //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);

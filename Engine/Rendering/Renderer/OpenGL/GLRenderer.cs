@@ -8,9 +8,15 @@ using System.Linq;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Memory;
 using System.Text;
+using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEngine.Rendering.OpenGL
 {
+    public class MinGLVersion : Attribute
+    {
+        public EOpenGLVersion Version { get; }
+        public MinGLVersion(EOpenGLVersion ver) => Version = ver;
+    }
     public unsafe class GLRenderer : AbstractRenderer
     {
         public const bool ForceShaderOutput = false;
@@ -39,36 +45,18 @@ namespace TheraEngine.Rendering.OpenGL
 
         public override void SetPointSize(float size) => GL.PointSize(size);
         public override void SetLineSize(float size) => GL.LineWidth(size);
+        
+        [MinGLVersion(EOpenGLVersion.Ver_4_2)]
+        public override void MemoryBarrier(EMemoryBarrierFlags flags)
+            => GL.MemoryBarrier((MemoryBarrierFlags)flags);
 
-        //public override void RenderLine(string name, Vec3 start, Vec3 end, ColorF4 color, float lineWidth = 5)
-        //{
-        //    //base.RenderLine(name, start, end, color, lineWidth);
-        //    GL.EnableVertexArrayAttrib(vaoId, index);
+        [MinGLVersion(EOpenGLVersion.Ver_4_5)]
+        public override void MemoryBarrierByRegion(EMemoryBarrierRegionFlags flags)
+            => GL.MemoryBarrierByRegion((MemoryBarrierRegionFlags)flags);
 
-        //    GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
-        //    GL.NamedBufferData(buffer.BindingId, buffer._componentCount, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer._usage);
-        //    GL.VertexArrayAttribBinding(vaoId, index, index);
-        //    GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
-        //}
-        //public override void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
-        //{
-        //    SetPointSize(pointSize);
-        //    UseProgram(null);
-
-        //}
-        //public override void RenderLineLoop(bool closedLoop, params Vec3[] points)
-        //{
-
-        //}
-        //public override void RenderLineLoop(bool closedLoop, PropAnimVec3 points)
-        //{
-
-        //}
-
+        [MinGLVersion(EOpenGLVersion.Ver_1_0)]
         public override void ClearColor(ColorF4 color)
-        {
-            GL.ClearColor(color.R, color.G, color.B, color.A);
-        }
+            => GL.ClearColor(color.R, color.G, color.B, color.A);
 
         public override void CheckErrors()
         {
@@ -84,8 +72,8 @@ namespace TheraEngine.Rendering.OpenGL
                 else
                     break;
             }
-            //if (error.Length > 0)
-            //    throw new Exception(error);
+            if (error.Length > 0)
+                throw new Exception(error);
         }
 
         #region Objects
@@ -225,39 +213,48 @@ namespace TheraEngine.Rendering.OpenGL
         #endregion
 
         #region Shaders
-        public override void SetShaderMode(ShaderMode type)
+        public override void SetShaderMode(EShaderMode type)
         {
             switch (type)
             {
-                case ShaderMode.Fragment:
+                case EShaderMode.Fragment:
                     _currentShaderMode = ShaderType.FragmentShader;
                     break;
-                case ShaderMode.Vertex:
+                case EShaderMode.Vertex:
                     _currentShaderMode = ShaderType.VertexShader;
                     break;
-                case ShaderMode.Geometry:
+                case EShaderMode.Geometry:
                     _currentShaderMode = ShaderType.GeometryShader;
                     break;
-                case ShaderMode.TessControl:
+                case EShaderMode.TessControl:
                     _currentShaderMode = ShaderType.TessControlShader;
                     break;
-                case ShaderMode.TessEvaluation:
+                case EShaderMode.TessEvaluation:
                     _currentShaderMode = ShaderType.TessEvaluationShader;
                     break;
-                case ShaderMode.Compute:
+                case EShaderMode.Compute:
                     _currentShaderMode = ShaderType.ComputeShader;
                     break;
             }
         }
+
+        [MinGLVersion(EOpenGLVersion.Ver_4_3)]
+        public override void DispatchCompute(int numGroupsX, int numGroupsY, int numGroupsZ)
+            => GL.DispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+
+        [MinGLVersion(EOpenGLVersion.Ver_4_3)]
+        public override void DispatchComputeIndirect(int offset)
+            => GL.DispatchComputeIndirect((IntPtr)offset);
+
+        [MinGLVersion(EOpenGLVersion.Ver_3_0)]
         public override void SetBindFragDataLocation(int bindingId, int location, string name)
-        {
-            GL.BindFragDataLocation(bindingId, location, name);
-        }
+            => GL.BindFragDataLocation(bindingId, location, name);
+
+        [MinGLVersion(EOpenGLVersion.Ver_2_0)]
         public override void SetShaderSource(int bindingId, params string[] sources)
-        {
-            int[] lengths = sources.Select(x => x.Length).ToArray();
-            GL.ShaderSource(bindingId, sources.Length, sources, lengths);
-        }
+            => GL.ShaderSource(bindingId, sources.Length, sources, sources.Select(x => x.Length).ToArray());
+        
+        [MinGLVersion(EOpenGLVersion.Ver_2_0)]
         public override bool CompileShader(int bindingId, out string info)
         {
             GL.CompileShader(bindingId);
@@ -276,28 +273,24 @@ namespace TheraEngine.Rendering.OpenGL
                 info = null;
             return success;
         }
-        //public override int GenerateShader()
-        //{
-        //    int handle = GL.CreateShader(_currentShaderMode);
-        //    if (handle == 0)
-        //        Engine.LogWarning("GL.CreateShader did not return a valid binding id.");
-            
-        //    return handle;
-        //}
+
+        [MinGLVersion(EOpenGLVersion.Ver_4_1)]
         public override void SetProgramParameter(int programBindingId, EProgParam parameter, int value)
             => GL.ProgramParameter(programBindingId, (ProgramParameterName)(int)parameter, value);
+
+        [MinGLVersion(EOpenGLVersion.Ver_4_1)]
         public override void BindPipeline(int pipelineBindingId)
-        {
-            GL.BindProgramPipeline(pipelineBindingId);
-        }
+            => GL.BindProgramPipeline(pipelineBindingId);
+
+        [MinGLVersion(EOpenGLVersion.Ver_4_1)]
         public override void SetPipelineStage(int pipelineBindingId, EProgramStageMask mask, int programBindingId)
-        {
-            GL.UseProgramStages(pipelineBindingId, (ProgramStageMask)(int)mask, programBindingId);
-        }
+            => GL.UseProgramStages(pipelineBindingId, (ProgramStageMask)(int)mask, programBindingId);
+
+        [MinGLVersion(EOpenGLVersion.Ver_4_1)]
         public override void ActiveShaderProgram(int pipelineBindingId, int programBindingId)
-        {
-            GL.ActiveShaderProgram(pipelineBindingId, programBindingId);
-        }
+            => GL.ActiveShaderProgram(pipelineBindingId, programBindingId);
+
+        [MinGLVersion(EOpenGLVersion.Ver_4_1)]
         public override int GenerateProgram(bool separable)
         {
             int handle = GL.CreateProgram();
@@ -792,22 +785,6 @@ namespace TheraEngine.Rendering.OpenGL
         public override void CropRenderArea(BoundingRectangle region)
             => GL.Scissor(region.IntX, region.IntY, region.IntWidth, region.IntHeight);
         
-        //public override void UniformMaterial(int matID, int location, params IUniformable4Int[] p)
-        //{
-        //    const int count = 4;
-
-        //    if (location < 0)
-        //        return;
-
-        //    float[] values = new float[p.Length << 2];
-
-        //    for (int i = 0; i < p.Length; ++i)
-        //        for (int x = 0; x < count; ++x)
-        //            values[i << 2 + x] = p[i].Data[x];
-
-        //    GL.ProgramUniform4(matID, location, p.Length, values);
-        //}
-        
         #region Transform Feedback
         public override void BindTransformFeedback(int bindingId)
         {
@@ -993,13 +970,9 @@ namespace TheraEngine.Rendering.OpenGL
         {
             if (indexBuffer._target != EBufferTarget.DrawIndices)
                 throw new Exception("IndexBuffer needs target type of " + EBufferTarget.DrawIndices.ToString() + ".");
-            CheckErrors();
             int vao = manager.BindingId;
-            CheckErrors();
             int buf = indexBuffer.BindingId;
-            CheckErrors();
             GL.VertexArrayElementBuffer(vao, buf);
-            CheckErrors();
         }
         /// <summary>
         /// Requires 1.1
@@ -1071,7 +1044,7 @@ namespace TheraEngine.Rendering.OpenGL
             PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
             GL.TexImage2D(tt, mipLevel, pit, width, height, 0, pf, pt, data);
         }
-        public override void PushTextureData(
+        public override void PushTextureData<T>(
             ETexTarget texTarget,
             int mipLevel,
             EPixelInternalFormat internalFormat,
@@ -1079,7 +1052,7 @@ namespace TheraEngine.Rendering.OpenGL
             int height,
             EPixelFormat format,
             EPixelType type,
-            byte[] data)
+            T[] data)
         {
             TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
             PixelInternalFormat pit = (PixelInternalFormat)internalFormat.ConvertByName(typeof(PixelInternalFormat));
@@ -1087,7 +1060,38 @@ namespace TheraEngine.Rendering.OpenGL
             PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
             GL.TexImage2D(tt, mipLevel, pit, width, height, 0, pf, pt, data);
         }
-
+        public override void PushTextureSubData(
+            ETexTarget texTarget,
+            int mipLevel,
+            int xOffset,
+            int yOffset,
+            int width,
+            int height,
+            EPixelFormat format,
+            EPixelType type,
+            VoidPtr data)
+        {
+            TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
+            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
+            GL.TexSubImage2D(tt, mipLevel, xOffset, yOffset, width, height, pf, pt, data);
+        }
+        public override void PushTextureSubData<T>(
+            ETexTarget texTarget,
+            int mipLevel,
+            int xOffset,
+            int yOffset,
+            int width,
+            int height,
+            EPixelFormat format,
+            EPixelType type,
+            T[] data)
+        {
+            TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
+            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
+            GL.TexSubImage2D(tt, mipLevel, xOffset, yOffset, width, height, pf, pt, data);
+        }
         public override void BindTexture(ETexTarget texTarget, int bindingId)
             => GL.BindTexture((TextureTarget)texTarget.ConvertByName(typeof(TextureTarget)), bindingId);
 

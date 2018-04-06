@@ -7,6 +7,8 @@ namespace TheraEngine.Rendering.Models
 {
     public partial class PrimitiveData : TFileObject, IDisposable
     {
+        public event Action BufferInfoChanged;
+
         [Browsable(false)]
         public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;
         [Browsable(false)]

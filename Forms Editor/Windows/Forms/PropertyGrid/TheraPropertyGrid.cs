@@ -276,6 +276,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 {
                     Invoke((Action)(() =>
                     {
+                        DateTime startTime = DateTime.Now;
                         for (int i = 0; i < props.Length; ++i)
                         {
                             if (!propInfo.ContainsKey(i))
@@ -283,6 +284,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             PropertyData p = propInfo[i];
                             CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
                         }
+                        TimeSpan elapsed = DateTime.Now - startTime;
+                        Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
 
                         for (int i = 0; i < methods.Length; ++i)
                         {

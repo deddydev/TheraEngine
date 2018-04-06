@@ -21,17 +21,20 @@ namespace TheraEngine.Rendering
         private bool _morphsAllowed, _useMorphMultiRig;
         private VertexShaderDesc _info;
         private bool UseMorphs => _morphsAllowed && _info._morphCount > 0;
-        private bool MultiRig => _useMorphMultiRig && _info._morphCount > 0;
+        private bool MultiRig => UseMorphs && _useMorphMultiRig;
+        private TMaterial Material { get; set; }
 
         public ShaderFile Generate(
             VertexShaderDesc info, 
             bool allowMeshMorphing, 
             bool useMorphMultiRig, 
-            bool allowColorMorphing)
+            bool allowColorMorphing,
+            TMaterial material)
         {
             _info = info;
             _morphsAllowed = allowMeshMorphing;
             _useMorphMultiRig = useMorphMultiRig;
+            Material = material;
 
             //Write #definitions
             WriteVersion();
@@ -64,9 +67,9 @@ namespace TheraEngine.Rendering
             StartMain();
 
             if (_info.IsWeighted && Engine.Settings.SkinOnGPU)
-                WriteRiggedPNTB();
+                WriteRiggedPNBT();
             else
-                WriteStaticPNTB();
+                WriteStaticPNBT();
 
             for (int i = 0; i < _info._colorCount; ++i)
                 Line("{0} = {2}{1};", string.Format(FragColorName, i), i, BufferType.Color.ToString());
@@ -192,7 +195,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         /// <param name="allowMorphs"></param>
         /// <param name="singleRig"></param>
-        private void WriteRiggedPNTB()
+        private void WriteRiggedPNBT()
         {
             Line("vec4 finalPosition = vec4(0.0f);");
             Line("vec4 basePosition = vec4(Position0, 1.0f);");
@@ -299,7 +302,7 @@ namespace TheraEngine.Rendering
         /// Writes positions, and optionally normals, tangents, and binormals for a static mesh.
         /// </summary>
         /// <param name="allowMorphs">If the mesh should be morphable or not, regardless of whether or not the mesh actually has morphs.</param>
-        private void WriteStaticPNTB()
+        private void WriteStaticPNBT()
         {
             Line("vec4 position = vec4(Position0, 1.0f);");
             if (_info.HasNormals)

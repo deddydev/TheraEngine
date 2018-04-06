@@ -59,7 +59,7 @@ namespace TheraEngine.Rendering.Models
             Vec2 uv1, uv2, uv3;
 
             VertexBuffer pBuff = pBuffs[positionIndex];
-            VertexBuffer nBuff = pBuffs[normalIndex];
+            //VertexBuffer nBuff = pBuffs[normalIndex];
             VertexBuffer tBuff = pBuffs[uvIndex];
             int pointCount = _triangles.Count * 3;
             List<Vec3> binormals = new List<Vec3>(pointCount);
@@ -81,14 +81,6 @@ namespace TheraEngine.Rendering.Models
                 uv2 = tBuff.Get<Vec2>(fp1.BufferIndices[tBuff.Index] * 8);
                 uv3 = tBuff.Get<Vec2>(fp2.BufferIndices[tBuff.Index] * 8);
                 
-                //fp0.BufferIndices.Add(i);
-                //fp1.BufferIndices.Add(i);
-                //fp2.BufferIndices.Add(i);
-
-                //fp0.BufferIndices.Add(i);
-                //fp1.BufferIndices.Add(i);
-                //fp2.BufferIndices.Add(i);
-
                 Vec3 deltaPos1 = pos2 - pos1;
                 Vec3 deltaPos2 = pos3 - pos1;
 
@@ -121,7 +113,11 @@ namespace TheraEngine.Rendering.Models
 
             AddBuffer(binormals, new VertexAttribInfo(BufferType.Binormal));
             AddBuffer(tangents, new VertexAttribInfo(BufferType.Tangent));
+            _bufferInfo._hasBinormals = true;
+            _bufferInfo._hasTangents = true;
+            OnBufferInfoChanged();
         }
+        protected void OnBufferInfoChanged() => BufferInfoChanged?.Invoke();
         private void SetInfluences(params InfluenceDef[] influences)
         {
             Remapper remap = new Remapper();

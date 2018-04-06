@@ -92,7 +92,7 @@ namespace TheraEditor.Windows.Forms
                 MaterialProperties.TargetMaterial = value;
                 Text = "Material Editor";
                 if (value != null)
-                    Text += value.Name + "[" + value.FilePath + "]";
+                    Text += " - " + value.Name + " [" + value.FilePath + "]";
             }
         }
 

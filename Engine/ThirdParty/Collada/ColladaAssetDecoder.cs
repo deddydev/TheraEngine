@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
+using static TheraEngine.Rendering.Models.Collada.COLLADA;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryControllers.Controller;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries.Geometry.Mesh;
@@ -16,116 +17,190 @@ namespace TheraEngine.Rendering.Models
             VisualScene scene,
             Matrix4 bindMatrix,
             Geometry geo,
-            ControllerChild rig)
+            Skin skin)
         {
-            if (rig is Skin skin)
+            Matrix4 bindShapeMatrix = skin.BindShapeMatrixElement?.StringContent?.Value ?? Matrix4.Identity;
+            InfluenceDef[] infList = CreateInfluences(skin, scene);
+            DecodePrimitives(geo, bindMatrix * bindShapeMatrix, infList,
+                out VertexShaderDesc info, out List<VertexPrimitive> lines, out List<VertexPolygon> faces);
+            return CreateData(info, lines, faces);
+        }
+
+        public static InfluenceDef[] CreateInfluences(Skin skin, VisualScene scene)
+        {
+            Bone[] boneList;
+            Bone bone = null;
+            int boneCount;
+
+            var joints = skin.JointsElement;
+            var influences = skin.VertexWeightsElement;
+            var boneCounts = influences.BoneCountsElement;
+            var prims = influences.PrimitiveIndicesElement;
+
+            InfluenceDef[] infList = new InfluenceDef[influences.Count];
+
+            //Find joint source
+            string[] jointSIDs = null;
+            foreach (InputUnshared inp in joints.GetChildren<InputUnshared>())
+                if (inp.CommonSemanticType == ESemantic.JOINT && inp.Source.GetElement(inp.Root) is Source src)
+                {
+                    jointSIDs = src.GetChild<NameArray>().StringContent.Values;
+                    break;
+                }
+
+            if (jointSIDs == null)
+                return null;
+
+            //Populate bone list
+            boneCount = jointSIDs.Length;
+            boneList = new Bone[boneCount];
+            for (int i = 0; i < boneCount; i++)
             {
-                Bone[] boneList;
-                Bone bone = null;
-                int boneCount;
+                string sid = jointSIDs[i];
+                var node = scene.FindNode(sid);
 
-                var bindShapeMatrix = skin.BindShapeMatrixElement?.StringContent?.Value ?? Matrix4.Identity;
-                var joints = skin.JointsElement;
-                var influences = skin.VertexWeightsElement;
-                var boneCounts = influences.BoneCountsElement;
-                var prims = influences.PrimitiveIndicesElement;
-
-                InfluenceDef[] infList = new InfluenceDef[influences.Count];
-                
-                //Find joint source
-                string[] jointSIDs = null;
-                foreach (InputUnshared inp in joints.GetChildren<InputUnshared>())
-                    if (inp.CommonSemanticType == ESemantic.JOINT && inp.Source.GetElement(inp.Root) is Source src)
-                    {
-                        jointSIDs = src.GetChild<NameArray>().StringContent.Values;
-                        break;
-                    }
-
-                if (jointSIDs == null)
-                    return null;
-
-                //Populate bone list
-                boneCount = jointSIDs.Length;
-                boneList = new Bone[boneCount];
-                for (int i = 0; i < boneCount; i++)
-                {
-                    string sid = jointSIDs[i];
-                    var node = scene.FindNode(sid);
-                    
-                    if (node != null && node.UserData is Bone b)
-                        boneList[i] = b;
-                    else
-                        Engine.LogWarning(string.Format("Bone '{0}' not found", sid));
-                }
-
-                //Build input command list
-                float[] pWeights = null;
-                byte[] pCmd = new byte[influences.InputElements.Length];
-                foreach (InputShared inp in influences.InputElements)
-                {
-                    switch (inp.CommonSemanticType)
-                    {
-                        case ESemantic.JOINT:
-                            pCmd[inp.Offset] = 1;
-                            break;
-
-                        case ESemantic.WEIGHT:
-                            pCmd[inp.Offset] = 2;
-
-                            Source src = inp.Source.GetElement<Source>(inp.Root);
-                            pWeights = src.GetArrayElement<FloatArray>().StringContent.Values;
-
-                            break;
-
-                        default:
-                            pCmd[inp.Offset] = 0;
-                            break;
-                    }
-                }
-                
-                float weight = 0;
-                int[] boneIndices = boneCounts.StringContent.Values;
-                int[] primIndices = prims.StringContent.Values;
-                for (int i = 0, primIndex = 0; i < influences.Count; i++)
-                {
-                    InfluenceDef inf = new InfluenceDef();
-                    for (int boneIndex = 0; boneIndex < boneIndices[i]; boneIndex++)
-                    {
-                        for (int cmd = 0; cmd < pCmd.Length; cmd++, primIndex++)
-                        {
-                            int index = primIndices[primIndex];
-                            switch (pCmd[cmd])
-                            {
-                                case 1: //JOINT
-                                    bone = boneList[index];
-                                    break;
-                                case 2: //WEIGHT
-                                    weight = pWeights[index];
-                                    break;
-                            }
-                        }
-                        inf.AddWeight(new BoneWeight(bone.Name, weight));
-                    }
-                    inf.Normalize();
-                    infList[i] = inf;
-                }
-                return DecodePrimitives(geo, bindMatrix * bindShapeMatrix, infList);
+                if (node != null && node.UserData is Bone b)
+                    boneList[i] = b;
+                else
+                    Engine.LogWarning(string.Format("Bone '{0}' not found", sid));
             }
-            else
+
+            //Build input command list
+            float[] pWeights = null;
+            byte[] pCmd = new byte[influences.InputElements.Length];
+            foreach (InputShared inp in influences.InputElements)
             {
+                switch (inp.CommonSemanticType)
+                {
+                    case ESemantic.JOINT:
+                        pCmd[inp.Offset] = 1;
+                        break;
+
+                    case ESemantic.WEIGHT:
+                        pCmd[inp.Offset] = 2;
+
+                        Source src = inp.Source.GetElement<Source>(inp.Root);
+                        pWeights = src.GetArrayElement<FloatArray>().StringContent.Values;
+
+                        break;
+
+                    default:
+                        pCmd[inp.Offset] = 0;
+                        break;
+                }
+            }
+
+            float weight = 0;
+            int[] boneIndices = boneCounts.StringContent.Values;
+            int[] primIndices = prims.StringContent.Values;
+            for (int i = 0, primIndex = 0; i < influences.Count; i++)
+            {
+                InfluenceDef inf = new InfluenceDef();
+                for (int boneIndex = 0; boneIndex < boneIndices[i]; boneIndex++)
+                {
+                    for (int cmd = 0; cmd < pCmd.Length; cmd++, primIndex++)
+                    {
+                        int index = primIndices[primIndex];
+                        switch (pCmd[cmd])
+                        {
+                            case 1: //JOINT
+                                bone = boneList[index];
+                                break;
+                            case 2: //WEIGHT
+                                weight = pWeights[index];
+                                break;
+                        }
+                    }
+                    inf.AddWeight(new BoneWeight(bone.Name, weight));
+                }
+                inf.Normalize();
+                infList[i] = inf;
+            }
+            return infList;
+        }
+
+        public static PrimitiveData DecodeMorphedPrimitivesUnweighted(Matrix4 bindMatrix, Morph morph)
+        {
+            var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as Geometry;
+            if (baseMesh == null)
+            {
+                Engine.LogWarning("Morph base mesh '" + morph.BaseMeshUrl.TargetID + "' does not point to a valid geometry entry.");
                 return null;
             }
+
+            DecodePrimitives(baseMesh, bindMatrix, null,
+                out VertexShaderDesc baseInfo, out List<VertexPrimitive> baseLines, out List<VertexPolygon> baseFaces);
+            
+            var targets = morph.TargetsElement;
+            InputUnshared morphTargets = null, morphWeights = null;
+            foreach (InputUnshared input in targets.InputElements)
+            {
+                switch (input.CommonSemanticType)
+                {
+                    case ESemantic.MORPH_TARGET: morphTargets = input; break;
+                    case ESemantic.MORPH_WEIGHT: morphWeights = input; break;
+                }
+            }
+
+            Source targetSource = morphTargets?.Source?.GetElement<Source>(morphTargets.Root);
+            Source weightSource = morphWeights?.Source?.GetElement<Source>(morphWeights.Root);
+            NameArray nameArray = targetSource?.GetArrayElement<NameArray>();
+            FloatArray weightArray = targetSource?.GetArrayElement<FloatArray>();
+            string[] geomIds = nameArray?.StringContent?.Values;
+            float[] weights = weightArray?.StringContent?.Values;
+            if (geomIds == null || weights == null)
+            {
+                Engine.LogWarning("Morph set for '" + morph.BaseMeshUrl.TargetID + "' does not have valid target and weight inputs.");
+                return null;
+            }
+            int count = geomIds.Length;
+            if (geomIds.Length != weights.Length)
+            {
+                Engine.LogWarning("Morph set for '" + morph.BaseMeshUrl.TargetID + "' does not have a target count that matches weight count.");
+                count = Math.Min(geomIds.Length, weights.Length);
+            }
+            Geometry geom;
+            List<VertexPrimitive>[] morphLines = new List<VertexPrimitive>[count];
+            List<VertexPolygon>[] morphFaces = new List<VertexPolygon>[count];
+
+            for (int i = 0; i < count; ++i)
+            {
+                geom = targets.Root.GetIDEntry(geomIds[i]) as Geometry;
+                DecodePrimitives(geom, bindMatrix, null, 
+                    out VertexShaderDesc info, out List<VertexPrimitive> lines, out List<VertexPolygon> faces);
+                morphLines[i] = lines;
+                morphFaces[i] = faces;
+            }
+
+            return CreateData(baseInfo, baseLines, baseFaces);
         }
-        
-        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, Geometry geo)
+
+        public static PrimitiveData DecodeMorphedPrimitivesWeighted(VisualScene scene, Matrix4 bindMatrix, Morph morphController, Skin skin)
         {
-            return DecodePrimitives(geo, bindMatrix, null);
+            Matrix4 bindShapeMatrix = skin.BindShapeMatrixElement?.StringContent?.Value ?? Matrix4.Identity;
+            InfluenceDef[] infList = CreateInfluences(skin, scene);
+
+            return null;
         }
-        static PrimitiveData DecodePrimitives(Geometry geo, Matrix4 bindMatrix, InfluenceDef[] infList)
+
+        public static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, Geometry geo)
         {
+            DecodePrimitives(geo, bindMatrix, null, out VertexShaderDesc info, out List<VertexPrimitive> lines, out List<VertexPolygon> faces);
+            return CreateData(info, lines, faces);
+        }
+        public static void DecodePrimitives(
+            Geometry geo,
+            Matrix4 bindMatrix, 
+            InfluenceDef[] infList,
+            out VertexShaderDesc info,
+            out List<VertexPrimitive> lines,
+            out List<VertexPolygon> faces)
+        {
+            info = VertexShaderDesc.JustPositions();
+            lines = new List<VertexPrimitive>();
+            faces = new List<VertexPolygon>();
+
             Source src;
-            List<VertexPrimitive> linePrimitives = null;
-            List<VertexPolygon> facePrimitives = null;
             int boneCount = 0;
             if (infList != null)
             {
@@ -135,12 +210,11 @@ namespace TheraEngine.Rendering.Models
                         bones.Add(inf.Weights[i].Bone);
                 boneCount = bones.Count;
             }
-            VertexShaderDesc info = VertexShaderDesc.JustPositions();
             info._boneCount = boneCount;
 
             var m = geo.MeshElement;
             if (m == null)
-                return null;
+                return;
             
             foreach (var prim in m.PrimitiveElements)
             {
@@ -279,25 +353,20 @@ namespace TheraEngine.Rendering.Models
                 switch (prim.Type)
                 {
                     case EColladaPrimitiveType.Lines:
-                        if (linePrimitives == null)
-                            linePrimitives = new List<VertexPrimitive>();
-                        VertexLine[] lines = new VertexLine[vertices.Length / 2];
 
+                        VertexLine[] linesTemp = new VertexLine[vertices.Length / 2];
                         for (int i = 0, x = 0; i < vertices.Length; i += 2, ++x)
-                            lines[x] = new VertexLine(vertices[i][setIndex], vertices[i + 1][setIndex]);
+                            linesTemp[x] = new VertexLine(vertices[i][setIndex], vertices[i + 1][setIndex]);
+                        lines.AddRange(linesTemp);
 
-                        linePrimitives.AddRange(lines);
                         break;
+
                     case EColladaPrimitiveType.Linestrips:
-                        if (linePrimitives == null)
-                            linePrimitives = new List<VertexPrimitive>();
-
-                        linePrimitives.Add(new VertexLineStrip(false, vertices.Select(x => x[setIndex]).ToArray()));
-
+                        lines.Add(new VertexLineStrip(false, vertices.Select(x => x[setIndex]).ToArray()));
                         break;
+
                     case EColladaPrimitiveType.Triangles:
-                        if (facePrimitives == null)
-                            facePrimitives = new List<VertexPolygon>();
+
                         VertexTriangle[] tris = new VertexTriangle[vertices.Length / 3];
 
                         for (int i = 0, x = 0; i < vertices.Length; i += 3, ++x)
@@ -306,41 +375,61 @@ namespace TheraEngine.Rendering.Models
                                 vertices[i + 1][setIndex],
                                 vertices[i + 2][setIndex]);
 
-                        facePrimitives.AddRange(tris);
+                        faces.AddRange(tris);
                         break;
+
                     case EColladaPrimitiveType.Trifans:
-                        if (facePrimitives == null)
-                            facePrimitives = new List<VertexPolygon>();
-
-                        facePrimitives.Add(new VertexTriangleFan(vertices.Select(x => x[setIndex]).ToArray()));
-
+                        faces.Add(new VertexTriangleFan(vertices.Select(x => x[setIndex]).ToArray()));
                         break;
+
                     case EColladaPrimitiveType.Tristrips:
-                        if (facePrimitives == null)
-                            facePrimitives = new List<VertexPolygon>();
-
-                        facePrimitives.Add(new VertexTriangleStrip(vertices.Select(x => x[setIndex]).ToArray()));
-
+                        faces.Add(new VertexTriangleStrip(vertices.Select(x => x[setIndex]).ToArray()));
                         break;
+
                     case EColladaPrimitiveType.Polygons:
                     case EColladaPrimitiveType.Polylist:
-                        if (facePrimitives == null)
-                            facePrimitives = new List<VertexPolygon>();
                         Engine.LogWarning("Primitive type {0} not supported. Mesh will be empty.", prim.Type.ToString());
                         break;
                 }
             }
-            
-            if (facePrimitives != null && facePrimitives.Count > 0)
+        }
+
+        public static PrimitiveData CreateData(VertexShaderDesc info, List<VertexPrimitive> lines, List<VertexPolygon> faces)
+        {
+            if (faces.Count > 0)
             {
-                if (linePrimitives != null && linePrimitives.Count > 0)
+                if (lines.Count > 0)
                     Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
 
-                return PrimitiveData.FromTriangleList(Culling.None, info, facePrimitives.SelectMany(x => x.ToTriangles()));
+                return PrimitiveData.FromTriangleList(Culling.None, info, faces.SelectMany(x => x.ToTriangles()));
             }
-            else if (linePrimitives != null && linePrimitives.Count > 0)
+            else if (lines != null && lines.Count > 0)
             {
-                return PrimitiveData.FromLineList(info, linePrimitives.SelectMany(
+                return PrimitiveData.FromLineList(info, lines.SelectMany(
+                    x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
+            }
+
+            Engine.LogWarning("Mesh has no primitives.");
+
+            return PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions());
+        }
+        public static PrimitiveData CreateData(
+            VertexShaderDesc info,
+            List<VertexPrimitive> baseLines,
+            List<VertexPolygon> baseFaces,
+            List<VertexPrimitive>[] morphLines,
+            List<VertexPolygon>[] morphFaces)
+        {
+            if (baseFaces.Count > 0)
+            {
+                if (baseLines.Count > 0)
+                    Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
+
+                return PrimitiveData.FromTriangleList(Culling.None, info, baseFaces.SelectMany(x => x.ToTriangles()));
+            }
+            else if (baseLines != null && baseLines.Count > 0)
+            {
+                return PrimitiveData.FromLineList(info, baseLines.SelectMany(
                     x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
             }
 

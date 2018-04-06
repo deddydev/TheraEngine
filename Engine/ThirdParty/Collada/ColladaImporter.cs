@@ -221,46 +221,30 @@ namespace TheraEngine.Rendering.Models
                     var child = controller?.SkinOrMorphElement;
                     if (child != null)
                     {
+                        //Rigged mesh
                         if (child is LibraryControllers.Controller.Skin skin)
                         {
-                            if (skin.Source.GetElement(skin.Root) is LibraryGeometries.Geometry geometry)
+                            IID element = skin.Source.GetElement(skin.Root);
+                            if (element is LibraryGeometries.Geometry geometry)
                                 objects.Add(new ObjectInfo(geometry, skin, bindMatrix, controllerRef, parent, node));
+                            else if (element is LibraryControllers.Controller.Morph morph)
+                                objects.Add(new ObjectInfo(morph, skin, bindMatrix, controllerRef, parent, node));
                             else
-                                Engine.LogWarning(skin.Source.URI + " does not point to a valid geometry entry.");
+                                Engine.LogWarning(skin.Source.URI + " does not point to a valid geometry or morph controller entry.");
                         }
+                        //Static morphed mesh
                         else if (child is LibraryControllers.Controller.Morph morph)
                         {
-                            var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as LibraryGeometries.Geometry;
-                            if (baseMesh == null)
-                            {
-                                Engine.LogWarning("Morph base mesh '" + morph.BaseMeshUrl.TargetID + "' does not point to a valid geometry entry.");
-                                continue;
-                            }
-                            var targets = morph.TargetsElement;
-                            InputUnshared morphTargets = null, morphWeights = null;
-                            foreach (var input in targets.InputElements)
-                            {
-                                switch (input.CommonSemanticType)
-                                {
-                                    case ESemantic.MORPH_TARGET:
-                                        morphTargets = input;
-                                        break;
-                                    case ESemantic.MORPH_WEIGHT:
-                                        morphWeights = input;
-                                        break;
-                                }
-                            }
-                            if (morphTargets == null || morphWeights == null)
-                            {
-                                Engine.LogWarning("Morph set for '" + morph.BaseMeshUrl.TargetID  + "' does not have valid target and weight inputs.");
-                                continue;
-                            }
-                            foreach (Source s in  morph.SourceElements)
-                            {
-                                
-                            }
-                            Engine.LogWarning("Importing morphs is not yet supported.");
+                            objects.Add(new ObjectInfo(morph, null, bindMatrix, controllerRef, parent, node));
                         }
+                        else
+                        {
+                            Engine.LogWarning("Instanced controller does not have a valid child entry.");
+                        }
+                    }
+                    else
+                    {
+                        Engine.LogWarning("Instanced controller does not have a valid child entry.");
                     }
                 }
                 //Static mesh?
@@ -302,8 +286,9 @@ namespace TheraEngine.Rendering.Models
 
         private class ObjectInfo
         {
+            public LibraryControllers.Controller.Morph _morphController;
             public LibraryGeometries.Geometry _geoEntry;
-            public LibraryControllers.Controller.ControllerChild _rig;
+            public LibraryControllers.Controller.Skin _rig;
             public Matrix4 _bindMatrix;
             public IInstanceMesh _inst;
             public Node _node;
@@ -311,13 +296,30 @@ namespace TheraEngine.Rendering.Models
 
             public ObjectInfo(
                 LibraryGeometries.Geometry geoEntry,
-                LibraryControllers.Controller.ControllerChild rig,
+                LibraryControllers.Controller.Skin rig,
                 Matrix4 bindMatrix,
                 IInstanceMesh inst,
                 Bone parent,
                 Node node)
             {
+                _morphController = null;
                 _geoEntry = geoEntry;
+                _bindMatrix = bindMatrix;
+                _rig = rig;
+                _node = node;
+                _inst = inst;
+                _parent = parent;
+            }
+            public ObjectInfo(
+               LibraryControllers.Controller.Morph morphController,
+               LibraryControllers.Controller.Skin rig,
+               Matrix4 bindMatrix,
+               IInstanceMesh inst,
+               Bone parent,
+               Node node)
+            {
+                _morphController = morphController;
+                _geoEntry = null;
                 _bindMatrix = bindMatrix;
                 _rig = rig;
                 _node = node;
@@ -333,13 +335,28 @@ namespace TheraEngine.Rendering.Models
 
             public void Initialize(SkeletalModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)
             {
-                PrimitiveData data;
+                PrimitiveData data = null;
                 if (_rig != null)
-                    data = DecodePrimitivesWeighted(scene, _bindMatrix, _geoEntry, _rig);
+                {
+                    if (_geoEntry != null)
+                        data = DecodePrimitivesWeighted(scene, _bindMatrix, _geoEntry, _rig);
+                    else if (_morphController != null)
+                        data = DecodeMorphedPrimitivesWeighted(scene, _bindMatrix, _morphController, _rig);
+                    else
+                        throw new InvalidOperationException("No valid geometry or morph controller entry for object.");
+                }
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+                {
+                    if (_geoEntry != null)
+                        data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+                    else if (_morphController != null)
+                        data = DecodeMorphedPrimitivesUnweighted(_bindMatrix, _morphController);
+                    else
+                        throw new InvalidOperationException("No valid geometry or morph controller entry for object.");
+                }
 
-                data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);
+                if (addBinormals || addTangents)
+                    data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);
 
                 TMaterial m = null;
                 if (_inst?.
@@ -355,15 +372,31 @@ namespace TheraEngine.Rendering.Models
                 
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, data, m));
             }
+
             public void Initialize(StaticModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)
             {
-                PrimitiveData data;
+                PrimitiveData data = null;
                 if (_rig != null)
-                    data = DecodePrimitivesWeighted(scene, _bindMatrix, _geoEntry, _rig);
+                {
+                    if (_geoEntry != null)
+                        data = DecodePrimitivesWeighted(scene, _bindMatrix, _geoEntry, _rig);
+                    else if (_morphController != null)
+                        data = DecodeMorphedPrimitivesWeighted(scene, _bindMatrix, _morphController, _rig);
+                    else
+                        throw new InvalidOperationException("No valid geometry or morph controller entry for object.");
+                }
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
-                
-                data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);
+                {
+                    if (_geoEntry != null)
+                        data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+                    else if (_morphController != null)
+                        data = DecodeMorphedPrimitivesUnweighted(_bindMatrix, _morphController);
+                    else
+                        throw new InvalidOperationException("No valid geometry or morph controller entry for object.");
+                }
+
+                if (addBinormals || addTangents)
+                    data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);
 
                 TMaterial m = null;
                 if (_inst?.

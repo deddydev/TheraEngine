@@ -37,7 +37,6 @@
             this.NodeTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
             this.NodeTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.NodeTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.NodeTree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
             this.NodeTree.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.NodeTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.NodeTree.Location = new System.Drawing.Point(0, 0);

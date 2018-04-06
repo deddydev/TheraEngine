@@ -97,6 +97,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// </summary>
         protected void SubmitStateChange(object oldValue, object newValue)
         {
+            if (DataChangeHandler == null)
+                return;
+
             if (IListOwner != null)
             {
                 DataChangeHandler.ListObjectChanged(oldValue, newValue, IListOwner, IListIndex);

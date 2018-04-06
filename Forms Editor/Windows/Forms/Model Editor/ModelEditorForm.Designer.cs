@@ -52,29 +52,28 @@ namespace TheraEditor.Windows.Forms
             // BodyPanel
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
-            this.BodyPanel.Size = new System.Drawing.Size(737, 655);
+            this.BodyPanel.Size = new System.Drawing.Size(755, 702);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(737, 695);
+            this.MainPanel.Size = new System.Drawing.Size(755, 742);
             // 
             // TitlePanel
             // 
             this.TitlePanel.Controls.Add(this.formMenu);
-            this.TitlePanel.Size = new System.Drawing.Size(737, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(755, 40);
             this.TitlePanel.Controls.SetChildIndex(this.formMenu, 0);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             // 
             // FormTitle
             // 
-            this.FormTitle.Location = new System.Drawing.Point(120, 0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
-            this.FormTitle.Size = new System.Drawing.Size(490, 40);
+            this.FormTitle.Size = new System.Drawing.Size(508, 40);
             this.FormTitle.Text = "Model Editor";
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(737, 703);
+            this.MiddlePanel.Size = new System.Drawing.Size(755, 750);
             // 
             // DockPanel
             // 
@@ -84,17 +83,17 @@ namespace TheraEditor.Windows.Forms
             this.DockPanel.Location = new System.Drawing.Point(0, 0);
             this.DockPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.DockPanel.Name = "DockPanel";
-            this.DockPanel.Size = new System.Drawing.Size(737, 655);
+            this.DockPanel.Size = new System.Drawing.Size(755, 702);
             this.DockPanel.TabIndex = 15;
             // 
             // formMenu
             // 
             this.formMenu.BackColor = System.Drawing.Color.Transparent;
-            this.formMenu.Dock = System.Windows.Forms.DockStyle.Left;
+            this.formMenu.Dock = System.Windows.Forms.DockStyle.Right;
             this.formMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.formMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnWindow});
-            this.formMenu.Location = new System.Drawing.Point(44, 0);
+            this.formMenu.Location = new System.Drawing.Point(552, 0);
             this.formMenu.Name = "formMenu";
             this.formMenu.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
             this.formMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -178,7 +177,7 @@ namespace TheraEditor.Windows.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(745, 703);
+            this.ClientSize = new System.Drawing.Size(763, 750);
             this.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip = this.formMenu;
             this.MinimumSize = new System.Drawing.Size(319, 54);

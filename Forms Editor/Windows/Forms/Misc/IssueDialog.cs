@@ -9,6 +9,8 @@ namespace TheraEditor.Windows.Forms
         public IssueDialog(Exception ex, List<EditorState> dirty)
         {
             InitializeComponent();
+            FormTitle.Text = ex.GetType().Name;
+            richTextBox1.Text = ex.ToString();
         }
     }
 }

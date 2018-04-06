@@ -90,6 +90,8 @@ namespace TheraEditor.Windows.Forms
                 lightRotation = rot * lightRotation;
                 Rotator r = lightRotation.ToYawPitchRoll();
                 _light.Rotation.SetRotations(r);
+
+                basicRenderPanel1.Invalidate();
             }
         }
 
@@ -112,12 +114,12 @@ namespace TheraEditor.Windows.Forms
 
         private void PnlMatInfo_MouseLeave(object sender, EventArgs e)
         {
-            BackColor = Color.FromArgb(62, 83, 90);
+            pnlMatInfo.BackColor = Color.FromArgb(62, 83, 90);
         }
 
         private void PnlMatInfo_MouseEnter(object sender, EventArgs e)
         {
-            BackColor = Color.FromArgb(42, 63, 70);
+            pnlMatInfo.BackColor = Color.FromArgb(42, 63, 70);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -130,7 +132,7 @@ namespace TheraEditor.Windows.Forms
             basicRenderPanel1.Camera = new PerspectiveCamera(
                 new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
 
-            basicRenderPanel1.RegisterTick();
+            //basicRenderPanel1.RegisterTick();
 
             _light = new DirectionalLightComponent();
             _light.SetShadowMapResolution(1, 1);
@@ -139,20 +141,21 @@ namespace TheraEditor.Windows.Forms
             _light.Rotation.Pitch = -45.0f;
             basicRenderPanel1.Scene.Lights.Add(_light);
             basicRenderPanel1.PreRendered += BasicRenderPanel1_PreRendered;
+            basicRenderPanel1.Invalidate();
         }
-
+        
         private void BasicRenderPanel1_PreRendered()
         {
             _light.RenderShadowMap(basicRenderPanel1.Scene);
         }
 
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            if (!Engine.DesignMode)
-                basicRenderPanel1.UnregisterTick();
+        //protected override void OnHandleDestroyed(EventArgs e)
+        //{
+        //    if (!Engine.DesignMode)
+        //        basicRenderPanel1.UnregisterTick();
 
-            base.OnHandleDestroyed(e);
-        }
+        //    base.OnHandleDestroyed(e);
+        //}
 
         private DirectionalLightComponent _light;
         private PrimitiveRenderWrapper _spherePrim;
@@ -194,11 +197,13 @@ namespace TheraEditor.Windows.Forms
                             typeof(PropGridText),
                             varType.GetProperty(nameof(ShaderVar.Name)), 
                             shaderVar, this);
+                        textCtrl.Dock = DockStyle.Top;
 
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
                             TheraPropertyGrid.GetControlTypes(valType)[0],
                             varType.GetProperty("Value"), 
                             shaderVar, this);
+                        valueCtrl.Dock = DockStyle.Top;
 
                         tblUniforms.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                         tblUniforms.RowCount = tblUniforms.RowStyles.Count;

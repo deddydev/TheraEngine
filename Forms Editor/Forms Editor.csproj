@@ -77,6 +77,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -833,9 +834,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridCategory.resx">
       <DependentUpon>PropGridCategory.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridItem.resx">
-      <DependentUpon>PropGridItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridMethod.resx">
       <DependentUpon>PropGridMethod.cs</DependentUpon>

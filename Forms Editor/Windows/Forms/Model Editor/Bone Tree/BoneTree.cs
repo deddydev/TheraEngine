@@ -29,8 +29,8 @@ namespace TheraEditor.Windows.Forms
         {
             BoneNode node = new BoneNode(b)
             {
-                ForeColor = ForeColor,
-                BackColor = Color.Transparent,
+                //ForeColor = ForeColor,
+                //BackColor = Color.Transparent,
             };
             c.Add(node);
             foreach (Bone b2 in b.ChildBones)

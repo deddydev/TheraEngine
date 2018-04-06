@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -79,7 +80,7 @@ namespace TheraEngine.Rendering
         }
 
         private List<BaseRenderState.ContextBind> _states = new List<BaseRenderState.ContextBind>();
-        protected Dictionary<int, ThreadSubContext> _subContexts = new Dictionary<int, ThreadSubContext>();
+        protected ConcurrentDictionary<int, ThreadSubContext> _subContexts = new ConcurrentDictionary<int, ThreadSubContext>();
         protected ThreadSubContext _currentSubContext;
 
         public RenderContext(BaseRenderPanel c)
@@ -100,11 +101,9 @@ namespace TheraEngine.Rendering
         protected void GetCurrentSubContext()
         {
             Thread thread = Thread.CurrentThread;
-            lock (_subContexts)
-            {
-                if (!_subContexts.ContainsKey(thread.ManagedThreadId))
-                    CreateContextForThread(thread);
-            }
+            
+             CreateContextForThread(thread);
+            
             _currentSubContext = _subContexts[thread.ManagedThreadId];
             _currentSubContext.SetCurrent(true);
         }
@@ -113,10 +112,13 @@ namespace TheraEngine.Rendering
         {
             if (thread == null)
                 return;
-
-            ThreadSubContext c = CreateSubContext(thread);
-            _subContexts.Add(thread.ManagedThreadId, c);
-            c.Generate();
+            
+            if (!_subContexts.ContainsKey(thread.ManagedThreadId))
+            {
+                ThreadSubContext c = CreateSubContext(thread);
+                c.Generate();
+                _subContexts.TryAdd(thread.ManagedThreadId, c);
+            }
         }
         internal void DestroyContextForThread(Thread thread)
         {
@@ -126,7 +128,7 @@ namespace TheraEngine.Rendering
             if (_subContexts.ContainsKey(thread.ManagedThreadId))
             {
                 _subContexts[thread.ManagedThreadId].Dispose();
-                _subContexts.Remove(thread.ManagedThreadId);
+                _subContexts.TryRemove(thread.ManagedThreadId, out ThreadSubContext value);
             }
         }
 
@@ -229,7 +231,7 @@ namespace TheraEngine.Rendering
             {
                 if (disposing)
                 {
-                    Capture();
+                    //Capture();
                     //Unbind();
                     foreach (BaseRenderState.ContextBind state in States)
                         state.Destroy();

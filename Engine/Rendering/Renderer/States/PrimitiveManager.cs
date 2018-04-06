@@ -92,23 +92,9 @@ namespace TheraEngine.Rendering.Models
                 if (_data != null)
                 {
                     _bufferInfo = _data.BufferInfo;
-
-                    _vertexShader = new VertexShaderGenerator().Generate(_bufferInfo, false, false, false);
-                    if (Engine.Settings.AllowShaderPipelines)
-                    {
-                        if (_vertexProgram != null)
-                        {
-                            if (_vertexProgram.IsActive)
-                            {
-                                _vertexProgram.Destroy();
-                                _vertexProgram = new RenderProgram(_vertexShader);
-                                _vertexProgram.Generate();
-                            }
-                            else
-                                _vertexProgram = null;
-                        }
-                    }
-
+                    _data.BufferInfoChanged += _data_BufferInfoChanged;
+                    _data_BufferInfoChanged();
+                    
                     _indexBuffer = new VertexBuffer("FaceIndices", EBufferTarget.DrawIndices, true);
                     //TODO: primitive restart will use MaxValue for restart id
                     if (_data._facePoints.Count < byte.MaxValue)
@@ -131,6 +117,23 @@ namespace TheraEngine.Rendering.Models
                     _bufferInfo = null;
             }
         }
+
+        private void _data_BufferInfoChanged()
+        {
+            _vertexShader = new VertexShaderGenerator().Generate(_bufferInfo, false, false, false, _material);
+            if (Engine.Settings.AllowShaderPipelines && _vertexProgram != null)
+            {
+                if (_vertexProgram.IsActive)
+                {
+                    _vertexProgram.Destroy();
+                    _vertexProgram = new RenderProgram(_vertexShader);
+                    _vertexProgram.Generate();
+                }
+                else
+                    _vertexProgram = null;
+            }
+        }
+
         public TMaterial Material
         {
             get

@@ -94,6 +94,7 @@
             this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tblUniforms.Dock = System.Windows.Forms.DockStyle.Top;
             this.tblUniforms.Location = new System.Drawing.Point(0, 149);
+            this.tblUniforms.Margin = new System.Windows.Forms.Padding(0);
             this.tblUniforms.Name = "tblUniforms";
             this.tblUniforms.RowCount = 1;
             this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));

@@ -138,12 +138,12 @@ namespace TheraEngine
         {
             if (!OpenVR.IsRuntimeInstalled())
             {
-                LogWarning("VR runtime not installed.");
+                PrintLine("VR runtime not installed.");
                 return EVRInitError.Init_InstallationNotFound;
             }
             if (!OpenVR.IsHmdPresent())
             {
-                LogWarning("VR headset not found.");
+                PrintLine("VR headset not found.");
                 return EVRInitError.Init_HmdNotFound;
             }
 
@@ -154,7 +154,7 @@ namespace TheraEngine
                 if (OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene) == null)
                     LogWarning(peError.ToString());
                 else
-                    PrintLine("VR system initialized. Result code: " + peError.ToString());
+                    PrintLine("VR system initialized successfully.");
             }
             catch (Exception ex)
             {
@@ -254,7 +254,7 @@ namespace TheraEngine
         /// </summary>
         private static void Tick(object sender, FrameEventArgs e)
         {
-            float delta = (float)(e.Time * TimeDilation);
+            float delta = e.Time * TimeDilation;
             TickGroup(ETickGroup.PrePhysics, delta);
             //using (Task task = new Task(() => TickGroup(ETickGroup.DuringPhysics, delta)))
             //{

@@ -36,7 +36,7 @@ namespace TheraEngine.Rendering.OpenGL
             public override void Generate()
             {
                 _winInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
-                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 4, new ColorFormat(0), 2, false);
+                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 8, new ColorFormat(0), 2, false);
                 _context = new GraphicsContext(mode, _winInfo);
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();
@@ -79,15 +79,9 @@ namespace TheraEngine.Rendering.OpenGL
                     return;
                 switch (vsyncMode)
                 {
-                    case VSyncMode.Disabled:
-                        _context.SwapInterval = 0;
-                        break;
-                    case VSyncMode.Enabled:
-                        _context.SwapInterval = 1;
-                        break;
-                    case VSyncMode.Adaptive:
-                        _context.SwapInterval = -1;
-                        break;
+                    case VSyncMode.Disabled: _context.SwapInterval = 0; break;
+                    case VSyncMode.Enabled: _context.SwapInterval = 1; break;
+                    case VSyncMode.Adaptive: _context.SwapInterval = -1; break;
                 }
             }
 
@@ -118,7 +112,7 @@ namespace TheraEngine.Rendering.OpenGL
                     if (!IsContextDisposed())
                         _context.SwapBuffers();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Engine.LogException(ex);
                 }
@@ -131,6 +125,7 @@ namespace TheraEngine.Rendering.OpenGL
             {
                 try
                 {
+                    //Engine.PrintLine(Thread.CurrentThread.ManagedThreadId.ToString());
                     if (!IsContextDisposed() && IsCurrent() != current)
                         _context.MakeCurrent(current ? WindowInfo : null);
                 }
@@ -190,7 +185,7 @@ namespace TheraEngine.Rendering.OpenGL
             //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             GL.Disable(EnableCap.CullFace);
             GL.Disable(EnableCap.Dither);
-            GL.Disable(EnableCap.Multisample);
+            GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
             GL.FrontFace(FrontFaceDirection.Ccw);
             GL.Enable(EnableCap.DepthTest);

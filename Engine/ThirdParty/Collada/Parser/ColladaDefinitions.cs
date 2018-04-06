@@ -1393,14 +1393,17 @@ namespace TheraEngine.Rendering.Models
                 [Unsupported("convex_mesh")]
                 [Unsupported("spline")]
                 [Unsupported("brep")]
-                [Child(typeof(Mesh), 1)]
+                [Child(typeof(GeometryChild), 1)]
                 [Child(typeof(Extra), 0, -1)]
                 public class Geometry : BaseElement<LibraryGeometries>, IInstantiatable, IID, IName, IAsset, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
+                    public ConvexMesh ConvexMeshElement => GetChild<ConvexMesh>();
                     public Mesh MeshElement => GetChild<Mesh>();
+                    public Spline SplineElement => GetChild<Spline>();
+                    public BRep BRepElement => GetChild<BRep>();
                     public Extra[] ExtraElements => GetChildren<Extra>();
-
+                    
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
                     [Attr("name", false)]
@@ -1408,8 +1411,10 @@ namespace TheraEngine.Rendering.Models
 
                     public List<ISID> SIDChildren { get; } = new List<ISID>();
 
+                    public class GeometryChild : BaseElement<Geometry> { }
+
                     [Name("convex_mesh")]
-                    public class ConvexMesh : BaseElement<Geometry>
+                    public class ConvexMesh : GeometryChild
                     {
 
                     }
@@ -1418,7 +1423,7 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(Vertices), 1)]
                     [Child(typeof(BasePrimitive), 0, -1)]
                     [Child(typeof(Extra), 0, -1)]
-                    public class Mesh : BaseElement<Geometry>, ISource
+                    public class Mesh : GeometryChild, ISource
                     {
                         public Source[] SourceElements => GetChildren<Source>();
                         public Vertices VerticesElement => GetChild<Vertices>();
@@ -1533,12 +1538,12 @@ namespace TheraEngine.Rendering.Models
                         }
                     }
                     [Name("spline")]
-                    public class Spline : BaseElement<Geometry>
+                    public class Spline : GeometryChild
                     {
 
                     }
                     [Name("brep")]
-                    public class BRep : BaseElement<Geometry>
+                    public class BRep : GeometryChild
                     {
 
                     }
@@ -1575,7 +1580,7 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(Joints), 1)]
                     [Child(typeof(VertexWeights), 1)]
                     [Child(typeof(Extra), 0, -1)]
-                    public class Skin : ControllerChild, ISource
+                    public class Skin : ControllerChild, ISource, IExtra
                     {
                         public BindShapeMatrix BindShapeMatrixElement => GetChild<BindShapeMatrix>();
                         public Source[] SourceElements => GetChildren<Source>();
@@ -1594,7 +1599,7 @@ namespace TheraEngine.Rendering.Models
                         [Name("joints")]
                         [Child(typeof(InputUnshared), 2, -1)]
                         [Child(typeof(Extra), 0, -1)]
-                        public class Joints : BaseElement<Skin>, IInputUnshared
+                        public class Joints : BaseElement<Skin>, IInputUnshared, IExtra
                         {
                             public InputUnshared[] InputElements => GetChildren<InputUnshared>();
                             public Extra[] ExtraElements => GetChildren<Extra>();
@@ -1604,7 +1609,7 @@ namespace TheraEngine.Rendering.Models
                         [Child(typeof(BoneCounts), 0, 1)]
                         [Child(typeof(PrimitiveIndices), 0, 1)]
                         [Child(typeof(Extra), 0, -1)]
-                        public class VertexWeights : BaseElement<Skin>, IInputShared
+                        public class VertexWeights : BaseElement<Skin>, IInputShared, IExtra
                         {
                             public InputShared[] InputElements => GetChildren<InputShared>();
                             public BoneCounts BoneCountsElement => GetChild<BoneCounts>();
@@ -1629,10 +1634,11 @@ namespace TheraEngine.Rendering.Models
                     [Child(typeof(Source), 2, -1)]
                     [Child(typeof(Targets), 1)]
                     [Child(typeof(Extra), 0, -1)]
-                    public class Morph : ControllerChild, ISource
+                    public class Morph : ControllerChild, ISource, IExtra
                     {
                         public Source[] SourceElements => GetChildren<Source>();
                         public Targets TargetsElement => GetChild<Targets>();
+                        public Extra[] ExtraElements => GetChildren<Extra>();
 
                         [Attr("source", true)]
                         public ColladaURI BaseMeshUrl { get; set; }

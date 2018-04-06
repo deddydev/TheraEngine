@@ -449,7 +449,7 @@ namespace TheraEngine.Rendering.Models
             array = new T[_elementCount];
             for (int i = 0; i < _elementCount; ++i)
             {
-                T value = default(T);
+                T value = default;
                 value.Read(_data.Address[i, stride]);
                 array[i] = value;
             }

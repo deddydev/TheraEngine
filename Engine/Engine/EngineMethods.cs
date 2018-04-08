@@ -20,6 +20,7 @@ using TheraEngine.Worlds;
 using TheraEngine.Actors;
 using System.Threading.Tasks;
 using Valve.VR;
+using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine
 {
@@ -63,6 +64,14 @@ namespace TheraEngine
         public static string EngineShaderPath(string fileName)
         {
             return Path.Combine(Settings.ShadersFolder, fileName);
+        }
+        public static TextureFile2D LoadEngineTexture2D(string fileName)
+        {
+            return TFileObject.Load<TextureFile2D>(EngineTexturePath(fileName));
+        }
+        public static string EngineTexturePath(string fileName)
+        {
+            return Path.Combine(Settings.TexturesFolder, fileName);
         }
 
         /// <summary>
@@ -131,7 +140,7 @@ namespace TheraEngine
             //Preload transition world now
             await Game.TransitionWorldRef.LoadNewInstanceAsync();
 
-            InitializeVR();
+            //InitializeVR();
         }
 
         public static EVRInitError InitializeVR()
@@ -557,8 +566,7 @@ namespace TheraEngine
                 oldValue.Add(file);
                 return oldValue;
             });
-
-            file.OnLoaded();
+            
             return true;
         }
         internal static bool AddGlobalFileInstance<T>(string path, T file) where T : TFileObject
@@ -567,8 +575,7 @@ namespace TheraEngine
                 return false;
 
             GlobalFileInstances.AddOrUpdate(path, file, (key, oldValue) => file);
-
-            file.OnLoaded();
+            
             return true;
         }
 

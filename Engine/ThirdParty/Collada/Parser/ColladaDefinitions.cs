@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering.Models
         [Name("extra")]
         [Child(typeof(Asset), 0, 1)]
         [Child(typeof(Technique), 1, -1)]
-        public class Extra : BaseElement<IExtra>, IID, IName
+        public class Extra : BaseElement<IExtra>, IID, IName, ITechnique, IAsset
         {
             [Attr("id", false)]
             public string ID { get; set; } = null;
@@ -95,6 +95,8 @@ namespace TheraEngine.Rendering.Models
             public string Name { get; set; } = null;
 
             public List<ISID> SIDChildren { get; } = new List<ISID>();
+
+            public Asset AssetElement => GetChild<Asset>();
         }
         /// <summary>
         /// Indicates this class is an owner of an Annotate element.

@@ -19,7 +19,7 @@ namespace TheraEngine.Tests
 {
     public unsafe class TestWorld : World
     {
-        internal protected override void OnLoaded()
+        public unsafe override void BeginPlay()
         {
             Settings = new WorldSettings("TestWorld")
             {
@@ -155,57 +155,33 @@ namespace TheraEngine.Tests
             };
             //StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main1\\landtable.obj"*/"X:\\Repositories\\TheraEngine\\Build\\test\\test.obj", objOptions);
 
-            //ModelImportOptions options = new ModelImportOptions()
-            //{
-            //    ImportAnimations = true,
-            //    ImportModels = true,
-            //    InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
-            //};
-
-            //ModelScene m = Collada.Import(googleDrive + "Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae", options);
+            ModelImportOptions options = new ModelImportOptions()
+            {
+                InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
+            };
+            
+            Collada.Data anim = Collada.Import(TestDefaults.GoogleDrivePath + "Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae", options);
 
             //ColladaScene = Collada.Import(desktop + "carly\\carly.dae", options, false, true);
-            //ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
+            Collada.Data model = Collada.Import(TestDefaults.DesktopPath + "TEST.DAE", options);
 
             //ModelScene scene = Collada.Import(desktop + "skybox.dae", options);
             //StaticMeshComponent c = new StaticMeshComponent(scene.StaticModel, null);
             //Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c) { Name = "Skybox" };
 
-            //Engine.Settings.Export(desktop, "EngineSettings", Files.FileFormat.Binary);
-
-            //ColladaScene.SkeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", FileFormat.Binary);
-            //foreach (SkeletalRigidSubMesh mesh in ColladaScene.SkeletalModel.RigidChildren)
-            //    mesh.Data.ExportReference(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_Prims", FileFormat.Binary);
-            //ColladaScene.Skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", FileFormat.Binary);
-
-            //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
-            //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
-
-            //IActor importedActor;
-            //if (ColladaScene.SkeletalModel != null)
-            //{
-            //    SkeletalMeshComponent comp = new SkeletalMeshComponent(ColladaScene.SkeletalModel, ColladaScene.Skeleton);
-
-            //    //ColladaScene._skeleton.Export(desktop, "TEST_SKELETON", true);
-            //    //Skeleton newSkel = Import<Skeleton>(desktop + "TEST_SKELETON.xcskl");
-
-            //    comp.Translation.Raw = center + Vec3.Up * 70.0f;
-            //    importedActor = new Actor<SkeletalMeshComponent>(comp) { Name = "SkeletalMeshActor" };
-            //}
-            //else
-            //{
-            //    StaticMeshComponent comp = new StaticMeshComponent(ColladaScene.StaticModel, null);
-
-            //    int fc = 10 * 60;
-            //    PropAnimFloat yawAnim = new PropAnimFloat(fc, true, true);
-            //    yawAnim.Keyframes.Add(new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.Linear));
-            //    yawAnim.Keyframes.Add(new FloatKeyframe(fc, 360.0f, 0.0f, PlanarInterpType.Linear));
-            //    AnimationContainer staticMeshAnim = new AnimationContainer("Rotation.Yaw", false, yawAnim);
-            //    comp.AddAnimation(staticMeshAnim, true);
-
-            //    comp.Translation.Raw = center + Vec3.Up * 70.0f;
-            //    importedActor = new Actor<StaticMeshComponent>(comp) { Name = "StaticMeshActor" };
-            //}
+            if (model.Models.Count > 0)
+            {
+                ModelScene scene = model.Models[0];
+                if (scene.SkeletalModel != null)
+                {
+                    SkeletalMeshComponent comp = new SkeletalMeshComponent(model.Models[0].SkeletalModel, model.Models[0].Skeleton);
+                    
+                    comp.Translation.Raw = Vec3.Up * 70.0f;
+                    
+                    IActor importedActor = new Actor<SkeletalMeshComponent>(comp) { Name = "SkeletalMeshActor" };
+                    actors.Add(importedActor);
+                }
+            }
 
             //int timeInSeconds = 20;
             //int frames = timeInSeconds * 60;
@@ -263,15 +239,15 @@ namespace TheraEngine.Tests
             //        CustomCollisionGroup.StaticWorld,
             //        CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld)) { Name = "Floor" };
 
-            ModelImportOptions options = new ModelImportOptions()
-            {
-                IgnoreFlags =
-                     Core.Files.IgnoreFlags.Extra |
-                     Core.Files.IgnoreFlags.Lights |
-                     Core.Files.IgnoreFlags.Cameras |
-                     Core.Files.IgnoreFlags.Animations,
-                InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
-            };
+            //options = new ModelImportOptions()
+            //{
+            //    IgnoreFlags =
+            //         Core.Files.IgnoreFlags.Extra |
+            //         Core.Files.IgnoreFlags.Lights |
+            //         Core.Files.IgnoreFlags.Cameras |
+            //         Core.Files.IgnoreFlags.Animations,
+            //    InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
+            //};
 
             //var dae = Collada.Import(TestDefaults.DesktopPath + "gun.DAE", options);
             //ModelScene gunScene = dae.Models[0];
@@ -296,11 +272,13 @@ namespace TheraEngine.Tests
 
             //ToXML(TestDefaults.DesktopPath, "testworld");
 
-            Task.Run(() => OBJ.Import(TestDefaults.DesktopPath + "sponza.obj", objOptions)).ContinueWith(t =>
-            {
-                Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(t.Result, null)) { Name = "MapActor" };
-                SpawnActor(testActor);
-            });
+            //Task.Run(() => OBJ.Import(TestDefaults.DesktopPath + "sponza.obj", objOptions)).ContinueWith(t =>
+            //{
+            //    Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(t.Result, null)) { Name = "MapActor" };
+            //    SpawnActor(testActor);
+            //});
+
+            base.BeginPlay();
         }
 
         private void PhysicsDriver_OnHit(TCollisionObject me, TCollisionObject other, TContactInfo point)

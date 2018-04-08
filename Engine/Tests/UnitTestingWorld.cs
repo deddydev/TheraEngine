@@ -23,7 +23,7 @@ namespace TheraEngine.Tests
 {
     public class UnitTestingWorld : World
     {
-        protected unsafe internal override void OnLoaded()
+        public unsafe override void BeginPlay()
         {
             bool testLandscape = true;
             int pointLights = 1;
@@ -273,6 +273,8 @@ namespace TheraEngine.Tests
                 OriginRebaseBounds = new BoundingBox(50.0f),
                 EnableOriginRebasing = false,
             };
+
+            base.BeginPlay();
         }
     }
 

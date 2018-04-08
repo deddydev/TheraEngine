@@ -79,10 +79,17 @@ namespace TheraEngine.Rendering.Models.Materials
                 string path = mipMapPaths[i];
                 if (path.StartsWith("file://"))
                     path = path.Substring(7);
-                _mipmaps = new GlobalFileRef<TextureFile2D>[]
-                {
-                    new GlobalFileRef<TextureFile2D>(path)
-                };
+                _mipmaps[i] = new GlobalFileRef<TextureFile2D>(path);
+            }
+        }
+        public TexRef2D(string name, params TextureFile2D[] mipmaps)
+        {
+            _name = name;
+            _mipmaps = new GlobalFileRef<TextureFile2D>[mipmaps.Length];
+            for (int i = 0; i < mipmaps.Length; ++i)
+            {
+                TextureFile2D mip = mipmaps[i];
+                _mipmaps[i] = new GlobalFileRef<TextureFile2D>(mip);
             }
         }
         #endregion

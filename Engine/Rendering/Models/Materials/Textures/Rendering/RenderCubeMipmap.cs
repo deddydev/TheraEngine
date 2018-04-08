@@ -4,6 +4,15 @@ using System.Drawing.Imaging;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {
+    public enum ECubemapFace
+    {
+        PosX,
+        NegX,
+        PosY,
+        NegY,
+        PosZ,
+        NegZ,
+    }
     public class RenderCubeMipmap : IDisposable
     {
         public RenderCubeSide[] Sides { get; private set; } = new RenderCubeSide[6];

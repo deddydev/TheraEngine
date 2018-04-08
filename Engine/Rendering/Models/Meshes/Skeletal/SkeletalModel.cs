@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TheraEngine.Files;
 using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -14,10 +15,10 @@ namespace TheraEngine.Rendering.Models
         {
             ModelImportOptions o = new ModelImportOptions()
             {
-                IgnoreFlags =
-                Core.Files.IgnoreFlags.Extra |
-                Core.Files.IgnoreFlags.Cameras |
-                Core.Files.IgnoreFlags.Lights
+                //IgnoreFlags =
+                //Core.Files.IgnoreFlags.Extra |
+                //Core.Files.IgnoreFlags.Cameras |
+                //Core.Files.IgnoreFlags.Lights,
             };
             Collada.Data data = Collada.Import(path, o);
             if (data != null && data.Models != null && data.Models.Count > 0)

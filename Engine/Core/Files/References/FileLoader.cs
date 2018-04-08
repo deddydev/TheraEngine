@@ -112,7 +112,6 @@ namespace TheraEngine.Files
                     {
                         file.FilePath = absolutePath;
                         OnFileLoaded(file);
-                        file.OnLoaded();
                         Loaded?.Invoke(file);
                     }
                     return file;
@@ -134,7 +133,6 @@ namespace TheraEngine.Files
                     file.FilePath = absolutePath;
                     file.Read3rdParty(absolutePath);
                     OnFileLoaded(file);
-                    file.OnLoaded();
                     Loaded?.Invoke(file);
                     return file;
                 }

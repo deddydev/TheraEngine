@@ -32,7 +32,7 @@ namespace TheraEngine.Core.Maths.Transforms
             identity.RotationOrder = rotationOrder;
             return identity;
         }
-        public static Transform GetIdentity() => new Transform(Vec3.Zero, Rotator.GetZero(), Vec3.One);
+        public static Transform GetIdentity() => new Transform(Vec3.Zero, Quat.Identity, Vec3.One);
         public Transform()
         {
             _translation = Vec3.Zero;

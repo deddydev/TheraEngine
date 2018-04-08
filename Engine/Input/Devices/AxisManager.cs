@@ -82,5 +82,6 @@ namespace TheraEngine.Input.Devices
             _continuous.Clear();
             _onUpdate.Clear();
         }
+        public override string ToString() => Name;
     }
 }

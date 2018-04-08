@@ -67,7 +67,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize(UseCategory = true)]
         [Description("Determines how the model should be scaled, rotated and translated.")]
         [Category("Import")]
-        public Transform InitialTransform { get; set; } = Transform.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
+        public Transform InitialTransform { get; set; } = Transform.GetIdentity();
 
         /// <summary>
         /// Determines if the material should be generated for a forward or deferred rendering pipeline. Deferred is default.

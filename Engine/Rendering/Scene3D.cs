@@ -177,15 +177,17 @@ namespace TheraEngine.Rendering
             //Also implement occlusion culling along with frustum culling
             RenderTree.CollectVisible(sphere, _passes, shadowPass);
         }
-
+        public void PreRender(Camera c)
+        {
+            foreach (IPreRendered p in _preRenderList)
+                p.PreRender(c);
+        }
         public void RenderForward(Camera c, Viewport v, MaterialFrameBuffer target)
         {
             AbstractRenderer.PushCurrentCamera(c);
             AbstractRenderer.PushCurrent3DScene(this);
             {
-                foreach (IPreRendered p in _preRenderList)
-                    p.PreRender(c);
-
+                PreRender(c);
                 if (v != null)
                 {
                     //Enable internal resolution
@@ -273,9 +275,7 @@ namespace TheraEngine.Rendering
             AbstractRenderer.PushCurrentCamera(c);
             AbstractRenderer.PushCurrent3DScene(this);
             {
-                foreach (IPreRendered p in _preRenderList)
-                    p.PreRender(c);
-
+                PreRender(c);
                 if (v != null)
                 {
                     //Enable internal resolution
@@ -285,11 +285,6 @@ namespace TheraEngine.Rendering
                         v.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                            Engine.Renderer.DepthFunc(EComparison.Lequal);
-
-                            Engine.Renderer.AllowDepthWrite(false);
-                            _passes.Render(ERenderPass3D.Skybox);
-
                             Engine.Renderer.AllowDepthWrite(true);
                             _passes.Render(ERenderPass3D.OpaqueDeferredLit);
                         }
@@ -317,6 +312,7 @@ namespace TheraEngine.Rendering
                             //and we need depth from the previous pass
                             //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                             Engine.Renderer.AllowDepthWrite(false);
+                            _passes.Render(ERenderPass3D.Skybox);
 
                             //Render the deferred pass result
                             v.GBufferFBO.RenderFullscreen();
@@ -357,9 +353,9 @@ namespace TheraEngine.Rendering
                     {
                         Engine.Renderer.PushRenderArea(v.Region);
                         {
-                            Engine.Renderer.AllowDepthWrite(true);
-                            Engine.Renderer.DepthFunc(EComparison.Lequal);
-                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                            //Engine.Renderer.AllowDepthWrite(true);
+                            //Engine.Renderer.DepthFunc(EComparison.Lequal);
+                            //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
                             v.PostProcessFBO.RenderFullscreen();
 

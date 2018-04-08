@@ -148,12 +148,8 @@ namespace TheraEngine.Files
                     if (!string.IsNullOrEmpty(path))
                     {
                         ReferencePath = path;
-                        if (!RegisterFile(path, _file))
-                            OnLoaded();
+                        RegisterFile(path, _file);
                     }
-                    else
-                        OnLoaded();
-
                     if (!_file.References.Contains(this))
                         _file.References.Add(this);
                 }

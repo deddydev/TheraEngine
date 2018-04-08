@@ -117,7 +117,7 @@ namespace TheraEngine.Files
             }
         }
         public TFileObject() { }
-        internal protected virtual void OnLoaded() { }
+        //internal protected virtual void OnLoaded() { }
 
         [TString(false, true, false)]
         [Category("Object")]
@@ -450,10 +450,7 @@ namespace TheraEngine.Files
             else
                 file = CustomXmlSerializer.Deserialize(filePath) as TFileObject;
             if (file != null)
-            {
                 file.FilePath = filePath;
-                file.OnLoaded();
-            }
             return file;
         }
         private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
@@ -536,10 +533,8 @@ namespace TheraEngine.Files
                 file = CustomBinarySerializer.Deserialize(filePath, type) as TFileObject;
 
             if (file != null)
-            {
                 file.FilePath = filePath;
-                file.OnLoaded();
-            }
+            
             return file;
         }
         internal unsafe void ToBinary(string directory, string fileName)
@@ -642,7 +637,15 @@ namespace TheraEngine.Files
         internal unsafe static TFileObject Read3rdParty(Type classType, string filePath)
         {
             string ext = Path.GetExtension(filePath).Substring(1);
-            return Get3rdPartyLoader(classType, ext)?.Invoke(filePath);
+            DelThirdPartyFileMethod loader = Get3rdPartyLoader(classType, ext);
+            if (loader != null)
+                return loader.Invoke(filePath);
+            else
+            {
+                TFileObject obj = Activator.CreateInstance(classType) as TFileObject;
+                obj.Read3rdParty(filePath);
+                return obj;
+            }
         }
         private static Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>> _3rdPartyLoaders;
         private static Dictionary<string, Dictionary<Type, DelThirdPartyFileMethod>> _3rdPartyExporters;

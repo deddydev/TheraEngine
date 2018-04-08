@@ -167,5 +167,6 @@ namespace TheraEngine.Input.Devices
             }
             //Engine.DebugPrint(_name + ": " + type.ToString());
         }
+        public override string ToString() => Name;
     }
 }

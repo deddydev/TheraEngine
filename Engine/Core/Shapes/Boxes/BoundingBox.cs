@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System;
 using TheraEngine.Physics;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -267,7 +268,30 @@ namespace TheraEngine.Core.Shapes
                 frontLeft, frontRight, backLeft, backRight,
                 bottomFront, bottomRight, bottomBack, bottomLeft);
         }
-        public static PrimitiveData SolidMesh(Vec3 min, Vec3 max)
+        public enum ECubemapTextureUVs
+        {
+            /// <summary>
+            /// Specifies that each quad should have normal corner-to-corner UVs.
+            /// </summary>
+            None,
+            /// <summary>
+            /// Specifies that each quad should be mapped for a cubemap texture that has a larger width (4x3).
+            /// </summary>
+            WidthLarger,
+            /// <summary>
+            /// Specifies that each quad should be mapped for a cubemap texture that has a larger height (3x4).
+            /// </summary>
+            HeightLarger,
+        }
+        /// <summary>
+        /// Generates a bounding box mesh.
+        /// </summary>
+        /// <param name="min">Minimum axis-aligned bound of the box.</param>
+        /// <param name="max">Maximum axis-aligned bound of the box.</param>
+        /// <param name="inwardFacing">If the faces' fronts should face inward instead of outward.</param>
+        /// <param name="cubemapUVs">If each quad should use UVs for </param>
+        /// <returns></returns>
+        public static PrimitiveData SolidMesh(Vec3 min, Vec3 max, bool inwardFacing = false, ECubemapTextureUVs cubemapUVs = ECubemapTextureUVs.None)
         {
             VertexQuad left, right, top, bottom, front, back;
 
@@ -281,20 +305,33 @@ namespace TheraEngine.Core.Shapes
                 out Vec3 BFL,
                 out Vec3 BFR);
 
-            Vec3 rightNormal = Vec3.Right;
-            Vec3 frontNormal = -Vec3.Forward;
-            Vec3 topNormal = Vec3.Up;
+            Vec3 rightNormal = inwardFacing ? Vec3.Left : Vec3.Right;
+            Vec3 frontNormal = inwardFacing ? Vec3.Forward : Vec3.Backward;
+            Vec3 topNormal = inwardFacing ? Vec3.Down : Vec3.Up;
             Vec3 leftNormal = -rightNormal;
             Vec3 backNormal = -frontNormal;
             Vec3 bottomNormal = -topNormal;
 
-            left = VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal);
-            right = VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal);
-            top = VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal);
-            bottom = VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal);
-            front = VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
-            back = VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
-
+            if (cubemapUVs == ECubemapTextureUVs.None)
+            {
+                left = inwardFacing ? VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal) : VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal);
+                right = inwardFacing ? VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal) : VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal);
+                top = inwardFacing ? VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal) : VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal);
+                bottom = inwardFacing ? VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal) : VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal);
+                front = inwardFacing ? VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal) : VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
+                back = inwardFacing ? VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal) : VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
+            }
+            else
+            {
+                bool widthLarger = cubemapUVs == ECubemapTextureUVs.WidthLarger;
+                left = inwardFacing ? VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal, ECubemapFace.NegX, widthLarger) : VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal, ECubemapFace.NegX, widthLarger);
+                right = inwardFacing ? VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal, ECubemapFace.PosX, widthLarger) : VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal, ECubemapFace.PosX, widthLarger);
+                top = inwardFacing ? VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal, ECubemapFace.PosY, widthLarger) : VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal, ECubemapFace.PosY, widthLarger);
+                bottom = inwardFacing ? VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal, ECubemapFace.NegY, widthLarger) : VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal, ECubemapFace.NegY, widthLarger);
+                front = inwardFacing ? VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal, ECubemapFace.PosZ, widthLarger) : VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal, ECubemapFace.PosZ, widthLarger);
+                back = inwardFacing ? VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal, ECubemapFace.NegZ, widthLarger) : VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal, ECubemapFace.NegZ, widthLarger);
+            }
+            
             return PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
         /// <summary>

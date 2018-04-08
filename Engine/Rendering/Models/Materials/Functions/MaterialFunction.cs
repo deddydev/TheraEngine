@@ -71,13 +71,13 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         public void RecalcValidOverloads()
         {
             CurrentValidOverloads.Clear();
-            foreach (MatFuncValueInput input in _valueInputs)
-            {
-                if (input.HasConnection)
-                {
+            //foreach (MatFuncValueInput input in _valueInputs)
+            //{
+            //    if (input.HasConnection)
+            //    {
                     
-                }
-            }
+            //    }
+            //}
             foreach (MatFuncValueOutput output in _valueOutputs)
             {
                 if (output.HasConnection)

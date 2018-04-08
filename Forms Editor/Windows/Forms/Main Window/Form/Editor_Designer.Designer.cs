@@ -91,16 +91,16 @@
             // BodyPanel
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
-            this.BodyPanel.Size = new System.Drawing.Size(1303, 1054);
+            this.BodyPanel.Size = new System.Drawing.Size(1351, 1171);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(1303, 1094);
+            this.MainPanel.Size = new System.Drawing.Size(1351, 1211);
             // 
             // TitlePanel
             // 
             this.TitlePanel.Controls.Add(this.PaddingPanel);
-            this.TitlePanel.Size = new System.Drawing.Size(1303, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(1351, 40);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             this.TitlePanel.Controls.SetChildIndex(this.PaddingPanel, 0);
             // 
@@ -108,13 +108,13 @@
             // 
             this.FormTitle.Margin = new System.Windows.Forms.Padding(0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(0);
-            this.FormTitle.Size = new System.Drawing.Size(1132, 40);
+            this.FormTitle.Size = new System.Drawing.Size(1180, 40);
             this.FormTitle.Text = "Title Text";
             this.FormTitle.TextAlign = System.Drawing.ContentAlignment.TopLeft;
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(1303, 1102);
+            this.MiddlePanel.Size = new System.Drawing.Size(1351, 1219);
             // 
             // menuStrip1
             // 
@@ -129,12 +129,12 @@
             this.btnGame,
             this.btnHelp});
             this.menuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
-            this.menuStrip1.Location = new System.Drawing.Point(120, 7);
+            this.menuStrip1.Location = new System.Drawing.Point(98, 7);
             this.menuStrip1.MinimumSize = new System.Drawing.Size(0, 28);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(0);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(372, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(214, 33);
             this.menuStrip1.Stretch = false;
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
@@ -146,7 +146,7 @@
             this.btnWorld});
             this.btnFile.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnFile.Name = "btnFile";
-            this.btnFile.Size = new System.Drawing.Size(44, 24);
+            this.btnFile.Size = new System.Drawing.Size(37, 19);
             this.btnFile.Text = "File";
             this.btnFile.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
@@ -158,34 +158,34 @@
             this.btnSaveProject,
             this.btnSaveProjectAs});
             this.btnProject.Name = "btnProject";
-            this.btnProject.Size = new System.Drawing.Size(130, 26);
+            this.btnProject.Size = new System.Drawing.Size(111, 22);
             this.btnProject.Text = "Project";
             // 
             // btnNewProject
             // 
             this.btnNewProject.Name = "btnNewProject";
-            this.btnNewProject.Size = new System.Drawing.Size(135, 26);
+            this.btnNewProject.Size = new System.Drawing.Size(114, 22);
             this.btnNewProject.Text = "New";
             this.btnNewProject.Click += new System.EventHandler(this.BtnNewProject_Click);
             // 
             // btnOpenProject
             // 
             this.btnOpenProject.Name = "btnOpenProject";
-            this.btnOpenProject.Size = new System.Drawing.Size(135, 26);
+            this.btnOpenProject.Size = new System.Drawing.Size(114, 22);
             this.btnOpenProject.Text = "Open";
             this.btnOpenProject.Click += new System.EventHandler(this.BtnOpenProject_Click);
             // 
             // btnSaveProject
             // 
             this.btnSaveProject.Name = "btnSaveProject";
-            this.btnSaveProject.Size = new System.Drawing.Size(135, 26);
+            this.btnSaveProject.Size = new System.Drawing.Size(114, 22);
             this.btnSaveProject.Text = "Save";
             this.btnSaveProject.Click += new System.EventHandler(this.BtnSaveProject_Click);
             // 
             // btnSaveProjectAs
             // 
             this.btnSaveProjectAs.Name = "btnSaveProjectAs";
-            this.btnSaveProjectAs.Size = new System.Drawing.Size(135, 26);
+            this.btnSaveProjectAs.Size = new System.Drawing.Size(114, 22);
             this.btnSaveProjectAs.Text = "Save As";
             this.btnSaveProjectAs.Click += new System.EventHandler(this.BtnSaveProjectAs_Click);
             // 
@@ -197,34 +197,34 @@
             this.btnSaveWorld,
             this.btnSaveWorldAs});
             this.btnWorld.Name = "btnWorld";
-            this.btnWorld.Size = new System.Drawing.Size(130, 26);
+            this.btnWorld.Size = new System.Drawing.Size(111, 22);
             this.btnWorld.Text = "World";
             // 
             // btnNewWorld
             // 
             this.btnNewWorld.Name = "btnNewWorld";
-            this.btnNewWorld.Size = new System.Drawing.Size(135, 26);
+            this.btnNewWorld.Size = new System.Drawing.Size(114, 22);
             this.btnNewWorld.Text = "New";
             this.btnNewWorld.Click += new System.EventHandler(this.BtnNewWorld_Click);
             // 
             // btnOpenWorld
             // 
             this.btnOpenWorld.Name = "btnOpenWorld";
-            this.btnOpenWorld.Size = new System.Drawing.Size(135, 26);
+            this.btnOpenWorld.Size = new System.Drawing.Size(114, 22);
             this.btnOpenWorld.Text = "Open";
             this.btnOpenWorld.Click += new System.EventHandler(this.BtnOpenWorld_Click);
             // 
             // btnSaveWorld
             // 
             this.btnSaveWorld.Name = "btnSaveWorld";
-            this.btnSaveWorld.Size = new System.Drawing.Size(135, 26);
+            this.btnSaveWorld.Size = new System.Drawing.Size(114, 22);
             this.btnSaveWorld.Text = "Save";
             this.btnSaveWorld.Click += new System.EventHandler(this.BtnSaveWorld_Click);
             // 
             // btnSaveWorldAs
             // 
             this.btnSaveWorldAs.Name = "btnSaveWorldAs";
-            this.btnSaveWorldAs.Size = new System.Drawing.Size(135, 26);
+            this.btnSaveWorldAs.Size = new System.Drawing.Size(114, 22);
             this.btnSaveWorldAs.Text = "Save As";
             this.btnSaveWorldAs.Click += new System.EventHandler(this.saveAsToolStripMenuItem1_Click);
             // 
@@ -238,7 +238,7 @@
             this.vREnabledToolStripMenuItem});
             this.btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnEdit.Name = "btnEdit";
-            this.btnEdit.Size = new System.Drawing.Size(47, 24);
+            this.btnEdit.Size = new System.Drawing.Size(39, 19);
             this.btnEdit.Text = "Edit";
             // 
             // btnUndo
@@ -246,7 +246,7 @@
             this.btnUndo.Enabled = false;
             this.btnUndo.Name = "btnUndo";
             this.btnUndo.ShortcutKeyDisplayString = "Ctrl + Z";
-            this.btnUndo.Size = new System.Drawing.Size(234, 26);
+            this.btnUndo.Size = new System.Drawing.Size(191, 22);
             this.btnUndo.Text = "Undo";
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
@@ -255,7 +255,7 @@
             this.btnRedo.Enabled = false;
             this.btnRedo.Name = "btnRedo";
             this.btnRedo.ShortcutKeyDisplayString = "Ctrl + Y";
-            this.btnRedo.Size = new System.Drawing.Size(234, 26);
+            this.btnRedo.Size = new System.Drawing.Size(191, 22);
             this.btnRedo.Text = "Redo";
             this.btnRedo.Click += new System.EventHandler(this.btnRedo_Click);
             // 
@@ -268,13 +268,13 @@
             this.btnUserSettings,
             this.btnWorldSettings});
             this.btnEditProjectSettings.Name = "btnEditProjectSettings";
-            this.btnEditProjectSettings.Size = new System.Drawing.Size(234, 26);
+            this.btnEditProjectSettings.Size = new System.Drawing.Size(191, 22);
             this.btnEditProjectSettings.Text = "Project Settings";
             // 
             // btnEditorSettings
             // 
             this.btnEditorSettings.Name = "btnEditorSettings";
-            this.btnEditorSettings.Size = new System.Drawing.Size(187, 26);
+            this.btnEditorSettings.Size = new System.Drawing.Size(156, 22);
             this.btnEditorSettings.Text = "Editor Settings";
             this.btnEditorSettings.Click += new System.EventHandler(this.BtnEditorSettings_Click);
             // 
@@ -282,7 +282,7 @@
             // 
             this.btnEngineSettings.Enabled = false;
             this.btnEngineSettings.Name = "btnEngineSettings";
-            this.btnEngineSettings.Size = new System.Drawing.Size(187, 26);
+            this.btnEngineSettings.Size = new System.Drawing.Size(156, 22);
             this.btnEngineSettings.Text = "Engine Settings";
             this.btnEngineSettings.Click += new System.EventHandler(this.BtnEngineSettings_Click);
             // 
@@ -290,7 +290,7 @@
             // 
             this.btnProjectSettings.Enabled = false;
             this.btnProjectSettings.Name = "btnProjectSettings";
-            this.btnProjectSettings.Size = new System.Drawing.Size(187, 26);
+            this.btnProjectSettings.Size = new System.Drawing.Size(156, 22);
             this.btnProjectSettings.Text = "Project Settings";
             this.btnProjectSettings.Click += new System.EventHandler(this.BtnProjectSettings_Click);
             // 
@@ -298,7 +298,7 @@
             // 
             this.btnUserSettings.Enabled = false;
             this.btnUserSettings.Name = "btnUserSettings";
-            this.btnUserSettings.Size = new System.Drawing.Size(187, 26);
+            this.btnUserSettings.Size = new System.Drawing.Size(156, 22);
             this.btnUserSettings.Text = "User Settings";
             this.btnUserSettings.Click += new System.EventHandler(this.BtnUserSettings_Click);
             // 
@@ -306,21 +306,21 @@
             // 
             this.btnWorldSettings.Enabled = false;
             this.btnWorldSettings.Name = "btnWorldSettings";
-            this.btnWorldSettings.Size = new System.Drawing.Size(187, 26);
+            this.btnWorldSettings.Size = new System.Drawing.Size(156, 22);
             this.btnWorldSettings.Text = "World Settings";
             this.btnWorldSettings.Click += new System.EventHandler(this.BtnWorldSettings_Click);
             // 
             // btnEditEditorSettings
             // 
             this.btnEditEditorSettings.Name = "btnEditEditorSettings";
-            this.btnEditEditorSettings.Size = new System.Drawing.Size(234, 26);
+            this.btnEditEditorSettings.Size = new System.Drawing.Size(191, 22);
             this.btnEditEditorSettings.Text = "Editor Default Settings";
             this.btnEditEditorSettings.Click += new System.EventHandler(this.BtnEditorSettings_Click);
             // 
             // vREnabledToolStripMenuItem
             // 
             this.vREnabledToolStripMenuItem.Name = "vREnabledToolStripMenuItem";
-            this.vREnabledToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
+            this.vREnabledToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.vREnabledToolStripMenuItem.Text = "VR Editing";
             // 
             // btnView
@@ -336,7 +336,7 @@
             this.btnOpenVisualStudio});
             this.btnView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnView.Name = "btnView";
-            this.btnView.Size = new System.Drawing.Size(53, 24);
+            this.btnView.Size = new System.Drawing.Size(44, 19);
             this.btnView.Text = "View";
             // 
             // btnViewViewport
@@ -348,34 +348,34 @@
             this.viewport4ToolStripMenuItem});
             this.btnViewViewport.Image = ((System.Drawing.Image)(resources.GetObject("btnViewViewport.Image")));
             this.btnViewViewport.Name = "btnViewViewport";
-            this.btnViewViewport.Size = new System.Drawing.Size(205, 30);
+            this.btnViewViewport.Size = new System.Drawing.Size(167, 22);
             this.btnViewViewport.Text = "Viewport";
             // 
             // viewport1ToolStripMenuItem
             // 
             this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
-            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
+            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.viewport1ToolStripMenuItem.Text = "Viewport 1";
             this.viewport1ToolStripMenuItem.Click += new System.EventHandler(this.Viewport1ToolStripMenuItem_Click);
             // 
             // viewport2ToolStripMenuItem
             // 
             this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
-            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
+            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.viewport2ToolStripMenuItem.Text = "Viewport 2";
             this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
             // 
             // viewport3ToolStripMenuItem
             // 
             this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
-            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
+            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.viewport3ToolStripMenuItem.Text = "Viewport 3";
             this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
             // 
             // viewport4ToolStripMenuItem
             // 
             this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
-            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
+            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.viewport4ToolStripMenuItem.Text = "Viewport 4";
             this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
             // 
@@ -383,7 +383,7 @@
             // 
             this.btnViewActorTree.Image = ((System.Drawing.Image)(resources.GetObject("btnViewActorTree.Image")));
             this.btnViewActorTree.Name = "btnViewActorTree";
-            this.btnViewActorTree.Size = new System.Drawing.Size(205, 30);
+            this.btnViewActorTree.Size = new System.Drawing.Size(167, 22);
             this.btnViewActorTree.Text = "Scene Actors Tree";
             this.btnViewActorTree.Click += new System.EventHandler(this.BtnViewActorTree_Click);
             // 
@@ -391,7 +391,7 @@
             // 
             this.btnViewFileTree.Image = ((System.Drawing.Image)(resources.GetObject("btnViewFileTree.Image")));
             this.btnViewFileTree.Name = "btnViewFileTree";
-            this.btnViewFileTree.Size = new System.Drawing.Size(205, 30);
+            this.btnViewFileTree.Size = new System.Drawing.Size(167, 22);
             this.btnViewFileTree.Text = "Project Files Tree";
             this.btnViewFileTree.Click += new System.EventHandler(this.btnViewFileTree_Click);
             // 
@@ -399,7 +399,7 @@
             // 
             this.btnViewTools.Image = ((System.Drawing.Image)(resources.GetObject("btnViewTools.Image")));
             this.btnViewTools.Name = "btnViewTools";
-            this.btnViewTools.Size = new System.Drawing.Size(205, 30);
+            this.btnViewTools.Size = new System.Drawing.Size(167, 22);
             this.btnViewTools.Text = "Tools";
             this.btnViewTools.Click += new System.EventHandler(this.btnViewTools_Click);
             // 
@@ -407,7 +407,7 @@
             // 
             this.btnViewPropertyGrid.Image = ((System.Drawing.Image)(resources.GetObject("btnViewPropertyGrid.Image")));
             this.btnViewPropertyGrid.Name = "btnViewPropertyGrid";
-            this.btnViewPropertyGrid.Size = new System.Drawing.Size(205, 30);
+            this.btnViewPropertyGrid.Size = new System.Drawing.Size(167, 22);
             this.btnViewPropertyGrid.Text = "Property Grid";
             this.btnViewPropertyGrid.Click += new System.EventHandler(this.btnViewPropertyGrid_Click);
             // 
@@ -415,21 +415,21 @@
             // 
             this.btnViewOutput.Image = ((System.Drawing.Image)(resources.GetObject("btnViewOutput.Image")));
             this.btnViewOutput.Name = "btnViewOutput";
-            this.btnViewOutput.Size = new System.Drawing.Size(205, 30);
+            this.btnViewOutput.Size = new System.Drawing.Size(167, 22);
             this.btnViewOutput.Text = "Output";
             this.btnViewOutput.Click += new System.EventHandler(this.btnViewOutput_Click);
             // 
             // btnViewAnalytics
             // 
             this.btnViewAnalytics.Name = "btnViewAnalytics";
-            this.btnViewAnalytics.Size = new System.Drawing.Size(205, 30);
+            this.btnViewAnalytics.Size = new System.Drawing.Size(167, 22);
             this.btnViewAnalytics.Text = "Analytics";
             this.btnViewAnalytics.Click += new System.EventHandler(this.BtnViewAnalytics_Click);
             // 
             // btnOpenVisualStudio
             // 
             this.btnOpenVisualStudio.Name = "btnOpenVisualStudio";
-            this.btnOpenVisualStudio.Size = new System.Drawing.Size(205, 30);
+            this.btnOpenVisualStudio.Size = new System.Drawing.Size(167, 22);
             this.btnOpenVisualStudio.Text = "Visual Studio";
             this.btnOpenVisualStudio.Click += new System.EventHandler(this.visualStudioToolStripMenuItem_Click);
             // 
@@ -441,27 +441,27 @@
             this.btnCompile});
             this.btnGame.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnGame.Name = "btnGame";
-            this.btnGame.Size = new System.Drawing.Size(60, 24);
+            this.btnGame.Size = new System.Drawing.Size(50, 19);
             this.btnGame.Text = "Game";
             // 
             // btnPlay
             // 
             this.btnPlay.Name = "btnPlay";
-            this.btnPlay.Size = new System.Drawing.Size(179, 26);
+            this.btnPlay.Size = new System.Drawing.Size(149, 22);
             this.btnPlay.Text = "Play";
             this.btnPlay.Click += new System.EventHandler(this.BtPlay_Click);
             // 
             // btnPlayDetached
             // 
             this.btnPlayDetached.Name = "btnPlayDetached";
-            this.btnPlayDetached.Size = new System.Drawing.Size(179, 26);
+            this.btnPlayDetached.Size = new System.Drawing.Size(149, 22);
             this.btnPlayDetached.Text = "Play Detached";
             this.btnPlayDetached.Click += new System.EventHandler(this.btnPlayDetached_Click);
             // 
             // btnCompile
             // 
             this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(179, 26);
+            this.btnCompile.Size = new System.Drawing.Size(149, 22);
             this.btnCompile.Text = "Compile";
             this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
             // 
@@ -474,34 +474,34 @@
             this.btnAbout});
             this.btnHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnHelp.Name = "btnHelp";
-            this.btnHelp.Size = new System.Drawing.Size(53, 24);
+            this.btnHelp.Size = new System.Drawing.Size(44, 19);
             this.btnHelp.Text = "Help";
             // 
             // btnContact
             // 
             this.btnContact.Name = "btnContact";
-            this.btnContact.Size = new System.Drawing.Size(207, 26);
+            this.btnContact.Size = new System.Drawing.Size(173, 22);
             this.btnContact.Text = "Contact";
             this.btnContact.Click += new System.EventHandler(this.btnContact_Click);
             // 
             // btnDocumentation
             // 
             this.btnDocumentation.Name = "btnDocumentation";
-            this.btnDocumentation.Size = new System.Drawing.Size(207, 26);
+            this.btnDocumentation.Size = new System.Drawing.Size(173, 22);
             this.btnDocumentation.Text = "Documentation";
             this.btnDocumentation.Click += new System.EventHandler(this.btnDocumentation_Click);
             // 
             // btnCheckForUpdates
             // 
             this.btnCheckForUpdates.Name = "btnCheckForUpdates";
-            this.btnCheckForUpdates.Size = new System.Drawing.Size(207, 26);
+            this.btnCheckForUpdates.Size = new System.Drawing.Size(173, 22);
             this.btnCheckForUpdates.Text = "Check For Updates";
             this.btnCheckForUpdates.Click += new System.EventHandler(this.btnCheckForUpdates_Click);
             // 
             // btnAbout
             // 
             this.btnAbout.Name = "btnAbout";
-            this.btnAbout.Size = new System.Drawing.Size(207, 26);
+            this.btnAbout.Size = new System.Drawing.Size(173, 22);
             this.btnAbout.Text = "About";
             this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
             // 
@@ -516,7 +516,7 @@
             this.TheraEngineText.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.TheraEngineText.Name = "TheraEngineText";
             this.TheraEngineText.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
-            this.TheraEngineText.Size = new System.Drawing.Size(120, 20);
+            this.TheraEngineText.Size = new System.Drawing.Size(98, 18);
             this.TheraEngineText.TabIndex = 1;
             this.TheraEngineText.Text = "Thera Engine";
             this.TheraEngineText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -534,7 +534,7 @@
             this.DockPanel.Margin = new System.Windows.Forms.Padding(2);
             this.DockPanel.Name = "DockPanel";
             this.DockPanel.ShowDocumentIcon = true;
-            this.DockPanel.Size = new System.Drawing.Size(1303, 1054);
+            this.DockPanel.Size = new System.Drawing.Size(1351, 1171);
             this.DockPanel.SupportDeeplyNestedContent = true;
             this.DockPanel.TabIndex = 7;
             // 
@@ -547,7 +547,7 @@
             this.PaddingPanel.Location = new System.Drawing.Point(44, 0);
             this.PaddingPanel.Name = "PaddingPanel";
             this.PaddingPanel.Padding = new System.Windows.Forms.Padding(0, 7, 0, 0);
-            this.PaddingPanel.Size = new System.Drawing.Size(1132, 40);
+            this.PaddingPanel.Size = new System.Drawing.Size(1180, 40);
             this.PaddingPanel.TabIndex = 9;
             // 
             // FormTitle2
@@ -555,10 +555,10 @@
             this.FormTitle2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FormTitle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormTitle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.FormTitle2.Location = new System.Drawing.Point(492, 7);
+            this.FormTitle2.Location = new System.Drawing.Point(312, 7);
             this.FormTitle2.Name = "FormTitle2";
             this.FormTitle2.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
-            this.FormTitle2.Size = new System.Drawing.Size(640, 33);
+            this.FormTitle2.Size = new System.Drawing.Size(868, 33);
             this.FormTitle2.TabIndex = 2;
             this.FormTitle2.Text = "Title Text";
             // 
@@ -566,7 +566,7 @@
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.ClientSize = new System.Drawing.Size(1311, 1102);
+            this.ClientSize = new System.Drawing.Size(1359, 1219);
             this.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(0, 0);

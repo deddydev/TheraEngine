@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using TheraEngine.Actors;
 using TheraEngine.Core.Files;
 using TheraEngine.Files;
 using TheraEngine.GameModes;
@@ -15,12 +16,10 @@ using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Textures;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
-using TheraEngine.Actors;
-using System.Threading.Tasks;
 using Valve.VR;
-using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine
 {

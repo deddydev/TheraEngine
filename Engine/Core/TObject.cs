@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Animation;
-using System;
+using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
 using TheraEngine.Scripting;
-using TheraEngine.Editor;
-using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Files.Serialization;
-using System.Runtime.Serialization;
-using System.Reflection;
 
 namespace TheraEngine
 {

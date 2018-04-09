@@ -69,6 +69,8 @@ namespace TheraEngine.Components.Scene.Mesh
         public bool VisibleInEditorOnly { get; set; } = false;
         public bool HiddenFromOwner { get; set; } = false;
         public bool VisibleToOwnerOnly { get; set; } = false;
+        public delegate void DelRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix);
+        public event DelRender PreRendered, PostRendered;
 
         private float GetRenderDistance(bool shadowPass)
         {
@@ -109,11 +111,13 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
             }
         }
-        public void Render()
+        public void Render(TMaterial material = null)
         {
-            //Visible will be set to false if the current lod or its manager is null
-            //Therefore this code will never be run in those circumstances
-            _currentLOD.Value.Manager?.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
+            Matrix4 mtx = _component.WorldMatrix;
+            Matrix3 nrm = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
+            PreRendered?.Invoke(this, mtx, nrm);
+            _currentLOD.Value.Manager?.Render(mtx, nrm, material);
+            PostRendered?.Invoke(this, mtx, nrm);
         }
     }
     public class StaticRenderableMesh : BaseRenderableMesh

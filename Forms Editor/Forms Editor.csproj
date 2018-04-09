@@ -761,6 +761,9 @@
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\LODControl.resx">
       <DependentUpon>LODControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MeshControl.resx">
+      <DependentUpon>MeshControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.resx">
       <DependentUpon>TexRefControl.cs</DependentUpon>
     </EmbeddedResource>

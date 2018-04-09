@@ -64,7 +64,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         public static VertexQuad MakeQuad(
-            Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, ECubemapFace cubeMapFace, bool widthLarger, bool flipVerticalUVCoord = false)
+            Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, ECubemapFace cubeMapFace, bool widthLarger, bool flipVerticalUVCoord = true)
         {
             Vec2 
                 bottomLeftUV = Vec2.Zero, 
@@ -161,7 +161,13 @@ namespace TheraEngine.Rendering.Models
                     }
                     break;
             }
-
+            if (flipVerticalUVCoord)
+            {
+                bottomLeftUV.Y = -bottomLeftUV.Y;
+                bottomRightUV.Y = -bottomRightUV.Y;
+                topRightUV.Y = -topRightUV.Y;
+                topLeftUV.Y = -topLeftUV.Y;
+            }
             return new VertexQuad(
                 new Vertex(bottomLeft, normal, bottomLeftUV),
                 new Vertex(bottomRight, normal, bottomRightUV),

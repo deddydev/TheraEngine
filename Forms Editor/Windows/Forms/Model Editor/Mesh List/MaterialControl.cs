@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -43,9 +42,27 @@ namespace TheraEditor.Windows.Forms
             pnlMatInfo.MouseEnter += PnlMatInfo_MouseEnter;
             pnlMatInfo.MouseLeave += PnlMatInfo_MouseLeave;
             pnlMatInfo.MouseDown += PnlMatInfo_MouseDown;
-            tblUniforms.Visible = false;
         }
-        
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
+            basicRenderPanel1.Camera = new PerspectiveCamera(
+                new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
+            if (_light == null)
+            {
+                _light = new DirectionalLightComponent();
+                _light.SetShadowMapResolution(1, 1);
+                _light.WorldRadius = 100.0f;
+                _light.Rotation.Yaw = 45.0f;
+                _light.Rotation.Pitch = -45.0f;
+                basicRenderPanel1.Scene.Lights.Add(_light);
+                basicRenderPanel1.PreRendered += BasicRenderPanel1_PreRendered;
+                basicRenderPanel1.Invalidate();
+            }
+        }
+
         private int _prevX, _prevY;
         private bool _dragging = false;
         private void BasicRenderPanel1_MouseMove(object sender, MouseEventArgs e)
@@ -109,7 +126,7 @@ namespace TheraEditor.Windows.Forms
 
         private void PnlMatInfo_MouseDown(object sender, MouseEventArgs e)
         {
-            tblUniforms.Visible = !tblUniforms.Visible;
+            //tblUniforms.Visible = !tblUniforms.Visible;
         }
 
         private void PnlMatInfo_MouseLeave(object sender, EventArgs e)
@@ -121,42 +138,12 @@ namespace TheraEditor.Windows.Forms
         {
             pnlMatInfo.BackColor = Color.FromArgb(42, 63, 70);
         }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-            if (Engine.DesignMode)
-                return;
-
-            float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
-            basicRenderPanel1.Camera = new PerspectiveCamera(
-                new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
-
-            //basicRenderPanel1.RegisterTick();
-
-            _light = new DirectionalLightComponent();
-            _light.SetShadowMapResolution(1, 1);
-            _light.WorldRadius = 100.0f;
-            _light.Rotation.Yaw = 45.0f;
-            _light.Rotation.Pitch = -45.0f;
-            basicRenderPanel1.Scene.Lights.Add(_light);
-            basicRenderPanel1.PreRendered += BasicRenderPanel1_PreRendered;
-            basicRenderPanel1.Invalidate();
-        }
         
         private void BasicRenderPanel1_PreRendered()
         {
             _light.RenderShadowMap(basicRenderPanel1.Scene);
         }
-
-        //protected override void OnHandleDestroyed(EventArgs e)
-        //{
-        //    if (!Engine.DesignMode)
-        //        basicRenderPanel1.UnregisterTick();
-
-        //    base.OnHandleDestroyed(e);
-        //}
-
+        
         private DirectionalLightComponent _light;
         private PrimitiveRenderWrapper _spherePrim;
         private TMaterial _material;
@@ -187,7 +174,24 @@ namespace TheraEditor.Windows.Forms
                     else
                         _spherePrim.Material = _material;
 
-                    lblMaterialName.Text = _material.Name;
+                    txtMatName.Text = _material.Name;
+                    lblMatName.Text = _material.Name;
+                    lblParamCount.Text = "Parameter Count:" + _material.Parameters.Length.ToString();
+                    lblTexCount.Text = "Texture Count:" + _material.Textures.Length.ToString();
+                    lblBlending.Text = "Blending:" + _material.RenderParams.BlendMode.ToString();
+                    lblDepthTest.Text = "Depth Test:" + _material.RenderParams.DepthTest.ToString();
+                    lblShaderTypes.Text = "Shader Types:" + string.Format("F:{0} G:{1} TE:{2} TC:{3}",
+                        _material.FragmentShaders.Count > 0,
+                        _material.GeometryShaders.Count > 0,
+                        _material.TessEvalShaders.Count > 0, 
+                        _material.TessCtrlShaders.Count > 0);
+                    lblStencil.Text = "Stencil:" + _material.RenderParams.StencilTest.ToString();
+                    lblColorMask.Text = "Color Mask:" + string.Format("R:{0} G:{1} B:{2} A:{3}",
+                        _material.RenderParams.WriteRGBA.X,
+                        _material.RenderParams.WriteRGBA.Y,
+                        _material.RenderParams.WriteRGBA.Z,
+                        _material.RenderParams.WriteRGBA.W);
+
                     foreach (ShaderVar shaderVar in _material.Parameters)
                     {
                         Type valType = ShaderVar.AssemblyTypeAssociations[shaderVar.TypeName];
@@ -224,6 +228,27 @@ namespace TheraEditor.Windows.Forms
         {
             //btnSave.Visible = true;
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
+        }
+
+        private void lblMatName_Click(object sender, EventArgs e)
+        {
+            panel2.Visible = !panel2.Visible;
+            
+        }
+
+        private void lblMatName_MouseEnter(object sender, EventArgs e)
+        {
+            lblMatName.BackColor = Color.FromArgb(42, 53, 60);
+        }
+
+        private void lblMatName_MouseLeave(object sender, EventArgs e)
+        {
+            lblMatName.BackColor = Color.FromArgb(32, 43, 50);
+        }
+
+        private void txtMatName_TextChanged(object sender, EventArgs e)
+        {
+            _material.Name = txtMatName.Text;
         }
 
         public void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)

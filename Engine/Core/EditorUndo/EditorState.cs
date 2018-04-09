@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
+using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Editor
 {
@@ -219,6 +222,16 @@ namespace TheraEngine.Editor
                 PropertyInfo = propertyInfo,
             });
             IsDirty = true;
+        }
+
+        public static void RegisterSelectedMesh(BaseRenderableMesh m, bool selected, Scene3D scene)
+        {
+            m.Rendered += M_Rendered; 
+        }
+
+        private static void M_Rendered(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix)
+        {
+
         }
     }
     public class EngineEditorState

@@ -6,6 +6,7 @@ layout(location = 0) in vec3 FragPos;
 uniform sampler2D Texture0;
 
 uniform float Ping;
+uniform int Iteration;
 uniform float Weight[5] = float[] (0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162);
 
 void main()

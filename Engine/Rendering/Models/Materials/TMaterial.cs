@@ -47,7 +47,6 @@ namespace TheraEngine.Rendering.Models.Materials
         protected BaseTexRef[] _textures;
 
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
-        private int _uniqueID = -1;
 
         private LocalFileRef<RenderingParameters> _renderParamsRef = new RenderingParameters();
 
@@ -103,7 +102,7 @@ namespace TheraEngine.Rendering.Models.Materials
                         t.Material = this;
             }
         }
-        public int UniqueID => _uniqueID;
+        public int UniqueID => Program.BindingId;
         public RenderProgram Program
         {
             get
@@ -115,6 +114,9 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         
         public List<ShaderFile> FragmentShaders => _fragmentShaders;
+        public List<ShaderFile> GeometryShaders => _geometryShaders;
+        public List<ShaderFile> TessEvalShaders => _tessEvalShaders;
+        public List<ShaderFile> TessCtrlShaders => _tessCtrlShaders;
 
         public enum UniformRequirements
         {

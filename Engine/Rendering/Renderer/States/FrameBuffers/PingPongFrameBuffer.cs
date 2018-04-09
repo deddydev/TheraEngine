@@ -13,7 +13,8 @@ namespace TheraEngine.Rendering
         private bool _hasInitial;
 
         public bool Ping { get; private set; } = true;
-
+        public int Iteration { get; private set; }
+        
         /// <summary>
         /// Use to set uniforms to the program containing the fragment shader.
         /// </summary>
@@ -58,6 +59,7 @@ namespace TheraEngine.Rendering
                _fullScreenTriangle.VertexFragProgram.BindingId;
 
             Engine.Renderer.Uniform(fragId, "Ping", Ping ? 0.0f : 1.0f);
+            Engine.Renderer.Uniform(fragId, "Iteration", Iteration);
 
             SettingUniforms?.Invoke(fragId);
         }
@@ -74,6 +76,7 @@ namespace TheraEngine.Rendering
             _hasInitial = _materials[2] != null;
             _fbos[0].Material = _fullScreenTriangle.Material = _materials[2] ?? _materials[0];
             Ping = true;
+            Iteration = 0;
         }
         public void RenderFullscreenAndSwitch()
         {
@@ -88,6 +91,7 @@ namespace TheraEngine.Rendering
         }
         public void Switch()
         {
+            ++Iteration;
             Ping = !Ping;
             int i = Ping ? 0 : 1;
             _fullScreenTriangle.Material = _fbos[i].Material;

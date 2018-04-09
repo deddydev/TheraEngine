@@ -634,7 +634,7 @@
     <Compile Include="Rendering\Models\Materials\Functions\Methods\Math\Operators\Subtract.cs" />
     <Compile Include="Rendering\Models\Materials\Functions\Methods\Results\ResultBasic.cs" />
     <Compile Include="Rendering\Models\Materials\Functions\Methods\Results\ResultPBR.cs" />
-    <Compile Include="Rendering\Models\Materials\MaterialRenderParams.cs" />
+    <Compile Include="Rendering\Models\Materials\RenderingParameters.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\TextureData.cs" />
     <Compile Include="Rendering\Shader Generator\ShaderGenerator.cs" />
     <Compile Include="Rendering\Shader Generator\VertexShaderGenerator.cs" />

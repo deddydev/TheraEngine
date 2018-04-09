@@ -312,10 +312,10 @@ namespace TheraEngine.Rendering
                             //and we need depth from the previous pass
                             //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                             Engine.Renderer.AllowDepthWrite(false);
-                            _passes.Render(ERenderPass3D.Skybox);
 
                             //Render the deferred pass result
                             v.GBufferFBO.RenderFullscreen();
+                            _passes.Render(ERenderPass3D.Skybox);
 
                             Engine.Renderer.AllowDepthWrite(true);
 

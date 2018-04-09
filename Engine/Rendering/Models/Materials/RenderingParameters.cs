@@ -39,19 +39,13 @@ namespace TheraEngine.Rendering.Models.Materials
             if (defaultAlphaTestDiscardMax != null)
             {
                 AlphaTest.Enabled = true;
-                AlphaTest.Ref = 0.5f;
+                AlphaTest.Ref = defaultAlphaTestDiscardMax.Value;
                 AlphaTest.Comp = EComparison.Lequal;
             }
         }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool WriteRed { get; set; } = true;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool WriteGreen { get; set; } = true;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool WriteBlue { get; set; } = true;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool WriteAlpha { get; set; } = true;
+        public BoolVec4 WriteRGBA { get; set; } = new BoolVec4(true, true, true, true);
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Culling CullMode { get; set; } = Culling.Back;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
@@ -109,16 +103,20 @@ namespace TheraEngine.Rendering.Models.Materials
         public int Ref { get => _ref; set => _ref = value; }
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public int Mask { get => _mask; set => _mask = value; }
+
+        public override string ToString()
+        {
+            return string.Format("{0} Ref:{1} Mask:{2}", Func, Ref, Mask);
+        }
     }
     public class StencilTest
     {
-        private bool _enableStencilFunc = false;
         private StencilFace 
             _frontFace = new StencilFace(),
             _backFace = new StencilFace();
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool EnableStencilFunc { get => _enableStencilFunc; set => _enableStencilFunc = value; }
+        public bool Enabled { get; set; } = false;
         [TSerialize(Condition = "EnableStencilFunc")]
         public StencilFace FrontFace { get => _frontFace; set => _frontFace = value ?? new StencilFace(); }
         [TSerialize(Condition = "EnableStencilFunc")]
@@ -130,6 +128,11 @@ namespace TheraEngine.Rendering.Models.Materials
         //public int BackFaceRef { get => _backFace.Ref; set => _backFace.Ref = value; }
         //public int FrontFaceMask { get => _frontFace.Mask; set => _frontFace.Mask = value; }
         //public int BackFaceMask { get => _backFace.Mask; set => _backFace.Mask = value; }
+
+        public override string ToString()
+        {
+            return !Enabled ? "Disabled" : string.Format("[Front: {0}] - [Back: {1}]", FrontFace.ToString(), BackFace.ToString());
+        }
     }
     public class DepthTest
     {
@@ -151,6 +154,11 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize(Order = 2, XmlNodeType = EXmlNodeType.Attribute, Condition = "Enabled")]
         [Description("Determines the pass condition to write a new color fragment. Usually less or lequal, meaning closer to the camera than the previous depth means a success.")]
         public EComparison Function { get; set; } = EComparison.Lequal;
+
+        public override string ToString()
+        {
+            return !Enabled ? "Disabled" : string.Format("[{0}, Write Depth:{1}]", Function, UpdateDepth);
+        }
     }
     public class BlendMode
     {
@@ -180,5 +188,10 @@ namespace TheraEngine.Rendering.Models.Materials
         public EBlendingFactor RgbDstFactor { get => _rgbDstFactor; set => _rgbDstFactor = value; }
         [TSerialize(Condition = "Enabled")]
         public EBlendingFactor AlphaDstFactor { get => _alphaDstFactor; set => _alphaDstFactor = value; }
+
+        public override string ToString()
+        {
+            return !Enabled ? "Disabled" : string.Format("[RGB: {0} {1} {2}] - [Alpha: {3} {4} {5}]", RgbEquation, RgbSrcFactor, RgbDstFactor, AlphaEquation, AlphaSrcFactor, AlphaDstFactor);
+        }
     }
 }

@@ -102,5 +102,18 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // MeshControl
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.Name = "MeshControl";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
     }
 }

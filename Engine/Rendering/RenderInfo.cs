@@ -67,7 +67,7 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         public DateTime LastRenderedTime { get; internal set; }
 
-        public int SceneID { get; set; } = -1;
+        public int SceneID { get; internal set; } = -1;
 
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
 

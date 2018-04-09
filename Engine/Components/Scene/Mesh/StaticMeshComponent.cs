@@ -208,6 +208,7 @@ namespace TheraEngine.Components.Scene.Mesh
                         OwningScene.Remove(m.CullingVolume);
                     }
                 }
+                Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
             }
         }
     }

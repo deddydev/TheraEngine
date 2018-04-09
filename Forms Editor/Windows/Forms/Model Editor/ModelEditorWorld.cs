@@ -29,23 +29,26 @@ namespace TheraEditor.Windows.Forms
             comp.Rotation.Pitch = -45.0f;
             SpawnActor(light);
 
-            Vec3 max = 1000.0f;
+            Vec3 max = 5000.0f;
             Vec3 min = -max;
-            TextureFile2D skyTex = Engine.LoadEngineTexture2D("modelviewerbg.png");
+            TextureFile2D skyTex = Engine.LoadEngineTexture2D("skybox.png");
             StaticModel skybox = new StaticModel("Skybox");
             TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
             {
                 MagFilter = ETexMagFilter.Nearest,
                 MinFilter = ETexMinFilter.Nearest
             };
-            StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", true, 
+            StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", true,
                 BoundingBox.FromMinMax(min, max),
-                BoundingBox.SolidMesh(min, max, true, 
+                BoundingBox.SolidMesh(min, max, true,
                 skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?
                     BoundingBox.ECubemapTextureUVs.WidthLarger :
                     BoundingBox.ECubemapTextureUVs.HeightLarger),
-                TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters() { DepthTest = new DepthTest() { Enabled = false } }));
-            mesh.RenderInfo.RenderPass = ERenderPass3D.OpaqueForward;
+                TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
+                {
+                    DepthTest = new DepthTest() { Enabled = true, UpdateDepth = false, Function = EComparison.Less }
+                }));
+            mesh.RenderInfo.RenderPass = ERenderPass3D.Skybox;
             skybox.RigidChildren.Add(mesh);
             Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
             skyboxActor.RootComponent.ModelRef = skybox;

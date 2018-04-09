@@ -42,8 +42,8 @@
             this.lblDropDownName.Location = new System.Drawing.Point(0, 0);
             this.lblDropDownName.Margin = new System.Windows.Forms.Padding(0);
             this.lblDropDownName.Name = "lblDropDownName";
-            this.lblDropDownName.Padding = new System.Windows.Forms.Padding(11, 0, 0, 0);
-            this.lblDropDownName.Size = new System.Drawing.Size(11, 31);
+            this.lblDropDownName.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
+            this.lblDropDownName.Size = new System.Drawing.Size(10, 25);
             this.lblDropDownName.TabIndex = 0;
             this.lblDropDownName.Text = "Miscellaneous";
             this.lblDropDownName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -56,10 +56,10 @@
             // 
             this.pnlSide.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
             this.pnlSide.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlSide.Location = new System.Drawing.Point(0, 31);
+            this.pnlSide.Location = new System.Drawing.Point(0, 25);
             this.pnlSide.Margin = new System.Windows.Forms.Padding(0);
             this.pnlSide.Name = "pnlSide";
-            this.pnlSide.Size = new System.Drawing.Size(11, 0);
+            this.pnlSide.Size = new System.Drawing.Size(10, 0);
             this.pnlSide.TabIndex = 2;
             this.pnlSide.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblCategoryName_MouseDown);
             this.pnlSide.MouseEnter += new System.EventHandler(this.lblCategoryName_MouseEnter);
@@ -68,18 +68,18 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.AutoScroll = true;
             this.pnlMain.AutoSize = true;
             this.pnlMain.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlMain.Location = new System.Drawing.Point(11, 31);
-            this.pnlMain.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pnlMain.Location = new System.Drawing.Point(10, 25);
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(0, 0);
             this.pnlMain.TabIndex = 0;
             // 
             // GenericDropDownControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -90,7 +90,7 @@
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "GenericDropDownControl";
-            this.Size = new System.Drawing.Size(11, 31);
+            this.Size = new System.Drawing.Size(10, 25);
             this.ResumeLayout(false);
             this.PerformLayout();
 

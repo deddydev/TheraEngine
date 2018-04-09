@@ -411,7 +411,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         private Matrix4 _lastRenderedModelMatrix = Matrix4.Identity;
-        public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix)
+        public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material = null)
         {
             if (_data == null)
                 return;
@@ -425,12 +425,11 @@ namespace TheraEngine.Rendering.Models
                 normalMatrix = normalMatrix * _singleBind.NormalMatrix.GetRotationMatrix3();
             }
 
-            TMaterial mat;
+            TMaterial mat = Engine.Renderer.MaterialOverride ?? material ?? Material;
+
             int vtxId, fragId;
             if (Engine.Settings.AllowShaderPipelines)
             {
-                mat = Engine.Renderer.MaterialOverride ?? Material;
-
                 _pipeline.Bind();
                 //Engine.PrintLine("{0} bound", _pipeline.ToString());
                 _pipeline.Set(EProgramStageMask.FragmentShaderBit | EProgramStageMask.GeometryShaderBit, fragId = mat.Program.BindingId);
@@ -438,8 +437,6 @@ namespace TheraEngine.Rendering.Models
             }
             else
             {
-                mat = Material;
-
                 vtxId = fragId = VertexFragProgram.BindingId;
                 VertexFragProgram.Use();
             }

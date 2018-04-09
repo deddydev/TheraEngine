@@ -17,14 +17,33 @@ namespace TheraEngine
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Camera Camera
         {
-            get => _viewports[0].Camera;
-            set => _viewports[0].Camera = value;
+            get => _viewports.Count == 0 ? null : _viewports [0].Camera;
+            set
+            {
+                if (_viewports.Count == 0)
+                    AddViewport();
+                _viewports[0].Camera = value;
+            }
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            if (!Engine.DesignMode)
+            AddViewport();
+        }
+
+        protected override void SetVisibleCore(bool value)
+        {
+            base.SetVisibleCore(value);
+        }
+        protected override void OnParentVisibleChanged(EventArgs e)
+        {
+            base.OnParentVisibleChanged(e);
+        }
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            if (!Engine.DesignMode && Visible && _viewports.Count == 0)
                 AddViewport();
         }
 
@@ -32,6 +51,9 @@ namespace TheraEngine
         protected virtual void PostRender() => PostRendered?.Invoke();
         protected override void OnRender()
         {
+            if (_viewports.Count == 0)
+                return;
+
             Viewport v = _viewports[0];
 
             PreRender();

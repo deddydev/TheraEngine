@@ -31,6 +31,7 @@ namespace TheraEngine.Rendering.Models
         void Render();
         void Render(Matrix4 modelMatrix);
         void Render(Matrix4 modelMatrix, Matrix3 normalMatrix);
+        void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material);
     }
     /// <summary>
     /// Used to render raw primitive data.
@@ -404,14 +405,12 @@ namespace TheraEngine.Rendering.Models
         public void Render()
             => Render(Matrix4.Identity, Matrix3.Identity);
         
-        public unsafe void Render(Matrix4 modelMatrix)
-        {
-            //TODO: don't invert, transpose, and get rotation matrix here
-            Render(modelMatrix, modelMatrix.GetRotationMatrix3());//modelMatrix.Inverted().Transposed().GetRotationMatrix3());
-        }
-
+        
         private Matrix4 _lastRenderedModelMatrix = Matrix4.Identity;
-        public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material = null)
+        public unsafe void Render(Matrix4 modelMatrix) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3());
+        public unsafe void Render(Matrix4 modelMatrix, TMaterial material) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), material);
+        public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix) => Render(modelMatrix, normalMatrix, null);
+        public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material)
         {
             if (_data == null)
                 return;

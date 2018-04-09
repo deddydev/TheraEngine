@@ -14,8 +14,6 @@ namespace TheraEngine.Physics
     public delegate void DelOnHit(TRigidBody me, TRigidBody other, TContactInfo collisionPoint);
     public abstract class TRigidBody : TCollisionObject
     {
-        public DelOnHit OnHit;
-
         protected TRigidBody(IRigidCollidable owner, TCollisionShape shape) : base(owner, shape)
         {
 

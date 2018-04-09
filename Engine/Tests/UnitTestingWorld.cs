@@ -7,6 +7,7 @@ using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
@@ -23,6 +24,13 @@ namespace TheraEngine.Tests
 {
     public class UnitTestingWorld : World
     {
+        private void RigidBodyCollision_Collided1(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)
+        {
+            ShaderVec3 color = (ShaderVec3)((StaticMeshComponent)@this.Owner).ModelRef.File.RigidChildren[0].LODs[0].MaterialRef.File.Parameters[0];
+            color.Value = (ColorF3)Color.Green;
+            //_collideSound.Play(_param);
+        }
+
         public unsafe override void BeginPlay()
         {
             bool testLandscape = true;
@@ -50,36 +58,37 @@ namespace TheraEngine.Tests
             int maxVel = 50;
             int maxVelMod = maxVel * 100;
             int halfMax = maxVelMod / 2;
-
-            //Create spheres
+            
             for (int x = -count; x <= count; ++x)
                 for (int z = -count; z <= count; ++z)
                 {
                     TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor);
                     mat.Parameter<ShaderFloat>("Roughness").Value = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
                     mat.Parameter<ShaderFloat>("Metallic").Value = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
-                    BoxActor sphere = new BoxActor("TestBox" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(),
-                        mat, new TRigidBodyConstructionInfo()
-                        {
-                            Mass = 100.0f,
-                            Friction = 1.0f,
-                            Restitution = 0.0f,
-                            LinearDamping = 0.2f,
-                            AngularDamping = 0.2f,
-                            UseMotionState = true,
-                            RollingFriction = 0.5f,
-                            SimulatePhysics = true,
-                            CollisionEnabled = true,
-                            SleepingEnabled = true,
-                            DeactivationTime = 0.4f,
-                            CcdMotionThreshold = 0.4f,
-                            CustomMaterialCallback = true,
-                            LinearSleepingThreshold = 0.3f,
-                            AngularSleepingThreshold = 0.3f,
-                            CcdSweptSphereRadius = radius * 0.95f,
-                            CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
-                            CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
-                        });
+                    TRigidBodyConstructionInfo cinfo = new TRigidBodyConstructionInfo()
+                    {
+                        Mass = 100.0f,
+                        Friction = 1.0f,
+                        Restitution = 0.0f,
+                        LinearDamping = 0.2f,
+                        AngularDamping = 0.2f,
+                        UseMotionState = true,
+                        RollingFriction = 0.5f,
+                        SimulatePhysics = true,
+                        CollisionEnabled = true,
+                        SleepingEnabled = true,
+                        DeactivationTime = 0.4f,
+                        CcdMotionThreshold = 0.4f,
+                        CustomMaterialCallback = true,
+                        LinearSleepingThreshold = 0.3f,
+                        AngularSleepingThreshold = 0.3f,
+                        CcdSweptSphereRadius = radius * 0.95f,
+                        CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
+                        CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
+                    };
+                    Actor<StaticMeshComponent> sphere = ((x ^ z) & 1) == 0 ?
+                        (Actor<StaticMeshComponent>)new BoxActor("TestBox" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo) :
+                        new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo);
                     sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
                         rand.Next(-halfMax, halfMax) / maxVel,
                         rand.Next(-halfMax, halfMax) / maxVel,
@@ -88,6 +97,7 @@ namespace TheraEngine.Tests
                         rand.Next(-halfMax, halfMax) / maxVel,
                         rand.Next(-halfMax, halfMax) / maxVel,
                         rand.Next(-halfMax, halfMax) / maxVel);
+                    sphere.RootComponent.RigidBodyCollision.Collided += RigidBodyCollision_Collided1;
                     actors.Add(sphere);
                 }
 

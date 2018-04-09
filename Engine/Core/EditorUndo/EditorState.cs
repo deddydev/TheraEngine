@@ -226,12 +226,12 @@ namespace TheraEngine.Editor
 
         public static void RegisterSelectedMesh(BaseRenderableMesh m, bool selected, Scene3D scene)
         {
-            m.Rendered += M_Rendered; 
+            m.PreRendered += M_PreRendered;
         }
 
-        private static void M_Rendered(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix)
+        private static void M_PreRendered(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, Rendering.Models.Materials.TMaterial material, BaseRenderableMesh.PreRenderCallback callback)
         {
-
+            //callback.ShouldRender = false;
         }
     }
     public class EngineEditorState

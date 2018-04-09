@@ -69,8 +69,14 @@ namespace TheraEngine.Components.Scene.Mesh
         public bool VisibleInEditorOnly { get; set; } = false;
         public bool HiddenFromOwner { get; set; } = false;
         public bool VisibleToOwnerOnly { get; set; } = false;
-        public delegate void DelRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix);
-        public event DelRender PreRendered, PostRendered;
+        public delegate void DelPostRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix);
+        public delegate void DelPreRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, TMaterial material, PreRenderCallback callback);
+        public class PreRenderCallback
+        {
+            public bool ShouldRender { get; set; } = true;
+        }
+        public event DelPreRender PreRendered;
+        public event DelPostRender PostRendered;
 
         private float GetRenderDistance(bool shadowPass)
         {
@@ -111,13 +117,29 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
             }
         }
+        public void Render()
+        {
+            Matrix4 mtx = _component.WorldMatrix;
+            Matrix3 nrm = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
+            PreRenderCallback callback = new PreRenderCallback();
+            PreRendered?.Invoke(this, mtx, nrm, null, callback);
+            if (callback.ShouldRender)
+            {
+                _currentLOD.Value.Manager?.Render(mtx, nrm);
+                PostRendered?.Invoke(this, mtx, nrm);
+            }
+        }
         public void Render(TMaterial material = null)
         {
             Matrix4 mtx = _component.WorldMatrix;
             Matrix3 nrm = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
-            PreRendered?.Invoke(this, mtx, nrm);
-            _currentLOD.Value.Manager?.Render(mtx, nrm, material);
-            PostRendered?.Invoke(this, mtx, nrm);
+            PreRenderCallback callback = new PreRenderCallback();
+            PreRendered?.Invoke(this, mtx, nrm, material, callback);
+            if (callback.ShouldRender)
+            {
+                _currentLOD.Value.Manager?.Render(mtx, nrm, material);
+                PostRendered?.Invoke(this, mtx, nrm);
+            }
         }
     }
     public class StaticRenderableMesh : BaseRenderableMesh

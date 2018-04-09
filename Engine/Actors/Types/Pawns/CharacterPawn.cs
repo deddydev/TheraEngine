@@ -176,7 +176,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         private void Look(float x, float y)
         {
-            _viewRotation.Pitch -= y * _mouseYLookInputMultiplier;
+            _viewRotation.Pitch += y * _mouseYLookInputMultiplier;
             _viewRotation.Yaw -= x * _mouseXLookInputMultiplier;
 
             //float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
@@ -207,11 +207,6 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             _viewRotation.Pitch += value * _gamePadYLookInputMultiplier;
         }
-        protected void OnHit(TRigidBody me, TRigidBody other, TContactInfo point)
-        {
-            //Engine.DebugPrint(((ObjectBase)other).Name + " collided with " + Name);
-            _movement.OnHit(other, point);
-        }
         protected override void PreConstruct()
         {
             _movement = Activator.CreateInstance<MovementClass>();
@@ -233,16 +228,17 @@ namespace TheraEngine.Actors.Types.Pawns
                 AngularDamping = 0.0f,
                 LinearDamping = 0.0f,
                 Restitution = 0.0f,
-                Friction = 0.0f,
+                Friction = 1.0f,
                 RollingFriction = 0.01f,
                 CollisionEnabled = true,
-                SimulatePhysics = false,
+                SimulatePhysics = true,
+                SleepingEnabled = false,
                 CollisionGroup = (ushort)TCollisionGroup.Characters,
                 CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
             };
 
             CapsuleYComponent rootCapsule = new CapsuleYComponent(radius, halfHeight, info);
-            rootCapsule.RigidBodyCollision.OnHit += OnHit;
+            rootCapsule.RigidBodyCollision.Collided += RigidBodyCollision_Collided;
             rootCapsule.RigidBodyCollision.AngularFactor = Vec3.Zero;
             rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 
@@ -283,6 +279,12 @@ namespace TheraEngine.Actors.Types.Pawns
             _viewRotation.Yaw = 180.0f;
 
             return rootCapsule;
+        }
+
+        private void RigidBodyCollision_Collided(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)
+        {
+            //Engine.DebugPrint(((ObjectBase)other).Name + " collided with " + Name);
+            _movement.OnHit(other, info, thisIsA);
         }
     }
 }

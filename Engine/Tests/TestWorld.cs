@@ -55,7 +55,7 @@ namespace TheraEngine.Tests
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
                     new Rotator(x, y, z, RotationOrder.YPR),
                     TMaterial.CreateLitColorMaterial(Color.Purple), physicsInfo);
-                box.RootComponent.RigidBodyCollision.OnHit += PhysicsDriver_OnHit;
+                box.RootComponent.RigidBodyCollision.Collided += RigidBodyCollision_Collided1;
                 array[i] = box;
             }
             actors.AddRange(array);
@@ -160,28 +160,28 @@ namespace TheraEngine.Tests
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
             
-            Collada.Data anim = Collada.Import(TestDefaults.GoogleDrivePath + "Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae", options);
+            //Collada.Data anim = Collada.Import(TestDefaults.GoogleDrivePath + "Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae", options);
 
             //ColladaScene = Collada.Import(desktop + "carly\\carly.dae", options, false, true);
-            Collada.Data model = Collada.Import(TestDefaults.DesktopPath + "TEST.DAE", options);
+            //Collada.Data model = Collada.Import(TestDefaults.DesktopPath + "TEST.DAE", options);
 
             //ModelScene scene = Collada.Import(desktop + "skybox.dae", options);
             //StaticMeshComponent c = new StaticMeshComponent(scene.StaticModel, null);
             //Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c) { Name = "Skybox" };
 
-            if (model.Models.Count > 0)
-            {
-                ModelScene scene = model.Models[0];
-                if (scene.SkeletalModel != null)
-                {
-                    SkeletalMeshComponent comp = new SkeletalMeshComponent(model.Models[0].SkeletalModel, model.Models[0].Skeleton);
+            //if (model.Models.Count > 0)
+            //{
+            //    ModelScene scene = model.Models[0];
+            //    if (scene.SkeletalModel != null)
+            //    {
+            //        SkeletalMeshComponent comp = new SkeletalMeshComponent(model.Models[0].SkeletalModel, model.Models[0].Skeleton);
                     
-                    comp.Translation.Raw = Vec3.Up * 70.0f;
+            //        comp.Translation.Raw = Vec3.Up * 70.0f;
                     
-                    IActor importedActor = new Actor<SkeletalMeshComponent>(comp) { Name = "SkeletalMeshActor" };
-                    actors.Add(importedActor);
-                }
-            }
+            //        IActor importedActor = new Actor<SkeletalMeshComponent>(comp) { Name = "SkeletalMeshActor" };
+            //        actors.Add(importedActor);
+            //    }
+            //}
 
             //int timeInSeconds = 20;
             //int frames = timeInSeconds * 60;
@@ -281,14 +281,13 @@ namespace TheraEngine.Tests
             base.BeginPlay();
         }
 
-        private void PhysicsDriver_OnHit(TCollisionObject me, TCollisionObject other, TContactInfo point)
+        private void RigidBodyCollision_Collided1(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)
         {
-            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me.Owner).ModelRef.File.RigidChildren[0].LODs[0].MaterialRef.File.Parameters[0];
-            color.Value = (ColorF4)Color.Green;
-
+            ShaderVec3 color = (ShaderVec3)((StaticMeshComponent)@this.Owner).ModelRef.File.RigidChildren[0].LODs[0].MaterialRef.File.Parameters[0];
+            color.Value = (ColorF3)Color.Green;
             //_collideSound.Play(_param);
         }
-
+        
         //SoundFile _collideSound;
         //AudioSourceParameters _param;
 

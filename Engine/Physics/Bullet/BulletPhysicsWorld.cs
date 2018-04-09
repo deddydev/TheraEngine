@@ -58,7 +58,7 @@ namespace TheraEngine.Physics
             //_dynamicsWorld.PairCache.SetInternalGhostPairCallback(new CustomOverlappingPair());
             _dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
             _dynamicsWorld.ApplySpeculativeContactRestitution = true;
-            _dynamicsWorld.SetInternalTickCallback(CustomTickCallback);
+            //_dynamicsWorld.SetInternalTickCallback(CustomTickCallback);
 
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;

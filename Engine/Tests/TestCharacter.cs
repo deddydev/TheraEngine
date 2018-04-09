@@ -73,6 +73,7 @@ namespace TheraEngine.Tests
             };
             
             Task.Run(() => Collada.Import(TestDefaults.DesktopPath + "test.dae", options)).ContinueWith(task => SceneImported(task));
+            base.PreConstruct();
         }
     }
 }

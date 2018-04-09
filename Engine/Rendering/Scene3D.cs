@@ -315,7 +315,6 @@ namespace TheraEngine.Rendering
 
                             //Render the deferred pass result
                             v.GBufferFBO.RenderFullscreen();
-                            _passes.Render(ERenderPass3D.Skybox);
 
                             Engine.Renderer.AllowDepthWrite(true);
 
@@ -323,9 +322,14 @@ namespace TheraEngine.Rendering
                             //RenderTree.DebugRender(c?.Frustum, true);
 
                             _passes.Render(ERenderPass3D.OpaqueForward);
+
+                            Engine.Renderer.AllowDepthWrite(false);
+                            _passes.Render(ERenderPass3D.Skybox);
+                            Engine.Renderer.EnableDepthTest(true);
+
                             //Render forward transparent objects next
                             _passes.Render(ERenderPass3D.TransparentForward);
-                            
+
                             //Render forward on-top objects last
                             Engine.Renderer.EnableDepthTest(false);
                             _passes.Render(ERenderPass3D.OnTopForward);

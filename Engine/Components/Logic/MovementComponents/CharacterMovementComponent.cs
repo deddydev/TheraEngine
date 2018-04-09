@@ -22,7 +22,7 @@ namespace TheraEngine.Components.Logic.Movement
         private float _jumpSpeed = 8.0f;
         private Vec3 _worldGroundContactPoint;
 
-        private TRigidBody _currentWalkingSurface;
+        private TCollisionObject _currentWalkingSurface;
         private Vec3 _groundNormal;
         private Quat _upToGroundNormalRotation = Quat.Identity;
         private float _verticalStepUpHeight = 0.5f;
@@ -84,7 +84,7 @@ namespace TheraEngine.Components.Logic.Movement
                 _currentMovementMode = value;
             }
         }
-        public TRigidBody CurrentWalkingSurface
+        public TCollisionObject CurrentWalkingSurface
         {
             get => _currentWalkingSurface;
             set
@@ -119,11 +119,7 @@ namespace TheraEngine.Components.Logic.Movement
         {
             if (OwningActor.RootComponent is IRigidCollidable root)
             {
-                //root.RigidBodyCollision.IsKinematic = true;
-                root.RigidBodyCollision.SimulatingPhysics = true;
-                root.RigidBodyCollision.SleepingEnabled = false;
-                root.RigidBodyCollision.CollisionEnabled = true;
-                root.RigidBodyCollision.LinearVelocity = Vec3.Zero;
+
             }
             CurrentWalkingSurface = null;
             _subUpdateTick = TickFalling;
@@ -330,23 +326,22 @@ namespace TheraEngine.Components.Logic.Movement
             chara.LinearVelocity = _velocity;
 
             if (_currentWalkingSurface != null && 
-                _currentWalkingSurface.SimulatingPhysics && 
-                _currentWalkingSurface.LinearFactor != Vec3.Zero)
+                _currentWalkingSurface is TRigidBody rigid &&
+                rigid.SimulatingPhysics &&
+                rigid.LinearFactor != Vec3.Zero)
             {
                 //TODO: calculate push off force using ground's mass.
                 //For example, you can't jump off a piece of debris.
-                TRigidBody surface = _currentWalkingSurface;
-
-                float surfaceMass = surface.Mass;
+                float surfaceMass = rigid.Mass;
                 float charaMass = chara.Mass;
-                Vec3 surfaceVelInitial = surface.LinearVelocity;
+                Vec3 surfaceVelInitial = rigid.LinearVelocity;
                 Vec3 charaVelInitial = chara.LinearVelocity;
 
                 Vec3 charaVelFinal = up * _jumpSpeed;
                 Vec3 surfaceVelFinal = (surfaceMass * surfaceVelInitial + charaMass * charaVelInitial - charaMass * charaVelFinal) / surfaceMass;
 
                 Vec3 surfaceImpulse = (surfaceVelFinal - surfaceVelInitial) * surfaceMass;
-                surface.ApplyImpulse(surfaceImpulse, Vec3.TransformPosition(_worldGroundContactPoint, surface.WorldTransform.Inverted()));
+                rigid.ApplyImpulse(surfaceImpulse, Vec3.TransformPosition(_worldGroundContactPoint, rigid.WorldTransform.Inverted()));
                 chara.ApplyCentralImpulse(charaVelFinal * (1.0f / chara.Mass));
             }
             else
@@ -375,11 +370,19 @@ namespace TheraEngine.Components.Logic.Movement
             //TODO: use friction between surfaces, not just a constant angle
             return TMath.AngleBetween(Vec3.Up, normal) <= _maxWalkAngle;
         }
-        public void OnHit(TRigidBody other, TContactInfo point)
+        public void OnHit(TCollisionObject other, TContactInfo point, bool thisIsA)
         {
-            //A is the ground, B is the character
-            _worldGroundContactPoint = point.PositionWorldOnA;
-            Vec3 normal = -point.NormalWorldOnB;
+            Vec3 normal;
+            if (thisIsA)
+            {
+                _worldGroundContactPoint = point.PositionWorldOnB;
+                normal = point.NormalWorldOnB;
+            }
+            else
+            {
+                _worldGroundContactPoint = point.PositionWorldOnA;
+                normal = -point.NormalWorldOnB;
+            }
             normal.NormalizeFast();
             if (CurrentMovementMode == MovementMode.Falling)
             {

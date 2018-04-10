@@ -253,6 +253,7 @@ namespace TheraEngine.Rendering
         Depth = 2,
         Stencil = 4,
         Accum = 8,
+        All = 0xF,
     }
     public enum EPrimitive
     {
@@ -704,6 +705,17 @@ namespace TheraEngine.Rendering
         ProxyTexture2DMultisample       = 37121,
         Texture2DMultisampleArray       = 37122,
         ProxyTexture2DMultisampleArray  = 37123
+    }
+    public enum EStencilOp
+    {
+        Zero = 0,
+        Invert = 5386,
+        Keep = 7680,
+        Replace = 7681,
+        Incr = 7682,
+        Decr = 7683,
+        IncrWrap = 34055,
+        DecrWrap = 34056
     }
     public enum EFramebufferTarget
     {

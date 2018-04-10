@@ -43,6 +43,7 @@ namespace TheraEngine.Components.Scene.Mesh
         private bool _visible = false;
         protected SceneComponent _component;
         protected LinkedListNode<RenderableLOD> _currentLOD;
+        public RenderableLOD CurrentLOD => _currentLOD.Value;
 
         public LinkedList<RenderableLOD> LODs { get; private set; }
         public RenderInfo3D RenderInfo { get; protected set; }
@@ -99,8 +100,6 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             while (true)
             {
-                if (_currentLOD.Value.Manager == null)
-                    break;
                 if (viewDist < _currentLOD.Value.VisibleDistance)
                 {
                     if (_currentLOD.Previous != null)
@@ -117,28 +116,22 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
             }
         }
-        public void Render()
+        public void Render() => Render(null, true, true);
+        public void Render(bool allowPreRenderEvent = true, bool allowPostRenderEvent = true) => Render(null, allowPreRenderEvent, allowPostRenderEvent);
+        public void Render(TMaterial material = null, bool allowPreRenderEvent = true, bool allowPostRenderEvent = true)
         {
+            if (_currentLOD.Value.Manager == null)
+                return;
             Matrix4 mtx = _component.WorldMatrix;
             Matrix3 nrm = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
             PreRenderCallback callback = new PreRenderCallback();
-            PreRendered?.Invoke(this, mtx, nrm, null, callback);
-            if (callback.ShouldRender)
-            {
-                _currentLOD.Value.Manager?.Render(mtx, nrm);
-                PostRendered?.Invoke(this, mtx, nrm);
-            }
-        }
-        public void Render(TMaterial material = null)
-        {
-            Matrix4 mtx = _component.WorldMatrix;
-            Matrix3 nrm = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
-            PreRenderCallback callback = new PreRenderCallback();
-            PreRendered?.Invoke(this, mtx, nrm, material, callback);
+            if (allowPreRenderEvent)
+                PreRendered?.Invoke(this, mtx, nrm, material, callback);
             if (callback.ShouldRender)
             {
                 _currentLOD.Value.Manager?.Render(mtx, nrm, material);
-                PostRendered?.Invoke(this, mtx, nrm);
+                if (allowPostRenderEvent)
+                    PostRendered?.Invoke(this, mtx, nrm);
             }
         }
     }

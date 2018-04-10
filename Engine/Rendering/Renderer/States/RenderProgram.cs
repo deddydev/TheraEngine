@@ -95,19 +95,19 @@ namespace TheraEngine.Rendering
             bool valid = Engine.Renderer.LinkProgram(id, out string info);
             if (!(IsValid = IsValid && valid))
             {
-                if (info.Contains("Vertex"))
+                if (info.Contains("Vertex info"))
                 {
                     RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Vertex);
                     string source = s.GetSource(true, true);
                     Engine.PrintLine(source);
                 }
-                else if (info.Contains("Geometry"))
+                else if (info.Contains("Geometry info"))
                 {
                     RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Geometry);
                     string source = s.GetSource(true, true);
                     Engine.PrintLine(source);
                 }
-                else if (info.Contains("Fragment"))
+                else if (info.Contains("Fragment info"))
                 {
                     RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Fragment);
                     string source = s.GetSource(true, true);

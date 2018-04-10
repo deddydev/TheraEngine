@@ -397,6 +397,8 @@ namespace TheraEngine.Rendering
         public abstract void SetLineSize(float size);
         public abstract int GetStencilIndex(float x, float y);
         public abstract float GetDepth(float x, float y);
+        public abstract void ClearStencil(int value);
+        public abstract void StencilOp(EStencilOp fail, EStencilOp zFail, EStencilOp zPass);
 
         public abstract void MemoryBarrier(EMemoryBarrierFlags flags);
         public abstract void MemoryBarrierByRegion(EMemoryBarrierRegionFlags flags);

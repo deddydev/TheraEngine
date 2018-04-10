@@ -407,6 +407,10 @@ namespace TheraEngine.Rendering.Models
         
         
         private Matrix4 _lastRenderedModelMatrix = Matrix4.Identity;
+
+        internal TMaterial GetRenderMaterial(TMaterial localOverrideMat)
+            => Engine.Renderer.MaterialOverride ?? localOverrideMat ?? Material;
+
         public unsafe void Render(Matrix4 modelMatrix) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3());
         public unsafe void Render(Matrix4 modelMatrix, TMaterial material) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), material);
         public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix) => Render(modelMatrix, normalMatrix, null);
@@ -424,7 +428,7 @@ namespace TheraEngine.Rendering.Models
                 normalMatrix = normalMatrix * _singleBind.NormalMatrix.GetRotationMatrix3();
             }
 
-            TMaterial mat = Engine.Renderer.MaterialOverride ?? material ?? Material;
+            TMaterial mat = GetRenderMaterial(material);
 
             int vtxId, fragId;
             if (Engine.Settings.AllowShaderPipelines)

@@ -611,5 +611,15 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void ClearStencil(int value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void StencilOp(EStencilOp fail, EStencilOp zFail, EStencilOp zPass)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

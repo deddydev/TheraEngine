@@ -64,16 +64,13 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class AlphaTest
     {
-        private bool _enabled = false;
         //private bool _useConstantAlpha;
         //private float _constantAlphaValue;
         //private bool _useAlphaToCoverage;
-        private float _ref0/*, _ref1*/;
-        private EComparison _comp0 = EComparison.Always/*, _comp1 = EComparison.Always*/;
         //private ELogicGate _logicGate = ELogicGate.And;
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool Enabled { get => _enabled; set => _enabled = value; }
+        public bool Enabled { get; set; } = false;
         //[TSerialize(Condition = "Enabled")]
         //public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
         //[TSerialize(Condition = "Enabled")]
@@ -81,11 +78,11 @@ namespace TheraEngine.Rendering.Models.Materials
         //[TSerialize(Condition = "Enabled")]
         //public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
         [TSerialize(Condition = "Enabled")]
-        public float Ref { get => _ref0; set => _ref0 = value; }
+        public float Ref { get; set; }
         //[TSerialize(Condition = "Enabled")]
         //public float Ref1 { get => _ref1; set => _ref1 = value; }
         [TSerialize(Condition = "Enabled")]
-        public EComparison Comp { get => _comp0; set => _comp0 = value; }
+        public EComparison Comp { get; set; } = EComparison.Always;
         //[TSerialize(Condition = "Enabled")]
         //public EComparison Comp1 { get => _comp1; set => _comp1 = value; }
         //[TSerialize(Condition = "Enabled")]
@@ -93,24 +90,29 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class StencilFace
     {
-        private EComparison _func = EComparison.Always;
-        private int _ref;
-        private int _mask;
-
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public EComparison Func { get => _func; set => _func = value; }
+        public EComparison Func { get; set; }
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public int Ref { get => _ref; set => _ref = value; }
+        public int Ref { get; set; }
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public int Mask { get => _mask; set => _mask = value; }
+        public int ReadMask { get; set; }
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public int WriteMask { get; set; }
 
         public override string ToString()
         {
-            return string.Format("{0} Ref:{1} Mask:{2}", Func, Ref, Mask);
+            return string.Format("{0} Ref:{1} Read Mask:{2} Write Mask:{3}", Func, Ref, ReadMask, WriteMask);
         }
     }
     public class StencilTest
     {
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public EStencilOp BothFailOp { get; set; } = EStencilOp.Keep;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public EStencilOp StencilPassDepthFailOp { get; set; } = EStencilOp.Keep;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public EStencilOp BothPassOp { get; set; } = EStencilOp.Keep;
+
         private StencilFace 
             _frontFace = new StencilFace(),
             _backFace = new StencilFace();
@@ -121,14 +123,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public StencilFace FrontFace { get => _frontFace; set => _frontFace = value ?? new StencilFace(); }
         [TSerialize(Condition = "EnableStencilFunc")]
         public StencilFace BackFace { get => _backFace; set => _backFace = value ?? new StencilFace(); }
-
-        //public EComparison FrontFaceFunc { get => _frontFace.Func; set => _frontFace.Func = value; }
-        //public EComparison BackFaceFunc { get => _backFace.Func; set => _backFace.Func = value; }
-        //public int FrontFaceRef { get => _frontFace.Ref; set => _frontFace.Ref = value; }
-        //public int BackFaceRef { get => _backFace.Ref; set => _backFace.Ref = value; }
-        //public int FrontFaceMask { get => _frontFace.Mask; set => _frontFace.Mask = value; }
-        //public int BackFaceMask { get => _backFace.Mask; set => _backFace.Mask = value; }
-
+        
         public override string ToString()
         {
             return !Enabled ? "Disabled" : string.Format("[Front: {0}] - [Back: {1}]", FrontFace.ToString(), BackFace.ToString());
@@ -162,32 +157,20 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class BlendMode
     {
-        private bool _enabled = false;
-
-        private EBlendEquationMode 
-            _rgbEquation = EBlendEquationMode.FuncAdd, 
-            _alphaEquation = EBlendEquationMode.FuncAdd;
-
-        private EBlendingFactor 
-            _rgbSrcFactor = EBlendingFactor.ConstantColor,
-            _alphaSrcFactor = EBlendingFactor.ConstantAlpha,
-            _rgbDstFactor = EBlendingFactor.ConstantColor,
-            _alphaDstFactor = EBlendingFactor.ConstantAlpha;
-
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool Enabled { get => _enabled; set => _enabled = value; }
+        public bool Enabled { get; set; } = false;
         [TSerialize(Condition = "Enabled")]
-        public EBlendEquationMode RgbEquation { get => _rgbEquation; set => _rgbEquation = value; }
+        public EBlendEquationMode RgbEquation { get; set; } = EBlendEquationMode.FuncAdd;
         [TSerialize(Condition = "Enabled")]
-        public EBlendEquationMode AlphaEquation { get => _alphaEquation; set => _alphaEquation = value; }
+        public EBlendEquationMode AlphaEquation { get; set; } = EBlendEquationMode.FuncAdd;
         [TSerialize(Condition = "Enabled")]
-        public EBlendingFactor RgbSrcFactor { get => _rgbSrcFactor; set => _rgbSrcFactor = value; }
+        public EBlendingFactor RgbSrcFactor { get; set; } = EBlendingFactor.ConstantColor;
         [TSerialize(Condition = "Enabled")]
-        public EBlendingFactor AlphaSrcFactor { get => _alphaSrcFactor; set => _alphaSrcFactor = value; }
+        public EBlendingFactor AlphaSrcFactor { get; set; } = EBlendingFactor.ConstantAlpha;
         [TSerialize(Condition = "Enabled")]
-        public EBlendingFactor RgbDstFactor { get => _rgbDstFactor; set => _rgbDstFactor = value; }
+        public EBlendingFactor RgbDstFactor { get; set; } = EBlendingFactor.ConstantColor;
         [TSerialize(Condition = "Enabled")]
-        public EBlendingFactor AlphaDstFactor { get => _alphaDstFactor; set => _alphaDstFactor = value; }
+        public EBlendingFactor AlphaDstFactor { get; set; } = EBlendingFactor.ConstantAlpha;
 
         public override string ToString()
         {

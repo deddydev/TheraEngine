@@ -1,4 +1,6 @@
-﻿namespace TheraEngine.Rendering.Models.Materials
+﻿using System.IO;
+
+namespace TheraEngine.Rendering.Models.Materials
 {
     public static class ShaderHelpers
     {
@@ -53,20 +55,20 @@ float GetDepthFromDistance(float z)
         public static readonly string Func_RGBtoHSV = @"
 vec3 RGBtoHSV(vec3 c)
 {
-    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 K = vec4(0.0, -1.0f / 3.0f, 2.0f / 3.0f, -1.0f);
     vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
     vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
 
     float d = q.x - min(q.w, q.y);
-    float e = 1.0e-10;
-    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+    float e = 1.0e-10f;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0f * d + e)), d / (q.x + e), q.x);
 }";
         public static readonly string Func_HSVtoRGB = @"
 vec3 HSVtoRGB(vec3 c)
 {
-    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+    vec4 K = vec4(1.0f, 2.0f / 3.0f, 1.0f / 3.0f, 3.0f);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0f - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0f, 1.0f), c.y);
 }";
         
         public static ShaderFile LitTextureFragForward()
@@ -103,100 +105,13 @@ void main()
             return new ShaderFile(EShaderMode.Fragment, source);
         }
         public static ShaderFile TextureFragDeferred()
-        {
-            string source = @"
-#version 450
-
-layout (location = 0) out vec4 AlbedoOpacity;
-layout (location = 1) out vec3 Normal;
-layout (location = 2) out vec4 RMSI;
-
-uniform sampler2D Texture0;
-uniform float Opacity = 1.0f;
-uniform float Specular = 1.0f;
-uniform float Roughness = 0.0f;
-uniform float Metallic = 0.0f;
-uniform float IndexOfRefraction = 1.0f;
-
-layout (location = 1) in vec3 FragNorm;
-layout (location = 6) in vec2 FragUV0;
-
-void main()
-{
-    Normal = normalize(FragNorm);
-    AlbedoOpacity = vec4(texture(Texture0, FragUV0).rgb, Opacity);
-    RMSI = vec4(Roughness, Metallic, Specular, IndexOfRefraction);
-}
-";
-            return new ShaderFile(EShaderMode.Fragment, source);
-        }
+            => Engine.LoadEngineShader(Path.Combine("Common", "TexturedDeferred.fs"), EShaderMode.Fragment);
         public static ShaderFile LitColorFragDeferred()
-        {
-            string source = @"
-#version 450
-
-layout (location = 0) out vec4 AlbedoOpacity;
-layout (location = 1) out vec3 Normal;
-layout (location = 2) out vec4 RMSI;
-
-uniform vec3 BaseColor;
-uniform float Opacity = 1.0f;
-uniform float Specular = 1.0f;
-uniform float Roughness = 0.0f;
-uniform float Metallic = 0.0f;
-uniform float IndexOfRefraction = 1.0f;
-
-layout (location = 1) in vec3 FragNorm;
-
-void main()
-{
-    Normal = normalize(FragNorm);
-    AlbedoOpacity = vec4(BaseColor, Opacity);
-    RMSI = vec4(Roughness, Metallic, Specular, IndexOfRefraction);
-}
-";
-            return new ShaderFile(EShaderMode.Fragment, source);
-        }
-        /// <summary>
-        /// Provides a fragment shader that outputs the color 
-        /// of a single texture with no shading
-        /// for a forward shading setup.
-        /// </summary>
+            => Engine.LoadEngineShader(Path.Combine("Common", "ColoredDeferred.fs"), EShaderMode.Fragment);
         public static ShaderFile UnlitTextureFragForward()
-        {
-            string source = @"
-#version 450
-
-layout (location = 0) out vec4 OutColor;
-
-uniform sampler2D Texture0;
-
-layout (location = 0) in vec3 FragPos;
-layout (location = 6) in vec2 FragUV0;
-
-void main()
-{
-    OutColor = texture(Texture0, FragUV0);
-    //if (OutColor.a < 0.1f)
-    //    discard;
-}
-";
-            return new ShaderFile(EShaderMode.Fragment, source);
-        }
-        /// <summary>
-        /// Provides a fragment shader that outputs a single color
-        /// with no shading for a forward shading setup.
-        /// </summary>
+             => Engine.LoadEngineShader(Path.Combine("Common", "UnlitTexturedForward.fs"), EShaderMode.Fragment);
         public static ShaderFile UnlitColorFragForward()
-        {
-            string source = @"
-#version 450
-layout (location = 0) out vec4 OutColor;
-uniform vec4 MatColor;
-void main() { OutColor = MatColor; }
-";
-            return new ShaderFile(EShaderMode.Fragment, source);
-        }
+             => Engine.LoadEngineShader(Path.Combine("Common", "UnlitColoredForward.fs"), EShaderMode.Fragment);
         public static ShaderFile LitColorFragForward()
         {
             string source = @"

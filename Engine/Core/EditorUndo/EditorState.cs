@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Editor
 {
@@ -226,12 +228,71 @@ namespace TheraEngine.Editor
 
         public static void RegisterSelectedMesh(BaseRenderableMesh m, bool selected, Scene3D scene)
         {
-            m.PreRendered += M_PreRendered;
+            //if (selected)
+            //    m.PreRendered += M_PreRendered;
+            //else
+            //    m.PreRendered -= M_PreRendered;
         }
 
-        private static void M_PreRendered(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, Rendering.Models.Materials.TMaterial material, BaseRenderableMesh.PreRenderCallback callback)
+        public static StencilTest NormalPassStencil = new StencilTest()
         {
-            //callback.ShouldRender = false;
+            Enabled = true,
+            BothFailOp = EStencilOp.Keep,
+            StencilPassDepthFailOp = EStencilOp.Keep,
+            BothPassOp = EStencilOp.Replace,
+            BackFace = new StencilFace()
+            {
+                Func = EComparison.Always,
+                Ref = 0,
+                WriteMask = 0,
+                ReadMask = 0,
+            },
+            FrontFace = new StencilFace()
+            {
+                Func = EComparison.Always,
+                Ref = 0,
+                WriteMask = 0,
+                ReadMask = 0,
+            },
+        };
+        public static StencilTest OutlinePassStencil = new StencilTest()
+        {
+            Enabled = true,
+            BothFailOp = EStencilOp.Keep,
+            StencilPassDepthFailOp = EStencilOp.Keep,
+            BothPassOp = EStencilOp.Replace,
+            BackFace = new StencilFace()
+            {
+                Func = EComparison.Always,
+                Ref = 1,
+                WriteMask = 0xFF,
+                ReadMask = 0xFF,
+            },
+            FrontFace = new StencilFace()
+            {
+                Func = EComparison.Nequal,
+                Ref = 1,
+                WriteMask = 0,
+                ReadMask = 0xFF,
+            },
+        };
+        public static TMaterial FocusedMeshMaterial;
+        private static void M_PreRendered(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, TMaterial material, BaseRenderableMesh.PreRenderCallback callback)
+        {
+            callback.ShouldRender = false;
+            TMaterial m = mesh.CurrentLOD.Manager.GetRenderMaterial(material);
+            StencilTest prev = m.RenderParams.StencilTest;
+            m.RenderParams.StencilTest = NormalPassStencil;
+            mesh.Render(m, false, false);
+            mesh.Render(FocusedMeshMaterial, false, false);
+            m.RenderParams.StencilTest = prev;
+        }
+        static EditorState()
+        {
+            FocusedMeshMaterial = TMaterial.CreateLitColorMaterial(Color.Yellow, true);
+            FocusedMeshMaterial.AddShader(Engine.LoadEngineShader("StencilExplode.gs", EShaderMode.Geometry));
+            FocusedMeshMaterial.RenderParams.StencilTest = OutlinePassStencil;
+            FocusedMeshMaterial.RenderParams.DepthTest.Enabled = false;
         }
     }
     public class EngineEditorState

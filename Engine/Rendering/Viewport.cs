@@ -177,11 +177,6 @@ namespace TheraEngine.Rendering
             Resize(width, height);
             InitFBOs();
         }
-        private void _postProcessGBuffer_SettingUniforms(int programBindingId)
-        {
-            _worldCamera?.PostProcess.SetUniforms(programBindingId);
-        }
-
         public void SetInternalResolution(float width, float height)
         {
             _internalResolution.Width = width;
@@ -634,7 +629,7 @@ namespace TheraEngine.Rendering
             const string ShaderPath = "Scene3D";
 
             RenderingParameters renderParams = new RenderingParameters();
-            renderParams.DepthTest.Enabled = true;
+            renderParams.DepthTest.Enabled = false;
             renderParams.DepthTest.UpdateDepth = false;
             renderParams.DepthTest.Function = EComparison.Always;
 
@@ -766,7 +761,7 @@ namespace TheraEngine.Rendering
 
             TMaterial forwardMat = new TMaterial("ForwardMat", renderParams, forwardRefs, forwardShader);
             TMaterial bloomBlurMat = new TMaterial("BloomBlurMat", renderParams, blurRefs, bloomBlurShader);
-            TMaterial postProcessMat = new TMaterial("PostProcessMat", renderParams, postProcessRefs, postProcessShader);
+            TMaterial postProcessMat = new TMaterial("PostProcessMat", TMaterial.UniformRequirements.NeedsCamera, renderParams, postProcessRefs, postProcessShader);
 
             ForwardPassFBO = new QuadFrameBuffer(forwardMat);
             ForwardPassFBO.SettingUniforms += ForwardPassFBO_SettingUniforms;
@@ -783,13 +778,19 @@ namespace TheraEngine.Rendering
         
         private void SSAO_SetUniforms(int programBindingId)
         {
-            if (_worldCamera == null)
-                return;
             Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
             _worldCamera.SetUniforms(programBindingId);
             _worldCamera.PostProcess.AmbientOcclusion.SetUniforms(programBindingId);
         }
-        
+
+        private void _postProcessGBuffer_SettingUniforms(int programBindingId)
+        {
+            if (_worldCamera == null)
+                return;
+            _worldCamera.SetUniforms(programBindingId);
+            _worldCamera.PostProcess.SetUniforms(programBindingId);
+        }
+
         #endregion
     }
 }

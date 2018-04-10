@@ -343,6 +343,20 @@ namespace TheraEngine.Rendering.OpenGL
             else
                 GL.Disable(EnableCap.DepthTest);
         }
+        public override void ClearStencil(int value)
+        {
+            GL.ClearStencil(value);
+        }
+        /// <summary>
+        /// Determines how the stencil buffer should be updated based on the current depth and stencil buffers and functions.
+        /// </summary>
+        /// <param name="fail">Action to take if the stencil test fails.</param>
+        /// <param name="zFail">Action to take if the stencil test passes, but the depth test fails.</param>
+        /// <param name="zPass">Action to take if both tests pass.</param>
+        public override void StencilOp(EStencilOp fail, EStencilOp zFail, EStencilOp zPass)
+        {
+            GL.StencilOp((StencilOp)fail, (StencilOp)zFail, (StencilOp)zPass);
+        }
         public override void ApplyRenderParams(RenderingParameters r)
         {
             Engine.Renderer.ColorMask(r.WriteRGBA.X, r.WriteRGBA.Y, r.WriteRGBA.Z, r.WriteRGBA.W);
@@ -373,6 +387,30 @@ namespace TheraEngine.Rendering.OpenGL
             }
             else
                 GL.Disable(EnableCap.AlphaTest);
+
+            if (r.StencilTest.Enabled)
+            {
+                GL.Enable(EnableCap.StencilTest);
+                StencilOp(r.StencilTest.BothFailOp, r.StencilTest.StencilPassDepthFailOp, r.StencilTest.BothPassOp);
+                GL.StencilMaskSeparate(OpenTK.Graphics.OpenGL.StencilFace.Back,
+                    r.StencilTest.BackFace.WriteMask);
+                GL.StencilMaskSeparate(OpenTK.Graphics.OpenGL.StencilFace.Front,
+                    r.StencilTest.FrontFace.WriteMask);
+                GL.StencilFuncSeparate(OpenTK.Graphics.OpenGL.StencilFace.Back,
+                    StencilFunction.Never + (int)r.StencilTest.BackFace.Func, r.StencilTest.BackFace.Ref, r.StencilTest.BackFace.ReadMask);
+                GL.StencilFuncSeparate(OpenTK.Graphics.OpenGL.StencilFace.Front,
+                    StencilFunction.Never + (int)r.StencilTest.FrontFace.Func, r.StencilTest.FrontFace.Ref, r.StencilTest.FrontFace.ReadMask);
+            }
+            else
+            {
+                GL.Disable(EnableCap.StencilTest);
+                //GL.StencilMask(0);
+                //GL.StencilOp(
+                //    OpenTK.Graphics.OpenGL.StencilOp.Keep,
+                //    OpenTK.Graphics.OpenGL.StencilOp.Keep,
+                //    OpenTK.Graphics.OpenGL.StencilOp.Keep);
+                //GL.StencilFunc(StencilFunction.Always, 0, 0);
+            }
 
             GL.PointSize(r.PointSize);
             GL.LineWidth(r.LineWidth);

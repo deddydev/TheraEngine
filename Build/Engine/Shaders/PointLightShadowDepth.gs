@@ -8,6 +8,7 @@ in gl_PerVertex
   float gl_PointSize;
   float gl_ClipDistance[];
 } gl_in[];
+
 out gl_PerVertex
 {
   vec4 gl_Position;
@@ -22,6 +23,7 @@ layout (location = 0) out vec3 FragPos;
 void main()
 {
 	vec4 pos;
+	vec3 fragPos;
 	for (int face = 0; face < 6; ++face)
 	{
 		gl_Layer = face;

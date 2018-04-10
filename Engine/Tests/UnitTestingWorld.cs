@@ -54,7 +54,7 @@ namespace TheraEngine.Tests
             int count = 4;
             int y = 0;
 
-            Random rand = new Random(800);
+            Random rand = new Random((int)DateTime.Now.Ticks);
             int maxVel = 50;
             int maxVelMod = maxVel * 100;
             int halfMax = maxVelMod / 2;
@@ -100,18 +100,7 @@ namespace TheraEngine.Tests
                     sphere.RootComponent.RigidBodyCollision.Collided += RigidBodyCollision_Collided1;
                     actors.Add(sphere);
                 }
-
-            //Create boxes
-            //for (int i = -5; i < 5; ++i)
-            //{
-            //    actor = new BoxActor("TestBox", radius, new Vec3(i * originDist, 0.0f, originDist), new Rotator(0.0f, 0.0f, i * 30.0f, RotationOrder.YPR),
-            //        TMaterial.CreateLitColorMaterial(boxColor), new TRigidBodyConstructionInfo()
-            //        {
-            //            //UseMotionState = false,
-            //        });
-            //    actors.Add(actor);
-            //}
-
+            
             Rotator[] rotations = 
             {
                 new Rotator(0.0f, 0.0f, 0.0f),

@@ -98,6 +98,30 @@ namespace TheraEngine.Tests
                         rand.Next(-halfMax, halfMax) / maxVel,
                         rand.Next(-halfMax, halfMax) / maxVel);
                     sphere.RootComponent.RigidBodyCollision.Collided += RigidBodyCollision_Collided1;
+                    foreach (var mesh in sphere.RootComponent.Meshes)
+                        foreach (var lod in mesh.LODs)
+                        {
+                            StencilTest st = lod.Manager.Material.RenderParams.StencilTest;
+
+                            st.Enabled = ERenderParamUsage.Enabled;
+
+                            st.FrontFace.BothFailOp = EStencilOp.Replace;
+                            st.FrontFace.BothPassOp = EStencilOp.Replace;
+                            st.FrontFace.StencilPassDepthFailOp = EStencilOp.Replace;
+                            st.FrontFace.Func = EComparison.Always;
+                            st.FrontFace.Ref = 0xFF;
+                            st.FrontFace.ReadMask = 0xFF;
+                            st.FrontFace.WriteMask = 0xFF;
+
+                            st.BackFace.BothFailOp = EStencilOp.Replace;
+                            st.BackFace.BothPassOp = EStencilOp.Replace;
+                            st.BackFace.StencilPassDepthFailOp = EStencilOp.Replace;
+                            st.BackFace.Func = EComparison.Always;
+                            st.BackFace.Ref = 0xFF;
+                            st.BackFace.ReadMask = 0xFF;
+                            st.BackFace.WriteMask = 0xFF;
+                        }
+
                     actors.Add(sphere);
                 }
             

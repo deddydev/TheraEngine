@@ -440,6 +440,7 @@
     <Compile Include="Rendering\Models\Materials\Functions\Logic\Vectors\Mask.cs" />
     <Compile Include="Rendering\Models\Materials\Functions\Logic\Vectors\Append.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\References\RefCubeSide.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\References\TexRefView2D.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\References\TexRefCube.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderCubeMipmap.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderCubeSide.cs" />

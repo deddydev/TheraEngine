@@ -83,7 +83,7 @@ namespace TheraEngine.Actors.Types
             Skeleton skel = new Skeleton(root);
             
             _screenMat = TMaterial.CreateUnlitColorMaterialForward(Color.LightGray);
-            _screenMat.RenderParamsRef.File.DepthTest.Enabled = false;
+            _screenMat.RenderParamsRef.File.DepthTest.Enabled = ERenderParamUsage.Disabled;
             _screenMat.RenderParamsRef.File.LineWidth = 2.0f;
 
             bool isTranslate = TransformMode == TransformType.Translate;
@@ -105,22 +105,22 @@ namespace TheraEngine.Actors.Types
                 unit2[planeAxis2] = 1.0f;
 
                 TMaterial axisMat = TMaterial.CreateUnlitColorMaterialForward(unit);
-                axisMat.RenderParams.DepthTest.Enabled = false;
+                axisMat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
                 axisMat.RenderParams.LineWidth = 2.0f;
                 _axisMat[normalAxis] = axisMat;
 
                 TMaterial planeMat1 = TMaterial.CreateUnlitColorMaterialForward(unit1);
-                planeMat1.RenderParams.DepthTest.Enabled = false;
+                planeMat1.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
                 planeMat1.RenderParams.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 0] = planeMat1;
 
                 TMaterial planeMat2 = TMaterial.CreateUnlitColorMaterialForward(unit2);
-                planeMat2.RenderParams.DepthTest.Enabled = false;
+                planeMat2.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
                 planeMat2.RenderParams.LineWidth = 2.0f;
                 _transPlaneMat[(normalAxis << 1) + 1] = planeMat2;
                 
                 TMaterial scalePlaneMat = TMaterial.CreateUnlitColorMaterialForward(unit);
-                scalePlaneMat.RenderParams.DepthTest.Enabled = false;
+                scalePlaneMat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
                 scalePlaneMat.RenderParams.LineWidth = 2.0f;
                 _scalePlaneMat[normalAxis] = scalePlaneMat;
 
@@ -211,7 +211,7 @@ namespace TheraEngine.Actors.Types
             });
 
             TMaterial sphereMat = TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
-            sphereMat.RenderParams.DepthTest.Enabled = true;
+            sphereMat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Enabled;
             sphereMat.RenderParams.DepthTest.UpdateDepth = true;
             sphereMat.RenderParams.DepthTest.Function = EComparison.Lequal;
             sphereMat.RenderParams.LineWidth = 2.0f;

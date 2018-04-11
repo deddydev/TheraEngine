@@ -170,7 +170,7 @@ namespace TheraEngine.Rendering
             {
                 TMaterial mat = TMaterial.CreateUnlitColorMaterialForward();
                 RenderingParameters p = new RenderingParameters();
-                p.DepthTest.Enabled = true;
+                p.DepthTest.Enabled = ERenderParamUsage.Enabled;
                 mat.RenderParamsRef = p;
                 return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), mat);
             }
@@ -708,7 +708,7 @@ namespace TheraEngine.Rendering
              T[] data) where T : struct;
 
         public abstract void BindTexture(ETexTarget texTarget, int bindingId);
-
+        public abstract void TextureView(int bindingId, ETexTarget target, int origTextureId, EPixelInternalFormat fmt, int minLevel, int numLevels, int minLayer, int numLayers);
         //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
 
         [Conditional("DEBUG")]

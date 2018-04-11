@@ -4,6 +4,12 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    public enum ERenderParamUsage
+    {
+        Unchanged,
+        Disabled,
+        Enabled,
+    }
     /// <summary>
     /// Contains parameters for rendering an object, such as blending and depth testing.
     /// </summary>
@@ -18,7 +24,9 @@ namespace TheraEngine.Rendering.Models.Materials
         BlendMode _blendMode = new BlendMode();
 
         [Browsable(false)]
-        public bool HasTransparency => BlendMode.Enabled || AlphaTest.Enabled;
+        public bool HasTransparency =>
+            BlendMode.Enabled == ERenderParamUsage.Enabled || 
+            AlphaTest.Enabled == ERenderParamUsage.Enabled;
 
         public RenderingParameters()
         {
@@ -28,7 +36,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             if (defaultBlendEnabled)
             {
-                BlendMode.Enabled = true;
+                BlendMode.Enabled = ERenderParamUsage.Enabled;
                 BlendMode.RgbSrcFactor = EBlendingFactor.SrcAlpha;
                 BlendMode.AlphaSrcFactor = EBlendingFactor.SrcAlpha;
                 BlendMode.RgbDstFactor = EBlendingFactor.OneMinusSrcAlpha;
@@ -38,7 +46,7 @@ namespace TheraEngine.Rendering.Models.Materials
             }
             if (defaultAlphaTestDiscardMax != null)
             {
-                AlphaTest.Enabled = true;
+                AlphaTest.Enabled = ERenderParamUsage.Enabled;
                 AlphaTest.Ref = defaultAlphaTestDiscardMax.Value;
                 AlphaTest.Comp = EComparison.Lequal;
             }
@@ -70,26 +78,32 @@ namespace TheraEngine.Rendering.Models.Materials
         //private ELogicGate _logicGate = ELogicGate.And;
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool Enabled { get; set; } = false;
+        public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Disabled;
         //[TSerialize(Condition = "Enabled")]
         //public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
         //[TSerialize(Condition = "Enabled")]
         //public float ConstantAlphaValue { get => _constantAlphaValue; set => _constantAlphaValue = value; }
         //[TSerialize(Condition = "Enabled")]
         //public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
-        [TSerialize(Condition = "Enabled")]
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public float Ref { get; set; }
         //[TSerialize(Condition = "Enabled")]
         //public float Ref1 { get => _ref1; set => _ref1 = value; }
-        [TSerialize(Condition = "Enabled")]
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public EComparison Comp { get; set; } = EComparison.Always;
         //[TSerialize(Condition = "Enabled")]
         //public EComparison Comp1 { get => _comp1; set => _comp1 = value; }
         //[TSerialize(Condition = "Enabled")]
         //public ELogicGate LogicGate { get => _logicGate; set => _logicGate = value; }
     }
-    public class StencilFace
+    public class StencilTestFace
     {
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public EStencilOp BothFailOp { get; set; } = EStencilOp.Keep;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public EStencilOp StencilPassDepthFailOp { get; set; } = EStencilOp.Keep;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public EStencilOp BothPassOp { get; set; } = EStencilOp.Keep;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public EComparison Func { get; set; }
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
@@ -106,27 +120,23 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class StencilTest
     {
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public EStencilOp BothFailOp { get; set; } = EStencilOp.Keep;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public EStencilOp StencilPassDepthFailOp { get; set; } = EStencilOp.Keep;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public EStencilOp BothPassOp { get; set; } = EStencilOp.Keep;
-
-        private StencilFace 
-            _frontFace = new StencilFace(),
-            _backFace = new StencilFace();
+        private StencilTestFace 
+            _frontFace = new StencilTestFace(),
+            _backFace = new StencilTestFace();
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool Enabled { get; set; } = false;
-        [TSerialize(Condition = "EnableStencilFunc")]
-        public StencilFace FrontFace { get => _frontFace; set => _frontFace = value ?? new StencilFace(); }
-        [TSerialize(Condition = "EnableStencilFunc")]
-        public StencilFace BackFace { get => _backFace; set => _backFace = value ?? new StencilFace(); }
+        public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Unchanged;
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
+        public StencilTestFace FrontFace { get => _frontFace; set => _frontFace = value ?? new StencilTestFace(); }
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
+        public StencilTestFace BackFace { get => _backFace; set => _backFace = value ?? new StencilTestFace(); }
         
         public override string ToString()
         {
-            return !Enabled ? "Disabled" : string.Format("[Front: {0}] - [Back: {1}]", FrontFace.ToString(), BackFace.ToString());
+            return 
+                Enabled == ERenderParamUsage.Unchanged ? "Unchanged" : 
+                Enabled == ERenderParamUsage.Disabled ? "Disabled" : 
+                string.Format("[Front: {0}] - [Back: {1}]", FrontFace.ToString(), BackFace.ToString());
         }
     }
     public class DepthTest
@@ -136,45 +146,51 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         [TSerialize(Order = 0, XmlNodeType = EXmlNodeType.Attribute)]
         [Description("Determines if this material will test against the previously written depth value to determine if color fragments should be written or not.")]
-        public bool Enabled { get; set; } = true;
+        public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Enabled;
         /// <summary>
         /// Determines if the material will update the depth value upon writing a new color fragment.
         /// </summary>
-        [TSerialize(Order = 1, XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(Order = 1, XmlNodeType = EXmlNodeType.Attribute, Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         [Description("Determines if the material will update the depth value upon writing a new color fragment.")]
         public bool UpdateDepth { get; set; } = true;
         /// <summary>
         /// Determines the pass condition to write a new color fragment. Usually less or lequal, meaning closer to the camera than the previous depth means a success.
         /// </summary>
-        [TSerialize(Order = 2, XmlNodeType = EXmlNodeType.Attribute, Condition = "Enabled")]
+        [TSerialize(Order = 2, XmlNodeType = EXmlNodeType.Attribute, Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         [Description("Determines the pass condition to write a new color fragment. Usually less or lequal, meaning closer to the camera than the previous depth means a success.")]
         public EComparison Function { get; set; } = EComparison.Lequal;
 
         public override string ToString()
         {
-            return !Enabled ? "Disabled" : string.Format("[{0}, Write Depth:{1}]", Function, UpdateDepth);
+            return
+                Enabled == ERenderParamUsage.Unchanged ? "Unchanged" :
+                Enabled == ERenderParamUsage.Disabled ? "Disabled" : 
+                string.Format("[{0}, Write Depth:{1}]", Function, UpdateDepth);
         }
     }
     public class BlendMode
     {
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool Enabled { get; set; } = false;
-        [TSerialize(Condition = "Enabled")]
+        public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Disabled;
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public EBlendEquationMode RgbEquation { get; set; } = EBlendEquationMode.FuncAdd;
-        [TSerialize(Condition = "Enabled")]
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public EBlendEquationMode AlphaEquation { get; set; } = EBlendEquationMode.FuncAdd;
-        [TSerialize(Condition = "Enabled")]
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public EBlendingFactor RgbSrcFactor { get; set; } = EBlendingFactor.ConstantColor;
-        [TSerialize(Condition = "Enabled")]
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public EBlendingFactor AlphaSrcFactor { get; set; } = EBlendingFactor.ConstantAlpha;
-        [TSerialize(Condition = "Enabled")]
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public EBlendingFactor RgbDstFactor { get; set; } = EBlendingFactor.ConstantColor;
-        [TSerialize(Condition = "Enabled")]
+        [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public EBlendingFactor AlphaDstFactor { get; set; } = EBlendingFactor.ConstantAlpha;
 
         public override string ToString()
         {
-            return !Enabled ? "Disabled" : string.Format("[RGB: {0} {1} {2}] - [Alpha: {3} {4} {5}]", RgbEquation, RgbSrcFactor, RgbDstFactor, AlphaEquation, AlphaSrcFactor, AlphaDstFactor);
+            return
+                Enabled == ERenderParamUsage.Unchanged ? "Unchanged" :
+                Enabled == ERenderParamUsage.Disabled ? "Disabled" : 
+                string.Format("[RGB: {0} {1} {2}] - [Alpha: {3} {4} {5}]", RgbEquation, RgbSrcFactor, RgbDstFactor, AlphaEquation, AlphaSrcFactor, AlphaDstFactor);
         }
     }
 }

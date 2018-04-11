@@ -236,18 +236,18 @@ namespace TheraEngine.Editor
 
         public static StencilTest NormalPassStencil = new StencilTest()
         {
-            Enabled = true,
-            BothFailOp = EStencilOp.Keep,
-            StencilPassDepthFailOp = EStencilOp.Keep,
-            BothPassOp = EStencilOp.Replace,
-            BackFace = new StencilFace()
+            Enabled = ERenderParamUsage.Enabled,
+            //BothFailOp = EStencilOp.Keep,
+            //StencilPassDepthFailOp = EStencilOp.Keep,
+            //BothPassOp = EStencilOp.Replace,
+            BackFace = new StencilTestFace()
             {
                 Func = EComparison.Always,
                 Ref = 0,
                 WriteMask = 0,
                 ReadMask = 0,
             },
-            FrontFace = new StencilFace()
+            FrontFace = new StencilTestFace()
             {
                 Func = EComparison.Always,
                 Ref = 0,
@@ -257,18 +257,18 @@ namespace TheraEngine.Editor
         };
         public static StencilTest OutlinePassStencil = new StencilTest()
         {
-            Enabled = true,
-            BothFailOp = EStencilOp.Keep,
-            StencilPassDepthFailOp = EStencilOp.Keep,
-            BothPassOp = EStencilOp.Replace,
-            BackFace = new StencilFace()
+            Enabled = ERenderParamUsage.Enabled,
+            //BothFailOp = EStencilOp.Keep,
+            //StencilPassDepthFailOp = EStencilOp.Keep,
+            //BothPassOp = EStencilOp.Replace,
+            BackFace = new StencilTestFace()
             {
                 Func = EComparison.Always,
                 Ref = 1,
                 WriteMask = 0xFF,
                 ReadMask = 0xFF,
             },
-            FrontFace = new StencilFace()
+            FrontFace = new StencilTestFace()
             {
                 Func = EComparison.Nequal,
                 Ref = 1,
@@ -292,7 +292,7 @@ namespace TheraEngine.Editor
             FocusedMeshMaterial = TMaterial.CreateLitColorMaterial(Color.Yellow, true);
             FocusedMeshMaterial.AddShader(Engine.LoadEngineShader("StencilExplode.gs", EShaderMode.Geometry));
             FocusedMeshMaterial.RenderParams.StencilTest = OutlinePassStencil;
-            FocusedMeshMaterial.RenderParams.DepthTest.Enabled = false;
+            FocusedMeshMaterial.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
         }
     }
     public class EngineEditorState

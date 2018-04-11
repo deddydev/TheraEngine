@@ -355,61 +355,69 @@ namespace TheraEngine.Rendering.OpenGL
         /// <param name="zPass">Action to take if both tests pass.</param>
         public override void StencilOp(EStencilOp fail, EStencilOp zFail, EStencilOp zPass)
         {
-            GL.StencilOp((StencilOp)fail, (StencilOp)zFail, (StencilOp)zPass);
+            GL.StencilOp((StencilOp)(int)fail, (StencilOp)(int)zFail, (StencilOp)(int)zPass);
         }
         public override void ApplyRenderParams(RenderingParameters r)
         {
             Engine.Renderer.ColorMask(r.WriteRGBA.X, r.WriteRGBA.Y, r.WriteRGBA.Z, r.WriteRGBA.W);
             Engine.Renderer.Cull(r.CullMode);
 
-            if (r.DepthTest.Enabled)
+            if (r.DepthTest.Enabled == ERenderParamUsage.Enabled)
             {
                 GL.Enable(EnableCap.DepthTest);
                 DepthFunc(r.DepthTest.Function);
                 GL.DepthMask(r.DepthTest.UpdateDepth);
             }
-            else
+            else if (r.DepthTest.Enabled == ERenderParamUsage.Disabled)
                 GL.Disable(EnableCap.DepthTest);
 
-            if (r.BlendMode.Enabled)
+            if (r.BlendMode.Enabled == ERenderParamUsage.Enabled
+                )
             {
                 GL.Enable(EnableCap.Blend);
                 BlendEquation(r.BlendMode.RgbEquation, r.BlendMode.AlphaEquation);
                 BlendFuncSeparate(r.BlendMode.RgbSrcFactor, r.BlendMode.RgbDstFactor, r.BlendMode.AlphaSrcFactor, r.BlendMode.AlphaDstFactor);
             }
-            else
+            else if (r.BlendMode.Enabled == ERenderParamUsage.Disabled)
                 GL.Disable(EnableCap.Blend);
 
-            if (r.AlphaTest.Enabled)
+            if (r.AlphaTest.Enabled == ERenderParamUsage.Enabled)
             {
                 GL.Enable(EnableCap.AlphaTest);
                 GL.AlphaFunc(AlphaFunction.Never + (int)r.AlphaTest.Comp, r.AlphaTest.Ref);
             }
-            else
+            else if (r.AlphaTest.Enabled == ERenderParamUsage.Disabled)
                 GL.Disable(EnableCap.AlphaTest);
 
-            if (r.StencilTest.Enabled)
+            if (r.StencilTest.Enabled == ERenderParamUsage.Enabled)
             {
-                GL.Enable(EnableCap.StencilTest);
-                StencilOp(r.StencilTest.BothFailOp, r.StencilTest.StencilPassDepthFailOp, r.StencilTest.BothPassOp);
-                GL.StencilMaskSeparate(OpenTK.Graphics.OpenGL.StencilFace.Back,
-                    r.StencilTest.BackFace.WriteMask);
-                GL.StencilMaskSeparate(OpenTK.Graphics.OpenGL.StencilFace.Front,
-                    r.StencilTest.FrontFace.WriteMask);
-                GL.StencilFuncSeparate(OpenTK.Graphics.OpenGL.StencilFace.Back,
-                    StencilFunction.Never + (int)r.StencilTest.BackFace.Func, r.StencilTest.BackFace.Ref, r.StencilTest.BackFace.ReadMask);
-                GL.StencilFuncSeparate(OpenTK.Graphics.OpenGL.StencilFace.Front,
-                    StencilFunction.Never + (int)r.StencilTest.FrontFace.Func, r.StencilTest.FrontFace.Ref, r.StencilTest.FrontFace.ReadMask);
+                StencilTest st = r.StencilTest;
+                StencilTestFace b = st.BackFace;
+                StencilTestFace f = st.FrontFace;
+                GL.StencilOpSeparate(StencilFace.Back,
+                    (StencilOp)(int)b.BothFailOp,
+                    (StencilOp)(int)b.StencilPassDepthFailOp,
+                    (StencilOp)(int)b.BothPassOp);
+                GL.StencilOpSeparate(StencilFace.Front,
+                    (StencilOp)(int)f.BothFailOp,
+                    (StencilOp)(int)f.StencilPassDepthFailOp,
+                    (StencilOp)(int)f.BothPassOp);
+                GL.StencilMaskSeparate(StencilFace.Back, b.WriteMask);
+                GL.StencilMaskSeparate(StencilFace.Front, f.WriteMask);
+                GL.StencilFuncSeparate(StencilFace.Back,
+                    StencilFunction.Never + (int)b.Func, b.Ref, b.ReadMask);
+                GL.StencilFuncSeparate(StencilFace.Front,
+                    StencilFunction.Never + (int)f.Func, f.Ref, f.ReadMask);
             }
-            else
+            else if (r.StencilTest.Enabled == ERenderParamUsage.Disabled)
             {
-                GL.Disable(EnableCap.StencilTest);
-                //GL.StencilMask(0);
-                //GL.StencilOp(
-                //    OpenTK.Graphics.OpenGL.StencilOp.Keep,
-                //    OpenTK.Graphics.OpenGL.StencilOp.Keep,
-                //    OpenTK.Graphics.OpenGL.StencilOp.Keep);
-                //GL.StencilFunc(StencilFunction.Always, 0, 0);
+                //GL.Disable(EnableCap.StencilTest);
+                GL.StencilMask(0);
+                GL.StencilOp(
+                    OpenTK.Graphics.OpenGL.StencilOp.Keep,
+                    OpenTK.Graphics.OpenGL.StencilOp.Keep,
+                    OpenTK.Graphics.OpenGL.StencilOp.Keep);
+                GL.StencilFunc(StencilFunction.Always, 0, 0);
             }
 
             GL.PointSize(r.PointSize);
@@ -816,6 +824,13 @@ namespace TheraEngine.Rendering.OpenGL
             //int val = 0;
             //GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
             //return (float)(val >> 8) / UInt24.MaxValue;
+        }
+
+        public override void TextureView(int bindingId, ETexTarget target, int origTextureId, EPixelInternalFormat fmt, int minLevel, int numLevels, int minLayer, int numLayers)
+        {
+            TextureTarget tt = (TextureTarget)target.ConvertByName(typeof(TextureTarget));
+            PixelInternalFormat pit = (PixelInternalFormat)fmt.ConvertByName(typeof(PixelInternalFormat));
+            GL.TextureView(bindingId, tt, origTextureId, pit, minLevel, numLevels, minLayer, numLayers);
         }
 
         protected override void SetRenderArea(BoundingRectangle region)

@@ -11,6 +11,12 @@ using System.IO;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    public enum EDepthStencilFmt
+    {
+        None,
+        Depth,
+        Stencil,
+    }
     [FileExt("tref2d")]
     [FileDef("2D Texture Reference")]
     public class TexRef2D : BaseTexRef
@@ -23,9 +29,9 @@ namespace TheraEngine.Rendering.Models.Materials
             _name = name;
             _width = width;
             _height = height;
-            _internalFormat = EPixelInternalFormat.Rgba8;
-            _pixelFormat = EPixelFormat.Bgra;
-            _pixelType = EPixelType.UnsignedByte;
+            InternalFormat = EPixelInternalFormat.Rgba8;
+            PixelFormat = EPixelFormat.Bgra;
+            PixelType = EPixelType.UnsignedByte;
         }
         public TexRef2D(string name, int width, int height,
             PixelFormat bitmapFormat, int mipCount = 1)
@@ -37,22 +43,22 @@ namespace TheraEngine.Rendering.Models.Materials
 
             switch (bitmapFormat)
             {
-                case PixelFormat.Format32bppArgb:
-                case PixelFormat.Format32bppPArgb:
-                    _internalFormat = EPixelInternalFormat.Rgba8;
-                    _pixelFormat = EPixelFormat.Bgra;
-                    _pixelType = EPixelType.UnsignedByte;
+                case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+                case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
+                    InternalFormat = EPixelInternalFormat.Rgba8;
+                    PixelFormat = EPixelFormat.Bgra;
+                    PixelType = EPixelType.UnsignedByte;
                     break;
-                case PixelFormat.Format24bppRgb:
-                    _internalFormat = EPixelInternalFormat.Rgb8;
-                    _pixelFormat = EPixelFormat.Bgr;
-                    _pixelType = EPixelType.UnsignedByte;
+                case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+                    InternalFormat = EPixelInternalFormat.Rgb8;
+                    PixelFormat = EPixelFormat.Bgr;
+                    PixelType = EPixelType.UnsignedByte;
                     break;
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
-                    _internalFormat = EPixelInternalFormat.Rgba16;
-                    _pixelFormat = EPixelFormat.Bgra;
-                    _pixelType = EPixelType.UnsignedShort;
+                case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
+                case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
+                    InternalFormat = EPixelInternalFormat.Rgba16;
+                    PixelFormat = EPixelFormat.Bgra;
+                    PixelType = EPixelType.UnsignedShort;
                     break;
             }
         }
@@ -60,9 +66,9 @@ namespace TheraEngine.Rendering.Models.Materials
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
             : this(name, width, height)
         {
-            _internalFormat = internalFormat;
-            _pixelFormat = pixelFormat;
-            _pixelType = pixelType;
+            InternalFormat = internalFormat;
+            PixelFormat = pixelFormat;
+            PixelType = pixelType;
         }
         public TexRef2D(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, PixelFormat bitmapFormat)
@@ -104,67 +110,55 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _mipmaps = value;
         }
         
-        private RenderTex2D _texture;
+        protected RenderTex2D _texture;
 
-        [TSerialize("Width")]
-        private int _width;
-        [TSerialize("Height")]
-        private int _height;
-        
-        private ETexWrapMode _uWrapMode = ETexWrapMode.Repeat;
-        private ETexWrapMode _vWrapMode = ETexWrapMode.Repeat;
-        private ETexMinFilter _minFilter = ETexMinFilter.LinearMipmapLinear;
-        private ETexMagFilter _magFilter = ETexMagFilter.Linear;
-        private float _lodBias = 0.0f;
-        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba;
-        private EPixelFormat _pixelFormat = EPixelFormat.Rgba;
-        private EPixelType _pixelType = EPixelType.UnsignedByte;
-        
+        [TSerialize(nameof(Width))]
+        protected int _width;
+        [TSerialize(nameof(Height))]
+        protected int _height;
+
         [TSerialize]
-        public ETexMagFilter MagFilter
-        {
-            get => _magFilter;
-            set => _magFilter = value;
-        }
+        public EPixelFormat PixelFormat { get; set; } = EPixelFormat.Rgba;
         [TSerialize]
-        public ETexMinFilter MinFilter
-        {
-            get => _minFilter;
-            set => _minFilter = value;
-        }
+        public EPixelType PixelType { get; set; } = EPixelType.UnsignedByte;
         [TSerialize]
-        public ETexWrapMode UWrap
-        {
-            get => _uWrapMode;
-            set => _uWrapMode = value;
-        }
+        public EDepthStencilFmt DepthStencilFormat { get; set; } = EDepthStencilFmt.None;
         [TSerialize]
-        public ETexWrapMode VWrap
-        {
-            get => _vWrapMode;
-            set => _vWrapMode = value;
-        }
+        public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba;
         [TSerialize]
-        public float LodBias
-        {
-            get => _lodBias;
-            set => _lodBias = value;
-        }
+        public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Linear;
+        [TSerialize]
+        public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.LinearMipmapLinear;
+        [TSerialize]
+        public ETexWrapMode UWrap { get; set; } = ETexWrapMode.Repeat;
+        [TSerialize]
+        public ETexWrapMode VWrap { get; set; } = ETexWrapMode.Repeat;
+        [TSerialize]
+        public float LodBias { get; set; } = 0.0f;
+
         public int Width => _width;
         public int Height => _height;
 
-        private void SetParameters()
+        protected virtual void SetParameters()
         {
             if (_texture == null)
                 return;
 
             _texture.Bind();
 
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, _lodBias);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)_magFilter);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilter);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
+            if (DepthStencilFormat != EDepthStencilFmt.None)
+            {
+                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ? 
+                    (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
+                    (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
+                int id = _texture.BindingId;
+                OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
+            }
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, LodBias);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)MagFilter);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)MinFilter);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)UWrap);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)VWrap);
         }
 
         private bool _isLoading = false;
@@ -256,22 +250,22 @@ namespace TheraEngine.Rendering.Models.Materials
                         {
                             switch (b.PixelFormat)
                             {
-                                case PixelFormat.Format32bppArgb:
-                                case PixelFormat.Format32bppPArgb:
-                                    _internalFormat = EPixelInternalFormat.Rgba8;
-                                    _pixelFormat = EPixelFormat.Bgra;
-                                    _pixelType = EPixelType.UnsignedByte;
+                                case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+                                case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
+                                    InternalFormat = EPixelInternalFormat.Rgba8;
+                                    PixelFormat = EPixelFormat.Bgra;
+                                    PixelType = EPixelType.UnsignedByte;
                                     break;
-                                case PixelFormat.Format24bppRgb:
-                                    _internalFormat = EPixelInternalFormat.Rgb8;
-                                    _pixelFormat = EPixelFormat.Bgr;
-                                    _pixelType = EPixelType.UnsignedByte;
+                                case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+                                    InternalFormat = EPixelInternalFormat.Rgb8;
+                                    PixelFormat = EPixelFormat.Bgr;
+                                    PixelType = EPixelType.UnsignedByte;
                                     break;
-                                case PixelFormat.Format64bppArgb:
-                                case PixelFormat.Format64bppPArgb:
-                                    _internalFormat = EPixelInternalFormat.Rgba16;
-                                    _pixelFormat = EPixelFormat.Bgra;
-                                    _pixelType = EPixelType.UnsignedShort;
+                                case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
+                                case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
+                                    InternalFormat = EPixelInternalFormat.Rgba16;
+                                    PixelFormat = EPixelFormat.Bgra;
+                                    PixelType = EPixelType.UnsignedShort;
                                     break;
                             }
                         }
@@ -282,20 +276,21 @@ namespace TheraEngine.Rendering.Models.Materials
             CreateRenderTexture();
             _isLoading = false;
         }
-        private void CreateRenderTexture()
+        protected virtual void CreateRenderTexture()
         {
             if (_texture != null)
                 _texture.PostPushData -= SetParameters;
 
             if (_mipmaps != null && _mipmaps.Length > 0)
-                _texture = new RenderTex2D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
+                _texture = new RenderTex2D(InternalFormat, PixelFormat, PixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
             else
-                _texture = new RenderTex2D(_width, _height, _internalFormat, _pixelFormat, _pixelType);
+                _texture = new RenderTex2D(_width, _height, InternalFormat, PixelFormat, PixelType);
 
             _texture.PostPushData += SetParameters;
         }
 
         public static Bitmap FillerBitmap => _fillerBitmap.Value;
+
         private static Lazy<Bitmap> _fillerBitmap = new Lazy<Bitmap>(() => GetFillerBitmap());
         private unsafe static Bitmap GetFillerBitmap()
         {
@@ -306,7 +301,7 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 int squareExtent = 4;
                 int dim = squareExtent * 2;
-                Bitmap bmp = new Bitmap(dim, dim, PixelFormat.Format32bppArgb);
+                Bitmap bmp = new Bitmap(dim, dim, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 Graphics flagGraphics = Graphics.FromImage(bmp);
                 flagGraphics.FillRectangle(Brushes.Red, 0, 0, squareExtent, squareExtent);
                 flagGraphics.FillRectangle(Brushes.Red, squareExtent, squareExtent, squareExtent, squareExtent);

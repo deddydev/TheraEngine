@@ -629,13 +629,19 @@ namespace TheraEngine.Rendering
             const string ShaderPath = "Scene3D";
 
             RenderingParameters renderParams = new RenderingParameters();
-            renderParams.DepthTest.Enabled = false;
+            renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
             renderParams.DepthTest.UpdateDepth = false;
             renderParams.DepthTest.Function = EComparison.Always;
-
+            
             TexRef2D depthTexture = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
                 EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248,
                 EFramebufferAttachment.DepthStencilAttachment);
+            depthTexture.DepthStencilFormat = EDepthStencilFmt.Depth;
+            depthTexture.GetTextureGeneric(true).Generate();
+            TexRefView2D stencilTexture = new TexRefView2D(depthTexture, 0, 1, 0, 1, 
+                EPixelType.UnsignedByte, EPixelFormat.RedInteger, EPixelInternalFormat.Depth24Stencil8);
+            stencilTexture.DepthStencilFormat = EDepthStencilFmt.Stencil;
+            stencilTexture.GetTextureGeneric(true).Generate();
 
             //If forward, we can render directly to the post process FBO.
             //If deferred, we have to render to a quad first, then render that to post process
@@ -756,7 +762,8 @@ namespace TheraEngine.Rendering
             {
                 hdrSceneTex,
                 blurResult,
-                depthTexture
+                depthTexture,
+                stencilTexture
             };
 
             TMaterial forwardMat = new TMaterial("ForwardMat", renderParams, forwardRefs, forwardShader);

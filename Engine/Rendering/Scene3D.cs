@@ -285,22 +285,23 @@ namespace TheraEngine.Rendering
                         //Render to deferred framebuffer.
                         v.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
-                            Engine.Renderer.Clear(EBufferClear.All);
-                            Engine.Renderer.AllowDepthWrite(true);
+                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
+                            //Engine.Renderer.ClearStencil(0x0);
+                            //Engine.Renderer.AllowDepthWrite(true);
                             _passes.Render(ERenderPass3D.OpaqueDeferredLit);
                         }
                         v.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         v.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
-                            Engine.Renderer.AllowDepthWrite(false);
+                            //Engine.Renderer.AllowDepthWrite(false);
                             v.SSAOFBO.RenderFullscreen();
                         }
                         v.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         v.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
-                            Engine.Renderer.AllowDepthWrite(false);
+                            //Engine.Renderer.AllowDepthWrite(false);
                             v.SSAOBlurFBO.RenderFullscreen();
                         }
                         v.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -312,12 +313,12 @@ namespace TheraEngine.Rendering
                             //color will be fully overwritten by the previous pass, 
                             //and we need depth from the previous pass
                             //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                            Engine.Renderer.AllowDepthWrite(false);
+                            //Engine.Renderer.AllowDepthWrite(false);
 
                             //Render the deferred pass result
                             v.GBufferFBO.RenderFullscreen();
 
-                            Engine.Renderer.AllowDepthWrite(true);
+                            //Engine.Renderer.AllowDepthWrite(true);
 
                             //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
                             //RenderTree.DebugRender(c?.Frustum, true);
@@ -338,13 +339,13 @@ namespace TheraEngine.Rendering
 
                         v.PingPongBloomBlurFBO.Reset();
                         v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-                        Engine.Renderer.AllowDepthWrite(false);
+                        //Engine.Renderer.AllowDepthWrite(false);
                         v.ForwardPassFBO.RenderFullscreen();
                         Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
                         for (int i = 0; i < 10; ++i)
                         {
                             v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-                            Engine.Renderer.AllowDepthWrite(false);
+                            //Engine.Renderer.AllowDepthWrite(false);
                             v.PingPongBloomBlurFBO.RenderFullscreen();
                             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
 
@@ -359,7 +360,7 @@ namespace TheraEngine.Rendering
                     {
                         Engine.Renderer.PushRenderArea(v.Region);
                         {
-                            Engine.Renderer.AllowDepthWrite(false);
+                            //Engine.Renderer.AllowDepthWrite(false);
                             //Engine.Renderer.DepthFunc(EComparison.Lequal);
                             //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 

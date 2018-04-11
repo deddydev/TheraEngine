@@ -184,7 +184,7 @@ namespace TheraEngine.Rendering.OpenGL
 
             //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             GL.Disable(EnableCap.CullFace);
-            GL.Disable(EnableCap.Dither);
+            GL.Enable(EnableCap.Dither);
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
             GL.FrontFace(FrontFaceDirection.Ccw);
@@ -202,7 +202,7 @@ namespace TheraEngine.Rendering.OpenGL
             //Modify depth range so there is no loss of precision with scale and bias conversion
             GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.NegativeOneToOne);
             //GL.Enable(EnableCap.FramebufferSrgb);
-
+            GL.Enable(EnableCap.StencilTest);
             //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
             //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);

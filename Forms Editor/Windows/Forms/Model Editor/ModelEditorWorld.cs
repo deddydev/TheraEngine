@@ -46,7 +46,7 @@ namespace TheraEditor.Windows.Forms
                     BoundingBox.ECubemapTextureUVs.HeightLarger),
                 TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
                 {
-                    DepthTest = new DepthTest() { Enabled = true, UpdateDepth = false, Function = EComparison.Less }
+                    DepthTest = new DepthTest() { Enabled = ERenderParamUsage.Enabled, UpdateDepth = false, Function = EComparison.Less }
                 }));
             mesh.RenderInfo.RenderPass = ERenderPass3D.Skybox;
             skybox.RigidChildren.Add(mesh);

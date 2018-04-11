@@ -18,6 +18,7 @@ namespace TheraEngine.Physics
         PhysicsObjects  = 0x0040,
         Interactables   = 0x0080,
         Projectiles     = 0x0100,
+        Camera          = 0x0200,
     }
     public interface ICollidable
     {

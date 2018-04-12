@@ -8,12 +8,22 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         Texture3D,
         TextureCubeMap
     }
+    public class PrePushDataCallback
+    {
+        public bool ShouldPush { get; set; } = true;
+    }
+    public delegate void DelPrePushData(PrePushDataCallback callback);
     public abstract class BaseRenderTexture : BaseRenderState, IDisposable
     {
-        public event Action PrePushData;
+        public event DelPrePushData PrePushData;
         public event Action PostPushData;
 
-        protected void OnPrePushData() => PrePushData?.Invoke();
+        protected bool OnPrePushData()
+        {
+            PrePushDataCallback callback = new PrePushDataCallback();
+            PrePushData?.Invoke(callback);
+            return callback.ShouldPush;
+        }
         protected void OnPostPushData() => PostPushData?.Invoke();
 
         public BaseRenderTexture() : base(EObjectType.Texture) { }

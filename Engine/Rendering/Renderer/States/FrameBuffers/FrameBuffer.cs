@@ -68,7 +68,15 @@ namespace TheraEngine.Rendering
             List<(BaseTexRef Texture, EFramebufferAttachment Attachment, int MipLevel)> targets
                 = new List<(BaseTexRef Texture, EFramebufferAttachment Attachment, int MipLevel)>();
             foreach (BaseTexRef t in material.Textures.Where(x => x.FrameBufferAttachment.HasValue))
-                targets.Add((t, t.FrameBufferAttachment.Value, 0));
+            {
+                //if (t.FrameBufferAttachment.Value == EFramebufferAttachment.DepthStencilAttachment)
+                //{
+                //    targets.Add((t, EFramebufferAttachment.DepthAttachment, 0));
+                //    targets.Add((t, EFramebufferAttachment.StencilAttachment, 0));
+                //}
+                //else
+                    targets.Add((t, t.FrameBufferAttachment.Value, 0));
+            }
             Targets = targets.ToArray();
 
             List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();

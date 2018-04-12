@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
@@ -33,17 +34,49 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             base.CreateRenderTexture();
             _texture.Generated += _texture_Generated;
+            _texture.PrePushData += _texture_PrePushData1;
+            _texture.PostPushData += _texture_PostPushData;
+        }
+
+        private void _texture_PostPushData()
+        {
+
+        }
+
+        private void _texture_PrePushData1(PrePushDataCallback callback)
+        {
+            callback.ShouldPush = false;
+            BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
+            //OpenTK.Graphics.OpenGL.GL.GetTextureParameterI(vtex.BindingId, OpenTK.Graphics.OpenGL.All.TextureImmutableFormat, out int param);
+            Engine.Renderer.TextureView(
+                _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
+                _minLevel, _numLevels, _minLayer, _numLayers);
+        }
+
+        protected override void SetParameters()
+        {
+            //BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
+            //Engine.Renderer.TextureView(
+            //   _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
+            //   _minLevel, _numLevels, _minLayer, _numLayers);
+
+            if (DepthStencilFormat != EDepthStencilFmt.None)
+            {
+                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
+                    (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
+                    (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
+                int id = _texture.BindingId;
+                OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
+            }
         }
 
         private void _texture_Generated()
         {
-            Engine.Renderer.CheckErrors();
             BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
-            Engine.Renderer.CheckErrors();
+            //OpenTK.Graphics.OpenGL.GL.GetTextureParameterI(vtex.BindingId, OpenTK.Graphics.OpenGL.All.TextureImmutableFormat, out int param);
             Engine.Renderer.TextureView(
                 _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
                 _minLevel, _numLevels, _minLayer, _numLayers);
-            Engine.Renderer.CheckErrors();
         }
     }
 }

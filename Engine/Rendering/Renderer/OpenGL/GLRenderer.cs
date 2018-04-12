@@ -60,20 +60,21 @@ namespace TheraEngine.Rendering.OpenGL
 
         public override void CheckErrors()
         {
-            ErrorCode code;
-            string error = "";
-            string temp;
-            while ((code = GL.GetError()) != ErrorCode.NoError)
-            {
-                temp = code.ToString();
-                //Prevent infinite loop
-                if (!error.Contains(temp))
-                    error += temp;
-                else
-                    break;
-            }
-            if (error.Length > 0)
-                throw new Exception(error);
+            //ErrorCode code;
+            //string error = "";
+            //string temp;
+            //while ((code = GL.GetError()) != ErrorCode.NoError)
+            //{
+            //    temp = code.ToString();
+            //    Prevent infinite loop
+            //    if (!error.Contains(temp))
+            //        error += temp;
+            //    else
+            //        break;
+            //}
+            //if (error.Length > 0)
+            //    throw new Exception(error);
+            //Engine.LogWarning(error);
         }
 
         #region Objects
@@ -201,7 +202,7 @@ namespace TheraEngine.Rendering.OpenGL
         public override int[] CreateTextures(ETexTarget target, int count)
         {
             int[] ids = new int[count];
-            GL.CreateTextures((TextureTarget)(int)target, count, ids);
+            GL.CreateTextures((TextureTarget)target, count, ids);
             return ids;
         }
         public override int[] CreateQueries(EQueryTarget type, int count)
@@ -893,8 +894,7 @@ namespace TheraEngine.Rendering.OpenGL
             //    BufferAccessMask.MapCoherentBit |
             //    BufferAccessMask.MapReadBit |
             //    BufferAccessMask.MapWriteBit), DataLength);
-
-            CheckErrors();
+            
             int length = buffer._data.Length;
             GL.NamedBufferStorage(buffer.BindingId, length, buffer._data.Address,
                 BufferStorageFlags.MapWriteBit |
@@ -903,13 +903,11 @@ namespace TheraEngine.Rendering.OpenGL
                 BufferStorageFlags.MapCoherentBit |
                 BufferStorageFlags.ClientStorageBit);
             buffer._data.Dispose();
-            CheckErrors();
             buffer._data = new DataSource(GL.MapNamedBufferRange(buffer.BindingId, IntPtr.Zero, length,
                 BufferAccessMask.MapPersistentBit |
                 BufferAccessMask.MapCoherentBit |
                 BufferAccessMask.MapReadBit |
                 BufferAccessMask.MapWriteBit), length);
-            CheckErrors();
             //buffer._data = new DataSource(GL.MapNamedBuffer(buffer.BindingId, BufferAccess.ReadWrite), length);
         }
         public override void PushBufferData(VertexBuffer buffer)
@@ -966,35 +964,26 @@ namespace TheraEngine.Rendering.OpenGL
 
                     if (index >= 0)
                     {
-                        CheckErrors();
                         GL.EnableVertexArrayAttrib(vaoId, index);
-                        CheckErrors();
                         if (integral)
                             GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
                         else
                             GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
-
-                        CheckErrors();
-
+                        
                         if (VertexBuffer.MapData)
                             MapBufferData(buffer);
                         else
                             PushBufferData(buffer);
-
-                        CheckErrors();
+                        
                         GL.VertexArrayAttribBinding(vaoId, index, index);
-                        CheckErrors();
                         GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
-                        CheckErrors();
                     }
                     else
                     {
-                        CheckErrors();
                         if (VertexBuffer.MapData)
                             MapBufferData(buffer);
                         else
                             PushBufferData(buffer);
-                        CheckErrors();
                     }
 
                     break;
@@ -1032,7 +1021,6 @@ namespace TheraEngine.Rendering.OpenGL
         /// </summary>
         public override void RenderCurrentPrimitiveManager()
         {
-            CheckErrors();
             if (_currentPrimitiveManager != null)
             {
                 PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data._type;
@@ -1041,7 +1029,6 @@ namespace TheraEngine.Rendering.OpenGL
                 //Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());
                 GL.DrawElements(type, count, elemType, 0);
             }
-            CheckErrors();
         }
         #endregion
 

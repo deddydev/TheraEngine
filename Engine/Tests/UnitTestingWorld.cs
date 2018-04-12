@@ -109,7 +109,7 @@ namespace TheraEngine.Tests
                             st.FrontFace.BothPassOp = EStencilOp.Replace;
                             st.FrontFace.StencilPassDepthFailOp = EStencilOp.Replace;
                             st.FrontFace.Func = EComparison.Always;
-                            st.FrontFace.Ref = 0xFF;
+                            st.FrontFace.Ref = 0x99;
                             st.FrontFace.ReadMask = 0xFF;
                             st.FrontFace.WriteMask = 0xFF;
 
@@ -117,7 +117,7 @@ namespace TheraEngine.Tests
                             st.BackFace.BothPassOp = EStencilOp.Replace;
                             st.BackFace.StencilPassDepthFailOp = EStencilOp.Replace;
                             st.BackFace.Func = EComparison.Always;
-                            st.BackFace.Ref = 0xFF;
+                            st.BackFace.Ref = 0x99;
                             st.BackFace.ReadMask = 0xFF;
                             st.BackFace.WriteMask = 0xFF;
                         }

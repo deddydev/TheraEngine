@@ -126,9 +126,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba;
         [TSerialize]
-        public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Nearest;
+        public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Linear;
         [TSerialize]
-        public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.Nearest;
+        public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.Linear;
         [TSerialize]
         public ETexWrapMode UWrap { get; set; } = ETexWrapMode.Repeat;
         [TSerialize]
@@ -193,19 +193,21 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
-        
+
         /// <summary>
-        /// If true, calling resize will do nothing.
-        /// Useful for repeating textures that must be a certain size.
+        /// If false, calling resize will do nothing.
+        /// Useful for repeating textures that must always be a certain size or textures that never need to be dynamically resized during the game.
+        /// False by default.
         /// </summary>
-        public bool ResizingDisabled { get; set; }
+        public bool Resizeable { get; set; } = true;
 
         /// <summary>
         /// Resizes the textures stored in memory.
+        /// Does nothing if Resizeable is false.
         /// </summary>
-        public void Resize(int width, int height)
+        public void Resize(int width, int height, bool resizeRenderTexture = true)
         {
-            if (ResizingDisabled)
+            if (!Resizeable)
                 return;
 
             _width = width;
@@ -226,7 +228,18 @@ namespace TheraEngine.Rendering.Models.Materials
                     }
                 }
 
-            _texture?.Resize(width, height);
+            if (resizeRenderTexture)
+                _texture?.Resize(width, height);
+        }
+        /// <summary>
+        /// Resizes the allocated render texture stored in video memory, if it exists.
+        /// Does not resize the bitmaps stored in RAM.
+        /// Does nothing if Resizeable is false.
+        /// </summary>
+        public void ResizeRenderTexture(int width, int height)
+        {
+            if (Resizeable)
+                _texture?.Resize(width, height);
         }
 
         public bool IsLoaded => _texture != null;
@@ -285,12 +298,12 @@ namespace TheraEngine.Rendering.Models.Materials
                 _texture = new RenderTex2D(InternalFormat, PixelFormat, PixelType,
                     _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
                 {
-                    Resizable = !ResizingDisabled
+                    Resizable = Resizeable
                 };
             else
                 _texture = new RenderTex2D(_width, _height, InternalFormat, PixelFormat, PixelType)
                 {
-                    Resizable = !ResizingDisabled
+                    Resizable = Resizeable
                 };
 
             _texture.PostPushData += SetParameters;
@@ -325,7 +338,15 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
         {
-            Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
+            //if (attachment == EFramebufferAttachment.DepthStencilAttachment)
+            //{
+            //    Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.DepthAttachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
+            //    Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.StencilAttachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
+            //}
+            //else
+            //{
+                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
+            //}
         }
         internal override void DetachFromFBO(int mipLevel = 0)
         {

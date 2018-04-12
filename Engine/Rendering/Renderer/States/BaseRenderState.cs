@@ -141,22 +141,16 @@ namespace TheraEngine.Rendering
 
             if (IsActive)
                 return BindingId;
-
-            Engine.Renderer.CheckErrors();
+            
             PreGenerated();
-            Engine.Renderer.CheckErrors();
             int id = CreateObject();
             if (id != 0)
             {
-                Engine.Renderer.CheckErrors();
                 CurrentBind.BindingId = id;
                 CurrentBind.GenerationStackTrace = Engine.GetStackTrace();
                 CurrentBind.GenerationTime = DateTime.Now;
-                Engine.Renderer.CheckErrors();
                 PostGenerated();
-                Engine.Renderer.CheckErrors();
                 Generated?.Invoke();
-                Engine.Renderer.CheckErrors();
             }
             else
                 Engine.LogWarning("Unable to create render object.");

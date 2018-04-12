@@ -626,5 +626,15 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void SetTextureStorage(ETexTarget2D texTarget, int mipLevels, ESizedInternalFormat internalFormat, int width, int height)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetTextureStorage(int bindingId, int mipLevels, ESizedInternalFormat internalFormat, int width, int height)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

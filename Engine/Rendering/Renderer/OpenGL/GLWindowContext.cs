@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System;
+using System.Text;
 using System.Threading;
 
 namespace TheraEngine.Rendering.OpenGL
@@ -37,7 +38,8 @@ namespace TheraEngine.Rendering.OpenGL
             {
                 _winInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
                 GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 8, new ColorFormat(0), 2, false);
-                _context = new GraphicsContext(mode, _winInfo);
+                _context = new GraphicsContext(mode, _winInfo, 4, 5, GraphicsContextFlags.Debug);
+                _context.ErrorChecking = true;
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();
                 VsyncChanged(_vsyncMode);
@@ -174,14 +176,14 @@ namespace TheraEngine.Rendering.OpenGL
 
         private unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
         {
-            string s = new string((char*)message);
-            Engine.PrintLine("OPENGL DEBUG: {0} {1} {2} {3} {4}", source, type, id, severity, s);
+            string s = new string((sbyte*)message);
+            throw new Exception(string.Format("OPENGL DEBUG: {0} {1} {2} {3} {4}", source, type, id, severity, s));
         }
 
         public unsafe override void Initialize()
         {
             GetCurrentSubContext();
-
+            
             //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             GL.Disable(EnableCap.CullFace);
             GL.Enable(EnableCap.Dither);
@@ -192,8 +194,8 @@ namespace TheraEngine.Rendering.OpenGL
             GL.DepthFunc(DepthFunction.Less);
             GL.DepthMask(true);
             GL.ClearDepth(1.0f);
-            GL.Enable(EnableCap.TextureCubeMap);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
+            GL.Enable(EnableCap.DebugOutput);
             GL.Enable(EnableCap.DebugOutputSynchronous);
             //GL.Enable(EnableCap.DebugOutput);
             GL.DebugMessageCallback(HandleDebugMessage, IntPtr.Zero);
@@ -212,7 +214,7 @@ namespace TheraEngine.Rendering.OpenGL
             //GL.DepthFunc(DepthFunction.Less);
             //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
-
+            
             GL.UseProgram(0);
         }
         public unsafe override void BeginDraw()

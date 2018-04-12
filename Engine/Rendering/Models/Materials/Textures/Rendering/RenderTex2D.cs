@@ -45,6 +45,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         private Bitmap[] _mipmaps;
 
         public override ETexTarget TextureTarget => ETexTarget.Texture2D;
+        public bool Resizable { get; set; } = true;
         public int Width => _mipmaps == null ? _width : (_mipmaps.Length > 0 ? _mipmaps[0].Width : _width);
         public int Height => _mipmaps == null ? _height : (_mipmaps.Length > 0 ? _mipmaps[0].Height : _height);
         public Bitmap[] Mipmaps
@@ -69,6 +70,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             }
         }
 
+        private bool _hasPushed = false;
+
         //TODO: use subimage2d instead for updates; use PBO per texture for quick data updates
         public override void PushData()
         {
@@ -88,7 +91,17 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                     if (bmp != null)
                     {
                         BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                        Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
+                        if (Resizable)
+                        {
+                            if (_hasPushed)
+                                Engine.Renderer.PushTextureSubData(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
+                            else
+                                Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
+                        }
+                        else
+                        {
+                            Engine.Renderer.PushTextureDataImmutable(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
+                        }
                         bmp.UnlockBits(data);
                     }
                     else
@@ -97,6 +110,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 if (_mipmaps.Length == 1)
                     Engine.Renderer.GenerateMipmap(TextureTarget);
             }
+            _hasPushed = true;
 
             int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
             Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
@@ -106,14 +120,25 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
             OnPostPushData();
         }
-        public void Resize(int width, int height)
+        public void Resize(int width, int height, int mipLevel = -1)
         {
+            if (!Resizable)
+            {
+                Engine.LogWarning("Tried to resize texture that is immutable (storage size is non-resizable).");
+                return;
+            }
+
             _width = width;
             _height = height;
 
             if (_mipmaps != null)
-                for (int i = 0; i < _mipmaps.Length; ++i, width /= 2, height /= 2)
-                    _mipmaps[i] = _mipmaps[i].Resized(width, height);
+            {
+                if (mipLevel < 0)
+                    for (int i = 0; i < _mipmaps.Length; ++i, width /= 2, height /= 2)
+                        _mipmaps[i] = _mipmaps[i].Resized(width, height);
+                else if (_mipmaps.IndexInArrayRange(mipLevel))
+                    _mipmaps[mipLevel] = _mipmaps[mipLevel].Resized(width, height);
+            }
 
             PushData();
         }

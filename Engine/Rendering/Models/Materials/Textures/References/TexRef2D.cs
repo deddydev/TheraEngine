@@ -126,9 +126,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba;
         [TSerialize]
-        public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Linear;
+        public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Nearest;
         [TSerialize]
-        public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.LinearMipmapLinear;
+        public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.Nearest;
         [TSerialize]
         public ETexWrapMode UWrap { get; set; } = ETexWrapMode.Repeat;
         [TSerialize]

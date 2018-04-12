@@ -25,6 +25,8 @@ namespace TheraEngine.Rendering.Models.Materials
             InternalFormat = internalFormat;
             _width = viewedTexture.Width;
             _height = viewedTexture.Height;
+            MinFilter = viewedTexture.MinFilter;
+            MagFilter = viewedTexture.MagFilter;
         }
         
         protected override void CreateRenderTexture()
@@ -36,8 +38,8 @@ namespace TheraEngine.Rendering.Models.Materials
         private void _texture_Generated()
         {
             Engine.Renderer.CheckErrors();
-            OpenTK.Graphics.OpenGL.GL.TexStorage2D(OpenTK.Graphics.OpenGL.TextureTarget2d.Texture2D, 0, 
-                _viewedTexture.InternalFormat, _viewedTexture.Width, _viewedTexture.Height);
+            //OpenTK.Graphics.OpenGL.GL.TexStorage2D(OpenTK.Graphics.OpenGL.TextureTarget2d.Texture2D, 0, 
+            //    OpenTK.Graphics.OpenGL.SizedInternalFormat.r, _viewedTexture.Width, _viewedTexture.Height);
             Engine.Renderer.CheckErrors();
             BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
             Engine.Renderer.CheckErrors();

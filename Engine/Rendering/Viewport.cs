@@ -633,14 +633,18 @@ namespace TheraEngine.Rendering
             renderParams.DepthTest.UpdateDepth = false;
             renderParams.DepthTest.Function = EComparison.Always;
             
-            TexRef2D depthTexture = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
+            TexRef2D depthTexture = TexRef2D.CreateFrameBufferTexture("DepthStencil", width, height,
                 EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248,
                 EFramebufferAttachment.DepthStencilAttachment);
             depthTexture.DepthStencilFormat = EDepthStencilFmt.Depth;
+            depthTexture.MinFilter = ETexMinFilter.Nearest;
+            depthTexture.MagFilter = ETexMagFilter.Nearest;
             depthTexture.GetTextureGeneric(true).Generate();
             TexRefView2D stencilTexture = new TexRefView2D(depthTexture, 0, 1, 0, 1, 
                 EPixelType.UnsignedByte, EPixelFormat.RedInteger, EPixelInternalFormat.Depth24Stencil8);
             stencilTexture.DepthStencilFormat = EDepthStencilFmt.Stencil;
+            stencilTexture.MinFilter = ETexMinFilter.Nearest;
+            stencilTexture.MagFilter = ETexMagFilter.Nearest;
             stencilTexture.GetTextureGeneric(true).Generate();
 
             //If forward, we can render directly to the post process FBO.

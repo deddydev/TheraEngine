@@ -636,6 +636,7 @@ namespace TheraEngine.Rendering
             TexRef2D depthTexture = TexRef2D.CreateFrameBufferTexture("DepthStencil", width, height,
                 EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248,
                 EFramebufferAttachment.DepthStencilAttachment);
+            depthTexture.ResizingDisabled = true;
             depthTexture.DepthStencilFormat = EDepthStencilFmt.Depth;
             depthTexture.MinFilter = ETexMinFilter.Nearest;
             depthTexture.MagFilter = ETexMagFilter.Nearest;

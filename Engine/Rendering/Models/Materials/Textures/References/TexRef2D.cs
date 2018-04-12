@@ -282,9 +282,16 @@ namespace TheraEngine.Rendering.Models.Materials
                 _texture.PostPushData -= SetParameters;
 
             if (_mipmaps != null && _mipmaps.Length > 0)
-                _texture = new RenderTex2D(InternalFormat, PixelFormat, PixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
+                _texture = new RenderTex2D(InternalFormat, PixelFormat, PixelType,
+                    _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
+                {
+                    Resizable = !ResizingDisabled
+                };
             else
-                _texture = new RenderTex2D(_width, _height, InternalFormat, PixelFormat, PixelType);
+                _texture = new RenderTex2D(_width, _height, InternalFormat, PixelFormat, PixelType)
+                {
+                    Resizable = !ResizingDisabled
+                };
 
             _texture.PostPushData += SetParameters;
         }

@@ -697,15 +697,27 @@ namespace TheraEngine.Rendering
             EPixelType type,
             VoidPtr data);
         public abstract void PushTextureSubData<T>(
-             ETexTarget texTarget,
-             int mipLevel,
-             int xOffset,
-             int yOffset,
-             int width,
-             int height,
-             EPixelFormat format,
-             EPixelType type,
-             T[] data) where T : struct;
+            ETexTarget texTarget,
+            int mipLevel,
+            int xOffset,
+            int yOffset,
+            int width,
+            int height,
+            EPixelFormat format,
+            EPixelType type,
+            T[] data) where T : struct;
+        public abstract void SetTextureStorage(
+            ETexTarget2D texTarget,
+            int mipLevels,
+            ESizedInternalFormat internalFormat,
+            int width,
+            int height);
+        public abstract void SetTextureStorage(
+            int bindingId,
+            int mipLevels,
+            ESizedInternalFormat internalFormat,
+            int width,
+            int height);
 
         public abstract void BindTexture(ETexTarget texTarget, int bindingId);
         public abstract void TextureView(int bindingId, ETexTarget target, int origTextureId, EPixelInternalFormat fmt, int minLevel, int numLevels, int minLayer, int numLayers);

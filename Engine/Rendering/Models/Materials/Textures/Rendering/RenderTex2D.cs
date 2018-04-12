@@ -71,6 +71,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         }
 
         private bool _hasPushed = false;
+        private bool _storageSet = false;
 
         //TODO: use subimage2d instead for updates; use PBO per texture for quick data updates
         public override void PushData()
@@ -81,27 +82,38 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             Bind();
             OnPrePushData();
 
+            ESizedInternalFormat sizedInternalFormat = ESizedInternalFormat.R16;
+
             if (_mipmaps == null || _mipmaps.Length == 0)
+            {
+                if (!Resizable && !_storageSet)
+                {
+                    Engine.Renderer.SetTextureStorage(BindingId, 1, sizedInternalFormat, _width, _height);
+                    _storageSet = true;
+                }
+
                 Engine.Renderer.PushTextureData(TextureTarget, 0, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
+            }
             else
             {
+                if (!Resizable && !_storageSet)
+                {
+                    Engine.Renderer.SetTextureStorage(BindingId, _mipmaps.Length, sizedInternalFormat, _mipmaps[0].Width, _mipmaps[0].Height);
+                    _storageSet = true;
+                }
+
                 for (int i = 0; i < _mipmaps.Length; ++i)
                 {
                     Bitmap bmp = _mipmaps[i];
                     if (bmp != null)
                     {
                         BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                        if (Resizable)
-                        {
-                            if (_hasPushed)
-                                Engine.Renderer.PushTextureSubData(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
-                            else
-                                Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
-                        }
+
+                        if (_hasPushed)
+                            Engine.Renderer.PushTextureSubData(TextureTarget, i, 0, 0, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
                         else
-                        {
-                            Engine.Renderer.PushTextureDataImmutable(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
-                        }
+                            Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
+                        
                         bmp.UnlockBits(data);
                     }
                     else
@@ -128,6 +140,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 return;
             }
 
+            _storageSet = false;
+            _hasPushed = false;
             _width = width;
             _height = height;
 
@@ -142,7 +156,12 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
             PushData();
         }
-
+        public override void Destroy()
+        {
+            base.Destroy();
+            _hasPushed = false;
+            _storageSet = false;
+        }
         protected override void Dispose(bool disposing)
         {
             if (!_disposedValue)

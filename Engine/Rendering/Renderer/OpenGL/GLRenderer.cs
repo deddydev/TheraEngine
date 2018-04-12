@@ -1113,6 +1113,27 @@ namespace TheraEngine.Rendering.OpenGL
             PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
             GL.TexImage2D(tt, mipLevel, pit, width, height, 0, pf, pt, data);
         }
+        public override void SetTextureStorage(
+            ETexTarget2D texTarget,
+            int mipLevels,
+            ESizedInternalFormat internalFormat,
+            int width,
+            int height)
+        {
+            TextureTarget2d tt = (TextureTarget2d)texTarget.ConvertByName(typeof(TextureTarget2d));
+            SizedInternalFormat it = (SizedInternalFormat)internalFormat.ConvertByName(typeof(SizedInternalFormat));
+            GL.TexStorage2D(tt, mipLevels, it, width, height);
+        }
+        public override void SetTextureStorage(
+            int bindingId,
+            int mipLevels,
+            ESizedInternalFormat internalFormat,
+            int width,
+            int height)
+        {
+            SizedInternalFormat it = (SizedInternalFormat)internalFormat.ConvertByName(typeof(SizedInternalFormat));
+            GL.TextureStorage2D(bindingId, mipLevels, it, width, height);
+        }
         public override void PushTextureSubData(
             ETexTarget texTarget,
             int mipLevel,

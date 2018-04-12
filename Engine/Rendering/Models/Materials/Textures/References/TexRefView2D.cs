@@ -38,9 +38,6 @@ namespace TheraEngine.Rendering.Models.Materials
         private void _texture_Generated()
         {
             Engine.Renderer.CheckErrors();
-            //OpenTK.Graphics.OpenGL.GL.TexStorage2D(OpenTK.Graphics.OpenGL.TextureTarget2d.Texture2D, 0, 
-            //    OpenTK.Graphics.OpenGL.SizedInternalFormat.r, _viewedTexture.Width, _viewedTexture.Height);
-            Engine.Renderer.CheckErrors();
             BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
             Engine.Renderer.CheckErrors();
             Engine.Renderer.TextureView(

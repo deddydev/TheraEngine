@@ -125,7 +125,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _backFace = new StencilTestFace();
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Unchanged;
+        public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Disabled;
         [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]
         public StencilTestFace FrontFace { get => _frontFace; set => _frontFace = value ?? new StencilTestFace(); }
         [TSerialize(Condition = nameof(Enabled) + " == " + nameof(ERenderParamUsage) + "." + nameof(ERenderParamUsage.Enabled))]

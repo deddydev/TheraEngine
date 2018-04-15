@@ -8,7 +8,7 @@ using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
-    public abstract class ShapeComponent : TRComponent, I3DRenderable, IRigidCollidable
+    public abstract class ShapeComponent : TRComponent, I3DRenderable, IRigidBodyCollidable
     {
         [Category("Rendering")]
         public RenderInfo3D RenderInfo { get; protected set; } 

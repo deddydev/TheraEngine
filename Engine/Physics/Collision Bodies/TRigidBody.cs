@@ -14,18 +14,18 @@ namespace TheraEngine.Physics
     public delegate void DelOnHit(TRigidBody me, TRigidBody other, TContactInfo collisionPoint);
     public abstract class TRigidBody : TCollisionObject
     {
-        protected TRigidBody(IRigidCollidable owner, TCollisionShape shape) : base(owner, shape)
+        protected TRigidBody(IRigidBodyCollidable owner, TCollisionShape shape) : base(owner, shape)
         {
 
         }
 
-        public new IRigidCollidable Owner
+        public new IRigidBodyCollidable Owner
         {
-            get => (IRigidCollidable)base.Owner;
+            get => (IRigidBodyCollidable)base.Owner;
             set => base.Owner = value;
         }
 
-        public static TRigidBody New(IRigidCollidable owner, TRigidBodyConstructionInfo info)
+        public static TRigidBody New(IRigidBodyCollidable owner, TRigidBodyConstructionInfo info)
             => Engine.Physics.NewRigidBody(owner, info);
 
         [PhysicsSupport(PhysicsLibrary.Bullet)]

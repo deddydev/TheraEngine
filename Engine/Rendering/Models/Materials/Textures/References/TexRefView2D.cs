@@ -46,11 +46,6 @@ namespace TheraEngine.Rendering.Models.Materials
         private void _texture_PrePushData1(PrePushDataCallback callback)
         {
             callback.ShouldPush = false;
-            BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
-            //OpenTK.Graphics.OpenGL.GL.GetTextureParameterI(vtex.BindingId, OpenTK.Graphics.OpenGL.All.TextureImmutableFormat, out int param);
-            Engine.Renderer.TextureView(
-                _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
-                _minLevel, _numLevels, _minLayer, _numLayers);
         }
 
         protected override void SetParameters()
@@ -60,14 +55,7 @@ namespace TheraEngine.Rendering.Models.Materials
             //   _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
             //   _minLevel, _numLevels, _minLayer, _numLayers);
 
-            if (DepthStencilFormat != EDepthStencilFmt.None)
-            {
-                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
-                    (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
-                    (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
-                int id = _texture.BindingId;
-                OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
-            }
+
         }
 
         private void _texture_Generated()
@@ -77,6 +65,15 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TextureView(
                 _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
                 _minLevel, _numLevels, _minLayer, _numLayers);
+
+            if (DepthStencilFormat != EDepthStencilFmt.None)
+            {
+                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
+                    (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
+                    (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
+                int id = _texture.BindingId;
+                OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
+            }
         }
     }
 }

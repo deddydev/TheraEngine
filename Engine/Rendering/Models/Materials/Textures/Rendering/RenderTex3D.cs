@@ -69,7 +69,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 return;
             
             Bind();
-            OnPrePushData();
+            OnPrePushData(out bool shouldPush, out bool allowPostPushCallback);
 
             if (_mipmaps == null || _mipmaps.Length == 0)
                 Engine.Renderer.PushTextureData(TextureTarget, 0, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);

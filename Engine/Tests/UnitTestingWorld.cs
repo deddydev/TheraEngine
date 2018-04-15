@@ -34,6 +34,7 @@ namespace TheraEngine.Tests
         public unsafe override void BeginPlay()
         {
             bool testLandscape = true;
+            bool createWalls = true;
             int pointLights = 1;
             int dirLights = 0;
             int spotLights = 0;
@@ -98,60 +99,63 @@ namespace TheraEngine.Tests
                         rand.Next(-halfMax, halfMax) / maxVel,
                         rand.Next(-halfMax, halfMax) / maxVel);
                     sphere.RootComponent.RigidBodyCollision.Collided += RigidBodyCollision_Collided1;
-                    foreach (var mesh in sphere.RootComponent.Meshes)
-                        foreach (var lod in mesh.LODs)
-                        {
-                            StencilTest st = lod.Manager.Material.RenderParams.StencilTest;
+                    //foreach (var mesh in sphere.RootComponent.Meshes)
+                    //    foreach (var lod in mesh.LODs)
+                    //    {
+                    //        StencilTest st = lod.Manager.Material.RenderParams.StencilTest;
 
-                            st.Enabled = ERenderParamUsage.Enabled;
+                    //        st.Enabled = ERenderParamUsage.Enabled;
 
-                            st.FrontFace.BothFailOp = EStencilOp.Replace;
-                            st.FrontFace.BothPassOp = EStencilOp.Replace;
-                            st.FrontFace.StencilPassDepthFailOp = EStencilOp.Replace;
-                            st.FrontFace.Func = EComparison.Always;
-                            st.FrontFace.Ref = 0x99;
-                            st.FrontFace.ReadMask = 0xFF;
-                            st.FrontFace.WriteMask = 0xFF;
+                    //        st.FrontFace.BothFailOp = EStencilOp.Keep;
+                    //        st.FrontFace.StencilPassDepthFailOp = EStencilOp.Keep;
+                    //        st.FrontFace.BothPassOp = EStencilOp.Replace;
+                    //        st.FrontFace.Func = EComparison.Always;
+                    //        st.FrontFace.Ref = rand.Next(0, byte.MaxValue);
+                    //        st.FrontFace.ReadMask = 0xFF;
+                    //        st.FrontFace.WriteMask = 0xFF;
 
-                            st.BackFace.BothFailOp = EStencilOp.Replace;
-                            st.BackFace.BothPassOp = EStencilOp.Replace;
-                            st.BackFace.StencilPassDepthFailOp = EStencilOp.Replace;
-                            st.BackFace.Func = EComparison.Always;
-                            st.BackFace.Ref = 0x99;
-                            st.BackFace.ReadMask = 0xFF;
-                            st.BackFace.WriteMask = 0xFF;
-                        }
+                    //        st.BackFace.BothFailOp = EStencilOp.Keep;
+                    //        st.BackFace.StencilPassDepthFailOp = EStencilOp.Keep;
+                    //        st.BackFace.BothPassOp = EStencilOp.Replace;
+                    //        st.BackFace.Func = EComparison.Always;
+                    //        st.BackFace.Ref = rand.Next(0, byte.MaxValue);
+                    //        st.BackFace.ReadMask = 0xFF;
+                    //        st.BackFace.WriteMask = 0xFF;
+                    //    }
 
                     actors.Add(sphere);
                 }
             
-            Rotator[] rotations = 
-            {
-                new Rotator(0.0f, 0.0f, 0.0f),
-                new Rotator(90.0f, 0.0f, 0.0f),
-                new Rotator(180.0f, 0.0f, 0.0f),
-                new Rotator(270.0f, 0.0f, 0.0f),
-                new Rotator(90.0f, 90.0f, 0.0f),
-                new Rotator(90.0f, -90.0f, 0.0f),
-            };
-
             //Create walls
-            for (int i = 0; i < 6; ++i)
+            if (createWalls)
             {
-                Rotator r = rotations[i];
-                actor = new BoxActor("Wall" + i,
-                    new Vec3(100.0f, 0.5f, 100.0f), Vec3.TransformPosition(new Vec3(0.0f, -100.0f, 0.0f), r.GetMatrix()),
-                    r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo()
-                    {
-                        UseMotionState = false,
-                        SimulatePhysics = false,
-                        CollisionEnabled = true,
-                        CollidesWith = (ushort)(~TCollisionGroup.StaticWorld & TCollisionGroup.All),
-                        CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
-                        Restitution = 0.5f,
-                        Mass = 50.0f,
-                    });
-                actors.Add(actor);
+                Rotator[] rotations =
+                {
+                    new Rotator(0.0f, 0.0f, 0.0f),
+                    new Rotator(90.0f, 0.0f, 0.0f),
+                    new Rotator(180.0f, 0.0f, 0.0f),
+                    new Rotator(270.0f, 0.0f, 0.0f),
+                    new Rotator(90.0f, 90.0f, 0.0f),
+                    new Rotator(90.0f, -90.0f, 0.0f),
+                };
+
+                for (int i = 0; i < 6; ++i)
+                {
+                    Rotator r = rotations[i];
+                    actor = new BoxActor("Wall" + i,
+                        new Vec3(100.0f, 0.5f, 100.0f), Vec3.TransformPosition(new Vec3(0.0f, -100.0f, 0.0f), r.GetMatrix()),
+                        r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo()
+                        {
+                            UseMotionState = false,
+                            SimulatePhysics = false,
+                            CollisionEnabled = true,
+                            CollidesWith = (ushort)(~TCollisionGroup.StaticWorld & TCollisionGroup.All),
+                            CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+                            Restitution = 0.5f,
+                            Mass = 50.0f,
+                        });
+                    actors.Add(actor);
+                }
             }
             #endregion
 

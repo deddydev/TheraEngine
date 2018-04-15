@@ -9,7 +9,7 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
-    public partial class StaticMeshComponent : TRSComponent, IRigidCollidable, IMeshSocketOwner
+    public partial class StaticMeshComponent : TRSComponent, IRigidBodyCollidable, IMeshSocketOwner
     {
         public StaticMeshComponent() : this(null, null) { }
         public StaticMeshComponent(GlobalFileRef<StaticModel> model) : this(model, null) { }
@@ -187,7 +187,21 @@ namespace TheraEngine.Components.Scene.Mesh
                 m.Visible = false;
             base.OnDespawned();
         }
+        protected internal override void OnHighlightChanged(bool highlighted)
+        {
+            base.OnHighlightChanged(highlighted);
 
+            if (OwningScene == null)
+                return;
+
+            foreach (StaticRenderableMesh m in Meshes)
+            {
+                foreach (var lod in m.LODs)
+                {
+                    Editor.EditorState.RegisterHighlightedMaterial(lod.Manager.Material, highlighted, OwningScene);
+                }
+            }
+        }
         protected internal override void OnSelectedChanged(bool selected)
         {
             base.OnSelectedChanged(selected);
@@ -208,7 +222,7 @@ namespace TheraEngine.Components.Scene.Mesh
                         OwningScene.Remove(m.CullingVolume);
                     }
                 }
-                Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
+                //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
             }
         }
     }

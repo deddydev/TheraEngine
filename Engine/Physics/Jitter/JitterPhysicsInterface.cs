@@ -7,11 +7,11 @@ namespace TheraEngine.Physics.Jitter
     public class JitterPhysicsInterface : AbstractPhysicsInterface
     {
         public override AbstractPhysicsWorld NewScene()  => new JitterPhysicsWorld();
-        public override TRigidBody NewRigidBody(IRigidCollidable owner, TRigidBodyConstructionInfo info)
+        public override TRigidBody NewRigidBody(IRigidBodyCollidable owner, TRigidBodyConstructionInfo info)
         {
             throw new NotImplementedException();
         }
-        public override TSoftBody NewSoftBody(ISoftCollidable owner, TSoftBodyConstructionInfo info)
+        public override TSoftBody NewSoftBody(ISoftBodyCollidable owner, TSoftBodyConstructionInfo info)
         {
             throw new NotImplementedException();
         }

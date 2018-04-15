@@ -636,5 +636,10 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void StencilMask(int value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

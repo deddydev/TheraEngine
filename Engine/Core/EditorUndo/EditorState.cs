@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Editor
@@ -52,7 +53,7 @@ namespace TheraEngine.Editor
         private void OnHighlightedChanged(bool highlighted)
         {
             _highlighted = highlighted;
-            _object.OnHighlightChanged(_selected);
+            _object.OnHighlightChanged(_highlighted);
             HighlightingChanged?.Invoke(highlighted);
         }
 
@@ -225,75 +226,136 @@ namespace TheraEngine.Editor
             });
             IsDirty = true;
         }
-
-        public static void RegisterSelectedMesh(BaseRenderableMesh m, bool selected, Scene3D scene)
+        
+        private static Dictionary<int, StencilTest> 
+            _highlightedMaterials = new Dictionary<int, StencilTest>(), 
+            _selectedMaterials = new Dictionary<int, StencilTest>();
+        internal static void RegisterHighlightedMaterial(TMaterial m, bool highlighted, Scene3D scene)
         {
-            //if (selected)
-            //    m.PreRendered += M_PreRendered;
+            //if (m == null)
+            //    return;
+            //if (highlighted)
+            //{
+            //    if (_highlightedMaterials.ContainsKey(m.UniqueID))
+            //    {
+            //        //m.RenderParams.StencilTest.BackFace.Ref |= 1;
+            //        //m.RenderParams.StencilTest.FrontFace.Ref |= 1;
+            //        return;
+            //    }
+            //    _highlightedMaterials.Add(m.UniqueID, m.RenderParams.StencilTest);
+            //    m.RenderParams.StencilTest = OutlinePassStencil;
+            //}
             //else
-            //    m.PreRendered -= M_PreRendered;
+            //{
+            //    if (!_highlightedMaterials.ContainsKey(m.UniqueID))
+            //    {
+            //        //m.RenderParams.StencilTest.BackFace.Ref &= ~1;
+            //        //m.RenderParams.StencilTest.FrontFace.Ref &= ~1;
+            //        return;
+            //    }
+            //    StencilTest t = _highlightedMaterials[m.UniqueID];
+            //    _highlightedMaterials.Remove(m.UniqueID);
+            //    m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.UniqueID) ? _selectedMaterials[m.UniqueID] : t;
+            //}
         }
 
-        public static StencilTest NormalPassStencil = new StencilTest()
+        public static void RegisterSelectedMesh(TMaterial m, bool selected, Scene3D scene)
         {
-            Enabled = ERenderParamUsage.Enabled,
-            //BothFailOp = EStencilOp.Keep,
-            //StencilPassDepthFailOp = EStencilOp.Keep,
-            //BothPassOp = EStencilOp.Replace,
-            BackFace = new StencilTestFace()
-            {
-                Func = EComparison.Always,
-                Ref = 0,
-                WriteMask = 0,
-                ReadMask = 0,
-            },
-            FrontFace = new StencilTestFace()
-            {
-                Func = EComparison.Always,
-                Ref = 0,
-                WriteMask = 0,
-                ReadMask = 0,
-            },
-        };
+            //if (m == null)
+            //    return;
+            //if (selected)
+            //{
+            //    if (_selectedMaterials.ContainsKey(m.UniqueID))
+            //    {
+            //        //m.RenderParams.StencilTest.BackFace.Ref |= 2;
+            //        //m.RenderParams.StencilTest.FrontFace.Ref |= 2;
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        _selectedMaterials.Add(m.UniqueID, m.RenderParams.StencilTest);
+            //        m.RenderParams.StencilTest = OutlinePassStencil;
+            //        //m.RenderParams.StencilTest.BackFace.Ref |= 2;
+            //        //m.RenderParams.StencilTest.FrontFace.Ref |= 2;
+            //    }
+            //}
+            //else
+            //{
+            //    if (!_selectedMaterials.ContainsKey(m.UniqueID))
+            //    {
+            //        //m.RenderParams.StencilTest.BackFace.Ref &= ~2;
+            //        //m.RenderParams.StencilTest.FrontFace.Ref &= ~2;
+            //        return;
+            //    }
+            //    StencilTest t = _selectedMaterials[m.UniqueID];
+            //    _selectedMaterials.Remove(m.UniqueID);
+            //    m.RenderParams.StencilTest = t;
+            //}
+        }
+
+        //public static StencilTest NormalPassStencil = new StencilTest()
+        //{
+        //    Enabled = ERenderParamUsage.Enabled,
+        //    //BothFailOp = EStencilOp.Keep,
+        //    //StencilPassDepthFailOp = EStencilOp.Keep,
+        //    //BothPassOp = EStencilOp.Replace,
+        //    BackFace = new StencilTestFace()
+        //    {
+        //        Func = EComparison.Always,
+        //        Ref = 0,
+        //        WriteMask = 0,
+        //        ReadMask = 0,
+        //    },
+        //    FrontFace = new StencilTestFace()
+        //    {
+        //        Func = EComparison.Always,
+        //        Ref = 0,
+        //        WriteMask = 0,
+        //        ReadMask = 0,
+        //    },
+        //};
         public static StencilTest OutlinePassStencil = new StencilTest()
         {
             Enabled = ERenderParamUsage.Enabled,
-            //BothFailOp = EStencilOp.Keep,
-            //StencilPassDepthFailOp = EStencilOp.Keep,
-            //BothPassOp = EStencilOp.Replace,
             BackFace = new StencilTestFace()
             {
+                BothFailOp = EStencilOp.Keep,
+                StencilPassDepthFailOp = EStencilOp.Replace,
+                BothPassOp = EStencilOp.Replace,
                 Func = EComparison.Always,
-                Ref = 1,
+                Ref = 2,
                 WriteMask = 0xFF,
                 ReadMask = 0xFF,
             },
             FrontFace = new StencilTestFace()
             {
-                Func = EComparison.Nequal,
+                BothFailOp = EStencilOp.Keep,
+                StencilPassDepthFailOp = EStencilOp.Replace,
+                BothPassOp = EStencilOp.Replace,
+                Func = EComparison.Always,
                 Ref = 1,
-                WriteMask = 0,
+                WriteMask = 0xFF,
                 ReadMask = 0xFF,
             },
         };
-        public static TMaterial FocusedMeshMaterial;
-        private static void M_PreRendered(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, TMaterial material, BaseRenderableMesh.PreRenderCallback callback)
-        {
-            callback.ShouldRender = false;
-            TMaterial m = mesh.CurrentLOD.Manager.GetRenderMaterial(material);
-            StencilTest prev = m.RenderParams.StencilTest;
-            m.RenderParams.StencilTest = NormalPassStencil;
-            mesh.Render(m, false, false);
-            mesh.Render(FocusedMeshMaterial, false, false);
-            m.RenderParams.StencilTest = prev;
-        }
-        static EditorState()
-        {
-            FocusedMeshMaterial = TMaterial.CreateLitColorMaterial(Color.Yellow, true);
-            FocusedMeshMaterial.AddShader(Engine.LoadEngineShader("StencilExplode.gs", EShaderMode.Geometry));
-            FocusedMeshMaterial.RenderParams.StencilTest = OutlinePassStencil;
-            FocusedMeshMaterial.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-        }
+        //public static TMaterial FocusedMeshMaterial;
+        //private static void M_PreRendered(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, TMaterial material, BaseRenderableMesh.PreRenderCallback callback)
+        //{
+        //    callback.ShouldRender = false;
+        //    TMaterial m = mesh.CurrentLOD.Manager.GetRenderMaterial(material);
+        //    StencilTest prev = m.RenderParams.StencilTest;
+        //    m.RenderParams.StencilTest = NormalPassStencil;
+        //    mesh.Render(m, false, false);
+        //    mesh.Render(FocusedMeshMaterial, false, false);
+        //    m.RenderParams.StencilTest = prev;
+        //}
+        //static EditorState()
+        //{
+        //    FocusedMeshMaterial = TMaterial.CreateLitColorMaterial(Color.Yellow, true);
+        //    FocusedMeshMaterial.AddShader(Engine.LoadEngineShader("StencilExplode.gs", EShaderMode.Geometry));
+        //    FocusedMeshMaterial.RenderParams.StencilTest = OutlinePassStencil;
+        //    FocusedMeshMaterial.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
+        //}
     }
     public class EngineEditorState
     {

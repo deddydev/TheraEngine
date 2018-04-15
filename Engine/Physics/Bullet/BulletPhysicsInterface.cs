@@ -11,7 +11,7 @@ namespace TheraEngine.Physics.Bullet
     public class BulletPhysicsInterface : AbstractPhysicsInterface
     {
         public override AbstractPhysicsWorld NewScene()  => new BulletPhysicsWorld();
-        public override TRigidBody NewRigidBody(IRigidCollidable owner, TRigidBodyConstructionInfo info)
+        public override TRigidBody NewRigidBody(IRigidBodyCollidable owner, TRigidBodyConstructionInfo info)
         {
             TBulletMotionState state = null;
 
@@ -55,7 +55,7 @@ namespace TheraEngine.Physics.Bullet
 
             return rigidBody;
         }
-        public override TSoftBody NewSoftBody(ISoftCollidable owner, TSoftBodyConstructionInfo info)
+        public override TSoftBody NewSoftBody(ISoftBodyCollidable owner, TSoftBodyConstructionInfo info)
         {
             SoftBodyWorldInfo bulletInfo = new SoftBodyWorldInfo()
             {

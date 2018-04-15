@@ -48,6 +48,9 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize("SSAO")]
         [Category("Post-Process Settings")]
         public AmbientOcclusionSettings AmbientOcclusion { get; set; }
+        [Category("Post-Process Settings")]
+        [TSerialize]
+        public GlobalFileRef<TMaterial> PostProcessMaterial { get; set; }
 
         internal void SetUniforms(int programBindingId)
         {

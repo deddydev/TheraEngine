@@ -117,7 +117,7 @@ namespace TheraEngine.Components.Logic.Movement
         }
         public override void OnSpawned()
         {
-            if (OwningActor.RootComponent is IRigidCollidable root)
+            if (OwningActor.RootComponent is IRigidBodyCollidable root)
             {
 
             }
@@ -298,7 +298,7 @@ namespace TheraEngine.Components.Logic.Movement
                 return;
 
             //Get root component of the character
-            IRigidCollidable root = OwningActor.RootComponent as IRigidCollidable;
+            IRigidBodyCollidable root = OwningActor.RootComponent as IRigidBodyCollidable;
             TRigidBody chara = root?.RigidBodyCollision;
 
             //If the root has no rigid body, the player can't jump

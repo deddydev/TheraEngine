@@ -23,7 +23,7 @@ namespace TheraEngine.Physics.Bullet
 
         CollisionObject IBulletCollisionObject.CollisionObject => Body;
 
-        public BulletRigidBody(IRigidCollidable owner, RigidBodyConstructionInfo info, TCollisionShape shape) : base(owner, shape)
+        public BulletRigidBody(IRigidBodyCollidable owner, RigidBodyConstructionInfo info, TCollisionShape shape) : base(owner, shape)
         {
             Body = new RigidBody(info);
             Body.Activate();

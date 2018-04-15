@@ -55,7 +55,7 @@ namespace TheraEngine.Components
         /// </summary>
         protected virtual void OnWorldTransformChanged()
         {
-            if (this is IRigidCollidable p && p.RigidBodyCollision != null)
+            if (this is IRigidBodyCollidable p && p.RigidBodyCollision != null)
             {
                 p.RigidBodyCollision.WorldTransform = _worldTransform;
 
@@ -416,7 +416,7 @@ namespace TheraEngine.Components
 
         public override void OnSpawned()
         {
-            if (this is IRigidCollidable p)
+            if (this is IRigidBodyCollidable p)
                 p.RigidBodyCollision?.Spawn();
 
             if (this is IPreRendered r)
@@ -427,7 +427,7 @@ namespace TheraEngine.Components
         }
         public override void OnDespawned()
         {
-            if (this is IRigidCollidable p)
+            if (this is IRigidBodyCollidable p)
                 p.RigidBodyCollision?.Despawn();
 
             if (this is IPreRendered r)

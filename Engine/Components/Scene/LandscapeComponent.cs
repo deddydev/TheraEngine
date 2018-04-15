@@ -208,5 +208,12 @@ namespace TheraEngine.Actors.Types
         public override Shape CullingVolume => null;
         public override void Render() => _mesh?.Render(WorldMatrix, WorldMatrix.GetRotationMatrix3());
         protected override TCollisionShape GetCollisionShape() => _heightFieldShape;
+
+        protected internal override void OnHighlightChanged(bool highlighted)
+        {
+            base.OnHighlightChanged(highlighted);
+
+            Editor.EditorState.RegisterHighlightedMaterial(_mesh.Material, highlighted, OwningScene);
+        }
     }
 }

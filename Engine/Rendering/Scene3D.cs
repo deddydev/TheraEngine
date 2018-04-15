@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Particles;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
@@ -285,8 +286,9 @@ namespace TheraEngine.Rendering
                         //Render to deferred framebuffer.
                         v.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
+                            Engine.Renderer.StencilMask(~0);
+                            Engine.Renderer.ClearStencil(0);
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
-                            //Engine.Renderer.ClearStencil(0x0);
                             //Engine.Renderer.AllowDepthWrite(true);
                             _passes.Render(ERenderPass3D.OpaqueDeferredLit);
                         }
@@ -351,8 +353,16 @@ namespace TheraEngine.Rendering
 
                             v.PingPongBloomBlurFBO.Switch();
                         }
+
+                        //TODO: Apply camera post process material pass here
+                        TMaterial post = c.PostProcessRef.File?.PostProcessMaterial?.File;
+                        if (post != null)
+                        {
+
+                        }
                     }
                     Engine.Renderer.PopRenderArea();
+
 
                     //Render the last pass to the actual screen resolution, 
                     //or the provided target FBO
@@ -380,6 +390,7 @@ namespace TheraEngine.Rendering
                 {
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
                     Engine.Renderer.Clear(EBufferClear.All);
+                    Engine.Renderer.ClearStencil(0);
 
                     Engine.Renderer.AllowDepthWrite(false);
                     _passes.Render(ERenderPass3D.Skybox);

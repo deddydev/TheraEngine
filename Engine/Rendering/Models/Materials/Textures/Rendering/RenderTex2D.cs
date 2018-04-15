@@ -79,20 +79,22 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             if (BaseRenderPanel.NeedsInvoke(PushData, BaseRenderPanel.PanelType.Rendering))
                 return;
 
-            if (!OnPrePushData())
+            OnPrePushData(out bool shouldPush, out bool allowPostPushCallback);
+            if (!shouldPush)
             {
-                Bind();
-                OnPostPushData();
+                //Bind();
+                if (allowPostPushCallback)
+                    OnPostPushData();
                 return;
             }
 
             Bind();
 
-            ESizedInternalFormat sizedInternalFormat = ESizedInternalFormat.Rgba8;
+            ESizedInternalFormat sizedInternalFormat = (ESizedInternalFormat)(int)InternalFormat;
             
             if (_mipmaps == null || _mipmaps.Length == 0)
             {
-                if (!Resizable && !_storageSet)
+                if (/*!Resizable && */!_storageSet)
                 {
                     Engine.Renderer.SetTextureStorage(BindingId, 1, sizedInternalFormat, _width, _height);
                     _storageSet = true;
@@ -102,7 +104,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             }
             else
             {
-                bool setStorage = !Resizable && !_storageSet;
+                bool setStorage = /*!Resizable && */!_storageSet;
                 if (setStorage)
                 {
                     Engine.Renderer.SetTextureStorage(BindingId, _mipmaps.Length, sizedInternalFormat, _mipmaps[0].Width, _mipmaps[0].Height);
@@ -135,21 +137,22 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             }
             _hasPushed = true;
 
-            int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, max);
+            //int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, max);
 
-            OnPostPushData();
+            if (allowPostPushCallback)
+                OnPostPushData();
         }
         public void Resize(int width, int height, int mipLevel = -1)
         {
-            if (!Resizable)
-            {
-                Engine.LogWarning("Tried to resize texture that is immutable (storage size is non-resizable).");
-                return;
-            }
+            //if (!Resizable)
+            //{
+            //    Engine.LogWarning("Tried to resize texture that is immutable (storage size is non-resizable).");
+            //    return;
+            //}
 
             _storageSet = false;
             _hasPushed = false;
@@ -165,7 +168,9 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                     _mipmaps[mipLevel] = _mipmaps[mipLevel].Resized(width, height);
             }
 
-            PushData();
+            Destroy();
+            Generate();
+            //PushData();
         }
         public override void Destroy()
         {

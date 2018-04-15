@@ -18,6 +18,7 @@ namespace TheraEngine.Actors
         bool IsSpawned { get; }
         void Spawned(World world);
         void Despawned();
+        ReadOnlyCollection<SceneComponent> SceneComponentCache { get; }
         void GenerateSceneComponentCache();
         SceneComponent RootComponent { get; }
         EventList<LogicComponent> LogicComponents { get; }

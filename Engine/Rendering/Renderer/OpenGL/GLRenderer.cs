@@ -202,7 +202,7 @@ namespace TheraEngine.Rendering.OpenGL
         public override int[] CreateTextures(ETexTarget target, int count)
         {
             int[] ids = new int[count];
-            GL.CreateTextures((TextureTarget)target, count, ids);
+            GL.GenTextures(count, ids);
             return ids;
         }
         public override int[] CreateQueries(EQueryTarget type, int count)
@@ -357,6 +357,10 @@ namespace TheraEngine.Rendering.OpenGL
         public override void StencilOp(EStencilOp fail, EStencilOp zFail, EStencilOp zPass)
         {
             GL.StencilOp((StencilOp)(int)fail, (StencilOp)(int)zFail, (StencilOp)(int)zPass);
+        }
+        public override void StencilMask(int mask)
+        {
+            GL.StencilMask(mask);
         }
         public override void ApplyRenderParams(RenderingParameters r)
         {

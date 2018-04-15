@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -58,6 +59,9 @@ namespace TheraEditor.Windows.Forms
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
+        private static Dictionary<int, StencilTest>
+            _highlightedMaterials = new Dictionary<int, StencilTest>(),
+            _selectedMaterials = new Dictionary<int, StencilTest>();
         internal bool MouseDown { get; set; }//=> OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
 
         public bool UseTransformTool => _transformType != TransformType.DragDrop;
@@ -104,19 +108,99 @@ namespace TheraEditor.Windows.Forms
 
                 if (HighlightedComponent != null)
                 {
-                    EditorState state = HighlightedComponent.OwningActor.EditorState;
-                    state.Highlighted = false;
+                    //EditorState state = HighlightedComponent.OwningActor.EditorState;
+                    //state.Highlighted = false;
+                    HighlightedComponentChanged(false);
                 }
                 _highlightPoint.HighlightedComponent = value;
                 if (HighlightedComponent != null)
                 {
                     //Engine.DebugPrint(_highlightedComponent.OwningActor.Name);
-                    EditorState state = HighlightedComponent.OwningActor.EditorState;
-                    state.Highlighted = true;
+                    //EditorState state = HighlightedComponent.OwningActor.EditorState;
+                    //state.Highlighted = true;
+                    HighlightedComponentChanged(true);
                 }
             }
         }
-
+        private void HighlightedComponentChanged(bool highlighted)
+        {
+            if (HighlightedComponent is StaticMeshComponent staticMesh)
+            {
+                foreach (StaticRenderableMesh m in staticMesh.Meshes)
+                {
+                    foreach (var lod in m.LODs)
+                    {
+                        UpdateMatHighlight(lod.Manager.Material, highlighted);
+                    }
+                }
+            }
+            else if (HighlightedComponent is SkeletalMeshComponent skeletalMesh)
+            {
+                foreach (SkeletalRenderableMesh m in skeletalMesh.Meshes)
+                {
+                    foreach (var lod in m.LODs)
+                    {
+                        UpdateMatHighlight(lod.Manager.Material, highlighted);
+                    }
+                }
+            }
+            else if (HighlightedComponent is LandscapeComponent landscape)
+            {
+                UpdateMatHighlight(landscape.Material, highlighted);
+            }
+        }
+        private void UpdateMatHighlight(TMaterial m, bool highlighted)
+        {
+            if (m == null)
+                return;
+            if (highlighted)
+            {
+                if (_highlightedMaterials.ContainsKey(m.UniqueID))
+                {
+                    //m.RenderParams.StencilTest.BackFace.Ref |= 1;
+                    //m.RenderParams.StencilTest.FrontFace.Ref |= 1;
+                    return;
+                }
+                _highlightedMaterials.Add(m.UniqueID, m.RenderParams.StencilTest);
+                m.RenderParams.StencilTest = OutlinePassStencil;
+            }
+            else
+            {
+                if (!_highlightedMaterials.ContainsKey(m.UniqueID))
+                {
+                    //m.RenderParams.StencilTest.BackFace.Ref &= ~1;
+                    //m.RenderParams.StencilTest.FrontFace.Ref &= ~1;
+                    return;
+                }
+                StencilTest t = _highlightedMaterials[m.UniqueID];
+                _highlightedMaterials.Remove(m.UniqueID);
+                m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.UniqueID) ? _selectedMaterials[m.UniqueID] : t;
+            }
+        }
+        public static StencilTest OutlinePassStencil = new StencilTest()
+        {
+            Enabled = ERenderParamUsage.Enabled,
+            BackFace = new StencilTestFace()
+            {
+                BothFailOp = EStencilOp.Keep,
+                StencilPassDepthFailOp = EStencilOp.Replace,
+                BothPassOp = EStencilOp.Replace,
+                Func = EComparison.Always,
+                Ref = 2,
+                WriteMask = 0xFF,
+                ReadMask = 0xFF,
+            },
+            FrontFace = new StencilTestFace()
+            {
+                BothFailOp = EStencilOp.Keep,
+                StencilPassDepthFailOp = EStencilOp.Replace,
+                BothPassOp = EStencilOp.Replace,
+                Func = EComparison.Always,
+                Ref = 1,
+                WriteMask = 0xFF,
+                ReadMask = 0xFF,
+            },
+        };
         public UIViewportComponent SubViewport { get; private set; }
         public UITextComponent SubViewportText { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
@@ -352,7 +436,7 @@ namespace TheraEditor.Windows.Forms
             }
             else if (_dragComponent != null)
             {
-                IRigidCollidable p = _dragComponent as IRigidCollidable;
+                IRigidBodyCollidable p = _dragComponent as IRigidBodyCollidable;
                 SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out float dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 if (dist > DraggingTestDistance)
@@ -412,9 +496,9 @@ namespace TheraEditor.Windows.Forms
             MouseDown = true;
             SetSelectedComponent(true, HighlightedComponent);
         }
-        private bool IsSimulatedBody(out IRigidCollidable body)
+        private bool IsSimulatedBody(out IRigidBodyCollidable body)
         {
-            if (_selectedComponent is IRigidCollidable d &&
+            if (_selectedComponent is IRigidBodyCollidable d &&
                 d.RigidBodyCollision != null &&
                 d.RigidBodyCollision.SimulatingPhysics &&
                 !d.RigidBodyCollision.IsKinematic &&
@@ -495,7 +579,7 @@ namespace TheraEditor.Windows.Forms
                         SubViewport.IsVisible = false;
                     }
 
-                    if (_selectedComponent is IRigidCollidable d &&
+                    if (_selectedComponent is IRigidBodyCollidable d &&
                         d.RigidBodyCollision != null &&
                         d.RigidBodyCollision.SimulatingPhysics &&
                         !d.RigidBodyCollision.IsKinematic &&

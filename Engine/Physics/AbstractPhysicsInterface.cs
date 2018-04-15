@@ -8,8 +8,8 @@ namespace TheraEngine.Physics
     {
         public abstract AbstractPhysicsWorld NewScene();
 
-        public abstract TRigidBody NewRigidBody(IRigidCollidable owner, TRigidBodyConstructionInfo info);
-        public abstract TSoftBody NewSoftBody(ISoftCollidable owner, TSoftBodyConstructionInfo info);
+        public abstract TRigidBody NewRigidBody(IRigidBodyCollidable owner, TRigidBodyConstructionInfo info);
+        public abstract TSoftBody NewSoftBody(ISoftBodyCollidable owner, TSoftBodyConstructionInfo info);
 
         #region Shapes
         public abstract TCollisionBox NewBox(Vec3 halfExtents);

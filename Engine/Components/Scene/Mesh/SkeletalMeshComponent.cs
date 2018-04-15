@@ -205,6 +205,18 @@ namespace TheraEngine.Components.Scene.Mesh
             Skeleton.UpdateBones(AbstractRenderer.CurrentCamera, Matrix4.Identity, Matrix4.Identity);
         }
 
+        protected internal override void OnHighlightChanged(bool highlighted)
+        {
+            base.OnHighlightChanged(highlighted);
+
+            foreach (SkeletalRenderableMesh m in Meshes)
+            {
+                foreach (var lod in m.LODs)
+                {
+                    Editor.EditorState.RegisterHighlightedMaterial(lod.Manager.Material, highlighted, OwningScene);
+                }
+            }
+        }
         protected internal override void OnSelectedChanged(bool selected)
         {
             base.OnSelectedChanged(selected);
@@ -225,7 +237,7 @@ namespace TheraEngine.Components.Scene.Mesh
                         OwningScene.Remove(m.CullingVolume);
                     }
                 }
-                Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
+                //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
             }
         }
     }

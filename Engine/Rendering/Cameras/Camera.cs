@@ -38,7 +38,7 @@ namespace TheraEngine.Rendering.Cameras
             : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
         public Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
         {
-            _postProcessSettings = new PostProcessSettings();
+            _postProcessSettingsRef = new PostProcessSettings();
             _transformedFrustum = new Frustum();
             _localRotation = rotation;
             _localPoint = point;
@@ -162,10 +162,10 @@ namespace TheraEngine.Rendering.Cameras
         }
         [DisplayName("Post-Processing")]
         [Category("Camera")]
-        public PostProcessSettings PostProcess
+        public GlobalFileRef<PostProcessSettings> PostProcessRef
         {
-            get => _postProcessSettings;
-            set => _postProcessSettings = value ?? new PostProcessSettings();
+            get => _postProcessSettingsRef;
+            set => _postProcessSettingsRef = value ?? new PostProcessSettings();
         }
 
         [Browsable(false)]
@@ -246,7 +246,7 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize("FarZ")]
         protected float _farZ;
         [TSerialize("PostProcessSettings")]
-        private PostProcessSettings _postProcessSettings;
+        private PostProcessSettings _postProcessSettingsRef;
 
         private void _viewTarget_Changed()
             => SetRotationWithTarget(_viewTarget.Raw);

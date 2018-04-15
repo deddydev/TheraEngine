@@ -11,18 +11,32 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
     public class PrePushDataCallback
     {
         public bool ShouldPush { get; set; } = true;
+        public bool AllowPostPushCallback { get; set; } = true;
+    }
+    public class PreBindCallback
+    {
+        public bool ShouldBind { get; set; } = true;
     }
     public delegate void DelPrePushData(PrePushDataCallback callback);
+    public delegate void DelPreBind(PreBindCallback callback);
     public abstract class BaseRenderTexture : BaseRenderState, IDisposable
     {
+        public event DelPreBind PreBind;
         public event DelPrePushData PrePushData;
         public event Action PostPushData;
 
-        protected bool OnPrePushData()
+        protected bool OnPreBind()
+        {
+            PreBindCallback callback = new PreBindCallback();
+            PreBind?.Invoke(callback);
+            return callback.ShouldBind;
+        }
+        protected void OnPrePushData(out bool shouldPush, out bool allowPostPushCallback)
         {
             PrePushDataCallback callback = new PrePushDataCallback();
             PrePushData?.Invoke(callback);
-            return callback.ShouldPush;
+            shouldPush = callback.ShouldPush;
+            allowPostPushCallback = callback.AllowPostPushCallback;
         }
         protected void OnPostPushData() => PostPushData?.Invoke();
 
@@ -38,8 +52,11 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public static T[] GenTextures<T>(int count) where T : BaseRenderTexture
             => Engine.Renderer.CreateObjects<T>(EObjectType.Texture, count);
 
-        public void Bind()
-            => Engine.Renderer.BindTexture(TextureTarget, BindingId);
+        public virtual void Bind()
+        {
+            if (OnPreBind())
+                Engine.Renderer.BindTexture(TextureTarget, BindingId);
+        }
         public void Clear(ColorF4 clearColor, int level = 0)
             => Engine.Renderer.ClearTexImage(BindingId, level, clearColor);
 

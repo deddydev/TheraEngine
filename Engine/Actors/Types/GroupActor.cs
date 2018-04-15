@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
@@ -85,6 +86,8 @@ namespace TheraEngine.Actors.Types
                 }
             }
         }
+
+        public ReadOnlyCollection<SceneComponent> SceneComponentCache => throw new NotImplementedException();
 
         public void RebaseOrigin(Vec3 newOrigin)
         {

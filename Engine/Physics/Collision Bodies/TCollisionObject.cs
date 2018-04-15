@@ -24,11 +24,11 @@ namespace TheraEngine.Physics
     {
         Matrix4 WorldMatrix { get; set; }
     }
-    public interface IRigidCollidable : ICollidable
+    public interface IRigidBodyCollidable : ICollidable
     {
         TRigidBody RigidBodyCollision { get; }
     }
-    public interface ISoftCollidable : ICollidable
+    public interface ISoftBodyCollidable : ICollidable
     {
         TSoftBody SoftBodyCollision { get; }
     }

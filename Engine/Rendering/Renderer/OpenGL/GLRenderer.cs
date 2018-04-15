@@ -364,7 +364,7 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void ApplyRenderParams(RenderingParameters r)
         {
-            Engine.Renderer.ColorMask(r.WriteRGBA.X, r.WriteRGBA.Y, r.WriteRGBA.Z, r.WriteRGBA.W);
+            Engine.Renderer.ColorMask(r.WriteRed, r.WriteGreen, r.WriteBlue, r.WriteAlpha);
             Engine.Renderer.Cull(r.CullMode);
 
             if (r.DepthTest.Enabled == ERenderParamUsage.Enabled)

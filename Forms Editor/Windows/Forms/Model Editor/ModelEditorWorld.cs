@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms
             comp.Rotation.Pitch = -45.0f;
             SpawnActor(light);
 
-            Vec3 max = 5000.0f;
+            Vec3 max = 1000.0f;
             Vec3 min = -max;
             TextureFile2D skyTex = Engine.LoadEngineTexture2D("skybox.png");
             StaticModel skybox = new StaticModel("Skybox");

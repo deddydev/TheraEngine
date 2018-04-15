@@ -289,21 +289,18 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.StencilMask(~0);
                             Engine.Renderer.ClearStencil(0);
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
-                            //Engine.Renderer.AllowDepthWrite(true);
                             _passes.Render(ERenderPass3D.OpaqueDeferredLit);
                         }
                         v.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         v.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
-                            //Engine.Renderer.AllowDepthWrite(false);
                             v.SSAOFBO.RenderFullscreen();
                         }
                         v.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         v.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
-                            //Engine.Renderer.AllowDepthWrite(false);
                             v.SSAOBlurFBO.RenderFullscreen();
                         }
                         v.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -311,17 +308,9 @@ namespace TheraEngine.Rendering
                         //Now render to final post process framebuffer.
                         v.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
-                            //No need to clear anything, 
-                            //color will be fully overwritten by the previous pass, 
-                            //and we need depth from the previous pass
-                            //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                            //Engine.Renderer.AllowDepthWrite(false);
-
                             //Render the deferred pass result
                             v.GBufferFBO.RenderFullscreen();
-
-                            //Engine.Renderer.AllowDepthWrite(true);
-
+                            
                             //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
                             //RenderTree.DebugRender(c?.Frustum, true);
 
@@ -341,13 +330,11 @@ namespace TheraEngine.Rendering
 
                         v.PingPongBloomBlurFBO.Reset();
                         v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-                        //Engine.Renderer.AllowDepthWrite(false);
                         v.ForwardPassFBO.RenderFullscreen();
                         Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
                         for (int i = 0; i < 10; ++i)
                         {
                             v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-                            //Engine.Renderer.AllowDepthWrite(false);
                             v.PingPongBloomBlurFBO.RenderFullscreen();
                             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
 
@@ -363,17 +350,12 @@ namespace TheraEngine.Rendering
                     }
                     Engine.Renderer.PopRenderArea();
 
-
                     //Render the last pass to the actual screen resolution, 
                     //or the provided target FBO
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
                         Engine.Renderer.PushRenderArea(v.Region);
                         {
-                            //Engine.Renderer.AllowDepthWrite(false);
-                            //Engine.Renderer.DepthFunc(EComparison.Lequal);
-                            //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-
                             v.PostProcessFBO.RenderFullscreen();
 
                             if (v.HUD?.UIScene != null)
@@ -389,8 +371,9 @@ namespace TheraEngine.Rendering
                 else
                 {
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
-                    Engine.Renderer.Clear(EBufferClear.All);
+                    Engine.Renderer.StencilMask(~0);
                     Engine.Renderer.ClearStencil(0);
+                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
 
                     Engine.Renderer.AllowDepthWrite(false);
                     _passes.Render(ERenderPass3D.Skybox);

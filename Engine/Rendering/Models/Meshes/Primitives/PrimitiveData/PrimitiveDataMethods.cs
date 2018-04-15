@@ -93,7 +93,8 @@ namespace TheraEngine.Rendering.Models
                 float m = deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X;
                 if (m == 0.0f)
                 {
-                    throw new Exception();
+                    tangent = Vec3.Up;
+                    binormal = Vec3.Up;
                 }
                 else
                 {

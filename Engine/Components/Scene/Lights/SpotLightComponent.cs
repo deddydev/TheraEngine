@@ -283,15 +283,13 @@ namespace TheraEngine.Components.Scene.Lights
         }
         private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
         {
+            TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("SpotDepth", width, height,
+                GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
+                EFramebufferAttachment.DepthAttachment);
+            depthTex.MinFilter = ETexMinFilter.Nearest;
+            depthTex.MagFilter = ETexMagFilter.Nearest;
             //These are listed in order of appearance in the shader
-            TexRef2D[] refs = new TexRef2D[]
-            {
-                TexRef2D.CreateFrameBufferTexture(
-                    "SpotDepth", width, height,
-                    GetFormat(precision),
-                    EPixelFormat.DepthComponent, EPixelType.Float,
-                    EFramebufferAttachment.DepthAttachment),
-            };
+            TexRef2D[] refs = new TexRef2D[] { depthTex };
             ShaderFile shader = new ShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("SpotLightShadowMat", new ShaderVar[0], refs, shader);
             mat.RenderParams.CullMode = Culling.None;

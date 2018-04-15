@@ -215,7 +215,10 @@ namespace TheraEngine.Actors.Types
             sphereMat.RenderParams.DepthTest.UpdateDepth = true;
             sphereMat.RenderParams.DepthTest.Function = EComparison.Lequal;
             sphereMat.RenderParams.LineWidth = 2.0f;
-            sphereMat.RenderParams.WriteRGBA = new BoolVec4(false, false, false, false);
+            sphereMat.RenderParams.WriteRed = false;
+            sphereMat.RenderParams.WriteGreen = false;
+            sphereMat.RenderParams.WriteBlue = false;
+            sphereMat.RenderParams.WriteAlpha = false;
 
             PrimitiveData spherePrim = Sphere.SolidMesh(Vec3.Zero, _orbRadius, 10, 10);
             spherePrim.SingleBindBone = rootBoneName;

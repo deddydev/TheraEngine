@@ -148,8 +148,6 @@
     <Compile Include="EditorWindow.xaml.cs">
       <DependentUpon>EditorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Project.cs" />
-    <Compile Include="ProjectState.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -236,7 +234,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PropertyGridEditors\" />
-    <Folder Include="Rendering\Models\Materials\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\PostSharp.4.3.21\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" />

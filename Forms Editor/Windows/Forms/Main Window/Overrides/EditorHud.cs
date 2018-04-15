@@ -130,7 +130,9 @@ namespace TheraEditor.Windows.Forms
                 {
                     foreach (var lod in m.LODs)
                     {
-                        UpdateMatHighlight(lod.Manager.Material, highlighted);
+                        var tris = lod.Manager.Data.Triangles;
+                        if (tris != null && tris.Count > 0)
+                            UpdateMatHighlight(lod.Manager.Material, highlighted);
                     }
                 }
             }
@@ -140,7 +142,9 @@ namespace TheraEditor.Windows.Forms
                 {
                     foreach (var lod in m.LODs)
                     {
-                        UpdateMatHighlight(lod.Manager.Material, highlighted);
+                        var tris = lod.Manager.Data.Triangles;
+                        if (tris != null && tris.Count > 0)
+                            UpdateMatHighlight(lod.Manager.Material, highlighted);
                     }
                 }
             }

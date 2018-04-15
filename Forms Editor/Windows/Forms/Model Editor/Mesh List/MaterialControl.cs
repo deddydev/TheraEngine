@@ -187,10 +187,10 @@ namespace TheraEditor.Windows.Forms
                         _material.TessCtrlShaders.Count > 0);
                     lblStencil.Text = "Stencil:" + _material.RenderParams.StencilTest.ToString();
                     lblColorMask.Text = "Color Mask:" + string.Format("R:{0} G:{1} B:{2} A:{3}",
-                        _material.RenderParams.WriteRGBA.X,
-                        _material.RenderParams.WriteRGBA.Y,
-                        _material.RenderParams.WriteRGBA.Z,
-                        _material.RenderParams.WriteRGBA.W);
+                        _material.RenderParams.WriteRed,
+                        _material.RenderParams.WriteGreen,
+                        _material.RenderParams.WriteBlue,
+                        _material.RenderParams.WriteAlpha);
 
                     foreach (ShaderVar shaderVar in _material.Parameters)
                     {
@@ -201,13 +201,13 @@ namespace TheraEditor.Windows.Forms
                             typeof(PropGridText),
                             varType.GetProperty(nameof(ShaderVar.Name)), 
                             shaderVar, this);
-                        textCtrl.Dock = DockStyle.Top;
+                        textCtrl.ValueChanged += UniformChanged;
 
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
                             TheraPropertyGrid.GetControlTypes(valType)[0],
                             varType.GetProperty("Value"), 
                             shaderVar, this);
-                        valueCtrl.Dock = DockStyle.Top;
+                        valueCtrl.ValueChanged += UniformChanged;
 
                         tblUniforms.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                         tblUniforms.RowCount = tblUniforms.RowStyles.Count;
@@ -224,6 +224,11 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
+        private void UniformChanged()
+        {
+            basicRenderPanel1.Invalidate();
+        }
+
         public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
         {
             //btnSave.Visible = true;
@@ -233,7 +238,6 @@ namespace TheraEditor.Windows.Forms
         private void lblMatName_Click(object sender, EventArgs e)
         {
             panel2.Visible = !panel2.Visible;
-            
         }
 
         private void lblMatName_MouseEnter(object sender, EventArgs e)
@@ -249,6 +253,7 @@ namespace TheraEditor.Windows.Forms
         private void txtMatName_TextChanged(object sender, EventArgs e)
         {
             _material.Name = txtMatName.Text;
+            lblMatName.Text = _material.Name;
         }
 
         public void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)

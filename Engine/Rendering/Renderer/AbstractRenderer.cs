@@ -572,7 +572,7 @@ namespace TheraEngine.Rendering
         //TODO: cache GetUniformLocation results and don't call again.
         //Only call GetUniformLocation after a program is compiled
         //or after a shader variable name changes 
-
+        
         public void Uniform(int programBindingId, string name, params IUniformable4Int[] p)
             => Uniform(programBindingId, GetUniformLocation(programBindingId, name), p);
         public void Uniform(int programBindingId, string name, params IUniformable4Float[] p)

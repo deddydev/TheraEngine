@@ -19,6 +19,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public PropGridItem() => InitializeComponent();
 
+        public event Action DoneEditing;
+        public event Action ValueChanged;
+
         //[EditorBrowsable(EditorBrowsableState.Never)]
         //[Browsable(false)]
         //public TheraPropertyGrid PropertyGrid { get; internal set; }
@@ -114,6 +117,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
                 //    oldValue, newValue, PropertyOwner, Property);
             }
+            DoneEditing?.Invoke();
         }
 
         public object GetValue()
@@ -137,7 +141,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return ex;
             }
         }
-
+        public void OnValueChanged() => ValueChanged?.Invoke();
         public void UpdateValue(object newValue, bool submitStateChange)
         {
             if (_updating)
@@ -185,6 +189,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             //else
             //    throw new InvalidOperationException();
+            ValueChanged?.Invoke();
         }
 
         /// <summary>
@@ -208,6 +213,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (_newValue != _oldValue)
             {
                 DataChangeHandler.PropertyObjectChanged(_oldValue, _newValue, classObject, info);
+                DoneEditing?.Invoke();
                 //PropertyGrid.btnSave.Visible = true;
                 //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
                 //    _oldValue, _newValue, classObject, info);

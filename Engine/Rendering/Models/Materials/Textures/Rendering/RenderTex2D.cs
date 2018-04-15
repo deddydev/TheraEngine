@@ -82,7 +82,6 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             OnPrePushData(out bool shouldPush, out bool allowPostPushCallback);
             if (!shouldPush)
             {
-                //Bind();
                 if (allowPostPushCallback)
                     OnPostPushData();
                 return;
@@ -137,11 +136,11 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             }
             _hasPushed = true;
 
-            //int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
-            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
-            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
-            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);
-            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, max);
+            int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
+            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
+            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
+            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);
+            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, max);
 
             if (allowPostPushCallback)
                 OnPostPushData();

@@ -6,6 +6,8 @@ uniform sampler2D Texture0;
 void main()
 {
     vec2 uv = FragPos.xy;
+    if (uv.x > 1.0f || uv.y > 1.0f)
+        discard;
     vec2 texelSize = 1.0f / vec2(textureSize(Texture0, 0));
     float result = 0.0f;
     for (int x = -2; x < 2; ++x) 

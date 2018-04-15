@@ -126,9 +126,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba;
         [TSerialize]
-        public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Linear;
+        public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Nearest;
         [TSerialize]
-        public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.Linear;
+        public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.Nearest;
         [TSerialize]
         public ETexWrapMode UWrap { get; set; } = ETexWrapMode.Repeat;
         [TSerialize]
@@ -148,7 +148,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             if (DepthStencilFormat != EDepthStencilFmt.None)
             {
-                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ? 
+                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
                     (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
                     (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
                 int id = _texture.BindingId;
@@ -359,8 +359,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
-                MinFilter = ETexMinFilter.Linear,
-                MagFilter = ETexMagFilter.Linear,
+                //MinFilter = ETexMinFilter.Linear,
+                //MagFilter = ETexMagFilter.Linear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 FrameBufferAttachment = bufAttach,
@@ -371,8 +371,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
-                MinFilter = ETexMinFilter.Linear,
-                MagFilter = ETexMagFilter.Linear,
+                //MinFilter = ETexMinFilter.Linear,
+                //MagFilter = ETexMagFilter.Linear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
             };

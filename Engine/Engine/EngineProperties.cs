@@ -90,6 +90,8 @@ namespace TheraEngine
         public static List<AIController> ActiveAI
             = new List<AIController>();
 
+        public static Lazy<EngineSettings> DefaultEngineSettings { get; set; } = new Lazy<EngineSettings>(() => new EngineSettings());
+
         /// <summary>
         /// The scene containing actors of the world the engine is currently hosting.
         /// </summary>
@@ -101,7 +103,7 @@ namespace TheraEngine
         /// <summary>
         /// The settings for the engine, specified by the game.
         /// </summary>
-        public static EngineSettings Settings => Game?.EngineSettingsRef;
+        public static EngineSettings Settings => Game?.EngineSettingsRef?.File ?? DefaultEngineSettings.Value;
         /// <summary>
         /// The settings for the engine, specified by the user.
         /// </summary>

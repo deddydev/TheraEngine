@@ -45,17 +45,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void numericInputBoxPitch_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
             if (_rotator != null && !_updating)
+            {
                 _rotator.Pitch = current.Value;
+                OnValueChanged();
+            }
         }
         private void numericInputBoxYaw_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
             if (_rotator != null && !_updating)
+            {
                 _rotator.Yaw = current.Value;
+                OnValueChanged();
+            }
         }
         private void numericInputBoxRoll_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
             if (_rotator != null && !_updating)
+            {
                 _rotator.Roll = current.Value;
+                OnValueChanged();
+            }
         }
         private void cboOrder_SelectedIndexChanged(object sender, EventArgs e)
         {

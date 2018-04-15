@@ -85,11 +85,11 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize]
         [Category("Ambient Occlusion Settings")]
         public float Power { get; set; } = 4.0f;
-
+        
         internal void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform(programBindingId, "SSAORadius", Radius);
-            Engine.Renderer.Uniform(programBindingId, "SSAOPower", Power);
+            Engine.Renderer.Uniform(programBindingId, "Radius", Radius);
+            Engine.Renderer.Uniform(programBindingId, "Power", Power);
         }
     }
     public class VignetteSettings : PostSettings

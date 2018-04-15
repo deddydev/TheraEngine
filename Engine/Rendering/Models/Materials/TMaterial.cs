@@ -231,13 +231,12 @@ namespace TheraEngine.Rendering.Models.Materials
                 programBindingId = Program.BindingId;
 
             //Set engine uniforms
-            if (Requirements == UniformRequirements.NeedsLightsAndCamera)
+            if (Requirements != UniformRequirements.None)
             {
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
-                AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
+                if (Requirements == UniformRequirements.NeedsLightsAndCamera)
+                    AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
             }
-            else if (Requirements == UniformRequirements.NeedsCamera)
-                AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
 
             //Apply special rendering parameters
             if (RenderParams != null)

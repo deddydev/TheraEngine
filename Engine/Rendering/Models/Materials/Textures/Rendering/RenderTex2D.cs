@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             
             if (_mipmaps == null || _mipmaps.Length == 0)
             {
-                if (/*!Resizable && */!_storageSet)
+                if (!Resizable && !_storageSet)
                 {
                     Engine.Renderer.SetTextureStorage(BindingId, 1, sizedInternalFormat, _width, _height);
                     _storageSet = true;
@@ -103,7 +103,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             }
             else
             {
-                bool setStorage = /*!Resizable && */!_storageSet;
+                bool setStorage = !Resizable && !_storageSet;
                 if (setStorage)
                 {
                     Engine.Renderer.SetTextureStorage(BindingId, _mipmaps.Length, sizedInternalFormat, _mipmaps[0].Width, _mipmaps[0].Height);
@@ -129,10 +129,10 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                             Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
                     }
 
-                if (_mipmaps.Length == 1)
-                {
-                    Engine.Renderer.GenerateMipmap(TextureTarget);
-                }
+                //if (_mipmaps.Length == 1)
+                //{
+                //    Engine.Renderer.GenerateMipmap(TextureTarget);
+                //}
             }
             _hasPushed = true;
 
@@ -147,11 +147,11 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         }
         public void Resize(int width, int height, int mipLevel = -1)
         {
-            //if (!Resizable)
-            //{
-            //    Engine.LogWarning("Tried to resize texture that is immutable (storage size is non-resizable).");
-            //    return;
-            //}
+            if (!Resizable)
+            {
+                Engine.LogWarning("Tried to resize texture that is immutable (storage size is non-resizable).");
+                return;
+            }
 
             _storageSet = false;
             _hasPushed = false;
@@ -167,9 +167,9 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                     _mipmaps[mipLevel] = _mipmaps[mipLevel].Resized(width, height);
             }
 
-            Destroy();
-            Generate();
-            //PushData();
+            //Destroy();
+            //Generate();
+            PushData();
         }
         public override void Destroy()
         {

@@ -166,7 +166,6 @@ namespace TheraEngine.Rendering
 
             _owningPanel = panel;
             _index = index;
-            _ssaoInfo.Generate();
             Resize(panel.Width, panel.Height);
             InitFBOs();
         }
@@ -174,7 +173,6 @@ namespace TheraEngine.Rendering
         {
             _index = 0;
             SetFullScreen();
-            _ssaoInfo.Generate();
             Resize(width, height);
             InitFBOs();
         }
@@ -587,16 +585,15 @@ namespace TheraEngine.Rendering
                 Vec3 sample;
                 Vec2 noise;
 
-                for (int i = 0; i < _kernel.Length; ++i)
+                for (int i = 0; i < samples; ++i)
                 {
                     sample = new Vec3(
                         (float)r.NextDouble() * 2.0f - 1.0f,
                         (float)r.NextDouble() * 2.0f - 1.0f,
-                        (float)r.NextDouble());
-                    sample.Normalize();
+                        (float)r.NextDouble()).Normalized();
                     scale = i / (float)samples;
-                    scale = Interp.Lerp(minSampleDist, maxSampleDist, scale * scale);
-                    _kernel[i] = sample * scale;
+                    sample *= Interp.Lerp(minSampleDist, maxSampleDist, scale * scale);
+                    _kernel[i] = sample;
                 }
 
                 for (int i = 0; i < _noise.Length; ++i)
@@ -624,10 +621,16 @@ namespace TheraEngine.Rendering
         //private TexRef2D[] _fboTextures;
         internal unsafe void InitFBOs()
         {
+            //ForwardPassFBO?.Destroy();
+            //GBufferFBO?.Destroy();
+            //PingPongBloomBlurFBO?.Destroy();
+            //PostProcessFBO?.Destroy();
+            //SSAOBlurFBO?.Destroy();
+            //SSAOFBO?.Destroy();
+
             int width = InternalResolution.IntWidth;
             int height = InternalResolution.IntHeight;
-            int i = 0;
-            const string ShaderPath = "Scene3D";
+            const string SceneShaderPath = "Scene3D";
 
             RenderingParameters renderParams = new RenderingParameters();
             renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
@@ -637,55 +640,55 @@ namespace TheraEngine.Rendering
             _depthStencilTexture = TexRef2D.CreateFrameBufferTexture("DepthStencil", width, height,
                 EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248,
                 EFramebufferAttachment.DepthStencilAttachment);
-            _depthStencilTexture.Resizeable = true;
-            _depthStencilTexture.MinFilter = ETexMinFilter.Nearest;
-            _depthStencilTexture.MagFilter = ETexMagFilter.Nearest;
+            _depthStencilTexture.Resizeable = false;
+            _depthStencilTexture.MinFilter = ETexMinFilter.Linear;
+            _depthStencilTexture.MagFilter = ETexMagFilter.Linear;
 
             TexRefView2D depthViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
-                Resizeable = true,
+                Resizeable = false,
                 DepthStencilFormat = EDepthStencilFmt.Depth,
-                MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest
+                MinFilter = ETexMinFilter.Linear,
+                MagFilter = ETexMagFilter.Linear,
+                UWrap = ETexWrapMode.ClampToEdge,
+                VWrap = ETexWrapMode.ClampToEdge,
             };
 
             TexRefView2D stencilViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
-                Resizeable = true,
+                Resizeable = false,
                 DepthStencilFormat = EDepthStencilFmt.Stencil,
                 MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest
+                MagFilter = ETexMagFilter.Nearest,
+                UWrap = ETexWrapMode.ClampToEdge,
+                VWrap = ETexWrapMode.ClampToEdge,
             };
 
             //If forward, we can render directly to the post process FBO.
             //If deferred, we have to render to a quad first, then render that to post process
             if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
             {
-                //_fboTextures = new TexRef2D[9];
-
                 #region SSAO Noise
+                _ssaoInfo.Generate();
                 TexRef2D ssaoNoise = new TexRef2D("SSAONoise",
                     _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
-                    EPixelInternalFormat.Rg16, EPixelFormat.Rg, EPixelType.UnsignedShort,
-                    PixelFormat.Format32bppRgb)
+                    EPixelInternalFormat.Rg32f, EPixelFormat.Rg, EPixelType.Float,
+                    PixelFormat.Format64bppArgb)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
                     UWrap = ETexWrapMode.Repeat,
                     VWrap = ETexWrapMode.Repeat,
-                    Resizeable = false,
+                    Resizeable = true,
                 };
                 Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
                 BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
-                ushort* values = (ushort*)data.Scan0;
+                Vec2* values = (Vec2*)data.Scan0;
                 Vec2[] noise = _ssaoInfo.Noise;
                 foreach (Vec2 v in noise)
-                {
-                    *values++ = (ushort)(v.X * ushort.MaxValue);
-                    *values++ = (ushort)(v.Y * ushort.MaxValue);
-                }
+                    *values++ = v;
                 bmp.UnlockBits(data);
                 #endregion
 
@@ -698,15 +701,10 @@ namespace TheraEngine.Rendering
                 TexRef2D ssaoTexture = TexRef2D.CreateFrameBufferTexture("OutputIntensity", width, height,
                     EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0);
-
-                //_fboTextures[i++] = albedoOpacityTexture;
-                //_fboTextures[i++] = normalTexture;
-                //_fboTextures[i++] = rmsiTexture;
-                //_fboTextures[i++] = ssaoTexture;
-
-                ShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "SSAOGen.fs"), EShaderMode.Fragment);
-                ShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "SSAOBlur.fs"), EShaderMode.Fragment);
-                ShaderFile deferredShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "DeferredLighting.fs"), EShaderMode.Fragment);
+                
+                ShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EShaderMode.Fragment);
+                ShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EShaderMode.Fragment);
+                ShaderFile deferredShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLighting.fs"), EShaderMode.Fragment);
                 
                 TexRef2D[] ssaoRefs = new TexRef2D[]
                 {
@@ -740,16 +738,12 @@ namespace TheraEngine.Rendering
                     (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0));
 
                 SSAOBlurFBO = new QuadFrameBuffer(ssaoBlurMat);
-                SSAOBlurFBO.SetRenderTargets((ssaoTexture, EFramebufferAttachment.ColorAttachment0, 0));
+                //SSAOBlurFBO.SetRenderTargets((ssaoTexture, EFramebufferAttachment.ColorAttachment0, 0));
 
                 GBufferFBO = new QuadFrameBuffer(deferredMat);
                 GBufferFBO.SettingUniforms += GBuffer_SetUniforms;
-                GBufferFBO.SetRenderTargets((ssaoTexture, EFramebufferAttachment.ColorAttachment0, 0));
+                //GBufferFBO.SetRenderTargets((ssaoTexture, EFramebufferAttachment.ColorAttachment0, 0));
             }
-            //else
-            //{
-            //    _fboTextures = new TexRef2D[5];
-            //}
 
             TexRef2D blurResult = TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
                 EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte,
@@ -758,16 +752,10 @@ namespace TheraEngine.Rendering
             TexRef2D hdrSceneTex = TexRef2D.CreateFrameBufferTexture("HDRSceneColor", width, height,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
                 EFramebufferAttachment.ColorAttachment0);
-
-            //_fboTextures[i++] = hdrSceneTex;
-            //_fboTextures[i++] = blurResult;
-            //_fboTextures[i++] = _depthStencilTexture;
-            //_fboTextures[i++] = depthViewTexture;
-            //_fboTextures[i++] = stencilViewTexture;
-
-            ShaderFile forwardShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "ForwardPass.fs"), EShaderMode.Fragment);
-            ShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
-            ShaderFile postProcessShader = Engine.LoadEngineShader(Path.Combine(ShaderPath, "PostProcess.fs"), EShaderMode.Fragment);
+            
+            ShaderFile forwardShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "ForwardPass.fs"), EShaderMode.Fragment);
+            ShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
+            ShaderFile postProcessShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "PostProcess.fs"), EShaderMode.Fragment);
 
             TexRef2D[] forwardRefs = new TexRef2D[]
             {
@@ -794,7 +782,9 @@ namespace TheraEngine.Rendering
             ForwardPassFBO.SetRenderTargets(
                 (hdrSceneTex, EFramebufferAttachment.ColorAttachment0, 0),
                 (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0));
+
             PingPongBloomBlurFBO = new PingPongFrameBuffer(bloomBlurMat, bloomBlurMat, null);
+
             PostProcessFBO = new QuadFrameBuffer(postProcessMat);
             PostProcessFBO.SettingUniforms += _postProcessGBuffer_SettingUniforms;
         }
@@ -807,7 +797,8 @@ namespace TheraEngine.Rendering
         
         private void SSAO_SetUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+            Engine.Renderer.Uniform(programBindingId, "NoiseScale", InternalResolution.Extents / 4.0f);
+            Engine.Renderer.Uniform(programBindingId, "Samples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
             _worldCamera.SetUniforms(programBindingId);
             _worldCamera.PostProcessRef.File.AmbientOcclusion.SetUniforms(programBindingId);
         }

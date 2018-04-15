@@ -13,8 +13,8 @@ namespace TheraEngine.Rendering.UI
             {
                 MagFilter = ETexMagFilter.Linear,
                 MinFilter = ETexMinFilter.LinearMipmapLinear,
-                UWrap = ETexWrapMode.Clamp,
-                VWrap = ETexWrapMode.Clamp,
+                UWrap = ETexWrapMode.ClampToEdge,
+                VWrap = ETexWrapMode.ClampToEdge,
             },
             new RenderingParameters(true, null)), true)
         {

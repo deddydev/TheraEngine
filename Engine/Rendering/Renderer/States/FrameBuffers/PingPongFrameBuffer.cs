@@ -107,5 +107,11 @@ namespace TheraEngine.Rendering
             _fbos[0].ResizeTextures(w, h);
             _fbos[1].ResizeTextures(w, h);
         }
+
+        public void Destroy()
+        {
+            _fbos[0].Destroy();
+            _fbos[1].Destroy();
+        }
     }
 }

@@ -146,14 +146,14 @@ namespace TheraEngine.Rendering.Models.Materials
 
             _texture.Bind();
 
-            if (DepthStencilFormat != EDepthStencilFmt.None)
-            {
-                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
-                    (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
-                    (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
-                int id = _texture.BindingId;
-                OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
-            }
+            //if (DepthStencilFormat != EDepthStencilFmt.None)
+            //{
+            //    int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
+            //        (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
+            //        (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
+            //    int id = _texture.BindingId;
+            //    OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
+            //}
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, LodBias);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)MagFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)MinFilter);
@@ -207,8 +207,8 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public void Resize(int width, int height, bool resizeRenderTexture = true)
         {
-            if (!Resizeable)
-                return;
+            //if (!Resizeable)
+            //    return;
 
             _width = width;
             _height = height;
@@ -238,7 +238,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public void ResizeRenderTexture(int width, int height)
         {
-            if (Resizeable)
+            //if (Resizeable)
                 _texture?.Resize(width, height);
         }
 
@@ -250,42 +250,42 @@ namespace TheraEngine.Rendering.Models.Materials
         public void LoadMipmaps()
         {
             _isLoading = true;
-            if (_mipmaps != null)
-            {
-                if (_mipmaps.Length > 0)
-                {
-                    var tref = _mipmaps[0];
-                    var t = tref.File;
-                    if (t != null && t.Bitmaps.Length > 0)
-                    {
-                        var b = t.Bitmaps[0];
-                        if (b != null)
-                        {
-                            switch (b.PixelFormat)
-                            {
-                                case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
-                                case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
-                                    InternalFormat = EPixelInternalFormat.Rgba8;
-                                    PixelFormat = EPixelFormat.Bgra;
-                                    PixelType = EPixelType.UnsignedByte;
-                                    break;
-                                case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
-                                    InternalFormat = EPixelInternalFormat.Rgb8;
-                                    PixelFormat = EPixelFormat.Bgr;
-                                    PixelType = EPixelType.UnsignedByte;
-                                    break;
-                                case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
-                                case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
-                                    InternalFormat = EPixelInternalFormat.Rgba16;
-                                    PixelFormat = EPixelFormat.Bgra;
-                                    PixelType = EPixelType.UnsignedShort;
-                                    break;
-                            }
-                        }
-                    }
+            //if (_mipmaps != null)
+            //{
+            //    if (_mipmaps.Length > 0)
+            //    {
+            //        var tref = _mipmaps[0];
+            //        var t = tref.File;
+            //        if (t != null && t.Bitmaps.Length > 0)
+            //        {
+            //            var b = t.Bitmaps[0];
+            //            if (b != null)
+            //            {
+            //                switch (b.PixelFormat)
+            //                {
+            //                    case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+            //                    case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
+            //                        InternalFormat = EPixelInternalFormat.Rgba8;
+            //                        PixelFormat = EPixelFormat.Bgra;
+            //                        PixelType = EPixelType.UnsignedByte;
+            //                        break;
+            //                    case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+            //                        InternalFormat = EPixelInternalFormat.Rgb8;
+            //                        PixelFormat = EPixelFormat.Bgr;
+            //                        PixelType = EPixelType.UnsignedByte;
+            //                        break;
+            //                    case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
+            //                    case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
+            //                        InternalFormat = EPixelInternalFormat.Rgba16;
+            //                        PixelFormat = EPixelFormat.Bgra;
+            //                        PixelType = EPixelType.UnsignedShort;
+            //                        break;
+            //                }
+            //            }
+            //        }
 
-                }
-            }
+            //    }
+            //}
             CreateRenderTexture();
             _isLoading = false;
         }
@@ -337,17 +337,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 AttachToFBO(FrameBufferAttachment.Value, mipLevel);
         }
         public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
-        {
-            //if (attachment == EFramebufferAttachment.DepthStencilAttachment)
-            //{
-            //    Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.DepthAttachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
-            //    Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.StencilAttachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
-            //}
-            //else
-            //{
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
-            //}
-        }
+            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
         internal override void DetachFromFBO(int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
@@ -359,8 +349,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
-                //MinFilter = ETexMinFilter.Linear,
-                //MagFilter = ETexMagFilter.Linear,
+                MinFilter = ETexMinFilter.Linear,
+                MagFilter = ETexMagFilter.Linear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 FrameBufferAttachment = bufAttach,
@@ -371,8 +361,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
-                //MinFilter = ETexMinFilter.Linear,
-                //MagFilter = ETexMagFilter.Linear,
+                MinFilter = ETexMinFilter.Linear,
+                MagFilter = ETexMagFilter.Linear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
             };

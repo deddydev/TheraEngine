@@ -50,18 +50,12 @@ namespace TheraEngine.Rendering.Models.Materials
 
         protected override void SetParameters()
         {
-            //BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
-            //Engine.Renderer.TextureView(
-            //   _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
-            //   _minLevel, _numLevels, _minLayer, _numLayers);
-
 
         }
 
         private void _texture_Generated()
         {
             BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
-            //OpenTK.Graphics.OpenGL.GL.GetTextureParameterI(vtex.BindingId, OpenTK.Graphics.OpenGL.All.TextureImmutableFormat, out int param);
             Engine.Renderer.TextureView(
                 _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
                 _minLevel, _numLevels, _minLayer, _numLayers);
@@ -74,6 +68,12 @@ namespace TheraEngine.Rendering.Models.Materials
                 int id = _texture.BindingId;
                 OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
             }
+            _texture.Bind();
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, LodBias);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)MagFilter);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)MinFilter);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)UWrap);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)VWrap);
         }
     }
 }

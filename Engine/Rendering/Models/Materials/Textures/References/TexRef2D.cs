@@ -207,8 +207,8 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public void Resize(int width, int height, bool resizeRenderTexture = true)
         {
-            //if (!Resizeable)
-            //    return;
+            if (!Resizeable)
+                return;
 
             _width = width;
             _height = height;
@@ -238,7 +238,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public void ResizeRenderTexture(int width, int height)
         {
-            //if (Resizeable)
+            if (Resizeable)
                 _texture?.Resize(width, height);
         }
 

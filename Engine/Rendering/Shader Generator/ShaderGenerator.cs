@@ -231,7 +231,7 @@ namespace TheraEngine.Rendering
                 foreach (EEngineUniform p in method.NecessaryEngineParams)
                     engineParamUsage.Add(p);
 
-                maxGLSLVer = (EGLSLVersion)Math.Max((int)maxGLSLVer, (int)method.Overloads[method.CurrentValidOverloads[0]].Version);
+                //maxGLSLVer = (EGLSLVersion)Math.Max((int)maxGLSLVer, (int)method.Overloads[method.CurrentValidOverloads[0]].Version);
             }
 
             foreach (MatFuncValueOutput output in func.OutputArguments)

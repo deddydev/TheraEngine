@@ -75,7 +75,8 @@ namespace TheraEngine.Files
         }
         #endregion
 
-        [TSerialize("File", Condition = "StoredInternally")]
+        //TODO: export map actors externally, relative to map / world file location
+        [TSerialize(nameof(File), Condition = "StoredInternally")]
         protected T _file;
         
         [Category("File Reference")]

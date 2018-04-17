@@ -6,7 +6,6 @@ using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -16,6 +15,10 @@ using TheraEngine.Worlds.Maps;
 
 namespace TheraEditor.Windows.Forms
 {
+    /// <summary>
+    /// This is the default background world for the model editor 
+    /// if an external one does not exist.
+    /// </summary>
     public class ModelEditorWorld : World
     {
         public override void BeginPlay()

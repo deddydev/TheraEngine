@@ -6,6 +6,11 @@ using System;
 
 namespace TheraEngine.Cutscenes
 {
+    public class CutsceneKeyframe
+    {
+        public AnimationContainer Animation { get; set; }
+        public float LaunchSecond { get; set; }
+    }
     public class Cutscene : BaseAnimation
     {
         public Cutscene() : base(0.0f, false, false) { }
@@ -24,6 +29,8 @@ namespace TheraEngine.Cutscenes
             get => _involvedActors;
             set => _involvedActors = value;
         }
+        
+        LinkedList<CutsceneKeyframe> _keys = new LinkedList<CutsceneKeyframe>();
 
         //ONLY render actors visible in the cutsene to improve performance
         //Precompute visibility in the editor, then compile the list of visible actors here.

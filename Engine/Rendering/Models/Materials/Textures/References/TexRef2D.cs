@@ -41,26 +41,7 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
                 _mipmaps[i] = new TextureFile2D(width / scale, height / scale, bitmapFormat);
 
-            switch (bitmapFormat)
-            {
-                case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
-                case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
-                    InternalFormat = EPixelInternalFormat.Rgba8;
-                    PixelFormat = EPixelFormat.Bgra;
-                    PixelType = EPixelType.UnsignedByte;
-                    break;
-                case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
-                    InternalFormat = EPixelInternalFormat.Rgb8;
-                    PixelFormat = EPixelFormat.Bgr;
-                    PixelType = EPixelType.UnsignedByte;
-                    break;
-                case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
-                case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
-                    InternalFormat = EPixelInternalFormat.Rgba16;
-                    PixelFormat = EPixelFormat.Bgra;
-                    PixelType = EPixelType.UnsignedShort;
-                    break;
-            }
+            DetermineTextureFormat();
         }
         public TexRef2D(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
@@ -97,6 +78,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 TextureFile2D mip = mipmaps[i];
                 _mipmaps[i] = new GlobalFileRef<TextureFile2D>(mip);
             }
+            DetermineTextureFormat();
         }
         #endregion
 
@@ -124,7 +106,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public EDepthStencilFmt DepthStencilFormat { get; set; } = EDepthStencilFmt.None;
         [TSerialize]
-        public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba;
+        public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba8;
         [TSerialize]
         public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Nearest;
         [TSerialize]
@@ -250,44 +232,51 @@ namespace TheraEngine.Rendering.Models.Materials
         public void LoadMipmaps()
         {
             _isLoading = true;
-            //if (_mipmaps != null)
-            //{
-            //    if (_mipmaps.Length > 0)
-            //    {
-            //        var tref = _mipmaps[0];
-            //        var t = tref.File;
-            //        if (t != null && t.Bitmaps.Length > 0)
-            //        {
-            //            var b = t.Bitmaps[0];
-            //            if (b != null)
-            //            {
-            //                switch (b.PixelFormat)
-            //                {
-            //                    case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
-            //                    case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
-            //                        InternalFormat = EPixelInternalFormat.Rgba8;
-            //                        PixelFormat = EPixelFormat.Bgra;
-            //                        PixelType = EPixelType.UnsignedByte;
-            //                        break;
-            //                    case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
-            //                        InternalFormat = EPixelInternalFormat.Rgb8;
-            //                        PixelFormat = EPixelFormat.Bgr;
-            //                        PixelType = EPixelType.UnsignedByte;
-            //                        break;
-            //                    case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
-            //                    case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
-            //                        InternalFormat = EPixelInternalFormat.Rgba16;
-            //                        PixelFormat = EPixelFormat.Bgra;
-            //                        PixelType = EPixelType.UnsignedShort;
-            //                        break;
-            //                }
-            //            }
-            //        }
-
-            //    }
-            //}
+            DetermineTextureFormat(false);
             CreateRenderTexture();
             _isLoading = false;
+        }
+        public void DetermineTextureFormat(bool force = true)
+        {
+            if (_mipmaps != null && _mipmaps.Length > 0)
+            {
+                var tref = _mipmaps[0];
+                if (tref.IsLoaded && !force)
+                    return;
+                var t = tref.File;
+                if (t != null && t.Bitmaps.Length > 0)
+                {
+                    var b = t.Bitmaps[0];
+                    if (b != null)
+                    {
+                        switch (b.PixelFormat)
+                        {
+                            case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+                                InternalFormat = EPixelInternalFormat.Rgb8;
+                                PixelFormat = EPixelFormat.Bgr;
+                                PixelType = EPixelType.UnsignedByte;
+                                break;
+                            case System.Drawing.Imaging.PixelFormat.Format32bppRgb:
+                                InternalFormat = EPixelInternalFormat.Rgb8;
+                                PixelFormat = EPixelFormat.Bgra;
+                                PixelType = EPixelType.UnsignedByte;
+                                break;
+                            case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+                            case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
+                                InternalFormat = EPixelInternalFormat.Rgba8;
+                                PixelFormat = EPixelFormat.Bgra;
+                                PixelType = EPixelType.UnsignedByte;
+                                break;
+                            case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
+                            case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
+                                InternalFormat = EPixelInternalFormat.Rgba16;
+                                PixelFormat = EPixelFormat.Bgra;
+                                PixelType = EPixelType.UnsignedShort;
+                                break;
+                        }
+                    }
+                }
+            }
         }
         protected virtual void CreateRenderTexture()
         {

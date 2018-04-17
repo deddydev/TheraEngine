@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Lights;
@@ -11,6 +12,7 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Worlds;
+using TheraEngine.Worlds.Maps;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -18,7 +20,7 @@ namespace TheraEditor.Windows.Forms
     {
         public override void BeginPlay()
         {
-            base.BeginPlay();
+            List<IActor> actors = new List<IActor>();
 
             DirectionalLightActor light = new DirectionalLightActor();
             DirectionalLightComponent comp = light.RootComponent;
@@ -27,7 +29,7 @@ namespace TheraEditor.Windows.Forms
             comp.LightColor = new EventColorF3(1.0f);
             comp.Rotation.Yaw = 45.0f;
             comp.Rotation.Pitch = -45.0f;
-            SpawnActor(light);
+            actors.Add(light);
 
             Vec3 max = 1000.0f;
             Vec3 min = -max;
@@ -46,13 +48,22 @@ namespace TheraEditor.Windows.Forms
                     BoundingBox.ECubemapTextureUVs.HeightLarger),
                 TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
                 {
-                    DepthTest = new DepthTest() { Enabled = ERenderParamUsage.Enabled, UpdateDepth = false, Function = EComparison.Less }
+                    DepthTest = new DepthTest()
+                    {
+                        Enabled = ERenderParamUsage.Enabled,
+                        UpdateDepth = false,
+                        Function = EComparison.Less
+                    }
                 }));
             mesh.RenderInfo.RenderPass = ERenderPass3D.Skybox;
             skybox.RigidChildren.Add(mesh);
             Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
             skyboxActor.RootComponent.ModelRef = skybox;
-            SpawnActor(skyboxActor);
+            actors.Add(skyboxActor);
+
+            Settings = new WorldSettings("ModelEditorWorld", new Map(new MapSettings(actors)));
+
+            base.BeginPlay();
         }
     }
 }

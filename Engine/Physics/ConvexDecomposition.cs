@@ -12,8 +12,8 @@ namespace TheraEngine.Physics
         public static TCollisionCompoundShape Calculate(
             IEnumerable<PrimitiveData> primitives,
             int minClusterCount = 2,
-            int maxConcavity = 100,
-            int maxVerticesPerHull = 100,
+            int maxConcavity = 50,
+            int maxVerticesPerHull = 20,
             double volumeWeight = 0.0,
             double compacityWeight = 0.1,
             bool addExtraDistPoints = false,
@@ -69,7 +69,7 @@ namespace TheraEngine.Physics
 
             return TCollisionCompoundShape.New(shapes);
         }
-        public static bool HacdUpdate(string msg, double progress, double globalConcativity, int n)
+        private static bool HacdUpdate(string msg, double progress, double globalConcativity, int n)
         {
             Engine.PrintLine(msg);
             return true;

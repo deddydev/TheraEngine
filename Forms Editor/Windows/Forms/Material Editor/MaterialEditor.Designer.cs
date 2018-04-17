@@ -40,24 +40,24 @@ namespace TheraEditor.Windows.Forms
             // BodyPanel
             // 
             this.BodyPanel.Controls.Add(this.dockPanel1);
-            this.BodyPanel.Size = new System.Drawing.Size(905, 671);
+            this.BodyPanel.Size = new System.Drawing.Size(923, 718);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(905, 711);
+            this.MainPanel.Size = new System.Drawing.Size(923, 758);
             // 
             // TitlePanel
             // 
-            this.TitlePanel.Size = new System.Drawing.Size(905, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(923, 40);
             // 
             // FormTitle
             // 
-            this.FormTitle.Size = new System.Drawing.Size(734, 40);
+            this.FormTitle.Size = new System.Drawing.Size(752, 40);
             this.FormTitle.Text = "MaterialEditorForm";
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(905, 719);
+            this.MiddlePanel.Size = new System.Drawing.Size(923, 766);
             // 
             // dockPanel1
             // 
@@ -65,14 +65,14 @@ namespace TheraEditor.Windows.Forms
             this.dockPanel1.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
             this.dockPanel1.Location = new System.Drawing.Point(0, 0);
             this.dockPanel1.Name = "dockPanel1";
-            this.dockPanel1.Size = new System.Drawing.Size(905, 671);
+            this.dockPanel1.Size = new System.Drawing.Size(923, 718);
             this.dockPanel1.TabIndex = 2;
             // 
             // MaterialEditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(913, 719);
+            this.ClientSize = new System.Drawing.Size(931, 766);
             this.Location = new System.Drawing.Point(0, 0);
             this.Name = "MaterialEditorForm";
             this.Text = "MaterialEditorForm";

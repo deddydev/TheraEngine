@@ -2,22 +2,32 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using TheraEngine.Files;
-using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Rendering.Models.Materials.Functions;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public delegate void DelSettingUniforms(int programBindingId);
     [FileExt("mat")]
     [FileDef("Material")]
-    public class TMaterial : TFileObject
+    public class TMaterial : TMaterialBase
     {
-        public event DelSettingUniforms SettingUniforms;
+        public static TMaterial InvalidMaterial { get; }
+            = CreateUnlitColorMaterialForward(Color.Magenta);
+
+        protected override void OnSetUniforms(int programBindingId)
+        {
+            //Set engine uniforms
+            if (Requirements != UniformRequirements.None)
+            {
+                AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
+                if (Requirements == UniformRequirements.NeedsLightsAndCamera)
+                    AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
+            }
+        }
 
 #if EDITOR
+        [TSerialize]
         public ResultFunc EditorMaterialEnd
         {
             get => _editorMaterialEnd;
@@ -30,94 +40,19 @@ namespace TheraEngine.Rendering.Models.Materials
         private List<ShaderFile> _tessEvalShaders = new List<ShaderFile>();
         private List<ShaderFile> _tessCtrlShaders = new List<ShaderFile>();
         private List<ShaderFile> _fragmentShaders = new List<ShaderFile>();
-
+        private List<ShaderFile> _vertexShaders = new List<ShaderFile>();
+        
         [TSerialize("Shaders")]
         private List<ShaderFile> _shaders = new List<ShaderFile>();
-
-        //[TSerialize(nameof(FBODrawAttachments), Condition = "OverrideFBOAttachments")]
-        //private EDrawBuffersAttachment[] _fboAttachments;
-        //[TSerialize(nameof(OverrideFBOAttachments), XmlNodeType = EXmlNodeType.Attribute)]
-        //private bool _overrideAttachments = false;
-
-        private RenderProgram _program;
-        //private FrameBuffer _frameBuffer;
+        
         private UniformRequirements _requirements = UniformRequirements.None;
 
-        protected ShaderVar[] _parameters;
-        protected BaseTexRef[] _textures;
-
-        private List<PrimitiveManager> _references = new List<PrimitiveManager>();
-
-        private LocalFileRef<RenderingParameters> _renderParamsRef = new RenderingParameters();
-
-        [Browsable(false)]
-        public RenderingParameters RenderParams
-        {
-            get => RenderParamsRef.File;
-            set => RenderParamsRef.File = value;
-        }
-
-        [TSerialize]
-        public LocalFileRef<RenderingParameters> RenderParamsRef
-        {
-            get => _renderParamsRef;
-            set => _renderParamsRef = value ?? new LocalFileRef<RenderingParameters>();
-        }
-        /// <summary>
-        /// Retrieves the material's uniform parameter at the given index.
-        /// Use this to set uniform values to be passed to the fragment shader.
-        /// </summary>
-        public T2 Parameter<T2>(int index) where T2 : ShaderVar
-        {
-            if (index >= 0 && index < Parameters.Length)
-                return Parameters[index] as T2;
-            throw new IndexOutOfRangeException();
-        }
-        /// <summary>
-        /// Retrieves the material's uniform parameter with the given name.
-        /// Use this to set uniform values to be passed to the fragment shader.
-        /// </summary>
-        public T2 Parameter<T2>(string name) where T2 : ShaderVar
-            => Parameters.FirstOrDefault(x => x.Name == name) as T2;
-
-        [TSerialize]
-        public ShaderVar[] Parameters
-        {
-            get => _parameters;
-            set => _parameters = value;
-        }
-
-        [TSerialize(Order = 1)]
-        public BaseTexRef[] Textures
-        {
-            get => _textures;
-            set
-            {
-                if (_textures != null)
-                    foreach (BaseTexRef t in _textures)
-                        t.Material = null;
-                _textures = value;
-                if (_textures != null)
-                    foreach (BaseTexRef t in _textures)
-                        t.Material = this;
-            }
-        }
-        public int UniqueID => Program.BindingId;
-        public RenderProgram Program
-        {
-            get
-            {
-                if (_program != null && !_program.IsActive)
-                    _program.Generate();
-                return _program;
-            }
-        }
-        
         public List<ShaderFile> FragmentShaders => _fragmentShaders;
         public List<ShaderFile> GeometryShaders => _geometryShaders;
         public List<ShaderFile> TessEvalShaders => _tessEvalShaders;
         public List<ShaderFile> TessCtrlShaders => _tessCtrlShaders;
-
+        public List<ShaderFile> VertexShaders => _vertexShaders;
+        
         public enum UniformRequirements
         {
             None,
@@ -130,151 +65,6 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             get => _requirements;
             set => _requirements = value;
-        }
-
-        //public EDrawBuffersAttachment[] FBODrawAttachments
-        //{
-        //    get => _fboAttachments;
-        //    set
-        //    {
-        //        _fboAttachments = value;
-        //        _overrideAttachments = true;
-        //    }
-        //}
-
-        //[TSerialize]
-        //public bool OverrideFBOAttachments
-        //{
-        //    get => _overrideAttachments;
-        //    set
-        //    {
-        //        if (_overrideAttachments == value)
-        //            return;
-        //        _overrideAttachments = value;
-        //        if (!_overrideAttachments)
-        //            CollectFBOAttachments();
-        //    }
-        //}
-
-        public static TMaterial InvalidMaterial { get; }
-            = CreateUnlitColorMaterialForward(Color.Magenta);
-
-        public EDrawBuffersAttachment[] CollectFBOAttachments()
-        {
-            if (_textures != null && _textures.Length > 0)
-            {
-                List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-                foreach (BaseTexRef tref in _textures)
-                {
-                    if (!tref.FrameBufferAttachment.HasValue)
-                        continue;
-                    switch (tref.FrameBufferAttachment.Value)
-                    {
-                        case EFramebufferAttachment.Color:
-                        case EFramebufferAttachment.Depth:
-                        case EFramebufferAttachment.DepthAttachment:
-                        case EFramebufferAttachment.DepthStencilAttachment:
-                        case EFramebufferAttachment.Stencil:
-                        case EFramebufferAttachment.StencilAttachment:
-                            continue;
-                    }
-                    fboAttachments.Add((EDrawBuffersAttachment)(int)tref.FrameBufferAttachment.Value);
-                }
-                return fboAttachments.ToArray();
-            }
-            return new EDrawBuffersAttachment[0];
-        }
-        //internal bool HasAttachment(EFramebufferAttachment value)
-        //{
-        //    switch (value)
-        //    {
-        //        case EFramebufferAttachment.Color:
-        //        case EFramebufferAttachment.Depth:
-        //        case EFramebufferAttachment.DepthAttachment:
-        //        case EFramebufferAttachment.DepthStencilAttachment:
-        //        case EFramebufferAttachment.Stencil:
-        //        case EFramebufferAttachment.StencilAttachment:
-        //            return true;
-        //    }
-        //    return _fboAttachments.Contains((EDrawBuffersAttachment)(int)value);
-        //}
-        public void GenerateTextures(bool loadSynchronously = false)
-        {
-            if (_textures != null)
-            {
-                foreach (var t in _textures)
-                //await Task.Run(() => Parallel.ForEach(_textures, t =>
-                {
-                    t.GetTextureGeneric(loadSynchronously).PushData();
-                }
-                //));
-            }
-        }
-        internal void AddReference(PrimitiveManager user)
-        {
-            //if (_references.Count == 0)
-            //    _uniqueID = Engine.Scene.AddActiveMaterial(this);
-            _references.Add(user);
-        }
-        internal void RemoveReference(PrimitiveManager user)
-        {
-            _references.Add(user);
-            //if (_references.Count == 0)
-            //{
-            //    Engine.Scene.RemoveActiveMaterial(this);
-            //    _uniqueID = -1;
-            //}
-        }
-        public void SetUniforms(int programBindingId)
-        {
-            if (programBindingId <= 0)
-                programBindingId = Program.BindingId;
-
-            //Set engine uniforms
-            if (Requirements != UniformRequirements.None)
-            {
-                AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
-                if (Requirements == UniformRequirements.NeedsLightsAndCamera)
-                    AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
-            }
-
-            //Apply special rendering parameters
-            if (RenderParams != null)
-                Engine.Renderer.ApplyRenderParams(RenderParams);
-
-            //Set variable uniforms
-            foreach (ShaderVar v in _parameters)
-                v.SetProgramUniform(_program.BindingId);
-
-            //Set texture uniforms
-            SetTextureUniforms(programBindingId);
-
-            //Set extra uniforms
-            SettingUniforms?.Invoke(programBindingId);
-        }
-        /// <summary>
-        /// Resizes the gbuffer's textures.
-        /// Note that they will still fully cover the screen regardless of 
-        /// if their dimensions match or not.
-        /// </summary>
-        public void Resize2DTextures(int width, int height)
-        {
-            //Update each texture's dimensions
-            foreach (BaseTexRef t in Textures)
-                if (t is TexRef2D t2d)
-                    t2d.Resize(width, height);
-        }
-        private void SetTextureUniforms(int programBindingId)
-        {
-            for (int i = 0; i < Textures.Length; ++i)
-                SetTextureUniform(i, i, "Texture" + i, programBindingId);
-        }
-        public void SetTextureUniform(int textureIndex, int textureUnit, string varName, int programBindingId)
-        {
-            Engine.Renderer.SetActiveTexture(textureUnit);
-            Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
-            //Engine.PrintLine("Texture unit {0} set: {1}", textureUnit, varName);
-            Textures[textureIndex].GetTextureGeneric(true)?.Bind();
         }
 
         public TMaterial()
@@ -357,11 +147,12 @@ namespace TheraEngine.Rendering.Models.Materials
             _geometryShaders.Clear();
             _tessCtrlShaders.Clear();
             _tessEvalShaders.Clear();
-            if (_program != null)
+            _vertexShaders.Clear();
+
+            if (Program != null)
             {
-                _program.Generated -= _program_Generated;
-                _program.Destroy();
-                _program = null;
+                Program.Destroy();
+                Program = null;
             }
 
             if (_shaders != null)
@@ -370,7 +161,8 @@ namespace TheraEngine.Rendering.Models.Materials
                     switch (s.Type)
                     {
                         case EShaderMode.Vertex:
-                            throw new InvalidOperationException("Vertex shaders cannot be included in materials.");
+                            _vertexShaders.Add(s);
+                            break;
                         case EShaderMode.Fragment:
                             _fragmentShaders.Add(s);
                             break;
@@ -387,30 +179,9 @@ namespace TheraEngine.Rendering.Models.Materials
                 }
 
             if (Engine.Settings != null && Engine.Settings.AllowShaderPipelines)
-            {
-                _program?.Destroy();
-                _program = new RenderProgram(_shaders);
-                _program.Generated += _program_Generated;
-            }
+                Program = new RenderProgram(_shaders);
         }
-
-        private void _program_Generated()
-        {
-            //foreach (ShaderVar v in _parameters)
-            //{
-            //    v.SetProgramUniform(_program.BindingId);
-            //    v.ValueChanged += V_ValueChanged;
-            //}
-        }
-
-        //private void V_ValueChanged(ShaderVar v)
-        //{
-        //    v.SetProgramUniform(_program.BindingId);
-        //    ErrorCode r = GL.GetError();
-        //    if (r != ErrorCode.NoError)
-        //        Engine.DebugPrint(r.ToString());
-        //}
-
+        
         #region Basic Material Generation
         public static TMaterial CreateUnlitTextureMaterialForward(TexRef2D texture, RenderingParameters renderParams)
         {
@@ -505,7 +276,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <summary>
         /// Creates a Blinn lighting model material for a forward renderer.
         /// </summary>
-        public static TMaterial CreateBlinnMaterial(
+        public static TMaterial CreateBlinnMaterial_Forward(
             Vec3? emission,
             Vec3? ambient,
             Vec3? diffuse,

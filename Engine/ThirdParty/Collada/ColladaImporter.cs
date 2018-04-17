@@ -115,8 +115,8 @@ namespace TheraEngine.Rendering.Models
                                         else
                                             Engine.LogWarning("Object " + obj._node.Name + " needs bones, but no bones were found.");
 
-                                    //modelScene.StaticModel.CollisionShape = ConvexDecomposition.Calculate(
-                                    //    modelScene.StaticModel.RigidChildren.Select(x => x.LODs[0].PrimitivesRef.File));
+                                    modelScene.StaticModel.CollisionShape = ConvexDecomposition.Calculate(
+                                        modelScene.StaticModel.RigidChildren.Select(x => x.LODs[0].PrimitivesRef.File));
                                 }
                                 else
                                 {

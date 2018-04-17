@@ -256,6 +256,21 @@ namespace TheraEditor.Windows.Forms
             lblMatName.Text = _material.Name;
         }
 
+        private void chkDepthTest_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
         public void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
         {
             //btnSave.Visible = true;

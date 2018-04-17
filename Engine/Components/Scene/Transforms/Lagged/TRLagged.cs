@@ -41,10 +41,11 @@ namespace TheraEngine.Components.Scene.Transforms
             RecalcLocalTransform();
         }
 
-        [TSerialize("CurrentRotation")]
+        [TSerialize(nameof(CurrentRotation))]
         protected Rotator _currentRotation;
-        [TSerialize("DesiredRotation")]
+        [TSerialize(nameof(DesiredRotation))]
         protected Rotator _desiredRotation;
+
         protected float _invRotInterpSec = 40.0f;
 
         [Category("Transform")]

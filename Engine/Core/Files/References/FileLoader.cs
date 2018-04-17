@@ -80,7 +80,23 @@ namespace TheraEngine.Files
         }
 
         [Browsable(false)]
-        public Type ReferencedType => typeof(T);
+        public virtual bool FileExists
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(ReferencePath))
+                    return false;
+                if (!File.Exists(ReferencePath))
+                    return false;
+                Type fileType = DetermineType(ReferencePath);
+                if (fileType == null)
+                    return false;
+                return _subType.IsAssignableFrom(fileType);
+            }
+        }
+
+        [Browsable(false)]
+        public Type ReferencedType => _subType;
         
         private event Action<T> Loaded;
         /// <summary>

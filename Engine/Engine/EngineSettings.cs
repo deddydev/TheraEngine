@@ -177,6 +177,14 @@ namespace TheraEngine
         public string ScriptsFolder { get; set; }
 
         /// <summary>
+        /// The path to the folder containing premade engine worlds.
+        /// </summary>
+        [Description("The path to the folder containing premade engine worlds.")]
+        [Category("Paths")]
+        [TSerialize]
+        public string WorldsFolder { get; set; }
+        
+        /// <summary>
         /// The path to the folder containing premade engine shaders.
         /// </summary>
         [Description("The path to the folder containing premade engine shaders.")]
@@ -224,6 +232,7 @@ namespace TheraEngine
             ShadersFolder = engineFolder + "Shaders";
             TexturesFolder = engineFolder + "Textures";
             ScriptsFolder = engineFolder + "Scripts";
+            WorldsFolder = engineFolder + "Worlds";
         }
     }
 }

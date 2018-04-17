@@ -3,23 +3,35 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public class TMaterialInstance
+    public class TMaterialInstance : TMaterialBase
     {
-        [TSerialize]
-        GlobalFileRef<TMaterial> _material = new GlobalFileRef<TMaterial>();
+        public TMaterialInstance()
+        {
+            _material = new GlobalFileRef<TMaterial>();
+            _material.RegisterLoadEvent(MaterialLoaded);
+        }
 
         [TSerialize]
-        ShaderVar[] _parameters;
-
-        public GlobalFileRef<TMaterial> Material
+        private GlobalFileRef<TMaterial> _material;
+        
+        public GlobalFileRef<TMaterial> InheritedMaterial
         {
             get => _material;
-            set => _material = value ?? new GlobalFileRef<TMaterial>();
+            set
+            {
+                _material.UnregisterLoadEvent(MaterialLoaded);
+                _material = value ?? new GlobalFileRef<TMaterial>();
+                _material.RegisterLoadEvent(MaterialLoaded);
+            }
         }
-        public ShaderVar[] Parameters
+        private void MaterialLoaded(TMaterial mat)
         {
-            get => _parameters;
-            set => _parameters = value;
+
+        }
+
+        protected override void OnSetUniforms(int programBindingId)
+        {
+
         }
     }
 }

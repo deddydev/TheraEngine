@@ -26,10 +26,19 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             _component = component;
 
-            LODs = new LinkedList<RenderableLOD>(lods.Select(x => new RenderableLOD()
+            LODs = new LinkedList<RenderableLOD>(lods.Select(x =>
             {
-                VisibleDistance = x.VisibleDistance,
-                Manager = x.CreatePrimitiveManager(),
+                RenderableLOD lod = new RenderableLOD()
+                {
+                    VisibleDistance = x.VisibleDistance,
+                    Manager = x.CreatePrimitiveManager(),
+                };
+                //if (lod.Manager.Material.GeometryShaders.Count == 0)
+                //{
+                //    lod.Manager.Material.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
+                //    lod.Manager.Material.Requirements = TMaterial.UniformRequirements.NeedsCamera;
+                //}
+                return lod;
             }));
 
             _currentLOD = LODs.Last;

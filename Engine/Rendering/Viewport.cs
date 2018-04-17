@@ -148,7 +148,7 @@ namespace TheraEngine.Rendering
                 _hud = value;
                 _hud?.Resize(Region.Extents);
 
-                Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud == null ? "null" : _hud.GetType().GetFriendlyName()));
+                //Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud == null ? "null" : _hud.GetType().GetFriendlyName()));
             }
         }
 

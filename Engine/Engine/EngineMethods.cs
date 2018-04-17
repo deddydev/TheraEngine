@@ -56,23 +56,21 @@ namespace TheraEngine
             Application.Run(new RenderForm(game));
         }
 
-        public static ShaderFile LoadEngineShader(string fileName, EShaderMode mode)
-        {
-            return new ShaderFile(mode, new TextFile(EngineShaderPath(fileName)));
-        }
-        public static string EngineShaderPath(string fileName)
-        {
-            return Path.Combine(Settings.ShadersFolder, fileName);
-        }
-        public static TextureFile2D LoadEngineTexture2D(string fileName)
-        {
-            return TFileObject.Load<TextureFile2D>(EngineTexturePath(fileName));
-        }
-        public static string EngineTexturePath(string fileName)
-        {
-            return Path.Combine(Settings.TexturesFolder, fileName);
-        }
+        public static string EngineWorldsPath(string fileName)
+            => Path.Combine(Settings.WorldsFolder ?? string.Empty, fileName);
+        public static World LoadEngineWorld(string fileName)
+            => TFileObject.Load<World>(EngineWorldsPath(fileName));
 
+        public static string EngineShadersPath(string fileName)
+            => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
+        public static ShaderFile LoadEngineShader(string fileName, EShaderMode mode)
+            => new ShaderFile(mode, new TextFile(EngineShadersPath(fileName)));
+        
+        public static TextureFile2D LoadEngineTexture2D(string fileName)
+            => TFileObject.Load<TextureFile2D>(EngineTexturesPath(fileName));
+        public static string EngineTexturesPath(string fileName)
+            => Path.Combine(Settings.TexturesFolder ?? string.Empty, fileName);
+        
         /// <summary>
         /// Call this to shut down the engine, deallocate all resources, and close the application.
         /// </summary>

@@ -47,18 +47,40 @@ namespace TheraEngine.Files.Serialization
             object obj,
             string filePath,
             Endian.EOrder order,
-            out byte[] integrityHash)
+            out byte[] integrityHash,
+            ESerializeFlags flags)
         {
-            return Serialize(obj, filePath, order, false, false, null, out byte[] encryptionSalt, out integrityHash, null);
+            return Serialize(
+                obj,
+                filePath,
+                order,
+                false,
+                false,
+                null, 
+                out byte[] encryptionSalt,
+                out integrityHash, 
+                null,
+                flags);
         }
         public static bool SerializeCompressed(
             object obj,
             string filePath,
             Endian.EOrder order,
             out byte[] integrityHash,
-            ICodeProgress compressionProgress)
+            ICodeProgress compressionProgress,
+            ESerializeFlags flags)
         {
-            return Serialize(obj, filePath, order, false, true, null, out byte[] encryptionSalt, out integrityHash, compressionProgress);
+            return Serialize(
+                obj,
+                filePath,
+                order,
+                false,
+                true,
+                null,
+                out byte[] encryptionSalt,
+                out integrityHash,
+                compressionProgress,
+                flags);
         }
         public static bool SerializeEncrypted(
             object obj,
@@ -66,9 +88,20 @@ namespace TheraEngine.Files.Serialization
             Endian.EOrder order,
             out byte[] integrityHash,
             out byte[] encryptionSalt,
-            string encryptionPassword)
+            string encryptionPassword,
+            ESerializeFlags flags)
         {
-            return Serialize(obj, filePath, order, true, false, encryptionPassword, out encryptionSalt, out integrityHash, null);
+            return Serialize(
+                obj,
+                filePath,
+                order,
+                true,
+                false,
+                encryptionPassword,
+                out encryptionSalt,
+                out integrityHash,
+                null, 
+                flags);
         }
 
         public static unsafe Type DetermineType(string filePath)
@@ -93,7 +126,8 @@ namespace TheraEngine.Files.Serialization
             string encryptionPassword,
             out byte[] encryptionSalt,
             out byte[] integrityHash,
-            ICodeProgress compressionProgress)
+            ICodeProgress compressionProgress,
+            ESerializeFlags flags)
         {
             encryptionSalt = new byte[8];
             Endian.Order = order;
@@ -133,11 +167,11 @@ namespace TheraEngine.Files.Serialization
                     if (compressed)
                     {
                         outStream = new FileStream(filePath,
-                                FileMode.OpenOrCreate,
-                                FileAccess.ReadWrite,
-                                FileShare.ReadWrite,
-                                8,
-                                FileOptions.RandomAccess);
+                            FileMode.OpenOrCreate,
+                            FileAccess.ReadWrite,
+                            FileShare.ReadWrite,
+                            8,
+                            FileOptions.RandomAccess);
                         outStream.SetLength(totalSize);
                         outStream.Position = 0;
                         new Encoder().Code(uncompMap.BaseStream, outStream, totalSize, totalSize, compressionProgress);

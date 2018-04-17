@@ -238,7 +238,7 @@ namespace TheraEngine.Tests
                 for (int r = 0; r < wh; ++r)
                     for (int x = 0; x < wh; ++x)
                     {
-                        temp = noise.GetCubic(x, r) * 50.0f;
+                        temp = noise.GetPerlin(x, r) * 50.0f;
                         *data++ = temp;
                     }
 

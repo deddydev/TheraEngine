@@ -11,6 +11,14 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Files
 {
+    [Flags]
+    public enum ESerializeFlags
+    {
+        None = 0,
+        SerializeFile = 0x1,
+        SerializeState = 0x2,
+        All = 0xF,
+    }
     public enum ProprietaryFileFormat
     {
         Binary = 0,
@@ -31,9 +39,10 @@ namespace TheraEngine.Files
         FileExt FileExtension { get; }
         File3rdParty File3rdPartyExtensions { get; }
         void Unload();
-        void Export();
-        void Export(string path);
-        void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null);
+        void Export(ESerializeFlags flags = ESerializeFlags.SerializeFile);
+        void Export(string path, ESerializeFlags flags = ESerializeFlags.SerializeFile);
+        void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.SerializeFile);
+        void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.SerializeFile);
         string GetFilePath(string dir, string name, ProprietaryFileFormat format);
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
     }
@@ -353,7 +362,7 @@ namespace TheraEngine.Files
             return null;
         }
         //[GridCallable("Save")]
-        public void Export()
+        public void Export(ESerializeFlags flags = ESerializeFlags.SerializeFile)
         {
             if (string.IsNullOrEmpty(_filePath))
             {
@@ -361,10 +370,10 @@ namespace TheraEngine.Files
                 return;
             }
             GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
-            Export(dir, name, fmt, thirdPartyExt);
+            Export(dir, name, fmt, thirdPartyExt, flags);
         }
         //[GridCallable("Save")]
-        public void Export(string path)
+        public void Export(string path, ESerializeFlags flags = ESerializeFlags.SerializeFile)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -372,10 +381,13 @@ namespace TheraEngine.Files
                 return;
             }
             GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
-            Export(dir, name, fmt, thirdPartyExt);
+            Export(dir, name, fmt, thirdPartyExt, flags);
         }
         //[GridCallable("Save")]
-        public void Export(string directory, string fileName)
+        public void Export(
+            string directory,
+            string fileName,
+            ESerializeFlags flags = ESerializeFlags.SerializeFile)
         {
             string ext = null;
             FileExt fileExt = FileExtension;
@@ -396,13 +408,18 @@ namespace TheraEngine.Files
             if (ext != null)
             {
                 FileFormat format = GetFormat(ext, out string ext2);
-                Export(directory, fileName, format, ext);
+                Export(directory, fileName, format, ext, flags);
             }
             else
-                Engine.LogWarning("File was not exported; cannot assume extension for {0}.", GetType().GetFriendlyName());
+                Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
         }
         //[GridCallable("Save")]
-        public void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null)
+        public void Export(
+            string directory,
+            string fileName,
+            FileFormat format,
+            string thirdPartyExt = null,
+            ESerializeFlags flags = ESerializeFlags.SerializeFile)
         {
             switch (format)
             {
@@ -410,10 +427,10 @@ namespace TheraEngine.Files
                     To3rdParty(directory, fileName, thirdPartyExt);
                     break;
                 case FileFormat.XML:
-                    ToXML(directory, fileName);
+                    ToXML(directory, fileName, flags);
                     break;
                 case FileFormat.Binary:
-                    ToBinary(directory, fileName);
+                    ToBinary(directory, fileName, flags);
                     break;
                 default:
                     throw new InvalidOperationException("Not a valid file format.");
@@ -448,7 +465,7 @@ namespace TheraEngine.Files
                 }
             }
             else
-                file = CustomXmlSerializer.Deserialize(filePath) as TFileObject;
+                file = new CustomXmlSerializer().Deserialize(filePath) as TFileObject;
             if (file != null)
                 file.FilePath = filePath;
             return file;
@@ -460,7 +477,10 @@ namespace TheraEngine.Files
             NewLineChars = Environment.NewLine,
             NewLineHandling = NewLineHandling.Replace
         };
-        internal void ToXML(string directory, string fileName)
+        internal void ToXML(
+            string directory,
+            string fileName,
+            ESerializeFlags flags = ESerializeFlags.SerializeFile)
         {
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
@@ -483,12 +503,12 @@ namespace TheraEngine.Files
                     stream.Position = 0;
 
                     writer.WriteStartDocument();
-                    Write(writer);
+                    Write(writer, flags);
                     writer.WriteEndDocument();
                 }
             }
             else
-                CustomXmlSerializer.Serialize(this, _filePath);
+                new CustomXmlSerializer().Serialize(this, _filePath, flags);
 
             Engine.PrintLine("Saved XML file to {0}", FilePath);
         }
@@ -497,7 +517,7 @@ namespace TheraEngine.Files
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="writer">The xml writer to write the file with.</param>
-        internal protected virtual void Write(XmlWriter writer)
+        internal protected virtual void Write(XmlWriter writer, ESerializeFlags flags = ESerializeFlags.SerializeFile)
             => throw new NotImplementedException("Override of \"internal protected virtual void Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from an xml file using the given xml reader.
@@ -537,7 +557,10 @@ namespace TheraEngine.Files
             
             return file;
         }
-        internal unsafe void ToBinary(string directory, string fileName)
+        internal unsafe void ToBinary(
+            string directory,
+            string fileName,
+            ESerializeFlags flags = ESerializeFlags.SerializeFile)
         {
             Type t = GetType();
 
@@ -563,7 +586,7 @@ namespace TheraEngine.Files
                     FileOptions.RandomAccess))
                 {
                     StringTable table = new StringTable();
-                    int dataSize = CalculateSize(table).Align(4);
+                    int dataSize = CalculateSize(table, flags).Align(4);
                     int stringSize = table.GetTotalSize();
                     int totalSize = dataSize + stringSize;
                     stream.SetLength(totalSize);
@@ -574,13 +597,23 @@ namespace TheraEngine.Files
                         hdr->_fileLength = totalSize;
                         hdr->_stringTableLength = stringSize;
                         hdr->_endian = (byte)Engine.ComputerInfo.Endian;
-                        Write(hdr->Data, table);
+                        Write(hdr->Data, table, flags);
                     }
                 }
             }
             else
             {
-                CustomBinarySerializer.Serialize(this, _filePath, Endian.EOrder.Big, true, true, "test", out byte[] encryptionSalt, out byte[] integrityHash, null);
+                CustomBinarySerializer.Serialize(
+                    this,
+                    _filePath,
+                    Endian.EOrder.Big,
+                    true,
+                    true,
+                    "test",
+                    out byte[] encryptionSalt,
+                    out byte[] integrityHash,
+                    null,
+                    flags);
             }
 
             Engine.PrintLine("Saved binary file to {0}", FilePath);
@@ -591,9 +624,9 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="table">The string table to populate with strings.</param>
         /// <returns>The size of the object, in bytes.</returns>
-        internal int CalculateSize(StringTable table)
+        internal int CalculateSize(StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeFile)
         {
-            _calculatedSize = OnCalculateSize(table);
+            _calculatedSize = OnCalculateSize(table, flags);
             return _calculatedSize;
         }
         /// <summary>
@@ -602,7 +635,7 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="table">The string table. Add strings to this as you wish, and use their addresses when writing later.</param>
         /// <returns>The size of the object, in bytes.</returns>
-        protected virtual int OnCalculateSize(StringTable table)
+        protected virtual int OnCalculateSize(StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeFile)
             => throw new NotImplementedException("Override of \"protected virtual int OnCalculateSize(StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Writes this object to the given address.
@@ -611,7 +644,7 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="address">The address to write to.</param>
         /// <param name="table">The table of all strings added in OnCalculateSize.</param>
-        internal protected virtual void Write(VoidPtr address, StringTable table)
+        internal protected virtual void Write(VoidPtr address, StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeFile)
             => throw new NotImplementedException("Override of \"internal protected virtual void Write(VoidPtr address, StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from the given address.

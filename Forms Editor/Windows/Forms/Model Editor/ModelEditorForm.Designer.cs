@@ -33,6 +33,10 @@ namespace TheraEditor.Windows.Forms
         {
             this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.formMenu = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reimportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reimportFromToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnWindow = new System.Windows.Forms.ToolStripMenuItem();
             this.viewport1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewport1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,6 +46,15 @@ namespace TheraEditor.Windows.Forms
             this.btnMeshList = new System.Windows.Forms.ToolStripMenuItem();
             this.btnMaterialList = new System.Windows.Forms.ToolStripMenuItem();
             this.btnSkeleton = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnView = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkViewNormals = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkViewBinormals = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkViewTangents = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkViewWireframe = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkViewCollisions = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkViewCullingVolumes = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkViewBones = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkViewConstraints = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -52,28 +65,29 @@ namespace TheraEditor.Windows.Forms
             // BodyPanel
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
-            this.BodyPanel.Size = new System.Drawing.Size(755, 702);
+            this.BodyPanel.Size = new System.Drawing.Size(809, 843);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(755, 742);
+            this.MainPanel.Size = new System.Drawing.Size(809, 883);
             // 
             // TitlePanel
             // 
             this.TitlePanel.Controls.Add(this.formMenu);
-            this.TitlePanel.Size = new System.Drawing.Size(755, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(809, 40);
             this.TitlePanel.Controls.SetChildIndex(this.formMenu, 0);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             // 
             // FormTitle
             // 
+            this.FormTitle.Location = new System.Drawing.Point(334, 0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
-            this.FormTitle.Size = new System.Drawing.Size(508, 40);
+            this.FormTitle.Size = new System.Drawing.Size(348, 40);
             this.FormTitle.Text = "Model Editor";
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(755, 750);
+            this.MiddlePanel.Size = new System.Drawing.Size(809, 891);
             // 
             // DockPanel
             // 
@@ -83,23 +97,55 @@ namespace TheraEditor.Windows.Forms
             this.DockPanel.Location = new System.Drawing.Point(0, 0);
             this.DockPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.DockPanel.Name = "DockPanel";
-            this.DockPanel.Size = new System.Drawing.Size(755, 702);
+            this.DockPanel.Size = new System.Drawing.Size(809, 843);
             this.DockPanel.TabIndex = 15;
             // 
             // formMenu
             // 
             this.formMenu.BackColor = System.Drawing.Color.Transparent;
-            this.formMenu.Dock = System.Windows.Forms.DockStyle.Right;
+            this.formMenu.Dock = System.Windows.Forms.DockStyle.Left;
             this.formMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.formMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnWindow});
-            this.formMenu.Location = new System.Drawing.Point(552, 0);
+            this.fileToolStripMenuItem,
+            this.btnWindow,
+            this.btnView});
+            this.formMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            this.formMenu.Location = new System.Drawing.Point(44, 0);
             this.formMenu.Name = "formMenu";
-            this.formMenu.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
+            this.formMenu.Padding = new System.Windows.Forms.Padding(0);
             this.formMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.formMenu.Size = new System.Drawing.Size(76, 40);
+            this.formMenu.Size = new System.Drawing.Size(290, 40);
             this.formMenu.TabIndex = 16;
             this.formMenu.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exportToolStripMenuItem,
+            this.reimportToolStripMenuItem,
+            this.reimportFromToolStripMenuItem});
+            this.fileToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 40);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // exportToolStripMenuItem
+            // 
+            this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
+            this.exportToolStripMenuItem.Text = "Export";
+            // 
+            // reimportToolStripMenuItem
+            // 
+            this.reimportToolStripMenuItem.Name = "reimportToolStripMenuItem";
+            this.reimportToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
+            this.reimportToolStripMenuItem.Text = "Reimport";
+            // 
+            // reimportFromToolStripMenuItem
+            // 
+            this.reimportFromToolStripMenuItem.Name = "reimportFromToolStripMenuItem";
+            this.reimportFromToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
+            this.reimportFromToolStripMenuItem.Text = "Reimport From...";
             // 
             // btnWindow
             // 
@@ -110,7 +156,7 @@ namespace TheraEditor.Windows.Forms
             this.btnSkeleton});
             this.btnWindow.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnWindow.Name = "btnWindow";
-            this.btnWindow.Size = new System.Drawing.Size(75, 24);
+            this.btnWindow.Size = new System.Drawing.Size(76, 40);
             this.btnWindow.Text = "Window";
             // 
             // viewport1ToolStripMenuItem
@@ -173,11 +219,83 @@ namespace TheraEditor.Windows.Forms
             this.btnSkeleton.Text = "Skeleton / Sockets";
             this.btnSkeleton.Click += new System.EventHandler(this.btnSkeleton_Click);
             // 
+            // btnView
+            // 
+            this.btnView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.chkViewNormals,
+            this.chkViewBinormals,
+            this.chkViewTangents,
+            this.chkViewWireframe,
+            this.chkViewCollisions,
+            this.chkViewCullingVolumes,
+            this.chkViewBones,
+            this.chkViewConstraints});
+            this.btnView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.btnView.Name = "btnView";
+            this.btnView.Size = new System.Drawing.Size(53, 40);
+            this.btnView.Text = "View";
+            // 
+            // chkViewNormals
+            // 
+            this.chkViewNormals.Name = "chkViewNormals";
+            this.chkViewNormals.Size = new System.Drawing.Size(190, 26);
+            this.chkViewNormals.Text = "Normals";
+            this.chkViewNormals.Click += new System.EventHandler(this.chkViewNormals_Click);
+            // 
+            // chkViewBinormals
+            // 
+            this.chkViewBinormals.Name = "chkViewBinormals";
+            this.chkViewBinormals.Size = new System.Drawing.Size(190, 26);
+            this.chkViewBinormals.Text = "Binormals";
+            this.chkViewBinormals.Click += new System.EventHandler(this.chkViewBinormals_Click);
+            // 
+            // chkViewTangents
+            // 
+            this.chkViewTangents.Name = "chkViewTangents";
+            this.chkViewTangents.Size = new System.Drawing.Size(190, 26);
+            this.chkViewTangents.Text = "Tangents";
+            this.chkViewTangents.Click += new System.EventHandler(this.chkViewTangents_Click);
+            // 
+            // chkViewWireframe
+            // 
+            this.chkViewWireframe.Name = "chkViewWireframe";
+            this.chkViewWireframe.Size = new System.Drawing.Size(190, 26);
+            this.chkViewWireframe.Text = "Wireframe";
+            this.chkViewWireframe.Click += new System.EventHandler(this.chkViewWireframe_Click);
+            // 
+            // chkViewCollisions
+            // 
+            this.chkViewCollisions.Name = "chkViewCollisions";
+            this.chkViewCollisions.Size = new System.Drawing.Size(190, 26);
+            this.chkViewCollisions.Text = "Collision Bodies";
+            this.chkViewCollisions.Click += new System.EventHandler(this.chkViewCollisions_Click);
+            // 
+            // chkViewCullingVolumes
+            // 
+            this.chkViewCullingVolumes.Name = "chkViewCullingVolumes";
+            this.chkViewCullingVolumes.Size = new System.Drawing.Size(190, 26);
+            this.chkViewCullingVolumes.Text = "Culling Volumes";
+            this.chkViewCullingVolumes.Click += new System.EventHandler(this.chkViewCullingVolumes_Click);
+            // 
+            // chkViewBones
+            // 
+            this.chkViewBones.Name = "chkViewBones";
+            this.chkViewBones.Size = new System.Drawing.Size(190, 26);
+            this.chkViewBones.Text = "Bones";
+            this.chkViewBones.Click += new System.EventHandler(this.chkViewBones_Click);
+            // 
+            // chkViewConstraints
+            // 
+            this.chkViewConstraints.Name = "chkViewConstraints";
+            this.chkViewConstraints.Size = new System.Drawing.Size(190, 26);
+            this.chkViewConstraints.Text = "Constraints";
+            this.chkViewConstraints.Click += new System.EventHandler(this.chkViewConstraints_Click);
+            // 
             // ModelEditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(763, 750);
+            this.ClientSize = new System.Drawing.Size(817, 891);
             this.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip = this.formMenu;
             this.MinimumSize = new System.Drawing.Size(319, 54);
@@ -207,5 +325,18 @@ namespace TheraEditor.Windows.Forms
         private System.Windows.Forms.ToolStripMenuItem btnMeshList;
         private System.Windows.Forms.ToolStripMenuItem btnSkeleton;
         private System.Windows.Forms.ToolStripMenuItem btnMaterialList;
+        private System.Windows.Forms.ToolStripMenuItem btnView;
+        private System.Windows.Forms.ToolStripMenuItem chkViewNormals;
+        private System.Windows.Forms.ToolStripMenuItem chkViewBinormals;
+        private System.Windows.Forms.ToolStripMenuItem chkViewTangents;
+        private System.Windows.Forms.ToolStripMenuItem chkViewWireframe;
+        private System.Windows.Forms.ToolStripMenuItem chkViewCollisions;
+        private System.Windows.Forms.ToolStripMenuItem chkViewCullingVolumes;
+        private System.Windows.Forms.ToolStripMenuItem chkViewBones;
+        private System.Windows.Forms.ToolStripMenuItem chkViewConstraints;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reimportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reimportFromToolStripMenuItem;
     }
 }

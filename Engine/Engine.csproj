@@ -445,6 +445,7 @@
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderCubeMipmap.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderCubeSide.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderTexCube.cs" />
+    <Compile Include="Rendering\Models\Materials\TMaterialBase.cs" />
     <Compile Include="Rendering\Models\Meshes\LOD.cs" />
     <Compile Include="Rendering\PrimitiveRenderWrapper.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffers\MaterialFrameBuffer.cs" />

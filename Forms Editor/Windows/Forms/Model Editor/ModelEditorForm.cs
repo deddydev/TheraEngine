@@ -6,8 +6,10 @@ using TheraEngine.Actors;
 using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Timers;
+using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -75,14 +77,28 @@ namespace TheraEditor.Windows.Forms
         public DockableMaterialList MaterialsForm => GetForm(ref _materialsForm, MeshesForm.Pane, DockAlignment.Bottom, 0.5);
 
         #endregion
-
-        private Lazy<ModelEditorWorld> _world = new Lazy<ModelEditorWorld>(() =>
+        
+        private LocalFileRef<World> ModelEditorWorld
+            = new LocalFileRef<World>(Engine.EngineWorldsPath("ModelEditorWorld.xworld"));
+        
+        public World World
         {
-            ModelEditorWorld world = new ModelEditorWorld();
-            world.BeginPlay();
-            return world;
-        });
-        public ModelEditorWorld World => _world.Value;
+            get
+            {
+                bool loaded = ModelEditorWorld.IsLoaded;
+                if (!ModelEditorWorld.FileExists)
+                {
+                    ModelEditorWorld.File = new ModelEditorWorld();
+                }
+                World w = ModelEditorWorld.File;
+                if (!loaded)
+                {
+                    w.BeginPlay();
+                    ModelEditorWorld.File.Export(Engine.EngineWorldsPath("ModelEditorWorld.xworld"));
+                }
+                return w;
+            }
+        }
 
         private Actor<StaticMeshComponent> _static;
         private Actor<SkeletalMeshComponent> _skeletal;
@@ -90,7 +106,7 @@ namespace TheraEditor.Windows.Forms
 
         public void SetModel(StaticModel stm)
         {
-            FormTitle.Text = "Model Editor - " + (stm?.Name ?? "<null>");
+            FormTitle.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
 
             if (_static != null && _static.IsSpawned)
                 World.DespawnActor(_static);
@@ -113,7 +129,9 @@ namespace TheraEditor.Windows.Forms
         {
             Skeleton skel = skm.SkeletonRef?.File;
 
-            FormTitle.Text = string.Format("Model Editor - {0} [{1}]", skm?.Name ?? "<null>", skel?.Name ?? "<null>");
+            FormTitle.Text = string.Format("{0} [{1}]", 
+                skm?.FilePath ?? skm?.Name ?? string.Empty,
+                skel?.FilePath ?? skel?.Name ?? string.Empty);
 
             if (_static != null && _static.IsSpawned)
                 World.DespawnActor(_static);
@@ -187,5 +205,38 @@ namespace TheraEditor.Windows.Forms
         private void btnMeshList_Click(object sender, EventArgs e) => MeshesForm.Focus();
         private void btnMaterialList_Click(object sender, EventArgs e) => MaterialsForm.Focus();
         private void btnSkeleton_Click(object sender, EventArgs e) => BoneTreeForm.Focus();
+
+        private void chkViewNormals_Click(object sender, EventArgs e)
+        {
+            chkViewNormals.Checked = !chkViewNormals.Checked;
+        }
+        private void chkViewBinormals_Click(object sender, EventArgs e)
+        {
+            chkViewBinormals.Checked = !chkViewBinormals.Checked;
+        }
+        private void chkViewTangents_Click(object sender, EventArgs e)
+        {
+            chkViewTangents.Checked = !chkViewTangents.Checked;
+        }
+        private void chkViewWireframe_Click(object sender, EventArgs e)
+        {
+            chkViewWireframe.Checked = !chkViewWireframe.Checked;
+        }
+        private void chkViewCollisions_Click(object sender, EventArgs e)
+        {
+            chkViewCollisions.Checked = !chkViewCollisions.Checked;
+        }
+        private void chkViewCullingVolumes_Click(object sender, EventArgs e)
+        {
+            chkViewCullingVolumes.Checked = !chkViewCullingVolumes.Checked;
+        }
+        private void chkViewBones_Click(object sender, EventArgs e)
+        {
+            chkViewBones.Checked = !chkViewBones.Checked;
+        }
+        private void chkViewConstraints_Click(object sender, EventArgs e)
+        {
+            chkViewConstraints.Checked = !chkViewConstraints.Checked;
+        }
     }
 }

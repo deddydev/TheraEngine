@@ -18,6 +18,7 @@
 			<ScriptsFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Scripts</ScriptsFolder>
 			<ShadersFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Shaders</ShadersFolder>
 			<TexturesFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Textures</TexturesFolder>
+			<WorldsFolder>C:\Users\David\Documents\Repositories\TheraEngine\Build\Debug\Editor\x86\..\..\..\Engine\Worlds</WorldsFolder>
 		</File>
 	</EngineSettingsRef>
 	<PropertyGridRef ReferencePath="">

@@ -9,9 +9,11 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Files.Serialization
 {
-    public static partial class CustomXmlSerializer
+    public partial class CustomXmlSerializer
     {
-        public static unsafe Type DetermineType(string filePath)
+        private XMLReader _reader;
+        
+        public unsafe static Type DetermineType(string filePath)
         {
             Type t = null;
             try
@@ -32,17 +34,17 @@ namespace TheraEngine.Files.Serialization
         /// <summary>
         /// Reads a file from the stream as xml.
         /// </summary>
-        public static unsafe object Deserialize(string filePath)
+        public unsafe object Deserialize(string filePath)
         {
             object obj = null;
             using (FileMap map = FileMap.FromFile(filePath))
-            using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
+            using (_reader = new XMLReader(map.Address, map.Length, true))
             {
-                if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                if (_reader.BeginElement() && _reader.ReadAttribute() && _reader.Name.Equals(SerializationCommon.TypeIdent, true))
                 {
-                    Type t = Type.GetType(reader.Value.ToString(), false, false);
-                    obj = ReadObject(t, reader);
-                    reader.EndElement();
+                    Type t = Type.GetType(_reader.Value.ToString(), false, false);
+                    obj = ReadObject(t);
+                    _reader.EndElement();
 
                     if (obj is TFileObject o)
                         o.FilePath = filePath;
@@ -50,13 +52,13 @@ namespace TheraEngine.Files.Serialization
             }
             return obj;
         }
-        private static object ReadObject(Type objType, XMLReader reader)
+        private object ReadObject(Type objType)
         {
-            if (reader.ReadAttribute())
+            if (_reader.ReadAttribute())
             {
-                if (string.Equals(reader.Name.ToString(), SerializationCommon.TypeIdent, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(_reader.Name.ToString(), SerializationCommon.TypeIdent, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Type subType = Type.GetType(reader.Value.ToString(), false, false);
+                    Type subType = Type.GetType(_reader.Value.ToString(), false, false);
                     //if (subType != null)
                     //{
                     if (objType.IsAssignableFrom(subType))
@@ -69,9 +71,9 @@ namespace TheraEngine.Files.Serialization
 
             //Collect the members of this object's type that are serialized
             List<VarInfo> members = SerializationCommon.CollectSerializedMembers(objType);
-            return ReadObject(objType, members, reader);
+            return ReadObject(objType, members);
         }
-        private static object ReadObject(Type objType, List<VarInfo> members, XMLReader reader)
+        private object ReadObject(Type objType, List<VarInfo> members)
         {
             //Create the object
             object obj = SerializationCommon.CreateObject(objType);
@@ -126,7 +128,7 @@ namespace TheraEngine.Files.Serialization
                 m.Invoke(obj, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
             //Read the element for this object
-            ReadObjectElement(obj, reader, members, categorized, customMethods);
+            ReadObjectElement(obj, members, categorized, customMethods);
 
             //Run post-deserialization methods
             foreach (MethodInfo m in postMethods.OrderBy(x => x.GetCustomAttribute<PostDeserialize>().Order))
@@ -136,9 +138,8 @@ namespace TheraEngine.Files.Serialization
         }
         //Separate method for handling category elements
         //This method interprets an element as a new class.
-        private static void ReadObjectElement(
+        private void ReadObjectElement(
             object obj,
-            XMLReader reader, 
             IEnumerable<VarInfo> members,
             IEnumerable<IGrouping<string, VarInfo>> categorized,
             IEnumerable<MethodInfo> customMethods)
@@ -171,8 +172,8 @@ namespace TheraEngine.Files.Serialization
             //First attribute has already been read when checking for the assembly type name
             do
             {
-                string attribName = reader.Name.ToString();
-                string attribValue = reader.Value.ToString();
+                string attribName = _reader.Name.ToString();
+                string attribValue = _reader.Value.ToString();
 
                 //Look for matching attribute member with the same name
                 int index = attribs.FindIndex(x => string.Equals(attribName, x.Name, StringComparison.InvariantCultureIgnoreCase));
@@ -180,9 +181,9 @@ namespace TheraEngine.Files.Serialization
                 {
                     VarInfo attrib = attribs[index];
                     attribs.RemoveAt(index);
-                    ReadMember(obj, attrib, reader, customMethods, true);
+                    ReadMember(obj, attrib, customMethods, true);
                 }
-            } while (reader.ReadAttribute());
+            } while (_reader.ReadAttribute());
 
             //For all unwritten remaining attributes, set them to default (null for non-primitive types)
             if (attribs.Count > 0)
@@ -194,16 +195,16 @@ namespace TheraEngine.Files.Serialization
 
             //Now read elements
             bool allElementsNull = true;
-            while (reader.BeginElement())
+            while (_reader.BeginElement())
             {
                 allElementsNull = false;
-                string elemName = reader.Name.ToString();
+                string elemName = _reader.Name.ToString();
 
                 //Categorized key is the name of the category
                 //So match element name to the key
                 var categoryMembers = categorized?.Where(x => string.Equals(elemName, x.Key, StringComparison.InvariantCultureIgnoreCase))?.SelectMany(x => x).ToArray();
                 if (categoryMembers != null && categoryMembers.Length > 0)
-                    ReadObjectElement(obj, reader, categoryMembers, null, customMethods);
+                    ReadObjectElement(obj, categoryMembers, null, customMethods);
                 else
                 {
                     VarInfo element = null;
@@ -224,9 +225,9 @@ namespace TheraEngine.Files.Serialization
                     }
 
                     if (element != null)
-                        ReadMember(obj, element, reader, customMethods, false);
+                        ReadMember(obj, element, customMethods, false);
                 }
-                reader.EndElement();
+                _reader.EndElement();
             }
 
             //For all unwritten remaining elements, set them to default (null for non-primitive types)
@@ -236,7 +237,7 @@ namespace TheraEngine.Files.Serialization
             if (allElementsNull && elementStrings.Count == 1)
             {
                 //We've moved to the end element tag trying to find child elements, so move back to start
-                reader.MoveBackToElementClose();
+                _reader.MoveBackToElementClose();
 
                 VarInfo elemStr = elementStrings[0];
                 //Engine.PrintLine("Reading element string for {0}", elemStr.Name);
@@ -248,19 +249,19 @@ namespace TheraEngine.Files.Serialization
                     if (customMethod != null)
                     {
                         //Engine.PrintLine("Invoking custom deserialization method for {0}: {1}", elemStr.Name, customMethod.GetFriendlyName());
-                        customMethod.Invoke(obj, new object[] { reader });
+                        customMethod.Invoke(obj, new object[] { _reader });
                     }
                     else
                     {
-                        string s = reader.ReadElementString();
+                        string s = _reader.ReadElementString();
                         elemStr.SetValue(obj, SerializationCommon.ParseString(s, elemStr.VariableType));
                     }
                 }
                 else
-                    ReadMember(obj, elemStr, reader, customMethods, false);
+                    ReadMember(obj, elemStr, customMethods, false);
             }
         }
-        private static void ReadMember(object obj, VarInfo member, XMLReader reader, IEnumerable<MethodInfo> customMethods, bool isAttribute)
+        private void ReadMember(object obj, VarInfo member, IEnumerable<MethodInfo> customMethods, bool isAttribute)
         {
             MethodInfo customMethod = customMethods.FirstOrDefault(
                 x => string.Equals(member.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
@@ -270,42 +271,42 @@ namespace TheraEngine.Files.Serialization
             if (customMethod != null)
             {
                 //Engine.PrintLine("Invoking custom deserialization method for {0}: {1}", member.Name, customMethod.GetFriendlyName());
-                customMethod.Invoke(obj, new object[] { reader });
+                customMethod.Invoke(obj, new object[] { _reader });
             }
             else
             {
                 object value = isAttribute ?
-                    SerializationCommon.ParseString(reader.Value.ToString(), member.VariableType) :
-                    ReadMemberElement(member.VariableType, reader);
+                    SerializationCommon.ParseString(_reader.Value.ToString(), member.VariableType) :
+                    ReadMemberElement(member.VariableType);
                 member.SetValue(obj, value);
             }
         }
-        private static object ReadMemberElement(Type memberType, XMLReader reader)
+        private object ReadMemberElement(Type memberType)
         {
             switch (SerializationCommon.GetValueType(memberType))
             {
                 case SerializationCommon.ValueType.Manual:
                     TFileObject o = (TFileObject)Activator.CreateInstance(memberType);
-                    o.Read(reader);
+                    o.Read(_reader);
                     return o;
                 case SerializationCommon.ValueType.Array:
-                    return ReadArray(memberType, reader);
+                    return ReadArray(memberType);
                 case SerializationCommon.ValueType.Dictionary:
-                    return ReadDictionary(memberType, reader);
+                    return ReadDictionary(memberType);
                 case SerializationCommon.ValueType.Enum:
                 case SerializationCommon.ValueType.String:
                 case SerializationCommon.ValueType.Parsable:
-                    return SerializationCommon.ParseString(reader.ReadElementString(), memberType);
+                    return SerializationCommon.ParseString(_reader.ReadElementString(), memberType);
                 case SerializationCommon.ValueType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(memberType);
                     if (structFields.Count > 0)
-                        return ReadObject(memberType, structFields, reader);
+                        return ReadObject(memberType, structFields);
                     else
                     {
                         //Enums and parsables have already been handled above
                         //This leaves only primitive types to check
                         if (SerializationCommon.IsPrimitiveType(memberType))
-                            return SerializationCommon.ParseString(reader.ReadElementString(), memberType);
+                            return SerializationCommon.ParseString(_reader.ReadElementString(), memberType);
                         else
                         {
                             //Custom struct with no members marked as serializable
@@ -315,19 +316,19 @@ namespace TheraEngine.Files.Serialization
                                 BindingFlags.Instance |
                                 BindingFlags.Public |
                                 BindingFlags.FlattenHierarchy);
-                            return ReadStruct(memberType, members, reader);
+                            return ReadStruct(memberType, members);
                         }
                     }
                 case SerializationCommon.ValueType.Pointer:
-                    return ReadObject(memberType, reader);
+                    return ReadObject(memberType);
             }
             return null;
         }
 
-        private static IDictionary ReadDictionary(Type dicType, XMLReader reader)
+        private IDictionary ReadDictionary(Type dicType)
         {
-            reader.ReadAttribute();
-            int num = int.Parse(reader.Value.ToString());
+            _reader.ReadAttribute();
+            int num = int.Parse(_reader.Value.ToString());
 
             IDictionary dic = Activator.CreateInstance(dicType) as IDictionary;
             if (num > 0)
@@ -335,27 +336,27 @@ namespace TheraEngine.Files.Serialization
                 var args = dicType.GetGenericArguments();
                 Type keyType = args[0];
                 Type valueType = args[1];
-                while (reader.BeginElement())
+                while (_reader.BeginElement())
                 {
-                    reader.BeginElement();
-                    object keyObj = ReadMemberElement(keyType, reader);
-                    reader.EndElement();
-                    reader.BeginElement();
-                    object valueObj = ReadMemberElement(valueType, reader);
-                    reader.EndElement();
+                    _reader.BeginElement();
+                    object keyObj = ReadMemberElement(keyType);
+                    _reader.EndElement();
+                    _reader.BeginElement();
+                    object valueObj = ReadMemberElement(valueType);
+                    _reader.EndElement();
                     dic.Add(keyObj, valueObj);
-                    reader.EndElement();
+                    _reader.EndElement();
                 }
             }
             return dic;
         }
 
-        private static IList ReadArray(Type arrayType, XMLReader reader)
+        private IList ReadArray(Type arrayType)
         {
-            reader.ReadAttribute();
-            int num = int.Parse(reader.Value.ToString());
-            if (reader.ReadAttribute())
-                arrayType = Type.GetType(reader.Value.ToString());
+            _reader.ReadAttribute();
+            int num = int.Parse(_reader.Value.ToString());
+            if (_reader.ReadAttribute())
+                arrayType = Type.GetType(_reader.Value.ToString());
 
             IList list;
             if (string.Equals(arrayType.BaseType.Name, "Array", StringComparison.InvariantCulture))
@@ -370,69 +371,69 @@ namespace TheraEngine.Files.Serialization
                 switch (type)
                 {
                     case SerializationCommon.ValueType.Array:
-                        ReadArrayArray(list, num, elementType, reader);
+                        ReadArrayArray(list, num, elementType);
                         break;
                     case SerializationCommon.ValueType.Enum:
                     case SerializationCommon.ValueType.String:
-                        ReadStringArray(list, num, elementType, reader, false);
+                        ReadStringArray(list, num, elementType, false);
                         break;
                     case SerializationCommon.ValueType.Parsable:
-                        ReadStringArray(list, num, elementType, reader, true);
+                        ReadStringArray(list, num, elementType, true);
                         break;
                     case SerializationCommon.ValueType.Struct:
-                        ReadStructArray(list, num, elementType, reader);
+                        ReadStructArray(list, num, elementType);
                         break;
                     case SerializationCommon.ValueType.Pointer:
-                        ReadObjectArray(list, num, elementType, reader);
+                        ReadObjectArray(list, num, elementType);
                         break;
                 }
             }
             return list;
         }
-        private static void ReadArrayArray(IList list, int count, Type elementType, XMLReader reader)
+        private void ReadArrayArray(IList list, int count, Type elementType)
         {
             for (int i = 0; i < count; ++i)
             {
-                if (reader.BeginElement())
+                if (_reader.BeginElement())
                 {
                     if (list.IsFixedSize)
-                        list[i] = ReadArray(elementType, reader);
+                        list[i] = ReadArray(elementType);
                     else
-                        list.Add(ReadArray(elementType, reader));
+                        list.Add(ReadArray(elementType));
 
-                    reader.EndElement();
+                    _reader.EndElement();
                 }
                 else
                     throw new Exception();
             }
         }
-        private static void ReadObjectArray(IList list, int count, Type elementType, XMLReader reader)
+        private void ReadObjectArray(IList list, int count, Type elementType)
         {
             for (int i = 0; i < count; ++i)
             {
-                if (reader.BeginElement())
+                if (_reader.BeginElement())
                 {
                     if (list.IsFixedSize)
-                        list[i] = ReadObject(elementType, reader);
+                        list[i] = ReadObject(elementType);
                     else
-                        list.Add(ReadObject(elementType, reader));
-                    reader.EndElement();
+                        list.Add(ReadObject(elementType));
+                    _reader.EndElement();
                 }
                 else
                     throw new Exception();
             }
         }
-        private static void ReadStructArray(IList list, int count, Type elementType, XMLReader reader)
+        private void ReadStructArray(IList list, int count, Type elementType)
         {
             List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(elementType);
             //Struct has serialized members within it?
             //Needs a full element
             if (structFields.Count > 0)
-                ReadObjectArray(list, count, elementType, reader);
+                ReadObjectArray(list, count, elementType);
             else
             {
                 if (SerializationCommon.IsPrimitiveType(elementType))
-                    ReadStringArray(list, count, elementType, reader, false);
+                    ReadStringArray(list, count, elementType, false);
                 else
                 {
                     FieldInfo[] structMembers = elementType.GetFields(
@@ -442,14 +443,14 @@ namespace TheraEngine.Files.Serialization
                         BindingFlags.FlattenHierarchy);
                     for (int i = 0; i < count; ++i)
                     {
-                        if (reader.BeginElement())
+                        if (_reader.BeginElement())
                         {
-                            object structValue = ReadStruct(elementType, structMembers, reader);
+                            object structValue = ReadStruct(elementType, structMembers);
                             if (list.IsFixedSize)
                                 list[i] = structValue;
                             else
                                 list.Add(structValue);
-                            reader.EndElement();
+                            _reader.EndElement();
                         }
                         else
                             throw new Exception();
@@ -457,13 +458,13 @@ namespace TheraEngine.Files.Serialization
                 }
             }
         }
-        private static object ReadStruct(Type t, FieldInfo[] members, XMLReader reader)
+        private object ReadStruct(Type t, FieldInfo[] members)
         {
             return null;
         }
-        private static void ReadStringArray(IList list, int count, Type elementType, XMLReader reader, bool parsable)
+        private void ReadStringArray(IList list, int count, Type elementType, bool parsable)
         {
-            string fullstring = reader.ReadElementString();
+            string fullstring = _reader.ReadElementString();
             int x = 0;
             bool ignore = false;
             string value = "";

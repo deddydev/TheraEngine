@@ -1082,7 +1082,7 @@ namespace TheraEngine.Rendering.OpenGL
             EPixelType type,
             VoidPtr data)
         {
-            TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
+            TextureTarget tt = (TextureTarget)(int)texTarget;
             PixelInternalFormat pit = (PixelInternalFormat)internalFormat.ConvertByName(typeof(PixelInternalFormat));
             OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
             PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
@@ -1098,7 +1098,7 @@ namespace TheraEngine.Rendering.OpenGL
             EPixelType type,
             T[] data)
         {
-            TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
+            TextureTarget tt = (TextureTarget)(int)texTarget;
             PixelInternalFormat pit = (PixelInternalFormat)internalFormat.ConvertByName(typeof(PixelInternalFormat));
             OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
             PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
@@ -1136,9 +1136,9 @@ namespace TheraEngine.Rendering.OpenGL
             EPixelType type,
             VoidPtr data)
         {
-            TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
-            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
-            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
+            TextureTarget tt = (TextureTarget)(int)texTarget;
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)(int)format;
+            PixelType pt = (PixelType)(int)type;
             GL.TexSubImage2D(tt, mipLevel, xOffset, yOffset, width, height, pf, pt, data);
         }
         public override void PushTextureSubData<T>(
@@ -1152,9 +1152,9 @@ namespace TheraEngine.Rendering.OpenGL
             EPixelType type,
             T[] data)
         {
-            TextureTarget tt = (TextureTarget)texTarget.ConvertByName(typeof(TextureTarget));
-            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
-            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
+            TextureTarget tt = (TextureTarget)(int)texTarget;
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)(int)format;
+            PixelType pt = (PixelType)(int)type;
             GL.TexSubImage2D(tt, mipLevel, xOffset, yOffset, width, height, pf, pt, data);
         }
         public override void BindTexture(ETexTarget texTarget, int bindingId)

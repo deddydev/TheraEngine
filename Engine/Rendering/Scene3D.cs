@@ -342,7 +342,7 @@ namespace TheraEngine.Rendering
                         }
 
                         //TODO: Apply camera post process material pass here
-                        TMaterial post = c.PostProcessRef.File?.PostProcessMaterial?.File;
+                        TMaterial post = c?.PostProcessRef?.File?.PostProcessMaterial?.File;
                         if (post != null)
                         {
 

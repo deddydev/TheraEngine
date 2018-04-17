@@ -797,6 +797,8 @@ namespace TheraEngine.Rendering
         
         private void SSAO_SetUniforms(int programBindingId)
         {
+            if (_worldCamera == null)
+                return;
             Engine.Renderer.Uniform(programBindingId, "NoiseScale", InternalResolution.Extents / 4.0f);
             Engine.Renderer.Uniform(programBindingId, "Samples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
             _worldCamera.SetUniforms(programBindingId);

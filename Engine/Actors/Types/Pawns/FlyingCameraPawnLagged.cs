@@ -5,13 +5,13 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
-    public class FlyingCameraPawn : FlyingCameraPawnBase<TRComponent>
+    public class FlyingCameraPawnLagged : FlyingCameraPawnBase<TRLaggedComponent>
     {
-        public FlyingCameraPawn() : base() { }
-        public FlyingCameraPawn(LocalPlayerIndex possessor) : base(possessor) { }
-        protected override TRComponent OnConstruct()
+        public FlyingCameraPawnLagged() : base() { }
+        public FlyingCameraPawnLagged(LocalPlayerIndex possessor) : base(possessor) { }
+        protected override TRLaggedComponent OnConstruct()
         {
-            TRComponent root = new TRComponent();
+            TRLaggedComponent root = new TRLaggedComponent();
             Camera = new PerspectiveCamera();
             CameraComponent cam = new CameraComponent(Camera);
             root.ChildComponents.Add(cam);
@@ -25,7 +25,7 @@ namespace TheraEngine.Actors.Types.Pawns
             {
                 float pitch = -y * MouseRotateSpeed;
                 float yaw = -x * MouseRotateSpeed;
-                RootComponent.Rotation.AddRotations(pitch, yaw, 0.0f);
+                RootComponent.DesiredRotation.AddRotations(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
@@ -39,7 +39,7 @@ namespace TheraEngine.Actors.Types.Pawns
             if (translate)
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                RootComponent.DesiredRotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
         }
     }
 }

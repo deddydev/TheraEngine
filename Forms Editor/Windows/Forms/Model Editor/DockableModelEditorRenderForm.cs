@@ -133,7 +133,7 @@ namespace TheraEditor.Windows.Forms
             //Move the camera back to show all of the front plane rectangle
             pos.Z += aspect > cAspect ? cam.FrustumDistanceAtWidth(w) : cam.FrustumDistanceAtHeight(h);
 
-            EditorPawn.RootComponent.SetTranslation(pos);
+            EditorPawn.RootComponent.Translation = pos;
         }
 
         #region Drag Drop

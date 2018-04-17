@@ -317,6 +317,8 @@
     <Compile Include="Actors\Types\ComponentActors\Lights\DirectionalLightActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\OrthographicCameraActor.cs" />
     <Compile Include="Actors\Types\GroupActor.cs" />
+    <Compile Include="Actors\Types\Pawns\FlyingCameraPawnBase.cs" />
+    <Compile Include="Actors\Types\Pawns\FlyingCameraPawn.cs" />
     <Compile Include="Actors\Types\SceneCaptureComponent.cs" />
     <Compile Include="Animation\Property\AnimationFolder.cs" />
     <Compile Include="Animation\Property\PropAnimInt.cs" />
@@ -910,7 +912,7 @@
     <Compile Include="Actors\Types\TransformTool2D.cs" />
     <Compile Include="Actors\Types\Pawns\CharacterPawn.cs" />
     <Compile Include="Actors\Types\Pawns\UIManagerPawn.cs" />
-    <Compile Include="Actors\Types\Pawns\FlyingCameraPawn.cs" />
+    <Compile Include="Actors\Types\Pawns\FlyingCameraPawnLagged.cs" />
     <Compile Include="Components\Scene\LandscapeComponent.cs" />
     <Compile Include="Actors\Pawn.cs" />
     <Compile Include="Actors\Types\TransformTool3D.cs" />

@@ -2,8 +2,28 @@
 {
     public class FeetInches
     {
+        private float _inches = 0.0f;
+
         public int Feet { get; set; }
-        public float Inches { get; set; }
+        public float Inches
+        {
+            get => _inches;
+            set
+            {
+                _inches = value;
+                float ft = _inches / 12.0f;
+                if (ft > 1.0f)
+                {
+                    int ift = (int)Math.Floor(ft);
+                    Feet += ift;
+                    _inches -= ift * 12;
+                }
+                else if (ft < 1.0f)
+                {
+
+                }
+            }
+        }
         
         public FeetInches(int feet, float inches)
         {

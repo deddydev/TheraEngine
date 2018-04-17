@@ -482,6 +482,12 @@ namespace TheraEngine.Files
             string fileName,
             ESerializeFlags flags = ESerializeFlags.SerializeFile)
         {
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                Engine.LogWarning("Cannot export file to XML; directory is null.");
+                return;
+            }
+
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 

@@ -67,7 +67,7 @@ namespace TheraEditor.Actors.Types.Pawns
 
         private EditorHud EditorHud => HUD as EditorHud;
 
-        public override void MouseMove(float x, float y)
+        protected override void MouseMove(float x, float y)
         {
             if (Rotating)
             {
@@ -79,7 +79,7 @@ namespace TheraEditor.Actors.Types.Pawns
                 else if (_hasHit)
                     RootComponent.Pivot(pitch, yaw, _hitPoint);
                 else
-                    RootComponent.DesiredRotation.AddRotations(pitch, yaw, 0.0f);
+                    RootComponent.Rotation.AddRotations(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
@@ -91,30 +91,20 @@ namespace TheraEditor.Actors.Types.Pawns
                     _screenPoint.Y += -y;
                     Vec3 hitPoint = Camera.ScreenToWorld(_screenPoint);
                     Vec3 diff = hitPoint - oldPoint;
-                    RootComponent.DesiredTranslation += diff;
+                    RootComponent.Translation += diff;
                 }
                 else
                     RootComponent.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
             }
         }
-        public override void OnSpawnedPostComponentSetup()
-        {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
-            base.OnSpawnedPostComponentSetup();
-        }
-        public override void OnDespawned()
-        {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
-            base.OnDespawned();
-        }
-        private void Tick(float delta)
+        protected override void Tick(float delta)
         {
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
             if (translate)
                 RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                RootComponent.DesiredRotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
         }
     }
 }

@@ -24,6 +24,8 @@ namespace TheraEditor.Windows.Forms
             AutoScaleMode = AutoScaleMode.Dpi;
             DoubleBuffered = false;
             formMenu.Renderer = new TheraToolstripRenderer();
+            FormTitle2.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
+            ModelEditorText.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
         }
 
         #region Instanced Dock Forms
@@ -94,7 +96,7 @@ namespace TheraEditor.Windows.Forms
                 if (!loaded)
                 {
                     w.BeginPlay();
-                    ModelEditorWorld.File.Export(Engine.EngineWorldsPath("ModelEditorWorld.xworld"));
+                    //ModelEditorWorld.File.Export(Engine.EngineWorldsPath("ModelEditorWorld.xworld"));
                 }
                 return w;
             }
@@ -106,7 +108,7 @@ namespace TheraEditor.Windows.Forms
 
         public void SetModel(StaticModel stm)
         {
-            FormTitle.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
+            FormTitle2.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
 
             if (_static != null && _static.IsSpawned)
                 World.DespawnActor(_static);
@@ -129,7 +131,7 @@ namespace TheraEditor.Windows.Forms
         {
             Skeleton skel = skm.SkeletonRef?.File;
 
-            FormTitle.Text = string.Format("{0} [{1}]", 
+            FormTitle2.Text = string.Format("{0} [{1}]", 
                 skm?.FilePath ?? skm?.Name ?? string.Empty,
                 skel?.FilePath ?? skel?.Name ?? string.Empty);
 

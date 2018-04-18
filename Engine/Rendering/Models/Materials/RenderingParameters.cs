@@ -201,7 +201,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public bool IsDisable => Enabled == ERenderParamUsage.Disabled;
         [Browsable(false)]
         public bool IsUnchanged => Enabled == ERenderParamUsage.Unchanged;
-
+        
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Disabled;
         [TSerialize(Condition = nameof(IsEnabled))]

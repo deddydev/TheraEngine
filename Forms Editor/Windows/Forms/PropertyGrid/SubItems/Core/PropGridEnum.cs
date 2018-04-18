@@ -18,28 +18,31 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void comboBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void comboBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
+        private string _prevValue = string.Empty;
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
             if (value is Enum e)
             {
+                if (string.Equals(_prevValue, value.ToString(), StringComparison.InvariantCulture))
+                    return;
+                _prevValue = value.ToString();
+
                 string[] names = Enum.GetNames(DataType);
                 bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
                 if (flags)
                 {
-                    string[] enumStrings = value.ToString().Split(new string[] { ", " }, StringSplitOptions.None);
+                    string[] enumStrings = _prevValue.Split(new string[] { ", " }, StringSplitOptions.None);
                     for (int i = 0; i < names.Length; ++i)
                         ((CheckBox)tableLayoutPanel1.GetControlFromPosition(0, i)).Checked = enumStrings.Contains(names[i]);
                 }
                 else
                 {
-                    string enumName = value.ToString();
-
                     int selectedIndex = -1;
                     for (int i = 0; i < names.Length; ++i)
                     {
                         string name = names[i];
-                        if (string.Equals(name, enumName, StringComparison.InvariantCulture))
+                        if (string.Equals(name, _prevValue, StringComparison.InvariantCulture))
                             selectedIndex = i;
                     }
                     comboBox1.SelectedIndex = selectedIndex;
@@ -70,7 +73,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (box.Checked)
                 newValue = oldValue + ", " + box.Tag.ToString();
             else
-                newValue = string.Join(", ", oldValue.Replace(box.Tag.ToString(), "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+                newValue = string.Join(", ", oldValue.Replace(box.Tag.ToString(), string.Empty).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
             UpdateValue(Enum.Parse(DataType, newValue), true);
         }
 

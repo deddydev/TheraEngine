@@ -11,7 +11,7 @@ namespace TheraEngine.Files
     /// Allows only one loaded instance of this file throughout the program.
     /// File can be loaded on-demand or preloaded.
     /// </summary>
-    [FileExt("globalref")]
+    [FileExt("gref")]
     [FileDef("Global File Reference")]
     public class GlobalFileRef<T> : FileRef<T>, IGlobalFileRef where T : TFileObject
     {

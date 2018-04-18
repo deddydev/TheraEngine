@@ -831,7 +831,7 @@
     <Compile Include="Actors\Types\BSP\BSPBoxActor.cs" />
     <Compile Include="Actors\Types\BSP\BSPShapeActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\Shapes\ShapeActor.cs" />
-    <Compile Include="Engine\GameModes\CharacterGameMode.cs" />
+    <Compile Include="GameModes\CharacterGameMode.cs" />
     <Compile Include="Actors\ActorState.cs" />
     <Compile Include="Components\ComponentState.cs" />
     <Compile Include="Components\Scene\Lights\LightComponent.cs" />
@@ -864,7 +864,7 @@
     <Compile Include="Components\Scene\Volumes\Trigger.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\CapsuleComponent.cs" />
     <Compile Include="Engine\EngineProperties.cs" />
-    <Compile Include="Engine\GameModes\GameMode.cs" />
+    <Compile Include="GameModes\GameMode.cs" />
     <Compile Include="Animation\Property\AnimationContainer.cs" />
     <Compile Include="Animation\KeyframeTrack.cs" />
     <Compile Include="Core\Interfaces.cs" />

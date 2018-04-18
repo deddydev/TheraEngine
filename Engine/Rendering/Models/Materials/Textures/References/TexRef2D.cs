@@ -21,6 +21,8 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileDef("2D Texture Reference")]
     public class TexRef2D : BaseTexRef
     {
+        public const string CategoryName = "Texture Reference 2D";
+
         #region Constructors
         public TexRef2D() : this(null, 1, 1) { }
         public TexRef2D(string name, int width, int height)
@@ -99,26 +101,78 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize(nameof(Height))]
         protected int _height;
 
-        [TSerialize]
-        public EPixelFormat PixelFormat { get; set; } = EPixelFormat.Rgba;
-        [TSerialize]
-        public EPixelType PixelType { get; set; } = EPixelType.UnsignedByte;
+        [TSerialize(nameof(PixelFormat))]
+        private EPixelFormat _pixelFormat = EPixelFormat.Rgba;
+        [TSerialize(nameof(PixelType))]
+        private EPixelType _pixelType = EPixelType.UnsignedByte;
+        [TSerialize(nameof(InternalFormat))]
+        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
+        
+        [Category(CategoryName)]
+        public EPixelFormat PixelFormat
+        {
+            get => _pixelFormat;
+            set
+            {
+                _pixelFormat = value;
+                if (_texture != null)
+                {
+                    _texture.PixelFormat = _pixelFormat;
+                    _texture.PushData();
+                }
+            }
+        }
+        [Category(CategoryName)]
+        public EPixelType PixelType
+        {
+            get => _pixelType;
+            set
+            {
+                _pixelType = value;
+                if (_texture != null)
+                {
+                    _texture.PixelType = _pixelType;
+                    _texture.PushData();
+                }
+            }
+        }
+        [Category(CategoryName)]
+        public EPixelInternalFormat InternalFormat
+        {
+            get => _internalFormat;
+            set
+            {
+                _internalFormat = value;
+                if (_texture != null)
+                {
+                    _texture.InternalFormat = _internalFormat;
+                    _texture.PushData();
+                }
+            }
+        }
+
+        [Category(CategoryName)]
         [TSerialize]
         public EDepthStencilFmt DepthStencilFormat { get; set; } = EDepthStencilFmt.None;
-        [TSerialize]
-        public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba8;
+        [Category(CategoryName)]
         [TSerialize]
         public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Nearest;
+        [Category(CategoryName)]
         [TSerialize]
         public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.Nearest;
+        [Category(CategoryName)]
         [TSerialize]
         public ETexWrapMode UWrap { get; set; } = ETexWrapMode.Repeat;
+        [Category(CategoryName)]
         [TSerialize]
         public ETexWrapMode VWrap { get; set; } = ETexWrapMode.Repeat;
+        [Category(CategoryName)]
         [TSerialize]
         public float LodBias { get; set; } = 0.0f;
 
+        [Category(CategoryName)]
         public int Width => _width;
+        [Category(CategoryName)]
         public int Height => _height;
 
         protected virtual void SetParameters()
@@ -128,14 +182,14 @@ namespace TheraEngine.Rendering.Models.Materials
 
             _texture.Bind();
 
-            //if (DepthStencilFormat != EDepthStencilFmt.None)
-            //{
-            //    int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
-            //        (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
-            //        (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
-            //    int id = _texture.BindingId;
-            //    OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
-            //}
+            if (DepthStencilFormat != EDepthStencilFmt.None)
+            {
+                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
+                    (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
+                    (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
+                int id = _texture.BindingId;
+                OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
+            }
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, LodBias);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)MagFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)MinFilter);
@@ -172,6 +226,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return _texture;
         }
+
+        public void UpdateTexture() => _texture?.PushData();
 
         public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();

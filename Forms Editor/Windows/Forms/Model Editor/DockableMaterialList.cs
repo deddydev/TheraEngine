@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -16,17 +17,14 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
         }
 
-        public void DisplayMaterials(Actor<StaticMeshComponent> staticActor)
+        public void DisplayMaterials(StaticModel staticModel)
         {
-            if (staticActor.RootComponent.ModelRef?.File == null)
+            if (staticModel == null)
                 return;
 
             HashSet<int> ids = new HashSet<int>();
 
-            Controls.Clear();
-            List<Control> controls = new List<Control>();
-            
-            var rigidMeshes = staticActor.RootComponent.Model.RigidChildren;
+            var rigidMeshes = staticModel.RigidChildren;
             for (int i = 0; i < rigidMeshes.Count; ++i)
             {
                 for (int x = 0; x < rigidMeshes[i].LODs.Count; ++x)
@@ -36,19 +34,11 @@ namespace TheraEditor.Windows.Forms
                     if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
                     {
                         ids.Add(lod.MaterialRef.File.UniqueID);
-                        MaterialControl c = new MaterialControl()
-                        {
-                            Dock = DockStyle.Top,
-                            Margin = new Padding(0),
-                            Padding = new Padding(0),
-                            AutoSize = true,
-                        };
-                        c.Material = lod.MaterialRef.File;
-                        controls.Add(c);
+                        listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
                     }
                 }
             }
-            var softMeshes = staticActor.RootComponent.Model.SoftChildren;
+            var softMeshes = staticModel.SoftChildren;
             for (int i = 0; i < softMeshes.Count; ++i)
             {
                 for (int x = 0; x < softMeshes[i].LODs.Count; ++x)
@@ -58,32 +48,19 @@ namespace TheraEditor.Windows.Forms
                     if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
                     {
                         ids.Add(lod.MaterialRef.File.UniqueID);
-                        MaterialControl c = new MaterialControl()
-                        {
-                            Dock = DockStyle.Top,
-                            Margin = new Padding(0),
-                            Padding = new Padding(0),
-                            AutoSize = true,
-                        };
-                        c.Material = lod.MaterialRef.File;
-                        controls.Add(c);
+                        listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
                     }
                 }
             }
-            
-            Controls.AddRange(controls.OrderBy(x => x.Name).ToArray());
         }
-        public void DisplayMaterials(Actor<SkeletalMeshComponent> skeletalActor)
+        public void DisplayMaterials(SkeletalModel skelModel)
         {
-            if (skeletalActor.RootComponent.ModelRef?.File == null)
+            if (skelModel == null)
                 return;
 
             HashSet<int> ids = new HashSet<int>();
-
-            Controls.Clear();
-            List<Control> controls = new List<Control>();
-
-            var rigidMeshes = skeletalActor.RootComponent.Model.RigidChildren;
+            
+            var rigidMeshes = skelModel.RigidChildren;
             for (int i = 0; i < rigidMeshes.Count; ++i)
             {
                 for (int x = 0; x < rigidMeshes[i].LODs.Count; ++x)
@@ -93,19 +70,11 @@ namespace TheraEditor.Windows.Forms
                     if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
                     {
                         ids.Add(lod.MaterialRef.File.UniqueID);
-                        MaterialControl c = new MaterialControl()
-                        {
-                            Dock = DockStyle.Top,
-                            Margin = new Padding(0),
-                            Padding = new Padding(0),
-                            AutoSize = true,
-                        };
-                        c.Material = lod.MaterialRef.File;
-                        controls.Add(c);
+                        listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
                     }
                 }
             }
-            var softMeshes = skeletalActor.RootComponent.Model.SoftChildren;
+            var softMeshes = skelModel.SoftChildren;
             for (int i = 0; i < softMeshes.Count; ++i)
             {
                 for (int x = 0; x < softMeshes[i].LODs.Count; ++x)
@@ -115,20 +84,26 @@ namespace TheraEditor.Windows.Forms
                     if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
                     {
                         ids.Add(lod.MaterialRef.File.UniqueID);
-                        MaterialControl c = new MaterialControl()
-                        {
-                            Dock = DockStyle.Top,
-                            Margin = new Padding(0),
-                            Padding = new Padding(0),
-                            AutoSize = true,
-                        };
-                        c.Material = lod.MaterialRef.File;
-                        controls.Add(c);
+                        listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
                     }
                 }
             }
+        }
 
-            Controls.AddRange(controls.OrderBy(x => x.Name).ToArray());
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ModelEditorForm f = DockPanel.FindForm() as ModelEditorForm;
+            if (f == null)
+                return;
+            if (listView1.SelectedItems.Count == 0)
+            {
+                f.MaterialEditor.SetMaterial(null);
+            }
+            else
+            {
+                if (listView1.SelectedItems[0].Tag is TMaterial mat)
+                    f.MaterialEditor.SetMaterial(mat);
+            }
         }
     }
 }

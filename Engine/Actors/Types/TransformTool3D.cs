@@ -145,7 +145,7 @@ namespace TheraEngine.Actors.Types
 
                 PrimitiveData axisPrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), axisLine);
                 axisPrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Axis", !isRotate,  axisPrim, axisMat)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Axis", !isRotate, null, axisPrim, axisMat)
                 {
                     RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
                 });
@@ -153,35 +153,35 @@ namespace TheraEngine.Actors.Types
                 float coneHeight = _axisLength - _coneDistance;
                 PrimitiveData arrowPrim = BaseCone.SolidMesh(unit * (_coneDistance + coneHeight / 2.0f), unit, coneHeight, _coneRadius, 6, false);
                 arrowPrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Arrow", !isRotate, arrowPrim, axisMat)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Arrow", !isRotate, null, arrowPrim, axisMat)
                 {
                     RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
                 });
                 
                 PrimitiveData transPrim1 = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), transLine1);
                 transPrim1.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane1", isTranslate, transPrim1, planeMat1)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane1", isTranslate, null, transPrim1, planeMat1)
                 {
                     RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
                 });
 
                 PrimitiveData transPrim2 = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), transLine2);
                 transPrim2.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane2", isTranslate, transPrim2, planeMat2)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane2", isTranslate, null, transPrim2, planeMat2)
                 {
                     RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
                 });
 
                 PrimitiveData scalePrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), scaleLine1, scaleLine2);
                 scalePrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", isScale, scalePrim, scalePlaneMat)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", isScale, null, scalePrim, scalePlaneMat)
                 {
                     RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
                 });
 
                 PrimitiveData rotPrim = Circle3D.WireframeMesh(_orbRadius, unit, Vec3.Zero, _circlePrecision);
                 rotPrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Rotation", isRotate, rotPrim, axisMat)
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Rotation", isRotate, null, rotPrim, axisMat)
                 {
                     RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
                 });
@@ -191,7 +191,7 @@ namespace TheraEngine.Actors.Types
             PrimitiveData screenRotPrim = Circle3D.WireframeMesh(_circRadius, Vec3.UnitZ, Vec3.Zero, _circlePrecision);
             screenRotPrim.SingleBindBone = screenBoneName;
 
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", isRotate, screenRotPrim, _screenMat)
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", isRotate, null, screenRotPrim, _screenMat)
             {
                 RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
             });
@@ -205,7 +205,7 @@ namespace TheraEngine.Actors.Types
             PrimitiveData screenTransPrim = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
             screenTransPrim.SingleBindBone = screenBoneName;
 
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenTranslation", isTranslate, screenTransPrim, _screenMat)
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenTranslation", isTranslate, null, screenTransPrim, _screenMat)
             {
                 RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
             });
@@ -222,7 +222,7 @@ namespace TheraEngine.Actors.Types
 
             PrimitiveData spherePrim = Sphere.SolidMesh(Vec3.Zero, _orbRadius, 10, 10);
             spherePrim.SingleBindBone = rootBoneName;
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("RotationSphere", isRotate, spherePrim, sphereMat)
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh("RotationSphere", isRotate, null, spherePrim, sphereMat)
             {
                 RenderInfo = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false),
             });

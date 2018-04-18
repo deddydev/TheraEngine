@@ -280,6 +280,18 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\Bone Tree\BoneTreeNode.cs" />
+    <Compile Include="Windows\Forms\Model Editor\DockableMaterialEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableMaterialEditor.Designer.cs">
+      <DependentUpon>DockableMaterialEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableMeshEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableMeshEditor.Designer.cs">
+      <DependentUpon>DockableMeshEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Model Editor\DockableMaterialList.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -751,6 +763,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Misc\LoginControl.resx">
       <DependentUpon>LoginControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialEditor.resx">
+      <DependentUpon>DockableMaterialEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMeshEditor.resx">
+      <DependentUpon>DockableMeshEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialList.resx">
       <DependentUpon>DockableMaterialList.cs</DependentUpon>

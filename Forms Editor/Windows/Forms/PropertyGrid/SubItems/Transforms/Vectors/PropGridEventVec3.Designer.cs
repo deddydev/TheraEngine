@@ -39,7 +39,7 @@
             // numericInputBoxX
             // 
             this.numericInputBoxX.AllowedDecimalPlaces = -1;
-            this.numericInputBoxX.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBoxX.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBoxX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxX.DefaultValue = 0F;
             this.numericInputBoxX.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -66,7 +66,7 @@
             // numericInputBoxY
             // 
             this.numericInputBoxY.AllowedDecimalPlaces = -1;
-            this.numericInputBoxY.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBoxY.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBoxY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxY.DefaultValue = 0F;
             this.numericInputBoxY.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -93,7 +93,7 @@
             // numericInputBoxZ
             // 
             this.numericInputBoxZ.AllowedDecimalPlaces = -1;
-            this.numericInputBoxZ.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBoxZ.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBoxZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxZ.DefaultValue = 0F;
             this.numericInputBoxZ.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -164,7 +164,6 @@
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion

@@ -33,7 +33,7 @@
             // 
             // numericInputBox1
             // 
-            this.numericInputBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBox1.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBox1.DefaultValue = ((uint)(0u));
             this.numericInputBox1.Dock = System.Windows.Forms.DockStyle.Bottom;

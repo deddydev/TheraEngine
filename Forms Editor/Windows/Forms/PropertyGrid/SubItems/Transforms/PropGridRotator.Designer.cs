@@ -40,7 +40,7 @@
             // numericInputBoxPitch
             // 
             this.numericInputBoxPitch.AllowedDecimalPlaces = -1;
-            this.numericInputBoxPitch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBoxPitch.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBoxPitch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxPitch.DefaultValue = 0F;
             this.numericInputBoxPitch.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -67,7 +67,7 @@
             // numericInputBoxYaw
             // 
             this.numericInputBoxYaw.AllowedDecimalPlaces = -1;
-            this.numericInputBoxYaw.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBoxYaw.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBoxYaw.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxYaw.DefaultValue = 0F;
             this.numericInputBoxYaw.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -94,7 +94,7 @@
             // numericInputBoxRoll
             // 
             this.numericInputBoxRoll.AllowedDecimalPlaces = -1;
-            this.numericInputBoxRoll.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBoxRoll.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBoxRoll.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxRoll.DefaultValue = 0F;
             this.numericInputBoxRoll.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -145,7 +145,7 @@
             // 
             // cboOrder
             // 
-            this.cboOrder.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.cboOrder.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.cboOrder.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.cboOrder.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.cboOrder.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));

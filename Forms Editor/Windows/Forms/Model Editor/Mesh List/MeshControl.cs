@@ -17,14 +17,17 @@ namespace TheraEditor.Windows.Forms
         {
             
         }
-
-        public void SetMesh(StaticRigidSubMesh mesh, int i)
+        public void ClearMesh()
         {
             pnlMain.Controls.Clear();
-            DropDownName = "Mesh " + i;
+            DropDownName = "<null>";
+        }
+        public void SetMesh(StaticRigidSubMesh mesh)
+        {
+            pnlMain.Controls.Clear();
             if (mesh != null)
             {
-                DropDownName += ": " + mesh.Name;
+                DropDownName = mesh.Name;
                 for (int x = 0; x < mesh.LODs.Count; ++x)
                 {
                     LODControl c = new LODControl()
@@ -34,18 +37,21 @@ namespace TheraEditor.Windows.Forms
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                     };
-                    c.SetLOD(mesh.LODs[x], x);
+                    c.SetLOD(mesh.LODs[x], x, mesh.LODs.Count);
                     pnlMain.Controls.Add(c);
                 }
             }
+            else
+            {
+                DropDownName = "<null>";
+            }
         }
-        public void SetMesh(StaticSoftSubMesh mesh, int i)
+        public void SetMesh(StaticSoftSubMesh mesh)
         {
             pnlMain.Controls.Clear();
-            DropDownName = "Mesh " + i;
             if (mesh != null)
             {
-                DropDownName += ": " + mesh.Name;
+                DropDownName = mesh.Name;
                 for (int x = 0; x < mesh.LODs.Count; ++x)
                 {
                     LODControl c = new LODControl()
@@ -55,18 +61,21 @@ namespace TheraEditor.Windows.Forms
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                     };
-                    c.SetLOD(mesh.LODs[x], x);
+                    c.SetLOD(mesh.LODs[x], x, mesh.LODs.Count);
                     pnlMain.Controls.Add(c);
                 }
             }
+            else
+            {
+                DropDownName = "<null>";
+            }
         }
-        public void SetMesh(SkeletalRigidSubMesh mesh, int i)
+        public void SetMesh(SkeletalRigidSubMesh mesh)
         {
             pnlMain.Controls.Clear();
-            DropDownName = "Mesh " + i;
             if (mesh != null)
             {
-                DropDownName += ": " + mesh.Name;
+                DropDownName = mesh.Name;
                 for (int x = 0; x < mesh.LODs.Count; ++x)
                 {
                     LODControl c = new LODControl()
@@ -76,18 +85,21 @@ namespace TheraEditor.Windows.Forms
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                     };
-                    c.SetLOD(mesh.LODs[x], x);
+                    c.SetLOD(mesh.LODs[x], x, mesh.LODs.Count);
                     pnlMain.Controls.Add(c);
                 }
             }
+            else
+            {
+                DropDownName = "<null>";
+            }
         }
-        public void SetMesh(SkeletalSoftSubMesh mesh, int i)
+        public void SetMesh(SkeletalSoftSubMesh mesh)
         {
             pnlMain.Controls.Clear();
-            DropDownName = "Mesh " + i;
             if (mesh != null)
             {
-                DropDownName += ": " + mesh.Name;
+                DropDownName = mesh.Name;
                 for (int x = 0; x < mesh.LODs.Count; ++x)
                 {
                     LODControl c = new LODControl()
@@ -97,9 +109,13 @@ namespace TheraEditor.Windows.Forms
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                     };
-                    c.SetLOD(mesh.LODs[x], x);
+                    c.SetLOD(mesh.LODs[x], x, mesh.LODs.Count);
                     pnlMain.Controls.Add(c);
                 }
+            }
+            else
+            {
+                DropDownName = "<null>";
             }
         }
 

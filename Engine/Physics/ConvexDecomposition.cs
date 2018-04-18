@@ -20,6 +20,8 @@ namespace TheraEngine.Physics
             bool addNeighborsDistPoints = false,
             bool addFacesPoints = false)
         {
+            return null;
+
             Hacd hacd = new Hacd();
             List<int> indices = new List<int>();
             List<Vector3> points = new List<Vector3>();

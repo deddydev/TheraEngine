@@ -85,7 +85,7 @@
             // 
             // treeViewSceneComps
             // 
-            this.treeViewSceneComps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.treeViewSceneComps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.treeViewSceneComps.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.treeViewSceneComps.Dock = System.Windows.Forms.DockStyle.Top;
             this.treeViewSceneComps.Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -103,7 +103,7 @@
             // 
             // lstLogicComps
             // 
-            this.lstLogicComps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.lstLogicComps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.lstLogicComps.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lstLogicComps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lstLogicComps.Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -124,7 +124,7 @@
             this.pnlProps.AutoScroll = true;
             this.pnlProps.AutoSize = true;
             this.pnlProps.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.pnlProps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.pnlProps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.pnlProps.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlProps.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.pnlProps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));

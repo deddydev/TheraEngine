@@ -40,7 +40,7 @@
         private bool _ignoreIfDefault = true;
         private bool _external = false;
         private bool _config = true;
-        private bool _state = true;
+        private bool _state = false;
 
         /// <summary>
         /// The order this field should be serialized in.

@@ -15,7 +15,7 @@ namespace TheraEngine.Files
     public enum ESerializeFlags
     {
         None = 0,
-        SerializeFile = 0x1,
+        SerializeConfig = 0x1,
         SerializeState = 0x2,
         All = 0xF,
     }
@@ -39,10 +39,10 @@ namespace TheraEngine.Files
         FileExt FileExtension { get; }
         File3rdParty File3rdPartyExtensions { get; }
         void Unload();
-        void Export(ESerializeFlags flags = ESerializeFlags.SerializeFile);
-        void Export(string path, ESerializeFlags flags = ESerializeFlags.SerializeFile);
-        void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.SerializeFile);
-        void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.SerializeFile);
+        void Export(ESerializeFlags flags = ESerializeFlags.SerializeConfig);
+        void Export(string path, ESerializeFlags flags = ESerializeFlags.SerializeConfig);
+        void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.SerializeConfig);
+        void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.SerializeConfig);
         string GetFilePath(string dir, string name, ProprietaryFileFormat format);
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
     }
@@ -362,7 +362,7 @@ namespace TheraEngine.Files
             return null;
         }
         //[GridCallable("Save")]
-        public void Export(ESerializeFlags flags = ESerializeFlags.SerializeFile)
+        public void Export(ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             if (string.IsNullOrEmpty(_filePath))
             {
@@ -373,7 +373,7 @@ namespace TheraEngine.Files
             Export(dir, name, fmt, thirdPartyExt, flags);
         }
         //[GridCallable("Save")]
-        public void Export(string path, ESerializeFlags flags = ESerializeFlags.SerializeFile)
+        public void Export(string path, ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -387,7 +387,7 @@ namespace TheraEngine.Files
         public void Export(
             string directory,
             string fileName,
-            ESerializeFlags flags = ESerializeFlags.SerializeFile)
+            ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             string ext = null;
             FileExt fileExt = FileExtension;
@@ -419,7 +419,7 @@ namespace TheraEngine.Files
             string fileName,
             FileFormat format,
             string thirdPartyExt = null,
-            ESerializeFlags flags = ESerializeFlags.SerializeFile)
+            ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             switch (format)
             {
@@ -480,7 +480,7 @@ namespace TheraEngine.Files
         internal void ToXML(
             string directory,
             string fileName,
-            ESerializeFlags flags = ESerializeFlags.SerializeFile)
+            ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             if (string.IsNullOrWhiteSpace(directory))
             {
@@ -523,7 +523,7 @@ namespace TheraEngine.Files
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="writer">The xml writer to write the file with.</param>
-        internal protected virtual void Write(XmlWriter writer, ESerializeFlags flags = ESerializeFlags.SerializeFile)
+        internal protected virtual void Write(XmlWriter writer, ESerializeFlags flags = ESerializeFlags.SerializeConfig)
             => throw new NotImplementedException("Override of \"internal protected virtual void Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from an xml file using the given xml reader.
@@ -566,7 +566,7 @@ namespace TheraEngine.Files
         internal unsafe void ToBinary(
             string directory,
             string fileName,
-            ESerializeFlags flags = ESerializeFlags.SerializeFile)
+            ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             Type t = GetType();
 
@@ -630,7 +630,7 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="table">The string table to populate with strings.</param>
         /// <returns>The size of the object, in bytes.</returns>
-        internal int CalculateSize(StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeFile)
+        internal int CalculateSize(StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             _calculatedSize = OnCalculateSize(table, flags);
             return _calculatedSize;
@@ -641,7 +641,7 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="table">The string table. Add strings to this as you wish, and use their addresses when writing later.</param>
         /// <returns>The size of the object, in bytes.</returns>
-        protected virtual int OnCalculateSize(StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeFile)
+        protected virtual int OnCalculateSize(StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeConfig)
             => throw new NotImplementedException("Override of \"protected virtual int OnCalculateSize(StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Writes this object to the given address.
@@ -650,7 +650,7 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="address">The address to write to.</param>
         /// <param name="table">The table of all strings added in OnCalculateSize.</param>
-        internal protected virtual void Write(VoidPtr address, StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeFile)
+        internal protected virtual void Write(VoidPtr address, StringTable table, ESerializeFlags flags = ESerializeFlags.SerializeConfig)
             => throw new NotImplementedException("Override of \"internal protected virtual void Write(VoidPtr address, StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from the given address.

@@ -28,78 +28,116 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.splitter1 = new System.Windows.Forms.Splitter();
-            this.RigidMeshes = new TheraEditor.Windows.Forms.GenericDropDownControl();
-            this.SoftMeshes = new TheraEditor.Windows.Forms.GenericDropDownControl();
+            this.lstRigid = new System.Windows.Forms.ListView();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lstSoft = new System.Windows.Forms.ListView();
+            this.label2 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // splitter1
+            // lstRigid
             // 
-            this.splitter1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.splitter1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter1.Location = new System.Drawing.Point(0, 551);
-            this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(728, 3);
-            this.splitter1.TabIndex = 2;
-            this.splitter1.TabStop = false;
+            this.lstRigid.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.lstRigid.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lstRigid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstRigid.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstRigid.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
+            this.lstRigid.Location = new System.Drawing.Point(0, 34);
+            this.lstRigid.Name = "lstRigid";
+            this.lstRigid.Size = new System.Drawing.Size(728, 220);
+            this.lstRigid.TabIndex = 3;
+            this.lstRigid.UseCompatibleStateImageBehavior = false;
+            this.lstRigid.View = System.Windows.Forms.View.List;
+            this.lstRigid.SelectedIndexChanged += new System.EventHandler(this.lstRigid_SelectedIndexChanged);
             // 
-            // RigidMeshes
+            // splitContainer1
             // 
-            this.RigidMeshes.AutoSize = true;
-            this.RigidMeshes.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.RigidMeshes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.RigidMeshes.Collapsible = false;
-            this.RigidMeshes.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.RigidMeshes.DropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
-            this.RigidMeshes.DropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
-            this.RigidMeshes.DropDownMouseDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(55)))), ((int)(((byte)(80)))));
-            this.RigidMeshes.DropDownName = "Rigid Meshes";
-            this.RigidMeshes.ExpandedDropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
-            this.RigidMeshes.ExpandedDropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
-            this.RigidMeshes.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.RigidMeshes.Location = new System.Drawing.Point(0, 0);
-            this.RigidMeshes.Margin = new System.Windows.Forms.Padding(0);
-            this.RigidMeshes.Name = "RigidMeshes";
-            this.RigidMeshes.Size = new System.Drawing.Size(728, 551);
-            this.RigidMeshes.TabIndex = 0;
+            this.splitContainer1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // SoftMeshes
+            // splitContainer1.Panel1
             // 
-            this.SoftMeshes.AutoSize = true;
-            this.SoftMeshes.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.SoftMeshes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.SoftMeshes.Collapsible = false;
-            this.SoftMeshes.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.SoftMeshes.DropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
-            this.SoftMeshes.DropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
-            this.SoftMeshes.DropDownMouseDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(55)))), ((int)(((byte)(80)))));
-            this.SoftMeshes.DropDownName = "Soft Meshes";
-            this.SoftMeshes.ExpandedDropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
-            this.SoftMeshes.ExpandedDropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));
-            this.SoftMeshes.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.SoftMeshes.Location = new System.Drawing.Point(0, 554);
-            this.SoftMeshes.Margin = new System.Windows.Forms.Padding(0);
-            this.SoftMeshes.Name = "SoftMeshes";
-            this.SoftMeshes.Size = new System.Drawing.Size(728, 31);
-            this.SoftMeshes.TabIndex = 1;
+            this.splitContainer1.Panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.splitContainer1.Panel1.Controls.Add(this.lstRigid);
+            this.splitContainer1.Panel1.Controls.Add(this.label1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.splitContainer1.Panel2.Controls.Add(this.lstSoft);
+            this.splitContainer1.Panel2.Controls.Add(this.label2);
+            this.splitContainer1.Size = new System.Drawing.Size(728, 585);
+            this.splitContainer1.SplitterDistance = 254;
+            this.splitContainer1.TabIndex = 4;
+            // 
+            // label1
+            // 
+            this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(65)))), ((int)(((byte)(70)))));
+            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(728, 34);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Rigid Meshes";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lstSoft
+            // 
+            this.lstSoft.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.lstSoft.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lstSoft.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstSoft.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstSoft.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
+            this.lstSoft.Location = new System.Drawing.Point(0, 34);
+            this.lstSoft.Name = "lstSoft";
+            this.lstSoft.Size = new System.Drawing.Size(728, 293);
+            this.lstSoft.TabIndex = 6;
+            this.lstSoft.UseCompatibleStateImageBehavior = false;
+            this.lstSoft.View = System.Windows.Forms.View.List;
+            this.lstSoft.SelectedIndexChanged += new System.EventHandler(this.lstSoft_SelectedIndexChanged);
+            // 
+            // label2
+            // 
+            this.label2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(65)))), ((int)(((byte)(70)))));
+            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
+            this.label2.Location = new System.Drawing.Point(0, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(728, 34);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Soft Meshes";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // DockableMeshList
             // 
             this.ClientSize = new System.Drawing.Size(728, 585);
-            this.Controls.Add(this.RigidMeshes);
-            this.Controls.Add(this.splitter1);
-            this.Controls.Add(this.SoftMeshes);
+            this.Controls.Add(this.splitContainer1);
             this.Name = "DockableMeshList";
             this.Text = "Meshes";
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
-        private GenericDropDownControl RigidMeshes;
-        private GenericDropDownControl SoftMeshes;
-        private System.Windows.Forms.Splitter splitter1;
+        private System.Windows.Forms.ListView lstRigid;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ListView lstSoft;
+        private System.Windows.Forms.Label label2;
     }
 }

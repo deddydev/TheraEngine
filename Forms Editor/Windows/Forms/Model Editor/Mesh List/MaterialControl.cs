@@ -161,9 +161,12 @@ namespace TheraEditor.Windows.Forms
                 tblUniforms.Controls.Clear();
                 tblUniforms.RowStyles.Clear();
                 tblUniforms.RowCount = 0;
+                lstTextures.Clear();
 
                 if (_material != null)
                 {
+                    lblMatName.Text = _material.Name;
+
                     if (_spherePrim == null)
                     {
                         basicRenderPanel1.Scene.Clear(BoundingBox.FromHalfExtentsTranslation(2.0f, 0.0f));
@@ -174,23 +177,7 @@ namespace TheraEditor.Windows.Forms
                     else
                         _spherePrim.Material = _material;
 
-                    txtMatName.Text = _material.Name;
-                    lblMatName.Text = _material.Name;
-                    lblParamCount.Text = "Parameter Count:" + _material.Parameters.Length.ToString();
-                    lblTexCount.Text = "Texture Count:" + _material.Textures.Length.ToString();
-                    lblBlending.Text = "Blending:" + _material.RenderParams.BlendMode.ToString();
-                    lblDepthTest.Text = "Depth Test:" + _material.RenderParams.DepthTest.ToString();
-                    lblShaderTypes.Text = "Shader Types:" + string.Format("F:{0} G:{1} TE:{2} TC:{3}",
-                        _material.FragmentShaders.Count > 0,
-                        _material.GeometryShaders.Count > 0,
-                        _material.TessEvalShaders.Count > 0, 
-                        _material.TessCtrlShaders.Count > 0);
-                    lblStencil.Text = "Stencil:" + _material.RenderParams.StencilTest.ToString();
-                    lblColorMask.Text = "Color Mask:" + string.Format("R:{0} G:{1} B:{2} A:{3}",
-                        _material.RenderParams.WriteRed,
-                        _material.RenderParams.WriteGreen,
-                        _material.RenderParams.WriteBlue,
-                        _material.RenderParams.WriteAlpha);
+                    theraPropertyGrid1.TargetObject = _material;
 
                     foreach (ShaderVar shaderVar in _material.Parameters)
                     {
@@ -215,11 +202,17 @@ namespace TheraEditor.Windows.Forms
                         tblUniforms.Controls.Add(textCtrl, 0, tblUniforms.RowCount - 1);
                         tblUniforms.Controls.Add(valueCtrl, 1, tblUniforms.RowCount - 1);
                     }
-                    
+
                     foreach (BaseTexRef tref in _material.Textures)
                     {
-
+                        var item = new ListViewItem(string.Format("{0} [{1}]",
+                            tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
+                        lstTextures.Items.Add(item);
                     }
+                }
+                else
+                {
+                    lblMatName.Text = "<null>";
                 }
             }
         }
@@ -237,7 +230,7 @@ namespace TheraEditor.Windows.Forms
 
         private void lblMatName_Click(object sender, EventArgs e)
         {
-            panel2.Visible = !panel2.Visible;
+            //panel2.Visible = !panel2.Visible;
         }
 
         private void lblMatName_MouseEnter(object sender, EventArgs e)
@@ -252,7 +245,7 @@ namespace TheraEditor.Windows.Forms
 
         private void txtMatName_TextChanged(object sender, EventArgs e)
         {
-            _material.Name = txtMatName.Text;
+            //_material.Name = txtMatName.Text;
             lblMatName.Text = _material.Name;
         }
 

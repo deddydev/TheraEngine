@@ -34,9 +34,9 @@ namespace TheraEditor.Windows.Forms
             this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.formMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.reimportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.reimportFromToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnExport = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnReimport = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnReimportFrom = new System.Windows.Forms.ToolStripMenuItem();
             this.btnWindow = new System.Windows.Forms.ToolStripMenuItem();
             this.viewport1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewport1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,8 +44,12 @@ namespace TheraEditor.Windows.Forms
             this.btnViewport3 = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewport4 = new System.Windows.Forms.ToolStripMenuItem();
             this.btnMeshList = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnMeshEditor = new System.Windows.Forms.ToolStripMenuItem();
             this.btnMaterialList = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnMaterialEditor = new System.Windows.Forms.ToolStripMenuItem();
             this.btnSkeleton = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnCollisionBodyList = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnConstraintList = new System.Windows.Forms.ToolStripMenuItem();
             this.btnView = new System.Windows.Forms.ToolStripMenuItem();
             this.chkViewNormals = new System.Windows.Forms.ToolStripMenuItem();
             this.chkViewBinormals = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,28 +73,28 @@ namespace TheraEditor.Windows.Forms
             // BodyPanel
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
-            this.BodyPanel.Size = new System.Drawing.Size(875, 1007);
+            this.BodyPanel.Size = new System.Drawing.Size(929, 1054);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(875, 1047);
+            this.MainPanel.Size = new System.Drawing.Size(929, 1094);
             // 
             // TitlePanel
             // 
             this.TitlePanel.Controls.Add(this.PaddingPanel);
-            this.TitlePanel.Size = new System.Drawing.Size(875, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(929, 40);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             this.TitlePanel.Controls.SetChildIndex(this.PaddingPanel, 0);
             // 
             // FormTitle
             // 
             this.FormTitle.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
-            this.FormTitle.Size = new System.Drawing.Size(704, 40);
+            this.FormTitle.Size = new System.Drawing.Size(758, 40);
             this.FormTitle.Text = "Model Editor";
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(875, 1055);
+            this.MiddlePanel.Size = new System.Drawing.Size(929, 1102);
             // 
             // DockPanel
             // 
@@ -100,7 +104,7 @@ namespace TheraEditor.Windows.Forms
             this.DockPanel.Location = new System.Drawing.Point(0, 0);
             this.DockPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.DockPanel.Name = "DockPanel";
-            this.DockPanel.Size = new System.Drawing.Size(875, 1007);
+            this.DockPanel.Size = new System.Drawing.Size(929, 1054);
             this.DockPanel.TabIndex = 15;
             // 
             // formMenu
@@ -124,39 +128,43 @@ namespace TheraEditor.Windows.Forms
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exportToolStripMenuItem,
-            this.reimportToolStripMenuItem,
-            this.reimportFromToolStripMenuItem});
+            this.btnExport,
+            this.btnReimport,
+            this.btnReimportFrom});
             this.fileToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 40);
             this.fileToolStripMenuItem.Text = "File";
             // 
-            // exportToolStripMenuItem
+            // btnExport
             // 
-            this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
-            this.exportToolStripMenuItem.Text = "Export";
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(193, 26);
+            this.btnExport.Text = "Export";
             // 
-            // reimportToolStripMenuItem
+            // btnReimport
             // 
-            this.reimportToolStripMenuItem.Name = "reimportToolStripMenuItem";
-            this.reimportToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
-            this.reimportToolStripMenuItem.Text = "Reimport";
+            this.btnReimport.Name = "btnReimport";
+            this.btnReimport.Size = new System.Drawing.Size(193, 26);
+            this.btnReimport.Text = "Reimport";
             // 
-            // reimportFromToolStripMenuItem
+            // btnReimportFrom
             // 
-            this.reimportFromToolStripMenuItem.Name = "reimportFromToolStripMenuItem";
-            this.reimportFromToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
-            this.reimportFromToolStripMenuItem.Text = "Reimport From...";
+            this.btnReimportFrom.Name = "btnReimportFrom";
+            this.btnReimportFrom.Size = new System.Drawing.Size(193, 26);
+            this.btnReimportFrom.Text = "Reimport From...";
             // 
             // btnWindow
             // 
             this.btnWindow.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.viewport1ToolStripMenuItem,
             this.btnMeshList,
+            this.btnMeshEditor,
             this.btnMaterialList,
-            this.btnSkeleton});
+            this.btnMaterialEditor,
+            this.btnSkeleton,
+            this.btnCollisionBodyList,
+            this.btnConstraintList});
             this.btnWindow.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnWindow.Name = "btnWindow";
             this.btnWindow.Size = new System.Drawing.Size(76, 40);
@@ -208,6 +216,12 @@ namespace TheraEditor.Windows.Forms
             this.btnMeshList.Text = "Mesh List";
             this.btnMeshList.Click += new System.EventHandler(this.btnMeshList_Click);
             // 
+            // btnMeshEditor
+            // 
+            this.btnMeshEditor.Name = "btnMeshEditor";
+            this.btnMeshEditor.Size = new System.Drawing.Size(205, 26);
+            this.btnMeshEditor.Text = "Mesh Editor";
+            // 
             // btnMaterialList
             // 
             this.btnMaterialList.Name = "btnMaterialList";
@@ -215,12 +229,30 @@ namespace TheraEditor.Windows.Forms
             this.btnMaterialList.Text = "Material List";
             this.btnMaterialList.Click += new System.EventHandler(this.btnMaterialList_Click);
             // 
+            // btnMaterialEditor
+            // 
+            this.btnMaterialEditor.Name = "btnMaterialEditor";
+            this.btnMaterialEditor.Size = new System.Drawing.Size(205, 26);
+            this.btnMaterialEditor.Text = "Material Editor";
+            // 
             // btnSkeleton
             // 
             this.btnSkeleton.Name = "btnSkeleton";
             this.btnSkeleton.Size = new System.Drawing.Size(205, 26);
             this.btnSkeleton.Text = "Skeleton / Sockets";
             this.btnSkeleton.Click += new System.EventHandler(this.btnSkeleton_Click);
+            // 
+            // btnCollisionBodyList
+            // 
+            this.btnCollisionBodyList.Name = "btnCollisionBodyList";
+            this.btnCollisionBodyList.Size = new System.Drawing.Size(205, 26);
+            this.btnCollisionBodyList.Text = "Collision Body List";
+            // 
+            // btnConstraintList
+            // 
+            this.btnConstraintList.Name = "btnConstraintList";
+            this.btnConstraintList.Size = new System.Drawing.Size(205, 26);
+            this.btnConstraintList.Text = "Constraint List";
             // 
             // btnView
             // 
@@ -302,7 +334,7 @@ namespace TheraEditor.Windows.Forms
             this.PaddingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PaddingPanel.Location = new System.Drawing.Point(44, 0);
             this.PaddingPanel.Name = "PaddingPanel";
-            this.PaddingPanel.Size = new System.Drawing.Size(704, 40);
+            this.PaddingPanel.Size = new System.Drawing.Size(758, 40);
             this.PaddingPanel.TabIndex = 17;
             // 
             // FormTitle2
@@ -313,7 +345,7 @@ namespace TheraEditor.Windows.Forms
             this.FormTitle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.FormTitle2.Location = new System.Drawing.Point(322, 0);
             this.FormTitle2.Name = "FormTitle2";
-            this.FormTitle2.Size = new System.Drawing.Size(382, 40);
+            this.FormTitle2.Size = new System.Drawing.Size(436, 40);
             this.FormTitle2.TabIndex = 19;
             this.FormTitle2.Text = "Title Text";
             this.FormTitle2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -336,7 +368,7 @@ namespace TheraEditor.Windows.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(883, 1055);
+            this.ClientSize = new System.Drawing.Size(937, 1102);
             this.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip = this.formMenu;
             this.MinimumSize = new System.Drawing.Size(319, 54);
@@ -377,11 +409,15 @@ namespace TheraEditor.Windows.Forms
         private System.Windows.Forms.ToolStripMenuItem chkViewBones;
         private System.Windows.Forms.ToolStripMenuItem chkViewConstraints;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem reimportToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem reimportFromToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnExport;
+        private System.Windows.Forms.ToolStripMenuItem btnReimport;
+        private System.Windows.Forms.ToolStripMenuItem btnReimportFrom;
         private System.Windows.Forms.Panel PaddingPanel;
         private System.Windows.Forms.Label ModelEditorText;
         private System.Windows.Forms.Label FormTitle2;
+        private System.Windows.Forms.ToolStripMenuItem btnMeshEditor;
+        private System.Windows.Forms.ToolStripMenuItem btnMaterialEditor;
+        private System.Windows.Forms.ToolStripMenuItem btnCollisionBodyList;
+        private System.Windows.Forms.ToolStripMenuItem btnConstraintList;
     }
 }

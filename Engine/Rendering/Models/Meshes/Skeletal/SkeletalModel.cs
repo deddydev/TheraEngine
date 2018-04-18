@@ -2,6 +2,8 @@
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using System;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -51,5 +53,17 @@ namespace TheraEngine.Rendering.Models
         public GlobalFileRef<Skeleton> SkeletonRef => _skeleton;
         public List<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
         public List<SkeletalSoftSubMesh> SoftChildren => _softChildren;
+
+        public BoundingBox CalculateBindPoseCullingAABB()
+        {
+            BoundingBox aabb = new BoundingBox();
+            foreach (var s in RigidChildren)
+                if (s.CullingVolume != null)
+                    aabb.Expand(s.CullingVolume.GetAABB());
+            //foreach (var s in SoftChildren)
+            //    if (s.CullingVolume != null)
+            //        aabb.Expand(s.CullingVolume.GetAABB());
+            return aabb;
+        }
     }
 }

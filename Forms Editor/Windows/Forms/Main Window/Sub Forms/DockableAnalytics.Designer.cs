@@ -163,7 +163,6 @@
             this.theraPropertyGrid1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.theraPropertyGrid1.Name = "theraPropertyGrid1";
             this.theraPropertyGrid1.Size = new System.Drawing.Size(586, 378);
-            this.theraPropertyGrid1.SubObject = null;
             this.theraPropertyGrid1.TabIndex = 5;
             // 
             // panel3

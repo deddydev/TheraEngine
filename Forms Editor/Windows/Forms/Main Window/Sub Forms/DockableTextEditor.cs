@@ -3,11 +3,8 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using TheraEditor.Core.SyntaxHighlightingTextBox;
-using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Files;
-using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -33,11 +30,11 @@ namespace TheraEditor.Windows.Forms
             toolStrip1.Renderer =  new TheraForm.TheraToolstripRenderer();
         }
 
-        public static void ShowNew(DockPanel dockPanel, DockState document, string text, string v, ETextEditorMode python, Action<DockableTextEditor> defaultSaveText)
+        public static void ShowNew(DockPanel dockPanel, DockState document, string text, string v, ETextEditorMode mode, Action<DockableTextEditor> defaultSaveText)
         {
             DockableTextEditor m = new DockableTextEditor();
             m.Show(dockPanel, document);
-            m.InitText(text, v, ETextEditorMode.Python);
+            m.InitText(text, v, mode);
             m.Saved += defaultSaveText;
         }
 
@@ -74,11 +71,11 @@ namespace TheraEditor.Windows.Forms
                 switch (_mode)
                 {
                     case ETextEditorMode.Text:
-                        TextBox.Language = FastColoredTextBoxNS.Language.Custom;
+                        TextBox.Language = Language.Custom;
                         //System.Windows.Forms.TextBox.CaseSensitive = false;
                         break;
                     case ETextEditorMode.Python:
-                        TextBox.Language = FastColoredTextBoxNS.Language.Custom;
+                        TextBox.Language = Language.Custom;
                         TextBox.CommentPrefix = "#";
                         TextBox.LeftBracket = '\x0';
                         TextBox.LeftBracket2 = '\x0';
@@ -93,17 +90,17 @@ namespace TheraEditor.Windows.Forms
                         //System.Windows.Forms.TextBox.HighlightDescriptors.Add(new HighlightDescriptor("'''", "'''", Color.Green, System.Windows.Forms.TextBox.Font, DescriptorType.ToCloseToken, DescriptorRecognition.Contains, true));
                         break;
                     case ETextEditorMode.CSharp:
-                        TextBox.Language = FastColoredTextBoxNS.Language.CSharp;
+                        TextBox.Language = Language.CSharp;
                         break;
                     case ETextEditorMode.Lua:
-                        TextBox.Language = FastColoredTextBoxNS.Language.Lua;
+                        TextBox.Language = Language.Lua;
                         break;
                 }
                 _updating = false;
             }
         }
 
-        private void TextBox_AutoIndentNeeded(object sender, FastColoredTextBoxNS.AutoIndentEventArgs e)
+        private void TextBox_AutoIndentNeeded(object sender, AutoIndentEventArgs e)
         {
             string line = e.LineText.Trim();
             if (line.EndsWith(":"))
@@ -190,7 +187,7 @@ namespace TheraEditor.Windows.Forms
         private void Fd_Apply(object sender, EventArgs e)
         {
             FontDialog fd = sender as FontDialog;
-            Font = fd.Font;
+            TextBox.Font = fd.Font;
             TextBox.ForeColor = fd.Color;
             btnFont.Text = string.Format("{0} {1} pt", fd.Font.Name, Math.Round(fd.Font.SizeInPoints));
         }

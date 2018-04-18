@@ -51,7 +51,7 @@
             // r0c0
             // 
             this.r0c0.AllowedDecimalPlaces = -1;
-            this.r0c0.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r0c0.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r0c0.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r0c0.DefaultValue = 0F;
             this.r0c0.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -75,7 +75,7 @@
             // r0c1
             // 
             this.r0c1.AllowedDecimalPlaces = -1;
-            this.r0c1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r0c1.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r0c1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r0c1.DefaultValue = 0F;
             this.r0c1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -99,7 +99,7 @@
             // r0c2
             // 
             this.r0c2.AllowedDecimalPlaces = -1;
-            this.r0c2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r0c2.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r0c2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r0c2.DefaultValue = 0F;
             this.r0c2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -161,7 +161,7 @@
             // r0c3
             // 
             this.r0c3.AllowedDecimalPlaces = -1;
-            this.r0c3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r0c3.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r0c3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r0c3.DefaultValue = 0F;
             this.r0c3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -185,7 +185,7 @@
             // r1c0
             // 
             this.r1c0.AllowedDecimalPlaces = -1;
-            this.r1c0.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r1c0.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r1c0.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r1c0.DefaultValue = 0F;
             this.r1c0.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -209,7 +209,7 @@
             // r1c1
             // 
             this.r1c1.AllowedDecimalPlaces = -1;
-            this.r1c1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r1c1.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r1c1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r1c1.DefaultValue = 0F;
             this.r1c1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -233,7 +233,7 @@
             // r1c2
             // 
             this.r1c2.AllowedDecimalPlaces = -1;
-            this.r1c2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r1c2.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r1c2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r1c2.DefaultValue = 0F;
             this.r1c2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -257,7 +257,7 @@
             // r1c3
             // 
             this.r1c3.AllowedDecimalPlaces = -1;
-            this.r1c3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r1c3.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r1c3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r1c3.DefaultValue = 0F;
             this.r1c3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -281,7 +281,7 @@
             // r2c0
             // 
             this.r2c0.AllowedDecimalPlaces = -1;
-            this.r2c0.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r2c0.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r2c0.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r2c0.DefaultValue = 0F;
             this.r2c0.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -305,7 +305,7 @@
             // r2c1
             // 
             this.r2c1.AllowedDecimalPlaces = -1;
-            this.r2c1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r2c1.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r2c1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r2c1.DefaultValue = 0F;
             this.r2c1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -329,7 +329,7 @@
             // r2c2
             // 
             this.r2c2.AllowedDecimalPlaces = -1;
-            this.r2c2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r2c2.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r2c2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r2c2.DefaultValue = 0F;
             this.r2c2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -353,7 +353,7 @@
             // r2c3
             // 
             this.r2c3.AllowedDecimalPlaces = -1;
-            this.r2c3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r2c3.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r2c3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r2c3.DefaultValue = 0F;
             this.r2c3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -377,7 +377,7 @@
             // r3c0
             // 
             this.r3c0.AllowedDecimalPlaces = -1;
-            this.r3c0.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r3c0.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r3c0.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r3c0.DefaultValue = 0F;
             this.r3c0.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -401,7 +401,7 @@
             // r3c1
             // 
             this.r3c1.AllowedDecimalPlaces = -1;
-            this.r3c1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r3c1.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r3c1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r3c1.DefaultValue = 0F;
             this.r3c1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -425,7 +425,7 @@
             // r3c2
             // 
             this.r3c2.AllowedDecimalPlaces = -1;
-            this.r3c2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r3c2.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r3c2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r3c2.DefaultValue = 0F;
             this.r3c2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -449,7 +449,7 @@
             // r3c3
             // 
             this.r3c3.AllowedDecimalPlaces = -1;
-            this.r3c3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.r3c3.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.r3c3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.r3c3.DefaultValue = 0F;
             this.r3c3.Dock = System.Windows.Forms.DockStyle.Fill;

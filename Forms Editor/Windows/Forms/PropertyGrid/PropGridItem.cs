@@ -93,6 +93,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 SubmitPreManualStateChange(RefObject, propName);
         }
 
+        /// <summary>
+        /// The object that should handle changes to this property.
+        /// </summary>
         public IDataChangeHandler DataChangeHandler { get; set; }
 
         /// <summary>

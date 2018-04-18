@@ -31,16 +31,16 @@
             this.propGridSingle1 = new TheraEditor.Windows.Forms.PropertyGrid.PropGridSingle();
             this.pnlVisDist = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.materialControl1 = new TheraEditor.Windows.Forms.MaterialControl();
+            this.lblMaterial = new System.Windows.Forms.Label();
             this.pnlMain.SuspendLayout();
             this.pnlVisDist.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlMain
             // 
-            this.pnlMain.Controls.Add(this.materialControl1);
+            this.pnlMain.Controls.Add(this.lblMaterial);
             this.pnlMain.Controls.Add(this.pnlVisDist);
-            this.pnlMain.Size = new System.Drawing.Size(0, 371);
+            this.pnlMain.Size = new System.Drawing.Size(0, 61);
             // 
             // propGridSingle1
             // 
@@ -76,6 +76,7 @@
             // label1
             // 
             this.label1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(125, 27);
@@ -83,31 +84,31 @@
             this.label1.Text = "Visible Distance";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // materialControl1
+            // lblMaterial
             // 
-            this.materialControl1.AutoSize = true;
-            this.materialControl1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.materialControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.materialControl1.CameraFovY = 45F;
-            this.materialControl1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.materialControl1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.materialControl1.Location = new System.Drawing.Point(0, 27);
-            this.materialControl1.Margin = new System.Windows.Forms.Padding(0);
-            this.materialControl1.Material = null;
-            this.materialControl1.Name = "materialControl1";
-            this.materialControl1.Size = new System.Drawing.Size(0, 344);
-            this.materialControl1.TabIndex = 2;
+            this.lblMaterial.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(76)))), ((int)(((byte)(90)))));
+            this.lblMaterial.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblMaterial.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.lblMaterial.Location = new System.Drawing.Point(0, 27);
+            this.lblMaterial.Name = "lblMaterial";
+            this.lblMaterial.Size = new System.Drawing.Size(0, 34);
+            this.lblMaterial.TabIndex = 2;
+            this.lblMaterial.Text = "Material Name";
+            this.lblMaterial.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblMaterial.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblMaterial_MouseDown);
+            this.lblMaterial.MouseEnter += new System.EventHandler(this.lblMaterial_MouseEnter);
+            this.lblMaterial.MouseLeave += new System.EventHandler(this.lblMaterial_MouseLeave);
             // 
             // LODControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.DropDownName = "LOD";
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "LODControl";
-            this.Size = new System.Drawing.Size(10, 396);
+            this.Size = new System.Drawing.Size(10, 86);
             this.pnlMain.ResumeLayout(false);
-            this.pnlMain.PerformLayout();
             this.pnlVisDist.ResumeLayout(false);
             this.pnlVisDist.PerformLayout();
             this.ResumeLayout(false);
@@ -120,6 +121,6 @@
         private System.Windows.Forms.Panel pnlVisDist;
         private PropertyGrid.PropGridSingle propGridSingle1;
         private System.Windows.Forms.Label label1;
-        private MaterialControl materialControl1;
+        private System.Windows.Forms.Label lblMaterial;
     }
 }

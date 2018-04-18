@@ -75,7 +75,7 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Calculates the fully-encompassing aabb for this model based on each child mesh's aabb.
         /// </summary>
-        public BoundingBox CalculateAABB()
+        public BoundingBox CalculateCullingAABB()
         {
             BoundingBox aabb = new BoundingBox();
             foreach (var s in RigidChildren)

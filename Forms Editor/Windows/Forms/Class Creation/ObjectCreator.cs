@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using TheraEngine;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -32,14 +33,32 @@ namespace TheraEditor.Windows.Forms
             if (type.IsGenericType)
             {
                 _preSelectedGenericTypeArgs = type.GenericTypeArguments;
-                type = type.GetGenericTypeDefinition();
+                //type = type.GetGenericTypeDefinition();
             }
-
+            
             if (allowDerivedTypes)
             {
                 Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x));
                 if (types.Length == 1)
                 {
+                    ConstructorInfo[] constructors = type.GetConstructors();
+                    if (constructors.Length <= 1)
+                    {
+                        if (constructors.Length == 1)
+                        {
+                            if (constructors[0].GetParameters().Length == 0)
+                            {
+                                ConstructedObject = Activator.CreateInstance(type);
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
+                            return false;
+                        }
+                    }
+
                     SetTargetType(types[0]);
                     toolStripTypeSelection.Visible = false;
                 }
@@ -50,22 +69,26 @@ namespace TheraEditor.Windows.Forms
                 return false;
             else
             {
+                ConstructorInfo[] constructors = type.GetConstructors();
+                if (constructors.Length <= 1)
+                {
+                    if (constructors.Length == 1)
+                    {
+                        if (constructors[0].GetParameters().Length == 0)
+                        {
+                            ConstructedObject = Activator.CreateInstance(type);
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
+                        return false;
+                    }
+                }
+                
                 SetTargetType(type);
                 toolStripTypeSelection.Visible = false;
-
-                //string typeName = type.GetFriendlyName();
-                //ToolStripDropDownButton btn = new ToolStripDropDownButton(typeName)
-                //{
-                //    AutoSize = false,
-                //    ShowDropDownArrow = false,
-                //    TextAlign = ContentAlignment.MiddleLeft,
-                //    Tag = type,
-                //};
-                //Size s = TextRenderer.MeasureText(typeName, btn.Font);
-                //btn.Width = s.Width;
-                //btn.Height = s.Height + 10;
-                //btn.Click += OnTypeSelected;
-                //toolStripDropDownButton1.DropDownItems.Add(btn);
             }
             
             return true;

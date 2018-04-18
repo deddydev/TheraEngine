@@ -296,7 +296,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        protected internal override void Write(XmlWriter writer, ESerializeFlags flags = ESerializeFlags.SerializeFile)
+        protected internal override void Write(XmlWriter writer, ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             string[] names = 
             {

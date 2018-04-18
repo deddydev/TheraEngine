@@ -55,7 +55,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // 
             // comboBox1
             // 
-            this.comboBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.comboBox1.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.comboBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;

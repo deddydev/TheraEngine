@@ -60,23 +60,46 @@ namespace TheraEditor.Windows.Forms
             if (value == null || value.IsDisposed)
             {
                 value = new T();
-                Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
+                //Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
                 value.Show(pane, align, prop);
             }
             return value;
         }
-        
-        private DockableBoneTree _boneTreeForm;
-        public DockableBoneTree BoneTreeForm => GetForm(ref _boneTreeForm, RenderForm1.Pane, DockAlignment.Right, 0.2);
-        
-        private DockableMeshList _meshesForm;
-        public DockableMeshList MeshesForm => GetForm(ref _meshesForm, RenderForm1.Pane, DockAlignment.Left, 0.3);
-        
-        private DockablePropertyGrid _propertyGridForm;
-        public DockablePropertyGrid PropertyGridForm => GetForm(ref _propertyGridForm, MeshesForm.Pane, DockAlignment.Bottom, 0.6);
+        public T GetForm<T>(ref T value, DockState state) where T : DockContent, new()
+        {
+            if (value == null || value.IsDisposed)
+            {
+                value = new T();
+                //Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
+                value.Show(DockPanel, state);
+            }
+            return value;
+        }
 
-        private DockableMaterialList _materialsForm;
-        public DockableMaterialList MaterialsForm => GetForm(ref _materialsForm, MeshesForm.Pane, DockAlignment.Bottom, 0.5);
+        private DockableBoneTree _boneTreeForm;
+        public bool BoneTreeFormActive => _boneTreeForm != null;
+        public DockableBoneTree BoneTreeForm => GetForm(
+            ref _boneTreeForm, DockState.DockRight);
+
+        private DockableMaterialEditor _materialEditor;
+        public bool MaterialEditorActive => _materialEditor != null;
+        public DockableMaterialEditor MaterialEditor => GetForm(
+            ref _materialEditor, DockState.DockRight);
+
+        private DockableMeshEditor _meshEditor;
+        public bool MeshEditorActive => _meshEditor != null;
+        public DockableMeshEditor MeshEditor => GetForm(
+            ref _meshEditor, DockState.DockRight);
+
+        private DockableMeshList _meshList;
+        public bool MeshListActive => _meshList != null;
+        public DockableMeshList MeshList => GetForm(
+            ref _meshList, DockState.DockLeft);
+        
+        private DockableMaterialList _materialList;
+        public bool MaterialListActive => _materialList != null;
+        public DockableMaterialList MaterialList => GetForm(
+            ref _materialList, DockState.DockLeft);
 
         #endregion
         
@@ -88,16 +111,19 @@ namespace TheraEditor.Windows.Forms
             get
             {
                 bool loaded = ModelEditorWorld.IsLoaded;
-                if (!ModelEditorWorld.FileExists)
-                {
+                bool fileDoesNotExist = !ModelEditorWorld.FileExists;
+
+                if (fileDoesNotExist)
                     ModelEditorWorld.File = new ModelEditorWorld();
-                }
+                
                 World w = ModelEditorWorld.File;
                 if (!loaded)
                 {
                     w.BeginPlay();
-                    //ModelEditorWorld.File.Export(Engine.EngineWorldsPath("ModelEditorWorld.xworld"));
+                    if (fileDoesNotExist)
+                        ModelEditorWorld.File.Export(Engine.EngineWorldsPath("ModelEditorWorld.xworld"));
                 }
+
                 return w;
             }
         }
@@ -119,13 +145,11 @@ namespace TheraEditor.Windows.Forms
             _static = new Actor<StaticMeshComponent>(new StaticMeshComponent(stm));
             World.SpawnActor(_static);
             
-            MeshesForm.DisplayMeshes(_static);
-            MaterialsForm.DisplayMaterials(_static);
+            MeshList.DisplayMeshes(stm);
+            MaterialList.DisplayMaterials(stm);
 
-            BoundingBox aabb = stm.CalculateAABB();
+            BoundingBox aabb = stm.CalculateCullingAABB();
             RenderForm1.AlignView(aabb);
-
-            //PropertyGridForm.PropertyGrid.TargetObject = stm;
         }
         public void SetModel(SkeletalModel skm)
         {
@@ -145,11 +169,12 @@ namespace TheraEditor.Windows.Forms
             World.SpawnActor(_skeletal);
             World.Scene.Add(skel);
 
-            MeshesForm.DisplayMeshes(_skeletal);
-            MaterialsForm.DisplayMaterials(_skeletal);
+            MeshList.DisplayMeshes(skm);
+            MaterialList.DisplayMaterials(skm);
             BoneTreeForm.NodeTree.DisplayNodes(skel);
 
-            //PropertyGridForm.PropertyGrid.TargetObject = skm;
+            BoundingBox aabb = skm.CalculateBindPoseCullingAABB();
+            RenderForm1.AlignView(aabb);
         }
         public void LoadAnimations(IEnumerable<SkeletalAnimation> anims)
         {
@@ -204,8 +229,8 @@ namespace TheraEditor.Windows.Forms
         private void btnViewport2_Click(object sender, EventArgs e) => RenderForm2.Focus();
         private void btnViewport3_Click(object sender, EventArgs e) => RenderForm3.Focus();
         private void btnViewport4_Click(object sender, EventArgs e) => RenderForm4.Focus();
-        private void btnMeshList_Click(object sender, EventArgs e) => MeshesForm.Focus();
-        private void btnMaterialList_Click(object sender, EventArgs e) => MaterialsForm.Focus();
+        private void btnMeshList_Click(object sender, EventArgs e) => MeshList.Focus();
+        private void btnMaterialList_Click(object sender, EventArgs e) => MaterialList.Focus();
         private void btnSkeleton_Click(object sender, EventArgs e) => BoneTreeForm.Focus();
 
         private void chkViewNormals_Click(object sender, EventArgs e)

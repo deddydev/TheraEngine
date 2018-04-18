@@ -28,7 +28,7 @@ namespace TheraEngine.Files.Serialization
         public void Serialize(
             TFileObject obj,
             string filePath,
-            ESerializeFlags flags = ESerializeFlags.SerializeFile)
+            ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             _flags = flags;
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
@@ -117,9 +117,9 @@ namespace TheraEngine.Files.Serialization
                     if (!_flags.HasFlag(ESerializeFlags.SerializeState))
                         continue;
                 }
-                else
+                if (member.Attrib.Config)
                 {
-                    if (!_flags.HasFlag(ESerializeFlags.SerializeFile))
+                    if (!_flags.HasFlag(ESerializeFlags.SerializeConfig))
                         continue;
                 }
                 MethodInfo customMethod = customMethods.FirstOrDefault(

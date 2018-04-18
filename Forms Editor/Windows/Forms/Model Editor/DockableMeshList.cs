@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Rendering.Models;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -13,66 +14,78 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
         }
 
-        public void DisplayMeshes(Actor<StaticMeshComponent> staticActor)
+        public void DisplayMeshes(StaticModel staticModel)
         {
-            RigidMeshes.pnlMain.Controls.Clear();
-            SoftMeshes.pnlMain.Controls.Clear();
-            var rigidMeshes = staticActor.RootComponent.ModelRef.File.RigidChildren;
-            for (int i = 0; i < rigidMeshes.Count; ++i)
+            lstRigid.Items.Clear();
+            lstSoft.Items.Clear();
+
+            if (staticModel == null)
+                return;
+
+            var rigidMeshes = staticModel.RigidChildren;
+            if (!(splitContainer1.Panel1Collapsed = rigidMeshes.Count == 0))
+                for (int i = 0; i < rigidMeshes.Count; ++i)
+                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = rigidMeshes[i] });
+
+            var softMeshes = staticModel.SoftChildren;
+            if (!(splitContainer1.Panel2Collapsed = softMeshes.Count == 0))
+                for (int i = 0; i < softMeshes.Count; ++i)
+                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = softMeshes[i] });
+        }
+        public void DisplayMeshes(SkeletalModel skelModel)
+        {
+            lstRigid.Items.Clear();
+            lstSoft.Items.Clear();
+
+            if (skelModel == null)
+                return;
+
+            var rigidMeshes = skelModel.RigidChildren;
+            if (!(splitContainer1.Panel1Collapsed = rigidMeshes.Count == 0))
+                for (int i = 0; i < rigidMeshes.Count; ++i)
+                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = rigidMeshes[i] });
+
+            var softMeshes = skelModel.SoftChildren;
+            if (!(splitContainer1.Panel2Collapsed = softMeshes.Count == 0))
+                for (int i = 0; i < softMeshes.Count; ++i)
+                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = softMeshes[i] });
+        }
+
+        private void lstRigid_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ModelEditorForm f = DockPanel.FindForm() as ModelEditorForm;
+            if (f == null)
+                return;
+            if (lstRigid.SelectedItems.Count == 0)
             {
-                MeshControl c = new MeshControl()
-                {
-                    Dock = DockStyle.Top,
-                    Margin = new Padding(0),
-                    Padding = new Padding(0),
-                    AutoSize = true,
-                };
-                c.SetMesh(rigidMeshes[i], i);
-                RigidMeshes.pnlMain.Controls.Add(c);
+                f.MeshEditor.ClearMesh();
             }
-            var softMeshes = staticActor.RootComponent.ModelRef.File.SoftChildren;
-            for (int i = 0; i < softMeshes.Count; ++i)
+            else
             {
-                MeshControl c = new MeshControl()
-                {
-                    Dock = DockStyle.Top,
-                    Margin = new Padding(0),
-                    Padding = new Padding(0),
-                    AutoSize = true,
-                };
-                c.SetMesh(softMeshes[i], i);
-                SoftMeshes.pnlMain.Controls.Add(c);
+                object mesh = lstRigid.SelectedItems[0].Tag;
+                if (mesh is StaticRigidSubMesh staticMesh)
+                    f.MeshEditor.SetMesh(staticMesh);
+                else if (mesh is SkeletalRigidSubMesh skelMesh)
+                    f.MeshEditor.SetMesh(skelMesh);
             }
         }
-        public void DisplayMeshes(Actor<SkeletalMeshComponent> skeletalActor)
+
+        private void lstSoft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            RigidMeshes.pnlMain.Controls.Clear();
-            SoftMeshes.pnlMain.Controls.Clear();
-            var rigidMeshes = skeletalActor.RootComponent.ModelRef.File.RigidChildren;
-            for (int i = 0; i < rigidMeshes.Count; ++i)
+            ModelEditorForm f = DockPanel.FindForm() as ModelEditorForm;
+            if (f == null)
+                return;
+            if (lstSoft.SelectedItems.Count == 0)
             {
-                MeshControl c = new MeshControl()
-                {
-                    Dock = DockStyle.Top,
-                    Margin = new Padding(0),
-                    Padding = new Padding(0),
-                    AutoSize = true,
-                };
-                c.SetMesh(rigidMeshes[i], i);
-                RigidMeshes.pnlMain.Controls.Add(c);
+                f.MeshEditor.ClearMesh();
             }
-            var softMeshes = skeletalActor.RootComponent.ModelRef.File.SoftChildren;
-            for (int i = 0; i < softMeshes.Count; ++i)
+            else
             {
-                MeshControl c = new MeshControl()
-                {
-                    Dock = DockStyle.Top,
-                    Margin = new Padding(0),
-                    Padding = new Padding(0),
-                    AutoSize = true,
-                };
-                c.SetMesh(softMeshes[i], i);
-                SoftMeshes.pnlMain.Controls.Add(c);
+                object mesh = lstRigid.SelectedItems[0].Tag;
+                if (mesh is StaticSoftSubMesh staticMesh)
+                    f.MeshEditor.SetMesh(staticMesh);
+                else if (mesh is SkeletalSoftSubMesh skelMesh)
+                    f.MeshEditor.SetMesh(skelMesh);
             }
         }
     }

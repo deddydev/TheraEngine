@@ -56,12 +56,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (textBox1.ReadOnly = !(btnEdit.Enabled = enabled))
             {
-                textBox1.BackColor = Color.FromArgb(94, 94, 114);
-                textBox1.ForeColor = Color.FromArgb(180, 180, 200);
+                textBox1.BackColor = Color.FromArgb(30, 30, 30);
+                textBox1.ForeColor = Color.FromArgb(100, 100, 100);
             }
             else
             {
-                textBox1.BackColor = Color.FromArgb(94, 94, 114);
+                textBox1.BackColor = Color.FromArgb(30, 30, 30);
                 textBox1.ForeColor = Color.FromArgb(200, 200, 220);
             }
         }
@@ -90,7 +90,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnEdit_Click(object sender, EventArgs e)
         {
             DockableTextEditor textEditor = new DockableTextEditor();
-            textEditor.Show(Editor.Instance.DockPanel, DockState.Document);
+            DockContent form = FindForm() as DockContent;
+            DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
+            textEditor.Show(p, DockState.Document);
             textEditor.InitText(GetValue()?.ToString() ?? string.Empty, null);
             textEditor.Saved += TextEditor_Saved;
         }

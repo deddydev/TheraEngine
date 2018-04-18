@@ -37,7 +37,7 @@
             // numericInputBoxX
             // 
             this.numericInputBoxX.AllowedDecimalPlaces = -1;
-            this.numericInputBoxX.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBoxX.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBoxX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxX.DefaultValue = 0F;
             this.numericInputBoxX.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -60,7 +60,7 @@
             // numericInputBoxY
             // 
             this.numericInputBoxY.AllowedDecimalPlaces = -1;
-            this.numericInputBoxY.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(94)))), ((int)(((byte)(114)))));
+            this.numericInputBoxY.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBoxY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxY.DefaultValue = 0F;
             this.numericInputBoxY.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -104,7 +104,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            //this.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "PropGridVec2";
             this.Size = new System.Drawing.Size(0, 27);

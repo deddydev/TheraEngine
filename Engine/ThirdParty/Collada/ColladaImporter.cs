@@ -369,8 +369,16 @@ namespace TheraEngine.Rendering.Models
 
                 if (m == null)
                     m = TMaterial.CreateLitColorMaterial();
-                
-                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, data, m));
+
+                Sphere sphere = null;
+                VertexBuffer posBuf = data[BufferType.Position];
+                if (posBuf != null)
+                {
+                    Remapper remap = posBuf.GetData(out Vec3[] positions, true);
+                    sphere = new Sphere(remap.GetFirstAppearanceBuffer<Vec3>());
+                }
+
+                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), true, sphere, data, m));
             }
 
             public void Initialize(StaticModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)

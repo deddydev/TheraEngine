@@ -76,6 +76,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
 
         private object _subObject;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object SubObject
         {
             get => _subObject;
@@ -272,7 +273,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 });
             }).ContinueWith(t =>
             {
-                if (!Disposing && !IsDisposed)
+                if (!Disposing && !IsDisposed && IsHandleCreated)
                 {
                     Invoke((Action)(() =>
                     {

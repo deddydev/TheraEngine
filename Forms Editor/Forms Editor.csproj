@@ -386,7 +386,6 @@
     <Compile Include="Windows\Forms\File Navigation\FileNavPanel.Designer.cs">
       <DependentUpon>FileNavPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\ModelEditorWorld.cs" />
     <Compile Include="Windows\Forms\Model Editor\GenericDropDownControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TMaterial AssemblyType="TheraEngine.Rendering.Models.Materials.TMaterial, TheraEngine, Version=1.3.0.0, Culture=neutral, PublicKeyToken=null" Requirements="None" Name="UnlitTextureMaterial">
+	<Textures Count="1">
+		<BaseTexRef AssemblyType="TheraEngine.Rendering.Models.Materials.TexRef2D, TheraEngine, Version=1.3.0.0, Culture=neutral, PublicKeyToken=null" Index="0" Name="SkyboxTexture">
+			<Mipmaps Count="1">
+				<GlobalFileRef ReferencePath="X:\Repositories\TheraEngine\Build\Debug\Editor\x64\..\..\..\Engine\Worlds\ModelEditorWorld\TextureFile2D.xtex2d" />
+			</Mipmaps>
+			<DepthStencilFormat>None</DepthStencilFormat>
+			<MagFilter>Nearest</MagFilter>
+			<MinFilter>Nearest</MinFilter>
+			<UWrap>Repeat</UWrap>
+			<VWrap>Repeat</VWrap>
+			<LodBias>0</LodBias>
+			<Width>0</Width>
+			<Height>0</Height>
+			<PixelFormat>Bgr</PixelFormat>
+			<PixelType>UnsignedByte</PixelType>
+			<InternalFormat>Rgb8</InternalFormat>
+		</BaseTexRef>
+	</Textures>
+	<RenderParamsRef ReferencePath="X:\Repositories\TheraEngine\Build\Debug\Editor\x64\..\..\..\Engine\Worlds\ModelEditorWorld\RenderingParameters.xrendparams" />
+	<Parameters Count="0" />
+	<Shaders Count="1">
+		<ShaderFile Type="Fragment">
+			<Sources Count="1" />
+		</ShaderFile>
+	</Shaders>
+</TMaterial>

@@ -21,6 +21,7 @@ namespace TheraEngine.Files.Serialization
 
         private ESerializeFlags _flags;
         private XmlWriter _writer;
+        private string _fileDir;
 
         /// <summary>
         /// Writes the given object to the path as xml.
@@ -31,6 +32,7 @@ namespace TheraEngine.Files.Serialization
             ESerializeFlags flags = ESerializeFlags.SerializeConfig)
         {
             _flags = flags;
+            _fileDir = Path.GetDirectoryName(filePath);
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
             using (_writer = XmlWriter.Create(stream, _writerSettings))
             {
@@ -61,6 +63,29 @@ namespace TheraEngine.Files.Serialization
             if (obj == null)
                 return;
 
+            if (obj is IFileRef fref && !fref.StoredInternally && fref.IsLoaded)
+            {
+                TFileObject file = fref.File;
+                if (!string.IsNullOrWhiteSpace(fref.ReferencePath) && File.Exists(fref.ReferencePath))
+                    return;
+
+                string path = fref.ReferencePath;
+                if (path.StartsWithDirectorySeparator())
+                    path = _fileDir + path;
+                string dir = path.Contains(".") ? Path.GetDirectoryName(path) : path;
+                if (file.FileExtension != null)
+                    file.Export(dir, file.Name, FileFormat.XML, null, _flags);
+                else
+                {
+                    var f = file.File3rdPartyExtensions;
+                    if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
+                        file.Export(dir, file.Name, FileFormat.ThirdParty, f.ExportableExtensions[0], _flags);
+                    else
+                        throw new Exception("Cannot export " + file.GetType().GetFriendlyName());
+                }
+                fref.ReferencePath = file.FilePath;
+            }
+            
             Type objType = obj.GetType();
             
             //Get custom serialize methods
@@ -143,6 +168,9 @@ namespace TheraEngine.Files.Serialization
             if (value != null)
             {
                 Type valueType = value.GetType();
+
+                //If the type of the value is a derived type from what we expect,
+                //the type definition must be written to preserve that derivation
                 bool writeTypeDef = valueType != member.VariableType;
 
                 if (member.Attrib.IsXmlElementString)

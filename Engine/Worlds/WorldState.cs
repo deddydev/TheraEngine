@@ -9,6 +9,8 @@ using TheraEngine.Actors;
 
 namespace TheraEngine.Worlds
 {
+    [FileExt("wsta")]
+    [FileDef("World State")]
     public class WorldState : TFileObject
     {
         public List<Map> SpawnedMaps => _spawnedMaps;

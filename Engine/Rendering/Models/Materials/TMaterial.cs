@@ -149,10 +149,10 @@ namespace TheraEngine.Rendering.Models.Materials
             _tessEvalShaders.Clear();
             _vertexShaders.Clear();
 
-            if (Program != null)
+            if (_program != null)
             {
-                Program.Destroy();
-                Program = null;
+                _program.Destroy();
+                _program = null;
             }
 
             if (_shaders != null)

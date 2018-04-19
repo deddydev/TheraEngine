@@ -14,6 +14,8 @@ namespace TheraEngine.Worlds
     public delegate void GravityChange(Vec3 oldGravity);
     public delegate void GameModeChange(BaseGameMode oldMode);
     public delegate void TimeMultiplierChange(float oldMult);
+    [FileExt("wset")]
+    [FileDef("World Settings")]
     public class WorldSettings : TFileObject
     {
         public GravityChange GravityChanged;

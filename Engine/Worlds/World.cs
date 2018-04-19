@@ -29,23 +29,25 @@ namespace TheraEngine.Worlds
         }
         
         private GlobalFileRef<WorldSettings> _settingsRef;
+        private GlobalFileRef<WorldState> _stateRef;
+
         [TSerialize("Settings")]
         public GlobalFileRef<WorldSettings> SettingsRef
         {
             get => _settingsRef;
             set => _settingsRef = value ?? new GlobalFileRef<WorldSettings>();
         }
-        public WorldSettings Settings
-        {
-            get => SettingsRef.File;
-            set => SettingsRef.File = value;
-        }
-        private GlobalFileRef<WorldState> _stateRef;
         [TSerialize("State", State = true)]
         public GlobalFileRef<WorldState> StateRef
         {
             get => _stateRef;
             set => _stateRef = value ?? new GlobalFileRef<WorldState>();
+        }
+
+        public WorldSettings Settings
+        {
+            get => SettingsRef.File;
+            set => SettingsRef.File = value;
         }
         public WorldState State
         {

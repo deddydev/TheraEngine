@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<World AssemblyType="TheraEngine.Worlds.World, TheraEngine, Version=1.3.0.0, Culture=neutral, PublicKeyToken=null">
+	<Settings ReferencePath="X:\Repositories\TheraEngine\Build\Debug\Editor\x64\..\..\..\Engine\Worlds\ModelEditorWorld\ModelEditorWorld.xwset" />
+</World>

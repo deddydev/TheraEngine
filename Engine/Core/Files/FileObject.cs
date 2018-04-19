@@ -72,7 +72,6 @@ namespace TheraEngine.Files
         public static FileExt GetFileExtension(Type classType)
         {
             return Attribute.GetCustomAttribute(classType, typeof(FileExt), true) as FileExt;
-            //throw new Exception("No FileExt attribute specified for " + t.ToString());
         }
         [Browsable(false)]
         public File3rdParty File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
@@ -497,6 +496,9 @@ namespace TheraEngine.Files
                 directory += Path.DirectorySeparatorChar;
 
             FileExt ext = FileExtension;
+
+            if (ext == null)
+                throw new Exception("No FileExt attribute specified for " + GetType().GetFriendlyName());
 
             FilePath = directory + fileName + "." + ext.GetProperExtension(ProprietaryFileFormat.XML);
 

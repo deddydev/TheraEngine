@@ -49,8 +49,7 @@ namespace TheraEngine.Files
         public FileLoader(string dir, string name, ProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
-        protected string _localPath = null;
-        protected string _absolutePath = null;
+        protected string _refPath = Path.DirectorySeparatorChar.ToString();
         protected Type _subType = null;
 
         [TString(false, true, false)]
@@ -62,19 +61,19 @@ namespace TheraEngine.Files
             {
                 //if (string.IsNullOrEmpty(_absolutePath) && Engine.Settings != null && !string.IsNullOrEmpty(Engine.Game.FilePath) && !string.IsNullOrEmpty(_localPath))
                 //    _absolutePath = Engine.Game.FilePath + _localPath;
-                return _absolutePath;
+                return _refPath;
             }
             set
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    _absolutePath = _localPath = value;
+                    _refPath = value;
                     //_localPath = value.MakePathRelativeTo(Application.StartupPath);
                     //_absolutePath = Path.GetFullPath(Application.StartupPath + _localPath);
                 }
                 else
                 {
-                    _absolutePath = _localPath = "";
+                    _refPath = "";
                 }
             }
         }

@@ -1,13 +1,11 @@
-﻿namespace TheraEngine.Worlds.Maps
+﻿using System.ComponentModel;
+
+namespace TheraEngine.Worlds.Maps
 {
+    [FileExt("msta")]
+    [FileDef("Map State")]
     public class MapState
     {
-        private bool _visible;
-        
-        public bool Visible
-        {
-            get { return _visible; }
-            set { _visible = value; }
-        }
+        public bool Visible { get; set; }
     }
 }

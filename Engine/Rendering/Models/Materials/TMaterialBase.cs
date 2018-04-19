@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         protected ShaderVar[] _parameters;
         protected BaseTexRef[] _textures;
-        private RenderProgram _program;
+        protected RenderProgram _program;
 
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
 

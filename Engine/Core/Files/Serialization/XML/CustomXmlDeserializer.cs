@@ -186,12 +186,12 @@ namespace TheraEngine.Files.Serialization
             } while (_reader.ReadAttribute());
 
             //For all unwritten remaining attributes, set them to default (null for non-primitive types)
-            if (attribs.Count > 0)
-            {
-                Engine.PrintLine("Unread attributes: " + string.Join(", ", attribs));
-                //foreach (VarInfo attrib in attribs)
-                //    attrib.SetValue(obj, attrib.VariableType.GetDefaultValue());
-            }
+            //if (attribs.Count > 0)
+            //{
+            //    Engine.PrintLine("Unread attributes: " + string.Join(", ", attribs));
+            //    //foreach (VarInfo attrib in attribs)
+            //    //    attrib.SetValue(obj, attrib.VariableType.GetDefaultValue());
+            //}
 
             //Now read elements
             bool allElementsNull = true;

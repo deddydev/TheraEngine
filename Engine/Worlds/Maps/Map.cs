@@ -5,6 +5,8 @@ using System.ComponentModel;
 
 namespace TheraEngine.Worlds
 {
+    [FileExt("map")]
+    [FileDef("Map")]
     public class Map : TFileObject
     {
         public Map() :this(new MapSettings()) { }

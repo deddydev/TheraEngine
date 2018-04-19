@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RenderingParameters AssemblyType="TheraEngine.Rendering.Models.Materials.RenderingParameters, TheraEngine, Version=1.3.0.0, Culture=neutral, PublicKeyToken=null" WriteRed="True" WriteGreen="True" WriteBlue="True" WriteAlpha="True" CullMode="Back" PointSize="5" LineWidth="5">
+	<AlphaTest Enabled="Disabled" />
+	<DepthTest Enabled="Enabled" UpdateDepth="False" Function="Less" />
+	<StencilTest Enabled="Disabled" />
+	<BlendMode Enabled="Disabled" />
+</RenderingParameters>

@@ -8,6 +8,8 @@ namespace System
 {
     public static unsafe class StringExtension
     {
+        public static bool StartsWithDirectorySeparator(this string str)
+            => !string.IsNullOrEmpty(str) && str[0] == Path.DirectorySeparatorChar;
         public static bool EndsWithDirectorySeparator(this string str)
             => !string.IsNullOrEmpty(str) && str[str.Length - 1] == Path.DirectorySeparatorChar;
         public static string SplitCamelCase(this string str)

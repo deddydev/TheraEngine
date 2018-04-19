@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
+using System.Xml;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Files
@@ -11,6 +13,7 @@ namespace TheraEngine.Files
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         void UnloadReference();
+        void ExportReference();
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
@@ -126,13 +129,21 @@ namespace TheraEngine.Files
                 if (_file != null)
                 {
                     string path = _file.FilePath;
-                    if (!string.IsNullOrEmpty(path))
+                    if (!string.IsNullOrEmpty(path) && path.IsDirectoryPath() == false)
                     {
                         ReferencePath = path;
                         RegisterFile(path, _file);
                     }
+                    else
+                    {
+                        ReferencePath = Path.DirectorySeparatorChar.ToString();
+                    }
                     if (!_file.References.Contains(this))
                         _file.References.Add(this);
+                }
+                else
+                {
+                    ReferencePath = null;
                 }
             }
         }
@@ -160,7 +171,7 @@ namespace TheraEngine.Files
                 Unloaded -= unloaded;
         }
 
-        public void ExportReference() => _file?.Export();
+        public void ExportReference() => _file?.Export(ReferencePath);
         public void ExportReference(string dir, string name, FileFormat format, string thirdPartyExt = null, bool setPath = true)
         {
             if (_file == null)

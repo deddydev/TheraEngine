@@ -8,6 +8,8 @@ using TheraEngine.Actors;
 
 namespace TheraEngine.Worlds.Maps
 {
+    [FileExt("mset")]
+    [FileDef("Map Settings")]
     public class MapSettings : TFileObject
     {
         protected bool _visibleByDefault;

@@ -419,8 +419,8 @@ namespace TheraEngine.Files.Serialization
                         list.Add(ReadObject(elementType));
                     _reader.EndElement();
                 }
-                else
-                    throw new Exception();
+                //else
+                //    throw new Exception();
             }
         }
         private void ReadStructArray(IList list, int count, Type elementType)

@@ -44,7 +44,7 @@ namespace TheraEngine.Files
             if (_file != null)
                 return _file;
 
-            string absolutePath = ReferencePath;
+            string absolutePath = ReferencePathAbsolute;
             if (absolutePath != null && Engine.GlobalFileInstances.TryGetValue(absolutePath, out TFileObject file))
             {
                 //lock (file)

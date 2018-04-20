@@ -177,7 +177,7 @@ namespace TheraEditor.Windows.Forms
                     else
                         _spherePrim.Material = _material;
 
-                    theraPropertyGrid1.TargetObject = _material.RenderParamsRef;
+                    theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef;
 
                     foreach (ShaderVar shaderVar in _material.Parameters)
                     {

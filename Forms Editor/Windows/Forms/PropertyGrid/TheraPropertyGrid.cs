@@ -20,41 +20,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class TheraPropertyGrid : UserControl, IDataChangeHandler
     {
-        public static Dictionary<Type, Type> InPlaceEditorTypes = new Dictionary<Type, Type>();
-        public static Dictionary<Type, Type> FullEditorTypes = new Dictionary<Type, Type>();
-        static TheraPropertyGrid()
-        {
-            if (Engine.DesignMode)
-                return;
-
-            var propControls = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)));
-            foreach (var propControlType in propControls)
-            {
-                var attribs = propControlType.GetCustomAttributesExt<PropGridControlForAttribute>();
-                if (attribs.Length > 0)
-                {
-                    PropGridControlForAttribute a = attribs[0];
-                    foreach (Type varType in a.Types)
-                    {
-                        if (InPlaceEditorTypes.ContainsKey(varType))
-                            throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
-                        InPlaceEditorTypes.Add(varType, propControlType);
-                    }
-                }
-            }
-            var fullEditors = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null);
-            foreach (var editorType in fullEditors)
-            {
-                var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
-                foreach (Type varType in attrib.DataTypes)
-                {
-                    if (FullEditorTypes.ContainsKey(varType))
-                        throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
-                    FullEditorTypes.Add(varType, editorType);
-                }
-            }
-        }
-
         public TheraPropertyGrid() => InitializeComponent();
         
         internal static GameTimer UpdateTimer = new GameTimer();
@@ -73,15 +38,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private const string MiscName = "Miscellaneous";
         private const string MethodName = "Methods";
-        private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
 
+        private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
+        private bool _updating;
+        private IFileObject _targetFileObject;
         private object _subObject;
+        
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public object SubObject
+        public object TargetObject
         {
             get => _subObject;
             set
             {
+                if (InvokeRequired)
+                {
+                    Invoke((Action)(() => TargetObject = value));
+                    return;
+                }
+
                 //Do nothing if target object is the same
                 if (_subObject == value)
                     return;
@@ -95,7 +69,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
 
                 _subObject = value;
-                
+
+                if (Enabled = _subObject != null)
+                {
+                    lblObjectName.Text = string.Format("{0} [{1}]",
+                      _subObject.ToString(),
+                      _subObject.GetType().GetFriendlyName());
+                }
+                else
+                {
+                    lblObjectName.Text = "<null>";
+                }
+
                 if (_subObject is TObject obj)
                     obj.EditorState.Selected = true;
                 
@@ -104,81 +89,76 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private bool _updating;
-        private IFileObject _targetObject;
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public IFileObject TargetObject
+        public IFileObject TargetFileObject
         {
-            get => _targetObject;
+            get => _targetFileObject;
             set
             {
                 if (InvokeRequired)
                 {
-                    Invoke((Action)(() => TargetObject = value));
+                    Invoke((Action)(() => TargetFileObject = value));
                     return;
                 }
 
-                if (_targetObject == value)
+                if (_targetFileObject == value)
                     return;
                 
-                _targetObject = value;
+                _targetFileObject = value;
 
-                lblObjectName.Visible = Enabled = _targetObject != null;
-                if (Enabled)
+                _updating = true;
+                treeViewSceneComps.Nodes.Clear();
+                lstLogicComps.DataSource = null;
+                btnSave.Visible = _targetFileObject != null && _targetFileObject.EditorState.IsDirty;
+                pnlHeader.Visible = _targetFileObject != null;
+                if (pnlHeader.Visible)
                 {
-                    btnSave.Visible = _targetObject.EditorState.IsDirty;
-
-                    lblObjectName.Text = string.Format("{0} [{1}]",
-                        _targetObject.ToString(),
-                        _targetObject.GetType().GetFriendlyName());
-                    
-                    if (_targetObject is IActor actor)
+                    if (_targetFileObject is IActor actor)
                     {
-                        _updating = true;
-                        treeViewSceneComps.Nodes.Clear();
                         PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor.RootComponent);
                         PopulateLogicComponentList(actor.LogicComponents);
 
-                        lblProperties.Visible = true;
-                        lblSceneComps.Visible = true;
+                        pnlLogicComps.Visible =
+                        lblSceneComps.Visible =
                         treeViewSceneComps.Visible = true;
-                        _updating = false;
-
-                        //treeViewSceneComps.SelectedNode = treeViewSceneComps.Nodes[0];
                     }
                     else
                     {
-                        _updating = true;
-                        lblLogicComps.Visible = false;
-                        lblSceneComps.Visible = false;
-                        lblProperties.Visible = false;
+                        pnlLogicComps.Visible =
+                        lstLogicComps.Visible =
+                        lblSceneComps.Visible =
                         treeViewSceneComps.Visible = false;
-                        lstLogicComps.Visible = false;
-                        _updating = false;
                     }
+                    lblProperties.Visible = true;
                 }
                 else
                 {
-                    _updating = true;
-                    lblLogicComps.Visible = false;
-                    lblSceneComps.Visible = false;
+                    pnlLogicComps.Visible =
+                    lstLogicComps.Visible =
+                    lblSceneComps.Visible =
+                    treeViewSceneComps.Visible =
                     lblProperties.Visible = false;
-                    treeViewSceneComps.Visible = false;
-                    lstLogicComps.Visible = false;
-                    _updating = false;
                 }
-                SubObject = value;
+                _updating = false;
+
+                TargetObject = value;
             }
         }
 
         private void PopulateLogicComponentList(EventList<LogicComponent> logicComponents)
         {
-            if (lstLogicComps.Visible = lblLogicComps.Visible = 
-                logicComponents != null && logicComponents.Count > 0)
+            if (lstLogicComps.Visible = logicComponents != null && logicComponents.Count > 0)
             {
+                lstLogicComps.DataSource = null;
                 lstLogicComps.DataSource = logicComponents;
-                //lstLogicComps.Items.AddRange(logicComponents.ToArray());
+                lstLogicComps.Height = logicComponents.Count * lstLogicComps.ItemHeight;
+                lstLogicComps.SelectedIndex = logicComponents.Count > 0 ? 0 : -1;
+            }
+            else
+            {
+                btnMoveUpLogicComp.Visible = 
+                btnMoveDownLogicComp.Visible = 
+                btnRemoveLogicComp.Visible = false;
             }
         }
 
@@ -495,10 +475,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         int _y = 0;
-        private void lblLogicComps_MouseDown(object sender, MouseEventArgs e)
+        private void pnlLogicComps_MouseDown(object sender, MouseEventArgs e)
         {
             _y = e.Y;
-            lblLogicComps.MouseMove += MouseMoveSceneComps;
+            pnlLogicComps.MouseMove += MouseMoveSceneComps;
         }
 
         private void lblProperties_MouseDown(object sender, MouseEventArgs e)
@@ -509,9 +489,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 lblProperties.MouseMove += MouseMoveSceneComps;
         }
-        private void lblLogicComps_MouseUp(object sender, MouseEventArgs e)
+        private void pnlLogicComps_MouseUp(object sender, MouseEventArgs e)
         {
-            lblLogicComps.MouseMove -= MouseMoveSceneComps;
+            pnlLogicComps.MouseMove -= MouseMoveSceneComps;
         }
         private void lblProperties_MouseUp(object sender, MouseEventArgs e)
         {
@@ -537,7 +517,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (_updating)
                 return;
-            SubObject = lstLogicComps.SelectedItem;
+            btnMoveUpLogicComp.Visible = lstLogicComps.SelectedIndex >= 0 && lstLogicComps.SelectedIndex < lstLogicComps.Items.Count - 1;
+            btnMoveDownLogicComp.Visible = lstLogicComps.SelectedIndex < lstLogicComps.Items.Count && lstLogicComps.SelectedIndex > 0;
+            btnRemoveLogicComp.Visible = lstLogicComps.SelectedIndex >= 0 && lstLogicComps.SelectedIndex < lstLogicComps.Items.Count;
         }
 
         private void lblObjectName_MouseEnter(object sender, EventArgs e)
@@ -552,7 +534,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void lblObjectName_Click(object sender, EventArgs e)
         {
-            SubObject = _targetObject;
+            TargetObject = _targetFileObject;
         }
         
         private void treeViewSceneComps_MouseDown(object sender, MouseEventArgs e)
@@ -565,7 +547,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Rectangle r = node.Bounds;
                 r.X -= 25; r.Width += 25;
                 if (r.Contains(e.Location))
-                    SubObject = node.Tag;
+                    TargetObject = node.Tag;
             }
         }
 
@@ -577,25 +559,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (node != null)
             {
                 SceneComponent s = node.Tag as SceneComponent;
-                SubObject = node.Tag;
+                TargetObject = node.Tag;
             }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(TargetObject.FilePath))
+            if (!string.IsNullOrWhiteSpace(TargetFileObject.FilePath))
             {
                 Editor.Instance.ContentTree.WatchProjectDirectory = false;
-                TargetObject.Export();
+                TargetFileObject.Export();
                 Editor.Instance.ContentTree.WatchProjectDirectory = true;
             }
-            else if (TargetObject.References.Count == 1)
+            else if (TargetFileObject.References.Count == 1)
             {
 
             }
-            else if (TargetObject.References.Count > 1)
+            else if (TargetFileObject.References.Count > 1)
             {
-                foreach (IFileRef r in TargetObject.References)
+                foreach (IFileRef r in TargetFileObject.References)
                 {
 
                 }
@@ -604,30 +586,110 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 using (SaveFileDialog sfd = new SaveFileDialog
                 {
-                    Filter = TargetObject.GetFilter()
+                    Filter = TargetFileObject.GetFilter()
                 })
                 {
                     if (sfd.ShowDialog() == DialogResult.OK)
-                        TargetObject.Export(sfd.FileName);
+                        TargetFileObject.Export(sfd.FileName);
                 }
             }
             btnSave.Visible = false;
-            TargetObject.EditorState.IsDirty = false;
+            TargetFileObject.EditorState.IsDirty = false;
         }
         
         public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
         {
-            if (TargetObject == null)
+            if (TargetFileObject == null)
                 return;
             btnSave.Visible = true;
-            Editor.Instance.UndoManager.AddChange(TargetObject.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
+            Editor.Instance.UndoManager.AddChange(TargetFileObject.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
         }
         public void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
         {
-            if (TargetObject == null)
+            if (TargetFileObject == null)
                 return;
             btnSave.Visible = true;
-            Editor.Instance.UndoManager.AddChange(TargetObject.EditorState, oldValue, newValue, listOwner, listIndex);
+            Editor.Instance.UndoManager.AddChange(TargetFileObject.EditorState, oldValue, newValue, listOwner, listIndex);
+        }
+
+        private void btnMoveDownLogicComp_Click(object sender, EventArgs e)
+        {
+            IActor a = TargetFileObject as IActor;
+            if (a == null || a.LogicComponents.Count <= 1)
+                return;
+            int i = lstLogicComps.SelectedIndex;
+            if (i == 0 || !a.LogicComponents.IndexInRange(i))
+                return;
+            LogicComponent c = a.LogicComponents[i];
+            a.LogicComponents.RemoveAt(i);
+            a.LogicComponents.Insert(--i, c);
+            lstLogicComps.DataSource = null;
+            lstLogicComps.DataSource = a.LogicComponents;
+            lstLogicComps.SelectedIndex = i;
+        }
+
+        private void btnMoveUpLogicComp_Click(object sender, EventArgs e)
+        {
+            IActor a = TargetFileObject as IActor;
+            if (a == null || a.LogicComponents.Count <= 1)
+                return;
+            int i = lstLogicComps.SelectedIndex;
+            if (i == a.LogicComponents.Count - 1 || !a.LogicComponents.IndexInRange(i))
+                return;
+            LogicComponent c = a.LogicComponents[i];
+            a.LogicComponents.RemoveAt(i);
+            a.LogicComponents.Insert(++i, c);
+            lstLogicComps.DataSource = null;
+            lstLogicComps.DataSource = a.LogicComponents;
+            lstLogicComps.SelectedIndex = i;
+        }
+
+        private void btnAddLogicComp_Click(object sender, EventArgs e)
+        {
+            IActor a = TargetFileObject as IActor;
+            if (a == null)
+                return;
+            LogicComponent comp = Editor.UserCreateInstanceOf<LogicComponent>(true);
+            if (comp == null)
+                return;
+            int i = (lstLogicComps.SelectedIndex + 1).Clamp(0, a.LogicComponents.Count);
+            if (i == a.LogicComponents.Count)
+                a.LogicComponents.Add(comp);
+            else
+                a.LogicComponents.Insert(i, comp);
+            lstLogicComps.DataSource = null;
+            lstLogicComps.DataSource = a.LogicComponents;
+            if (!lstLogicComps.Visible)
+            {
+                lstLogicComps.Visible = true;
+                lstLogicComps.SelectedIndex = 0;
+            }
+            lstLogicComps.Height = lstLogicComps.Items.Count * lstLogicComps.ItemHeight;
+        }
+
+        private void btnRemoveLogicComp_Click(object sender, EventArgs e)
+        {
+            IActor a = TargetFileObject as IActor;
+            int i = lstLogicComps.SelectedIndex;
+            if (a == null || a.LogicComponents.Count == 0 || !a.LogicComponents.IndexInRange(i))
+                return;
+            a.LogicComponents.RemoveAt(i);
+            if (a.LogicComponents.Count == 0)
+            {
+                if (lstLogicComps.Visible)
+                    lstLogicComps.Visible = false;
+
+                btnRemoveLogicComp.Visible = 
+                btnMoveDownLogicComp.Visible = 
+                btnMoveUpLogicComp.Visible = false;
+            }
+            else
+            {
+                lstLogicComps.DataSource = null;
+                lstLogicComps.DataSource = a.LogicComponents;
+                lstLogicComps.Height = lstLogicComps.Items.Count * lstLogicComps.ItemHeight;
+                lstLogicComps.SelectedIndex = i.Clamp(0, lstLogicComps.Items.Count - 1);
+            }
         }
 
         //protected override void OnMouseEnter(EventArgs e)
@@ -650,6 +712,48 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //{
         //    base.OnLostFocus(e);
         //}
+
+        #region Static
+        public static Dictionary<Type, Type> InPlaceEditorTypes = new Dictionary<Type, Type>();
+        public static Dictionary<Type, Type> FullEditorTypes = new Dictionary<Type, Type>();
+        static TheraPropertyGrid()
+        {
+            if (Engine.DesignMode)
+                return;
+
+            var propControls = Engine.FindAllTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)));
+            foreach (var propControlType in propControls)
+            {
+                var attribs = propControlType.GetCustomAttributesExt<PropGridControlForAttribute>();
+                if (attribs.Length > 0)
+                {
+                    PropGridControlForAttribute a = attribs[0];
+                    foreach (Type varType in a.Types)
+                    {
+                        if (InPlaceEditorTypes.ContainsKey(varType))
+                            throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
+                        InPlaceEditorTypes.Add(varType, propControlType);
+                    }
+                }
+            }
+            var fullEditors = Engine.FindAllTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null);
+            foreach (var editorType in fullEditors)
+            {
+                var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
+                foreach (Type varType in attrib.DataTypes)
+                {
+                    if (FullEditorTypes.ContainsKey(varType))
+                        throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
+                    FullEditorTypes.Add(varType, editorType);
+                }
+            }
+        }
+        #endregion
+
+        private void lstLogicComps_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            TargetObject = lstLogicComps.SelectedItem;
+        }
     }
     public interface IDataChangeHandler
     {

@@ -172,23 +172,23 @@ namespace TheraEditor.Windows.Forms
 
         private void BtnProjectSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.TargetObject = Project;
+            PropertyGridForm.PropertyGrid.TargetFileObject = Project;
         }
         private void BtnEngineSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.TargetObject = Project?.EngineSettingsRef;
+            PropertyGridForm.PropertyGrid.TargetFileObject = Project?.EngineSettingsRef;
         }
         private void BtnEditorSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.TargetObject = DefaultSettingsRef;
+            PropertyGridForm.PropertyGrid.TargetFileObject = DefaultSettingsRef;
         }
         private void BtnUserSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.TargetObject = Project?.UserSettingsRef;
+            PropertyGridForm.PropertyGrid.TargetFileObject = Project?.UserSettingsRef;
         }
         private void BtnWorldSettings_Click(object sender, EventArgs e)
         {
-            PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.SettingsRef;
+            PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World?.SettingsRef;
         }
         private void BtnNewMaterial_Click(object sender, EventArgs e)
         {

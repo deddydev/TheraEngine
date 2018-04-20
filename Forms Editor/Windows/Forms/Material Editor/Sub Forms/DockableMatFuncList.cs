@@ -32,7 +32,7 @@ namespace TheraEditor.Windows.Forms
 
             betterListView1.Items.Clear();
             Type matFunc = typeof(MaterialFunction);
-            var funcs = Engine.FindTypes(t => !t.IsAbstract && matFunc.IsAssignableFrom(t));
+            var funcs = Engine.FindAllTypes(t => !t.IsAbstract && matFunc.IsAssignableFrom(t));
             foreach (Type t in funcs)
             {
                 FunctionDefinition def = t.GetCustomAttributeExt<FunctionDefinition>();
@@ -71,7 +71,7 @@ namespace TheraEditor.Windows.Forms
                                 );
                             }
 
-                            foreach (Type r in Engine.FindTypes(x => test(x)))
+                            foreach (Type r in Engine.FindAllTypes(x => test(x)))
                             {
                                 MatFuncInfo info = new MatFuncInfo(t.MakeGenericType(r), def);
 

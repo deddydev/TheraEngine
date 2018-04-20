@@ -153,6 +153,7 @@ namespace TheraEngine.Actors
             " and acts as the main ancestor for all scene components in the actor's tree.")]
         [TSerialize]
         [Category("Actor")]
+        [Browsable(false)]
         public T RootComponent
         {
             get => _rootComponent;
@@ -179,6 +180,7 @@ namespace TheraEngine.Actors
         [Description(@"Logic components handle plug-n-play code for certain features.
 For example, a logic component could give any actor health and/or allow it to take damage.")]
         [Category("Actor")]
+        [Browsable(false)]
         public EventList<LogicComponent> LogicComponents => _logicComponents;
         [Browsable(false)]
         public bool IsConstructing => _isConstructing;

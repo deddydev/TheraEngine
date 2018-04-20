@@ -1,11 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Specialized;
+using System.Linq;
 
 namespace System.Collections.Generic
 {
     /// <summary>
     /// A derivation of <see cref="ThreadSafeList{T}"/> that monitors all operations and provides events for each kind of operation.
     /// </summary>
-    public class EventList<T> : ThreadSafeList<T>, IList
+    public class EventList<T> : ThreadSafeList<T>, IList, INotifyCollectionChanged
     {
         public delegate void SingleHandler(T item);
         public delegate void MultiHandler(IEnumerable<T> items);
@@ -85,6 +86,8 @@ namespace System.Collections.Generic
         /// </summary>
         public event Action PostModified;
 
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
         private bool _updating = false;
         private bool _allowDuplicates = true;
 
@@ -121,7 +124,10 @@ namespace System.Collections.Generic
                     PostAnythingAdded?.Invoke(item);
                 }
                 if (reportModified)
+                {
                     PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+                }
             }
         }
         public new void AddRange(IEnumerable<T> collection) => AddRange(collection, true, true);
@@ -158,7 +164,10 @@ namespace System.Collections.Generic
                             PostAnythingAdded(item);
                 }
                 if (reportModified)
+                {
                     PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+                }
             }
         }
         public new bool Remove(T item) => Remove(item, true, true);
@@ -185,7 +194,10 @@ namespace System.Collections.Generic
                         PostAnythingRemoved?.Invoke(item);
                     }
                     if (reportModified)
+                    {
                         PostModified?.Invoke();
+                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                    }
                 }
                 return true;
             }
@@ -224,7 +236,10 @@ namespace System.Collections.Generic
                             PostAnythingRemoved(item);
                 }
                 if (reportModified)
+                {
                     PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                }
             }
 
         }
@@ -254,7 +269,10 @@ namespace System.Collections.Generic
                     PostAnythingRemoved?.Invoke(item);
                 }
                 if (reportModified)
+                {
                     PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                }
             }
         }
         public new void Clear() => Clear(true, true);
@@ -290,7 +308,10 @@ namespace System.Collections.Generic
                             PostAnythingRemoved(item);
                 }
                 if (reportModified)
+                {
                     PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                }
             }
         }
         public new void RemoveAll(Predicate<T> match) => RemoveAll(match, true, true);
@@ -326,12 +347,15 @@ namespace System.Collections.Generic
                             PostAnythingRemoved(item);
                 }
                 if (reportModified)
+                {
                     PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                }
             }
             else
                 base.RemoveAll(match);
         }
-        public new void Insert(int index, T item) => Insert(index, item);
+        public new void Insert(int index, T item) => Insert(index, item, true, true);
         public void Insert(int index, T item, bool reportInserted, bool reportModified)
         {
             if (!_allowDuplicates && Contains(item))
@@ -358,7 +382,10 @@ namespace System.Collections.Generic
                     PostAnythingRemoved?.Invoke(item);
                 }
                 if (reportModified)
+                {
                     PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+                }
             }
         }
         public new void InsertRange(int index, IEnumerable<T> collection) => InsertRange(index, collection, true, true);
@@ -395,7 +422,10 @@ namespace System.Collections.Generic
                             PostAnythingRemoved(item);
                 }
                 if (reportModified)
+                {
                     PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                }
             }
         }
         public new void Reverse(int index, int count) => Reverse(index, count, true);
@@ -406,7 +436,10 @@ namespace System.Collections.Generic
                 PreModified?.Invoke();
             base.Reverse(index, count);
             if (report)
+            {
                 PostModified?.Invoke();
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+            }
         }
         public new void Reverse() => Reverse(true);
         public void Reverse(bool reportModified)
@@ -416,7 +449,10 @@ namespace System.Collections.Generic
                 PreModified?.Invoke();
             base.Reverse();
             if (report)
+            {
                 PostModified?.Invoke();
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+            }
         }
         public new void Sort(int index, int count, IComparer<T> comparer) => Sort(index, count, comparer, true);
         public void Sort(int index, int count, IComparer<T> comparer, bool reportModified)
@@ -426,7 +462,10 @@ namespace System.Collections.Generic
                 PreModified?.Invoke();
             base.Sort(index, count, comparer);
             if (report)
+            {
                 PostModified?.Invoke();
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+            }
         }
         public new void Sort() => Sort(true);
         public void Sort(bool reportModified)
@@ -436,7 +475,10 @@ namespace System.Collections.Generic
                 PreModified?.Invoke();
             base.Sort();
             if (report)
+            {
                 PostModified?.Invoke();
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+            }
         }
         public new void Sort(IComparer<T> comparer) => Sort(comparer, true);
         public void Sort(IComparer<T> comparer, bool reportModified)
@@ -446,9 +488,22 @@ namespace System.Collections.Generic
                 PreModified?.Invoke();
             base.Sort(comparer);
             if (report)
+            {
                 PostModified?.Invoke();
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+            }
         }
-
+        public new T this[int index]
+        {
+            get => base[index];
+            set
+            {
+                PreModified?.Invoke();
+                base[index] = value;
+                PostModified?.Invoke();
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace));
+            }
+        }
         object IList.this[int index]
         {
             get => this[index];

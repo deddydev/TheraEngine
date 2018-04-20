@@ -325,8 +325,10 @@
     <Compile Include="Animation\Property\PropAnimMethod.cs" />
     <Compile Include="Animation\Property\BasePropAnim.cs" />
     <Compile Include="Animation\Property\BasePropAnimKeyframed.cs" />
-    <Compile Include="Components\Logic\ScriptComponent.cs" />
-    <Compile Include="Components\Logic\InteractorComponent.cs" />
+    <Compile Include="Components\Logic\Scripting\LuaScriptComponent.cs" />
+    <Compile Include="Components\Logic\Scripting\CSharpScriptComponent.cs" />
+    <Compile Include="Components\Logic\Scripting\PythonScriptComponent.cs" />
+    <Compile Include="Components\Logic\Interaction\InteractorComponent.cs" />
     <Compile Include="Components\Scene\ScreenTextComponent.cs" />
     <Compile Include="Components\Scene\Mesh\RenderableMesh.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\OriginRebasableComponent.cs" />
@@ -368,6 +370,7 @@
     <Compile Include="Core\Reflection\Attributes\Serialization\File3rdParty.cs" />
     <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
     <Compile Include="Core\Controls\BaseRenderPanel.cs" />
+    <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
     <Compile Include="Core\ResourcePool.cs" />
     <Compile Include="Input\ServerPlayerController.cs" />
     <Compile Include="Physics\AbstractPhysicsInterface.cs" />
@@ -448,6 +451,7 @@
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderCubeSide.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Rendering\RenderTexCube.cs" />
     <Compile Include="Rendering\Models\Materials\TMaterialBase.cs" />
+    <Compile Include="Rendering\Models\Meshes\BaseSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\LOD.cs" />
     <Compile Include="Rendering\PrimitiveRenderWrapper.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffers\MaterialFrameBuffer.cs" />
@@ -919,7 +923,7 @@
     <Compile Include="Actors\Types\CharacterSpawnPointActor.cs" />
     <Compile Include="Actors\Types\Vehicle.cs" />
     <Compile Include="Components\Component.cs" />
-    <Compile Include="Components\Logic\InteractableComponent.cs" />
+    <Compile Include="Components\Logic\Interaction\InteractableComponent.cs" />
     <Compile Include="Components\Scene\Mesh\SkeletalMeshComponent.cs" />
     <Compile Include="Components\Logic\MovementComponents\MovementComponent.cs" />
     <Compile Include="Input\AIController.cs" />

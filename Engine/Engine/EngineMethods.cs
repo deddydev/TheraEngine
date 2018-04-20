@@ -104,12 +104,21 @@ namespace TheraEngine
         /// <param name="matchPredicate">What determines if the type is a match or not.</param>
         /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
         /// <returns>All types that match the predicate.</returns>
-        public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, bool resetTypeCache = false)
+        public static IEnumerable<Type> FindAllTypes(Predicate<Type> matchPredicate, bool resetTypeCache = false)
         {
             if (_typeCache == null || resetTypeCache)
                 _typeCache = AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes());
             return _typeCache.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
         }
+        //TODO: include user game project dll in search here
+        public static IEnumerable<Type> FindSpecificTypes(Predicate<Type> matchPredicate, string dllName, bool resetTypeCache = false)
+        {
+            if (_typeCache == null || resetTypeCache)
+                _typeCache = AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes());
+            return _typeCache.Where(x => matchPredicate(x) && x.FullName.Contains(dllName)).OrderBy(x => x.Name);
+        }
+        public static IEnumerable<Type> FindEngineTypes(Predicate<Type> matchPredicate, bool resetTypeCache = false)
+            => FindSpecificTypes(matchPredicate, "TheraEngine", resetTypeCache);
 
         public static void SetWorldPanel(BaseRenderPanel panel, bool registerTickNow = true)
         {

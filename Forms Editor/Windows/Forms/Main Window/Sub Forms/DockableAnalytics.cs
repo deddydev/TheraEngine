@@ -54,7 +54,7 @@ namespace TheraEditor.Windows.Forms
         {
             var bind = e.Item.Tag as BaseRenderState.ContextBind;
             richTextBox1.Text = bind?.GenerationStackTrace;
-            theraPropertyGrid1.SubObject = bind?.ParentState;
+            theraPropertyGrid1.TargetObject = bind?.ParentState;
         }
     }
 }

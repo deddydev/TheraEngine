@@ -29,7 +29,7 @@ namespace TheraEngine.Files.Serialization
         public void Serialize(
             TFileObject obj,
             string filePath,
-            ESerializeFlags flags = ESerializeFlags.SerializeConfig)
+            ESerializeFlags flags = ESerializeFlags.Default)
         {
             _flags = flags;
             _fileDir = Path.GetDirectoryName(filePath);
@@ -65,25 +65,34 @@ namespace TheraEngine.Files.Serialization
 
             if (obj is IFileRef fref && !fref.StoredInternally && fref.IsLoaded)
             {
-                TFileObject file = fref.File;
-                if (!string.IsNullOrWhiteSpace(fref.ReferencePath) && File.Exists(fref.ReferencePath))
-                    return;
-
-                string path = fref.ReferencePath;
-                if (path.StartsWithDirectorySeparator())
-                    path = _fileDir + path;
-                string dir = path.Contains(".") ? Path.GetDirectoryName(path) : path;
-                if (file.FileExtension != null)
-                    file.Export(dir, file.Name, FileFormat.XML, null, _flags);
-                else
+                bool fileExists =
+                    !string.IsNullOrWhiteSpace(fref.ReferencePathAbsolute) &&
+                    fref.ReferencePathAbsolute.IsDirectoryPath() == false &&
+                    File.Exists(fref.ReferencePathAbsolute);
+                if (!fileExists)
                 {
-                    var f = file.File3rdPartyExtensions;
-                    if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
-                        file.Export(dir, file.Name, FileFormat.ThirdParty, f.ExportableExtensions[0], _flags);
+                    if (fref is IGlobalFileRef && !_flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
+                        return;
+                    if (fref is ILocalFileRef && !_flags.HasFlag(ESerializeFlags.ExportLocalRefs))
+                        return;
+
+                    string path = fref.ReferencePathAbsolute;
+                    if (path.StartsWithDirectorySeparator())
+                        path = _fileDir + path;
+                    string dir = path.Contains(".") ? Path.GetDirectoryName(path) : path;
+                    TFileObject file = fref.File;
+                    if (file.FileExtension != null)
+                        file.Export(dir, file.Name, FileFormat.XML, null, _flags);
                     else
-                        throw new Exception("Cannot export " + file.GetType().GetFriendlyName());
+                    {
+                        var f = file.File3rdPartyExtensions;
+                        if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
+                            file.Export(dir, file.Name, FileFormat.ThirdParty, f.ExportableExtensions[0], _flags);
+                        else
+                            Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
+                    }
+                    fref.ReferencePathRelative = file.FilePath.MakePathRelativeTo(_fileDir);
                 }
-                fref.ReferencePath = file.FilePath;
             }
             
             Type objType = obj.GetType();
@@ -150,7 +159,7 @@ namespace TheraEngine.Files.Serialization
                 MethodInfo customMethod = customMethods.FirstOrDefault(
                     x => string.Equals(member.Name, x.GetCustomAttribute<CustomXMLSerializeMethod>().Name));
                 if (customMethod != null)
-                    customMethod.Invoke(obj, new object[] { _writer });
+                    customMethod.Invoke(obj, new object[] { _writer, _flags });
                 else
                     WriteMember(obj, member, nonAttribCount);
             }
@@ -225,7 +234,7 @@ namespace TheraEngine.Files.Serialization
             switch (SerializationCommon.GetValueType(member.VariableType))
             {
                 case SerializationCommon.ValueType.Manual:
-                    ((TFileObject)value).Write(_writer);
+                    ((TFileObject)value).Write(_writer, _flags);
                     break;
                 case SerializationCommon.ValueType.Parsable:
                     _writer.WriteElementString(member.Name, ((IParsable)value).WriteToString());

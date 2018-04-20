@@ -283,7 +283,7 @@ namespace TheraEngine.Components
         public Vec3 WorldScale => _worldTransform.Scale;
         
         [TSerialize]
-        //[Browsable(false)]
+        [Browsable(false)]
         [Category("Scene Component")]
         public EventList<SceneComponent> ChildComponents
         {

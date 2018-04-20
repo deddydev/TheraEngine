@@ -36,7 +36,7 @@ namespace TheraEditor.Wrappers
         {
             DockableTextEditor m = new DockableTextEditor();
             m.Show(Editor.Instance.DockPanel, DockState.Document);
-            m.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.ReferencePath), ETextEditorMode.Python);
+            m.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.ReferencePathAbsolute), ETextEditorMode.Python);
             m.Saved += M_Saved;
         }
 

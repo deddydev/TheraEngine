@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -28,9 +29,9 @@ namespace TheraEngine.Rendering.Models
         public float VisibleDistance { get; set; } = 0.0f;
         
         [TSerialize("Primitives")]
-        protected GlobalFileRef<PrimitiveData> _primitives = new GlobalFileRef<PrimitiveData>();
+        protected GlobalFileRef<PrimitiveData> _primitives = new GlobalFileRef<PrimitiveData>(Path.DirectorySeparatorChar.ToString());
         [TSerialize("Material")]
-        protected GlobalFileRef<TMaterial> _material = new GlobalFileRef<TMaterial>();
+        protected GlobalFileRef<TMaterial> _material = new GlobalFileRef<TMaterial>(Path.DirectorySeparatorChar.ToString());
 
         public PrimitiveManager CreatePrimitiveManager()
             => new PrimitiveManager(_primitives.File, _material.File);

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheraEngine.Core.Files;
 
 namespace TheraEngine.Scripting
@@ -11,5 +12,14 @@ namespace TheraEngine.Scripting
         public LuaScript(string path) : base(path) { }
         public static new LuaScript FromText(string text)
             => new LuaScript() { Text = text };
+
+        public void Execute(ScriptExecInfo info)
+        {
+            throw new NotImplementedException();
+        }
+        public void Execute(string methodName, object[] args)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

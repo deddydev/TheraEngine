@@ -1,74 +1,30 @@
-﻿using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Files;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Collections.Generic;
-using System.Linq;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
     [FileExt("skrmesh")]
     [FileDef("Skeletal Rigid Sub Mesh")]
-    public class SkeletalRigidSubMesh : TFileObject, ISkeletalSubMesh
+    public class SkeletalRigidSubMesh : BaseSubMesh, ISkeletalSubMesh
     {
-        public SkeletalRigidSubMesh() { _name = "SkeletalRigidSubMesh"; }
+        public SkeletalRigidSubMesh() : base() { _name = "SkeletalRigidSubMesh"; }
         public SkeletalRigidSubMesh(
             string name,
             bool visibleByDefault,
             Shape cullingVolume,
             PrimitiveData primitives,
-            TMaterial material)
-        {
-            _name = name;
-            _visibleByDefault = visibleByDefault;
-            _cullingVolume.File = cullingVolume;
-            _lods.Add(new LOD(material, primitives, 0.0f));
-        }
+            TMaterial material) : base(name, visibleByDefault, cullingVolume, primitives, material) { }
         public SkeletalRigidSubMesh(
             string name,
             bool visibleByDefault,
             Shape cullingVolume,
-            List<LOD> lods)
-        {
-            _name = name;
-            _visibleByDefault = visibleByDefault;
-            _cullingVolume.File = cullingVolume;
-            _lods = lods ?? new List<LOD>();
-        }
+            List<LOD> lods) : base(name, visibleByDefault, cullingVolume, lods) { }
         public SkeletalRigidSubMesh(
             string name,
             bool visibleByDefault,
             Shape cullingVolume,
-            params LOD[] lods)
-        {
-            _name = name;
-            _visibleByDefault = visibleByDefault;
-            _cullingVolume.File = cullingVolume;
-            _lods = lods.ToList();
-        }
-
-        protected List<LOD> _lods = new List<LOD>();
-        protected bool _visibleByDefault = true;
-        [TSerialize(nameof(CullingVolume), Order = 1)]
-        protected GlobalFileRef<Shape> _cullingVolume = new GlobalFileRef<Shape>();
-
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool VisibleByDefault
-        {
-            get => _visibleByDefault;
-            set => _visibleByDefault = value;
-        }
-        [TSerialize(Order = 0)]
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null);
-        [TSerialize(Order = 2)]
-        public List<LOD> LODs
-        {
-            get => _lods;
-            set => _lods = value;
-        } 
-        //[Browsable(false)]
-        public GlobalFileRef<Shape> CullingVolumeRef => _cullingVolume;
-        [Browsable(false)]
-        public Shape CullingVolume => _cullingVolume.File;
+            params LOD[] lods) : base(name, visibleByDefault, cullingVolume, lods) { }
     }
 }

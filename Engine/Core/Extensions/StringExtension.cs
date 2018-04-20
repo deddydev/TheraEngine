@@ -95,13 +95,13 @@ namespace System
                 if (!mainParts[bias].Equals(otherParts[bias], StringComparison.InvariantCulture))
                     break;
 
-            string newDir = Path.DirectorySeparatorChar.ToString();
+            string newDir = string.Empty;
             for (int i = bias; i < otherParts.Length; ++i)
-                newDir += ".." + Path.DirectorySeparatorChar;
+                newDir += Path.DirectorySeparatorChar + "..";
             for (int i = bias; i < mainLen; ++i)
-                newDir += mainParts[i] + Path.DirectorySeparatorChar;
+                newDir += Path.DirectorySeparatorChar + mainParts[i];
 
-            return newDir + fileName;
+            return newDir + Path.DirectorySeparatorChar.ToString() + fileName;
         }
         /// <summary>
         /// Parses the given string as an enum of the given type.

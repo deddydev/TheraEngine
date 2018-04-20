@@ -10,21 +10,21 @@ namespace TheraEngine.Rendering.Models
     public partial class PrimitiveData : TFileObject, IDisposable
     {
         [CustomXMLSerializeMethod(nameof(Triangles))]
-        private void SerializeTriangles(XmlWriter writer)
+        private void SerializeTriangles(XmlWriter writer, ESerializeFlags flags)
         {
             if (_triangles == null) return;
             string str = string.Join(" ", _triangles.SelectMany(x => x.Points.Select(y => y.VertexIndex.ToString())));
             writer.WriteElementString(nameof(Triangles), str);
         }
         [CustomXMLSerializeMethod(nameof(Lines))]
-        private void SerializeLines(XmlWriter writer)
+        private void SerializeLines(XmlWriter writer, ESerializeFlags flags)
         {
             if (_lines == null) return;
             string str = string.Join(" ", _lines.SelectMany(x => new string[] { x.Point0.VertexIndex.ToString(), x.Point1.VertexIndex.ToString() }));
             writer.WriteElementString(nameof(Lines), str);
         }
         [CustomXMLSerializeMethod(nameof(Points))]
-        private void SerializePoints(XmlWriter writer)
+        private void SerializePoints(XmlWriter writer, ESerializeFlags flags)
         {
             if (_points == null) return;
             string str = string.Join(" ", _points.Select(x => x.VertexIndex.ToString()));
@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.Models
             _points = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => new IndexPoint(int.Parse(x))).ToList();
         }
         [CustomXMLSerializeMethod(nameof(FacePoints))]
-        private bool SerializeFacePoints(XmlWriter writer)
+        private bool SerializeFacePoints(XmlWriter writer, ESerializeFlags flags)
         {
             writer.WriteStartElement(nameof(FacePoints));
             writer.WriteAttributeString("Count", _facePoints.Count.ToString());
@@ -98,7 +98,7 @@ namespace TheraEngine.Rendering.Models
             return true;
         }
         [CustomXMLSerializeMethod(nameof(Influences))]
-        private bool CustomInfluencesSerialize(XmlWriter writer)
+        private bool CustomInfluencesSerialize(XmlWriter writer, ESerializeFlags flags)
         {
             if (_influences != null)
             {

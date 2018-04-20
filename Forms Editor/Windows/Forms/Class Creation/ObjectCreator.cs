@@ -38,7 +38,7 @@ namespace TheraEditor.Windows.Forms
             
             if (allowDerivedTypes)
             {
-                Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x));
+                Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsAbstract && !x.IsInterface);
                 if (types.Length == 1)
                 {
                     ConstructorInfo[] constructors = type.GetConstructors();

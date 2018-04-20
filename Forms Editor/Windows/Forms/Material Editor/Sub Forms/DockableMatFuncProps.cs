@@ -12,8 +12,8 @@ namespace TheraEditor.Windows.Forms
 
         public MaterialFunction TargetFunc
         {
-            get => propertyGrid.TargetObject as MaterialFunction;
-            set => propertyGrid.TargetObject = value;
+            get => propertyGrid.TargetFileObject as MaterialFunction;
+            set => propertyGrid.TargetFileObject = value;
         }
     }
 }

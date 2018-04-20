@@ -201,10 +201,10 @@ namespace TheraEditor.Wrappers
         public override bool IsLoaded => ResourceRef.IsLoaded;
         public override string FilePath
         {
-            get => ResourceRef.ReferencePath;
+            get => ResourceRef.ReferencePathAbsolute;
             set
             {
-                ResourceRef.ReferencePath = value;
+                ResourceRef.ReferencePathAbsolute = value;
                 Name = value;
             }
         }

@@ -4,13 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Files
 {
     public interface IFileLoader
     {
-        string ReferencePath { get; set; }
+        string ReferencePathRelative { get; set; }
+        string ReferencePathAbsolute { get; set; }
         Type ReferencedType { get; }
     }
     /// <summary>
@@ -34,7 +36,7 @@ namespace TheraEngine.Files
             _subType = typeof(T);
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
-            ReferencePath = filePath;
+            ReferencePathAbsolute = filePath;
         }
         public FileLoader(string filePath, Type type)
         {
@@ -44,50 +46,67 @@ namespace TheraEngine.Files
                 throw new Exception(type.ToString() + " is not assignable to " + typeof(T).ToString());
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
-            ReferencePath = filePath;
+            ReferencePathAbsolute = filePath;
         }
         public FileLoader(string dir, string name, ProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
-        protected string _refPath = Path.DirectorySeparatorChar.ToString();
+        protected string _localRefPath = Path.DirectorySeparatorChar.ToString();
+        protected string _absoluteRefPath;
         protected Type _subType = null;
 
         [TString(false, true, false)]
         [Category("File Reference")]
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public virtual string ReferencePath
+        public virtual string ReferencePathAbsolute
         {
-            get
-            {
-                //if (string.IsNullOrEmpty(_absolutePath) && Engine.Settings != null && !string.IsNullOrEmpty(Engine.Game.FilePath) && !string.IsNullOrEmpty(_localPath))
-                //    _absolutePath = Engine.Game.FilePath + _localPath;
-                return _refPath;
-            }
+            get => _absoluteRefPath;
             set
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    _refPath = value;
-                    //_localPath = value.MakePathRelativeTo(Application.StartupPath);
-                    //_absolutePath = Path.GetFullPath(Application.StartupPath + _localPath);
+                    _absoluteRefPath = value;
+                    if (string.IsNullOrEmpty(DirectoryPath))
+                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(Application.StartupPath);
+                    else
+                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(DirectoryPath);
                 }
                 else
                 {
-                    _refPath = "";
+                    _localRefPath = null;
+                    _absoluteRefPath = null;
                 }
             }
         }
-
+        [TString(false, true, false)]
+        [Category("File Reference")]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public virtual string ReferencePathRelative
+        {
+            get => _localRefPath;
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    _localRefPath = value;
+                    _absoluteRefPath = Path.GetFullPath(Path.Combine(DirectoryPath, value));
+                }
+                else
+                {
+                    _localRefPath = null;
+                    _absoluteRefPath = null;
+                }
+            }
+        }
         [Browsable(false)]
         public virtual bool FileExists
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(ReferencePath))
+                if (string.IsNullOrWhiteSpace(ReferencePathAbsolute))
                     return false;
-                if (!File.Exists(ReferencePath))
+                if (!File.Exists(ReferencePathAbsolute))
                     return false;
-                Type fileType = DetermineType(ReferencePath);
+                Type fileType = DetermineType(ReferencePathAbsolute);
                 if (fileType == null)
                     return false;
                 return _subType.IsAssignableFrom(fileType);
@@ -116,7 +135,7 @@ namespace TheraEngine.Files
         }
         public virtual T LoadNewInstance(bool allowConstruct, Type[] constructorTypes, object[] constructionArgs)
         {
-            string absolutePath = ReferencePath;
+            string absolutePath = ReferencePathAbsolute;
 
             if (string.IsNullOrWhiteSpace(absolutePath))
             {
@@ -191,8 +210,8 @@ namespace TheraEngine.Files
         /// Retrieves the extension from the reference path.
         /// Returns lowercase WITHOUT a period as the first char.
         /// </summary>
-        public string Extension() => ReferencePath == null ? null :
-            Path.GetExtension(ReferencePath).ToLowerInvariant().Substring(1);
+        public string Extension() => ReferencePathAbsolute == null ? null :
+            Path.GetExtension(ReferencePathAbsolute).ToLowerInvariant().Substring(1);
 
         /// <summary>
         /// Retrieves the proprietary file format type from the extension.
@@ -267,7 +286,7 @@ namespace TheraEngine.Files
             File3rdParty header = GetFile3rdPartyExtensions(_subType);
             return extHdr == null && (header?.HasAnyExtensions ?? false);
         }
-        public override string ToString() => ReferencePath;
+        public override string ToString() => ReferencePathAbsolute;
         
         public static implicit operator T(FileLoader<T> fileRef) => fileRef?.LoadNewInstance(true, null, null);
         public static implicit operator FileLoader<T>(string filePath) => new FileLoader<T>(filePath);

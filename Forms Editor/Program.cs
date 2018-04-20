@@ -1,6 +1,7 @@
 ﻿using Core.Win32.Native;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -67,7 +68,7 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static Type[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
         {
-            Type[] fileObjectTypes = Engine.FindTypes(match).ToArray();
+            Type[] fileObjectTypes = Engine.FindEngineTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (Type t in fileObjectTypes)
@@ -119,14 +120,16 @@ namespace TheraEditor
                 if (string.IsNullOrEmpty(path))
                 {
                     string typeName = t.GetFriendlyName();
-                    ToolStripDropDownButton btn = new ToolStripDropDownButton(typeName)
+                    //FileDef def = t.GetCustomAttributeExt<FileDef>();
+                    string displayText = /*def?.UserFriendlyName ?? */typeName;
+                    ToolStripDropDownButton btn = new ToolStripDropDownButton(displayText)
                     {
                         AutoSize = false,
                         ShowDropDownArrow = false,
                         TextAlign = ContentAlignment.MiddleLeft,
                         Tag = t,
                     };
-                    Size s = TextRenderer.MeasureText(typeName, btn.Font);
+                    Size s = TextRenderer.MeasureText(displayText, btn.Font);
                     btn.Width = s.Width;
                     btn.Height = s.Height + 10;
                     btn.Click += onClick;

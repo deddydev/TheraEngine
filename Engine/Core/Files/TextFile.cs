@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Files;
 
 namespace TheraEngine.Core.Files
@@ -10,11 +11,12 @@ namespace TheraEngine.Core.Files
     [FileDef("Text File")]
     public class TextFile : TFileObject, ITextSource
     {
-        [TSerialize("Text", IsXmlElementString = true)]
+        [TSerialize(nameof(Text), IsXmlElementString = true)]
         private string _text = null;
+        [TString(true, false, false, true)]
         public string Text
         {
-            get => _text ?? Load();
+            get => _text ?? LoadText();
             set => _text = value;
         }
 
@@ -46,12 +48,16 @@ namespace TheraEngine.Core.Files
         {
             File.WriteAllText(filePath, Text);
         }
-        public string Load()
+        public string LoadText()
         {
             _text = null;
             if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
                 _text = File.ReadAllText(FilePath, GetEncoding(FilePath));
             return _text;
+        }
+        public void UnloadText()
+        {
+            _text = null;
         }
         public async Task<string> LoadAsync()
         {

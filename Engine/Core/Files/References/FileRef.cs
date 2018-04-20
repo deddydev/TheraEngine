@@ -29,7 +29,7 @@ namespace TheraEngine.Files
         public FileRef(string filePath, T file, bool exportNow) : this(filePath)
         {
             if (file != null)
-                file.FilePath = ReferencePath;
+                file.FilePath = ReferencePathAbsolute;
             File = file;
             if (exportNow && File != null)
                 ExportReference();
@@ -41,11 +41,11 @@ namespace TheraEngine.Files
         /// <param name="createIfNotFound"></param>
         public FileRef(string filePath, Func<T> createIfNotFound) : this(filePath)
         {
-            if (!System.IO.File.Exists(ReferencePath) || DetermineType(ReferencePath) != typeof(T))
+            if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
                 if (file != null)
-                    file.FilePath = ReferencePath;
+                    file.FilePath = ReferencePathAbsolute;
                 File = file;
                 if (File != null)
                     ExportReference();
@@ -55,18 +55,18 @@ namespace TheraEngine.Files
         public FileRef(string dir, string name, ProprietaryFileFormat format, T file, bool exportNow) : this(dir, name, format)
         {
             if (file != null)
-                file.FilePath = ReferencePath;
+                file.FilePath = ReferencePathAbsolute;
             File = file;
             if (exportNow && File != null)
                 ExportReference();
         }
         public FileRef(string dir, string name, ProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
         {
-            if (!System.IO.File.Exists(ReferencePath) || DetermineType(ReferencePath) != typeof(T))
+            if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
                 if (file != null)
-                    file.FilePath = ReferencePath;
+                    file.FilePath = ReferencePathAbsolute;
                 File = file;
                 if (File != null)
                     ExportReference();
@@ -101,7 +101,7 @@ namespace TheraEngine.Files
         /// </summary>
         [Browsable(false)]
         [Category("File Reference")]
-        public bool StoredInternally => string.IsNullOrWhiteSpace(ReferencePath);
+        public bool StoredInternally => string.IsNullOrWhiteSpace(ReferencePathAbsolute);
 
         [Browsable(false)]
         public override bool FileExists => File != null || base.FileExists;
@@ -131,19 +131,19 @@ namespace TheraEngine.Files
                     string path = _file.FilePath;
                     if (!string.IsNullOrEmpty(path) && path.IsDirectoryPath() == false)
                     {
-                        ReferencePath = path;
+                        ReferencePathAbsolute = path;
                         RegisterFile(path, _file);
                     }
                     else
                     {
-                        ReferencePath = Path.DirectorySeparatorChar.ToString();
+                        ReferencePathAbsolute = null;// Path.DirectorySeparatorChar.ToString();
                     }
                     if (!_file.References.Contains(this))
                         _file.References.Add(this);
                 }
                 else
                 {
-                    ReferencePath = null;
+                    ReferencePathAbsolute = null;
                 }
             }
         }
@@ -171,14 +171,14 @@ namespace TheraEngine.Files
                 Unloaded -= unloaded;
         }
 
-        public void ExportReference() => _file?.Export(ReferencePath);
+        public void ExportReference() => _file?.Export(ReferencePathAbsolute);
         public void ExportReference(string dir, string name, FileFormat format, string thirdPartyExt = null, bool setPath = true)
         {
             if (_file == null)
                 return;
             _file.Export(dir, name, format, thirdPartyExt);
             if (setPath)
-                ReferencePath = _file.FilePath;
+                ReferencePathAbsolute = _file.FilePath;
         }
 
         public Task<T> GetInstanceAsync() => Task.Run(() => GetInstance());

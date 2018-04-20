@@ -16,13 +16,13 @@ namespace TheraEditor.Windows.Forms
         {
             if (ActorTree.SelectedNode == null)
             {
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Engine.World.Settings;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World.Settings;
             }
             else
             {
                 IActor t = e.Node.Tag as IActor;
                 t.EditorState.Selected = true;
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = t;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = t;
 
                 if (Engine.LocalPlayers.Count > 0)
                 {

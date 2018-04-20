@@ -324,7 +324,7 @@ namespace TheraEditor.Windows.Forms
                     Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
                     Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
                 }
-                PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
+                PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World?.Settings;
             }
         }
 
@@ -414,7 +414,7 @@ namespace TheraEditor.Windows.Forms
 
         public static void SetPropertyGridObject(IFileObject obj)
         {
-            Instance.PropertyGridForm.PropertyGrid.TargetObject = obj;
+            Instance.PropertyGridForm.PropertyGrid.TargetFileObject = obj;
         }
         private void GenerateInitialActorList()
         {

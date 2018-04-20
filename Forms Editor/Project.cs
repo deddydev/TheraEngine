@@ -65,10 +65,10 @@ namespace TheraEditor
                 directory += Path.DirectorySeparatorChar;
 
             FilePath = GetFilePath(directory, Name, ProprietaryFileFormat.XML, typeof(Project));
-            ProjectStateRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(ProjectState));
-            UserSettingsRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(UserSettings));
-            EngineSettingsRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EngineSettings));
-            EditorSettingsRef.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EditorSettings));
+            ProjectStateRef.ReferencePathAbsolute = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(ProjectState));
+            UserSettingsRef.ReferencePathAbsolute = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(UserSettings));
+            EngineSettingsRef.ReferencePathAbsolute = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EngineSettings));
+            EditorSettingsRef.ReferencePathAbsolute = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EditorSettings));
         }
         public static Project Create(string directory, string name)
         {

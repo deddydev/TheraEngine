@@ -5,6 +5,7 @@ using System.Xml;
 using System.ComponentModel;
 using System.IO;
 using TheraEngine.Core.Memory;
+using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -112,7 +113,7 @@ namespace TheraEngine.Rendering.Models
         internal DataSource _data;
 
         [CustomXMLSerializeMethod("Data")]
-        private unsafe bool CustomDataSerialize(XmlWriter writer)
+        private unsafe bool CustomDataSerialize(XmlWriter writer, ESerializeFlags flags)
         {
             int count = _elementCount * _componentCount;
             switch (_componentType)

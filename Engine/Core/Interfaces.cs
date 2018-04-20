@@ -27,14 +27,13 @@ namespace TheraEngine
         bool VisibleByDefault { get; set; }
         List<LOD> LODs { get; }
         RenderInfo3D RenderInfo { get; set; }
+        Shape CullingVolume { get; set; }
     }
     public interface IStaticSubMesh : IBaseSubMesh
     {
-        GlobalFileRef<Shape> CullingVolumeRef { get; }
     }
     public interface ISkeletalSubMesh : IBaseSubMesh
     {
-
     }
     /// <summary>
     /// Use this interface for objects you want to be able to render in 3D world space with the engine.

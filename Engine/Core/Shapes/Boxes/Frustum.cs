@@ -8,6 +8,7 @@ using System.Xml;
 using System.IO;
 using System;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Files;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -28,7 +29,7 @@ namespace TheraEngine.Core.Shapes
         private Sphere _boundingSphere;
 
         [CustomXMLSerializeMethod("UseBoundingSphere")]
-        private void SerializeBoundingSphere(XmlWriter writer)
+        private void SerializeBoundingSphere(XmlWriter writer, ESerializeFlags flags)
         {
             writer.WriteAttributeString("UseBoundingSphere", UseBoundingSphere.ToString());
         }

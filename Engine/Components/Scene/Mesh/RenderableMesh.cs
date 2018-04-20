@@ -183,7 +183,7 @@ namespace TheraEngine.Components.Scene.Mesh
             : base(mesh.LODs, mesh.RenderInfo, component)
         {
             Mesh = mesh;
-            SetCullingVolume(mesh.CullingVolumeRef);
+            SetCullingVolume(mesh.CullingVolume);
 
             //PrimitiveManager m = LODs.First.Value.Manager;
             //if (m.Data.BufferInfo.HasNormals)

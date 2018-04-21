@@ -79,7 +79,6 @@ namespace TheraEngine.Rendering.UI.Functions
                 Text = FunctionName,
                 Font = _headerFont,
                 Format = new StringFormat(
-                    //StringFormatFlags.FitBlackBox | 
                     StringFormatFlags.NoClip |
                     StringFormatFlags.NoWrap)
             });
@@ -104,7 +103,6 @@ namespace TheraEngine.Rendering.UI.Functions
                 Text = arg.Name,
                 Font = _paramFont,
                 Format = new StringFormat(
-                    //StringFormatFlags.FitBlackBox | 
                     StringFormatFlags.NoClip |
                     StringFormatFlags.NoWrap)
             });

@@ -121,7 +121,7 @@ namespace TheraEditor.Windows.Forms
                 new ShaderVec3(new Vec3(0.1f, 0.12f, 0.13f), "LineColor"),
                 new ShaderVec3(new Vec3(0.25f, 0.27f, 0.3f), "BGColor"),
                 new ShaderFloat(1.0f, "Scale"),
-                new ShaderFloat(0.15f, "LineWidth"),
+                new ShaderFloat(0.05f, "LineWidth"),
                 new ShaderVec2(new Vec2(0.0f), "Translation"),
             },
             frag);
@@ -378,7 +378,7 @@ namespace TheraEditor.Windows.Forms
 
             Vec2 start = _cursorBezier.StartPoint.Xy + boxDim;
             Vec2 end = _cursorBezier.EndPoint.Xy + boxDim;
-            DrawBezier(start, end, Color.LightGray);
+            DrawBezier(start, end, BaseFuncValue.NoTypeColor);
         }
         public float BezierTangentDist { get; set; } = 100.0f;
         private void DrawBezier(Vec2 start, Vec2 end, ColorF4 color)
@@ -390,7 +390,7 @@ namespace TheraEditor.Windows.Forms
                 Engine.Renderer.RenderLine(
                     points[i - 1],
                     points[i],
-                    color, 1.0f);
+                    color, 5.0f);
         }
         #endregion
     }

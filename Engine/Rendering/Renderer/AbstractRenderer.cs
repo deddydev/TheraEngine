@@ -262,6 +262,7 @@ namespace TheraEngine.Rendering
         {
             IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Line);
             m.Parameter<ShaderVec4>(0).Value = color;
+            m.Material.RenderParams.LineWidth = lineWidth;
             //((Vec3*)m.Data[0].Address)[1] = end - start;
             Matrix4 modelMatrix = Matrix4.CreateTranslation(start) * end.LookatAngles(start).GetMatrix() * Matrix4.CreateScale(end.DistanceToFast(start));
             //if (Engine.MainThreadID != Thread.CurrentThread.ManagedThreadId)

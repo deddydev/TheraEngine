@@ -366,6 +366,8 @@ namespace TheraEngine.Rendering.OpenGL
         {
             Engine.Renderer.ColorMask(r.WriteRed, r.WriteGreen, r.WriteBlue, r.WriteAlpha);
             Engine.Renderer.Cull(r.CullMode);
+            GL.PointSize(r.PointSize);
+            GL.LineWidth(r.LineWidth);
 
             if (r.DepthTest.Enabled == ERenderParamUsage.Enabled)
             {
@@ -376,8 +378,7 @@ namespace TheraEngine.Rendering.OpenGL
             else if (r.DepthTest.Enabled == ERenderParamUsage.Disabled)
                 GL.Disable(EnableCap.DepthTest);
 
-            if (r.BlendMode.Enabled == ERenderParamUsage.Enabled
-                )
+            if (r.BlendMode.Enabled == ERenderParamUsage.Enabled)
             {
                 GL.Enable(EnableCap.Blend);
                 BlendEquation(r.BlendMode.RgbEquation, r.BlendMode.AlphaEquation);
@@ -424,9 +425,6 @@ namespace TheraEngine.Rendering.OpenGL
                     OpenTK.Graphics.OpenGL.StencilOp.Keep);
                 GL.StencilFunc(StencilFunction.Always, 0, 0);
             }
-
-            GL.PointSize(r.PointSize);
-            GL.LineWidth(r.LineWidth);
         }
 
         protected override int OnGetAttribLocation(int programBindingId, string name)

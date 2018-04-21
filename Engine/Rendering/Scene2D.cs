@@ -65,11 +65,11 @@ namespace TheraEngine.Rendering
     /// </summary>
     public class Scene2D : Scene
     {
-        public Quadtree<I2DRenderable> RenderTree { get; private set; }
-        public override int Count => RenderTree.Count;
+        //public Quadtree<I2DRenderable> RenderTree { get; private set; }
+        public override int Count => _renderables.Count;// RenderTree.Count;
         private RenderPasses2D _passes = new RenderPasses2D();
 
-        //private List<I2DRenderable> _renderables = new List<I2DRenderable>();
+        private List<I2DRenderable> _renderables = new List<I2DRenderable>();
 
         public Scene2D()
         {
@@ -98,15 +98,18 @@ namespace TheraEngine.Rendering
         }
         public void CollectVisibleRenderables()
         {
-            CollectVisibleRenderables(RenderTree.Bounds);
-            //CollectVisibleRenderables(BoundingRectangle.Empty);
+            //CollectVisibleRenderables(RenderTree.Bounds);
+            //CollectVisibleRenderables(BoundingRectangle.Empty); 
+
+            foreach (I2DRenderable r in _renderables)
+                _passes.Add(r);
         }
         public void CollectVisibleRenderables(BoundingRectangle bounds)
         {
-            RenderTree.CollectVisible(bounds, _passes);
+            //RenderTree.CollectVisible(bounds, _passes);
 
-            //foreach (I2DRenderable r in _renderables)
-            //    _passes.Add(r);
+            foreach (I2DRenderable r in _renderables)
+                _passes.Add(r);
         }
         
         public void DoRender(Camera c, Viewport v, MaterialFrameBuffer target)
@@ -168,22 +171,22 @@ namespace TheraEngine.Rendering
         
         public void Resize(Vec2 bounds)
         {
-            RenderTree?.Remake(new BoundingRectangle(Vec2.Zero, bounds));
+            //RenderTree?.Remake(new BoundingRectangle(Vec2.Zero, bounds));
         }
 
         public void Add(I2DRenderable obj)
         {
-            //_renderables.Add(obj);
-            RenderTree?.Add(obj);
+            _renderables.Add(obj);
+            //RenderTree?.Add(obj);
         }
         public void Remove(I2DRenderable obj)
         {
-            //_renderables.Remove(obj);
-            RenderTree?.Remove(obj);
+            _renderables.Remove(obj);
+            //RenderTree?.Remove(obj);
         }
         public void Clear(Vec2 bounds)
         {
-            RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangle(new Vec2(0.0f), bounds));
+            //RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangle(new Vec2(0.0f), bounds));
             //_renderables.Clear();
             _passes = new RenderPasses2D();
         }

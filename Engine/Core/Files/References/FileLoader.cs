@@ -51,9 +51,12 @@ namespace TheraEngine.Files
         public FileLoader(string dir, string name, ProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
-        protected string _localRefPath = Path.DirectorySeparatorChar.ToString();
+        protected string _localRefPath;
         protected string _absoluteRefPath;
         protected Type _subType = null;
+
+        [Category("File Reference")]
+        public bool EngineRelativePath { get; set; } = false;
 
         [TString(false, true, false)]
         [Category("File Reference")]
@@ -64,8 +67,8 @@ namespace TheraEngine.Files
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    _absoluteRefPath = value;
-                    if (string.IsNullOrEmpty(DirectoryPath))
+                    _absoluteRefPath = Path.GetFullPath(value);
+                    if (EngineRelativePath || string.IsNullOrEmpty(DirectoryPath))
                         _localRefPath = _absoluteRefPath.MakePathRelativeTo(Application.StartupPath);
                     else
                         _localRefPath = _absoluteRefPath.MakePathRelativeTo(DirectoryPath);
@@ -88,7 +91,7 @@ namespace TheraEngine.Files
                 if (!string.IsNullOrEmpty(value))
                 {
                     _localRefPath = value;
-                    _absoluteRefPath = Path.GetFullPath(Path.Combine(DirectoryPath, value));
+                    _absoluteRefPath = Path.GetFullPath(Path.Combine(EngineRelativePath || string.IsNullOrEmpty(DirectoryPath) ? Application.StartupPath : DirectoryPath, value));
                 }
                 else
                 {

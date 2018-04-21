@@ -14,6 +14,10 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             dockPanel1.Theme = new TheraEditorTheme();
         }
+        public MaterialEditorForm(TMaterial m) : this()
+        {
+            Material = m;
+        }
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -79,10 +83,6 @@ namespace TheraEditor.Windows.Forms
                 return _matProps;
             }
         }
-        public MaterialEditorForm(TMaterial m) : this()
-        {
-            Material = m;
-        }
         public TMaterial Material
         {
             get => MaterialGraph.RenderPanel.UI.TargetMaterial;
@@ -90,9 +90,10 @@ namespace TheraEditor.Windows.Forms
             {
                 MaterialGraph.RenderPanel.UI.TargetMaterial = value;
                 MaterialProperties.TargetMaterial = value;
-                Text = "Material Editor";
                 if (value != null)
-                    Text += " - " + value.Name + " [" + value.FilePath + "]";
+                    FormTitle2.Text = value.Name + " [" + value.FilePath + "]";
+                else
+                    FormTitle2.Text = string.Empty;
             }
         }
 

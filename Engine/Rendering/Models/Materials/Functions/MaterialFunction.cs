@@ -21,8 +21,8 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             Overloads = overloads;
             ResetValidOverloads();
 
-            if (overloads.Where(x => x.Inputs.Length != inputNames.Length || x.Outputs.Length != outputNames.Length).ToArray().Length > 0)
-                throw new InvalidOperationException();
+            //if (overloads.Where(x => x.Inputs.Length != inputNames.Length || x.Outputs.Length != outputNames.Length).ToArray().Length > 0)
+            //    throw new InvalidOperationException();
 
             foreach (string inputName in inputNames)
                 AddValueInput(new MatFuncValueInput(inputName, this));
@@ -34,24 +34,25 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
         public static bool CanConnect(MatFuncValueInput input, MatFuncValueOutput output)
         {
-            if (input == null || output == null)
-                return false;
+            return true;
+            //if (input == null || output == null)
+            //    return false;
 
-            MaterialFunction inFunc = input.ParentSocket;
-            MaterialFunction outFunc = output.ParentSocket;
-            for (int i = 0; i < outFunc.CurrentValidOverloads.Count; ++i)
-            {
-                MatFuncOverload outOverload = outFunc.Overloads[i];
-                for (int x = 0; x < inFunc.CurrentValidOverloads.Count; ++x)
-                {
-                    MatFuncOverload inOverload = inFunc.Overloads[x];
-                    foreach (EGenShaderVarType outGen in outOverload.Outputs)
-                        foreach (EGenShaderVarType inGen in inOverload.Inputs)
-                            if ((outGen & inGen) != 0)
-                                return true;
-                }
-            }
-            return false;
+            //MaterialFunction inFunc = input.ParentSocket;
+            //MaterialFunction outFunc = output.ParentSocket;
+            //for (int i = 0; i < outFunc.CurrentValidOverloads.Count; ++i)
+            //{
+            //    MatFuncOverload outOverload = outFunc.Overloads[i];
+            //    for (int x = 0; x < inFunc.CurrentValidOverloads.Count; ++x)
+            //    {
+            //        MatFuncOverload inOverload = inFunc.Overloads[x];
+            //        foreach (EGenShaderVarType outGen in outOverload.Outputs)
+            //            foreach (EGenShaderVarType inGen in inOverload.Inputs)
+            //                if ((outGen & inGen) != 0)
+            //                    return true;
+            //    }
+            //}
+            //return false;
         }
 
         internal void RecalcValidOverloads(bool[] validTypes)

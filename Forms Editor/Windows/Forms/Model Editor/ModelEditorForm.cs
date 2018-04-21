@@ -34,7 +34,9 @@ namespace TheraEditor.Windows.Forms
             FormTitle2.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
             ModelEditorText.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
         }
-
+        public ModelEditorForm(SkeletalModel m) : this() => SetModel(m);
+        public ModelEditorForm(StaticModel m) : this() => SetModel(m);
+        
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
         private DockableModelEditorRenderForm[] _renderForms = new DockableModelEditorRenderForm[4];
@@ -173,8 +175,8 @@ namespace TheraEditor.Windows.Forms
                 if (!loaded)
                 {
                     w.BeginPlay();
-                    if (fileDoesNotExist)
-                        ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
+                    //if (fileDoesNotExist)
+                    //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
                 }
 
                 return w;

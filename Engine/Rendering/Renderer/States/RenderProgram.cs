@@ -82,6 +82,12 @@ namespace TheraEngine.Rendering
 
             //Generate shader objects
             RenderShader shader;
+            if (_shaders.Count == 0)
+            {
+                IsValid = false;
+                return NullBindingId;
+            }
+
             for (int i = 0; i < _shaders.Count; ++i)
             {
                 shader = _shaders[i];

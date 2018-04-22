@@ -239,9 +239,9 @@ uniform ColorGradeStruct ColorGrade;";
             tex.GenerateMipmaps();
             Engine.Renderer.GetTexImage(ETexTarget.Texture2D, tex.SmallestMipmapLevel, tex.PixelFormat, tex.PixelType, _rgba);
             Vec3 rgb = new Vec3(_rgba[0], _rgba[1], _rgba[2]);
-            if (float.IsNaN(rgb.X)) rgb.X = Exposure;
-            if (float.IsNaN(rgb.Y)) rgb.Y = Exposure;
-            if (float.IsNaN(rgb.Z)) rgb.Z = Exposure;
+            if (float.IsNaN(rgb.X)) return;
+            if (float.IsNaN(rgb.Y)) return;
+            if (float.IsNaN(rgb.Z)) return;
             float target = (0.5f / rgb.Dot(_luminance)).Clamp(MinExposure, MaxExposure);
             Exposure = Interp.InterpCosineTo(Exposure, target, ExposureTransitionSpeed);
         }

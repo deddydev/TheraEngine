@@ -10,24 +10,24 @@ namespace TheraEngine.Rendering.Models
     [FileDef("Mesh Primitive Data")]
     public partial class PrimitiveData : TFileObject, IDisposable
     {
-        public static PrimitiveData FromQuads(Culling culling, VertexShaderDesc info, params VertexQuad[] quads)
-            => FromQuadList(culling, info, quads);
-        public static PrimitiveData FromQuadList(Culling culling, VertexShaderDesc info, IEnumerable<VertexQuad> quads)
-            => FromTriangleList(culling, info, quads.SelectMany(x => x.ToTriangles()));
-        public static PrimitiveData FromTriangleStrips(Culling culling, VertexShaderDesc info, params VertexTriangleStrip[] strips)
-            => FromTriangleStripList(culling, info, strips);
-        public static PrimitiveData FromTriangleStripList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangleStrip> strips)
-            => FromTriangleList(culling, info, strips.SelectMany(x => x.ToTriangles()));
-        public static PrimitiveData FromTriangleFans(Culling culling, VertexShaderDesc info, params VertexTriangleFan[] fans)
-            => FromTriangleFanList(culling, info, fans);
-        public static PrimitiveData FromTriangleFanList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangleFan> fans)
-            => FromTriangleList(culling, info, fans.SelectMany(x => x.ToTriangles()));
-        public static PrimitiveData FromTriangles(Culling culling, VertexShaderDesc info, params VertexTriangle[] triangles)
-            => FromTriangleList(culling, info, triangles);
-        public static PrimitiveData FromTriangleList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangle> triangles)
+        public static PrimitiveData FromQuads(VertexShaderDesc info, params VertexQuad[] quads)
+            => FromQuadList(info, quads);
+        public static PrimitiveData FromQuadList(VertexShaderDesc info, IEnumerable<VertexQuad> quads)
+            => FromTriangleList(info, quads.SelectMany(x => x.ToTriangles()));
+        public static PrimitiveData FromTriangleStrips(VertexShaderDesc info, params VertexTriangleStrip[] strips)
+            => FromTriangleStripList(info, strips);
+        public static PrimitiveData FromTriangleStripList(VertexShaderDesc info, IEnumerable<VertexTriangleStrip> strips)
+            => FromTriangleList(info, strips.SelectMany(x => x.ToTriangles()));
+        public static PrimitiveData FromTriangleFans(VertexShaderDesc info, params VertexTriangleFan[] fans)
+            => FromTriangleFanList(info, fans);
+        public static PrimitiveData FromTriangleFanList(VertexShaderDesc info, IEnumerable<VertexTriangleFan> fans)
+            => FromTriangleList(info, fans.SelectMany(x => x.ToTriangles()));
+        public static PrimitiveData FromTriangles(VertexShaderDesc info, params VertexTriangle[] triangles)
+            => FromTriangleList(info, triangles);
+        public static PrimitiveData FromTriangleList(VertexShaderDesc info, IEnumerable<VertexTriangle> triangles)
         {
             //TODO: convert triangles to tristrips and use primitive restart to render them all in one call
-            return new PrimitiveData(culling, info, triangles.SelectMany(x => x.Vertices), EPrimitiveType.Triangles);
+            return new PrimitiveData(info, triangles.SelectMany(x => x.Vertices), EPrimitiveType.Triangles);
         }
         public static PrimitiveData FromLineStrips(VertexShaderDesc info, params VertexLineStrip[] lines)
             => FromLineStripList(info, lines);
@@ -36,19 +36,18 @@ namespace TheraEngine.Rendering.Models
         public static PrimitiveData FromLines(VertexShaderDesc info, params VertexLine[] lines)
             => FromLineList(info, lines);
         public static PrimitiveData FromLineList(VertexShaderDesc info, IEnumerable<VertexLine> lines)
-            => new PrimitiveData(Culling.None, info, lines.SelectMany(x => x.Vertices), EPrimitiveType.Lines);
+            => new PrimitiveData(info, lines.SelectMany(x => x.Vertices), EPrimitiveType.Lines);
         public static PrimitiveData FromPoints(params Vec3[] points)
             => FromPointList(points);
         public static PrimitiveData FromPointList(IEnumerable<Vec3> points)
-            => new PrimitiveData(Culling.None, VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
+            => new PrimitiveData(VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
         
         public PrimitiveData() { }
-        public PrimitiveData(Culling culling, VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
+        public PrimitiveData(VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
         {
             _bufferInfo = info;
             _type = type;
             _influences = null;
-            _culling = culling;
 
             List<Vertex> vertices = points.ToList();
             Remapper remapper = null;

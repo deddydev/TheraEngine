@@ -368,5 +368,24 @@ namespace TheraEngine.Files.Serialization
 
             return name;
         }
+
+        /// <summary>
+        /// Finds a file name that does not exist within the given directory.
+        /// </summary>
+        public static string ResolveFileName(string fileDir, string name, string ext)
+        {
+            if (!Directory.Exists(fileDir))
+                return name;
+            if (!ext.StartsWith("."))
+                ext = "." + ext;
+            if (string.IsNullOrWhiteSpace(name))
+                name = "UnnamedFile";
+            string[] files = Directory.GetFiles(fileDir);
+            string number = "";
+            int i = 0;
+            while (files.Any(x => string.Equals(Path.GetFileName(x), name + number + ext)))
+                number = (i++).ToString();
+            return name + number;
+        }
     }
 }

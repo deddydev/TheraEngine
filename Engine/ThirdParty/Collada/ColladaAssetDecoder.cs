@@ -401,7 +401,7 @@ namespace TheraEngine.Rendering.Models
                 if (lines.Count > 0)
                     Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
 
-                return PrimitiveData.FromTriangleList(Culling.None, info, faces.SelectMany(x => x.ToTriangles()));
+                return PrimitiveData.FromTriangleList(info, faces.SelectMany(x => x.ToTriangles()));
             }
             else if (lines != null && lines.Count > 0)
             {
@@ -411,7 +411,7 @@ namespace TheraEngine.Rendering.Models
 
             Engine.LogWarning("Mesh has no primitives.");
 
-            return PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions());
+            return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions());
         }
         public static PrimitiveData CreateData(
             VertexShaderDesc info,
@@ -425,7 +425,7 @@ namespace TheraEngine.Rendering.Models
                 if (baseLines.Count > 0)
                     Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
 
-                return PrimitiveData.FromTriangleList(Culling.None, info, baseFaces.SelectMany(x => x.ToTriangles()));
+                return PrimitiveData.FromTriangleList(info, baseFaces.SelectMany(x => x.ToTriangles()));
             }
             else if (baseLines != null && baseLines.Count > 0)
             {
@@ -435,7 +435,7 @@ namespace TheraEngine.Rendering.Models
 
             Engine.LogWarning("Mesh has no primitives.");
 
-            return PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions());
+            return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions());
         }
     }
 }

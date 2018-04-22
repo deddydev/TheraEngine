@@ -12,12 +12,6 @@ namespace TheraEngine.Rendering.Models
         [Browsable(false)]
         public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;
         [Browsable(false)]
-        public Culling Culling
-        {
-            get => _culling;
-            set => _culling = value;
-        }
-        [Browsable(false)]
         public string SingleBindBone
         {
             get => _singleBindBone;
@@ -79,7 +73,5 @@ namespace TheraEngine.Rendering.Models
 
         [TSerialize(nameof(Type), XmlNodeType = EXmlNodeType.Attribute)]
         internal EPrimitiveType _type = EPrimitiveType.Triangles;
-        [TSerialize(nameof(Culling), XmlNodeType = EXmlNodeType.Attribute)]
-        internal Culling _culling = Culling.Back;
     }
 }

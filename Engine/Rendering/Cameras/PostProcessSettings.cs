@@ -146,11 +146,24 @@ uniform VignetteStruct Vignette;";
         
         private float _contrast;
         private float _contrastUniformValue;
+        private float _prevExposure = 0.0f;
 
         [TSerialize]
         [Category("Color Grade Settings")]
         public EventColorF3 Tint { get; set; } = new ColorF3(1.0f, 1.0f, 1.0f);
 
+        [TSerialize]
+        [Category("Color Grade Settings")]
+        public bool AutoExposure { get; set; } = true;
+        [TSerialize]
+        [Category("Color Grade Settings")]
+        public float MinExposure { get; set; } = 0.01f;
+        [TSerialize]
+        [Category("Color Grade Settings")]
+        public float MaxExposure { get; set; } = 50.0f;
+        [TSerialize]
+        [Category("Color Grade Settings")]
+        public float ExposureTransitionSpeed { get; set; } = 0.1f;
         [TSerialize]
         [Category("Color Grade Settings")]
         public float Exposure { get; set; } = 1.0f;
@@ -211,6 +224,26 @@ struct ColorGradeStruct
     float Brightness;
 };
 uniform ColorGradeStruct ColorGrade;";
+        }
+        
+        private Vec3 _luminance = new Vec3(0.299f, 0.587f, 0.114f);
+        private OpenTK.Half[] _rgba = new OpenTK.Half[4];
+        public void UpdateExposure(TexRef2D hdrSceneTexture)
+        {
+            if (!AutoExposure)
+                return;
+
+            var tex = hdrSceneTexture.GetTextureGeneric(true);
+            Engine.Renderer.SetActiveTexture(0);
+            tex.Bind();
+            tex.GenerateMipmaps();
+            Engine.Renderer.GetTexImage(ETexTarget.Texture2D, tex.SmallestMipmapLevel, tex.PixelFormat, tex.PixelType, _rgba);
+            Vec3 rgb = new Vec3(_rgba[0], _rgba[1], _rgba[2]);
+            if (float.IsNaN(rgb.X)) rgb.X = Exposure;
+            if (float.IsNaN(rgb.Y)) rgb.Y = Exposure;
+            if (float.IsNaN(rgb.Z)) rgb.Z = Exposure;
+            float target = (0.5f / rgb.Dot(_luminance)).Clamp(MinExposure, MaxExposure);
+            Exposure = Interp.InterpCosineTo(Exposure, target, ExposureTransitionSpeed);
         }
     }
     public class BloomSettings : PostSettings

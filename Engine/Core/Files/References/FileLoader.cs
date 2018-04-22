@@ -11,6 +11,7 @@ namespace TheraEngine.Files
 {
     public interface IFileLoader
     {
+        bool EngineRelativePath { get; set; }
         string ReferencePathRelative { get; set; }
         string ReferencePathAbsolute { get; set; }
         Type ReferencedType { get; }
@@ -54,9 +55,25 @@ namespace TheraEngine.Files
         protected string _localRefPath;
         protected string _absoluteRefPath;
         protected Type _subType = null;
+        protected bool _engineRelativePath = false;
 
         [Category("File Reference")]
-        public bool EngineRelativePath { get; set; } = false;
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public bool EngineRelativePath
+        {
+            get => _engineRelativePath;
+            set
+            {
+                _engineRelativePath = value;
+                if (!string.IsNullOrWhiteSpace(_absoluteRefPath) && _absoluteRefPath.IsValidPath())
+                {
+                    if (EngineRelativePath || string.IsNullOrEmpty(DirectoryPath))
+                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(Application.StartupPath);
+                    else
+                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(DirectoryPath);
+                }
+            }
+        }
 
         [TString(false, true, false)]
         [Category("File Reference")]

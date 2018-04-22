@@ -100,7 +100,7 @@ namespace TheraEngine.Core.Shapes
                 strips.Add(new VertexTriangleStrip(stripVertices));
             }
 
-            return PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), strips.SelectMany(x => x.ToTriangles()));
+            return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), strips.SelectMany(x => x.ToTriangles()));
         }
 
         public static PrimitiveData WireframeMesh(Vec3 center, float radius, int pointCount)
@@ -141,7 +141,7 @@ namespace TheraEngine.Core.Shapes
                 triangles.Add(new VertexTriangle(v[i], v[i + slices + 1], v[i + slices]));
                 triangles.Add(new VertexTriangle(v[i + slices + 1], v[i], v[i + 1]));
             }
-            return PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), triangles);
+            return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), triangles);
         }
 
         public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)

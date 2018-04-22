@@ -13,7 +13,8 @@ namespace TheraEngine.Files
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         void UnloadReference();
-        void ExportReference();
+        void ExportReference(ESerializeFlags flags = ESerializeFlags.Default);
+        void ExportReference(string dir, string name, FileFormat format, string thirdPartyExt = null, bool setPath = true, ESerializeFlags flags = ESerializeFlags.Default);
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
@@ -171,8 +172,8 @@ namespace TheraEngine.Files
                 Unloaded -= unloaded;
         }
 
-        public void ExportReference() => _file?.Export(ReferencePathAbsolute);
-        public void ExportReference(string dir, string name, FileFormat format, string thirdPartyExt = null, bool setPath = true)
+        public void ExportReference(ESerializeFlags flags = ESerializeFlags.Default) => _file?.Export(ReferencePathAbsolute, flags);
+        public void ExportReference(string dir, string name, FileFormat format, string thirdPartyExt = null, bool setPath = true, ESerializeFlags flags = ESerializeFlags.Default)
         {
             if (_file == null)
                 return;

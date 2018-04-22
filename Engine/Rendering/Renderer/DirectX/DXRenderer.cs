@@ -517,7 +517,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void GenerateTextureMipmap(int textureBindingId)
+        public override void GenerateMipmap(int textureBindingId)
         {
             throw new NotImplementedException();
         }
@@ -638,6 +638,21 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void StencilMask(int value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GetTexImage<T>(ETexTarget texture2D, int smallestMipmapLevel, EPixelFormat pixelFormat, EPixelType pixelType, T[] rgba)
         {
             throw new NotImplementedException();
         }

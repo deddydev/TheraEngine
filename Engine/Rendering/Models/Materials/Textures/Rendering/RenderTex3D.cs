@@ -60,6 +60,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public int Height => _height;
         public int Depth => _depth;
 
+        public override int MaxDimension => TMath.Max(Width, Height, Depth);
+
         public static RenderTex3D[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<RenderTex3D>(EObjectType.Texture, count);
         

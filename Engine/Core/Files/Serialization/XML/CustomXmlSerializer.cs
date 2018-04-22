@@ -76,27 +76,41 @@ namespace TheraEngine.Files.Serialization
                     if (fref is ILocalFileRef && !_flags.HasFlag(ESerializeFlags.ExportLocalRefs))
                         return;
 
-                    string path = fref.ReferencePathAbsolute;
-                    if (path.StartsWithDirectorySeparator())
-                        path = _fileDir + path;
-                    string dir = path.Contains(".") ? Path.GetDirectoryName(path) : path;
+                    string absPath;
+                    if (!fref.EngineRelativePath)
+                    {
+                        absPath = Path.Combine(_fileDir, fref.ReferencePathRelative);
+                        //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
+                    }
+                    else
+                        absPath = fref.ReferencePathAbsolute;
+
+                    string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
+
                     TFileObject file = fref.File;
                     if (file.FileExtension != null)
-                        file.Export(dir, file.Name, FileFormat.XML, null, _flags);
+                    {
+                        string fileName = SerializationCommon.ResolveFileName(
+                            _fileDir, file.Name, file.FileExtension.GetProperExtension(ProprietaryFileFormat.XML));
+                        file.Export(dir, fileName, FileFormat.XML, null, _flags);
+                    }
                     else
                     {
                         var f = file.File3rdPartyExtensions;
                         if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
-                            file.Export(dir, file.Name, FileFormat.ThirdParty, f.ExportableExtensions[0], _flags);
+                        {
+                            string ext = f.ExportableExtensions[0];
+                            string fileName = SerializationCommon.ResolveFileName(_fileDir, file.Name, ext);
+                            file.Export(dir, fileName, FileFormat.ThirdParty, ext, _flags);
+                        }
                         else
                             Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
                     }
-                    fref.ReferencePathRelative = file.FilePath.MakePathRelativeTo(_fileDir);
                 }
             }
             
             Type objType = obj.GetType();
-            
+
             //Get custom serialize methods
             var customMethods = objType.GetMethods(
                 BindingFlags.NonPublic |

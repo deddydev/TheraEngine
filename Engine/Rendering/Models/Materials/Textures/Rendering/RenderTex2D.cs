@@ -70,6 +70,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             }
         }
 
+        public override int MaxDimension => Math.Max(Width, Height);
+
         private bool _hasPushed = false;
         private bool _storageSet = false;
 
@@ -100,6 +102,12 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 }
                 else if (!_storageSet)
                     Engine.Renderer.PushTextureData(TextureTarget, 0, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
+
+                if (AutoGenerateMipmaps)
+                {
+                    SetMipmapGenParams();
+                    GenerateMipmaps();
+                }
             }
             else
             {
@@ -128,19 +136,14 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                         else if (!_hasPushed)
                             Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
                     }
-
-                //if (_mipmaps.Length == 1)
-                //{
-                //    Engine.Renderer.GenerateMipmap(TextureTarget);
-                //}
             }
             _hasPushed = true;
 
-            int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);
-            Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, max);
+            //int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, max);
 
             if (allowPostPushCallback)
                 OnPostPushData();

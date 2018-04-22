@@ -332,7 +332,7 @@ namespace TheraEngine.Core.Shapes
                 back = inwardFacing ? VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal, ECubemapFace.NegZ, widthLarger) : VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal, ECubemapFace.NegZ, widthLarger);
             }
             
-            return PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
+            return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
         /// <summary>
         /// Creates a mesh representing this bounding box.

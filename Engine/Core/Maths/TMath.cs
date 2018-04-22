@@ -447,6 +447,32 @@ namespace System
             }
             return value;
         }
+        public static Vec3 ComponentMin(params Vec3[] values)
+        {
+            Vec3 value = Vec3.Zero;
+            for (int i = 0; i < 3; ++i)
+            {
+                float v = values[0][i];
+                if (values.Length > 1)
+                    for (int x = 1; x < values.Length; x++)
+                        v = Math.Min(v, values[x][i]);
+                value[i] = v;
+            }
+            return value;
+        }
+        public static Vec3 ComponentMax(params Vec3[] values)
+        {
+            Vec3 value = Vec3.Zero;
+            for (int i = 0; i < 3; ++i)
+            {
+                float v = values[0][i];
+                if (values.Length > 1)
+                    for (int x = 1; x < values.Length; x++)
+                        v = Math.Max(v, values[x][i]);
+                value[i] = v;
+            }
+            return value;
+        }
         public static int Min(params int[] values)
         {
             int v = values[0];

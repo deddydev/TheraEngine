@@ -123,7 +123,7 @@ namespace TheraEngine.Core.Shapes
                 tris.AddRange(new VertexTriangleFan(list).ToTriangles());
             }
 
-            return PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), tris);
+            return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), tris);
         }
 
         public override bool Contains(Vec3 point)

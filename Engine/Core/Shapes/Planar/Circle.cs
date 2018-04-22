@@ -76,7 +76,7 @@ namespace TheraEngine.Core.Shapes
             List<Vertex> points = new List<Vertex>(Points(radius, normal, center, sides));
             points.Insert(0, new Vertex(center, normal, Vec2.Half));
             VertexTriangleFan fan = new VertexTriangleFan(points.ToArray());
-            return PrimitiveData.FromTriangleFans(Culling.None, VertexShaderDesc.PosNormTex(), fan);
+            return PrimitiveData.FromTriangleFans(VertexShaderDesc.PosNormTex(), fan);
         }
         public static PrimitiveData WireframeMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {

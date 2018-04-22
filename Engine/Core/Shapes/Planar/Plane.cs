@@ -197,8 +197,8 @@ namespace TheraEngine.Core.Shapes
 
         public PrimitiveData GetWireframeMesh(float xExtent, float yExtent)
             => WireframeMesh(IntersectionPoint, Normal, xExtent, yExtent);
-        public PrimitiveData GetSolidMesh(float xExtent, float yExtent, Culling culling)
-            => SolidMesh(IntersectionPoint, Normal, xExtent, yExtent, culling);
+        public PrimitiveData GetSolidMesh(float xExtent, float yExtent)
+            => SolidMesh(IntersectionPoint, Normal, xExtent, yExtent);
         public static PrimitiveData WireframeMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
         {
             Quat r = normal.LookatAngles().ToQuaternion();
@@ -208,7 +208,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), new VertexLineStrip(true, bottomLeft, bottomRight, topRight, topLeft));
         }
-        public static PrimitiveData SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent, Culling culling)
+        public static PrimitiveData SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
         {
             Quat r = normal.LookatAngles().ToQuaternion();
             Vec3 bottomLeft = position + new Vec3(-0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
@@ -216,7 +216,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             VertexQuad q = VertexQuad.MakeQuad(bottomLeft, bottomRight, topRight, topLeft, normal);
-            return PrimitiveData.FromQuads(culling, VertexShaderDesc.PosNormTex(), q);
+            return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), q);
         }
     }
 }

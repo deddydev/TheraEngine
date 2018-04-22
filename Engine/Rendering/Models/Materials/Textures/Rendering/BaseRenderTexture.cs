@@ -60,6 +60,20 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public void Clear(ColorF4 clearColor, int level = 0)
             => Engine.Renderer.ClearTexImage(BindingId, level, clearColor);
 
+        public abstract int MaxDimension { get; }
+
+        //3.321928f is approx 1 / (log base 10 of 2)
+        public int SmallestMipmapLevel => Math.Min((int)Math.Floor(Math.Log10(MaxDimension) * 3.321928f), SmallestAllowedMipmapLevel);
+
+        public int MinLOD { get; set; } = -1000;
+        public int MaxLOD { get; set; } = 1000;
+        public int LargestMipmapLevel { get; set; } = 0;
+        public int SmallestAllowedMipmapLevel { get; set; } = 1000;
+        public bool AutoGenerateMipmaps { get; set; } = false;
+
+        public void SetMipmapGenParams() => Engine.Renderer.SetMipmapParams(BindingId, MinLOD, MaxLOD, LargestMipmapLevel, SmallestAllowedMipmapLevel);
+        public void GenerateMipmaps() => Engine.Renderer.GenerateMipmap(TextureTarget);
+        
         protected override int CreateObject()
             => Engine.Renderer.CreateTexture(TextureTarget);
         protected override void PostGenerated()

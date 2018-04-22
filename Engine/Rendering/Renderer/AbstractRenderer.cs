@@ -52,12 +52,16 @@ namespace TheraEngine.Rendering
         public abstract void SetActiveTexture(int unit);
 
         public abstract void ColorMask(bool r, bool g, bool b, bool a);
-        public abstract void GenerateTextureMipmap(int textureBindingId);
 
+        public abstract void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
+        public abstract void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
+        public abstract void GenerateMipmap(int bindingId);
+        public abstract void GenerateMipmap(ETexTarget target);
+        
         #region Debug Primitives
 
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
-        
+
         internal static void PushCurrent3DScene(Scene3D scene)
         {
             _3dSceneStack.Push(scene);
@@ -194,14 +198,14 @@ namespace TheraEngine.Rendering
                 case DebugPrimitiveType.WireQuad:
                     return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
                 case DebugPrimitiveType.SolidQuad:
-                    return PrimitiveData.FromQuads(Culling.None, VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
+                    return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
                 case DebugPrimitiveType.WireCone:
                     return BaseCone.WireMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 20);
             }
             return null;
         }
-        
-        public abstract void GenerateMipmap(ETexTarget target);
+
+        public abstract void GetTexImage<T>(ETexTarget texture2D, int smallestMipmapLevel, EPixelFormat pixelFormat, EPixelType pixelType, T[] rgba) where T : struct;
 
         //public void CacheWireframePlane()
         //{

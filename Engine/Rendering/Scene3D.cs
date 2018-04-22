@@ -327,7 +327,7 @@ namespace TheraEngine.Rendering
                             _passes.Render(ERenderPass3D.OnTopForward);
                         }
                         v.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
+                        
                         v.PingPongBloomBlurFBO.Reset();
                         v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
                         v.ForwardPassFBO.RenderFullscreen();

@@ -292,6 +292,10 @@ namespace TheraEngine.Rendering.Models.Materials
             CreateRenderTexture();
             _isLoading = false;
         }
+        /// <summary>
+        /// Decides the best internal format, pixel format, and pixel type for the stored mipmaps.
+        /// </summary>
+        /// <param name="force">If true, sets the formats/type even if the mipmaps are loaded.</param>
         public void DetermineTextureFormat(bool force = true)
         {
             if (_mipmaps != null && _mipmaps.Length > 0)

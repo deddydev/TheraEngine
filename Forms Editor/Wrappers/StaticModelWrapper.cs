@@ -33,7 +33,7 @@ namespace TheraEditor.Wrappers
         {
             ModelEditorForm d = new ModelEditorForm();
             d.Show();
-            d.SetModel(Resource);
+            d.SetModel(ResourceRef.File);
         }
     }
 }

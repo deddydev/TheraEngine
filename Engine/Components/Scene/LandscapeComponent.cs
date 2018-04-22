@@ -200,7 +200,7 @@ namespace TheraEngine.Actors.Types
             }
             AverageNormals(nextX / xInc, nextY / yInc);
 
-            PrimitiveData data = PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), list);
+            PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), list);
             material.RenderParams.CullMode = Culling.Back;
             _mesh = new PrimitiveManager(data, material);
         }

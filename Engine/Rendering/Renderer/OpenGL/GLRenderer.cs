@@ -1217,17 +1217,34 @@ namespace TheraEngine.Rendering.OpenGL
         }
 
         public override void ColorMask(bool r, bool g, bool b, bool a)
-        {
-            GL.ColorMask(r, g, b, a);
-        }
+            => GL.ColorMask(r, g, b, a);
 
         public override void GenerateMipmap(ETexTarget target)
+            => GL.GenerateMipmap((GenerateMipmapTarget)(int)target);
+        public override void GenerateMipmap(int textureBindingId)
+            => GL.GenerateTextureMipmap(textureBindingId);
+        public override void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
         {
-            GL.GenerateMipmap((GenerateMipmapTarget)target.ConvertByName(typeof(GenerateMipmapTarget)));
+            GL.TextureParameterI(bindingId, All.TextureBaseLevel, ref largestMipmapLevel);
+            GL.TextureParameterI(bindingId, All.TextureMaxLevel, ref smallestAllowedMipmapLevel);
+            GL.TextureParameterI(bindingId, All.TextureMinLod, ref minLOD);
+            GL.TextureParameterI(bindingId, All.TextureMaxLod, ref maxLOD);
         }
-        public override void GenerateTextureMipmap(int textureBindingId)
+        public override void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
         {
-            GL.GenerateTextureMipmap(textureBindingId);
+            TextureTarget t = (TextureTarget)(int)target;
+            GL.TexParameterI(t, TextureParameterName.TextureBaseLevel, ref largestMipmapLevel);
+            GL.TexParameterI(t, TextureParameterName.TextureMaxLevel, ref smallestAllowedMipmapLevel);
+            GL.TexParameterI(t, TextureParameterName.TextureMinLod, ref minLOD);
+            GL.TexParameterI(t, TextureParameterName.TextureMaxLod, ref maxLOD);
+        }
+
+        public override void GetTexImage<T>(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels)
+        {
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)(int)pixelFormat;
+            PixelType pt = (PixelType)(int)pixelType;
+            TextureTarget tt = (TextureTarget)(int)target;
+            GL.GetTexImage(tt, level, pf, pt, pixels);
         }
     }
 }

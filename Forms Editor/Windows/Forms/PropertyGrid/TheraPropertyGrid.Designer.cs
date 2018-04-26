@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.lblSceneComps = new System.Windows.Forms.Label();
             this.lblLogicComps = new System.Windows.Forms.Label();
             this.lblProperties = new System.Windows.Forms.Label();
@@ -42,8 +43,19 @@
             this.btnMoveDownLogicComp = new System.Windows.Forms.Button();
             this.btnAddLogicComp = new System.Windows.Forms.Button();
             this.btnRemoveLogicComp = new System.Windows.Forms.Button();
+            this.ctxSceneComps = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.btnAddSiblingSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnAddChildSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnMoveUpSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnMoveDownSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnAddToSibAboveSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnAddToSibBelowSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnAddSibToParentSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlHeader.SuspendLayout();
             this.pnlLogicComps.SuspendLayout();
+            this.ctxSceneComps.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblSceneComps
@@ -103,7 +115,10 @@
             this.treeViewSceneComps.Size = new System.Drawing.Size(631, 31);
             this.treeViewSceneComps.TabIndex = 3;
             this.treeViewSceneComps.Visible = false;
+            this.treeViewSceneComps.AfterCollapse += new System.Windows.Forms.TreeViewEventHandler(this.treeViewSceneComps_AfterCollapse);
+            this.treeViewSceneComps.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeViewSceneComps_AfterExpand);
             this.treeViewSceneComps.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewSceneComps_BeforeSelect);
+            this.treeViewSceneComps.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.treeViewSceneComps_MouseDoubleClick);
             this.treeViewSceneComps.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSceneComps_MouseDown);
             // 
             // lstLogicComps
@@ -167,6 +182,7 @@
             // 
             // btnSave
             // 
+            this.btnSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(80)))));
             this.btnSave.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSave.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
@@ -176,7 +192,7 @@
             this.btnSave.Size = new System.Drawing.Size(74, 48);
             this.btnSave.TabIndex = 7;
             this.btnSave.Text = "Save";
-            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.UseVisualStyleBackColor = false;
             this.btnSave.Visible = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
@@ -252,6 +268,81 @@
             this.btnRemoveLogicComp.UseVisualStyleBackColor = false;
             this.btnRemoveLogicComp.Click += new System.EventHandler(this.btnRemoveLogicComp_Click);
             // 
+            // ctxSceneComps
+            // 
+            this.ctxSceneComps.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxSceneComps.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnAddSiblingSceneComp,
+            this.btnAddChildSceneComp,
+            this.toolStripSeparator1,
+            this.btnMoveUpSceneComp,
+            this.btnMoveDownSceneComp,
+            this.toolStripSeparator2,
+            this.btnAddToSibAboveSceneComp,
+            this.btnAddToSibBelowSceneComp,
+            this.btnAddSibToParentSceneComp});
+            this.ctxSceneComps.Name = "ctxSceneComps";
+            this.ctxSceneComps.Size = new System.Drawing.Size(282, 184);
+            // 
+            // btnAddSiblingSceneComp
+            // 
+            this.btnAddSiblingSceneComp.Name = "btnAddSiblingSceneComp";
+            this.btnAddSiblingSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnAddSiblingSceneComp.Text = "Add Sibling";
+            this.btnAddSiblingSceneComp.Click += new System.EventHandler(this.btnAddSiblingSceneComp_Click);
+            // 
+            // btnAddChildSceneComp
+            // 
+            this.btnAddChildSceneComp.Name = "btnAddChildSceneComp";
+            this.btnAddChildSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnAddChildSceneComp.Text = "Add Child";
+            this.btnAddChildSceneComp.Click += new System.EventHandler(this.btnAddChildSceneComp_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(278, 6);
+            // 
+            // btnMoveUpSceneComp
+            // 
+            this.btnMoveUpSceneComp.Name = "btnMoveUpSceneComp";
+            this.btnMoveUpSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnMoveUpSceneComp.Text = "Move Up";
+            this.btnMoveUpSceneComp.Click += new System.EventHandler(this.btnMoveUpSceneComp_Click);
+            // 
+            // btnMoveDownSceneComp
+            // 
+            this.btnMoveDownSceneComp.Name = "btnMoveDownSceneComp";
+            this.btnMoveDownSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnMoveDownSceneComp.Text = "Move Down";
+            this.btnMoveDownSceneComp.Click += new System.EventHandler(this.btnMoveDownSceneComp_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(278, 6);
+            // 
+            // btnAddToSibAboveSceneComp
+            // 
+            this.btnAddToSibAboveSceneComp.Name = "btnAddToSibAboveSceneComp";
+            this.btnAddToSibAboveSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnAddToSibAboveSceneComp.Text = "Add As Child To Sibling Above";
+            this.btnAddToSibAboveSceneComp.Click += new System.EventHandler(this.btnAddToSibAboveSceneComp_Click);
+            // 
+            // btnAddToSibBelowSceneComp
+            // 
+            this.btnAddToSibBelowSceneComp.Name = "btnAddToSibBelowSceneComp";
+            this.btnAddToSibBelowSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnAddToSibBelowSceneComp.Text = "Add As Child To Sibling Below";
+            this.btnAddToSibBelowSceneComp.Click += new System.EventHandler(this.btnAddToSibBelowSceneComp_Click);
+            // 
+            // btnAddSibToParentSceneComp
+            // 
+            this.btnAddSibToParentSceneComp.Name = "btnAddSibToParentSceneComp";
+            this.btnAddSibToParentSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnAddSibToParentSceneComp.Text = "Add As Sibling To Parent";
+            this.btnAddSibToParentSceneComp.Click += new System.EventHandler(this.btnAddSibToParentSceneComp_Click);
+            // 
             // TheraPropertyGrid
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -270,6 +361,7 @@
             this.Size = new System.Drawing.Size(631, 681);
             this.pnlHeader.ResumeLayout(false);
             this.pnlLogicComps.ResumeLayout(false);
+            this.ctxSceneComps.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -290,5 +382,15 @@
         public System.Windows.Forms.Button btnMoveDownLogicComp;
         public System.Windows.Forms.Button btnAddLogicComp;
         public System.Windows.Forms.Button btnRemoveLogicComp;
+        private System.Windows.Forms.ContextMenuStrip ctxSceneComps;
+        private System.Windows.Forms.ToolStripMenuItem btnAddSiblingSceneComp;
+        private System.Windows.Forms.ToolStripMenuItem btnAddChildSceneComp;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem btnMoveUpSceneComp;
+        private System.Windows.Forms.ToolStripMenuItem btnMoveDownSceneComp;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem btnAddToSibAboveSceneComp;
+        private System.Windows.Forms.ToolStripMenuItem btnAddToSibBelowSceneComp;
+        private System.Windows.Forms.ToolStripMenuItem btnAddSibToParentSceneComp;
     }
 }

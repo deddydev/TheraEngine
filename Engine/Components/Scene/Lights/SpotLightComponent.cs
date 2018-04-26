@@ -1,12 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Core.Maths.Transforms;
-using System.Drawing;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene.Lights
 {
@@ -137,7 +137,7 @@ namespace TheraEngine.Components.Scene.Lights
         public PerspectiveCamera ShadowCamera  => _shadowCamera;
 
         [Browsable(false)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
         [Browsable(false)]
         public Shape CullingVolume => null; //TODO: use outer cone as culling volume
         [Browsable(false)]
@@ -149,12 +149,12 @@ namespace TheraEngine.Components.Scene.Lights
         }
 
         public SpotLightComponent()
-            : this(100.0f, new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, 0.0f, Vec3.Down, 60.0f, 30.0f, 1.0f, 1.0f) { }
+            : this(100.0f, new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, Vec3.Down, 60.0f, 30.0f, 1.0f, 1.0f) { }
 
         public SpotLightComponent(
-            float distance, ColorF3 color, float diffuseIntensity, float ambientIntensity,
+            float distance, ColorF3 color, float diffuseIntensity,
             Vec3 direction, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent) 
-            : base(color, diffuseIntensity, ambientIntensity)
+            : base(color, diffuseIntensity)
         {
             _outerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
             _innerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
@@ -172,9 +172,9 @@ namespace TheraEngine.Components.Scene.Lights
             //_cullingVolume.State.Translation.SyncFrom(_translation);
         }
         public SpotLightComponent(
-            float distance, ColorF3 color, float diffuseIntensity, float ambientIntensity,
+            float distance, ColorF3 color, float diffuseIntensity,
             Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
-            : base(color, diffuseIntensity, ambientIntensity)
+            : base(color, diffuseIntensity)
         {
             _outerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
             _innerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
@@ -248,7 +248,6 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Exponent", _exponent);
 
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
@@ -295,7 +294,11 @@ namespace TheraEngine.Components.Scene.Lights
             mat.RenderParams.CullMode = Culling.None;
             return mat;
         }
-        public override void RenderShadowMap(Scene3D scene)
+        public override void UpdateShadowMap(BaseScene scene)
+        {
+            scene.Update(_passes, _shadowCamera.Frustum, _shadowCamera, null, true);
+        }
+        public override void RenderShadowMap(BaseScene scene)
         {
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
 
@@ -304,9 +307,7 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
-
-                scene.CollectVisibleRenderables(_shadowCamera.Frustum, true);
-                scene.Render(_shadowCamera, null, null);
+                scene.Render(_passes, _shadowCamera, null, null, null);
             }
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -342,6 +343,11 @@ namespace TheraEngine.Components.Scene.Lights
                 }
             }
             base.OnSelectedChanged(selected);
+        }
+
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+
         }
 #endif
     }

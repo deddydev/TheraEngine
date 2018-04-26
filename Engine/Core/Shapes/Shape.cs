@@ -4,6 +4,7 @@ using TheraEngine.Rendering;
 using System;
 using TheraEngine.Physics;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -31,10 +32,15 @@ namespace TheraEngine.Core.Shapes
         ConeComplex,
     }
     [FileExt("shape")]
-    public abstract class Shape : TFileObject, I3DRenderable
+    public abstract class Shape : TFileObject, I3DRenderable, IVolume
     {
+        public Shape()
+        {
+            _rc = new RenderCommandDebug3D(Render);
+        }
+
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
+            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
 
         public Action VisibilityChanged;
 
@@ -88,7 +94,6 @@ namespace TheraEngine.Core.Shapes
             set => _visibleToOwnerOnly = value;
         }
         
-        public abstract void Render();
         public abstract TCollisionShape GetCollisionShape();
         public abstract BoundingBox GetAABB();
 
@@ -146,5 +151,12 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         public abstract Shape HardCopy();
         public abstract Matrix4 GetTransformMatrix();
+        public abstract void Render();
+
+        private RenderCommandDebug3D _rc;
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            passes.Add(_rc, RenderInfo.RenderPass);
+        }
     }
 }

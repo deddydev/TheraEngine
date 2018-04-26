@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;

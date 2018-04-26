@@ -49,6 +49,19 @@ namespace TheraEngine
 
         protected virtual void PreRender() => PreRendered?.Invoke();
         protected virtual void PostRender() => PostRendered?.Invoke();
+        protected override void OnUpdate()
+        {
+            if (_viewports.Count == 0)
+                return;
+
+            Viewport v = _viewports[0];
+            v.Update(Scene, v.Camera, v.Camera.Frustum);
+        }
+        public override void SwapBuffers()
+        {
+            if (_viewports.Count > 0)
+                _viewports[0].SwapBuffers();
+        }
         protected override void OnRender()
         {
             if (_viewports.Count == 0)
@@ -58,7 +71,7 @@ namespace TheraEngine
 
             PreRender();
             _context.BeginDraw();
-            v.Render(Scene, v.Camera, v.Camera.Frustum, null);
+            v.Render(Scene, v.Camera, null);
             _context.EndDraw();
             PostRender();
         }

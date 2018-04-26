@@ -531,7 +531,7 @@ namespace TheraEngine.Components
 
             if (spawnedMismatch)
             {
-                if (item.IsSpawned)
+                if (IsSpawned)
                     item.OnSpawned();
                 else
                     item.OnDespawned();

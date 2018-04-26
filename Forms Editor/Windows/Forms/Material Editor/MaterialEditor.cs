@@ -13,6 +13,8 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
             dockPanel1.Theme = new TheraEditorTheme();
+            FormTitle2.MouseDown += TitleLabel_MouseDown;
+            FormTitle2.MouseUp += (s, e) => { if (e.Button == System.Windows.Forms.MouseButtons.Right && FormTitle.ClientRectangle.Contains(e.Location)) ShowSystemMenu(MouseButtons); };
         }
         public MaterialEditorForm(TMaterial m) : this()
         {

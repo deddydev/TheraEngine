@@ -5,7 +5,7 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public abstract class BaseTexRef : TFileObject
+    public abstract class BaseTexRef : TFileObject, IFrameBufferAttachement
     {
         private int _index;
         private EFramebufferAttachment? _frameBufferAttachment;
@@ -35,8 +35,9 @@ namespace TheraEngine.Rendering.Models.Materials
         /// Converts this texture reference into a texture made for rendering.
         /// </summary>
         public abstract Task<BaseRenderTexture> GetTextureGenericAsync();
-        internal abstract void AttachToFBO(int mipLevel = 0);
-        internal abstract void DetachFromFBO(int mipLevel = 0);
+        public abstract void AttachToFBO(int mipLevel = 0);
+        public abstract void DetachFromFBO(int mipLevel = 0);
         public abstract void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0);
+        public abstract void DetachFromFBO(EFramebufferAttachment attachment, int mipLevel = 0);
     }
 }

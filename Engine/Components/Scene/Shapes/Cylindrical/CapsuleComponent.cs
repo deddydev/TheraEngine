@@ -4,6 +4,8 @@ using TheraEngine.Core.Shapes;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
@@ -54,6 +56,11 @@ namespace TheraEngine.Components.Scene.Shapes
         {
             //Engine.Scene.Remove(this);
             base.OnDespawned();
+        }
+
+        public override void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -136,15 +136,28 @@ namespace TheraEditor.Windows.Forms
         {
             switch (e.KeyCode)
             {
-                case Keys.OemBackslash:
                 case Keys.OemPeriod:
+                    if ((this is NumericInputBoxSingle ||
+                        this is NumericInputBoxDouble ||
+                        this is NumericInputBoxDecimal) &&
+                        Text.IndexOf('.') < 0)
+                    {
+
+                    }
+                    else
+                    {
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                    }
+                    break;
+
+                case Keys.OemBackslash:
                 case Keys.Oemcomma:
                 case Keys.Oemplus:
                     if (!e.Shift)
                     {
                         e.Handled = true;
                         e.SuppressKeyPress = true;
-                        break;
                     }
                     break;
                 case Keys.OemQuestion:

@@ -44,7 +44,6 @@ namespace TheraEngine.Components.Scene.Mesh
             _currentLOD = LODs.Last;
 
             RenderInfo = renderInfo;
-            RenderInfo.RenderOrderFunc = GetRenderDistance;
 
             Visible = false;
         }
@@ -79,24 +78,25 @@ namespace TheraEngine.Components.Scene.Mesh
         public bool VisibleInEditorOnly { get; set; } = false;
         public bool HiddenFromOwner { get; set; } = false;
         public bool VisibleToOwnerOnly { get; set; } = false;
-        public delegate void DelPostRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix);
-        public delegate void DelPreRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, TMaterial material, PreRenderCallback callback);
-        public class PreRenderCallback
-        {
-            public bool ShouldRender { get; set; } = true;
-        }
-        public event DelPreRender PreRendered;
-        public event DelPostRender PostRendered;
 
-        private float GetRenderDistance(bool shadowPass)
-        {
-            float dist = GetDistance(AbstractRenderer.CurrentCamera);
+        //public delegate void DelPostRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix);
+        //public delegate void DelPreRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, TMaterial material, PreRenderCallback callback);
+        //public class PreRenderCallback
+        //{
+        //    public bool ShouldRender { get; set; } = true;
+        //}
+        //public event DelPreRender PreRendered;
+        //public event DelPostRender PostRendered;
 
-            if (!shadowPass)
-                UpdateLOD(dist);
+        //private float GetRenderDistance(bool shadowPass)
+        //{
+        //    float dist = GetDistance(AbstractRenderer.CurrentCamera);
 
-            return dist;
-        }
+        //    if (!shadowPass)
+        //        UpdateLOD(dist);
+
+        //    return dist;
+        //}
 
         public float GetDistance(Camera camera)
         {
@@ -125,23 +125,36 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
             }
         }
-        public void Render() => Render(null, true, true);
-        public void Render(bool allowPreRenderEvent = true, bool allowPostRenderEvent = true) => Render(null, allowPreRenderEvent, allowPostRenderEvent);
-        public void Render(TMaterial material = null, bool allowPreRenderEvent = true, bool allowPostRenderEvent = true)
+        //public void Render() => Render(null, true, true);
+        //public void Render(bool allowPreRenderEvent = true, bool allowPostRenderEvent = true) => Render(null, allowPreRenderEvent, allowPostRenderEvent);
+        //public void Render(TMaterial material = null, bool allowPreRenderEvent = true, bool allowPostRenderEvent = true)
+        //{
+        //    if (_currentLOD.Value.Manager == null)
+        //        return;
+        //    Matrix4 mtx = _component.WorldMatrix;
+        //    Matrix3 nrm = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
+        //    PreRenderCallback callback = new PreRenderCallback();
+        //    if (allowPreRenderEvent)
+        //        PreRendered?.Invoke(this, mtx, nrm, material, callback);
+        //    if (callback.ShouldRender)
+        //    {
+        //        _currentLOD.Value.Manager?.Render(mtx, nrm, material);
+        //        if (allowPostRenderEvent)
+        //            PostRendered?.Invoke(this, mtx, nrm);
+        //    }
+        //}
+
+        private RenderCommandMesh3D _renderCommand = new RenderCommandMesh3D();
+        public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            if (_currentLOD.Value.Manager == null)
-                return;
-            Matrix4 mtx = _component.WorldMatrix;
-            Matrix3 nrm = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
-            PreRenderCallback callback = new PreRenderCallback();
-            if (allowPreRenderEvent)
-                PreRendered?.Invoke(this, mtx, nrm, material, callback);
-            if (callback.ShouldRender)
-            {
-                _currentLOD.Value.Manager?.Render(mtx, nrm, material);
-                if (allowPostRenderEvent)
-                    PostRendered?.Invoke(this, mtx, nrm);
-            }
+            float distance = GetDistance(camera);
+            if (!passes.ShadowPass)
+                UpdateLOD(distance);
+            _renderCommand.Primitives = _currentLOD.Value.Manager;
+            _renderCommand.WorldMatrix = _component.WorldMatrix;
+            _renderCommand.NormalMatrix = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
+            _renderCommand.RenderDistance = distance;
+            passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
     }
     public class StaticRenderableMesh : BaseRenderableMesh

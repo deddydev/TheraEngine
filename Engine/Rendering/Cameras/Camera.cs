@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.Cameras
     public abstract class Camera : TFileObject, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
+            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
 
         [Browsable(false)]
         public Shape CullingVolume => _transformedFrustum.CullingVolume;
@@ -38,6 +38,7 @@ namespace TheraEngine.Rendering.Cameras
             : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
         public Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
         {
+            _renderCommand = new RenderCommandDebug3D(Render);
             _postProcessSettingsRef = new PostProcessSettings();
             _transformedFrustum = new Frustum();
             _localRotation = rotation;
@@ -567,6 +568,12 @@ namespace TheraEngine.Rendering.Cameras
             //Otherwise scale will increase on edges of screen
             float distance = DistanceFromScreenPlane(point);
             return distance * radius * 0.1f;
+        }
+
+        RenderCommandDebug3D _renderCommand;
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using TheraEngine.Core.Shapes;
+﻿using System.Windows.Forms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 
@@ -8,7 +9,7 @@ namespace TheraEngine
     /// Used for rendering using any rasterizer that inherits from AbstractRenderer.
     /// Supports a 2D or 3D scene processor.
     /// </summary>
-    public abstract class RenderPanel<T> : BaseRenderPanel where T : Scene
+    public abstract class RenderPanel<T> : BaseRenderPanel where T : BaseScene
     {
         /// <summary>
         /// Returns the scene to render. A scene contains renderable objects and a management tree.
@@ -32,13 +33,22 @@ namespace TheraEngine
         protected virtual Frustum GetFrustum(Viewport v) => GetCamera(v)?.Frustum;
         protected virtual void PreRender() { }
         protected virtual void PostRender() { }
+        protected override void OnUpdate()
+        {
+            foreach (Viewport v in _viewports)
+                v.Update(GetScene(v), GetCamera(v), GetFrustum(v));
+        }
+        public override void SwapBuffers()
+        {
+            foreach (Viewport v in _viewports)
+                v.SwapBuffers();
+        }
         protected override void OnRender()
         {
             PreRender();
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
-                v.Render(GetScene(v), GetCamera(v), GetFrustum(v), null);
-            //_globalHud?.Render();
+                v.Render(GetScene(v), GetCamera(v), null);
             _context.EndDraw();
             PostRender();
         }

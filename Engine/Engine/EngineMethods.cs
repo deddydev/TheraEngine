@@ -65,7 +65,12 @@ namespace TheraEngine
             => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
         public static ShaderFile LoadEngineShader(string fileName, EShaderMode mode)
             => new ShaderFile(mode, new TextFile(EngineShadersPath(fileName)));
-        
+
+        public static string EngineScriptsPath(string fileName)
+            => Path.Combine(Settings.ScriptsFolder ?? string.Empty, fileName);
+        public static TextFile LoadEngineScript(string fileName)
+            => new TextFile(EngineScriptsPath(fileName));
+
         public static TextureFile2D LoadEngineTexture2D(string fileName)
             => TFileObject.Load<TextureFile2D>(EngineTexturesPath(fileName));
         public static string EngineTexturesPath(string fileName)
@@ -214,16 +219,31 @@ namespace TheraEngine
         /// HALTS update and render ticks. Not recommended for use as this literally halts all visuals and user input.
         /// </summary>
         public static void Stop() => _timer.Stop();
+        private static event EventHandler<FrameEventArgs> UpdateScenes = delegate { };
         /// <summary>
         /// Registers the given function to be called every update tick.
         /// </summary>
-        public static void RegisterRenderTick(EventHandler<FrameEventArgs> func)
-            => _timer.RenderFrame += func;
+        public static void RegisterTick(
+            EventHandler<FrameEventArgs> render,
+            EventHandler<FrameEventArgs> update,
+            Action swapBuffers)
+        {
+            _timer.RenderFrame += render;
+            UpdateScenes += update;
+            _timer.SwapBuffers += swapBuffers;
+        }
         /// <summary>
         /// Registers the given function to be called every render tick.
         /// </summary>
-        public static void UnregisterRenderTick(EventHandler<FrameEventArgs> func)
-            => _timer.RenderFrame -= func;
+        public static void UnregisterTick(
+            EventHandler<FrameEventArgs> render,
+            EventHandler<FrameEventArgs> update,
+            Action swapBuffers)
+        {
+            _timer.RenderFrame -= render;
+            UpdateScenes -= update;
+            _timer.SwapBuffers -= swapBuffers;
+        }
         /// <summary>
         /// Registers a method to execute in a specific order every update tick.
         /// </summary>
@@ -271,14 +291,10 @@ namespace TheraEngine
         {
             float delta = e.Time * TimeDilation;
             TickGroup(ETickGroup.PrePhysics, delta);
-            //using (Task task = new Task(() => TickGroup(ETickGroup.DuringPhysics, delta)))
-            //{
-                //task.Start();
-                if (!_isPaused && World != null)
-                    World.StepSimulation(delta);
-                //task.Wait();
-            //}
+            if (!_isPaused && World != null)
+                World.StepSimulation(delta);
             TickGroup(ETickGroup.PostPhysics, delta);
+            UpdateScenes?.Invoke(sender, e);
         }
         /// <summary>
         /// Ticks all lists of methods registered to this group.

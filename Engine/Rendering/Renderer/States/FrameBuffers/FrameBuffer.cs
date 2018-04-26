@@ -7,33 +7,32 @@ using TheraEngine.Rendering.Models.Materials;
 namespace TheraEngine.Rendering
 {
     public delegate void DelSetUniforms(int programBindingId);
-    
+    public interface IFrameBufferAttachement { }
     public class FrameBuffer : BaseRenderState
     {
         public FrameBuffer() : base(EObjectType.Framebuffer) { }
         
-        public (BaseTexRef Texture, EFramebufferAttachment Attachment, int MipLevel)[] Targets { get; private set; }
-        public EFramebufferAttachment[] Attachments { get; private set; }
+        public (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)[] Targets { get; private set; }
         public EDrawBuffersAttachment[] DrawBuffers { get; private set; }
 
-        private EDrawBuffersAttachment _readBuffer = EDrawBuffersAttachment.None;
-        public EDrawBuffersAttachment ReadBuffer
-        {
-            get => _readBuffer;
-            set
-            {
-                _readBuffer = value;
-                if (IsActive)
-                {
-                    Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-                    Engine.Renderer.SetReadBuffer(ReadBuffer);
-                    CheckErrors();
-                    Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-                }
-            }
-        }
+        //private EDrawBuffersAttachment _readBuffer = EDrawBuffersAttachment.None;
+        //public EDrawBuffersAttachment ReadBuffer
+        //{
+        //    get => _readBuffer;
+        //    set
+        //    {
+        //        _readBuffer = value;
+        //        if (IsActive)
+        //        {
+        //            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+        //            Engine.Renderer.SetReadBuffer(ReadBuffer);
+        //            CheckErrors();
+        //            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+        //        }
+        //    }
+        //}
 
-        public void SetRenderTargets(params (BaseTexRef Texture, EFramebufferAttachment Attachment, int MipLevel)[] textures)
+        public void SetRenderTargets(params (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)[] textures)
         {
             if (IsActive)
                 DetachAll();
@@ -41,7 +40,7 @@ namespace TheraEngine.Rendering
             Targets = textures;
 
             List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-            foreach (var (Texture, Attachment, MipLevel) in Targets)
+            foreach (var (Target, Attachment, MipLevel) in Targets)
             {
                 switch (Attachment)
                 {
@@ -65,18 +64,12 @@ namespace TheraEngine.Rendering
             if (IsActive)
                 DetachAll();
             
-            List<(BaseTexRef Texture, EFramebufferAttachment Attachment, int MipLevel)> targets
-                = new List<(BaseTexRef Texture, EFramebufferAttachment Attachment, int MipLevel)>();
+            List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)> targets
+                = new List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)>();
+
             foreach (BaseTexRef t in material.Textures.Where(x => x.FrameBufferAttachment.HasValue))
-            {
-                //if (t.FrameBufferAttachment.Value == EFramebufferAttachment.DepthStencilAttachment)
-                //{
-                //    targets.Add((t, EFramebufferAttachment.DepthAttachment, 0));
-                //    targets.Add((t, EFramebufferAttachment.StencilAttachment, 0));
-                //}
-                //else
-                    targets.Add((t, t.FrameBufferAttachment.Value, 0));
-            }
+                targets.Add((t, t.FrameBufferAttachment.Value, 0));
+            
             Targets = targets.ToArray();
 
             List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
@@ -105,13 +98,20 @@ namespace TheraEngine.Rendering
             if (BaseRenderPanel.NeedsInvoke(AttachAll, BaseRenderPanel.PanelType.World))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            foreach (var (Texture, Attachment, MipLevel) in Targets)
+            foreach (var (Target, Attachment, MipLevel) in Targets)
             {
-                Texture.GetTextureGeneric(true).PushData();
-                Texture.AttachToFBO(Attachment, MipLevel);
+                if (Target is BaseTexRef tref)
+                {
+                    tref.GetTextureGeneric(true).PushData();
+                    tref.AttachToFBO(Attachment, MipLevel);
+                }
+                else if (Target is RenderBuffer buf)
+                {
+                    buf.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment);
+                }
             }
             Engine.Renderer.SetDrawBuffers(DrawBuffers);
-            Engine.Renderer.SetReadBuffer(ReadBuffer);
+            //Engine.Renderer.SetReadBuffer(ReadBuffer);
             CheckErrors();
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         }
@@ -121,8 +121,19 @@ namespace TheraEngine.Rendering
             if (BaseRenderPanel.NeedsInvoke(DetachAll, BaseRenderPanel.PanelType.World))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            foreach (var (Texture, Attachment, MipLevel) in Targets)
+            foreach (var (Target, Attachment, MipLevel) in Targets)
+            {
+                if (Target is BaseTexRef tref)
+                {
+                    tref.DetachFromFBO(MipLevel);
+                }
+                else if (Target is RenderBuffer buf)
+                {
+                    buf.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment);
+                }
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, Attachment, NullBindingId, MipLevel);
+            }
+
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         }
 

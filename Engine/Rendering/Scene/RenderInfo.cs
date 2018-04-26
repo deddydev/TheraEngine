@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Used by the engine for proper order of rendering.
         /// </summary> 
-        public ERenderPass2D RenderPass;
+        public ERenderPass RenderPass;
         /// <summary>
         /// Used to render objects in the same pass in a certain order.
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering
         public int LayerIndex;
         public int IndexWithinLayer;
 
-        public RenderInfo2D(ERenderPass2D pass, int layerIndex, int orderInLayer)
+        public RenderInfo2D(ERenderPass pass, int layerIndex, int orderInLayer)
         {
             RenderPass = pass;
             LayerIndex = layerIndex;
@@ -62,7 +62,7 @@ namespace TheraEngine.Rendering
         [TSerialize]
         public bool CastsShadows { get; set; } = true;
         [TSerialize]
-        public ERenderPass3D RenderPass { get; set; } = ERenderPass3D.OpaqueDeferredLit;
+        public ERenderPass RenderPass { get; set; } = ERenderPass.OpaqueDeferredLit;
 
         [Browsable(false)]
         public DateTime LastRenderedTime { get; internal set; }
@@ -71,24 +71,24 @@ namespace TheraEngine.Rendering
 
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
 
-        public DelGetSortOrder RenderOrderFunc;
+        //public DelGetSortOrder RenderOrderFunc;
 
         public RenderInfo3D()
         {
 
         }
-        public RenderInfo3D(ERenderPass3D pass, DelGetSortOrder renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
+        public RenderInfo3D(ERenderPass pass, bool castsShadows = true, bool receivesShadows = true)
         {
             RenderPass = pass;
-            RenderOrderFunc = renderOrderFunc;
+            //RenderOrderFunc = renderOrderFunc;
             CastsShadows = castsShadows;
             ReceivesShadows = receivesShadows;
         }
 
-        internal float GetRenderOrder(bool shadowPass)
-        {
-            return RenderOrderFunc == null ? 0.0f : RenderOrderFunc(shadowPass);
-        }
+        //internal float GetRenderOrder(bool shadowPass)
+        //{
+        //    return RenderOrderFunc == null ? 0.0f : RenderOrderFunc(shadowPass);
+        //}
 
         public override int GetHashCode() => SceneID;
     }

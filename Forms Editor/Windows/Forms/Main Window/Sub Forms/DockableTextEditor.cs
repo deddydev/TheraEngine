@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Files;
 using WeifenLuo.WinFormsUI.Docking;
@@ -15,6 +16,7 @@ namespace TheraEditor.Windows.Forms
         Python,
         Lua,
         CSharp,
+        GLSL,
     }
     public partial class DockableTextEditor : DockContent
     {
@@ -80,7 +82,7 @@ namespace TheraEditor.Windows.Forms
                         TextBox.LeftBracket = '\x0';
                         TextBox.LeftBracket2 = '\x0';
                         TextBox.AutoCompleteBrackets = true;
-                        //TextBox.DescriptionFile = Path.Combine(Engine.Settings.ScriptsFolder, "PythonHighlighting.xml");
+                        TextBox.DescriptionFile = Engine.EngineScriptsPath("PythonHighlighting.xml");
                         TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded;
                         //System.Windows.Forms.TextBox.CaseSensitive = true;
                         //System.Windows.Forms.TextBox.Separators.AddRange(new char[] { ' ', '(', ')', '[', ']', '"', '\'', '=', '#', '<', '>', '/', '\\', '-', '+', '*', ':', ';', ',', '\t', '\r', '\n' });
@@ -94,6 +96,10 @@ namespace TheraEditor.Windows.Forms
                         break;
                     case ETextEditorMode.Lua:
                         TextBox.Language = Language.Lua;
+                        break;
+                    case ETextEditorMode.GLSL:
+                        TextBox.Language = Language.Custom;
+                        TextBox.CommentPrefix = "//";
                         break;
                 }
                 _updating = false;

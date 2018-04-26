@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering
         //Using two triangles may introduce tearing on the line through the screen,
         //because the two triangles may not be rasterized at the exact same time.
         private PrimitiveManager _fullScreenTriangle;
-
+        
         public QuadFrameBuffer(TMaterial mat)
         {
             Material = mat;

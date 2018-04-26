@@ -209,21 +209,27 @@ namespace TheraEngine.Rendering.Models.Materials
             //            FrameBufferAttachment.Value, ETexTarget.TextureCubeMapPositiveX + x, _texture.BindingId, i);
         }
         
-        internal override void AttachToFBO(int mipLevel = 0)
+        public override void AttachToFBO(int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 AttachToFBO(FrameBufferAttachment.Value, mipLevel);
         }
-        public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
-        {
-            Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
-        }
-        internal override void DetachFromFBO(int mipLevel = 0)
+        public override void DetachFromFBO(int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, 0, mipLevel);
         }
 
+        public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
+        public override void DetachFromFBO(EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, 0, mipLevel);
+
+        public void AttachFaceToFBO(EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.TextureCubeMapPositiveX + (int)face, _texture.BindingId, mipLevel);
+        public void DetachFaceFromFBO(EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.TextureCubeMapPositiveX + (int)face, 0, mipLevel);
+        
         private bool _isLoading = false;
         public async Task<RenderTexCube> GetTextureAsync()
         {

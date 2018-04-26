@@ -192,17 +192,19 @@ namespace TheraEngine
         /// Tells the engine to render this panel at whatever rate the engine is running at.
         /// This panel can also be manually rendered with a custom loop by calling RenderTick(object sender, FrameEventArgs e)
         /// </summary>
-        public void RegisterTick() => Engine.RegisterRenderTick(RenderTick);
+        public void RegisterTick() => Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
         /// <summary>
         /// Tells the engine to stop rendering this panel.
         /// </summary>
-        public void UnregisterTick() => Engine.UnregisterRenderTick(RenderTick);
+        public void UnregisterTick() => Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
 
+        public void UpdateTick(object sender, FrameEventArgs e)
+        {
+            OnUpdate();
+        }
         private void RenderTick(object sender, FrameEventArgs e)
         {
             Invalidate();
-            //Application.DoEvents();
-            //Thread.Sleep(0);
         }
         protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnPaint(PaintEventArgs e)
@@ -225,6 +227,8 @@ namespace TheraEngine
         /// Overridden by the non-generic derived render panel to render the scene(s).
         /// </summary>
         protected abstract void OnRender();
+        protected abstract void OnUpdate();
+        public abstract void SwapBuffers();
 
         #endregion
 

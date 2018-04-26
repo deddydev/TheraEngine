@@ -2,6 +2,8 @@
 using System.Threading;
 using System;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Core.Win32.Native;
 
 namespace TheraEngine.Timers
 {
@@ -28,7 +30,11 @@ namespace TheraEngine.Timers
 
         readonly Stopwatch _watch = new Stopwatch();
 
-        Task _runningTask;
+        ManualResetEvent _commandsReady;
+        ManualResetEvent _commandsSwappedForRender;
+        ManualResetEvent _renderDone;
+        ManualResetEvent _appIdle;
+        ManualResetEvent _appBusy;
 
         public event EventHandler<FrameEventArgs> RenderFrame = delegate { };
         public event EventHandler<FrameEventArgs> UpdateFrame = delegate { };
@@ -36,46 +42,101 @@ namespace TheraEngine.Timers
         /// <summary>
         /// Runs the timer until Stop() is called.
         /// </summary>
-        public void Run()
+        public void Run(bool singleThreaded = true)
         {
-            if (_running) return;
-            _runningTask = Task.Run(() => RunUpdateInternal());
-        }
-        private /*async*/ void RunUpdateInternal()
-        {
-            Engine.PrintLine("Started game loop on thread " + Thread.CurrentThread.ManagedThreadId);
-            //RenderContext.Current.CreateContextForThread(Thread.CurrentThread);
+            if (_running)
+                return;
+
+            Engine.PrintLine("Started game loop.");
             _running = true;
+            _commandsReady = new ManualResetEvent(false);
+            _commandsSwappedForRender = new ManualResetEvent(false);
+            _renderDone = new ManualResetEvent(true);
+            _appIdle = new ManualResetEvent(false);
+            _appBusy = new ManualResetEvent(true);
             _watch.Start();
+            if (singleThreaded)
+            {
+                Application.Idle += Application_Idle_SingleThread;
+                //Task.Run(() => RunUpdateRenderInternal());
+            }
+            else
+            {
+                Application.Idle += Application_Idle_MultiThread;
+                Task.Run(() => RunUpdateInternal());
+                Task.Run(() => RunRenderInternal());
+            }
+        }
 
-            ////Initial update before first render
-            //Task updateFrameTask = Task.Run(() => DispatchUpdate());
-
-            //while (_running)
-            //{
-            //    //Wait for update to finish.
-            //    await updateFrameTask;
-            //    //Render.
-            //    Task renderFrameTask = Task.Run(() => DispatchRender());
-            //    //Update.
-            //    updateFrameTask = Task.Run(() => DispatchUpdate());
-            //    //Wait for render to finish.
-            //    await renderFrameTask;
-            //}
-
+        private bool IsApplicationIdle()
+            => NativeMethods.PeekMessage(
+                out NativeMessage result,
+                IntPtr.Zero, 0, 0, 0) == 0;
+        
+        private void Application_Idle_SingleThread(object sender, EventArgs e)
+        {
+            while (IsApplicationIdle())
+            {
+                DispatchUpdate();
+                SwapBuffers?.Invoke();
+                DispatchRender();
+            }
+        }
+        private void RunUpdateRenderInternal()
+        {
             while (_running)
             {
                 DispatchUpdate();
+                SwapBuffers?.Invoke();
                 DispatchRender();
             }
+        }
+        private void Application_Idle_MultiThread(object sender, EventArgs e)
+        {
+            while (IsApplicationIdle())
+            {
+                //_appBusy.Reset();
+                _appIdle.Set();
+                //_appBusy.WaitOne();
+                _appIdle.Reset();
+            }
+        }
+        private void RunUpdateInternal()
+        {
+            while (_running)
+            {
+                _appIdle.WaitOne();
 
-            Engine.PrintLine("Game loop ended.");
+                //Updating populates the command buffer while render consumes the previous buffer
+                DispatchUpdate();
+                _renderDone.WaitOne();
+                _commandsReady.Set(); //Signal the render thread the update is done
+                _commandsSwappedForRender.WaitOne(); //Wait until rendering the last frame is inactive
+            }
+        }
+        private void RunRenderInternal()
+        {
+            while (_running)
+            {
+                _commandsSwappedForRender.Reset();
+                _renderDone.Set(); //Signal the update thread that rendering is done
+
+                _commandsReady.WaitOne(); //Wait for the update thread to finish
+                _commandsReady.Reset();
+                _renderDone.Reset();
+                _appIdle.WaitOne();
+
+                SwapBuffers?.Invoke();
+                _commandsSwappedForRender.Set();
+
+                DispatchRender();
+            }
         }
         public void Stop()
         {
             _running = false;
             _watch.Stop();
-            _runningTask = null;
+            Engine.PrintLine("Game loop ended.");
         }
         private void DispatchRender()
         {
@@ -336,6 +397,7 @@ namespace TheraEngine.Timers
             get => _timeDilation;
             set => _timeDilation = value;
         }
+        public event Action SwapBuffers;
     }
 
     public class FrameEventArgs : EventArgs

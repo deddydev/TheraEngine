@@ -108,6 +108,28 @@ namespace TheraEngine.Rendering
             //if (Engine.Settings.RenderLights)
             //    Engine.Scene.Remove(light._cullingVolume);
         }
+        public void SwapBuffers()
+        {
+            foreach (DirectionalLightComponent l in _directionalLights)
+                l.SwapBuffers();
+
+            foreach (SpotLightComponent l in _spotLights)
+                l.SwapBuffers();
+
+            foreach (PointLightComponent l in _pointLights)
+                l.SwapBuffers();
+        }
+        public void UpdateShadowMaps(Scene3D scene)
+        {
+            foreach (DirectionalLightComponent l in _directionalLights)
+                l.UpdateShadowMap(scene);
+
+            foreach (SpotLightComponent l in _spotLights)
+                l.UpdateShadowMap(scene);
+
+            foreach (PointLightComponent l in _pointLights)
+                l.UpdateShadowMap(scene);
+        }
         public void RenderShadowMaps(Scene3D scene)
         {
             foreach (DirectionalLightComponent l in _directionalLights)

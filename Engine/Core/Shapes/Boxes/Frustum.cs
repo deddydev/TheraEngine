@@ -9,16 +9,26 @@ using System.IO;
 using System;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Files;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Core.Shapes
 {
+    public interface IVolume
+    {
+        EContainment Contains(Box box);
+        EContainment Contains(BoundingBox box);
+        EContainment Contains(Sphere sphere);
+        EContainment Contains(Shape shape);
+        //Vec3 ClosestPoint(Vec3 point);
+        bool Contains(Vec3 point);
+    }
     /// <summary>
     /// Contains the points and planes at the edges and near/far of a camera's view.
     /// </summary>
-    public class Frustum : I3DRenderable, IEnumerable<Plane>
+    public class Frustum : I3DRenderable, IEnumerable<Plane>, IVolume
     {
         public RenderInfo3D RenderInfo { get; } 
-            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
+            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];
@@ -45,6 +55,7 @@ namespace TheraEngine.Core.Shapes
         public Frustum()
         {
             _boundingSphere = new Sphere() { RenderSolid = false };
+            _renderCommand = new RenderCommandDebug3D(Render);
         }
         public Frustum(
             float fovY,
@@ -349,7 +360,10 @@ namespace TheraEngine.Core.Shapes
                 f._planes[i] = _planes[i].TransformedBy(transform);
             return f;
         }
-        
+        public bool Contains(Vec3 point)
+            => Collision.FrustumContainsPoint(this, point);
+        public EContainment Contains(Shape shape)
+            => shape?.ContainedWithin(this) ?? EContainment.Disjoint;
         public EContainment Contains(Box box) 
             => Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix);
         public EContainment Contains(BoundingBox box) 
@@ -467,5 +481,11 @@ namespace TheraEngine.Core.Shapes
             => new Frustum(
                 FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight,
                 NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
+
+        private RenderCommandDebug3D _renderCommand;
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            passes.Add(_renderCommand, RenderInfo.RenderPass);
+        }
     }
 }

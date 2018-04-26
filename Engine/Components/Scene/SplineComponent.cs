@@ -7,12 +7,13 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -114,32 +115,32 @@ namespace TheraEngine.Components.Scene
 
                 VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 
+                RenderingParameters p = new RenderingParameters
+                {
+                    LineWidth = 5.0f,
+                    PointSize = 10.0f
+                };
+
                 PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
-                _splinePrimitive = new PrimitiveManager(splineData, TMaterial.CreateUnlitColorMaterialForward(Color.Red));
+                TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
+                mat.RenderParams = p;
+                _splinePrimitive = new PrimitiveManager(splineData, mat);
 
                 PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
-                _velocityPrimitive = new PrimitiveManager(velocityData, TMaterial.CreateUnlitColorMaterialForward(Color.Blue));
+                mat = TMaterial.CreateUnlitColorMaterialForward(Color.Blue);
+                mat.RenderParams = p;
+                _velocityPrimitive = new PrimitiveManager(velocityData, mat);
                 
                 PrimitiveData pointData = PrimitiveData.FromPoints(keyframePositions);
-                _pointPrimitive = new PrimitiveManager(pointData, TMaterial.CreateUnlitColorMaterialForward(Color.Green));
+                mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
+                mat.RenderParams = p;
+                _pointPrimitive = new PrimitiveManager(pointData, mat);
 
                 PrimitiveData tangentData = PrimitiveData.FromPoints(tangentPositions);
-                _tangentPrimitive = new PrimitiveManager(tangentData, TMaterial.CreateUnlitColorMaterialForward(Color.Purple));
+                mat = TMaterial.CreateUnlitColorMaterialForward(Color.Purple);
+                mat.RenderParams = p;
+                _tangentPrimitive = new PrimitiveManager(tangentData, mat);
             }
-        }
-        public void Render()
-        {
-            Engine.Renderer.SetLineSize(5.0f);
-            Engine.Renderer.SetPointSize(10.0f);
-
-            _splinePrimitive?.Render(WorldMatrix, Matrix3.Identity);
-            if (_renderTangents)
-                _velocityPrimitive?.Render(WorldMatrix, Matrix3.Identity);
-            
-            if (_renderKeyframePoints)
-                _pointPrimitive?.Render(WorldMatrix, Matrix3.Identity);
-            if (_renderKeyframeTangentPoints)
-                _tangentPrimitive?.Render(WorldMatrix, Matrix3.Identity);
         }
 
 #if EDITOR
@@ -153,6 +154,40 @@ namespace TheraEngine.Components.Scene
                     OwningScene.Remove(this);
             }
             base.OnSelectedChanged(selected);
+        }
+
+        private RenderCommandMesh3D _rcSpline = new RenderCommandMesh3D();
+        private RenderCommandMesh3D _rcVelocity = new RenderCommandMesh3D();
+        private RenderCommandMesh3D _rcPoints = new RenderCommandMesh3D();
+        private RenderCommandMesh3D _rcTangents = new RenderCommandMesh3D();
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            _rcSpline.Primitives = _splinePrimitive;
+            _rcSpline.WorldMatrix = WorldMatrix;
+            _rcSpline.NormalMatrix = Matrix3.Identity;
+            passes.Add(_rcSpline, RenderInfo.RenderPass);
+
+            if (_renderTangents)
+            {
+                _rcTangents.Primitives = _velocityPrimitive;
+                _rcTangents.WorldMatrix = WorldMatrix;
+                _rcTangents.NormalMatrix = Matrix3.Identity;
+                passes.Add(_rcTangents, RenderInfo.RenderPass);
+            }
+            if (_renderKeyframePoints)
+            {
+                _rcTangents.Primitives = _pointPrimitive;
+                _rcTangents.WorldMatrix = WorldMatrix;
+                _rcTangents.NormalMatrix = Matrix3.Identity;
+                passes.Add(_rcTangents, RenderInfo.RenderPass);
+            }
+            if (_renderKeyframeTangentPoints)
+            {
+                _rcTangents.Primitives = _tangentPrimitive;
+                _rcTangents.WorldMatrix = WorldMatrix;
+                _rcTangents.NormalMatrix = Matrix3.Identity;
+                passes.Add(_rcTangents, RenderInfo.RenderPass);
+            }
         }
 #endif
     }

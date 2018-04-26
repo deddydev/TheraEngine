@@ -6,9 +6,9 @@ using TheraEngine.Rendering;
 namespace TheraEngine.Components.Scene.Transforms
 {
     [FileDef("Position Lag Component")]
-    public class PositionLagComponent : OriginRebasableComponent, I3DRenderable
+    public class PositionLagComponent : OriginRebasableComponent
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
 
         public PositionLagComponent() : this(20.0f, 2.0f) { }
         public PositionLagComponent(float interpSpeed) : this(interpSpeed, 2.0f) { }
@@ -31,10 +31,6 @@ namespace TheraEngine.Components.Scene.Transforms
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-        [Browsable(false)]
-        public ERenderPass3D RenderPass => ERenderPass3D.OpaqueForward;
-        [Browsable(false)]
-        public float RenderOrder => 0.0f;
 
         [TSerialize]
         [Category("Position Lag Component")]
@@ -98,13 +94,6 @@ namespace TheraEngine.Components.Scene.Transforms
             //Engine.Scene.Remove(this);
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnDespawned();
-        }
-
-        public void Render()
-        {
-            //Engine.Renderer.RenderSphere(_currentPoint, 10.0f, false, Color.Magenta);
-            //Engine.Renderer.RenderSphere(_interpPoint, 10.0f, false, Color.Pink);
-            //Engine.Renderer.RenderSphere(_destPoint, 10.0f, false, Color.White);
         }
     }
 }

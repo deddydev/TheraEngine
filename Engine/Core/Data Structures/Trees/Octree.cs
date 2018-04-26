@@ -6,6 +6,7 @@ using System.Threading;
 using TheraEngine;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace System
 {
@@ -104,21 +105,13 @@ namespace System
             _head.FindAll(shape, list, containment);
             return list;
         }
-        public void CollectVisible(Sphere sphere, RenderPasses3D passes, bool shadowPass)
+        public void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass)
         {
-            passes.SetShadowPass(shadowPass);
-            if (sphere != null)
-                _head.CollectVisible(sphere, passes, shadowPass);
+            passes.ShadowPass = shadowPass;
+            if (cullingVolume != null)
+                _head.CollectVisible(cullingVolume, passes, camera, shadowPass);
             else
-                _head.CollectAll(passes, shadowPass);
-        }
-        public void CollectVisible(Frustum frustum, RenderPasses3D passes, bool shadowPass)
-        {
-            passes.SetShadowPass(shadowPass);
-            if (frustum != null)
-                _head.CollectVisible(frustum, passes, shadowPass);
-            else
-                _head.CollectAll(passes, shadowPass);
+                _head.CollectAll(passes, camera, shadowPass);
         }
 
         /// <summary>
@@ -263,59 +256,33 @@ namespace System
             #endregion
 
             #region Visible collection
-            public void CollectVisible(Sphere sphere, RenderPasses3D passes, bool shadowPass)
+            public void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass)
             {
-                EContainment c = sphere.Contains(_bounds);
+                EContainment c = cullingVolume.Contains(_bounds);
                 if (c != EContainment.Disjoint)
                 {
                     if (c == EContainment.Contains)
-                        CollectAll(passes, shadowPass);
+                        CollectAll(passes, camera, shadowPass);
                     else
                     {
                         IsLoopingItems = true;
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
-                            bool allowRender = r != null && (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
-                            if (allowRender && (r.CullingVolume == null || r.CullingVolume.ContainedWithin(sphere) != EContainment.Disjoint))
-                                passes.Add(r);
+                            bool allowRender = !shadowPass || r.RenderInfo.CastsShadows;
+                            if (allowRender && (r.CullingVolume == null || (c = cullingVolume.Contains(r.CullingVolume)) != EContainment.Disjoint))
+                                r.AddRenderables(passes, camera);
                         }
                         IsLoopingItems = false;
 
                         IsLoopingSubNodes = true;
                         for (int i = 0; i < MaxChildNodeCount; ++i)
-                            _subNodes[i]?.CollectVisible(sphere, passes, shadowPass);
+                            _subNodes[i]?.CollectVisible(cullingVolume, passes, camera, shadowPass);
                         IsLoopingSubNodes = false;
                     }
                 }
             }
-            public void CollectVisible(Frustum frustum, RenderPasses3D passes, bool shadowPass)
-            {
-                EContainment c = frustum.Contains(_bounds);
-                if (c != EContainment.Disjoint)
-                {
-                    if (c == EContainment.Contains)
-                        CollectAll(passes, shadowPass);
-                    else
-                    {
-                        IsLoopingItems = true;
-                        for (int i = 0; i < _items.Count; ++i)
-                        {
-                            I3DRenderable r = _items[i] as I3DRenderable;
-                            bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
-                            if (allowRender && (r.CullingVolume == null || (c = r.CullingVolume.ContainedWithin(frustum)) != EContainment.Disjoint))
-                                passes.Add(r);
-                        }
-                        IsLoopingItems = false;
-
-                        IsLoopingSubNodes = true;
-                        for (int i = 0; i < MaxChildNodeCount; ++i)
-                            _subNodes[i]?.CollectVisible(frustum, passes, shadowPass);
-                        IsLoopingSubNodes = false;
-                    }
-                }
-            }
-            public void CollectAll(RenderPasses3D passes, bool shadowPass)
+            public void CollectAll(RenderPasses passes, Camera camera, bool shadowPass)
             {
                 IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
@@ -323,13 +290,13 @@ namespace System
                     I3DRenderable r = _items[i] as I3DRenderable;
                     bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
                     if (allowRender)
-                        passes.Add(r);
+                        r.AddRenderables(passes, camera);
                 }
                 IsLoopingItems = false;
 
                 IsLoopingSubNodes = true;
                 for (int i = 0; i < MaxChildNodeCount; ++i)
-                    _subNodes[i]?.CollectAll(passes, shadowPass);
+                    _subNodes[i]?.CollectAll(passes, camera, shadowPass);
                 IsLoopingSubNodes = false;
             }
             #endregion

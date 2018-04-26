@@ -1180,6 +1180,21 @@ namespace System
             }
             return type;
         }
+        public static bool FrustumContainsPoint(Frustum frustum, Vec3 point)
+        {
+            //if (frustum.UseBoundingSphere)
+            //{
+            //    EContainment c = SphereContainsSphere(frustum.BoundingSphere.Center, frustum.BoundingSphere.Radius, center, radius);
+            //    if (c == EContainment.Disjoint)
+            //        return EContainment.Disjoint;
+            //    //If the bounding sphere intersects, could intersect the frustum or be disjoint with the frustum, so more checks needed
+            //}
+            
+            foreach (Plane p in frustum)
+                if (DistancePlanePoint(p, point) < 0)
+                    return false;
+            return true;
+        }
         public static EContainment FrustumContainsBox1(Frustum frustum, Vec3 boxHalfExtents, Matrix4 boxTransform)
         {
             //if (frustum.UseBoundingSphere)

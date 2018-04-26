@@ -128,7 +128,6 @@ namespace TheraEditor.Windows.Forms
 
                     DirectionalLightActor light = new DirectionalLightActor();
                     DirectionalLightComponent comp = light.RootComponent;
-                    comp.AmbientIntensity = 0.01f;
                     comp.DiffuseIntensity = 1.0f;
                     comp.LightColor = new EventColorF3(1.0f);
                     comp.Rotation.Yaw = 45.0f;
@@ -159,7 +158,7 @@ namespace TheraEditor.Windows.Forms
                                 Function = EComparison.Less
                             }
                         }));
-                    mesh.RenderInfo.RenderPass = ERenderPass3D.Skybox;
+                    mesh.RenderInfo.RenderPass = ERenderPass.Background;
                     skybox.RigidChildren.Add(mesh);
                     Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
                     skyboxActor.RootComponent.ModelRef = skybox;
@@ -255,13 +254,27 @@ namespace TheraEditor.Windows.Forms
             if (isRendering && !IsRenderTicking)
             {
                 IsRenderTicking = true;
-                Engine.RegisterRenderTick(RenderTick);
+                Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
             }
             else if (!isRendering && IsRenderTicking)
             {
                 IsRenderTicking = false;
-                Engine.UnregisterRenderTick(RenderTick);
+                Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
             }
+        }
+
+        private void SwapBuffers()
+        {
+            for (int i = 0; i < 4; ++i)
+                if (RenderFormActive(i))
+                    GetRenderForm(i).RenderPanel.SwapBuffers();
+        }
+
+        private void UpdateTick(object sender, FrameEventArgs e)
+        {
+            for (int i = 0; i < 4; ++i)
+                if (RenderFormActive(i))
+                    GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
         }
         private void RenderTick(object sender, FrameEventArgs e)
         {

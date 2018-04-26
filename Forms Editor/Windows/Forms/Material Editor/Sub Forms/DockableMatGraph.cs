@@ -1,12 +1,10 @@
 ﻿using ComponentOwl.BetterListView;
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
-using TheraEngine.Input;
 using TheraEngine.Rendering.Models.Materials.Functions;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
@@ -48,7 +46,7 @@ namespace TheraEditor.Windows.Forms
         {
             //Engine.World?.SpawnActor(EditorPawn);
             _world.SpawnActor(RenderPanel.UI);
-            Engine.RegisterRenderTick(RenderTick);
+            //Engine.RegisterRenderTick(RenderTick);
             base.OnShown(e);
         }
 
@@ -62,7 +60,7 @@ namespace TheraEditor.Windows.Forms
         {
             //Engine.World?.DespawnActor(EditorPawn);
             _world.DespawnActor(RenderPanel.UI);
-            Engine.UnregisterRenderTick(RenderTick);
+            //Engine.UnregisterRenderTick(RenderTick);
             base.OnClosed(e);
         }
 

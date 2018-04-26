@@ -98,7 +98,7 @@ namespace System
         //    _head.FindAll(shape, list, containment);
         //    return list;
         //}
-        public void CollectVisible(BoundingRectangle? r, RenderPasses2D passes)
+        public void CollectVisible(BoundingRectangle? r, RenderPasses passes)
         {
             if (r != null)
                 _head.CollectVisible(r.Value, passes);
@@ -130,8 +130,8 @@ namespace System
         /// <returns>A sorted set of renderables containing the given point.</returns>
         public SortedSet<T> FindAllIntersectingSorted(Vec2 point)
         {
-            RenderPasses2D.RenderSort sorter = new RenderPasses2D.RenderSort();
-            SortedSet<T> intersecting = new SortedSet<T>(sorter);
+            RenderPasses.RenderSortNearToFar sorter = new RenderPasses.RenderSortNearToFar();
+            SortedSet<T> intersecting = new SortedSet<T>();
             _head.FindAllIntersecting(point, intersecting);
             return intersecting;
         }
@@ -286,7 +286,7 @@ namespace System
             #endregion
 
             #region Visible collection
-            public void CollectVisible(BoundingRectangle bounds, RenderPasses2D passes)
+            public void CollectVisible(BoundingRectangle bounds, RenderPasses passes)
             {
                 EContainment c = bounds.ContainmentOf(_bounds);
                 if (c != EContainment.Disjoint)
@@ -300,7 +300,7 @@ namespace System
                         {
                             I2DRenderable r = _items[i] as I2DRenderable;
                             if (r.AxisAlignedRegion.ContainmentWithin(bounds) != EContainment.Disjoint)
-                                passes.Add(r);
+                                r.AddRenderables(passes);
                         }
                         IsLoopingItems = false;
 
@@ -311,12 +311,12 @@ namespace System
                     }
                 }
             }
-            public void CollectAll(RenderPasses2D passes, bool visibleOnly)
+            public void CollectAll(RenderPasses passes, bool visibleOnly)
             {
                 IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
-                    if (_items[i] is I2DRenderable r &&  (!visibleOnly || r.RenderInfo.Visible))
-                        passes.Add(r);
+                    if (_items[i] is I2DRenderable r && (!visibleOnly || r.RenderInfo.Visible))
+                        r.AddRenderables(passes);
                 IsLoopingItems = false;
 
                 IsLoopingSubNodes = true;

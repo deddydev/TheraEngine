@@ -4,13 +4,13 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Actors.Types.BSP
 {
     public class BSPMeshComponent : TRSComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo;
-        public RenderInfo3D RenderInfo => _renderInfo;
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.Background);
         [Browsable(false)]
         public Shape CullingVolume => _cullingVolume;
         [Browsable(false)]
@@ -49,6 +49,11 @@ namespace TheraEngine.Actors.Types.BSP
                     break;
             }
             return m;
+        }
+
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            throw new NotImplementedException();
         }
     }
     public enum IntersectionType

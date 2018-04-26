@@ -57,7 +57,9 @@ namespace TheraEngine.Rendering
         public abstract void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
         public abstract void GenerateMipmap(int bindingId);
         public abstract void GenerateMipmap(ETexTarget target);
-        
+
+        public abstract void GetTexImage<T>(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels) where T : struct;
+
         #region Debug Primitives
 
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
@@ -204,9 +206,7 @@ namespace TheraEngine.Rendering
             }
             return null;
         }
-
-        public abstract void GetTexImage<T>(ETexTarget texture2D, int smallestMipmapLevel, EPixelFormat pixelFormat, EPixelType pixelType, T[] rgba) where T : struct;
-
+        
         //public void CacheWireframePlane()
         //{
         //    _wirePlane = new PrimitiveManager(
@@ -259,8 +259,6 @@ namespace TheraEngine.Rendering
                 m.Render(modelMatrix);
             //}
         }
-
-        public abstract void EnableDepthTest(bool enabled);
 
         public virtual unsafe void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
         {
@@ -400,8 +398,9 @@ namespace TheraEngine.Rendering
         public abstract void Cull(Culling culling);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
-        public abstract int GetStencilIndex(float x, float y);
+        public abstract byte GetStencilIndex(float x, float y);
         public abstract float GetDepth(float x, float y);
+        public abstract void EnableDepthTest(bool enabled);
         public abstract void ClearStencil(int value);
         public abstract void StencilMask(int value);
         public abstract void StencilOp(EStencilOp fail, EStencilOp zFail, EStencilOp zPass);

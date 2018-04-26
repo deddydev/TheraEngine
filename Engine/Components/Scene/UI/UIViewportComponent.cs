@@ -4,13 +4,14 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Timers;
 
 namespace TheraEngine.Rendering.UI
 {
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable
+    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable//, IPreRendered
     {
         public event DelSetUniforms SettingUniforms;
 
@@ -45,7 +46,7 @@ namespace TheraEngine.Rendering.UI
             SettingUniforms?.Invoke(fragId);
         }
 
-        public Camera Camera
+        public Camera ViewportCamera
         {
             get => _viewport.Camera;
             set => _viewport.Camera = value;
@@ -64,14 +65,41 @@ namespace TheraEngine.Rendering.UI
 
             return r;
         }
-        public override void Render()
+        private RenderCommandViewport _renderCommand = new RenderCommandViewport();
+        public override void AddRenderables(RenderPasses passes)
+        {
+            if (!IsVisible)
+                return;
+            _renderCommand.Primitives = _quad;
+            _renderCommand.WorldMatrix = WorldMatrix;
+            _renderCommand.NormalMatrix = Matrix3.Identity;
+            _renderCommand.Viewport = _viewport;
+            _renderCommand.ZIndex = 0;
+            passes.Add(_renderCommand, RenderInfo.RenderPass);
+        }
+        public void PreRender(object sender, FrameEventArgs args)
         {
             if (!IsVisible)
                 return;
 
-            Scene scene = Camera?.OwningComponent?.OwningScene;
-            _viewport.Render(scene, Camera, Camera.Frustum, _fbo);
-            base.Render();
+            BaseScene scene = ViewportCamera?.OwningComponent?.OwningScene;
+            _viewport.Update(scene, ViewportCamera, ViewportCamera.Frustum);
+        }
+        public override void OnSpawned()
+        {
+            Engine.RegisterTick(null, PreRender, SwapBuffers);
+            base.OnSpawned();
+        }
+
+        private void SwapBuffers()
+        {
+            _viewport.SwapBuffers();
+        }
+
+        public override void OnDespawned()
+        {
+            Engine.UnregisterTick(null, PreRender, SwapBuffers);
+            base.OnDespawned();
         }
     }
 }

@@ -5,6 +5,92 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    public enum ETPixelComps
+    {
+        R,
+        RG,
+        RGB,
+        RGBA,
+    }
+    public enum ETPixelCompFmt
+    {
+        U8,
+        S8,
+        U16,
+        S16,
+        U24,
+        S24,
+        U32,
+        S32,
+        F16,
+        F32,
+    }
+    public enum ETPixelType
+    {
+        /// <summary>
+        /// Each component has its own spot in memory (no optimizations).
+        /// </summary>
+        Basic,
+        /// <summary>
+        /// Each component has its own bit count set in the texture's header.
+        /// </summary>
+        Specific,
+        /// <summary>
+        /// Each component of each pixel is multiplied by a respective component scale value in the texture's header.
+        /// </summary>
+        IndivOverallQuantized,
+        /// <summary>
+        /// Each component of each pixel is multiplied by the same scale value in the texture's header.
+        /// </summary>
+        SharedOverallQuantized,
+        /// <summary>
+        /// The texture has only an R component.
+        /// Each individual pixel has a quantization scale.
+        /// 2 components total.
+        /// </summary>
+        RIndivQuantized,
+        /// <summary>
+        /// The texture has only an R component.
+        /// Each individual pixel has a quantization scale.
+        /// 3 components total.
+        /// </summary>
+        RGSharedQuantized,
+        /// <summary>
+        /// The texture has only an R component.
+        /// Each individual pixel has a quantization scale.
+        /// 4 components total.
+        /// </summary>
+        RGIndivQuantized,
+        /// <summary>
+        /// The texture has only an R component.
+        /// Each individual pixel has a quantization scale.
+        /// 4 components total.
+        /// </summary>
+        RGBSharedQuantized,
+        
+        /// <summary>
+        /// R has 5 bits, G has 6 bits, and B has 5 bits.
+        /// 16 bits total for optimized r/w speed.
+        /// </summary>
+        RGB565,
+        /// <summary>
+        /// R, G, B and A all have their own 4 bits.
+        /// 16 bits total for optimized r/w speed.
+        /// </summary>
+        RGBA4444,
+        /// <summary>
+        /// R, G and B have 5 bits if A is 1.0f.
+        /// Otherwise, R, G and B have 4 bits and A has 3.
+        /// 16 bits total for optimized r/w speed.
+        /// </summary>
+        RGBA5553,
+
+        /// <summary>
+        /// R, G, B and A all have their own 6 bits.
+        /// 24 bits total for optimized r/w speed.
+        /// </summary>
+        RGBA6666,
+    }
     /// <summary>
     /// The alpha component is unused and exists purely for padding purposes.
     /// </summary>
@@ -15,6 +101,19 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public static explicit operator RGBXPixel(ARGBPixel p) { return new RGBXPixel() { R = p.R, G = p.G, B = p.B, X = 0 }; }
         public static explicit operator ARGBPixel(RGBXPixel p) { return new ARGBPixel() { A = 0xFF, R = p.R, G = p.G, B = p.B }; }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct RQuantizedPixel
+    {
+        public byte R, Scale;
+
+        public static explicit operator RQuantizedPixel(float p)
+        {
+            float s = 65025.0f / float.MaxValue * p;
+            return new RQuantizedPixel() { };
+        }
+        public static explicit operator float(RQuantizedPixel p)
+            => p.R * p.Scale;
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RGBA4Pixel

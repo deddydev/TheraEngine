@@ -67,18 +67,18 @@ namespace TheraEngine.Components.Scene.Lights
 
         public DirectionalLightComponent() 
             : this(new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
-        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity)
-            : base(color, diffuseIntensity, ambientIntensity)
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity)
+            : base(color, diffuseIntensity)
         {
             _rotation.Pitch = -90.0f;
         }
-        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity, Rotator rotation)
-            : base(color, diffuseIntensity, ambientIntensity)
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Rotator rotation)
+            : base(color, diffuseIntensity)
         {
             _rotation.SetRotations(rotation);
         }
-        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity, Vec3 direction) 
-            : base(color, diffuseIntensity, ambientIntensity)
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Vec3 direction) 
+            : base(color, diffuseIntensity)
         {
             Direction = direction;
         }
@@ -125,12 +125,12 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
 
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
             _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount + LightIndex, string.Format("DirShadowMaps[{0}]", LightIndex.ToString()), programBindingId);
         }
+
         public void SetShadowMapResolution(int width, int height)
         {
             _shadowWidth = width;
@@ -174,7 +174,11 @@ namespace TheraEngine.Components.Scene.Lights
             mat.RenderParams.CullMode = Culling.None;
             return mat;
         }
-        public override void RenderShadowMap(Scene3D scene)
+        public override void UpdateShadowMap(BaseScene scene)
+        {
+            scene.Update(_passes, _shadowCamera.Frustum, _shadowCamera, null, true);
+        }
+        public override void RenderShadowMap(BaseScene scene)
         {
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
             _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
@@ -182,9 +186,7 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
-
-                scene.CollectVisibleRenderables(_shadowCamera.Frustum, true);
-                scene.Render(_shadowCamera, null, null);
+                scene.Render(_passes, _shadowCamera, null, null, null);
             }
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);

@@ -1,73 +1,19 @@
-﻿using TheraEngine.Rendering.Cameras;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering
 {
-    public class RenderPasses2D
-    {
-        public RenderPasses2D()
-        {
-            _sorter = new RenderSort();
-            _passes = new SortedSet<I2DRenderable>[]
-            {
-                new SortedSet<I2DRenderable>(_sorter),
-                new SortedSet<I2DRenderable>(_sorter),
-                new SortedSet<I2DRenderable>(_sorter),
-                new SortedSet<I2DRenderable>(_sorter),
-            };
-        }
-
-        private RenderSort _sorter;
-        private SortedSet<I2DRenderable>[] _passes;
-
-        public SortedSet<I2DRenderable> Background => _passes[0];
-        public SortedSet<I2DRenderable> Opaque => _passes[1];
-        public SortedSet<I2DRenderable> Transparent => _passes[2];
-        public SortedSet<I2DRenderable> OnTop => _passes[3];
-        
-        public class RenderSort : IComparer<I2DRenderable>
-        {
-            int IComparer<I2DRenderable>.Compare(I2DRenderable x, I2DRenderable y)
-            {
-                if (x.RenderInfo.LayerIndex < y.RenderInfo.LayerIndex)
-                    return -1;
-                if (x.RenderInfo.LayerIndex > y.RenderInfo.LayerIndex)
-                    return 1;
-                if (x.RenderInfo.IndexWithinLayer < y.RenderInfo.IndexWithinLayer)
-                    return -1;
-                if (x.RenderInfo.IndexWithinLayer > y.RenderInfo.IndexWithinLayer)
-                    return 1;
-                return 1;
-            }
-        }
-
-        public void Render(ERenderPass2D pass)
-        {
-            var list = _passes[(int)pass];
-            list.ForEach(x =>
-            {
-                x.Render();
-                x.RenderInfo.LastRenderedTime = DateTime.Now;
-            });
-            list.Clear();
-        }
-
-        public void Add(I2DRenderable item)
-        {
-            SortedSet<I2DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
-            r.Add(item);
-        }
-    }
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
     /// </summary>
-    public class Scene2D : Scene
+    public class Scene2D : BaseScene
     {
         //public Quadtree<I2DRenderable> RenderTree { get; private set; }
         public override int Count => _renderables.Count;// RenderTree.Count;
-        private RenderPasses2D _passes = new RenderPasses2D();
 
         private List<I2DRenderable> _renderables = new List<I2DRenderable>();
 
@@ -91,56 +37,44 @@ namespace TheraEngine.Rendering
 
         //    CollectVisibleRenderables(BoundingRectangle.FromMinMaxSides(minX, maxX, minY, maxY, 0.0f, 0.0f));
         //}
+        //public void CollectVisibleRenderables(BoundingRectangle bounds)
+        //{
+        //    //RenderTree.CollectVisible(bounds, _passes);
 
-        public override void CollectVisibleRenderables(Frustum frustum, bool shadowPass)
+        //    foreach (I2DRenderable r in _renderables)
+        //        r.AddRenderables(_passes);
+        //}
+        public override void Update(RenderPasses populatingPasses, IVolume cullingVolume, Camera camera, IUIManager hud, bool shadowPass)
         {
-            CollectVisibleRenderables();
-        }
-        public void CollectVisibleRenderables()
-        {
-            //CollectVisibleRenderables(RenderTree.Bounds);
-            //CollectVisibleRenderables(BoundingRectangle.Empty); 
-
             foreach (I2DRenderable r in _renderables)
-                _passes.Add(r);
+                r.AddRenderables(populatingPasses);
+            base.Update(populatingPasses, cullingVolume, camera, hud, shadowPass);
         }
-        public void CollectVisibleRenderables(BoundingRectangle bounds)
-        {
-            //RenderTree.CollectVisible(bounds, _passes);
-
-            foreach (I2DRenderable r in _renderables)
-                _passes.Add(r);
-        }
-        
-        public void DoRender(Camera c, Viewport v, MaterialFrameBuffer target)
+        public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, MaterialFrameBuffer target)
         {
             target?.Bind(EFramebufferTarget.DrawFramebuffer);
 
-            AbstractRenderer.PushCurrentCamera(c);
+            AbstractRenderer.PushCurrentCamera(camera);
             AbstractRenderer.PushCurrent2DScene(this);
             {
-                foreach (IPreRendered p in _preRenderList)
-                    p.PreRender(c);
-
-                if (v != null)
+                if (viewport != null)
                 {
                     //Render the to the actual screen resolution
-                    Engine.Renderer.PushRenderArea(v.Region);
+                    Engine.Renderer.PushRenderArea(viewport.Region);
                     {
                         //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
                         //Engine.Renderer.EnableDepthTest(true);
                         Engine.Renderer.AllowDepthWrite(false);
-                        _passes.Render(ERenderPass2D.Background);
+                        renderingPasses.Render(ERenderPass.Background);
 
                         Engine.Renderer.AllowDepthWrite(true);
-                        _passes.Render(ERenderPass2D.Opaque);
-                        _passes.Render(ERenderPass2D.Transparent);
+                        renderingPasses.Render(ERenderPass.OpaqueForward);
+                        renderingPasses.Render(ERenderPass.TransparentForward);
 
                         //Disable depth fail for objects on top
                         Engine.Renderer.DepthFunc(EComparison.Always);
-
-                        _passes.Render(ERenderPass2D.OnTop);
+                        renderingPasses.Render(ERenderPass.OnTopForward);
 
                         //Engine.Renderer.EnableDepthTest(false);
                         //RenderTree.DebugRender(v.Region, false, 0.1f);
@@ -152,15 +86,15 @@ namespace TheraEngine.Rendering
                     //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
 
                     Engine.Renderer.AllowDepthWrite(false);
-                    _passes.Render(ERenderPass2D.Background);
+                    renderingPasses.Render(ERenderPass.Background);
 
                     Engine.Renderer.AllowDepthWrite(true);
-                    _passes.Render(ERenderPass2D.Opaque);
-                    _passes.Render(ERenderPass2D.Transparent);
+                    renderingPasses.Render(ERenderPass.OpaqueForward);
+                    renderingPasses.Render(ERenderPass.TransparentForward);
 
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
-                    _passes.Render(ERenderPass2D.OnTop);
+                    renderingPasses.Render(ERenderPass.OnTopForward);
                 }
             }
             AbstractRenderer.PopCurrent2DScene();
@@ -188,7 +122,6 @@ namespace TheraEngine.Rendering
         {
             //RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangle(new Vec2(0.0f), bounds));
             //_renderables.Clear();
-            _passes = new RenderPasses2D();
         }
     }
 }

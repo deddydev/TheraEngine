@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.UI
             _camera = new PerspectiveCamera();
         }
 
-        private Scene _scene;
+        private BaseScene _scene;
         private Camera _camera;
         
         public override void OnSpawned()

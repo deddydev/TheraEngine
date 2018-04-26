@@ -1,6 +1,6 @@
 ﻿using System;
-using TheraEngine.Core.Shapes;
 using System.ComponentModel;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 
 namespace TheraEngine.Components.Scene.Shapes
@@ -35,8 +35,6 @@ namespace TheraEngine.Components.Scene.Shapes
             base.RecalcWorldTransform();
             _sphere.Center = WorldPoint;
         }
-        public override void Render()
-            => _sphere.Render();
         protected override TCollisionShape GetCollisionShape()
             => _sphere.GetCollisionShape();
         public bool Contains(Vec3 point) 
@@ -55,5 +53,10 @@ namespace TheraEngine.Components.Scene.Shapes
             => _sphere.ContainedWithin(sphere);
         public EContainment ContainedWithin(Frustum frustum)
             => _sphere.ContainedWithin(frustum);
+
+        public override void Render()
+        {
+
+        }
     }
 }

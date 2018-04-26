@@ -126,7 +126,7 @@ namespace System
             }
             return Identity;
         }
-
+        
         /// <summary>
         /// Constructs a new instance.
         /// </summary>

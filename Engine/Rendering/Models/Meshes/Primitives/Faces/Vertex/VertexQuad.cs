@@ -73,8 +73,8 @@ namespace TheraEngine.Rendering.Models
                 topLeftUV = Vec2.Zero;
 
             float zero = 0.0f;
-            float third = 0.334f;
-            float twoThirds = 0.665f;
+            float third = 0.33334f;
+            float twoThirds = 0.66665f;
             float fourth = 0.25f;
             float half = 0.5f;
             float threeFourths = 0.75f;

@@ -15,6 +15,7 @@ using System.IO;
 using TheraEngine.Physics;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths;
 
 namespace TheraEngine.Rendering
 {
@@ -245,19 +246,28 @@ namespace TheraEngine.Rendering
         /// <param name="camera"></param>
         /// <param name="frustum"></param>
         /// <param name="target"></param>
-        public void Render(Scene scene, Camera camera, Frustum frustum, MaterialFrameBuffer target)
+        public void Render(BaseScene scene, Camera camera, MaterialFrameBuffer target)
         {
             if (scene == null || scene.Count == 0)
                 return;
 
             CurrentlyRenderingViewports.Push(this);
-            OnRender(scene, camera, frustum, target);
+            OnRender(scene, camera, target);
             CurrentlyRenderingViewports.Pop();
         }
-        protected virtual void OnRender(Scene scene, Camera camera, Frustum frustum, MaterialFrameBuffer target)
+        private RenderPasses _renderPasses = new RenderPasses();
+        protected virtual void OnRender(BaseScene scene, Camera camera, MaterialFrameBuffer target)
         {
-            scene.CollectVisibleRenderables(frustum, false);
-            scene.Render(camera, this, target);
+            scene.Render(_renderPasses, camera, this, HUD, target);
+        }
+        internal protected virtual void SwapBuffers()
+        {
+            _renderPasses.SwapBuffers();
+            HUD?.RenderPasses.SwapBuffers();
+        }
+        public void Update(BaseScene scene, Camera camera, Frustum frustum)
+        {
+            scene.Update(_renderPasses, frustum, camera, HUD, false);
         }
 
         #region Coordinate conversion
@@ -290,8 +300,13 @@ namespace TheraEngine.Rendering
         {
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.ReadFramebuffer, 0);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
-            float depth = Engine.Renderer.GetDepth(viewportPoint.X, viewportPoint.Y);
-            return depth;
+            return Engine.Renderer.GetDepth(viewportPoint.X, viewportPoint.Y);
+        }
+        public byte GetStencil(Vec2 viewportPoint)
+        {
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.ReadFramebuffer, 0);
+            Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
+            return Engine.Renderer.GetStencilIndex(viewportPoint.X, viewportPoint.Y);
         }
         /// <summary>
         /// Returns a ray projected from the given screen location.
@@ -337,9 +352,6 @@ namespace TheraEngine.Rendering
                     return coll.Owner as SceneComponent;
                 }
 
-                //float depth = GetDepth(viewportPoint);
-
-                //Engine.PrintLine(depth.ToString());
                 //Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
                 //ThreadSafeList<I3DRenderable> r = Engine.Scene.RenderTree.FindClosest(worldPoint);
             }
@@ -633,7 +645,7 @@ namespace TheraEngine.Rendering
             const string SceneShaderPath = "Scene3D";
 
             RenderingParameters renderParams = new RenderingParameters();
-            renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
+            renderParams.DepthTest.Enabled = ERenderParamUsage.Unchanged;
             renderParams.DepthTest.UpdateDepth = false;
             renderParams.DepthTest.Function = EComparison.Always;
             
@@ -787,9 +799,15 @@ namespace TheraEngine.Rendering
 
         private void ForwardPassFBO_SettingUniforms(int programBindingId)
             => _worldCamera?.PostProcessRef.File.Bloom.SetUniforms(programBindingId);
-        
+
         private void GBuffer_SetUniforms(int programBindingId)
-            => _worldCamera?.SetUniforms(programBindingId);
+        {
+            if (_worldCamera == null)
+                return;
+
+            _worldCamera.SetUniforms(programBindingId);
+            _worldCamera.PostProcessRef.File.Shadows.SetUniforms(programBindingId);
+        }
         
         private void SSAO_SetUniforms(int programBindingId)
         {

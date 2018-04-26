@@ -965,15 +965,15 @@ namespace Core.Win32.Native
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WINDOWPOS
+    public struct WINDOWPOS
     {
-        internal IntPtr hwnd;
-        internal IntPtr hWndInsertAfter;
-        internal int x;
-        internal int y;
-        internal int cx;
-        internal int cy;
-        internal uint flags;
+        public IntPtr hwnd;
+        public IntPtr hWndInsertAfter;
+        public int x;
+        public int y;
+        public int cx;
+        public int cy;
+        public uint flags;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -1086,8 +1086,7 @@ namespace Core.Win32.Native
         public static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
 
         [DllImport("user32.dll")]
-        public static extern int TrackPopupMenuEx(IntPtr hmenu, uint fuFlags, int x, int y,
-           IntPtr hwnd, IntPtr lptpm);
+        public static extern int TrackPopupMenuEx(IntPtr hmenu, uint fuFlags, int x, int y, IntPtr hwnd, IntPtr lptpm);
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, string lParam);
@@ -1097,6 +1096,9 @@ namespace Core.Win32.Native
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(IntPtr hwnd, int msg, int wparam, POINT pos);
+
+        [DllImport("user32.dll")]
+        public static extern int PeekMessage(out NativeMessage message, IntPtr window, uint filterMin, uint filterMax, uint remove);
 
         [DllImport("user32.dll")]
         public static extern int PostMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);

@@ -1,14 +1,13 @@
-﻿using TheraEngine.Files;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Core.Shapes;
+using System.Drawing;
 using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -17,7 +16,7 @@ namespace TheraEngine.Rendering.Models
     public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false);
+            = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -193,6 +192,11 @@ namespace TheraEngine.Rendering.Models
         public void TriggerChildFrameMatrixUpdate()
         {
             //_childMatrixModified = true;
+        }
+
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+
         }
     }
 }

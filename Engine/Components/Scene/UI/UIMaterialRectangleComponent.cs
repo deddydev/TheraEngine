@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering.UI
     {
         public override int LayerIndex { get => RenderInfo.LayerIndex; set => RenderInfo.LayerIndex = value; }
         public override int IndexWithinLayer { get => RenderInfo.IndexWithinLayer; set => RenderInfo.IndexWithinLayer = value; }
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.Opaque, 0, 0);
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass.OpaqueForward, 0, 0);
 
         public UIMaterialRectangleComponent() 
             : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }
@@ -74,10 +74,15 @@ namespace TheraEngine.Rendering.UI
             data[5] = new Vec3(Width, Height, 0.0f);
             return r;
         }
-
-        public virtual void Render()
+        
+        private RenderCommandMesh2D _renderCommand = new RenderCommandMesh2D();
+        public virtual void AddRenderables(RenderPasses passes)
         {
-            _quad.Render(WorldMatrix, Matrix3.Identity);
+            _renderCommand.Primitives = _quad;
+            _renderCommand.WorldMatrix = WorldMatrix;
+            _renderCommand.NormalMatrix = Matrix3.Identity;
+            _renderCommand.ZIndex = 0;
+            passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
 
         //public enum BackgroundImageDisplay

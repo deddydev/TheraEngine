@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Rendering.Models.Materials;
 using System;
+using TheraEngine.Core.Maths;
 
 namespace TheraEngine.Rendering.Cameras
 {
@@ -24,6 +25,7 @@ namespace TheraEngine.Rendering.Cameras
             LensFlare = new LensFlareSettings();
             AntiAliasing = new AntiAliasSettings();
             AmbientOcclusion = new AmbientOcclusionSettings();
+            Shadows = new ShadowSettings();
         }
         
         [TSerialize("AntiAliasing")]
@@ -51,6 +53,9 @@ namespace TheraEngine.Rendering.Cameras
         [Category("Post-Process Settings")]
         [TSerialize]
         public GlobalFileRef<TMaterial> PostProcessMaterial { get; set; }
+        [Category("Shadow Settings")]
+        [TSerialize]
+        public ShadowSettings Shadows { get; set; }
 
         internal void SetUniforms(int programBindingId)
         {
@@ -74,6 +79,29 @@ namespace TheraEngine.Rendering.Cameras
                 Environment.NewLine + bloom +
                 Environment.NewLine + color +
                 Environment.NewLine + dof;
+        }
+    }
+    public class ShadowSettings : PostSettings
+    {
+        [TSerialize]
+        [Category("Shadow Map Settings")]
+        public float ShadowBase { get; set; } = 3.0f;
+        [TSerialize]
+        [Category("Shadow Map Settings")]
+        public float ShadowMult { get; set; } = 6.0f;
+        [TSerialize]
+        [Category("Shadow Map Settings")]
+        public float ShadowBiasMin { get; set; } = 0.00001f;
+        [TSerialize]
+        [Category("Shadow Map Settings")]
+        public float ShadowBiasMax { get; set; } = 0.004f;
+
+        internal void SetUniforms(int programBindingId)
+        {
+            Engine.Renderer.Uniform(programBindingId, "ShadowBase", ShadowBase);
+            Engine.Renderer.Uniform(programBindingId, "ShadowMult", ShadowMult);
+            Engine.Renderer.Uniform(programBindingId, "ShadowBiasMin", ShadowBiasMin);
+            Engine.Renderer.Uniform(programBindingId, "ShadowBiasMax", ShadowBiasMax);
         }
     }
     public class AmbientOcclusionSettings : PostSettings
@@ -146,7 +174,7 @@ uniform VignetteStruct Vignette;";
         
         private float _contrast;
         private float _contrastUniformValue;
-        private float _prevExposure = 0.0f;
+        private float _exposureTransitionSpeed = 0.05f;
 
         [TSerialize]
         [Category("Color Grade Settings")]
@@ -163,10 +191,14 @@ uniform VignetteStruct Vignette;";
         public float MaxExposure { get; set; } = 50.0f;
         [TSerialize]
         [Category("Color Grade Settings")]
-        public float ExposureTransitionSpeed { get; set; } = 0.1f;
+        public float ExposureTransitionSpeed
+        {
+            get => _exposureTransitionSpeed;
+            set => _exposureTransitionSpeed = value.Clamp(0.0f, 1.0f);
+        }
         [TSerialize]
         [Category("Color Grade Settings")]
-        public float Exposure { get; set; } = 1.0f;
+        public float Exposure { get; set; } = 0.0f;
 
         [TSerialize]
         [Category("Color Grade Settings")]
@@ -227,7 +259,7 @@ uniform ColorGradeStruct ColorGrade;";
         }
         
         private Vec3 _luminance = new Vec3(0.299f, 0.587f, 0.114f);
-        private OpenTK.Half[] _rgba = new OpenTK.Half[4];
+        private Half[] _rgb = new Half[3];
         public void UpdateExposure(TexRef2D hdrSceneTexture)
         {
             if (!AutoExposure)
@@ -237,13 +269,13 @@ uniform ColorGradeStruct ColorGrade;";
             Engine.Renderer.SetActiveTexture(0);
             tex.Bind();
             tex.GenerateMipmaps();
-            Engine.Renderer.GetTexImage(ETexTarget.Texture2D, tex.SmallestMipmapLevel, tex.PixelFormat, tex.PixelType, _rgba);
-            Vec3 rgb = new Vec3(_rgba[0], _rgba[1], _rgba[2]);
+            Engine.Renderer.GetTexImage(ETexTarget.Texture2D, tex.SmallestMipmapLevel, tex.PixelFormat, tex.PixelType, _rgb);
+            Vec3 rgb = new Vec3(_rgb[0], _rgb[1], _rgb[2]);
             if (float.IsNaN(rgb.X)) return;
             if (float.IsNaN(rgb.Y)) return;
             if (float.IsNaN(rgb.Z)) return;
             float target = (0.5f / rgb.Dot(_luminance)).Clamp(MinExposure, MaxExposure);
-            Exposure = Interp.InterpCosineTo(Exposure, target, ExposureTransitionSpeed);
+            Exposure = Interp.Lerp(Exposure, target, ExposureTransitionSpeed);
         }
     }
     public class BloomSettings : PostSettings

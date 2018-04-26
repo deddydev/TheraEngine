@@ -7,6 +7,8 @@ using System.ComponentModel;
 using TheraEngine.Maths;
 using System;
 using TheraEngine.Physics;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -53,9 +55,6 @@ namespace TheraEngine.Core.Shapes
 
         public override TCollisionShape GetCollisionShape()
             => TCollisionSphere.New(Radius);
-
-        public override void Render()
-            => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);
 
         public static PrimitiveData SolidMesh(Vec3 center, float radius, uint precision)
         {
@@ -196,5 +195,8 @@ namespace TheraEngine.Core.Shapes
 
         public override BoundingBox GetAABB()
             => new BoundingBox(_radius, _center);
+
+        public override void Render()
+            => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);
     }
 }

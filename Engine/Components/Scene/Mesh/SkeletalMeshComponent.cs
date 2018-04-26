@@ -202,7 +202,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         public void PreRender(Camera camera)
         {
-            Skeleton.UpdateBones(AbstractRenderer.CurrentCamera, Matrix4.Identity, Matrix4.Identity);
+            Skeleton.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
         }
 
         protected internal override void OnHighlightChanged(bool highlighted)

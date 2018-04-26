@@ -20,7 +20,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class TheraPropertyGrid : UserControl, IDataChangeHandler
     {
-        public TheraPropertyGrid() => InitializeComponent();
+        public TheraPropertyGrid()
+        {
+            InitializeComponent();
+            ctxSceneComps.RenderMode = ToolStripRenderMode.Professional;
+            ctxSceneComps.Renderer = new TheraForm.TheraToolstripRenderer();
+        }
         
         internal static GameTimer UpdateTimer = new GameTimer();
         protected override void OnHandleCreated(EventArgs e)
@@ -117,7 +122,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     {
                         PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor.RootComponent);
                         PopulateLogicComponentList(actor.LogicComponents);
-
                         pnlLogicComps.Visible =
                         lblSceneComps.Visible =
                         treeViewSceneComps.Visible = true;
@@ -140,6 +144,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     lblProperties.Visible = false;
                 }
                 _updating = false;
+
+                CalcSceneCompTreeHeight();
 
                 TargetObject = value;
             }
@@ -286,6 +292,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             });
         }
 
+        #region Control Generation
         /// <summary>
         /// Returns a deque of all control types that can edit the given class type.
         /// </summary>
@@ -463,6 +470,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 panel.Controls.Add(misc);
             }
         }
+#endregion
 
         private void PopulateSceneComponentTree(TreeNodeCollection nodes, SceneComponent currentSceneComp)
         {
@@ -531,12 +539,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             lblObjectName.BackColor = Color.FromArgb(55, 55, 60);
         }
-
-        private void lblObjectName_Click(object sender, EventArgs e)
-        {
-            TargetObject = _targetFileObject;
-        }
         
+        private TreeNode _selectedSceneComp = null;
         private void treeViewSceneComps_MouseDown(object sender, MouseEventArgs e)
         {
             if (_updating)
@@ -547,20 +551,36 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Rectangle r = node.Bounds;
                 r.X -= 25; r.Width += 25;
                 if (r.Contains(e.Location))
-                    TargetObject = node.Tag;
+                {
+                    _selectedSceneComp = node;
+                    treeViewSceneComps.SelectedNode = node;
+                    if (e.Button == MouseButtons.Right)
+                    {
+                        UpdateCtxSceneComp();
+                        ctxSceneComps.Show(treeViewSceneComps, e.Location);
+                    }
+                }
             }
+        }
+        private void lblObjectName_Click(object sender, EventArgs e)
+        {
+            TargetObject = _targetFileObject;
+        }
+        private void lstLogicComps_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            TargetObject = lstLogicComps.SelectedItem as LogicComponent;
+        }
+        private void treeViewSceneComps_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            TargetObject = _selectedSceneComp.Tag as SceneComponent;
         }
 
         private void treeViewSceneComps_BeforeSelect(object sender, TreeViewCancelEventArgs e)
         {
-            if (_updating || e.Action == TreeViewAction.ByMouse)
+            if (_updating || e.Action == TreeViewAction.ByMouse || e.Action == TreeViewAction.Unknown)
                 return;
-            TreeNode node = e.Node;
-            if (node != null)
-            {
-                SceneComponent s = node.Tag as SceneComponent;
-                TargetObject = node.Tag;
-            }
+
+            _selectedSceneComp = e.Node;
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -570,17 +590,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Editor.Instance.ContentTree.WatchProjectDirectory = false;
                 TargetFileObject.Export();
                 Editor.Instance.ContentTree.WatchProjectDirectory = true;
-            }
-            else if (TargetFileObject.References.Count == 1)
-            {
-
-            }
-            else if (TargetFileObject.References.Count > 1)
-            {
-                foreach (IFileRef r in TargetFileObject.References)
-                {
-
-                }
             }
             else
             {
@@ -593,6 +602,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         TargetFileObject.Export(sfd.FileName);
                 }
             }
+
+            //if (TargetFileObject.References.Count == 1)
+            //{
+
+            //}
+            //else if (TargetFileObject.References.Count > 1)
+            //{
+            //    foreach (IFileRef r in TargetFileObject.References)
+            //    {
+
+            //    }
+            //}
+
             btnSave.Visible = false;
             TargetFileObject.EditorState.IsDirty = false;
         }
@@ -750,9 +772,200 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         #endregion
 
-        private void lstLogicComps_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void UpdateCtxSceneComp()
         {
-            TargetObject = lstLogicComps.SelectedItem;
+            if (_selectedSceneComp == null)
+            {
+                btnAddChildSceneComp.Enabled =
+                btnMoveDownSceneComp.Enabled =
+                btnMoveUpSceneComp.Enabled =
+                btnAddSiblingSceneComp.Enabled =
+                btnAddToSibAboveSceneComp.Enabled =
+                btnAddToSibBelowSceneComp.Enabled =
+                btnAddSibToParentSceneComp.Enabled =
+                false;
+            }
+            else
+            {
+                SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+                var sibComps = sceneCompSel.ParentSocket?.ChildComponents;
+                int index = sibComps?.IndexOf(sceneCompSel) ?? -1;
+                int count = sibComps?.Count ?? -1;
+
+                btnAddChildSceneComp.Enabled = true;
+
+                btnMoveDownSceneComp.Enabled = index >= 0 && index < count - 1;
+                btnMoveUpSceneComp.Enabled = index > 0 && index <= count - 1;
+
+                btnAddToSibAboveSceneComp.Enabled = index > 0;
+                btnAddToSibBelowSceneComp.Enabled = index < count - 1;
+
+                btnAddSiblingSceneComp.Enabled = sceneCompSel.ParentSocket is SceneComponent;
+                btnAddSibToParentSceneComp.Enabled = sceneCompSel.ParentSocket?.ParentSocket is SceneComponent;
+            }
+        }
+        private void btnAddSiblingSceneComp_Click(object sender, EventArgs e)
+        {
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            SceneComponent comp = Editor.UserCreateInstanceOf<SceneComponent>(true);
+            if (comp == null)
+                return;
+
+            sibComps.Add(comp);
+
+            TreeNode t = new TreeNode(comp.Name) { Tag = comp };
+            _selectedSceneComp.Parent.Nodes.Add(t);
+
+            t.EnsureVisible();
+            CalcSceneCompTreeHeight();
+            treeViewSceneComps.SelectedNode = t;
+        }
+
+        private void CalcSceneCompTreeHeight()
+        {
+            int count = NodeCount(treeViewSceneComps.Nodes);
+            treeViewSceneComps.Height = count * treeViewSceneComps.ItemHeight;
+        }
+        private int NodeCount(TreeNodeCollection nodes)
+        {
+            int count = 0;
+            foreach (TreeNode node in nodes)
+            {
+                count += 1;
+                if (node.IsExpanded)
+                    count += NodeCount(node.Nodes);
+            }
+            return count;
+        }
+
+        private void btnAddChildSceneComp_Click(object sender, EventArgs e)
+        {
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            SceneComponent comp = Editor.UserCreateInstanceOf<SceneComponent>(true);
+            if (comp == null)
+                return;
+
+            sceneCompSel.ChildComponents.Add(comp);
+
+            TreeNode t = new TreeNode(comp.Name) { Tag = comp };
+            _selectedSceneComp.Nodes.Add(t);
+            
+            t.EnsureVisible();
+            CalcSceneCompTreeHeight();
+            treeViewSceneComps.SelectedNode = t;
+        }
+
+        private void btnMoveUpSceneComp_Click(object sender, EventArgs e)
+        {
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            int index = sibComps.IndexOf(sceneCompSel);
+            sibComps.RemoveAt(index);
+            sibComps.Insert(index - 1, sceneCompSel);
+
+            TreeNode parentNode = _selectedSceneComp.Parent;
+            int i = _selectedSceneComp.Index;
+            _selectedSceneComp.Remove();
+            parentNode.Nodes.Insert(i - 1, _selectedSceneComp);
+            
+            _selectedSceneComp.EnsureVisible();
+            CalcSceneCompTreeHeight();
+            treeViewSceneComps.SelectedNode = _selectedSceneComp;
+        }
+
+        private void btnMoveDownSceneComp_Click(object sender, EventArgs e)
+        {
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            int index = sibComps.IndexOf(sceneCompSel);
+            sibComps.RemoveAt(index);
+            sibComps.Insert(index + 1, sceneCompSel);
+
+            TreeNode parentNode = _selectedSceneComp.Parent;
+            int i = _selectedSceneComp.Index;
+            _selectedSceneComp.Remove();
+            parentNode.Nodes.Insert(i + 1, _selectedSceneComp);
+            
+            _selectedSceneComp.EnsureVisible();
+            CalcSceneCompTreeHeight();
+            treeViewSceneComps.SelectedNode = _selectedSceneComp;
+        }
+
+        private void btnAddToSibAboveSceneComp_Click(object sender, EventArgs e)
+        {
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            int index = sibComps.IndexOf(sceneCompSel);
+            sibComps.RemoveAt(index);
+            sibComps[index - 1].ChildComponents.Add(sceneCompSel);
+
+            TreeNode parentNode = _selectedSceneComp.Parent;
+            int i = _selectedSceneComp.Index;
+            _selectedSceneComp.Remove();
+            parentNode.Nodes[i - 1].Nodes.Add(_selectedSceneComp);
+            
+            _selectedSceneComp.EnsureVisible();
+            CalcSceneCompTreeHeight();
+            treeViewSceneComps.SelectedNode = _selectedSceneComp;
+        }
+
+        private void btnAddToSibBelowSceneComp_Click(object sender, EventArgs e)
+        {
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            int index = sibComps.IndexOf(sceneCompSel);
+            sibComps.RemoveAt(index);
+            sibComps[index].ChildComponents.Add(sceneCompSel);
+
+            TreeNode parentNode = _selectedSceneComp.Parent;
+            int i = _selectedSceneComp.Index;
+            _selectedSceneComp.Remove();
+            parentNode.Nodes[i].Nodes.Add(_selectedSceneComp);
+            
+            _selectedSceneComp.EnsureVisible();
+            CalcSceneCompTreeHeight();
+            treeViewSceneComps.SelectedNode = _selectedSceneComp;
+        }
+
+        private void btnAddSibToParentSceneComp_Click(object sender, EventArgs e)
+        {
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            var parent = sceneCompSel.ParentSocket;
+            var sibComps = parent.ChildComponents;
+            int index = sibComps.IndexOf(sceneCompSel);
+            sibComps.RemoveAt(index);
+            var parentSibs = parent.ParentSocket.ChildComponents;
+            int parentIndex = parentSibs.IndexOf(parent as SceneComponent);
+            int newIndex = parentIndex == 0 ? parentIndex + 1 : parentIndex - 1;
+
+            TreeNode parentNode = _selectedSceneComp.Parent;
+            _selectedSceneComp.Remove();
+
+            if (newIndex == parentSibs.Count)
+            {
+                parent.ParentSocket.ChildComponents.Add(sceneCompSel);
+                parentNode.Parent.Nodes.Add(_selectedSceneComp);
+            }
+            else
+            {
+                parent.ParentSocket.ChildComponents.Insert(newIndex, sceneCompSel);
+                parentNode.Parent.Nodes.Insert(newIndex, _selectedSceneComp);
+            }
+            
+            _selectedSceneComp.EnsureVisible();
+            CalcSceneCompTreeHeight();
+            treeViewSceneComps.SelectedNode = _selectedSceneComp;
+        }
+
+        private void treeViewSceneComps_AfterExpand(object sender, TreeViewEventArgs e)
+        {
+            CalcSceneCompTreeHeight();
+        }
+
+        private void treeViewSceneComps_AfterCollapse(object sender, TreeViewEventArgs e)
+        {
+            CalcSceneCompTreeHeight();
         }
     }
     public interface IDataChangeHandler

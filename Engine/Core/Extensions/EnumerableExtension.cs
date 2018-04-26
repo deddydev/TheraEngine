@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using TheraEngine;
 
 namespace System
 {
@@ -71,8 +72,15 @@ namespace System
         }
         public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
         {
-            foreach (T item in enumeration)
-                action(item);
+            try
+            {
+                foreach (T item in enumeration)
+                    action(item);
+            }
+            catch(Exception ex)
+            {
+                Engine.PrintLine(ex.ToString());
+            }
         }
     }
 }

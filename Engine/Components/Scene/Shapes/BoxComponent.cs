@@ -55,11 +55,6 @@ namespace TheraEngine.Components.Scene.Shapes
             }
         }
         
-        public override void Render()
-        {
-            Engine.Renderer.ApplyRenderParams(RenderParams);
-            Engine.Renderer.RenderBox(HalfExtents, WorldMatrix, false, Color.Lavender);
-        }
         protected override TCollisionShape GetCollisionShape() => _box.GetCollisionShape();
 
         public bool Contains(Vec3 point) => _box.Contains(point);
@@ -78,6 +73,11 @@ namespace TheraEngine.Components.Scene.Shapes
         {
             _box.WorldMatrix = WorldMatrix;
             base.OnWorldTransformChanged();
+        }
+
+        public override void Render()
+        {
+            Box.Render();
         }
     }
 }

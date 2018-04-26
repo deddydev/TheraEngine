@@ -574,12 +574,12 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (_selectedComponent is CameraComponent cam)
                     {
-                        SubViewport.Camera = cam.Camera;
+                        SubViewport.ViewportCamera = cam.Camera;
                         SubViewport.IsVisible = true;
                     }
                     else
                     {
-                        SubViewport.Camera = null;
+                        SubViewport.ViewportCamera = null;
                         SubViewport.IsVisible = false;
                     }
 
@@ -643,7 +643,7 @@ namespace TheraEditor.Windows.Forms
             public const int CirclePrecision = 20;
             public static readonly Color Color = Color.LimeGreen;
 
-            public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false);
+            public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
             public Shape CullingVolume => null;
             public IOctreeNode OctreeNode { get; set; }
             public SceneComponent HighlightedComponent { get; set; }
@@ -660,6 +660,10 @@ namespace TheraEditor.Windows.Forms
                 _material.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
                 _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), _material);
                 _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), _material);
+                _circleRC.Primitives = _circlePrimitive;
+                _normalRC.Primitives = _normalPrimitive;
+                _circleRC.NormalMatrix = Matrix3.Identity;
+                _normalRC.NormalMatrix = Matrix3.Identity;
             }
             
             public void Render()
@@ -671,6 +675,21 @@ namespace TheraEditor.Windows.Forms
                 {
                     _circlePrimitive.Render(Transform, Matrix3.Identity);
                     _normalPrimitive.Render(Transform, Matrix3.Identity);
+                }
+            }
+
+            private RenderCommandMesh3D _circleRC = new RenderCommandMesh3D(), _normalRC = new RenderCommandMesh3D();
+            public void AddRenderables(RenderPasses passes, Camera camera)
+            {
+                if (!Visible)
+                    return;
+
+                if (HighlightedComponent != null && HighlightedComponent != TransformTool3D.Instance?.RootComponent)
+                {
+                    _circleRC.WorldMatrix = new Matrix4(Transform.Row0, Transform.Row1, Transform.Row2, Transform.Row3);
+                    passes.Add(_circleRC, RenderInfo.RenderPass);
+                    _normalRC.WorldMatrix = new Matrix4(Transform.Row0, Transform.Row1, Transform.Row2, Transform.Row3);
+                    passes.Add(_normalRC, RenderInfo.RenderPass);
                 }
             }
         }

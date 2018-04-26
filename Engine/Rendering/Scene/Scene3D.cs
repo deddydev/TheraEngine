@@ -1,109 +1,25 @@
-﻿using TheraEngine.Rendering.Cameras;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using TheraEngine.Rendering.Particles;
+using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Particles;
 
 namespace TheraEngine.Rendering
 {
-    public enum ERenderPass3D
-    {
-        /// <summary>
-        /// Use for any objects that will ALWAYS be rendered behind the scene, even if they are outside of the viewing frustum.
-        /// </summary>
-        Skybox,
-        /// <summary>
-        /// Use for any fully opaque objects that are always lit.
-        /// </summary>
-        OpaqueDeferredLit,
-        /// <summary>
-        /// Use for any opaque objects that you need special lighting for (or no lighting at all).
-        /// </summary>
-        OpaqueForward,
-        /// <summary>
-        /// Use for all objects that use alpha translucency! Material.HasTransparency will help you determine this.
-        /// </summary>
-        TransparentForward,
-        /// <summary>
-        /// Renders on top of everything that has been previously rendered.
-        /// </summary>
-        OnTopForward,
-    }
-    public class RenderPasses3D
-    {
-        public RenderPasses3D()
-        {
-            _sorter = new RenderSort();
-            _passes = new SortedSet<I3DRenderable>[]
-            {
-                new SortedSet<I3DRenderable>(_sorter),
-                new SortedSet<I3DRenderable>(_sorter),
-                new SortedSet<I3DRenderable>(_sorter),
-                new SortedSet<I3DRenderable>(_sorter),
-                new SortedSet<I3DRenderable>(_sorter),
-            };
-        }
-
-        private RenderSort _sorter;
-        private SortedSet<I3DRenderable>[] _passes;
-        
-        public SortedSet<I3DRenderable> Skybox => _passes[0];
-        public SortedSet<I3DRenderable> OpaqueDeferredLit => _passes[1];
-        public SortedSet<I3DRenderable> OpaqueForward => _passes[2];
-        public SortedSet<I3DRenderable> TransparentForward => _passes[3];
-        public SortedSet<I3DRenderable> OnTopForward => _passes[4];
-
-        public class RenderSort : IComparer<I3DRenderable>
-        {
-            public bool ShadowPass { get; set; }
-            int IComparer<I3DRenderable>.Compare(I3DRenderable x, I3DRenderable y)
-            {
-                float xOrder = x.RenderInfo.GetRenderOrder(ShadowPass);
-                float yOrder = y.RenderInfo.GetRenderOrder(ShadowPass);
-
-                if (xOrder < yOrder)
-                    return -1;
-
-                if (xOrder > yOrder)
-                    return 1;
-
-                return -1;
-            }
-        }
-
-        public void Render(ERenderPass3D pass)
-        {
-            var list = _passes[(int)pass];
-            list.ForEach(x =>
-            {
-                x.Render();
-                if (!_sorter.ShadowPass)
-                    x.RenderInfo.LastRenderedTime = DateTime.Now;
-            });
-            list.Clear();
-        }
-
-        public void Add(I3DRenderable item)
-        {
-            SortedSet<I3DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
-            r.Add(item);
-        }
-
-        public void SetShadowPass(bool shadowPass)
-        {
-            _sorter.ShadowPass = shadowPass;
-        }
-    }
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
     /// </summary>
-    public class Scene3D : Scene
+    public class Scene3D : BaseScene
     {
         private LightManager _lightManager;
         private ParticleManager _particles;
-        private RenderPasses3D _passes = new RenderPasses3D();
         
+        //TODO: implement octree on GPU with compute shader instead of here on CPU
+        //Also implement occlusion culling along with frustum culling
         public Octree RenderTree { get; private set; }
         public override int Count => RenderTree.Count;
         public LightManager Lights => _lightManager;
@@ -138,6 +54,7 @@ namespace TheraEngine.Rendering
             //_voxelizationMaterial = m;
         }
 
+        public void UpdateShadowMaps() => Lights?.UpdateShadowMaps(this);
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
         public void Voxelize()
         {
@@ -165,67 +82,52 @@ namespace TheraEngine.Rendering
             //Engine.Renderer.PopRenderArea();
             //Engine.Renderer.ColorMask(true, true, true, true);
         }
-
-        public override void CollectVisibleRenderables(Frustum frustum, bool shadowPass)
+        public override void Update(RenderPasses populatingPasses, IVolume cullingVolume, Camera camera, IUIManager hud, bool shadowPass)
         {
-            //TODO: implement octree on GPU with compute shader instead of here on CPU
-            //Also implement occlusion culling along with frustum culling
-            RenderTree.CollectVisible(frustum, _passes, shadowPass);
+            RenderTree.CollectVisible(cullingVolume, populatingPasses, camera, shadowPass);
+            base.Update(populatingPasses, cullingVolume, camera, hud, shadowPass);
         }
-        public void CollectVisibleRenderables(Sphere sphere, bool shadowPass)
+        public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, MaterialFrameBuffer target)
         {
-            //TODO: implement octree on GPU with compute shader instead of here on CPU
-            //Also implement occlusion culling along with frustum culling
-            RenderTree.CollectVisible(sphere, _passes, shadowPass);
-        }
-        public void PreRender(Camera c)
-        {
-            foreach (IPreRendered p in _preRenderList)
-                p.PreRender(c);
-        }
-        public void RenderForward(Camera c, Viewport v, MaterialFrameBuffer target)
-        {
-            AbstractRenderer.PushCurrentCamera(c);
+            AbstractRenderer.PushCurrentCamera(camera);
             AbstractRenderer.PushCurrent3DScene(this);
             {
-                PreRender(c);
-                if (v != null)
+                if (viewport != null)
                 {
                     //Enable internal resolution
-                    Engine.Renderer.PushRenderArea(v.InternalResolution);
+                    Engine.Renderer.PushRenderArea(viewport.InternalResolution);
                     {
-                        v.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             Engine.Renderer.Clear(EBufferClear.All);
-                            
+
+                            Engine.Renderer.AllowDepthWrite(false);
+                            renderingPasses.Render(ERenderPass.Background);
+                            Engine.Renderer.AllowDepthWrite(true);
+
+                            renderingPasses.Render(ERenderPass.OpaqueForward);
                             //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
                             //RenderTree.DebugRender(c?.Frustum, true);
 
-                            _passes.Render(ERenderPass3D.OpaqueForward);
-
+                            renderingPasses.Render(ERenderPass.TransparentForward);
                             Engine.Renderer.AllowDepthWrite(false);
-                            _passes.Render(ERenderPass3D.Skybox);
-                            Engine.Renderer.AllowDepthWrite(true);
-
-                            _passes.Render(ERenderPass3D.TransparentForward);
-                            Engine.Renderer.AllowDepthWrite(false);
-                            _passes.Render(ERenderPass3D.OnTopForward);
+                            renderingPasses.Render(ERenderPass.OnTopForward);
                         }
-                        v.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                        v.PingPongBloomBlurFBO.Reset();
-                        v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
+                        viewport.PingPongBloomBlurFBO.Reset();
+                        viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
                         Engine.Renderer.AllowDepthWrite(false);
-                        v.ForwardPassFBO.RenderFullscreen();
+                        viewport.ForwardPassFBO.RenderFullscreen();
                         Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
                         for (int i = 0; i < 10; ++i)
                         {
-                            v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
+                            viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
                             Engine.Renderer.AllowDepthWrite(false);
-                            v.PingPongBloomBlurFBO.RenderFullscreen();
+                            viewport.PingPongBloomBlurFBO.RenderFullscreen();
                             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
 
-                            v.PingPongBloomBlurFBO.Switch();
+                            viewport.PingPongBloomBlurFBO.Switch();
                         }
                     }
                     Engine.Renderer.PopRenderArea();
@@ -234,16 +136,11 @@ namespace TheraEngine.Rendering
                     //or the provided target FBO
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
-                        Engine.Renderer.PushRenderArea(v.Region);
+                        Engine.Renderer.PushRenderArea(viewport.Region);
                         {
                             Engine.Renderer.AllowDepthWrite(false);
-                            v.PostProcessFBO.RenderFullscreen();
-
-                            if (v.HUD?.UIScene != null)
-                            {
-                                v.HUD.UIScene.CollectVisibleRenderables();
-                                v.HUD.UIScene.DoRender(v.HUD.Camera, v, null);
-                            }
+                            viewport.PostProcessFBO.RenderFullscreen();
+                            hud?.UIScene?.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
                         }
                         Engine.Renderer.PopRenderArea();
                     }
@@ -255,94 +152,92 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.Clear(EBufferClear.All);
 
                     Engine.Renderer.AllowDepthWrite(false);
-                    _passes.Render(ERenderPass3D.Skybox);
+                    renderingPasses.Render(ERenderPass.Background);
 
                     Engine.Renderer.AllowDepthWrite(true);
-                    _passes.Render(ERenderPass3D.OpaqueDeferredLit);
-                    _passes.Render(ERenderPass3D.OpaqueForward);
-                    _passes.Render(ERenderPass3D.TransparentForward);
+                    renderingPasses.Render(ERenderPass.OpaqueForward);
+                    renderingPasses.Render(ERenderPass.TransparentForward);
 
                     //Render forward on-top objects last
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
-                    _passes.Render(ERenderPass3D.OnTopForward);
+                    renderingPasses.Render(ERenderPass.OnTopForward);
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
             }
             AbstractRenderer.PopCurrent3DScene();
             AbstractRenderer.PopCurrentCamera();
         }
-        public void RenderDeferred(Camera c, Viewport v, MaterialFrameBuffer target)
+        public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, MaterialFrameBuffer target)
         {
-            AbstractRenderer.PushCurrentCamera(c);
+            AbstractRenderer.PushCurrentCamera(camera);
             AbstractRenderer.PushCurrent3DScene(this);
             {
-                PreRender(c);
-                if (v != null)
+                if (viewport != null)
                 {
                     //Enable internal resolution
-                    Engine.Renderer.PushRenderArea(v.InternalResolution);
+                    Engine.Renderer.PushRenderArea(viewport.InternalResolution);
                     {
                         //Render to deferred framebuffer.
-                        v.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             Engine.Renderer.StencilMask(~0);
                             Engine.Renderer.ClearStencil(0);
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
-                            _passes.Render(ERenderPass3D.OpaqueDeferredLit);
+                            Engine.Renderer.EnableDepthTest(true);
+                            renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
+                            Engine.Renderer.EnableDepthTest(false);
                         }
-                        v.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                        v.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            v.SSAOFBO.RenderFullscreen();
-                        }
-                        v.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.SSAOFBO.RenderFullscreen();
+                        viewport.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                        v.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            v.SSAOBlurFBO.RenderFullscreen();
-                        }
-                        v.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.SSAOBlurFBO.RenderFullscreen();
+                        viewport.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         //Now render to final post process framebuffer.
-                        v.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             //Render the deferred pass result
-                            v.GBufferFBO.RenderFullscreen();
-                            
+                            viewport.GBufferFBO.RenderFullscreen();
+
+                            Engine.Renderer.EnableDepthTest(true);
                             //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
                             //RenderTree.DebugRender(c?.Frustum, true);
 
-                            _passes.Render(ERenderPass3D.OpaqueForward);
+                            renderingPasses.Render(ERenderPass.OpaqueForward);
 
                             Engine.Renderer.AllowDepthWrite(false);
-                            _passes.Render(ERenderPass3D.Skybox);
+                            renderingPasses.Render(ERenderPass.Background);
                             Engine.Renderer.EnableDepthTest(true);
 
                             //Render forward transparent objects next
-                            _passes.Render(ERenderPass3D.TransparentForward);
+                            renderingPasses.Render(ERenderPass.TransparentForward);
 
                             //Render forward on-top objects last
-                            _passes.Render(ERenderPass3D.OnTopForward);
+                            renderingPasses.Render(ERenderPass.OnTopForward);
+                            Engine.Renderer.EnableDepthTest(false);
                         }
-                        v.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
                         
-                        v.PingPongBloomBlurFBO.Reset();
-                        v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-                        v.ForwardPassFBO.RenderFullscreen();
+                        viewport.PingPongBloomBlurFBO.Reset();
+                        viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
+                        viewport.ForwardPassFBO.RenderFullscreen();
                         Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
                         for (int i = 0; i < 10; ++i)
                         {
-                            v.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-                            v.PingPongBloomBlurFBO.RenderFullscreen();
+                            viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
+                            viewport.PingPongBloomBlurFBO.RenderFullscreen();
                             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
 
-                            v.PingPongBloomBlurFBO.Switch();
+                            viewport.PingPongBloomBlurFBO.Switch();
                         }
 
                         //TODO: Apply camera post process material pass here
-                        TMaterial post = c?.PostProcessRef?.File?.PostProcessMaterial?.File;
+                        TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
                         if (post != null)
                         {
 
@@ -354,15 +249,11 @@ namespace TheraEngine.Rendering
                     //or the provided target FBO
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
-                        Engine.Renderer.PushRenderArea(v.Region);
+                        Engine.Renderer.PushRenderArea(viewport.Region);
                         {
-                            v.PostProcessFBO.RenderFullscreen();
-
-                            if (v.HUD?.UIScene != null)
-                            {
-                                v.HUD.UIScene.CollectVisibleRenderables();
-                                v.HUD.UIScene.DoRender(v.HUD.Camera, v, null);
-                            }
+                            viewport.PostProcessFBO.RenderFullscreen();
+                            hud?.UIScene?.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
+                            Engine.Renderer.EnableDepthTest(true);
                         }
                         Engine.Renderer.PopRenderArea();
                     }
@@ -376,17 +267,17 @@ namespace TheraEngine.Rendering
                     Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
 
                     Engine.Renderer.AllowDepthWrite(false);
-                    _passes.Render(ERenderPass3D.Skybox);
+                    renderingPasses.Render(ERenderPass.Background);
                     
                     Engine.Renderer.AllowDepthWrite(true);
-                    _passes.Render(ERenderPass3D.OpaqueDeferredLit);
-                    _passes.Render(ERenderPass3D.OpaqueForward);
-                    _passes.Render(ERenderPass3D.TransparentForward);
+                    renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
+                    renderingPasses.Render(ERenderPass.OpaqueForward);
+                    renderingPasses.Render(ERenderPass.TransparentForward);
 
                     //Render forward on-top objects last
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
-                    _passes.Render(ERenderPass3D.OnTopForward);
+                    renderingPasses.Render(ERenderPass.OnTopForward);
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
             }
@@ -428,7 +319,6 @@ namespace TheraEngine.Rendering
         {
             RenderTree = new Octree(sceneBounds);
             _lightManager = new LightManager();
-            _passes = new RenderPasses3D();
         }
     }
 }

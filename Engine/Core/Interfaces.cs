@@ -6,6 +6,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using System.Collections.Generic;
 using TheraEngine.Core.Memory;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine
 {
@@ -44,6 +45,7 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo3D RenderInfo { get; }
+        void AddRenderables(RenderPasses passes, Camera camera);
     }
     /// <summary>
     /// Used by octrees to set the visibility of this object on camera. Does not need to be renderable necessarily (use I3DRenderable for that).
@@ -87,6 +89,7 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo2D RenderInfo { get; }
+        void AddRenderables(RenderPasses passes);
     }
     public interface I2DBoundable
     {
@@ -102,7 +105,7 @@ namespace TheraEngine
         /// <summary>
         /// Called when the engine wants to render this object.
         /// </summary>
-        void Render();
+        //void Render();
     }
     public interface IBufferable
     {

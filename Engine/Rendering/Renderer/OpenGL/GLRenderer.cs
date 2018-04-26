@@ -812,15 +812,15 @@ namespace TheraEngine.Rendering.OpenGL
         }
         #endregion
 
-        public override int GetStencilIndex(float x, float y)
+        public override byte GetStencilIndex(float x, float y)
         {
-            int val = 0;
-            GL.ReadPixels((int)x, (int)(BaseRenderPanel.RenderingPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
-            return val & 0xFF;
+            byte val = 0;
+            GL.ReadPixels((int)x, (int)y, 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.StencilIndex, PixelType.UnsignedByte, ref val);
+            return val;
         }
         public override float GetDepth(float x, float y)
         {
-            float val = 0;
+            float val = 20;
             GL.ReadPixels((int)x, (int)y, 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
             return val;
 

@@ -24,6 +24,7 @@ namespace TheraEngine.Actors.Types.Pawns
         Vec2 CursorPositionWorld(Viewport v);
         OrthographicCamera Camera { get; }
         Vec2 Bounds { get; }
+        RenderPasses RenderPasses { get; set; }
     }
     /// <summary>
     /// Each viewport has a hud manager. 
@@ -79,7 +80,7 @@ namespace TheraEngine.Actors.Types.Pawns
         }
 
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass3D.OnTopForward, null, false, false);
+            = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
 
         public Shape CullingVolume => null;
         public IOctreeNode OctreeNode { get; set; }
@@ -183,5 +184,7 @@ namespace TheraEngine.Actors.Types.Pawns
             => FindComponent(CursorPositionWorld());
         public UIComponent FindComponent(Vec2 cursorWorldPos)
             => RootComponent.FindDeepestComponent(cursorWorldPos);
+
+        public RenderPasses RenderPasses { get; set; } = new RenderPasses();
     }
 }

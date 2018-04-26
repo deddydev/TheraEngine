@@ -23,12 +23,12 @@ namespace TheraEngine.Rendering.Models.Materials
             _pixelType = EPixelType.UnsignedByte;
         }
         public TexRef3D(string name, int width, int height, int depth,
-            TPixelFormat bitmapFormat = TPixelFormat.Format32bppRGBAi, int mipCount = 1)
+            ETPixelCompFmt bitmapFormat = ETPixelCompFmt.F16, int mipCount = 1)
             : this(name, width, height, depth)
         {
             _mipmaps = new GlobalFileRef<TBitmap3D>[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
-                _mipmaps[i] = new TBitmap3D(width / scale, height / scale, depth / scale, bitmapFormat);
+                _mipmaps[i] = new TBitmap3D(width / scale, height / scale, depth / scale, ETPixelType.Basic);
         }
         public TexRef3D(string name, int width, int height, int depth,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
@@ -41,12 +41,12 @@ namespace TheraEngine.Rendering.Models.Materials
             _width = width;
             _height = height;
         }
-        public TexRef3D(string name, int width, int height, int depth,
-            EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, TPixelFormat bitmapFormat)
-            : this(name, width, height, depth, internalFormat, pixelFormat, pixelType)
-        {
-            _mipmaps = new GlobalFileRef<TBitmap3D>[] { new TBitmap3D(width, height, depth, bitmapFormat) };
-        }
+        //public TexRef3D(string name, int width, int height, int depth,
+        //    EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
+        //    : this(name, width, height, depth, internalFormat, pixelFormat, pixelType)
+        //{
+        //    _mipmaps = new GlobalFileRef<TBitmap3D>[] { new TBitmap3D(width, height, depth, pixelType) };
+        //}
         public TexRef3D(string name, params string[] mipMapPaths)
         {
             _name = name;
@@ -254,7 +254,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _isLoading = false;
         }
 
-        internal override void AttachToFBO(int mipLevel = 0)
+        public override void AttachToFBO(int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 AttachToFBO(FrameBufferAttachment.Value, mipLevel);
@@ -263,10 +263,15 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
         }
-        internal override void DetachFromFBO(int mipLevel = 0)
+        public override void DetachFromFBO(int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, 0, mipLevel);
+        }
+
+        public override void DetachFromFBO(EFramebufferAttachment attachment, int mipLevel = 0)
+        {
+
         }
     }
 }

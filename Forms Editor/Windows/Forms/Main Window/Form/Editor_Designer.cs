@@ -277,12 +277,12 @@ namespace TheraEditor.Windows.Forms
             if (isRendering && !IsRenderTicking)
             {
                 IsRenderTicking = true;
-                Engine.RegisterRenderTick(RenderTick);
+                Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
             }
             else if (!isRendering && IsRenderTicking)
             {
                 IsRenderTicking = false;
-                Engine.UnregisterRenderTick(RenderTick);
+                Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
             }
         }
 
@@ -461,10 +461,32 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
+        private void UpdateTick(object sender, FrameEventArgs e)
+        {
+            if (Engine.Scene != null)
+            {
+                Engine.Scene.UpdateShadowMaps();
+            }
+            for (int i = 0; i < 4; ++i)
+                if (RenderFormActive(i))
+                    GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
+        }
+        private void SwapBuffers()
+        {
+            if (Engine.Scene != null)
+            {
+                Engine.Scene.Lights.SwapBuffers();
+            }
+            for (int i = 0; i < 4; ++i)
+                if (RenderFormActive(i))
+                    GetRenderForm(i).RenderPanel.SwapBuffers();
+        }
         private void RenderTick(object sender, FrameEventArgs e)
         {
             try { Invoke((Action)Redraw); } catch { }
+            //Redraw();
         }
+
         private void Redraw()
         {
             if (BaseRenderPanel.WorldPanel == null)
@@ -482,7 +504,7 @@ namespace TheraEditor.Windows.Forms
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
 
-            Application.DoEvents();
+            //Application.DoEvents();
         }
         //protected override void OnResizeBegin(EventArgs e)
         //{\

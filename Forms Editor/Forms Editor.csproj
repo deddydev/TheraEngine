@@ -684,7 +684,6 @@
     <Compile Include="Windows\Forms\Borderless Form\BorderlessFormBase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Core\OS\Win32\Native.cs" />
     <Compile Include="Core\Extensions\ToolStripItemExtension.cs" />
     <Compile Include="Windows\Forms\Class Creation\GenericSelector.cs">
       <SubType>Form</SubType>
@@ -998,6 +997,7 @@
     <None Include="Resources\CSharpScript.png" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Core\OS\Win32\" />
     <Folder Include="Windows\Forms\Cutscene Editor\" />
     <Folder Include="Windows\Forms\HUD Editor\" />
     <Folder Include="Windows\Forms\Model Animation Editor\" />

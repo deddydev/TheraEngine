@@ -56,7 +56,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass2D.OnTop, 0, 0);
+        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OnTopForward, 0, 0);
         public BoundingRectangle AxisAlignedRegion { get; } = new BoundingRectangle();
         public IQuadtreeNode QuadtreeNode { get; set; }
 
@@ -387,10 +387,12 @@ namespace TheraEditor.Windows.Forms
             Vec2 diff = new Vec2(dist * _rootTransform.ScaleX, 0.0f);
             Vec2[] points = Interp.GetBezierPoints(start, start + diff, end - diff, end, 20);
             for (int i = 1; i < points.Length; ++i)
-                Engine.Renderer.RenderLine(
-                    points[i - 1],
-                    points[i],
-                    color, 5.0f);
+                Engine.Renderer.RenderLine(points[i - 1], points[i], color, 5.0f);
+        }
+
+        public void AddRenderables(RenderPasses passes)
+        {
+
         }
         #endregion
     }

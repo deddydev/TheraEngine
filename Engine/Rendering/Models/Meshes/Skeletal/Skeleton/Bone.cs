@@ -371,6 +371,7 @@ namespace TheraEngine.Rendering.Models
                     if (ScaleByDistance && c != null)
                     {
                         float scale = c.DistanceScale(WorldMatrix.Translation, _screenSize);
+                        //Engine.PrintLine(scale.ToString());
                         _frameMatrix = _frameMatrix * Matrix4.CreateScale(scale);
                         _inverseFrameMatrix = Matrix4.CreateScale(1.0f / scale) * _inverseFrameMatrix;
                     }

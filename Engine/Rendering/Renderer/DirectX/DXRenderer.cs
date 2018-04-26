@@ -271,7 +271,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override int GetStencilIndex(float x, float y)
+        public override byte GetStencilIndex(float x, float y)
         {
             throw new NotImplementedException();
         }

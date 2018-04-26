@@ -15,6 +15,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.ThirdParty;
 using TheraEngine.Worlds;
@@ -35,9 +36,9 @@ namespace TheraEngine.Tests
         {
             bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 1;
+            int pointLights = 0;
             int dirLights = 0;
-            int spotLights = 0;
+            int spotLights = 3;
 
             float margin = 2.0f;
             float radius = 1.0f;
@@ -170,7 +171,6 @@ namespace TheraEngine.Tests
                     DirectionalLightComponent dir = dirlight.RootComponent;
                     dir.LightColor = (ColorF3)Color.White;
                     dir.DiffuseIntensity = 1.0f;
-                    dir.AmbientIntensity = 0.0f;
                     dir.WorldRadius = bounds.HalfExtents.LengthFast;
                     dir.Rotation.Pitch = -35.0f;
                     dir.Rotation.Yaw = lightAngle * i;
@@ -185,7 +185,7 @@ namespace TheraEngine.Tests
                 float upTrans = 20.0f;
                 for (int i = 0; i < pointLights; i++)
                 {
-                    PointLightComponent comp = new PointLightComponent(400.0f, 5.0f, (ColorF3)Color.White, 2000.0f, 0.0f)
+                    PointLightComponent comp = new PointLightComponent(400.0f, 5.0f, (ColorF3)Color.White, 2000.0f)
                     {
                         Translation = new Vec3(
                             TMath.Cosf(i * lightAngle) * lightPosRadius,
@@ -208,7 +208,6 @@ namespace TheraEngine.Tests
                     SpotLightComponent spot = new SpotLightComponent()
                     {
                         LightColor = (ColorF3)Color.White,
-                        AmbientIntensity = 0.0f,
                         Distance = 2000.0f,
                         Brightness = 100.0f,
                         Exponent = 2.0f,
@@ -230,7 +229,7 @@ namespace TheraEngine.Tests
             if (testLandscape)
             {
                 int wh = 200;
-                FastNoise noise = new FastNoise((int)DateTime.Now.Ticks);
+                FastNoise noise = new FastNoise();
                 //noise.SetFrequency(10.0f);
                 DataSource source = new DataSource(wh * wh * 4);
                 float* data = (float*)source.Address;
@@ -307,6 +306,11 @@ namespace TheraEngine.Tests
 
     public class SphereTraceActor : Actor<TRComponent>, I3DRenderable
     {
+        public SphereTraceActor()
+        {
+            _renderCommand = new RenderCommandDebug3D(Render);
+        }
+
         private Vec3 _direction;
         private Matrix4 _endTraceTransform = Matrix4.Identity;
         private TCollisionSphere _sphere = TCollisionSphere.New(3.0f);
@@ -330,7 +334,7 @@ namespace TheraEngine.Tests
         }
 
         public RenderInfo3D RenderInfo { get; } 
-            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
+            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -382,6 +386,12 @@ namespace TheraEngine.Tests
                 return;
             
             Engine.Renderer.RenderLine(_hitPoint, _hitPoint + (_hitNormal * Radius), Color.Orange);
+        }
+
+        private RenderCommandDebug3D _renderCommand;
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
     }
 }

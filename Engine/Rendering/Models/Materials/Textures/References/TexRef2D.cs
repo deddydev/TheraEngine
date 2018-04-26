@@ -380,19 +380,21 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        internal override void AttachToFBO(int mipLevel = 0)
+        public override void AttachToFBO(int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 AttachToFBO(FrameBufferAttachment.Value, mipLevel);
         }
-        public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
-            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
-        internal override void DetachFromFBO(int mipLevel = 0)
+        public override void DetachFromFBO(int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, ETexTarget.Texture2D, 0, mipLevel);
         }
-
+        public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
+        public override void DetachFromFBO(EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, 0, mipLevel);
+        
         public static TexRef2D CreateFrameBufferTexture(string name, int width, int height,
             EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType, EFramebufferAttachment bufAttach)
         {

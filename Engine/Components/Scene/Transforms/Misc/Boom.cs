@@ -11,22 +11,14 @@ namespace TheraEngine.Components.Scene.Transforms
     public delegate void DelBoomLengthChange(float newLength);
 
     [FileDef("Boom Component")]
-    public class BoomComponent : RTComponent, I3DRenderable
+    public class BoomComponent : RTComponent
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
-        public RenderInfo3D RenderInfo => _renderInfo;
-
         public event DelBoomLengthChange CurrentDistanceChanged;
 
         private TCollisionSphere _traceShape = TCollisionSphere.New(0.3f);
         private float _currentLength = 0.0f;
         private Vec3 _startPoint = Vec3.Zero;
-
-        [Browsable(false)]
-        public Shape CullingVolume => null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-
+        
         [TSerialize]
         public float InterpSpeed { get; set; } = 15.0f;
         [TSerialize]
@@ -90,11 +82,6 @@ namespace TheraEngine.Components.Scene.Transforms
                 RecalcLocalTransform();
                 CurrentDistanceChanged?.Invoke(_currentLength);
             }
-        }
-
-        public void Render()
-        {
-            //Engine.Renderer.RenderLine(_startPoint, _currentEndPoint, Color.LightYellow);
         }
     }
 }

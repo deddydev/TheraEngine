@@ -319,7 +319,7 @@
     <Compile Include="Actors\Types\GroupActor.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawnBase.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawn.cs" />
-    <Compile Include="Actors\Types\SceneCaptureComponent.cs" />
+    <Compile Include="Components\Scene\SceneCaptureComponent.cs" />
     <Compile Include="Animation\Property\AnimationFolder.cs" />
     <Compile Include="Animation\Property\PropAnimInt.cs" />
     <Compile Include="Animation\Property\PropAnimMethod.cs" />
@@ -365,6 +365,8 @@
     <Compile Include="Core\Files\References\FileLoader.cs" />
     <Compile Include="Core\Files\References\LocalFileRef.cs" />
     <Compile Include="Core\Files\References\GlobalFileRef.cs" />
+    <Compile Include="Core\Maths\Half.cs" />
+    <Compile Include="Core\Platform\Native.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\FileExtension.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\File3rdParty.cs" />
@@ -458,7 +460,8 @@
     <Compile Include="Rendering\Renderer\States\FrameBuffers\PingPongFrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffers\QuadFrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\RenderShader.cs" />
-    <Compile Include="Rendering\RenderInfo.cs" />
+    <Compile Include="Rendering\Scene\RenderCommands.cs" />
+    <Compile Include="Rendering\Scene\RenderInfo.cs" />
     <Compile Include="Rendering\Shader Generator\VarNameGen.cs" />
     <Compile Include="Rendering\Text\UITextDrawer.cs" />
     <Compile Include="Scripting\CSharp\Script.cs" />
@@ -573,8 +576,8 @@
     <Compile Include="Rendering\Models\Meshes\Primitives\VertexShaderDesc.cs" />
     <Compile Include="Rendering\Particles\EmitterComponent.cs" />
     <Compile Include="Rendering\Particles\ParticleSystem.cs" />
-    <Compile Include="Rendering\Scene.cs" />
-    <Compile Include="Rendering\Scene2D.cs" />
+    <Compile Include="Rendering\Scene\Scene.cs" />
+    <Compile Include="Rendering\Scene\Scene2D.cs" />
     <Compile Include="Tests\TestDefaults.cs" />
     <Compile Include="Components\Logic\Animation\AnimStateMachineComponent.cs" />
     <Compile Include="Animation\BaseAnimation.cs" />
@@ -707,7 +710,7 @@
     <Compile Include="Rendering\Renderer\States\RenderBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\RenderProgram.cs" />
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
-    <Compile Include="Rendering\Scene3D.cs" />
+    <Compile Include="Rendering\Scene\Scene3D.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffers\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
@@ -908,7 +911,7 @@
     <Compile Include="Core\Memory\DataSource.cs" />
     <Compile Include="Core\Files\FileMap.cs" />
     <Compile Include="Core\Time\GameTimer.cs" />
-    <Compile Include="Rendering\Viewport.cs" />
+    <Compile Include="Rendering\Scene\Viewport.cs" />
     <Compile Include="Core\Memory\VoidPtr.cs" />
     <Compile Include="Actors\Actor.cs" />
     <Compile Include="Actors\Types\ComponentActors\SplineActor.cs" />

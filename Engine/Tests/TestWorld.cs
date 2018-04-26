@@ -140,7 +140,7 @@ namespace TheraEngine.Tests
             //floorActor1.RootComponent.AddAnimation(lightAnimContainer, true, ETickGroup.PostPhysics, ETickOrder.BoneAnimation, InputPauseType.TickOnlyWhenUnpaused);
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                (ColorF3)Color.Beige, 1.0f, 0.0f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR))
+                (ColorF3)Color.Beige, 1.0f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR))
             {
                 WorldRadius = Settings.Bounds.HalfExtents.LengthFast
             };
@@ -223,7 +223,7 @@ namespace TheraEngine.Tests
             //Engine.TimeDilation = 0.3f;
             //cam.RootComponent.SetCurrentForPlayer(PlayerIndex.One);
 
-            SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, 0.0f, Vec3.Down, 30.0f, 10.0f, 40.0f, 1.0f);
+            SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, Vec3.Down, 30.0f, 10.0f, 40.0f, 1.0f);
             spotLightComp.Translation.Y = 50.0f;
             Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>("SpotLight", spotLightComp);
             actors.Add(spotlight);

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -36,7 +36,7 @@ namespace TheraEngine.Actors.Types
 
         public LandscapeComponent()
         {
-            RenderInfo = new RenderInfo3D(ERenderPass3D.OpaqueDeferredLit, null, true, true);
+            RenderInfo = new RenderInfo3D(ERenderPass.OpaqueDeferredLit);
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
@@ -116,51 +116,8 @@ namespace TheraEngine.Actors.Types
             float uInc = 1.0f / xDim, vInc = 1.0f / yDim;
             int nextX = 0, nextY = 0;
             int xTriStride = _dimensions.X / xInc * 2;
-            int triIndex;
             Vertex[] vertexNormals = new Vertex[6];
-            Vec3 normal;
-            void AverageNormals(int x, int y)
-            {
-                //topleftleft
-                triIndex = (x - 1) * 2 + 0 + (y - 1) * xTriStride;
-                vertexNormals[0] = list.IndexInRange(triIndex) ? list[triIndex].Vertex2 : null;
-                //topleftright
-                triIndex = (x - 1) * 2 + 1 + (y - 1) * xTriStride;
-                vertexNormals[1] = list.IndexInRange(triIndex) ? list[triIndex].Vertex1 : null;
-                //toprightleft
-                triIndex = (x - 0) * 2 + 0 + (y - 1) * xTriStride;
-                vertexNormals[2] = list.IndexInRange(triIndex) ? list[triIndex].Vertex1 : null;
-
-                //toprightright
-                //triIndex = (x1 - 0) * 2 + 1 + (y1 - 1) * xTriStride;
-                //vertexNormals[0] = list.IndexInRange(triIndex) ? list[triIndex] : null;
-                //bottomleftleft
-                //triIndex = (x1 - 1) * 2 + 0 + (y1 - 0) * xTriStride;
-                //vertexNormals[0] = list.IndexInRange(triIndex) ? list[triIndex] : null;
-
-                //bottomleftright
-                triIndex = (x - 1) * 2 + 1 + (y - 0) * xTriStride;
-                vertexNormals[3] = list.IndexInRange(triIndex) ? list[triIndex].Vertex2 : null;
-                //bottomrightleft
-                triIndex = (x - 0) * 2 + 0 + (y - 0) * xTriStride;
-                vertexNormals[4] = list.IndexInRange(triIndex) ? list[triIndex].Vertex0 : null;
-                //bottomrightright
-                triIndex = (x - 0) * 2 + 1 + (y - 0) * xTriStride;
-                vertexNormals[5] = list.IndexInRange(triIndex) ? list[triIndex].Vertex0 : null;
-
-                normal = Vec3.Zero;
-                vertexNormals.ForEach(vtx =>
-                {
-                    if (vtx != null)
-                        normal += vtx._normal;
-                });
-                normal.Normalize();
-                vertexNormals.ForEach(vtx =>
-                {
-                    if (vtx != null)
-                        vtx._normal = normal;
-                });
-            }
+            int triCount = 0;
             for (int y = 0; y < yDim; )
             {
                 nextY = y + yInc;
@@ -180,25 +137,98 @@ namespace TheraEngine.Actors.Types
 
                     Vec3 triNorm1 = Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
                     Vec3 triNorm2 = Vec3.CalculateNormal(topLeft, bottomRight, topRight);
-
-                    list.Add(new VertexTriangle(
-                        new Vertex(topLeft, triNorm1, topLeftUV),
-                        new Vertex(bottomLeft, triNorm1, bottomLeftUV),
-                        new Vertex(bottomRight, triNorm1, bottomRightUV)));
-                    list.Add(new VertexTriangle(
-                        new Vertex(topLeft, triNorm2, topLeftUV),
-                        new Vertex(bottomRight, triNorm2, bottomRightUV),
-                        new Vertex(topRight, triNorm2, topRightUV)));
                     
-                    AverageNormals(x / xInc, y / yInc);
+                    Vec3 topLeftNorm = triNorm1 + triNorm2;
+                    Vec3 bottomLeftNorm = triNorm1;
+                    Vec3 bottomRightNorm = triNorm1 + triNorm2;
+                    Vec3 topRightNorm = triNorm1;
 
+                    if (triCount - 2 >= 0)
+                    {
+                        VertexTriangle left1 = list[triCount - 2];
+                        VertexTriangle left2 = list[triCount - 1];
+                        
+                        Vec3 prevBottomRightNorm = left1.Vertex2._normal + left2.Vertex1._normal;
+                        Vec3 prevTopRightNorm = left2.Vertex2._normal;
+
+                        topLeftNorm += prevTopRightNorm;
+                        bottomLeftNorm += prevBottomRightNorm;
+                    }
+                    if (triCount - xTriStride >= 0)
+                    {
+                        VertexTriangle top1 = list[triCount - xTriStride];
+                        VertexTriangle top2 = list[triCount - xTriStride + 1];
+                        
+                        Vec3 upperBottomLeftNorm = top1.Vertex1._normal;
+                        Vec3 upperBottomRightNorm = top1.Vertex2._normal + top2.Vertex1._normal;
+
+                        topLeftNorm += upperBottomLeftNorm;
+                        topRightNorm += upperBottomRightNorm;
+                    }
+                    if (triCount - xTriStride - 2 >= 0)
+                    {
+                        VertexTriangle topLeft1 = list[triCount - xTriStride - 2];
+                        VertexTriangle topLeft2 = list[triCount - xTriStride - 1];
+                        
+                        Vec3 upperLeftBottomRightNorm = topLeft1.Vertex2._normal + topLeft2.Vertex1._normal;
+
+                        topLeftNorm += upperLeftBottomRightNorm;
+                    }
+                    if (triCount - xTriStride + 2 >= 0)
+                    {
+                        VertexTriangle topRight1 = list[triCount - xTriStride + 2];
+                        //VertexTriangle topRight2 = list[triCount - xTriStride + 3];
+                        
+                        Vec3 upperRightBottomLeftNorm = topRight1.Vertex1._normal;
+
+                        topRightNorm += upperRightBottomLeftNorm;
+                    }
+
+                    topLeftNorm = topLeftNorm.Normalized();
+                    bottomLeftNorm = bottomLeftNorm.Normalized();
+                    bottomRightNorm = bottomRightNorm.Normalized();
+                    topRightNorm = topRightNorm.Normalized();
+
+                    //Update previous normals
+                    if (triCount - 2 >= 0)
+                    {
+                        VertexTriangle left1 = list[triCount - 2];
+                        VertexTriangle left2 = list[triCount - 1];
+                        
+                        left2.Vertex2._normal = topLeftNorm;
+                        left1.Vertex2._normal = left2.Vertex1._normal = bottomLeftNorm;
+                    }
+                    if (triCount - xTriStride >= 0)
+                    {
+                        VertexTriangle top1 = list[triCount - xTriStride];
+                        VertexTriangle top2 = list[triCount - xTriStride + 1];
+                        
+                        top1.Vertex1._normal = topLeftNorm;
+                        top1.Vertex2._normal = top2.Vertex1._normal = topRightNorm;
+                    }
+                    if (triCount - xTriStride - 2 >= 0)
+                    {
+                        VertexTriangle topLeft1 = list[triCount - xTriStride - 2];
+                        VertexTriangle topLeft2 = list[triCount - xTriStride - 1];
+
+                        topLeft1.Vertex2._normal = topLeft2.Vertex1._normal = topLeftNorm;
+                    }
+
+                    list.Add(new VertexTriangle(
+                        new Vertex(topLeft, topLeftNorm, topLeftUV),
+                        new Vertex(bottomLeft, bottomLeftNorm, bottomLeftUV),
+                        new Vertex(bottomRight, bottomRightNorm, bottomRightUV)));
+                    list.Add(new VertexTriangle(
+                        new Vertex(topLeft, topLeftNorm, topLeftUV),
+                        new Vertex(bottomRight, bottomRightNorm, bottomRightUV),
+                        new Vertex(topRight, topRightNorm, topRightUV)));
+                    triCount += 2;
+                    
                     x += xInc;
                 }
-                AverageNormals(nextX / xInc, y / yInc);
 
                 y += yInc;
             }
-            AverageNormals(nextX / xInc, nextY / yInc);
 
             PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), list);
             material.RenderParams.CullMode = Culling.Back;
@@ -206,7 +236,6 @@ namespace TheraEngine.Actors.Types
         }
         
         public override Shape CullingVolume => null;
-        public override void Render() => _mesh?.Render(WorldMatrix, WorldMatrix.GetRotationMatrix3());
         protected override TCollisionShape GetCollisionShape() => _heightFieldShape;
 
         protected internal override void OnHighlightChanged(bool highlighted)
@@ -214,6 +243,20 @@ namespace TheraEngine.Actors.Types
             base.OnHighlightChanged(highlighted);
 
             Editor.EditorState.RegisterHighlightedMaterial(_mesh.Material, highlighted, OwningScene);
+        }
+
+        private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
+        public override void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            _rc.Primitives = _mesh;
+            _rc.WorldMatrix = WorldMatrix;
+            _rc.NormalMatrix = WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
+            passes.Add(_rc, RenderInfo.RenderPass);
+        }
+
+        public override void Render()
+        {
+            throw new NotImplementedException();
         }
     }
 }

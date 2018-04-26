@@ -49,25 +49,20 @@ namespace TheraEngine.Components.Scene.Lights
         public PerspectiveCamera[] ShadowCameras { get; }
 
         [Browsable(false)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
         [Browsable(false)]
         public Shape CullingVolume => _cullingVolume;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-
-        public void Render()
-        {
-            Engine.Renderer.RenderPoint(Position, Color.LimeGreen, 20.0f);
-        }
-
+        
         private Sphere _cullingVolume;
         private MaterialFrameBuffer _shadowMap;
         private int _shadowResolution;
         private float _brightness = 1.0f;
 
-        public PointLightComponent() : this(100.0f, 1.0f, new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
-        public PointLightComponent(float radius, float brightness, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
-            : base(color, diffuseIntensity, ambientIntensity)
+        public PointLightComponent() : this(100.0f, 1.0f, new ColorF3(1.0f, 1.0f, 1.0f), 1.0f) { }
+        public PointLightComponent(float radius, float brightness, ColorF3 color, float diffuseIntensity) 
+            : base(color, diffuseIntensity)
         {
             _cullingVolume = new Sphere(radius);
             _brightness = brightness;
@@ -124,12 +119,10 @@ namespace TheraEngine.Components.Scene.Lights
         {
             string indexer = Uniform.PointLightsName + "[" + _lightIndex + "].";
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "Position", _cullingVolume.Center);
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", Radius);
             Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
-            //Engine.Renderer.Uniform(programBindingId, indexer + "FarPlaneDist", _farPlaneDist);
 
             _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount +
                 OwningScene.Lights.DirectionalLights.Count + OwningScene.Lights.SpotLights.Count + LightIndex,
@@ -190,7 +183,11 @@ namespace TheraEngine.Components.Scene.Lights
             mat.RenderParams.CullMode = Culling.None;
             return mat;
         }
-        public override void RenderShadowMap(Scene3D scene)
+        public override void UpdateShadowMap(BaseScene scene)
+        {
+            scene.Update(_passes, _cullingVolume, null, null, true);
+        }
+        public override void RenderShadowMap(BaseScene scene)
         {
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
             _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
@@ -198,8 +195,7 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
-                scene.CollectVisibleRenderables(_cullingVolume, true);
-                scene.Render(null, null, null);
+                scene.Render(_passes, null, null, null, null);
             }
             Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -227,6 +223,16 @@ namespace TheraEngine.Components.Scene.Lights
                 //    Engine.Scene.Remove(c);
             }
             base.OnSelectedChanged(selected);
+        }
+
+        public void AddRenderables(RenderPasses passes)
+        {
+            //passes.Add(Position, Color.LimeGreen, 20.0f);
+        }
+
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+
         }
 #endif
     }

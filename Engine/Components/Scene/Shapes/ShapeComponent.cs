@@ -5,6 +5,7 @@ using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
@@ -12,7 +13,12 @@ namespace TheraEngine.Components.Scene.Shapes
     {
         [Category("Rendering")]
         public RenderInfo3D RenderInfo { get; protected set; } 
-            = new RenderInfo3D(ERenderPass3D.OpaqueForward, null, false);
+            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+
+        public ShapeComponent()
+        {
+            _rc = new RenderCommandDebug3D(Render);
+        }
 
         [Browsable(false)]
         public abstract Shape CullingVolume { get; }
@@ -130,8 +136,7 @@ namespace TheraEngine.Components.Scene.Shapes
             get => _visibleToOwnerOnly;
             set => _visibleToOwnerOnly = value;
         }
-
-        public abstract void Render();
+        
         protected abstract TCollisionShape GetCollisionShape();
 
 #if EDITOR
@@ -145,6 +150,12 @@ namespace TheraEngine.Components.Scene.Shapes
                     OwningScene.Remove(this);
             }
             base.OnSelectedChanged(selected);
+        }
+        public abstract void Render();
+        private RenderCommandDebug3D _rc;
+        public virtual void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            passes.Add(_rc, RenderInfo.RenderPass);
         }
 #endif
     }

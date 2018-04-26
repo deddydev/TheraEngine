@@ -15,6 +15,7 @@ namespace TheraEngine.Rendering.UI
                 MinFilter = ETexMinFilter.LinearMipmapLinear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
+                Resizeable = false
             },
             new RenderingParameters(true, null)), true)
         {

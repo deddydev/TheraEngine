@@ -100,6 +100,7 @@ namespace TheraEditor.Windows.Forms
                     case ETextEditorMode.GLSL:
                         TextBox.Language = Language.Custom;
                         TextBox.CommentPrefix = "//";
+                        TextBox.DescriptionFile = Engine.EngineScriptsPath("GLSLHighlighting.xml");
                         break;
                 }
                 _updating = false;

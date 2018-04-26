@@ -273,7 +273,7 @@ in vec3 F0)
 {
 	PointLight light = PointLights[lightIndex];
 
-    vec3 L = light.Position - fragPosWS;
+	vec3 L = light.Position - fragPosWS;
 	float lightDist = length(L) / light.Brightness;
 	float radius = light.Radius / light.Brightness;
 	float attn = Attenuate(lightDist, radius);
@@ -354,47 +354,44 @@ in vec3 albedo,
 in vec3 rms,
 in float ao)
 {
-    const float MAX_REFLECTION_LOD = 4.0f;
+	const float MAX_REFLECTION_LOD = 4.0f;
 	
 	float roughness = rms.x;
 	float metallic = rms.y;
-    vec3 V = normalize(CameraPosition - fragPosWS);
+	vec3 V = normalize(CameraPosition - fragPosWS);
 	float NoV = max(dot(normal, V), 0.0f);
 	vec3 F0 = mix(vec3(0.04f), albedo, metallic);
-    vec3 Lo = vec3(0.0f);
+	vec3 Lo = vec3(0.0f);
 
-    int i = 0;
-    while (i < DirLightCount) Lo += CalcDirLight(
+	int i = 0;
+	while (i < DirLightCount) Lo += CalcDirLight(
 		i++, normal, V, fragPosWS, albedo, rms, F0);
 
-    i = 0;
-    while (i < PointLightCount) Lo += CalcPointLight(
+	i = 0;
+	while (i < PointLightCount) Lo += CalcPointLight(
 		i++, normal, V, fragPosWS, albedo, rms, F0);
 
-    i = 0;
-    while (i < SpotLightCount) Lo += CalcSpotLight(
+	i = 0;
+	while (i < SpotLightCount) Lo += CalcSpotLight(
 		i++, normal, V, fragPosWS, albedo, rms, F0);
 
 	//Calculate specular and diffuse components
 	//Preserve energy by making sure they add up to 1
-    vec3 kS = SpecF_SchlickRoughnessApprox(NoV, F0, roughness);
-    vec3 kD = (1.0f - kS) * (1.0f - metallic);
-    vec3 R = reflect(-V, normal);
-    
-    vec3 irradiance = texture(Texture6, normal).rgb;
-    vec3 diffuse = irradiance * albedo;
-    vec3 prefilteredColor = textureLod(Texture7, R, roughness * MAX_REFLECTION_LOD).rgb;    
-    vec2 brdf = texture(Texture5, vec2(NoV, roughness)).rg;
-    vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
+	vec3 kS = SpecF_SchlickRoughnessApprox(NoV, F0, roughness);
+	vec3 kD = (1.0f - kS) * (1.0f - metallic);
+	vec3 R = reflect(-V, normal);
+    	
+	vec3 irradiance = texture(Texture6, normal).rgb;
+	vec3 diffuse = irradiance * albedo;
+	vec3 prefilteredColor = textureLod(Texture7, R, roughness * MAX_REFLECTION_LOD).rgb;    
+	vec2 brdf = texture(Texture5, vec2(NoV, roughness)).rg;
+	vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
-    vec3 ambient = (kD * diffuse + specular) * ao;
-    
-    return ambient + Lo;
+	return (kD * diffuse + specular) * ao + Lo;
 }
 vec3 WorldPosFromDepth(in float depth, in vec2 uv)
 {
-	float z = depth * 2.0f - 1.0f;
-	vec4 clipSpacePosition = vec4(uv * 2.0f - 1.0f, z, 1.0f);
+	vec4 clipSpacePosition = vec4(vec3(uv, depth) * 2.0f - 1.0f, 1.0f);
 	vec4 viewSpacePosition = InvProjMatrix * clipSpacePosition;
 	viewSpacePosition /= viewSpacePosition.w;
 	return (CameraToWorldSpaceMatrix * viewSpacePosition).xyz;

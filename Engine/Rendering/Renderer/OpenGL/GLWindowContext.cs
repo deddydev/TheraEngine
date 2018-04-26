@@ -202,8 +202,11 @@ namespace TheraEngine.Rendering.OpenGL
             GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, ids, false);
             //Modify depth range so there is no loss of precision with scale and bias conversion
             GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.NegativeOneToOne);
+            //GL.DepthRange(0.0, 1.0);
             //GL.Enable(EnableCap.FramebufferSrgb);
             GL.Enable(EnableCap.StencilTest);
+            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
             //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
@@ -213,7 +216,7 @@ namespace TheraEngine.Rendering.OpenGL
             //GL.DepthFunc(DepthFunction.Less);
             //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
-            
+
             GL.UseProgram(0);
         }
         public unsafe override void BeginDraw()

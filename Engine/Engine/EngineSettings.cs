@@ -203,7 +203,7 @@ namespace TheraEngine
         public EngineSettings()
         {
             ShadingStyle3D = ShadingStyle.Deferred;
-            SkinOnGPU = false;
+            SkinOnGPU = true;
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
 #if DEBUG

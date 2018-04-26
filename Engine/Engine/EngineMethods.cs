@@ -228,9 +228,12 @@ namespace TheraEngine
             EventHandler<FrameEventArgs> update,
             Action swapBuffers)
         {
-            _timer.RenderFrame += render;
-            UpdateScenes += update;
-            _timer.SwapBuffers += swapBuffers;
+            if (render != null)
+                _timer.RenderFrame += render;
+            if (update != null)
+                UpdateScenes += update;
+            if (swapBuffers != null)
+                _timer.SwapBuffers += swapBuffers;
         }
         /// <summary>
         /// Registers the given function to be called every render tick.
@@ -240,9 +243,12 @@ namespace TheraEngine
             EventHandler<FrameEventArgs> update,
             Action swapBuffers)
         {
-            _timer.RenderFrame -= render;
-            UpdateScenes -= update;
-            _timer.SwapBuffers -= swapBuffers;
+            if (render != null)
+                _timer.RenderFrame -= render;
+            if (update != null)
+                UpdateScenes -= update;
+            if (swapBuffers != null)
+                _timer.SwapBuffers -= swapBuffers;
         }
         /// <summary>
         /// Registers a method to execute in a specific order every update tick.

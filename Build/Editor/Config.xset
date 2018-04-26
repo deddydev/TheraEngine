@@ -3,7 +3,7 @@
 	<EngineSettingsRef ReferencePath="">
 		<File>
 			<ShadingStyle3D>Deferred</ShadingStyle3D>
-			<SkinOnGPU>False</SkinOnGPU>
+			<SkinOnGPU>True</SkinOnGPU>
 			<UseIntegerWeightingIds>True</UseIntegerWeightingIds>
 			<AllowShaderPipelines>True</AllowShaderPipelines>
 			<RenderQuadtree>True</RenderQuadtree>

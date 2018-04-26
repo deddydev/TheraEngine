@@ -57,10 +57,5 @@ namespace TheraEngine.Components.Scene.Shapes
             //Engine.Scene.Remove(this);
             base.OnDespawned();
         }
-
-        public override void AddRenderables(RenderPasses passes, Camera camera)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

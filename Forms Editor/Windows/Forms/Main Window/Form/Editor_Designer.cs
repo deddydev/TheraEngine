@@ -483,8 +483,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void RenderTick(object sender, FrameEventArgs e)
         {
-            try { Invoke((Action)Redraw); } catch { }
-            //Redraw();
+            //try { Invoke((Action)Redraw); } catch { }
+            Redraw();
         }
 
         private void Redraw()

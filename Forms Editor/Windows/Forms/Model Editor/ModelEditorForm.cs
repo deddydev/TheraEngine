@@ -202,7 +202,7 @@ namespace TheraEditor.Windows.Forms
             MeshList.DisplayMeshes(stm);
             MaterialList.DisplayMaterials(stm);
 
-            BoundingBox aabb = stm.CalculateCullingAABB();
+            BoundingBox aabb = stm?.CalculateCullingAABB() ?? new BoundingBox();
             RenderForm1.AlignView(aabb);
         }
         public void SetModel(SkeletalModel skm)

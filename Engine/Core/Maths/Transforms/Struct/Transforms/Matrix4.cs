@@ -684,7 +684,7 @@ namespace System
         /// <param name="zNear">Distance to the near clip plane</param>
         /// <param name="zFar">Distance to the far clip plane</param>
         /// <param name="result">A projection matrix that transforms camera space to raster space</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Thrown under the following conditions:
         /// <list type="bullet">
         /// <item>zNear is negative or zero</item>

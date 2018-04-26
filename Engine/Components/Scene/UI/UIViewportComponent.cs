@@ -75,6 +75,7 @@ namespace TheraEngine.Rendering.UI
             _renderCommand.NormalMatrix = Matrix3.Identity;
             _renderCommand.Viewport = _viewport;
             _renderCommand.ZIndex = 0;
+            _renderCommand.Framebuffer = _fbo;
             passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
         public void PreRender(object sender, FrameEventArgs args)

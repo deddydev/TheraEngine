@@ -434,7 +434,6 @@ namespace TheraEngine.Rendering.Models
             if (Engine.Settings.AllowShaderPipelines)
             {
                 _pipeline.Bind();
-                //Engine.PrintLine("{0} bound", _pipeline.ToString());
                 _pipeline.Set(EProgramStageMask.FragmentShaderBit | EProgramStageMask.GeometryShaderBit, fragId = mat.Program.BindingId);
                 _pipeline.Set(EProgramStageMask.VertexShaderBit, vtxId = _vertexProgram.BindingId);
             }

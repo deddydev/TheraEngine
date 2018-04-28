@@ -18,7 +18,7 @@
             ReturnsInline = false;
         }
 
-        public bool Generate(out ShaderFile[] shaderFiles, out ShaderVar[] shaderVars) 
+        public bool Generate(out GLSLShaderFile[] shaderFiles, out ShaderVar[] shaderVars) 
             => MaterialGenerator.Generate(this, out shaderFiles, out shaderVars);
     }
 }

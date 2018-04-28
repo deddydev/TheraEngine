@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,14 +12,22 @@ namespace TheraEngine.Core.Files
     [FileDef("Text File")]
     public class TextFile : TFileObject, ITextSource
     {
+        public event Action TextChanged;
+
         [TSerialize(nameof(Text), IsXmlElementString = true)]
         private string _text = null;
         [TString(true, false, false, true)]
         public string Text
         {
             get => _text ?? LoadText();
-            set => _text = value;
+            set
+            {
+                _text = value;
+                OnTextChanged();
+            }
         }
+
+        protected void OnTextChanged() => TextChanged?.Invoke();
 
         public TextFile()
         {
@@ -42,7 +51,7 @@ namespace TheraEngine.Core.Files
         protected internal override void Read3rdParty(string filePath)
         {
             FilePath = filePath;
-            Text = null;
+            Text = LoadText();
         }
         protected internal override void Write3rdParty(string filePath)
         {

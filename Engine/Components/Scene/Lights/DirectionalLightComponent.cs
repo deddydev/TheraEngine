@@ -169,7 +169,7 @@ namespace TheraEngine.Components.Scene.Lights
             depthTex.MinFilter = ETexMinFilter.Nearest;
             depthTex.MagFilter = ETexMagFilter.Nearest;
             TexRef2D[] refs = new TexRef2D[] { depthTex };
-            ShaderFile shader = new ShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
+            GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, shader);
             mat.RenderParams.CullMode = Culling.None;
             return mat;

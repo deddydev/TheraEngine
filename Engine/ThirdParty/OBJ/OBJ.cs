@@ -82,7 +82,7 @@ namespace TheraEngine.Rendering.Models
 
         private static TMaterial CreateMaterial(ObjLoader.Loader.Data.Material objMat, string dirPath, bool forward)
         {
-            ShaderFile shader = GetOBJFragmentShader(forward);
+            GLSLShaderFile shader = GetOBJFragmentShader(forward);
             if (objMat == null)
             {
                 ShaderVar[] parameters = new ShaderVar[]
@@ -129,10 +129,10 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        private static ShaderFile GetOBJFragmentShader(bool forward)
+        private static GLSLShaderFile GetOBJFragmentShader(bool forward)
         {
             if (forward)
-                return new ShaderFile(EShaderMode.Fragment, @"
+                return new GLSLShaderFile(EShaderMode.Fragment, @"
 #version 450
 
 layout (location = 0) out vec4 OutColor;
@@ -162,7 +162,7 @@ void main()
     OutColor = vec4(diffuseColor * totalLight, 1.0);
 }");
             else
-                return new ShaderFile(EShaderMode.Fragment, @"
+                return new GLSLShaderFile(EShaderMode.Fragment, @"
 #version 450
 
 layout (location = 0) out vec4 AlbedoSpec;

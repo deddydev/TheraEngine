@@ -289,7 +289,7 @@ namespace TheraEngine.Components.Scene.Lights
             depthTex.MagFilter = ETexMagFilter.Nearest;
             //These are listed in order of appearance in the shader
             TexRef2D[] refs = new TexRef2D[] { depthTex };
-            ShaderFile shader = new ShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
+            GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("SpotLightShadowMat", new ShaderVar[0], refs, shader);
             mat.RenderParams.CullMode = Culling.None;
             return mat;

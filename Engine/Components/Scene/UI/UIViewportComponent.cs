@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Timers;
@@ -78,7 +75,7 @@ namespace TheraEngine.Rendering.UI
             _renderCommand.Framebuffer = _fbo;
             passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
-        public void PreRender(object sender, FrameEventArgs args)
+        public void Update(object sender, FrameEventArgs args)
         {
             if (!IsVisible)
                 return;
@@ -88,7 +85,7 @@ namespace TheraEngine.Rendering.UI
         }
         public override void OnSpawned()
         {
-            Engine.RegisterTick(null, PreRender, SwapBuffers);
+            Engine.RegisterTick(null, Update, SwapBuffers);
             base.OnSpawned();
         }
 
@@ -99,7 +96,7 @@ namespace TheraEngine.Rendering.UI
 
         public override void OnDespawned()
         {
-            Engine.UnregisterTick(null, PreRender, SwapBuffers);
+            Engine.UnregisterTick(null, Update, SwapBuffers);
             base.OnDespawned();
         }
     }

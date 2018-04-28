@@ -1,11 +1,10 @@
-﻿using System.Windows.Forms;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.IO;
+using System.Windows.Forms;
+using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
-using TheraEngine;
-using System.IO;
-using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
@@ -26,7 +25,7 @@ namespace TheraEditor.Wrappers
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
-            MaterialWrapper w = GetInstance<MaterialWrapper>();
+            PythonWrapper w = GetInstance<PythonWrapper>();
         }
         #endregion
         

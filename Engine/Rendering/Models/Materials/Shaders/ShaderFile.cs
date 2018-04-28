@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using TheraEngine.Core.Files;
 using TheraEngine.Files;
@@ -21,61 +22,59 @@ namespace TheraEngine.Rendering.Models.Materials
     [File3rdParty(
         "fs",   "vs",   "gs",   "tcs",  "tes",  "cs",
         "frag", "vert", "geom", "tesc", "tese", "comp")]
-    [FileExt("shader")]
     [FileDef("Shader")]
-    public class ShaderFile : TFileObject
+    public class GLSLShaderFile : TextFile
     {
-        /// <summary>
-        /// Called when one or more sources for this shader are changed.
-        /// </summary>
-        public event Action SourceChanged;
-
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public EShaderMode Type { get; set; }
-        public GlobalFileRef<TextFile>[] Sources => _sources;
-        
-        [TSerialize(nameof(Sources))]
-        private GlobalFileRef<TextFile>[] _sources;
 
         #region Constructors
-        public ShaderFile() { }
-        public ShaderFile(EShaderMode type)
+        public GLSLShaderFile() { }
+        public GLSLShaderFile(string path) : base(path) { }
+        public GLSLShaderFile(EShaderMode type)
         {
             Type = type;
         }
-        public ShaderFile(EShaderMode type, string source)
+        public GLSLShaderFile(EShaderMode type, string source)
         {
             Type = type;
-            _sources = new GlobalFileRef<TextFile>[] { TextFile.FromText(source) };
+            Text = source;
         }
-        public ShaderFile(EShaderMode type, params string[] sources)
+        protected internal override void Read3rdParty(string filePath)
         {
-            Type = type;
-            _sources = sources.Select(x => new GlobalFileRef<TextFile>(x)).ToArray();
-        }
-        public ShaderFile(EShaderMode type, params TextFile[] files)
-        {
-            Type = type;
-            _sources = files.Select(x => new GlobalFileRef<TextFile>(x)).ToArray();
-        }
-        public ShaderFile(EShaderMode type, params GlobalFileRef<TextFile>[] references)
-        {
-            Type = type;
-            _sources = references;
+            base.Read3rdParty(filePath);
+            string ext = Path.GetExtension(filePath).ToLowerInvariant();
+            if (ext.StartsWith("."))
+                ext = ext.Substring(1);
+            switch (ext)
+            {
+                default:
+                case "fs":
+                case "frag":
+                    Type = EShaderMode.Fragment;
+                    break;
+                case "vs":
+                case "vert":
+                    Type = EShaderMode.Vertex;
+                    break;
+                case "gs":
+                case "geom":
+                    Type = EShaderMode.Geometry;
+                    break;
+                case "tcs":
+                case "tesc":
+                    Type = EShaderMode.TessControl;
+                    break;
+                case "tes":
+                case "tese":
+                    Type = EShaderMode.TessEvaluation;
+                    break;
+                case "cs":
+                case "comp":
+                    Type = EShaderMode.Compute;
+                    break;
+            }
         }
         #endregion
-
-        public void SetSource(string source)
-        {
-            _sources = new GlobalFileRef<TextFile>[] { TextFile.FromText(source) };
-            OnSourceChanged();
-        }
-        public void SetSources(string[] sources)
-        {
-            _sources = sources.Select(x => new GlobalFileRef<TextFile>(TextFile.FromText(x))).ToArray();
-            OnSourceChanged();
-        }
-
-        protected void OnSourceChanged() => SourceChanged?.Invoke();
     }
 }

@@ -90,8 +90,8 @@ namespace TheraEngine.Actors.Types
                     FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
                 },
             };
-            ShaderFile fragShader = Engine.LoadEngineShader("SceneCaptureCube.fs", EShaderMode.Fragment);
-            ShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", EShaderMode.Geometry);
+            GLSLShaderFile fragShader = Engine.LoadEngineShader("SceneCaptureCube.fs", EShaderMode.Fragment);
+            GLSLShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", EShaderMode.Geometry);
             TMaterial mat = new TMaterial("SceneCaptureMat", new ShaderVar[0], refs, fragShader, geomShader);
             mat.RenderParams.CullMode = Culling.None;
             return mat;

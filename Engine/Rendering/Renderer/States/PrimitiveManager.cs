@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models
 
         private VertexBuffer _indexBuffer;
         private EDrawElementType _elementType;
-        internal ShaderFile _vertexShader;
+        internal GLSLShaderFile _vertexShader;
 
         //Skeleton information
         private Bone _singleBind;

@@ -71,7 +71,7 @@ vec3 HSVtoRGB(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0f, 1.0f), c.y);
 }";
         
-        public static ShaderFile LitTextureFragForward()
+        public static GLSLShaderFile LitTextureFragForward()
         {
             string source = @"
 #version 450
@@ -102,17 +102,17 @@ void main()
     OutColor = texColor * vec4(totalLight, 1.0);
 }
 ";
-            return new ShaderFile(EShaderMode.Fragment, source);
+            return new GLSLShaderFile(EShaderMode.Fragment, source);
         }
-        public static ShaderFile TextureFragDeferred()
+        public static GLSLShaderFile TextureFragDeferred()
             => Engine.LoadEngineShader(Path.Combine("Common", "TexturedDeferred.fs"), EShaderMode.Fragment);
-        public static ShaderFile LitColorFragDeferred()
+        public static GLSLShaderFile LitColorFragDeferred()
             => Engine.LoadEngineShader(Path.Combine("Common", "ColoredDeferred.fs"), EShaderMode.Fragment);
-        public static ShaderFile UnlitTextureFragForward()
+        public static GLSLShaderFile UnlitTextureFragForward()
              => Engine.LoadEngineShader(Path.Combine("Common", "UnlitTexturedForward.fs"), EShaderMode.Fragment);
-        public static ShaderFile UnlitColorFragForward()
+        public static GLSLShaderFile UnlitColorFragForward()
              => Engine.LoadEngineShader(Path.Combine("Common", "UnlitColoredForward.fs"), EShaderMode.Fragment);
-        public static ShaderFile LitColorFragForward()
+        public static GLSLShaderFile LitColorFragForward()
         {
             string source = @"
 #version 450
@@ -140,7 +140,7 @@ void main()
     OutColor = MatColor * vec4(totalLight, 1.0);
 }
 ";
-            return new ShaderFile(EShaderMode.Fragment, source);
+            return new GLSLShaderFile(EShaderMode.Fragment, source);
         }
         public static string LightingCalcForward()
             => LightingCalcBasic("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity", "1.0");
@@ -432,7 +432,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, floa
 }
 ";
         }
-        public static ShaderFile LightingSetupPhysicallyBased()
+        public static GLSLShaderFile LightingSetupPhysicallyBased()
         {
             string source = @"
 const float PI = 3.14159265359;
@@ -803,7 +803,7 @@ void main()
     color = vec4(result, 1);
 }
 ";
-            return new ShaderFile(EShaderMode.Fragment, source);
+            return new GLSLShaderFile(EShaderMode.Fragment, source);
         }
     }
 }

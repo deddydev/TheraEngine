@@ -63,8 +63,8 @@ namespace TheraEngine
 
         public static string EngineShadersPath(string fileName)
             => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
-        public static ShaderFile LoadEngineShader(string fileName, EShaderMode mode)
-            => new ShaderFile(mode, new TextFile(EngineShadersPath(fileName)));
+        public static GLSLShaderFile LoadEngineShader(string fileName, EShaderMode mode)
+            => new GLSLShaderFile(mode, new TextFile(EngineShadersPath(fileName)));
 
         public static string EngineScriptsPath(string fileName)
             => Path.Combine(Settings.ScriptsFolder ?? string.Empty, fileName);

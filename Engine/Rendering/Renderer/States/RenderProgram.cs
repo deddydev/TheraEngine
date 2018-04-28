@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering
         }
         public bool IsValid { get; private set; } = false;
 
-        public int AddShader(ShaderFile shader)
+        public int AddShader(GLSLShaderFile shader)
         {
             if (shader == null)
                 return -1;
@@ -50,18 +50,18 @@ namespace TheraEngine.Rendering
             Destroy();
         }
 
-        public void SetShaders(params ShaderFile[] shaders)
+        public void SetShaders(params GLSLShaderFile[] shaders)
             => Shaders = shaders.Select(x => new RenderShader(x)).ToList();
-        public void SetShaders(IEnumerable<ShaderFile> shaders)
+        public void SetShaders(IEnumerable<GLSLShaderFile> shaders)
             => Shaders = shaders.Select(x => new RenderShader(x)).ToList();
         public void SetShaders(IEnumerable<RenderShader> shaders)
             => Shaders = shaders.ToList();
         public void SetShaders(params RenderShader[] shaders)
             => Shaders = shaders.ToList();
 
-        public RenderProgram(params ShaderFile[] shaders)
+        public RenderProgram(params GLSLShaderFile[] shaders)
             : base(EObjectType.Program) => SetShaders(shaders);
-        public RenderProgram(IEnumerable<ShaderFile> shaders)
+        public RenderProgram(IEnumerable<GLSLShaderFile> shaders)
             : base(EObjectType.Program) => SetShaders(shaders);
         public RenderProgram(IEnumerable<RenderShader> shaders)
             : base(EObjectType.Program) => SetShaders(shaders);
@@ -104,19 +104,19 @@ namespace TheraEngine.Rendering
                 if (info.Contains("Vertex info"))
                 {
                     RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Vertex);
-                    string source = s.GetSource(true, true);
+                    string source = s.GetSource(true);
                     Engine.PrintLine(source);
                 }
                 else if (info.Contains("Geometry info"))
                 {
                     RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Geometry);
-                    string source = s.GetSource(true, true);
+                    string source = s.GetSource(true);
                     Engine.PrintLine(source);
                 }
                 else if (info.Contains("Fragment info"))
                 {
                     RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Fragment);
-                    string source = s.GetSource(true, true);
+                    string source = s.GetSource(true);
                     Engine.PrintLine(source);
                 }
                 return id;

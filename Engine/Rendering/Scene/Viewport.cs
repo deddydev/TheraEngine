@@ -713,9 +713,9 @@ namespace TheraEngine.Rendering
                     EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0);
                 
-                ShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EShaderMode.Fragment);
-                ShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EShaderMode.Fragment);
-                ShaderFile deferredShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLighting.fs"), EShaderMode.Fragment);
+                GLSLShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EShaderMode.Fragment);
+                GLSLShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EShaderMode.Fragment);
+                GLSLShaderFile deferredShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLighting.fs"), EShaderMode.Fragment);
                 
                 TexRef2D[] ssaoRefs = new TexRef2D[]
                 {
@@ -761,9 +761,9 @@ namespace TheraEngine.Rendering
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
                 EFramebufferAttachment.ColorAttachment0);
             
-            ShaderFile forwardShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "ForwardPass.fs"), EShaderMode.Fragment);
-            ShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
-            ShaderFile postProcessShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "PostProcess.fs"), EShaderMode.Fragment);
+            GLSLShaderFile forwardShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "ForwardPass.fs"), EShaderMode.Fragment);
+            GLSLShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
+            GLSLShaderFile postProcessShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "PostProcess.fs"), EShaderMode.Fragment);
 
             TexRef2D[] forwardRefs = new TexRef2D[]
             {

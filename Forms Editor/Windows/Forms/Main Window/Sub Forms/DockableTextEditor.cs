@@ -98,6 +98,8 @@ namespace TheraEditor.Windows.Forms
                     case ETextEditorMode.CSharp:
                         TextBox.Language = Language.CSharp;
                         TextBox.DescriptionFile = null;
+                        TextBox.AutoIndent = true;
+                        TextBox.AutoIndentChars = true;
                         break;
                     case ETextEditorMode.Lua:
                         TextBox.Language = Language.Lua;
@@ -109,6 +111,8 @@ namespace TheraEditor.Windows.Forms
                         TextBox.DescriptionFile = Engine.EngineScriptsPath("GLSLHighlighting.xml");
                         TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded_GLSL;
                         TextBox.AutoIndent = true;
+                        TextBox.AutoIndentChars = true;
+                        TextBox.AutoCompleteBrackets = true;
                         break;
                 }
                 _updating = false;
@@ -273,29 +277,29 @@ namespace TheraEditor.Windows.Forms
             StatusText.Text = string.Format("Ln {0} Col {1} {2}", 
                 r.Start.iLine + 1, r.Start.iChar + 1, insert ? "OVR" : "INS");
 
-            if (AutoCompleteOpen)
+            bool open = AutoCompleteOpen;
+            if (open)
             {
                 string prevAuto = _autoCompleteStr;
-                Range sel = TextBox.Selection;
-                Place start = sel.Start;
-                FindAutocompleteString(start);
+                FindAutocompleteString(TextBox.Selection.Start);
                 if (string.IsNullOrWhiteSpace(_autoCompleteStr) ||
                     !string.Equals(_autoCompleteStr, prevAuto))
                 {
-                    AutoCompleteOpen = false;
+                    open = false;
                 }
             }
-            else
+                        
+            Range sel = TextBox.Selection;
+            Place start = sel.Start;
+            FindAutocompleteString(start);
+            int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
+            if (selCount > 1)
             {
-                Range sel = TextBox.Selection;
-                Place start = sel.Start;
-                FindAutocompleteString(start);
-                int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
-                if (selCount > 1)
-                {
-                    AutoCompleteOpen = true;
-                }
+                open = true;
             }
+
+            if (AutoCompleteOpen != open)
+                AutoCompleteOpen = open;
         }
 
         private bool AutoCompleteOpen
@@ -340,8 +344,13 @@ namespace TheraEditor.Windows.Forms
         private void FindAutocompleteString(Place p)
         {
             int pos = TextBox.PlaceToPosition(p), start = pos, end = pos;
-            char c = TextBox.Text[pos];
-            bool onBadChar = char.IsWhiteSpace(c) || GLSLSyntax.Contains(c);
+            bool onBadChar = true;
+            char c;
+            if (pos < TextBox.Text.Length && pos >= 0)
+            {
+                c = TextBox.Text[pos];
+                onBadChar = char.IsWhiteSpace(c) || GLSLSyntax.Contains(c);
+            }
             for (; start > 0;)
             {
                 c = TextBox.Text[start - 1];

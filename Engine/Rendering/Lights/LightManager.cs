@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Rendering
 {

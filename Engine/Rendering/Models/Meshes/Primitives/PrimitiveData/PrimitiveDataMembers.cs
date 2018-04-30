@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering.Models
         /// TODO: move render state buffers to PrimitiveManager, but keep remapped buffer data here
         /// </summary>
         [Browsable(false)]
-        public List<VertexBuffer> Buffers { get => _buffers; set => _buffers = value; }
+        public List<DataBuffer> Buffers { get => _buffers; set => _buffers = value; }
         [Browsable(false)]
         public InfluenceDef[] Influences { get => _influences; set => _influences = value; }
         [Browsable(false)]
@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
         [TSerialize(nameof(Buffers), Order = 4)]
-        internal List<VertexBuffer> _buffers = null;
+        internal List<DataBuffer> _buffers = null;
 
         //Face data last
         //Face points have indices that refer to each buffer.

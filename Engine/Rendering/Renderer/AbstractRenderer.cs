@@ -387,11 +387,11 @@ namespace TheraEngine.Rendering
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
         }
         public abstract void RenderCurrentPrimitiveManager();
-        public abstract void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer);
-        public abstract void InitializeBuffer(VertexBuffer buffer);
-        public abstract void PushBufferData(VertexBuffer buffer);
-        public abstract void MapBufferData(VertexBuffer buffer);
-        public abstract void UnmapBufferData(VertexBuffer buffer);
+        public abstract void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer);
+        public abstract void InitializeBuffer(DataBuffer buffer);
+        public abstract void PushBufferData(DataBuffer buffer);
+        public abstract void MapBufferData(DataBuffer buffer);
+        public abstract void UnmapBufferData(DataBuffer buffer);
         
         public abstract void ClearColor(ColorF4 color);
         public abstract void Clear(EBufferClear mask);
@@ -511,11 +511,8 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Retrieves the uniform location from the program.
         /// </summary>
-        /// <param name="programBindingId"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
         protected abstract int OnGetUniformLocation(int programBindingId, string name);
-
+        public abstract void UniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding);
         //public void Uniform(string name, params IUniformable4Int[] p) => Uniform(GetUniformLocation(name), p);
         //public void Uniform(string name, params IUniformable4Float[] p) => Uniform(GetUniformLocation(name), p);
 
@@ -576,7 +573,7 @@ namespace TheraEngine.Rendering
         //TODO: cache GetUniformLocation results and don't call again.
         //Only call GetUniformLocation after a program is compiled
         //or after a shader variable name changes 
-        
+
         public void Uniform(int programBindingId, string name, params IUniformable4Int[] p)
             => Uniform(programBindingId, GetUniformLocation(programBindingId, name), p);
         public void Uniform(int programBindingId, string name, params IUniformable4Float[] p)
@@ -778,6 +775,9 @@ namespace TheraEngine.Rendering
         public abstract void TransformFeedbackVaryings(int program, string[] varNames);
 
         public abstract Bitmap GetScreenshot(Rectangle region, bool withTransparency);
+
+        public abstract void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type);
+        public abstract void EndConditionalRender();
 
         public abstract void BlendColor(ColorF4 color);
         public abstract void BlendFunc(EBlendingFactor srcFactor, EBlendingFactor destFactor);

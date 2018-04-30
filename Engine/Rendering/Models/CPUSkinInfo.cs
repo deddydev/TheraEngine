@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Models
             _baseBinormals,
             _baseTangents;
 
-        VertexBuffer
+        DataBuffer
             _positions,
             _normals,
             _binormals,

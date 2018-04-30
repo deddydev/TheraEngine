@@ -51,22 +51,22 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
         
-        public override void InitializeBuffer(VertexBuffer buffer)
+        public override void InitializeBuffer(DataBuffer buffer)
         {
             throw new NotImplementedException();
         }
 
-        public override void PushBufferData(VertexBuffer buffer)
+        public override void PushBufferData(DataBuffer buffer)
         {
             throw new NotImplementedException();
         }
 
-        public override void MapBufferData(VertexBuffer buffer)
+        public override void MapBufferData(DataBuffer buffer)
         {
             throw new NotImplementedException();
         }
 
-        public override void UnmapBufferData(VertexBuffer buffer)
+        public override void UnmapBufferData(DataBuffer buffer)
         {
             throw new NotImplementedException();
         }
@@ -311,7 +311,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer)
+        public override void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer)
         {
             throw new NotImplementedException();
         }
@@ -653,6 +653,21 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void GetTexImage<T>(ETexTarget texture2D, int smallestMipmapLevel, EPixelFormat pixelFormat, EPixelType pixelType, T[] rgba)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void UniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void EndConditionalRender()
         {
             throw new NotImplementedException();
         }

@@ -97,10 +97,18 @@ namespace TheraEngine.Rendering
                 source += _sourceCache + Environment.NewLine;
             return source;
         }
-        public bool Compile(out string info)
+        public bool Compile(out string info, bool printLogInfo = true)
         {
             Engine.Renderer.SetShaderMode(File.Type);
             IsCompiled = Engine.Renderer.CompileShader(BindingId, out info);
+            if (printLogInfo)
+            {
+                if (!string.IsNullOrEmpty(info))
+                    Engine.LogWarning(info);
+                else if (!IsCompiled)
+                    Engine.LogWarning("Unable to compile shader, but no error was returned.");
+               
+            }
             Compiled?.Invoke(IsCompiled, info);
             return IsCompiled;
         }

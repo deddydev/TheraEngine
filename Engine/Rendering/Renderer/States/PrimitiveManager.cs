@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering.Models
         ThreadSafeHashSet<int> ModifiedBoneIndices { get; }
         ThreadSafeHashSet<int> ModifiedVertexIndices { get; }
         PrimitiveData Data { get; set; }
-        VertexBuffer IndexBuffer { get; }
+        DataBuffer IndexBuffer { get; }
         TMaterial Material { get; set; }
         EDrawElementType ElementType { get; }
 
@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Models
         private RenderProgram _vertexFragProgram;
         private VertexShaderDesc _bufferInfo; //The buffers utilized by the vertex buffers - used to generate vertex shader
 
-        private VertexBuffer _indexBuffer;
+        private DataBuffer _indexBuffer;
         private EDrawElementType _elementType;
         internal GLSLShaderFile _vertexShader;
 
@@ -96,7 +96,7 @@ namespace TheraEngine.Rendering.Models
                     _data.BufferInfoChanged += _data_BufferInfoChanged;
                     _data_BufferInfoChanged();
                     
-                    _indexBuffer = new VertexBuffer("FaceIndices", EBufferTarget.DrawIndices, true);
+                    _indexBuffer = new DataBuffer("FaceIndices", EBufferTarget.DrawIndices, true);
                     //TODO: primitive restart will use MaxValue for restart id
                     if (_data._facePoints.Count < byte.MaxValue)
                     {
@@ -164,7 +164,7 @@ namespace TheraEngine.Rendering.Models
         public ThreadSafeHashSet<int> ModifiedVertexIndices => _modifiedVertexIndices;
         public ThreadSafeHashSet<int> ModifiedBoneIndices => _modifiedBoneIndices;
 
-        public VertexBuffer IndexBuffer => _indexBuffer;
+        public DataBuffer IndexBuffer => _indexBuffer;
         public EDrawElementType ElementType => _elementType;
 
         public RenderProgram VertexFragProgram => _vertexFragProgram;
@@ -402,19 +402,16 @@ namespace TheraEngine.Rendering.Models
         /// </summary>
         public T2 Parameter<T2>(string name) where T2 : ShaderVar
             => Material.Parameters.FirstOrDefault(x => x.Name == name) as T2;
-        public void Render()
-            => Render(Matrix4.Identity, Matrix3.Identity);
-        
-        
         private Matrix4 _lastRenderedModelMatrix = Matrix4.Identity;
 
         internal TMaterial GetRenderMaterial(TMaterial localOverrideMat)
             => Engine.Renderer.MaterialOverride ?? localOverrideMat ?? Material;
 
-        public unsafe void Render(Matrix4 modelMatrix) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3());
-        public unsafe void Render(Matrix4 modelMatrix, TMaterial material) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), material);
-        public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix) => Render(modelMatrix, normalMatrix, null);
-        public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material)
+        public void Render() => Render(Matrix4.Identity, Matrix3.Identity);
+        public void Render(Matrix4 modelMatrix) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3());
+        public void Render(Matrix4 modelMatrix, TMaterial material) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), material);
+        public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix) => Render(modelMatrix, normalMatrix, null);
+        public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material)
         {
             if (_data == null)
                 return;

@@ -169,7 +169,7 @@ namespace TheraEditor.Core
                             _dragEnter.Invoke(ctrl, new object[] { dragArgs });
                             _current = dragArgs.Effect;
 
-                            Engine.PrintLine("[Drag/Drop] Hovering over " + ctrl.GetType().GetFriendlyName());
+                            //Engine.PrintLine("[Drag/Drop] Hovering over " + ctrl.GetType().GetFriendlyName());
                         }
                         else
                             CheckNullTarget();
@@ -217,7 +217,7 @@ namespace TheraEditor.Core
                 return;
 
             Application.RemoveMessageFilter(this);
-            Engine.PrintLine("[Drag/Drop] Stopped filtering drag/drop.");
+            //Engine.PrintLine("[Drag/Drop] Stopped filtering drag/drop.");
             Instance = null;
             Done?.Invoke(this, EventArgs.Empty);
         }
@@ -252,7 +252,7 @@ namespace TheraEditor.Core
         public void BeginFiltering()
         {
             Application.AddMessageFilter(this);
-            Engine.PrintLine("[Drag/Drop] Now filtering drag/drop.");
+            //Engine.PrintLine("[Drag/Drop] Now filtering drag/drop.");
         }
     }
 }

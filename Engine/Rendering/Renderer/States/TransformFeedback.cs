@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering
         string[] _names;
         int _bindingLocation;
 
-        private VertexBuffer _feedbackBuffer;
+        private DataBuffer _feedbackBuffer;
 
         protected override int CreateObject()
         {

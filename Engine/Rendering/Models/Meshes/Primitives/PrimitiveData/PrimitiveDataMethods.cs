@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Models
         }
         public void GenerateBinormalTangentBuffers(int positionIndex, int normalIndex, int uvIndex, bool addBinormals, bool addTangents)
         {
-            VertexBuffer[] pBuffs = GetAllBuffersOfType(BufferType.Position);
+            DataBuffer[] pBuffs = GetAllBuffersOfType(BufferType.Position);
             if (pBuffs.Length == 0)
             {
                 Engine.LogWarning("No position buffers found.");
@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.Models
             //    Engine.LogWarning("Normal index out of range of available normal buffers.");
             //    return;
             //}
-            VertexBuffer[] tBuffs = GetAllBuffersOfType(BufferType.TexCoord);
+            DataBuffer[] tBuffs = GetAllBuffersOfType(BufferType.TexCoord);
             if (tBuffs.Length == 0)
             {
                 Engine.LogWarning("No texcoord buffers found.");
@@ -58,9 +58,9 @@ namespace TheraEngine.Rendering.Models
             //Vec3 n0, n1, n2;
             Vec2 uv1, uv2, uv3;
 
-            VertexBuffer pBuff = pBuffs[positionIndex];
+            DataBuffer pBuff = pBuffs[positionIndex];
             //VertexBuffer nBuff = pBuffs[normalIndex];
-            VertexBuffer tBuff = pBuffs[uvIndex];
+            DataBuffer tBuff = pBuffs[uvIndex];
             int pointCount = _triangles.Count * 3;
             List<Vec3> binormals = new List<Vec3>(pointCount);
             List<Vec3> tangents = new List<Vec3>(pointCount);
@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         #region Buffers
-        public VertexBuffer this[BufferType type]
+        public DataBuffer this[BufferType type]
         {
             get => _buffers.FirstOrDefault(x => x.BufferType == type);
             set
@@ -170,7 +170,7 @@ namespace TheraEngine.Rendering.Models
                 }
             }
         }
-        public VertexBuffer this[string name]
+        public DataBuffer this[string name]
         {
             get => _buffers.FirstOrDefault(x => x.Name == name);
             set
@@ -188,7 +188,7 @@ namespace TheraEngine.Rendering.Models
                 }
             }
         }
-        public VertexBuffer this[int index]
+        public DataBuffer this[int index]
         {
             get
             {
@@ -204,12 +204,12 @@ namespace TheraEngine.Rendering.Models
                     throw new IndexOutOfRangeException();
             }
         }
-        public VertexBuffer[] GetAllBuffersOfType(BufferType type)
+        public DataBuffer[] GetAllBuffersOfType(BufferType type)
             => _buffers.Where(x => x.BufferType == type).ToArray();
         public int[] GenerateBuffers(int vaoId)
         {
             List<int> bindingIds = new List<int>();
-            foreach (VertexBuffer b in _buffers)
+            foreach (DataBuffer b in _buffers)
             {
                 if (b == null)
                 {
@@ -221,10 +221,10 @@ namespace TheraEngine.Rendering.Models
             }
             return bindingIds.ToArray();
         }
-        public VertexBuffer FindBuffer(string name)
+        public DataBuffer FindBuffer(string name)
         {
             if (_buffers != null)
-                foreach (VertexBuffer b in _buffers)
+                foreach (DataBuffer b in _buffers)
                     if (b.Name == name)
                         return b;
             return null;
@@ -237,10 +237,10 @@ namespace TheraEngine.Rendering.Models
             EBufferTarget target = EBufferTarget.DataArray) where T : struct
         {
             if (_buffers == null)
-                _buffers = new List<VertexBuffer>();
+                _buffers = new List<DataBuffer>();
 
             int bufferIndex = _buffers.Count;
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target, integral);
+            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral);
             if (remap)
             {
                 Remapper remapper = buffer.SetDataNumeric(bufferData, true);
@@ -268,7 +268,7 @@ namespace TheraEngine.Rendering.Models
             if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
 
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target, integral);
+            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral);
             if (remap)
             {
                 Remapper remapper = buffer.SetDataNumeric(bufferData, true);
@@ -283,7 +283,7 @@ namespace TheraEngine.Rendering.Models
             }
             _buffers[bufferIndex] = buffer;
         }
-        public VertexBuffer AddBuffer<T>(
+        public DataBuffer AddBuffer<T>(
             IList<T> bufferData,
             VertexAttribInfo info,
             bool remap = false,
@@ -291,10 +291,10 @@ namespace TheraEngine.Rendering.Models
             EBufferTarget target = EBufferTarget.DataArray) where T : IBufferable
         {
             if (_buffers == null)
-                _buffers = new List<VertexBuffer>();
+                _buffers = new List<DataBuffer>();
 
             int bufferIndex = _buffers.Count;
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target, integral);
+            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral);
             if (remap)
             {
                 Remapper remapper = buffer.SetData(bufferData, true);
@@ -310,7 +310,7 @@ namespace TheraEngine.Rendering.Models
             _buffers.Add(buffer);
             return buffer;
         }
-        public VertexBuffer ReplaceBuffer<T>(
+        public DataBuffer ReplaceBuffer<T>(
             IList<T> bufferData,
             int bufferIndex,
             VertexAttribInfo info,
@@ -323,7 +323,7 @@ namespace TheraEngine.Rendering.Models
             if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
 
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target, integral);
+            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral);
             if (remap)
             {
                 Remapper remapper = buffer.SetData(bufferData, true);

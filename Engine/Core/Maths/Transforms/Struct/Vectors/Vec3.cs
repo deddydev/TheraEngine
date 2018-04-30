@@ -31,7 +31,7 @@ namespace System
         [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
         [Browsable(false)]
-        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Float;
         [Browsable(false)]
         public int ComponentCount => 3;
         bool IBufferable.Normalize => false;

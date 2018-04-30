@@ -109,7 +109,7 @@ namespace TheraEngine.Core.Maths.Transforms
         [Browsable(false)]
         public VoidPtr Address => _data.Address;
         [Browsable(false)]
-        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Float;
         [Browsable(false)]
         public int ComponentCount => 3;
         [Browsable(false)]

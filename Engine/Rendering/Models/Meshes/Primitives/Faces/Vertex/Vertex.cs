@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Models
 {
     public class Vertex
     {
-        public Vertex(FacePoint facepoint, List<VertexBuffer> buffers)
+        public Vertex(FacePoint facepoint, List<DataBuffer> buffers)
         {
             GetData(facepoint, buffers);
         }
@@ -66,12 +66,12 @@ namespace TheraEngine.Rendering.Models
         public Vertex(Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color)
             : this(position, null, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
 
-        public void SetData(FacePoint facepoint, List<VertexBuffer> buffers)
+        public void SetData(FacePoint facepoint, List<DataBuffer> buffers)
         {
             if (facepoint.BufferIndices == null) return;
             for (int i = 0; i < facepoint.BufferIndices.Count; ++i)
             {
-                VertexBuffer b = buffers[i];
+                DataBuffer b = buffers[i];
                 int index = facepoint.BufferIndices[i];
                 BufferType type = b.BufferType;
                 switch (type)
@@ -97,14 +97,14 @@ namespace TheraEngine.Rendering.Models
                 }
             }
         }
-        public void GetData(FacePoint facepoint, List<VertexBuffer> buffers)
+        public void GetData(FacePoint facepoint, List<DataBuffer> buffers)
         {
             if (facepoint.BufferIndices == null)
                 return;
 
             for (int i = 0; i < facepoint.BufferIndices.Count; ++i)
             {
-                VertexBuffer b = buffers[i];
+                DataBuffer b = buffers[i];
                 int index = facepoint.BufferIndices[i];
                 BufferType type = b.BufferType;
                 switch (type)

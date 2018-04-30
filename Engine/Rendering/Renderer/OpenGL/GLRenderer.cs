@@ -260,19 +260,8 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.CompileShader(bindingId);
             GL.GetShader(bindingId, ShaderParameter.CompileStatus, out int status);
-
-            bool success = status != 0;
-            if (!success)
-            {
-                GL.GetShaderInfoLog(bindingId, out info);
-                if (string.IsNullOrEmpty(info))
-                    Engine.LogWarning("Unable to compile shader, but no error was returned.");
-                else
-                    Engine.LogWarning(info);
-            }
-            else
-                info = null;
-            return success;
+            GL.GetShaderInfoLog(bindingId, out info);
+            return status != 0;
         }
 
         [MinGLVersion(EOpenGLVersion.Ver_4_1)]
@@ -713,6 +702,13 @@ namespace TheraEngine.Rendering.OpenGL
 
         #region Framebuffers     
 
+        public override void CheckFrameBufferErrors()
+        {
+            FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (c != FramebufferErrorCode.FramebufferComplete)
+                throw new Exception("Problem compiling framebuffer: " + c.ToString());
+        }
+
         public override void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
             => GL.NamedFramebufferTexture(frameBufferBindingId, (FramebufferAttachment)(int)attachment, textureBindingId, mipLevel);
         public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel)
@@ -829,13 +825,6 @@ namespace TheraEngine.Rendering.OpenGL
             //return (float)(val >> 8) / UInt24.MaxValue;
         }
 
-        public override void TextureView(int bindingId, ETexTarget target, int origTextureId, EPixelInternalFormat fmt, int minLevel, int numLevels, int minLayer, int numLayers)
-        {
-            TextureTarget tt = (TextureTarget)target.ConvertByName(typeof(TextureTarget));
-            PixelInternalFormat pit = (PixelInternalFormat)fmt.ConvertByName(typeof(PixelInternalFormat));
-            GL.TextureView(bindingId, tt, origTextureId, pit, minLevel, numLevels, minLayer, numLayers);
-        }
-
         protected override void SetRenderArea(BoundingRectangle region)
             => GL.Viewport(region.IntX, region.IntY, region.IntWidth, region.IntHeight);
         public override void CropRenderArea(BoundingRectangle region)
@@ -882,7 +871,7 @@ namespace TheraEngine.Rendering.OpenGL
                 }
             }
         }
-        public override void MapBufferData(VertexBuffer buffer)
+        public override void MapBufferData(DataBuffer buffer)
         {
             //GL.BufferStorage(_target, _data.Length, _data.Address,
             //    BufferStorageFlags.MapWriteBit |
@@ -912,12 +901,12 @@ namespace TheraEngine.Rendering.OpenGL
                 BufferAccessMask.MapWriteBit), length);
             //buffer._data = new DataSource(GL.MapNamedBuffer(buffer.BindingId, BufferAccess.ReadWrite), length);
         }
-        public override void PushBufferData(VertexBuffer buffer)
+        public override void PushBufferData(DataBuffer buffer)
         {
             //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
             GL.NamedBufferData(buffer.BindingId, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer._usage);
         }
-        public override void InitializeBuffer(VertexBuffer buffer)
+        public override void InitializeBuffer(DataBuffer buffer)
         {
             int glVer = 2;
 
@@ -937,7 +926,7 @@ namespace TheraEngine.Rendering.OpenGL
                     else
                         GL.VertexAttribPointer(index, componentCount, VertexAttribPointerType.Byte + componentType, buffer._normalize, 0, 0);
 
-                    if (VertexBuffer.MapData)
+                    if (DataBuffer.MapData)
                         MapBufferData(buffer);
                     else
                         PushBufferData(buffer);
@@ -953,7 +942,7 @@ namespace TheraEngine.Rendering.OpenGL
                     else
                         GL.VertexAttribFormat(index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
 
-                    if (VertexBuffer.MapData)
+                    if (DataBuffer.MapData)
                         MapBufferData(buffer);
                     else
                         PushBufferData(buffer);
@@ -972,7 +961,7 @@ namespace TheraEngine.Rendering.OpenGL
                         else
                             GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
                         
-                        if (VertexBuffer.MapData)
+                        if (DataBuffer.MapData)
                             MapBufferData(buffer);
                         else
                             PushBufferData(buffer);
@@ -982,7 +971,7 @@ namespace TheraEngine.Rendering.OpenGL
                     }
                     else
                     {
-                        if (VertexBuffer.MapData)
+                        if (DataBuffer.MapData)
                             MapBufferData(buffer);
                         else
                             PushBufferData(buffer);
@@ -994,7 +983,7 @@ namespace TheraEngine.Rendering.OpenGL
         /// <summary>
         /// Requires 4.5 or ARB_direct_state_access
         /// </summary>
-        public override void UnmapBufferData(VertexBuffer buffer)
+        public override void UnmapBufferData(DataBuffer buffer)
         {
             //GL.UnmapBuffer(buffer._target);
             GL.UnmapNamedBuffer(buffer.BindingId);
@@ -1010,7 +999,7 @@ namespace TheraEngine.Rendering.OpenGL
         /// <summary>
         /// Requires 4.5 or ARB_direct_state_access
         /// </summary>
-        public override void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer)
+        public override void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer)
         {
             if (indexBuffer._target != EBufferTarget.DrawIndices)
                 throw new Exception("IndexBuffer needs target type of " + EBufferTarget.DrawIndices.ToString() + ".");
@@ -1032,28 +1021,29 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.DrawElements(type, count, elemType, 0);
             }
         }
+        public override void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type)
+        {
+            GL.BeginConditionalRender(queryObjectBindingId, (ConditionalRenderType)(int)type);
+        }
+        public override void EndConditionalRender()
+        {
+            GL.EndConditionalRender();
+        }
+        public override void UniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding)
+        {
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 0, 0);
+            int location = GL.GetUniformBlockIndex(program, "");
+            GL.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+        }
         #endregion
 
-        public override Bitmap GetScreenshot(Rectangle region, bool withTransparency)
+        #region Textures
+        public override void TextureView(int bindingId, ETexTarget target, int origTextureId, EPixelInternalFormat fmt, int minLevel, int numLevels, int minLayer, int numLayers)
         {
-            GL.ReadBuffer(ReadBufferMode.Front);
-            Bitmap bmp = new Bitmap(region.Width, region.Height);
-            BitmapData data;
-            if (withTransparency)
-            {
-                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                GL.ReadPixels(region.X, region.Y, region.Width, region.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-            }
-            else
-            {
-                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-                GL.ReadPixels(region.X, region.Y, region.Width, region.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgr, PixelType.UnsignedByte, data.Scan0);
-            }
-            bmp.UnlockBits(data);
-            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            return bmp;
+            TextureTarget tt = (TextureTarget)target.ConvertByName(typeof(TextureTarget));
+            PixelInternalFormat pit = (PixelInternalFormat)fmt.ConvertByName(typeof(PixelInternalFormat));
+            GL.TextureView(bindingId, tt, origTextureId, pit, minLevel, numLevels, minLayer, numLayers);
         }
-
         public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData)
         {
             GL.TexParameter(
@@ -1061,7 +1051,6 @@ namespace TheraEngine.Rendering.OpenGL
                 (TextureParameterName)texParam.ConvertByName(typeof(TextureParameterName)),
                 paramData);
         }
-
         public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData)
         {
             GL.TexParameter(
@@ -1157,6 +1146,39 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void BindTexture(ETexTarget texTarget, int bindingId)
             => GL.BindTexture((TextureTarget)texTarget.ConvertByName(typeof(TextureTarget)), bindingId);
+        public override void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor)
+        {
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
+            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
+            GL.ClearTexImage(bindingId, level, pf, pt, clearColor);
+        }
+        public override void GenerateMipmap(ETexTarget target)
+            => GL.GenerateMipmap((GenerateMipmapTarget)(int)target);
+        public override void GenerateMipmap(int textureBindingId)
+            => GL.GenerateTextureMipmap(textureBindingId);
+        public override void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
+        {
+            GL.TextureParameterI(bindingId, All.TextureBaseLevel, ref largestMipmapLevel);
+            GL.TextureParameterI(bindingId, All.TextureMaxLevel, ref smallestAllowedMipmapLevel);
+            GL.TextureParameterI(bindingId, All.TextureMinLod, ref minLOD);
+            GL.TextureParameterI(bindingId, All.TextureMaxLod, ref maxLOD);
+        }
+        public override void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
+        {
+            TextureTarget t = (TextureTarget)(int)target;
+            GL.TexParameterI(t, TextureParameterName.TextureBaseLevel, ref largestMipmapLevel);
+            GL.TexParameterI(t, TextureParameterName.TextureMaxLevel, ref smallestAllowedMipmapLevel);
+            GL.TexParameterI(t, TextureParameterName.TextureMinLod, ref minLOD);
+            GL.TexParameterI(t, TextureParameterName.TextureMaxLod, ref maxLOD);
+        }
+        public override void GetTexImage<T>(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels)
+        {
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)(int)pixelFormat;
+            PixelType pt = (PixelType)(int)pixelType;
+            TextureTarget tt = (TextureTarget)(int)target;
+            GL.GetTexImage(tt, level, pf, pt, pixels);
+        }
+        #endregion
 
         #region Blending Methods
         public override void BlendColor(ColorF4 color)
@@ -1202,49 +1224,28 @@ namespace TheraEngine.Rendering.OpenGL
         }
         #endregion
 
-        public override void CheckFrameBufferErrors()
+        public override Bitmap GetScreenshot(Rectangle region, bool withTransparency)
         {
-            FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (c != FramebufferErrorCode.FramebufferComplete)
-                throw new Exception("Problem compiling framebuffer: " + c.ToString());
-        }
-
-        public override void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor)
-        {
-            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.ConvertByName(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
-            PixelType pt = (PixelType)type.ConvertByName(typeof(PixelType));
-            GL.ClearTexImage(bindingId, level, pf, pt, clearColor);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 0);
+            GL.ReadBuffer(ReadBufferMode.Front);
+            Bitmap bmp = new Bitmap(region.Width, region.Height);
+            BitmapData data;
+            if (withTransparency)
+            {
+                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                GL.ReadPixels(region.X, region.Y, region.Width, region.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            }
+            else
+            {
+                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                GL.ReadPixels(region.X, region.Y, region.Width, region.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgr, PixelType.UnsignedByte, data.Scan0);
+            }
+            bmp.UnlockBits(data);
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            return bmp;
         }
 
         public override void ColorMask(bool r, bool g, bool b, bool a)
             => GL.ColorMask(r, g, b, a);
-
-        public override void GenerateMipmap(ETexTarget target)
-            => GL.GenerateMipmap((GenerateMipmapTarget)(int)target);
-        public override void GenerateMipmap(int textureBindingId)
-            => GL.GenerateTextureMipmap(textureBindingId);
-        public override void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
-        {
-            GL.TextureParameterI(bindingId, All.TextureBaseLevel, ref largestMipmapLevel);
-            GL.TextureParameterI(bindingId, All.TextureMaxLevel, ref smallestAllowedMipmapLevel);
-            GL.TextureParameterI(bindingId, All.TextureMinLod, ref minLOD);
-            GL.TextureParameterI(bindingId, All.TextureMaxLod, ref maxLOD);
-        }
-        public override void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
-        {
-            TextureTarget t = (TextureTarget)(int)target;
-            GL.TexParameterI(t, TextureParameterName.TextureBaseLevel, ref largestMipmapLevel);
-            GL.TexParameterI(t, TextureParameterName.TextureMaxLevel, ref smallestAllowedMipmapLevel);
-            GL.TexParameterI(t, TextureParameterName.TextureMinLod, ref minLOD);
-            GL.TexParameterI(t, TextureParameterName.TextureMaxLod, ref maxLOD);
-        }
-
-        public override void GetTexImage<T>(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels)
-        {
-            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)(int)pixelFormat;
-            PixelType pt = (PixelType)(int)pixelType;
-            TextureTarget tt = (TextureTarget)(int)target;
-            GL.GetTexImage(tt, level, pf, pt, pixels);
-        }
     }
 }

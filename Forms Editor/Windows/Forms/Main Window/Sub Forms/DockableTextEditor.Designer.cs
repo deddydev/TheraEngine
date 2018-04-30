@@ -81,28 +81,28 @@
             // btnOpen
             // 
             this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(172, 26);
+            this.btnOpen.Size = new System.Drawing.Size(181, 26);
             this.btnOpen.Text = "Open";
             this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
             // 
             // btnSave
             // 
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(172, 26);
+            this.btnSave.Size = new System.Drawing.Size(181, 26);
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click_1);
             // 
             // btnSaveAs
             // 
             this.btnSaveAs.Name = "btnSaveAs";
-            this.btnSaveAs.Size = new System.Drawing.Size(172, 26);
+            this.btnSaveAs.Size = new System.Drawing.Size(181, 26);
             this.btnSaveAs.Text = "Save As";
             this.btnSaveAs.Click += new System.EventHandler(this.btnSaveAs_Click);
             // 
             // btnSelectPaths
             // 
             this.btnSelectPaths.Name = "btnSelectPaths";
-            this.btnSelectPaths.Size = new System.Drawing.Size(172, 26);
+            this.btnSelectPaths.Size = new System.Drawing.Size(181, 26);
             this.btnSelectPaths.Text = "Select Path(s)";
             this.btnSelectPaths.Click += new System.EventHandler(this.btnSelectPaths_Click);
             // 
@@ -113,7 +113,7 @@
             this.cboMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cboMode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.cboMode.Name = "cboMode";
-            this.cboMode.Size = new System.Drawing.Size(121, 28);
+            this.cboMode.Size = new System.Drawing.Size(100, 28);
             this.cboMode.SelectedIndexChanged += new System.EventHandler(this.cboMode_SelectedIndexChanged);
             // 
             // btnFont

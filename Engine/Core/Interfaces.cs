@@ -109,7 +109,7 @@ namespace TheraEngine
     }
     public interface IBufferable
     {
-        VertexBuffer.ComponentType ComponentType { get; }
+        DataBuffer.ComponentType ComponentType { get; }
         int ComponentCount { get; }
         bool Normalize { get; }
         void Write(VoidPtr address);

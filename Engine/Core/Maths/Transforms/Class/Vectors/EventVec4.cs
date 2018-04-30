@@ -70,7 +70,7 @@ namespace System
 
         public float* Data => _data.Data;
         public VoidPtr Address => _data.Address;
-        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Float;
         public int ComponentCount => 4;
         bool IBufferable.Normalize => false;
         public void Write(VoidPtr address)

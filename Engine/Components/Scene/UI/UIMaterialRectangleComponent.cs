@@ -66,7 +66,7 @@ namespace TheraEngine.Rendering.UI
         {
             //013312
             Vec2 r = base.Resize(parentBounds);
-            VertexBuffer buffer = _quad.Data[0];
+            DataBuffer buffer = _quad.Data[0];
             Vec3* data = (Vec3*)buffer.Address;
             data[0] = new Vec3(0.0f);
             data[1] = data[4] = new Vec3(Width, 0.0f, 0.0f);

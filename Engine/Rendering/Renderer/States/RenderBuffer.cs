@@ -6,7 +6,11 @@
         public void Bind() => Engine.Renderer.BindRenderBuffer(BindingId);
         public void Unbind() => Engine.Renderer.BindRenderBuffer(NullBindingId);
         public void SetStorage(ERenderBufferStorage type, int width, int height)
-            => Engine.Renderer.RenderbufferStorage(type, width, height);
+        {
+            Bind();
+            Engine.Renderer.RenderbufferStorage(type, width, height);
+            Unbind();
+        }
         public void AttachToFBO(FrameBuffer fbo, EFramebufferAttachment attachment)
             => AttachToFBO(fbo.BindingId, attachment);
         public void AttachToFBO(EFramebufferTarget fboType, EFramebufferAttachment attachment)

@@ -14,24 +14,7 @@ namespace TheraEngine.Rendering
         
         public (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)[] Targets { get; private set; }
         public EDrawBuffersAttachment[] DrawBuffers { get; private set; }
-
-        //private EDrawBuffersAttachment _readBuffer = EDrawBuffersAttachment.None;
-        //public EDrawBuffersAttachment ReadBuffer
-        //{
-        //    get => _readBuffer;
-        //    set
-        //    {
-        //        _readBuffer = value;
-        //        if (IsActive)
-        //        {
-        //            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-        //            Engine.Renderer.SetReadBuffer(ReadBuffer);
-        //            CheckErrors();
-        //            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-        //        }
-        //    }
-        //}
-
+        
         public void SetRenderTargets(params (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)[] textures)
         {
             if (IsActive)
@@ -111,7 +94,7 @@ namespace TheraEngine.Rendering
                 }
             }
             Engine.Renderer.SetDrawBuffers(DrawBuffers);
-            //Engine.Renderer.SetReadBuffer(ReadBuffer);
+            Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             CheckErrors();
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         }

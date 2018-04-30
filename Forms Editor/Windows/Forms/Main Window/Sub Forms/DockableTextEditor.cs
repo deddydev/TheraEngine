@@ -1,8 +1,10 @@
 ﻿using FastColoredTextBoxNS;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
@@ -33,6 +35,8 @@ namespace TheraEditor.Windows.Forms
             TextBox.AutoCompleteBrackets = true;
             toolStrip1.RenderMode = ToolStripRenderMode.Professional;
             toolStrip1.Renderer = new TheraForm.TheraToolstripRenderer();
+            TextBox.AllowSeveralTextStyleDrawing = true;
+            _errorBrush = new SolidBrush(Color.FromArgb(TextBox.BackColor.R + 40, TextBox.BackColor.G, TextBox.BackColor.B));
         }
         public static void ShowNew(DockPanel dockPanel, DockState document, string text, string v, ETextEditorMode mode, Action<DockableTextEditor> defaultSaveText)
         {
@@ -60,6 +64,7 @@ namespace TheraEditor.Windows.Forms
             TextBox.IsChanged = false;
         }
 
+        TextStyle _errorStyle = new TextStyle(new SolidBrush(Color.Black), new SolidBrush(Color.Red), FontStyle.Underline);
         private ETextEditorMode _mode = ETextEditorMode.Text;
         public ETextEditorMode Mode
         {
@@ -79,6 +84,7 @@ namespace TheraEditor.Windows.Forms
                         break;
                 }
                 _mode = value;
+                TextBox.ClearStyle(StyleIndex.All);
                 cboMode.SelectedIndex = (int)_mode;
                 //System.Windows.Forms.TextBox.HighlightDescriptors.Clear();
                 switch (_mode)
@@ -115,6 +121,7 @@ namespace TheraEditor.Windows.Forms
                         TextBox.AutoCompleteBrackets = true;
                         break;
                 }
+                TextBox.AddStyle(_errorStyle);
                 _updating = false;
             }
         }
@@ -289,14 +296,14 @@ namespace TheraEditor.Windows.Forms
                 }
             }
                         
-            Range sel = TextBox.Selection;
-            Place start = sel.Start;
-            FindAutocompleteString(start);
-            int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
-            if (selCount > 1)
-            {
-                open = true;
-            }
+            //Range sel = TextBox.Selection;
+            //Place start = sel.Start;
+            //FindAutocompleteString(start);
+            //int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
+            //if (selCount > 1)
+            //{
+            //    open = true;
+            //}
 
             if (AutoCompleteOpen != open)
                 AutoCompleteOpen = open;
@@ -324,7 +331,13 @@ namespace TheraEditor.Windows.Forms
             if (match >= 0)
                 lstAutocomplete.SelectedIndex = match;
             else
-                lstAutocomplete.SelectedIndex = i.Clamp(0, lstAutocomplete.Items.Count - 1);
+            {
+                match = Array.FindIndex(matches, x => x.StartsWith(str, StringComparison.InvariantCultureIgnoreCase));
+                if (match >= 0)
+                    lstAutocomplete.SelectedIndex = match;
+                else
+                    lstAutocomplete.SelectedIndex = i.Clamp(0, lstAutocomplete.Items.Count - 1);
+            }
             pnlAutocomplete.Height = (matches.Length * lstAutocomplete.ItemHeight).Clamp(0, 264);
             return matches.Length;
         }
@@ -418,9 +431,21 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-
+        SolidBrush _errorBrush;
+        private List<Line> _errorLines = new List<Line>();
         private void TextBox_KeyUp(object sender, KeyEventArgs e)
         {
+            foreach (Line line in _errorLines)
+            {
+                line.BackgroundBrush = TextBox.BackBrush;
+                int startRemove = line.Text.IndexOf(" // error");
+                if (startRemove >= 0)
+                    line.RemoveRange(startRemove, line.Count - startRemove);
+                startRemove = line.Text.IndexOf(" // warning");
+                if (startRemove >= 0)
+                    line.RemoveRange(startRemove, line.Count - startRemove);
+            }
+
             if (e.Modifiers != Keys.None)
                 return;
 
@@ -505,7 +530,37 @@ namespace TheraEditor.Windows.Forms
                 if (result != null && !result.Value.Item1)
                 {
                     string errors = result.Value.Item2;
-                    Engine.PrintLine(errors);
+                    int[] errorLines = errors.FindAllOccurrences(0, ") : ");
+                    foreach (int i in errorLines)
+                    {
+                        int start = errors.FindFirstReverse(i - 1, '(');
+                        int lineIndex = int.Parse(errors.Substring(start + 1, i - start - 1)) - 1;
+                        Line lineInfo = TextBox[lineIndex];
+                        _errorLines.Add(lineInfo);
+                        lineInfo.BackgroundBrush = _errorBrush;
+
+                        string line = lineInfo.Text;
+                        int errorStart = i + 4;//errors.FindFirst(i + 3, ':') + 2;
+                        int errorEnd = errors.FindFirst(errorStart, "\n");
+                        string errorMsg = errors.Substring(errorStart, errorEnd - errorStart);
+
+                        lineInfo.AddRange((" // " + errorMsg).Select(x => new FastColoredTextBoxNS.Char(x)));
+
+                        //Match m = Regex.Match(errorMsg, "(?<= \").*(?=\")");
+                        //int tokenStart = line.IndexOf(m.Value);
+                        //if (tokenStart < 0)
+                        //    continue;
+                        //Place px;
+                        //for (int x = 0; x < m.Length; ++x)
+                        //{
+                        //    px = new Place(tokenStart + x, lineIndex);
+                        //    FastColoredTextBoxNS.Char cx = TextBox[px];
+                        //    cx.style = TextBox.GetStyleIndexMask(new Style[] { _errorStyle });
+                        //    TextBox[px] = cx;
+                        //}
+                        //0(line#) : error CXXXX: <message>
+                        //at token "<token>"
+                    }
                 }
             }
         }

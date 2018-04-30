@@ -55,7 +55,7 @@ namespace TheraEditor.Wrappers
         private (bool, string) M_CompileGLSL(string text)
         {
             _shader.SetSource(text, false);
-            bool success = _shader.Compile(out string info);
+            bool success = _shader.Compile(out string info, false);
             return (success, info);
         }
         

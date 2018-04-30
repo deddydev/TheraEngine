@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using TheraEngine;
@@ -284,6 +285,31 @@ namespace System
                 }
             }
             return -1;
+        }
+        /// <summary>
+        /// Finds the first instance that is the string passed, searching backward in the string.
+        /// </summary>
+        public static int[] FindAllOccurrences(this string str, int begin, string searchStr)
+        {
+            List<int> o = new List<int>();
+            int firstIndex = 0;
+            bool found;
+            for (int i = begin; i < str.Length; ++i)
+            {
+                found = true;
+                firstIndex = i;
+                for (int x = 0; x < searchStr.Length && i < str.Length; ++x, ++i)
+                {
+                    if (str[i] != searchStr[x])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    o.Add(firstIndex);
+            }
+            return o.ToArray();
         }
         /// <summary>
         /// Finds the first instance that is the string passed, searching backward in the string.

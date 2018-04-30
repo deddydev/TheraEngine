@@ -16,6 +16,7 @@ using TheraEngine.Physics;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Rendering
 {
@@ -39,6 +40,7 @@ namespace TheraEngine.Rendering
         internal PingPongFrameBuffer PingPongBloomBlurFBO;
         internal QuadFrameBuffer ForwardPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
+        internal TexRef2D _brdfTex;
 
         private BoundingRectangle _internalResolution = new BoundingRectangle();
 
@@ -168,16 +170,16 @@ namespace TheraEngine.Rendering
             _owningPanel = panel;
             _index = index;
             _ssaoInfo.Generate();
+            PrecompBRDF();
             Resize(panel.Width, panel.Height);
-            InitFBOs();
         }
         public Viewport(float width, float height)
         {
             _index = 0;
             SetFullScreen();
             _ssaoInfo.Generate();
+            PrecompBRDF();
             Resize(width, height);
-            InitFBOs();
         }
         public void SetInternalResolution(float width, float height)
         {
@@ -630,6 +632,46 @@ namespace TheraEngine.Rendering
             Depth24Stencil8,
             Depth32Stencil8,
         }
+
+        private void PrecompBRDF()
+        {
+            RenderingParameters renderParams = new RenderingParameters();
+            renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
+            renderParams.DepthTest.Function = EComparison.Always;
+            renderParams.DepthTest.UpdateDepth = false;
+            var shader = Engine.LoadEngineShader(Path.Combine("Scene3D", "BRDF.fs"), EShaderMode.Fragment);
+            _brdfTex = TexRef2D.CreateFrameBufferTexture("BRDF_LUT", 512, 512, EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat);
+            _brdfTex.Resizeable = true;
+            _brdfTex.UWrap = ETexWrapMode.ClampToEdge;
+            _brdfTex.VWrap = ETexWrapMode.ClampToEdge;
+            _brdfTex.MinFilter = ETexMinFilter.Linear;
+            _brdfTex.MagFilter = ETexMagFilter.Linear;
+            //RenderBuffer depthRBO = new RenderBuffer();
+            //depthRBO.SetStorage(ERenderBufferStorage.DepthComponent24, 512, 512);
+            TexRef2D[] brdfRefs = new TexRef2D[] { _brdfTex };
+            TMaterial brdfMat = new TMaterial("BRDFMat", renderParams, brdfRefs, shader);
+            MaterialFrameBuffer fbo = new MaterialFrameBuffer(brdfMat);
+            fbo.SetRenderTargets(
+                (_brdfTex, EFramebufferAttachment.ColorAttachment0, 0)
+                //, (depthRBO, EFramebufferAttachment.DepthAttachment, 0)
+                );
+            PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), 
+                VertexQuad.MakeQuad(
+                    new Vec3(-1.0f, -1.0f, -0.5f),
+                    new Vec3(1.0f, -1.0f, -0.5f),
+                    new Vec3(1.0f, 1.0f, -0.5f),
+                    new Vec3(-1.0f, 1.0f, -0.5f),
+                    false, false).ToTriangles());
+            PrimitiveManager manager = new PrimitiveManager(data, brdfMat);
+            BoundingRectangle region = new BoundingRectangle(Vec2.Zero, new Vec2(512.0f, 512.0f));
+            fbo.Bind(EFramebufferTarget.DrawFramebuffer);
+            Engine.Renderer.PushRenderArea(region);
+            Engine.Renderer.Clear(EBufferClear.Color);
+            manager.Render();
+            Engine.Renderer.PopRenderArea();
+            fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
+        }
+
         //private TexRef2D[] _fboTextures;
         internal unsafe void InitFBOs()
         {
@@ -734,6 +776,7 @@ namespace TheraEngine.Rendering
                     rmsiTexture,
                     ssaoTexture,
                     depthViewTexture,
+                    _brdfTex
                 };
 
                 TMaterial ssaoMat = new TMaterial("SSAOMat", renderParams, ssaoRefs, ssaoShader);
@@ -778,7 +821,7 @@ namespace TheraEngine.Rendering
                 _hdrSceneTexture,
                 blurResult,
                 depthViewTexture,
-                stencilViewTexture
+                stencilViewTexture,
             };
 
             TMaterial forwardMat = new TMaterial("ForwardMat", renderParams, forwardRefs, forwardShader);

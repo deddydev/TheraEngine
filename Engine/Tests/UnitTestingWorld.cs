@@ -16,7 +16,9 @@ using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Textures;
 using TheraEngine.ThirdParty;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Maps;
@@ -35,10 +37,10 @@ namespace TheraEngine.Tests
         public unsafe override void BeginPlay()
         {
             bool testLandscape = false;
-            bool createWalls = true;
-            int pointLights = 0;
+            bool createWalls = false;
+            int pointLights = 1;
             int dirLights = 0;
-            int spotLights = 3;
+            int spotLights = 0;
 
             float margin = 2.0f;
             float radius = 1.0f;
@@ -294,9 +296,39 @@ namespace TheraEngine.Tests
             //Actor<PositionComponent> testScreenshake = new Actor<PositionComponent>(posComp);
             //actors.Add(testScreenshake);
 
+            Vec3 max = 1000.0f;
+            Vec3 min = -max;
+            TextureFile2D skyTex = Engine.LoadEngineTexture2D("skybox.png");
+            StaticModel skybox = new StaticModel("Skybox");
+            TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
+            {
+                MagFilter = ETexMagFilter.Nearest,
+                MinFilter = ETexMinFilter.Nearest
+            };
+            StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", true,
+                BoundingBox.FromMinMax(min, max),
+                BoundingBox.SolidMesh(min, max, true,
+                skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?
+                    BoundingBox.ECubemapTextureUVs.WidthLarger :
+                    BoundingBox.ECubemapTextureUVs.HeightLarger),
+                TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
+                {
+                    DepthTest = new DepthTest()
+                    {
+                        Enabled = ERenderParamUsage.Enabled,
+                        UpdateDepth = false,
+                        Function = EComparison.Less
+                    }
+                }));
+            mesh.RenderInfo.RenderPass = ERenderPass.Background;
+            skybox.RigidChildren.Add(mesh);
+            Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
+            skyboxActor.RootComponent.ModelRef = skybox;
+            actors.Add(skyboxActor);
+
             IBLProbeGridActor iblProbes = new IBLProbeGridActor(
                 BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero),
-                new Vec3(0.02f));
+                new Vec3(0.01f));
             actors.Add(iblProbes);
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
@@ -308,7 +340,7 @@ namespace TheraEngine.Tests
 
             base.BeginPlay();
 
-            iblProbes.InitAndCaptureAll(256);
+            iblProbes.InitAndCaptureAll(512);
         }
     }
 

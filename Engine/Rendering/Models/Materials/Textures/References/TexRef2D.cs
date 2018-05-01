@@ -347,7 +347,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 _texture = new RenderTex2D(InternalFormat, PixelFormat, PixelType,
                     _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
                 {
-                    Resizable = Resizeable
+                    Resizable = Resizeable,
                 };
             else
                 _texture = new RenderTex2D(_width, _height, InternalFormat, PixelFormat, PixelType)

@@ -771,7 +771,6 @@ namespace TheraEngine.Rendering
                     rmsiTexture,
                     ssaoTexture,
                     depthViewTexture,
-                    _brdfTex
                 };
 
                 TMaterial ssaoMat = new TMaterial("SSAOMat", renderParams, ssaoRefs, ssaoShader);
@@ -845,7 +844,8 @@ namespace TheraEngine.Rendering
 
             _worldCamera.SetUniforms(programBindingId);
             _worldCamera.PostProcessRef.File.Shadows.SetUniforms(programBindingId);
-            var probeActor = _worldCamera.OwningComponent.OwningScene.IBLProbeActor;
+
+            var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
             if (probeActor == null)
                 return;
 
@@ -853,15 +853,15 @@ namespace TheraEngine.Rendering
             int baseCount = GBufferFBO.Material.Textures.Length;
 
             TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
-                baseCount, baseCount, "Texture" + baseCount.ToString(), programBindingId);
+                baseCount, "Texture" + baseCount.ToString(), programBindingId);
             ++baseCount;
             if (probe.IrradianceTex != null)
                 TMaterialBase.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
-                    baseCount, baseCount, "Texture" + baseCount.ToString(), programBindingId);
+                    baseCount, "Texture" + baseCount.ToString(), programBindingId);
             ++baseCount;
             if (probe.PrefilterTex != null)
                 TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
-                    baseCount, baseCount, "Texture" + baseCount.ToString(), programBindingId);
+                    baseCount, "Texture" + baseCount.ToString(), programBindingId);
         }
         
         private void SSAO_SetUniforms(int programBindingId)

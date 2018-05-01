@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
     {
         public abstract RenderCubeSide AsRenderSide(int mipIndex);
     }
-    public class RefCubeSideBlank : RefCubeSide
+    public class RefCubeSideEmpty : RefCubeSide
     {
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public EPixelType PixelType { get; private set; }
         public EPixelInternalFormat InternalFormat { get; private set; }
         
-        public RefCubeSideBlank(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat format, EPixelType type)
+        public RefCubeSideEmpty(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat format, EPixelType type)
         {
             InternalFormat = internalFormat;
             PixelFormat = format;

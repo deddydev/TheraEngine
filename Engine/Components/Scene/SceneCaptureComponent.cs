@@ -60,7 +60,7 @@ namespace TheraEngine.Actors.Types
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
             };
-
+            
             FrameBuffer f = new FrameBuffer();
             f.SetRenderTargets((_cubeTex, EFramebufferAttachment.ColorAttachment0, 0));
             return f;
@@ -72,7 +72,7 @@ namespace TheraEngine.Actors.Types
         public void Capture()
         {
             if (_renderFBO == null)
-                SetCubeResolution(256);
+                SetCubeResolution(512);
 
             BaseScene scene = OwningScene;
             for (int i = 0; i < 6; ++i)
@@ -90,8 +90,7 @@ namespace TheraEngine.Actors.Types
             var tex = _cubeTex.GetTexture(true);
             tex.Bind();
             tex.SetMipmapGenParams();
-            //tex.GenerateMipmaps();
-            //Engine.Renderer.BindTexture(ETexTarget.TextureCubeMap, 0);
+            tex.GenerateMipmaps();
         }
     }
 }

@@ -84,9 +84,13 @@ namespace TheraEngine.Actors.Types
             RenderingParameters r = new RenderingParameters();
             r.DepthTest.Enabled = ERenderParamUsage.Disabled;
 
-            ShaderVar[] prefilterVars = new ShaderVar[] { new ShaderFloat(0.0f, "Roughness") };
+            ShaderVar[] prefilterVars = new ShaderVar[]
+            {
+                new ShaderFloat(0.0f, "Roughness"),
+                new ShaderFloat(resolution, "CubemapDim"),
+            };
 
-            GLSLShaderFile irrShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "IrradianceConvoluton.fs"), EShaderMode.Fragment);
+            GLSLShaderFile irrShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "IrradianceConvolution.fs"), EShaderMode.Fragment);
             GLSLShaderFile prefShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "Prefilter.fs"), EShaderMode.Fragment);
             TMaterial irrMat = new TMaterial("IrradianceMat", r, new ShaderVar[0], new TexRefCube[] { _cubeTex }, irrShader);
             TMaterial prefMat = new TMaterial("PrefilterMat", r, prefilterVars, new TexRefCube[] { _cubeTex }, prefShader);
@@ -100,7 +104,7 @@ namespace TheraEngine.Actors.Types
             //CubeFrameBuffer fbo = (CubeFrameBuffer)_renderFBO;
 
             _irradianceFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(32, 32)));
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(128, 128)));
             for (int i = 0; i < 6; ++i)
             {
                 _irradianceTex.AttachFaceToFBO(_irradianceFBO.BindingId, ECubemapFace.PosX + i);
@@ -115,10 +119,11 @@ namespace TheraEngine.Actors.Types
 
             _prefilterFBO.Bind(EFramebufferTarget.DrawFramebuffer);
             int maxMipLevels = 5;
+            float res = _prefilterFBO.Material.Parameter<ShaderFloat>(1).Value;
             for (int mip = 0; mip < maxMipLevels; ++mip)
             {
-                int mipWidth = (int)(128.0 * Math.Pow(0.5, mip));
-                int mipHeight = (int)(128.0 * Math.Pow(0.5, mip));
+                int mipWidth = (int)(res * Math.Pow(0.5, mip));
+                int mipHeight = (int)(res * Math.Pow(0.5, mip));
                 Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(mipWidth, mipHeight)));
                 float roughness = (float)mip / (maxMipLevels - 1);
                 

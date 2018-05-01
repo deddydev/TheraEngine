@@ -10,14 +10,14 @@ const float InvPI = 0.31831f;
 layout(location = 0) out vec3 OutColor; //Final Deferred Pass Color. Used later by the Post Process fragment shader.
 layout(location = 0) in vec3 FragPos;
 
-uniform sampler2D Texture0; //AlbedoOpacity
-uniform sampler2D Texture1; //Normal
-uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
-uniform sampler2D Texture3; //SSAO Intensity
-uniform sampler2D Texture4; //Depth
-uniform sampler2D Texture5; //BRDF LUT
-uniform samplerCube Texture6; //Irradiance Map
-uniform samplerCube Texture7; //Prefilter Map
+layout(binding = 0) uniform sampler2D Texture0; //AlbedoOpacity
+layout(binding = 1) uniform sampler2D Texture1; //Normal
+layout(binding = 2) uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
+layout(binding = 3) uniform sampler2D Texture3; //SSAO Intensity
+layout(binding = 4) uniform sampler2D Texture4; //Depth
+layout(binding = 5) uniform sampler2D Texture5; //BRDF LUT
+layout(binding = 6) uniform samplerCube Texture6; //Irradiance Map
+layout(binding = 7) uniform samplerCube Texture7; //Prefilter Map
 
 uniform sampler2D DirShadowMaps[MAX_DIR_LIGHTS];
 uniform sampler2D SpotShadowMaps[MAX_SPOT_LIGHTS];

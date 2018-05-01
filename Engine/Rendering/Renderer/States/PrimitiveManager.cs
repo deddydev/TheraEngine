@@ -122,16 +122,13 @@ namespace TheraEngine.Rendering.Models
         private void _data_BufferInfoChanged()
         {
             _vertexShader = new VertexShaderGenerator().Generate(_bufferInfo, false, false, false, _material);
-            if (Engine.Settings.AllowShaderPipelines && _vertexProgram != null)
+            if (Engine.Settings.AllowShaderPipelines)
             {
-                if (_vertexProgram.IsActive)
-                {
+                if (_vertexProgram != null && _vertexProgram.IsActive)
                     _vertexProgram.Destroy();
-                    _vertexProgram = new RenderProgram(_vertexShader);
-                    _vertexProgram.Generate();
-                }
-                else
-                    _vertexProgram = null;
+                
+                _vertexProgram = new RenderProgram(_vertexShader);
+                _vertexProgram.Generate();
             }
         }
 
@@ -142,7 +139,10 @@ namespace TheraEngine.Rendering.Models
                 if (_material?.Program != null && _material.Program.IsValid)
                     return _material;
                 else
+                {
+                    Engine.LogWarning("Material " + _material.Name + " is not valid.");
                     return TMaterial.InvalidMaterial;
+                }
             }
             set => _material = value;
         }

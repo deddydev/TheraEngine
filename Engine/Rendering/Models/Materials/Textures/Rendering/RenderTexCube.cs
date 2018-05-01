@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {
@@ -34,19 +36,26 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             PixelFormat = pixelFormat;
             PixelType = pixelType;
             _mipmaps = null;
+            _dimension = cubeExtent;
         }
-        
+
+        private int _dimension;
         private RenderCubeMipmap[] _mipmaps;
 
+        private bool _hasPushed = false;
+        private bool _storageSet = false;
+
         public override ETexTarget TextureTarget => ETexTarget.TextureCubeMap;
+        public bool Resizable { get; set; } = false;
 
         public RenderCubeMipmap[] Mipmaps
         {
             get => _mipmaps;
             set => _mipmaps = value;
         }
+        public int Dimension => _mipmaps == null ? _dimension : (_mipmaps.Length > 0 ? _mipmaps[0].Sides[0].Width : _dimension);
 
-        public override int MaxDimension => throw new NotImplementedException();
+        public override int MaxDimension => Dimension;
 
         public static RenderTexCube[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<RenderTexCube>(EObjectType.Texture, count);
@@ -55,13 +64,41 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         {
             if (BaseRenderPanel.NeedsInvoke(PushData, BaseRenderPanel.PanelType.Rendering))
                 return;
-            
-            Bind();
+
             OnPrePushData(out bool shouldPush, out bool allowPostPushCallback);
+            if (!shouldPush)
+            {
+                if (allowPostPushCallback)
+                    OnPostPushData();
+                return;
+            }
+
+            Bind();
+
+            ESizedInternalFormat sizedInternalFormat = (ESizedInternalFormat)(int)InternalFormat;
 
             if (_mipmaps == null || _mipmaps.Length == 0)
             {
-                Engine.Renderer.PushTextureData(TextureTarget, 0, InternalFormat, 1, 1, PixelFormat, PixelType, IntPtr.Zero);
+                int mipCount = SmallestMipmapLevel + 1;
+                if (!Resizable && !_storageSet)
+                {
+                    Engine.Renderer.SetTextureStorage(BindingId, mipCount, sizedInternalFormat, _dimension, _dimension);
+                    _storageSet = true;
+                }
+                else if (!_storageSet)
+                {
+                    int dim = _dimension;
+                    for (int i = 0; i < mipCount; ++i)
+                    {
+                        for (int x = 0; x < 6; ++x)
+                        {
+                            ETexTarget target = ETexTarget.TextureCubeMapPositiveX + x;
+                            Engine.Renderer.PushTextureData(target, i, InternalFormat, dim, dim, PixelFormat, PixelType, IntPtr.Zero);
+                        }
+                        dim /= 2;
+                    }
+                }
+
                 if (AutoGenerateMipmaps)
                 {
                     SetMipmapGenParams();
@@ -69,10 +106,59 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 }
             }
             else
-                for (int i = 0; i < _mipmaps.Length; ++i)
-                    _mipmaps[i].PushData(i);
-            
-            OnPostPushData();
+            {
+                bool setStorage = !Resizable && !_storageSet;
+                if (setStorage)
+                {
+                    Engine.Renderer.SetTextureStorage(BindingId, _mipmaps.Length, sizedInternalFormat, _mipmaps[0].Sides[0].Width, _mipmaps[0].Sides[0].Height);
+                    _storageSet = true;
+                }
+
+                if ((setStorage && _hasPushed) || !setStorage)
+                    for (int i = 0; i < _mipmaps.Length; ++i)
+                    {
+                        RenderCubeMipmap mip = _mipmaps[i];
+                        for (int x = 0; x < mip.Sides.Length; ++x)
+                        {
+                            RenderCubeSide side = mip.Sides[x];
+                            Bitmap bmp = side.Map;
+
+                            ETexTarget target = ETexTarget.TextureCubeMapPositiveX + x;
+                            if (bmp == null)
+                                Engine.Renderer.PushTextureData(target, i, InternalFormat, side.Width, side.Height, PixelFormat, PixelType, IntPtr.Zero);
+                            else
+                            {
+                                BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                                Engine.Renderer.PushTextureData(target, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
+                                bmp.UnlockBits(data);
+                            }
+
+                            if (bmp != null)
+                            {
+                                BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+
+                                if (_hasPushed)
+                                    Engine.Renderer.PushTextureSubData(TextureTarget, i, 0, 0, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
+                                else
+                                    Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, bmp.Width, bmp.Height, PixelFormat, PixelType, data.Scan0);
+
+                                bmp.UnlockBits(data);
+                            }
+                            else if (!_hasPushed)
+                                Engine.Renderer.PushTextureData(TextureTarget, i, InternalFormat, mip.Sides[i].Width, mip.Sides[i].Height, PixelFormat, PixelType, IntPtr.Zero);
+                        }
+                    }
+            }
+            _hasPushed = true;
+
+            //int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);
+            //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLod, max);
+
+            if (allowPostPushCallback)
+                OnPostPushData();
         }
 
         protected override void Dispose(bool disposing)

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using System.Drawing.Drawing2D;
+using System.Linq;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -28,7 +29,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public CubeMipmap(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat format, EPixelType type)
         {
             Sides = new RefCubeSide[6];
-            Sides.FillWith(i => new RefCubeSideBlank(width, height, internalFormat, format, type));
+            Sides.FillWith(i => new RefCubeSideEmpty(width, height, internalFormat, format, type));
         }
 
         public CubeMipmap(int width, int height, PixelFormat bitmapFormat)
@@ -101,7 +102,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public TexRefCube(
             string name,
             int dim,
-            PixelFormat bitmapFormat = PixelFormat.Format32bppArgb,
+            PixelFormat bitmapFormat = System.Drawing.Imaging.PixelFormat.Format32bppArgb,
             int mipCount = 1)
             : this(name, dim)
         {
@@ -123,6 +124,9 @@ namespace TheraEngine.Rendering.Models.Materials
             Mipmaps = new CubeMipmap[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i, sDim = dim / scale)
                 Mipmaps[i] = new CubeMipmap(sDim, sDim, internalFormat, pixelFormat, pixelType);
+            _internalFormat = internalFormat;
+            _pixelFormat = pixelFormat;
+            _pixelType = pixelType;
         }
         public TexRefCube(string name, int dim, params CubeMipmap[] mipmaps)
         {
@@ -145,6 +149,53 @@ namespace TheraEngine.Rendering.Models.Materials
         private ETexMinFilter _minFilter = ETexMinFilter.Nearest;
         private ETexMagFilter _magFilter = ETexMagFilter.Nearest;
         private float _lodBias = 0.0f;
+
+        [TSerialize(nameof(PixelFormat))]
+        private EPixelFormat _pixelFormat = EPixelFormat.Rgba;
+        [TSerialize(nameof(PixelType))]
+        private EPixelType _pixelType = EPixelType.UnsignedByte;
+        [TSerialize(nameof(InternalFormat))]
+        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
+        
+        public EPixelFormat PixelFormat
+        {
+            get => _pixelFormat;
+            set
+            {
+                _pixelFormat = value;
+                if (_texture != null)
+                {
+                    _texture.PixelFormat = _pixelFormat;
+                    _texture.PushData();
+                }
+            }
+        }
+        public EPixelType PixelType
+        {
+            get => _pixelType;
+            set
+            {
+                _pixelType = value;
+                if (_texture != null)
+                {
+                    _texture.PixelType = _pixelType;
+                    _texture.PushData();
+                }
+            }
+        }
+        public EPixelInternalFormat InternalFormat
+        {
+            get => _internalFormat;
+            set
+            {
+                _internalFormat = value;
+                if (_texture != null)
+                {
+                    _texture.InternalFormat = _internalFormat;
+                    _texture.PushData();
+                }
+            }
+        }
 
         [TSerialize]
         public ETexMagFilter MagFilter
@@ -319,7 +370,9 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             if (_texture != null)
                 _texture.PostPushData -= SetParameters;
-            _texture = new RenderTexCube();
+
+            _texture = new RenderTexCube(CubeExtent, InternalFormat, PixelFormat, PixelType);
+
             _texture.PostPushData += SetParameters;
         }
     }

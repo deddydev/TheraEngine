@@ -174,7 +174,7 @@ uniform VignetteStruct Vignette;";
         
         private float _contrast;
         private float _contrastUniformValue;
-        private float _exposureTransitionSpeed = 0.05f;
+        private float _exposureTransitionSpeed = 0.01f;
 
         [TSerialize]
         [Category("Color Grade Settings")]
@@ -185,10 +185,13 @@ uniform VignetteStruct Vignette;";
         public bool AutoExposure { get; set; } = true;
         [TSerialize]
         [Category("Color Grade Settings")]
+        public float ExposureDividend { get; set; } = 0.5f;
+        [TSerialize]
+        [Category("Color Grade Settings")]
         public float MinExposure { get; set; } = 0.01f;
         [TSerialize]
         [Category("Color Grade Settings")]
-        public float MaxExposure { get; set; } = 50.0f;
+        public float MaxExposure { get; set; } = 500.0f;
         [TSerialize]
         [Category("Color Grade Settings")]
         public float ExposureTransitionSpeed
@@ -273,7 +276,7 @@ uniform ColorGradeStruct ColorGrade;";
             if (float.IsNaN(rgb.X)) return;
             if (float.IsNaN(rgb.Y)) return;
             if (float.IsNaN(rgb.Z)) return;
-            float target = (0.5f / (rgb.Dot(_luminance) + 0.0001f)).Clamp(MinExposure, MaxExposure);
+            float target = (ExposureDividend / (rgb.Dot(_luminance) + 0.0001f)).Clamp(MinExposure, MaxExposure);
             Exposure = Interp.Lerp(Exposure, target, ExposureTransitionSpeed);
         }
     }

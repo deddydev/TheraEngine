@@ -5,6 +5,7 @@ layout (location = 0) in vec3 FragPos;
 
 uniform samplerCube Texture0;
 uniform float Roughness;
+uniform float CubemapDim;
 
 const float PI = 3.14159265359f;
 
@@ -90,7 +91,7 @@ void main()
             float HdotV = max(dot(H, V), 0.0f);
             float pdf   = D * NdotH / (4.0f * HdotV) + 0.0001f; 
 
-            float res		= 512.0f; // resolution of source cubemap (per face)
+            float res		= CubemapDim; // resolution of source cubemap (per face)
             float saTexel	= 4.0f * PI / (6.0f * res * res);
             float saSample	= 1.0f / (float(SAMPLE_COUNT) * pdf + 0.0001f);
 

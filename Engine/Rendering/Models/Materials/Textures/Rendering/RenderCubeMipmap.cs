@@ -113,11 +113,11 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         {
             Sides.FillWith(i => new RenderCubeSide(dim, dim, internalFormat, format, type));
         }
-        public void PushData(int mipIndex)
-        {
-            for (int i = 0; i < Sides.Length; ++i)
-                Sides[i].PushData(i, mipIndex);
-        }
+        //public void PushData(int mipIndex)
+        //{
+        //    for (int i = 0; i < Sides.Length; ++i)
+        //        Sides[i].PushData(i, mipIndex);
+        //}
 
         public void Dispose()
         {

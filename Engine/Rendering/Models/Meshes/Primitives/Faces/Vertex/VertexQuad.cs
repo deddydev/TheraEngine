@@ -73,8 +73,6 @@ namespace TheraEngine.Rendering.Models
                 topLeftUV = Vec2.Zero;
 
             float zero = 0.0f;
-            float third = 0.33334f;
-            float twoThirds = 0.66665f;
             float fourth = 0.25f;
             float half = 0.5f;
             float threeFourths = 0.75f;
@@ -85,10 +83,10 @@ namespace TheraEngine.Rendering.Models
                 case ECubemapFace.NegX:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(zero, third);
-                        bottomRightUV = new Vec2(fourth, third);
-                        topRightUV = new Vec2(fourth, twoThirds);
-                        topLeftUV = new Vec2(zero, twoThirds);
+                        bottomLeftUV = new Vec2(zero, 0.3335f);
+                        bottomRightUV = new Vec2(fourth, 0.3335f);
+                        topRightUV = new Vec2(fourth, 0.6664f);
+                        topLeftUV = new Vec2(zero, 0.6664f);
                     }
                     else
                     {
@@ -98,10 +96,10 @@ namespace TheraEngine.Rendering.Models
                 case ECubemapFace.PosX:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(half, third);
-                        bottomRightUV = new Vec2(threeFourths, third);
-                        topRightUV = new Vec2(threeFourths, twoThirds);
-                        topLeftUV = new Vec2(half, twoThirds);
+                        bottomLeftUV = new Vec2(half, 0.3335f);
+                        bottomRightUV = new Vec2(threeFourths, 0.3335f);
+                        topRightUV = new Vec2(threeFourths, 0.6664f);
+                        topLeftUV = new Vec2(half, 0.6664f);
                     }
                     else
                     {
@@ -113,8 +111,8 @@ namespace TheraEngine.Rendering.Models
                     {
                         bottomLeftUV = new Vec2(fourth, zero);
                         bottomRightUV = new Vec2(half, zero);
-                        topRightUV = new Vec2(half, third);
-                        topLeftUV = new Vec2(fourth, third);
+                        topRightUV = new Vec2(half, 0.3331f);
+                        topLeftUV = new Vec2(fourth, 0.3331f);
                     }
                     else
                     {
@@ -124,8 +122,8 @@ namespace TheraEngine.Rendering.Models
                 case ECubemapFace.PosY:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(fourth, twoThirds);
-                        bottomRightUV = new Vec2(half, twoThirds);
+                        bottomLeftUV = new Vec2(fourth, 0.6668f);
+                        bottomRightUV = new Vec2(half, 0.6668f);
                         topRightUV = new Vec2(half, one);
                         topLeftUV = new Vec2(fourth, one);
                     }
@@ -137,10 +135,10 @@ namespace TheraEngine.Rendering.Models
                 case ECubemapFace.NegZ:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(fourth, third);
-                        bottomRightUV = new Vec2(half, third);
-                        topRightUV = new Vec2(half, twoThirds);
-                        topLeftUV = new Vec2(fourth, twoThirds);
+                        bottomLeftUV = new Vec2(fourth, 0.3335f);
+                        bottomRightUV = new Vec2(half, 0.3335f);
+                        topRightUV = new Vec2(half, 0.6664f);
+                        topLeftUV = new Vec2(fourth, 0.6664f);
                     }
                     else
                     {
@@ -150,10 +148,10 @@ namespace TheraEngine.Rendering.Models
                 case ECubemapFace.PosZ:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(threeFourths, third);
-                        bottomRightUV = new Vec2(one, third);
-                        topRightUV = new Vec2(one, twoThirds);
-                        topLeftUV = new Vec2(threeFourths, twoThirds);
+                        bottomLeftUV = new Vec2(threeFourths, 0.3335f);
+                        bottomRightUV = new Vec2(one, 0.3335f);
+                        topRightUV = new Vec2(one, 0.6664f);
+                        topLeftUV = new Vec2(threeFourths, 0.6664f);
                     }
                     else
                     {

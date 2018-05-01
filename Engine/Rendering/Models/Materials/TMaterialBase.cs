@@ -180,13 +180,9 @@ namespace TheraEngine.Rendering.Models.Materials
         private void SetTextureUniforms(int programBindingId)
         {
             for (int i = 0; i < Textures.Length; ++i)
-                SetTextureUniform(i, i, "Texture" + i, programBindingId);
+                SetTextureUniform(Textures[i].GetTextureGeneric(true), i, "Texture" + i, programBindingId);
         }
-        public void SetTextureUniform(int textureIndex, int textureUnit, string varName, int programBindingId)
-        {
-            SetTextureUniform(Textures[textureIndex].GetTextureGeneric(true), textureIndex, textureUnit, varName, programBindingId);
-        }
-        public static void SetTextureUniform(BaseRenderTexture tref, int textureIndex, int textureUnit, string varName, int programBindingId)
+        public static void SetTextureUniform(BaseRenderTexture tref, int textureUnit, string varName, int programBindingId)
         {
             if (tref == null)
                 return;

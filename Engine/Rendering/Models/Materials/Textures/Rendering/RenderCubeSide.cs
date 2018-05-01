@@ -50,20 +50,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public EPixelInternalFormat InternalFormat { get; private set; }
 
         public static implicit operator RenderCubeSide(Bitmap bitmap) => new RenderCubeSide(bitmap);
-
-        public void PushData(int sideIndex, int mipIndex)
-        {
-            ETexTarget target = ETexTarget.TextureCubeMapPositiveX + sideIndex;
-            if (Map == null)
-                Engine.Renderer.PushTextureData(target, mipIndex, InternalFormat, Width, Height, PixelFormat, PixelType, IntPtr.Zero);
-            else
-            {
-                BitmapData data = Map.LockBits(new Rectangle(0, 0, Map.Width, Map.Height), ImageLockMode.ReadOnly, Map.PixelFormat);
-                Engine.Renderer.PushTextureData(target, mipIndex, InternalFormat, Map.Width, Map.Height, PixelFormat, PixelType, data.Scan0);
-                Map.UnlockBits(data);
-            }
-        }
-
+        
         public void Dispose()
         {
             Map?.Dispose();

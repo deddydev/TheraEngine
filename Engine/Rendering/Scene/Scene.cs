@@ -9,7 +9,7 @@ using TheraEngine.Core;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, MaterialFrameBuffer target);
+    public delegate void DelRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target);
     public enum ERenderPass
     {
         /// <summary>

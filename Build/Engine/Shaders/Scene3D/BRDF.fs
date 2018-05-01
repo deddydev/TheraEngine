@@ -40,12 +40,12 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float a)
 	
 	return normalize(tangent * H.x + bitangent * H.y + N * H.z);
 }
-// ----------------------------------------------------------------------------
+
 float GeometrySchlickGGX(float NdotV, float k)
 {
     return NdotV / (NdotV * (1.0f - k) + k);
 }
-// ----------------------------------------------------------------------------
+
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
 {
     float NdotV = max(dot(N, V), 0.0);
@@ -54,7 +54,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
     float ggx1 = GeometrySchlickGGX(NdotL, k);
     return ggx1 * ggx2;
 }
-// ----------------------------------------------------------------------------
+
 vec2 IntegrateBRDF(float NdotV, float roughness)
 {
     // note that we use a different k for IBL
@@ -79,12 +79,11 @@ vec2 IntegrateBRDF(float NdotV, float roughness)
         float VdotH = dot(V, H);
         vec3 L = normalize(2.0f * VdotH * H - V);
 
-	VdotH = max(VdotH, 0.0f);
         float NdotL = max(L.z, 0.0f);
-        float NdotH = max(H.z, 0.0f);
-
         if (NdotL > 0.0f)
         {
+	    VdotH = max(VdotH, 0.0f);
+            float NdotH = max(H.z, 0.0f);
             float G = GeometrySmith(N, V, L, k);
             float G_Vis = (G * VdotH) / (NdotH * NdotV);
             float Fc = pow(1.0f - VdotH, 5.0f);
@@ -97,7 +96,7 @@ vec2 IntegrateBRDF(float NdotV, float roughness)
     B /= float(SAMPLE_COUNT);
     return vec2(A, B);
 }
-// ----------------------------------------------------------------------------
+
 void main() 
 {
     OutColor = IntegrateBRDF(FragUV0.x, FragUV0.y);

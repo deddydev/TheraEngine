@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
@@ -24,6 +25,8 @@ namespace TheraEngine.Rendering
         public override int Count => RenderTree.Count;
         public LightManager Lights => _lightManager;
         public ParticleManager Particles => _particles;
+
+        public IBLProbeGridActor IBLProbeActor { get; set; }
 
         //private GlobalFileRef<TMaterial> _voxelizationMaterial;
 
@@ -87,9 +90,9 @@ namespace TheraEngine.Rendering
             RenderTree.CollectVisible(cullingVolume, populatingPasses, camera, shadowPass);
             base.Update(populatingPasses, cullingVolume, camera, hud, shadowPass);
         }
-        public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, MaterialFrameBuffer target)
+        public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target)
         {
-            AbstractRenderer.PushCurrentCamera(camera);
+            AbstractRenderer.PushCamera(camera);
             AbstractRenderer.PushCurrent3DScene(this);
             {
                 if (viewport != null)
@@ -166,11 +169,11 @@ namespace TheraEngine.Rendering
                 }
             }
             AbstractRenderer.PopCurrent3DScene();
-            AbstractRenderer.PopCurrentCamera();
+            AbstractRenderer.PopCamera();
         }
-        public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, MaterialFrameBuffer target)
+        public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target)
         {
-            AbstractRenderer.PushCurrentCamera(camera);
+            AbstractRenderer.PushCamera(camera);
             AbstractRenderer.PushCurrent3DScene(this);
             {
                 if (viewport != null)
@@ -282,7 +285,7 @@ namespace TheraEngine.Rendering
                 }
             }
             AbstractRenderer.PopCurrent3DScene();
-            AbstractRenderer.PopCurrentCamera();
+            AbstractRenderer.PopCamera();
         }
         public void Add(I3DRenderable obj)
         {

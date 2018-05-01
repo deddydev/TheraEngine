@@ -1,28 +1,27 @@
-﻿using TheraEngine.Input;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.UI;
-using System;
-using TheraEngine.Rendering.Models.Materials;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using TheraEngine.Core.Shapes;
-using System.Collections.Generic;
-using TheraEngine.Components.Scene;
-using TheraEngine.Components;
-using TheraEngine.Actors.Types.Pawns;
 using System.IO;
+using System.Linq;
+using TheraEngine.Actors.Types;
+using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components;
+using TheraEngine.Components.Scene;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Input;
 using TheraEngine.Physics;
 using TheraEngine.Physics.RayTracing;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Maths;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Rendering
 {
     public class Viewport
     {
-        public const int GBufferTextureCount = 5;
+        public const int GBufferTextureCount = 8;
 
         private static Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
         public static Viewport CurrentlyRendering => CurrentlyRenderingViewports.Peek();
@@ -248,7 +247,7 @@ namespace TheraEngine.Rendering
         /// <param name="camera"></param>
         /// <param name="frustum"></param>
         /// <param name="target"></param>
-        public void Render(BaseScene scene, Camera camera, MaterialFrameBuffer target)
+        public void Render(BaseScene scene, Camera camera, FrameBuffer target)
         {
             if (scene == null || scene.Count == 0)
                 return;
@@ -258,7 +257,7 @@ namespace TheraEngine.Rendering
             CurrentlyRenderingViewports.Pop();
         }
         private RenderPasses _renderPasses = new RenderPasses();
-        protected virtual void OnRender(BaseScene scene, Camera camera, MaterialFrameBuffer target)
+        protected virtual void OnRender(BaseScene scene, Camera camera, FrameBuffer target)
         {
             scene.Render(_renderPasses, camera, this, HUD, target);
         }
@@ -646,17 +645,13 @@ namespace TheraEngine.Rendering
             _brdfTex.VWrap = ETexWrapMode.ClampToEdge;
             _brdfTex.MinFilter = ETexMinFilter.Linear;
             _brdfTex.MagFilter = ETexMagFilter.Linear;
-            //RenderBuffer depthRBO = new RenderBuffer();
-            //depthRBO.SetStorage(ERenderBufferStorage.DepthComponent24, 512, 512);
             TexRef2D[] brdfRefs = new TexRef2D[] { _brdfTex };
             TMaterial brdfMat = new TMaterial("BRDFMat", renderParams, brdfRefs, shader);
             MaterialFrameBuffer fbo = new MaterialFrameBuffer(brdfMat);
             fbo.SetRenderTargets(
-                (_brdfTex, EFramebufferAttachment.ColorAttachment0, 0)
-                //, (depthRBO, EFramebufferAttachment.DepthAttachment, 0)
-                );
+                (_brdfTex, EFramebufferAttachment.ColorAttachment0, 0));
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), 
-                VertexQuad.MakeQuad(
+                VertexQuad.MakeQuad( //ndc space quad, so we don't have to load any camera matrices
                     new Vec3(-1.0f, -1.0f, -0.5f),
                     new Vec3(1.0f, -1.0f, -0.5f),
                     new Vec3(1.0f, 1.0f, -0.5f),
@@ -850,6 +845,23 @@ namespace TheraEngine.Rendering
 
             _worldCamera.SetUniforms(programBindingId);
             _worldCamera.PostProcessRef.File.Shadows.SetUniforms(programBindingId);
+            var probeActor = _worldCamera.OwningComponent.OwningScene.IBLProbeActor;
+            if (probeActor == null)
+                return;
+
+            IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
+            int baseCount = GBufferFBO.Material.Textures.Length;
+
+            TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
+                baseCount, baseCount, "Texture" + baseCount.ToString(), programBindingId);
+            ++baseCount;
+            if (probe.IrradianceTex != null)
+                TMaterialBase.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
+                    baseCount, baseCount, "Texture" + baseCount.ToString(), programBindingId);
+            ++baseCount;
+            if (probe.PrefilterTex != null)
+                TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
+                    baseCount, baseCount, "Texture" + baseCount.ToString(), programBindingId);
         }
         
         private void SSAO_SetUniforms(int programBindingId)

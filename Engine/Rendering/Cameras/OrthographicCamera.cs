@@ -15,7 +15,9 @@ namespace TheraEngine.Rendering.Cameras
         public OrthographicCamera(float nearZ, float farZ)
             : this(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, nearZ, farZ) { }
         public OrthographicCamera(Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
-            : base(16.0f, 9.0f, nearZ, farZ, point, rotation)
+            : this(16.0f, 9.0f, scale, point, rotation, originPercentages, nearZ, farZ) { }
+        public OrthographicCamera(float width, float height, Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
+           : base(width, height, nearZ, farZ, point, rotation)
         {
             _scale.SetRawNoUpdate(scale);
             _scale.Changed += CreateTransform;

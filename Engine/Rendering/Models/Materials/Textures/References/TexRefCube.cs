@@ -219,6 +219,16 @@ namespace TheraEngine.Rendering.Models.Materials
             if (FrameBufferAttachment.HasValue)
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, 0, mipLevel);
         }
+        public void AttachFaceToFBO(int fboBindingId, ECubemapFace face, int mipLevel = 0)
+        {
+            if (FrameBufferAttachment.HasValue)
+                AttachFaceToFBO(fboBindingId, FrameBufferAttachment.Value, face, mipLevel);
+        }
+        public void DetachFaceFromFBO(int fboBindingId, ECubemapFace face, int mipLevel = 0)
+        {
+            if (FrameBufferAttachment.HasValue)
+                DetachFaceFromFBO(fboBindingId, FrameBufferAttachment.Value, face, mipLevel);
+        }
 
         public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
             => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
@@ -229,7 +239,12 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.TextureCubeMapPositiveX + (int)face, _texture.BindingId, mipLevel);
         public void DetachFaceFromFBO(EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
             => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.TextureCubeMapPositiveX + (int)face, 0, mipLevel);
-        
+
+        public void AttachFaceToFBO(int fboBindingId, EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(fboBindingId, attachment, _texture.BindingId, mipLevel, (int)face);
+        public void DetachFaceFromFBO(int fboBindingId, EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(fboBindingId, attachment, 0, mipLevel, (int)face);
+
         private bool _isLoading = false;
         public async Task<RenderTexCube> GetTextureAsync()
         {

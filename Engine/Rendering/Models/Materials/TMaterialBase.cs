@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Files;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -10,7 +11,8 @@ namespace TheraEngine.Rendering.Models.Materials
     public abstract class TMaterialBase : TFileObject
     {
         public event DelSettingUniforms SettingUniforms;
-
+        public event DelSettingUniforms SettingTextureUniforms;
+        
         protected ShaderVar[] _parameters;
         protected BaseTexRef[] _textures;
         protected RenderProgram _program;
@@ -182,10 +184,16 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public void SetTextureUniform(int textureIndex, int textureUnit, string varName, int programBindingId)
         {
+            SetTextureUniform(Textures[textureIndex].GetTextureGeneric(true), textureIndex, textureUnit, varName, programBindingId);
+        }
+        public static void SetTextureUniform(BaseRenderTexture tref, int textureIndex, int textureUnit, string varName, int programBindingId)
+        {
+            if (tref == null)
+                return;
+
             Engine.Renderer.SetActiveTexture(textureUnit);
             Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
-            //Engine.PrintLine("Texture unit {0} set: {1}", textureUnit, varName);
-            Textures[textureIndex].GetTextureGeneric(true)?.Bind();
+            tref.Bind();
         }
     }
 }

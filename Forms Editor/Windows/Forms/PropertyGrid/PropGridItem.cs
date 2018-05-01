@@ -264,11 +264,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (VisibleItems.Count > 0)
             {
-                //Parallel.For(0, VisibleItems.Count, i =>
+                //foreach (PropGridItem item in VisibleItems)
                 //{
-                //    if (VisibleItems.IndexInRange(i))
-                //        VisibleItems[i].Invoke((Action)VisibleItems[i].UpdateDisplay);
-                //});
+                //    item.UpdateDisplay();
+                //}
+                Task.Run(() => Parallel.For(0, VisibleItems.Count, i =>
+                {
+                    if (VisibleItems.IndexInRange(i))
+                        VisibleItems[i].Invoke((Action)VisibleItems[i].UpdateDisplay);
+                }));
                 //Application.DoEvents();
             }
         }

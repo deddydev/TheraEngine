@@ -54,9 +54,9 @@ namespace TheraEngine.Rendering
         /// </summary>
         public void RenderFullscreen()
         {
-            AbstractRenderer.PushCurrentCamera(_quadCamera);
-            _fullScreenTriangle.Render(Matrix4.Identity, Matrix3.Identity);
-            AbstractRenderer.PopCurrentCamera();
+            AbstractRenderer.PushCamera(_quadCamera);
+            _fullScreenTriangle.Render();
+            AbstractRenderer.PopCamera();
         }
     }
 }

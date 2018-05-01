@@ -715,6 +715,10 @@ namespace TheraEngine.Rendering.OpenGL
             => GL.FramebufferTexture2D((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachment, (TextureTarget)(int)texTarget, textureBindingId, mipLevel);
         public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
             => GL.FramebufferTexture((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachment, textureBindingId, mipLevel);
+        public override void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel, int layer)
+            => GL.NamedFramebufferTextureLayer(frameBufferBindingId, (FramebufferAttachment)(int)attachment, textureBindingId, mipLevel, layer);
+        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, int textureBindingId, int mipLevel, int layer)
+            => GL.FramebufferTextureLayer((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachment, textureBindingId, mipLevel, layer);
 
         public override void SetDrawBuffer(EDrawBuffersAttachment attachment)
             => GL.DrawBuffer((DrawBufferMode)(int)attachment);

@@ -34,7 +34,7 @@ namespace TheraEngine.Tests
 
         public unsafe override void BeginPlay()
         {
-            bool testLandscape = true;
+            bool testLandscape = false;
             bool createWalls = true;
             int pointLights = 0;
             int dirLights = 0;
@@ -261,6 +261,7 @@ namespace TheraEngine.Tests
                 //landscape.RootComponent.Translation.Y -= 50.0f;
                 actors.Add(landscape);
             }
+
             //Create shape tracer
             //actor = new SphereTraceActor();
             //actors.Add(actor);
@@ -293,6 +294,11 @@ namespace TheraEngine.Tests
             //Actor<PositionComponent> testScreenshake = new Actor<PositionComponent>(posComp);
             //actors.Add(testScreenshake);
 
+            IBLProbeGridActor iblProbes = new IBLProbeGridActor(
+                BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero),
+                new Vec3(0.02f));
+            actors.Add(iblProbes);
+
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {
                 Bounds = bounds,
@@ -301,6 +307,8 @@ namespace TheraEngine.Tests
             };
 
             base.BeginPlay();
+
+            iblProbes.InitAndCaptureAll(256);
         }
     }
 

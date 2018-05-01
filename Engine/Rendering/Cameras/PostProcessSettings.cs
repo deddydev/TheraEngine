@@ -266,7 +266,6 @@ uniform ColorGradeStruct ColorGrade;";
                 return;
 
             var tex = hdrSceneTexture.GetTextureGeneric(true);
-            Engine.Renderer.SetActiveTexture(0);
             tex.Bind();
             tex.GenerateMipmaps();
             Engine.Renderer.GetTexImage(ETexTarget.Texture2D, tex.SmallestMipmapLevel, tex.PixelFormat, tex.PixelType, _rgb);
@@ -274,7 +273,7 @@ uniform ColorGradeStruct ColorGrade;";
             if (float.IsNaN(rgb.X)) return;
             if (float.IsNaN(rgb.Y)) return;
             if (float.IsNaN(rgb.Z)) return;
-            float target = (0.5f / rgb.Dot(_luminance)).Clamp(MinExposure, MaxExposure);
+            float target = (0.5f / (rgb.Dot(_luminance) + 0.0001f)).Clamp(MinExposure, MaxExposure);
             Exposure = Interp.Lerp(Exposure, target, ExposureTransitionSpeed);
         }
     }

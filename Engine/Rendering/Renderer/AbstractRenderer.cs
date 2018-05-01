@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering
         {
             _2dSceneStack.Pop();
         }
-        internal static void PushCurrentCamera(Camera camera)
+        internal static void PushCamera(Camera camera)
         {
             Camera c = CurrentCamera;
 
@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering
             if (camera != null)
                 camera.IsActiveRenderCamera = true;
         }
-        internal static void PopCurrentCamera()
+        internal static void PopCamera()
         {
             Camera c = _cameraStack.Pop();
 
@@ -733,8 +733,10 @@ namespace TheraEngine.Rendering
         public abstract void BindFrameBuffer(EFramebufferTarget type, int bindingId);
         public abstract void CheckFrameBufferErrors();
         public abstract void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);
+        public abstract void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel, int layer);
         public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel);
         public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);
+        public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, int textureBindingId, int mipLevel, int layer);
 
         public abstract void SetDrawBuffer(EDrawBuffersAttachment attachment);
         public abstract void SetDrawBuffer(int bindingId, EDrawBuffersAttachment attachment);

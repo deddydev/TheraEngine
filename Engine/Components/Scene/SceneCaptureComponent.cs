@@ -1,144 +1,97 @@
 ﻿using System;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models.Materials.Textures;
-using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Actors.Types
 {
     public class SceneCaptureComponent : TranslationComponent
     {
-        private PerspectiveCamera[] _cameras;
-        private PrimitiveManager _cube;
-        private MaterialFrameBuffer _shadowMap;
-        private int _shadowResolution;
-        private Viewport _viewport = new Viewport(1.0f, 1.0f);
+        protected PerspectiveCamera[] _cameras;
+        protected FrameBuffer _renderFBO;
+        protected int _resolution;
+        protected Viewport _viewport;
+        protected TexRefCube _cubeTex;
 
-        public SceneCaptureComponent()
-        {
-           
+        public TexRefCube ResultTexture => _cubeTex;
 
-            PrimitiveData cubeData = BoundingBox.SolidMesh(-1.0f, 1.0f, true);
-            TexRefCube cubeMap = new TexRefCube("SceneCaptureCubeMap", 512,
-                EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
-            {
-                FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-            };
-            BaseTexRef[] textures = new BaseTexRef[] { cubeMap };
-            Engine.LoadEngineShader("SceneCaptureCube.fs", EShaderMode.Fragment);
-            TMaterial mat = new TMaterial("SceneCaptureMat", textures);
-            _cube = new PrimitiveManager(cubeData, mat);
-        }
-        /// <summary>
-        /// This is to set special uniforms each time something is rendered with the shadow depth shader.
-        /// </summary>
-        private void SetShadowDepthUniforms(int programBindingId)
+        public SceneCaptureComponent() { }
+        
+        public void SetCubeResolution(int resolution)
         {
-            //Engine.Renderer.Uniform(programBindingId, "FarPlaneDist", Radius);
-            Engine.Renderer.Uniform(programBindingId, "LightPos", WorldPoint);
-            for (int i = 0; i < _cameras.Length; ++i)
-                Engine.Renderer.Uniform(programBindingId, string.Format("ShadowMatrices[{0}]", i), _cameras[i].WorldToCameraProjSpaceMatrix);
-        }
-        public void SetShadowMapResolution(int resolution)
-        {
-            _shadowResolution = resolution;
-            if (_shadowMap == null)
+            _resolution = resolution;
+            if (_renderFBO == null)
                 Initialize(resolution);
             else
-                _shadowMap.ResizeTextures(resolution, resolution);
+                _renderFBO.ResizeTextures(resolution, resolution);
         }
-        private void Initialize(int resolution)
+        protected virtual void Initialize(int resolution)
         {
+            _viewport = new Viewport(resolution, resolution);
+
             _cameras = new PerspectiveCamera[6];
             Rotator[] rotations = new Rotator[]
             {
-                new Rotator(0.0f,   0.0f, 0.0f, RotationOrder.YPR), //forward
-                new Rotator(0.0f, 180.0f, 0.0f, RotationOrder.YPR), //backward
-                new Rotator(0.0f, -90.0f, 0.0f, RotationOrder.YPR), //left
-                new Rotator(0.0f,  90.0f, 0.0f, RotationOrder.YPR), //right
-                new Rotator(90.0f,  0.0f, 0.0f, RotationOrder.YPR), //up
-                new Rotator(-90.0f, 0.0f, 0.0f, RotationOrder.YPR), //down
+                new Rotator(0.0f,  90.0f, 0.0f, RotationOrder.YPR), //+X right
+                new Rotator(0.0f, -90.0f, 0.0f, RotationOrder.YPR), //-X left
+                new Rotator(90.0f,  0.0f, 0.0f, RotationOrder.YPR), //+Y up
+                new Rotator(-90.0f, 0.0f, 0.0f, RotationOrder.YPR), //-Y down
+                new Rotator(0.0f, 180.0f, 0.0f, RotationOrder.YPR), //+Z backward
+                new Rotator(0.0f,   0.0f, 0.0f, RotationOrder.YPR), //-Z forward
             };
 
             for (int i = 0; i < 6; ++i)
                 _cameras[i] = new PerspectiveCamera(
                     Vec3.Zero, rotations[i], 1.0f, 10000.0f, 90.0f, 1.0f);
 
-            _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(resolution));
-            _shadowMap.Material.SettingUniforms += SetShadowDepthUniforms;
-
-            _shadowMap.Generate();
+            _renderFBO = GetFBO(resolution);
         }
-        private static TMaterial GetShadowMapMaterial(int cubeExtent)
+        protected virtual FrameBuffer GetFBO(int cubeExtent)
         {
-            //These are listed in order of appearance in the shader
-            TexRefCube[] refs = new TexRefCube[]
+            _cubeTex = new TexRefCube("SceneCaptureCubeMap", cubeExtent,
+                EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
             {
-                new TexRefCube("SceneCaptureCubeMap", cubeExtent,
-                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.ClampToEdge,
-                    VWrap = ETexWrapMode.ClampToEdge,
-                    WWrap = ETexWrapMode.ClampToEdge,
-                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                },
+                MinFilter = ETexMinFilter.LinearMipmapLinear,
+                MagFilter = ETexMagFilter.Linear,
+                UWrap = ETexWrapMode.ClampToEdge,
+                VWrap = ETexWrapMode.ClampToEdge,
+                WWrap = ETexWrapMode.ClampToEdge,
             };
-            GLSLShaderFile fragShader = Engine.LoadEngineShader("SceneCaptureCube.fs", EShaderMode.Fragment);
-            GLSLShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", EShaderMode.Geometry);
-            TMaterial mat = new TMaterial("SceneCaptureMat", new ShaderVar[0], refs, fragShader, geomShader);
-            mat.RenderParams.CullMode = Culling.None;
-            return mat;
+
+            FrameBuffer f = new FrameBuffer();
+            f.SetRenderTargets((_cubeTex, EFramebufferAttachment.ColorAttachment0, 0));
+            return f;
         }
-
-        public void Capture() => Capture(OwningWorld.Settings.Bounds.HalfExtents.LengthFast);
-        public void Capture(float distance)
+        
+        /// <summary>
+        /// Renders the scene to the ResultTexture cubemap.
+        /// </summary>
+        public void Capture()
         {
+            if (_renderFBO == null)
+                SetCubeResolution(256);
+
             BaseScene scene = OwningScene;
-            //_viewport.Render(scene, Camera, Camera.Frustum, _shadowMap);
-
-            //prefilterShader.use();
-            //prefilterShader.setInt("environmentMap", 0);
-            //glActiveTexture(GL_TEXTURE0);
-            //glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
-
-            //glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-            //unsigned int maxMipLevels = 5;
-            //for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
-            //{
-            //    // resize framebuffer according to mip-level size.
-            //    unsigned int mipWidth = 128 * std::pow(0.5, mip);
-            //    unsigned int mipHeight = 128 * std::pow(0.5, mip);
-            //    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-            //    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
-            //    glViewport(0, 0, mipWidth, mipHeight);
-
-            //    float roughness = (float)mip / (float)(maxMipLevels - 1);
-            //    prefilterShader.setFloat("roughness", roughness);
-            //    for (unsigned int i = 0; i < 6; ++i)
-            //    {
-            //        prefilterShader.setMat4("projection", captureProjection);
-            //        prefilterShader.setMat4("view", captureViews[i]);
-            //        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
-
-            //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            //        renderCube();
-            //    }
-            //}
-            //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            //TODO: render to each of the sky texture's sides
-            //Engine.Scene.Render(cam, cam.Frustum, v, false);
-            foreach (PerspectiveCamera cam in _cameras)
+            for (int i = 0; i < 6; ++i)
             {
-                
+                Camera camera = _cameras[i];
+                camera.LocalPoint.Raw = WorldPoint;
+
+                _viewport.Update(scene, camera, camera.Frustum);
+                _viewport.SwapBuffers();
+
+                _cubeTex.AttachFaceToFBO(_renderFBO.BindingId, ECubemapFace.PosX + i);
+                _viewport.Render(scene, camera, _renderFBO);
             }
+
+            var tex = _cubeTex.GetTexture(true);
+            tex.Bind();
+            tex.SetMipmapGenParams();
+            //tex.GenerateMipmaps();
+            //Engine.Renderer.BindTexture(ETexTarget.TextureCubeMap, 0);
         }
     }
 }

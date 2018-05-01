@@ -50,11 +50,11 @@ namespace TheraEngine.Rendering
                 r.AddRenderables(populatingPasses);
             base.Update(populatingPasses, cullingVolume, camera, hud, shadowPass);
         }
-        public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, MaterialFrameBuffer target)
+        public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target)
         {
             target?.Bind(EFramebufferTarget.DrawFramebuffer);
 
-            AbstractRenderer.PushCurrentCamera(camera);
+            AbstractRenderer.PushCamera(camera);
             AbstractRenderer.PushCurrent2DScene(this);
             {
                 if (viewport != null)
@@ -98,7 +98,7 @@ namespace TheraEngine.Rendering
                 }
             }
             AbstractRenderer.PopCurrent2DScene();
-            AbstractRenderer.PopCurrentCamera();
+            AbstractRenderer.PopCamera();
 
             target?.Unbind(EFramebufferTarget.DrawFramebuffer);
         }

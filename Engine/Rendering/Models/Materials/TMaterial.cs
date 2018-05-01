@@ -91,6 +91,9 @@ namespace TheraEngine.Rendering.Models.Materials
         public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
             : this(name, UniformRequirements.None, null, vars, textures,shaders) { }
 
+        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
+            : this(name, UniformRequirements.None, renderParams, vars, textures, shaders) { }
+
         public TMaterial(string name, UniformRequirements requirements, params GLSLShaderFile[] shaders)
             : this(name, requirements, null, new ShaderVar[0], new BaseTexRef[0], shaders) { }
 

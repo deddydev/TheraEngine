@@ -497,6 +497,8 @@ namespace TheraEngine.Rendering
         /// <returns></returns>
         public int GetUniformLocation(int programBindingId, string name)
         {
+            //int loc = OnGetUniformLocation(programBindingId, name);
+            //return loc;
             if (_uniformCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> progDic))
                 return progDic.GetOrAdd(name, n => OnGetUniformLocation(programBindingId, n));
             else

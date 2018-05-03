@@ -254,22 +254,22 @@ namespace TheraEngine.Rendering.Models.Materials
             _isLoading = false;
         }
 
-        public override void AttachToFBO(int mipLevel = 0)
+        public override void AttachToFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
-                AttachToFBO(FrameBufferAttachment.Value, mipLevel);
+                AttachToFBO(target, FrameBufferAttachment.Value, mipLevel);
         }
-        public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
+        public override void AttachToFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
         {
             Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
         }
-        public override void DetachFromFBO(int mipLevel = 0)
+        public override void DetachFromFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, 0, mipLevel);
         }
 
-        public override void DetachFromFBO(EFramebufferAttachment attachment, int mipLevel = 0)
+        public override void DetachFromFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
         {
 
         }

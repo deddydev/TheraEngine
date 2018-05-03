@@ -380,20 +380,20 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        public override void AttachToFBO(int mipLevel = 0)
+        public override void AttachToFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
-                AttachToFBO(FrameBufferAttachment.Value, mipLevel);
+                AttachToFBO(target, FrameBufferAttachment.Value, mipLevel);
         }
-        public override void DetachFromFBO(int mipLevel = 0)
+        public override void DetachFromFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, ETexTarget.Texture2D, 0, mipLevel);
+                Engine.Renderer.AttachTextureToFrameBuffer(target, FrameBufferAttachment.Value, ETexTarget.Texture2D, 0, mipLevel);
         }
-        public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
-            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
-        public override void DetachFromFBO(EFramebufferAttachment attachment, int mipLevel = 0)
-            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.Texture2D, 0, mipLevel);
+        public override void AttachToFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
+        public override void DetachFromFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, ETexTarget.Texture2D, 0, mipLevel);
         
         public static TexRef2D CreateFrameBufferTexture(string name, int width, int height,
             EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType, EFramebufferAttachment bufAttach)

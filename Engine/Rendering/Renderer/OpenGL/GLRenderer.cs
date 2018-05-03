@@ -422,7 +422,8 @@ namespace TheraEngine.Rendering.OpenGL
         }
         protected override int OnGetUniformLocation(int programBindingId, string name)
         {
-            return GL.GetUniformLocation(programBindingId, name);
+            int loc = GL.GetUniformLocation(programBindingId, name);
+            return loc;
         }
 
         #region Uniform

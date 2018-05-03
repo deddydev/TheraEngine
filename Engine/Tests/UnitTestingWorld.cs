@@ -37,7 +37,7 @@ namespace TheraEngine.Tests
         public unsafe override void BeginPlay()
         {
             bool testLandscape = false;
-            bool createWalls = false;
+            bool createWalls = true;
             int pointLights = 1;
             int dirLights = 0;
             int spotLights = 0;
@@ -142,7 +142,7 @@ namespace TheraEngine.Tests
                     new Rotator(90.0f, -90.0f, 0.0f),
                 };
 
-                for (int i = 0; i < 6; ++i)
+                for (int i = 0; i < 1; ++i)
                 {
                     Rotator r = rotations[i];
                     actor = new BoxActor("Wall" + i,

@@ -1,8 +1,7 @@
-﻿using EnumsNET;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering
 {
@@ -12,10 +11,10 @@ namespace TheraEngine.Rendering
     {
         public FrameBuffer() : base(EObjectType.Framebuffer) { }
         
-        public (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)[] Targets { get; private set; }
+        public (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)[] Targets { get; private set; }
         public EDrawBuffersAttachment[] DrawBuffers { get; private set; }
         
-        public void SetRenderTargets(params (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)[] textures)
+        public void SetRenderTargets(params (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)[] textures)
         {
             if (IsActive)
                 DetachAll();
@@ -23,7 +22,7 @@ namespace TheraEngine.Rendering
             Targets = textures;
 
             List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-            foreach (var (Target, Attachment, MipLevel) in Targets)
+            foreach (var (Target, Attachment, MipLevel, LayerIndex) in Targets)
             {
                 switch (Attachment)
                 {
@@ -47,16 +46,16 @@ namespace TheraEngine.Rendering
             if (IsActive)
                 DetachAll();
             
-            List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)> targets
-                = new List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel)>();
+            List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)> targets
+                = new List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)>();
 
             foreach (BaseTexRef t in material.Textures.Where(x => x.FrameBufferAttachment.HasValue))
-                targets.Add((t, t.FrameBufferAttachment.Value, 0));
+                targets.Add((t, t.FrameBufferAttachment.Value, 0, -1));
             
             Targets = targets.ToArray();
 
             List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-            foreach (var (Texture, Attachment, MipLevel) in Targets)
+            foreach (var (Texture, Attachment, MipLevel, LayerIndex) in Targets)
             {
                 switch (Attachment)
                 {
@@ -81,15 +80,25 @@ namespace TheraEngine.Rendering
             if (BaseRenderPanel.NeedsInvoke(AttachAll, BaseRenderPanel.PanelType.World))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            foreach (var (Target, Attachment, MipLevel) in Targets)
+            foreach (var (Target, Attachment, MipLevel, LayerIndex) in Targets)
             {
                 if (Target is BaseTexRef tref)
                 {
-                    tref.GetTextureGeneric(true).PushData();
-                    tref.AttachToFBO(Attachment, MipLevel);
+                    BaseRenderTexture t = tref.GetTextureGeneric(true);
+                    t.PushData();
+                    t.Bind();
+                    if (LayerIndex >= 0 && tref is TexRefCube cuberef)
+                    {
+                        cuberef.AttachFaceToFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, MipLevel);
+                    }
+                    else
+                    {
+                        tref.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment, MipLevel);
+                    }
                 }
                 else if (Target is RenderBuffer buf)
                 {
+                    buf.Bind();
                     buf.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment);
                 }
             }
@@ -104,15 +113,23 @@ namespace TheraEngine.Rendering
             if (BaseRenderPanel.NeedsInvoke(DetachAll, BaseRenderPanel.PanelType.World))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            foreach (var (Target, Attachment, MipLevel) in Targets)
+            foreach (var (Target, Attachment, MipLevel, LayerIndex) in Targets)
             {
                 if (Target is BaseTexRef tref)
                 {
-                    tref.DetachFromFBO(MipLevel);
+                    tref.GetTextureGeneric(true).PushData();
+                    if (LayerIndex >= 0 && tref is TexRefCube cuberef)
+                    {
+                        cuberef.DetachFaceFromFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, 0);
+                    }
+                    else
+                    {
+                        tref.DetachFromFBO(EFramebufferTarget.Framebuffer, Attachment, MipLevel);
+                    }
                 }
                 else if (Target is RenderBuffer buf)
                 {
-                    buf.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment);
+                    buf.DetachFromFBO(EFramebufferTarget.Framebuffer, Attachment);
                 }
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, Attachment, NullBindingId, MipLevel);
             }
@@ -128,7 +145,7 @@ namespace TheraEngine.Rendering
             => Engine.Renderer.CheckFrameBufferErrors();
         public void ResizeTextures(int width, int height)
         {
-            foreach (var (Texture, Attachment, MipLevel) in Targets)
+            foreach (var (Texture, Attachment, MipLevel, LayerIndex) in Targets)
                 if (Texture is TexRef2D t2d)
                     t2d.Resize(width, height);
         }

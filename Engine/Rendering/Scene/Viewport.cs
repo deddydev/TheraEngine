@@ -649,7 +649,7 @@ namespace TheraEngine.Rendering
             TMaterial brdfMat = new TMaterial("BRDFMat", renderParams, brdfRefs, shader);
             MaterialFrameBuffer fbo = new MaterialFrameBuffer(brdfMat);
             fbo.SetRenderTargets(
-                (_brdfTex, EFramebufferAttachment.ColorAttachment0, 0));
+                (_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), 
                 VertexQuad.MakeQuad( //ndc space quad, so we don't have to load any camera matrices
                     new Vec3(-1.0f, -1.0f, -0.5f),
@@ -780,10 +780,10 @@ namespace TheraEngine.Rendering
                 SSAOFBO = new QuadFrameBuffer(ssaoMat);
                 SSAOFBO.SettingUniforms += SSAO_SetUniforms;
                 SSAOFBO.SetRenderTargets(
-                    (albedoOpacityTexture, EFramebufferAttachment.ColorAttachment0, 0),
-                    (normalTexture, EFramebufferAttachment.ColorAttachment1, 0),
-                    (rmsiTexture, EFramebufferAttachment.ColorAttachment2, 0),
-                    (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0));
+                    (albedoOpacityTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
+                    (normalTexture, EFramebufferAttachment.ColorAttachment1, 0, -1),
+                    (rmsiTexture, EFramebufferAttachment.ColorAttachment2, 0, -1),
+                    (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
 
                 SSAOBlurFBO = new QuadFrameBuffer(ssaoBlurMat);
                 GBufferFBO = new QuadFrameBuffer(deferredMat);
@@ -825,8 +825,8 @@ namespace TheraEngine.Rendering
             ForwardPassFBO = new QuadFrameBuffer(forwardMat);
             ForwardPassFBO.SettingUniforms += ForwardPassFBO_SettingUniforms;
             ForwardPassFBO.SetRenderTargets(
-                (_hdrSceneTexture, EFramebufferAttachment.ColorAttachment0, 0),
-                (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0));
+                (_hdrSceneTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
+                (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
 
             PingPongBloomBlurFBO = new PingPongFrameBuffer(bloomBlurMat, bloomBlurMat, null);
 
@@ -882,6 +882,23 @@ namespace TheraEngine.Rendering
             _worldCamera.SetUniforms(programBindingId);
             _worldCamera.PostProcessRef.File.ColorGrading.UpdateExposure(_hdrSceneTexture);
             _worldCamera.PostProcessRef.File.SetUniforms(programBindingId);
+
+            var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
+            if (probeActor == null)
+                return;
+
+            IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
+
+            TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
+                4, "Texture4", programBindingId);
+
+            if (probe.ResultTexture != null)
+                TMaterialBase.SetTextureUniform(probe.ResultTexture.GetTexture(true),
+                    5, "Texture5", programBindingId);
+
+            if (probe.PrefilterTex != null)
+                TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
+                    6, "Texture6", programBindingId);
         }
 
         #endregion

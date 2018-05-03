@@ -4,7 +4,6 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Actors.Types
 {
@@ -15,6 +14,7 @@ namespace TheraEngine.Actors.Types
         protected int _resolution;
         protected Viewport _viewport;
         protected TexRefCube _cubeTex;
+        protected RenderBuffer _depth;
 
         public TexRefCube ResultTexture => _cubeTex;
 
@@ -60,9 +60,9 @@ namespace TheraEngine.Actors.Types
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
             };
-            
+            _depth = new RenderBuffer();
+            _depth.SetStorage(ERenderBufferStorage.DepthComponent32f, cubeExtent, cubeExtent);
             FrameBuffer f = new FrameBuffer();
-            f.SetRenderTargets((_cubeTex, EFramebufferAttachment.ColorAttachment0, 0));
             return f;
         }
         
@@ -71,24 +71,29 @@ namespace TheraEngine.Actors.Types
         /// </summary>
         public void Capture()
         {
-            if (_renderFBO == null)
-                SetCubeResolution(512);
+            _cubeTex = new TexRefCube("", 0, new CubeMipmap(Engine.LoadEngineTexture2D("cubemap guide.png")));
 
-            BaseScene scene = OwningScene;
-            for (int i = 0; i < 6; ++i)
-            {
-                Camera camera = _cameras[i];
-                camera.LocalPoint.Raw = WorldPoint;
-
-                _viewport.Update(scene, camera, camera.Frustum);
-                _viewport.SwapBuffers();
-
-                _cubeTex.AttachFaceToFBO(_renderFBO.BindingId, ECubemapFace.PosX + i);
-                _viewport.Render(scene, camera, _renderFBO);
-            }
+            //if (_renderFBO == null)
+            //    SetCubeResolution(512);
 
             var tex = _cubeTex.GetTexture(true);
             tex.Bind();
+            //BaseScene scene = OwningScene;
+            //for (int i = 0; i < 6; ++i)
+            //{
+            //    Camera camera = _cameras[i];
+            //    camera.LocalPoint.Raw = WorldPoint;
+
+            //    _viewport.Update(scene, camera, camera.Frustum);
+            //    _viewport.SwapBuffers();
+
+            //    _renderFBO.SetRenderTargets(
+            //        (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+            //        (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
+
+            //    _viewport.Render(scene, camera, _renderFBO);
+            //}
+
             tex.SetMipmapGenParams();
             tex.GenerateMipmaps();
         }

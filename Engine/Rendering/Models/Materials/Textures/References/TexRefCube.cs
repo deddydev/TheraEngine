@@ -260,15 +260,15 @@ namespace TheraEngine.Rendering.Models.Materials
             //            FrameBufferAttachment.Value, ETexTarget.TextureCubeMapPositiveX + x, _texture.BindingId, i);
         }
         
-        public override void AttachToFBO(int mipLevel = 0)
+        public override void AttachToFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
-                AttachToFBO(FrameBufferAttachment.Value, mipLevel);
+                AttachToFBO(target, FrameBufferAttachment.Value, mipLevel);
         }
-        public override void DetachFromFBO(int mipLevel = 0)
+        public override void DetachFromFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, 0, mipLevel);
+                Engine.Renderer.AttachTextureToFrameBuffer(target, FrameBufferAttachment.Value, 0, mipLevel);
         }
         public void AttachFaceToFBO(int fboBindingId, ECubemapFace face, int mipLevel = 0)
         {
@@ -281,15 +281,15 @@ namespace TheraEngine.Rendering.Models.Materials
                 DetachFaceFromFBO(fboBindingId, FrameBufferAttachment.Value, face, mipLevel);
         }
 
-        public override void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0)
-            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
-        public override void DetachFromFBO(EFramebufferAttachment attachment, int mipLevel = 0)
-            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, 0, mipLevel);
+        public override void AttachToFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, _texture.BindingId, mipLevel);
+        public override void DetachFromFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, 0, mipLevel);
 
-        public void AttachFaceToFBO(EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
-            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.TextureCubeMapPositiveX + (int)face, _texture.BindingId, mipLevel);
-        public void DetachFaceFromFBO(EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
-            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, ETexTarget.TextureCubeMapPositiveX + (int)face, 0, mipLevel);
+        public void AttachFaceToFBO(EFramebufferTarget target, EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, ETexTarget.TextureCubeMapPositiveX + (int)face, _texture.BindingId, mipLevel);
+        public void DetachFaceFromFBO(EFramebufferTarget target, EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, ETexTarget.TextureCubeMapPositiveX + (int)face, 0, mipLevel);
 
         public void AttachFaceToFBO(int fboBindingId, EFramebufferAttachment attachment, ECubemapFace face, int mipLevel = 0)
             => Engine.Renderer.AttachTextureToFrameBuffer(fboBindingId, attachment, _texture.BindingId, mipLevel, (int)face);

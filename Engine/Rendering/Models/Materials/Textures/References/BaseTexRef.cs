@@ -35,9 +35,9 @@ namespace TheraEngine.Rendering.Models.Materials
         /// Converts this texture reference into a texture made for rendering.
         /// </summary>
         public abstract Task<BaseRenderTexture> GetTextureGenericAsync();
-        public abstract void AttachToFBO(int mipLevel = 0);
-        public abstract void DetachFromFBO(int mipLevel = 0);
-        public abstract void AttachToFBO(EFramebufferAttachment attachment, int mipLevel = 0);
-        public abstract void DetachFromFBO(EFramebufferAttachment attachment, int mipLevel = 0);
+        public abstract void AttachToFBO(EFramebufferTarget target, int mipLevel = 0);
+        public abstract void DetachFromFBO(EFramebufferTarget target, int mipLevel = 0);
+        public abstract void AttachToFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0);
+        public abstract void DetachFromFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0);
     }
 }

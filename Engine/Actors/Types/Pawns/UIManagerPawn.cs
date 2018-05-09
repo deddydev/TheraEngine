@@ -23,12 +23,7 @@ namespace TheraEngine.Actors.Types.Pawns
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
             Point absolute = Cursor.Position;
             BaseRenderPanel panel = v.OwningPanel;
-            try
-            {
-                if (panel != null && !panel.Disposing && !panel.IsDisposed)
-                    absolute = (Point)panel.Invoke(panel.PointToClientDelegate, absolute);
-            }
-            catch { }
+            absolute = panel.PointToClient(absolute);
             Vec2 result = new Vec2(absolute.X, absolute.Y);
             result = v.AbsoluteToRelative(result);
             return result;
@@ -49,12 +44,7 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             Point absolute = Cursor.Position;
             BaseRenderPanel panel = v.OwningPanel;
-            try
-            {
-                if (panel != null && !panel.Disposing && !panel.IsDisposed)
-                    absolute = (Point)panel.Invoke(panel.PointToClientDelegate, absolute);
-            }
-            catch { }
+            absolute = panel.PointToClient(absolute);
             Vec2 result = new Vec2(absolute.X, absolute.Y);
             result = v.AbsoluteToRelative(result);
             return result;

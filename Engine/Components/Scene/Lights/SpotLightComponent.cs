@@ -251,8 +251,11 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
-            TMaterialBase.SetTextureUniform(_shadowMap.Material.Textures[0].GetTextureGeneric(true), Viewport.GBufferTextureCount +
-                OwningScene.Lights.DirectionalLights.Count + LightIndex, string.Format("SpotShadowMaps[{0}]", LightIndex.ToString()), programBindingId);
+            TMaterialBase.SetTextureUniform(
+                _shadowMap.Material.Textures[0].GetTextureGeneric(true), 
+                Viewport.GBufferTextureCount + LightManager.MaxDirectionalLights + LightIndex,
+                string.Format("SpotShadowMaps[{0}]", LightIndex.ToString()),
+                programBindingId);
         }
 
         public void SetShadowMapResolution(int width, int height)

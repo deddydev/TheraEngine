@@ -15,6 +15,7 @@ using TheraEngine.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
+using TheraEngine.Rendering;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
@@ -507,7 +508,7 @@ namespace TheraEditor.Windows.Forms
             //Application.DoEvents();
         }
         //protected override void OnResizeBegin(EventArgs e)
-        //{\
+        //{
         //    RenderForm.RenderPanel.BeginResize();
         //    base.OnResizeBegin(e);
         //}

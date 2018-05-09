@@ -60,22 +60,55 @@ namespace TheraEditor.Windows.Forms
 
             Measures.DockPadding = 10;
 
-            //Extender.FloatWindowFactory = new TheraEditorFloatWindowFactory();
+            Extender.DockWindowFactory = new TheraEditorDockWindowFactory();
+            Extender.FloatWindowFactory = new TheraEditorFloatWindowFactory();
         }
     }
 
-    //internal class TheraEditorFloatWindowFactory : DockPanelExtender.IFloatWindowFactory
-    //{
-    //    public FloatWindow CreateFloatWindow(DockPanel dockPanel, DockPane pane)
-    //    {
-    //        return new TheraFloatWindow(dockPanel, pane);
-    //    }
+    internal class TheraEditorFloatWindowFactory : DockPanelExtender.IFloatWindowFactory
+    {
+        public FloatWindow CreateFloatWindow(DockPanel dockPanel, DockPane pane)
+        {
+            return new TheraFloatWindow(dockPanel, pane);
+        }
 
-    //    public FloatWindow CreateFloatWindow(DockPanel dockPanel, DockPane pane, Rectangle bounds)
-    //    {
-    //        return new TheraFloatWindow(dockPanel, pane, bounds);
-    //    }
-    //}
+        public FloatWindow CreateFloatWindow(DockPanel dockPanel, DockPane pane, Rectangle bounds)
+        {
+            return new TheraFloatWindow(dockPanel, pane, bounds);
+        }
+    }
+
+    internal class TheraEditorDockWindowFactory : DockPanelExtender.IDockWindowFactory
+    {
+        public DockWindow CreateDockWindow(DockPanel dockPanel, DockState dockState)
+        {
+            return new TheraDockWindow(dockPanel, dockState);
+        }
+    }
+
+    public class TheraDockWindow : DockWindow
+    {
+        protected internal TheraDockWindow(DockPanel dockPanel, DockState dockState) : base(dockPanel, dockState)
+        {
+            Control parent = DockPanel;
+            while (parent != null)
+            {
+                parent.Move += Parent_Move;
+                parent = parent.Parent;
+            }
+            Form f = DockPanel.FindForm();
+            if (f != null)
+            {
+                f.Move += Parent_Move;
+            }
+        }
+
+        private void Parent_Move(object sender, System.EventArgs e)
+        {
+            foreach (DockPane p in NestedPanes)
+                p.DockWindow.Location = p.DockWindow.Location;
+        }
+    }
 
     public class TheraFloatWindow : FloatWindow
     {

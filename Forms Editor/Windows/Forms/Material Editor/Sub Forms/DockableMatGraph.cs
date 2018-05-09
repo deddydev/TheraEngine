@@ -1,4 +1,4 @@
-﻿using ComponentOwl.BetterListView;
+﻿//using ComponentOwl.BetterListView;
 using System;
 using System.Windows.Forms;
 using TheraEngine;
@@ -106,21 +106,21 @@ namespace TheraEditor.Windows.Forms
             if (fmts == null || fmts.Length == 0)
                 return;
 
-            BetterListViewItemDragData data = e.Data.GetData(fmts[0]) as BetterListViewItemDragData;
-            if (data.Items.Count == 0)
-                return;
+            //BetterListViewItemDragData data = e.Data.GetData(fmts[0]) as BetterListViewItemDragData;
+            //if (data.Items.Count == 0)
+            //    return;
 
-            BetterListViewItem item = data.Items[0];
-            MaterialEditorForm editor = DockPanel.FindForm() as MaterialEditorForm;
-            MatFuncInfo info = editor.MaterialFunctions._funcs[(int)item.Tag];
-            _dragged = info.CreateNew();
+            //BetterListViewItem item = data.Items[0];
+            //MaterialEditorForm editor = DockPanel.FindForm() as MaterialEditorForm;
+            //MatFuncInfo info = editor.MaterialFunctions._funcs[(int)item.Tag];
+            //_dragged = info.CreateNew();
 
-            UIMaterialEditor ui = RenderPanel.UI;
-            _dragged.LocalTranslation = Vec3.TransformPosition(ui.CursorPositionWorld(), ui._rootTransform.InverseWorldMatrix).Xy;
-            ui.AddMaterialFunction(_dragged);
-            ui._highlightedFunc = _dragged;
-            RenderPanel.Focus();
-            ui.LeftClickDown();
+            //UIMaterialEditor ui = RenderPanel.UI;
+            //_dragged.LocalTranslation = Vec3.TransformPosition(ui.CursorPositionWorld(), ui._rootTransform.InverseWorldMatrix).Xy;
+            //ui.AddMaterialFunction(_dragged);
+            //ui._highlightedFunc = _dragged;
+            //RenderPanel.Focus();
+            //ui.LeftClickDown();
         }
         
         private void RenderPanel_DragOver(object sender, DragEventArgs e)

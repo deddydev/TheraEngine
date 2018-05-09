@@ -681,5 +681,30 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void BeginQuery(int bindingId, EQueryTarget target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void EndQuery(EQueryTarget target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void QueryCounter(int bindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetQueryObjectInt(int bindingId, EGetQueryObject obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override long GetQueryObjectLong(int bindingId, EGetQueryObject obj)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

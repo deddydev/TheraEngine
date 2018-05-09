@@ -253,6 +253,9 @@
     <Reference Include="nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.10.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.0.0\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.4.0.1\lib\net45\SharpDX.dll</HintPath>
     </Reference>
@@ -285,10 +288,6 @@
     </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\Steamworks\Steamworks.NET.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\OpenTK\bin\OpenTK\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -608,6 +607,7 @@
     <Compile Include="Rendering\Models\Materials\Functions\MaterialFunction.cs" />
     <Compile Include="Rendering\Models\Materials\Functions\MatFuncExecInput.cs" />
     <Compile Include="Rendering\Models\Materials\Functions\MatFuncExecOutput.cs" />
+    <None Include="OpenTK.dll.config" />
     <None Include="TheraDevKey.pfx" />
     <None Include="ThirdParty\Collada\Parser\Core\Animation.cs" />
     <Compile Include="ThirdParty\Collada\ColladaAssetDecoder.cs" />

@@ -124,9 +124,11 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", Radius);
             Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
 
-            TMaterialBase.SetTextureUniform(_shadowMap.Material.Textures[0].GetTextureGeneric(true), Viewport.GBufferTextureCount +
-                OwningScene.Lights.DirectionalLights.Count + OwningScene.Lights.SpotLights.Count + LightIndex,
-                string.Format("PointShadowMaps[{0}]", LightIndex.ToString()), programBindingId);
+            TMaterialBase.SetTextureUniform(
+                _shadowMap.Material.Textures[0].GetTextureGeneric(true),
+                Viewport.GBufferTextureCount + LightManager.MaxDirectionalLights + LightManager.MaxSpotLights + LightIndex,
+                string.Format("PointShadowMaps[{0}]", LightIndex.ToString()),
+                programBindingId);
         }
         /// <summary>
         /// This is to set special uniforms each time something is rendered with the shadow depth shader.
@@ -146,7 +148,7 @@ namespace TheraEngine.Components.Scene.Lights
                 _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(resolution));
                 _shadowMap.Material.SettingUniforms += SetShadowDepthUniforms;
 
-                _shadowMap.Generate();
+                //_shadowMap.Generate();
             }
             else
                 _shadowMap.ResizeTextures(resolution, resolution);
@@ -193,7 +195,7 @@ namespace TheraEngine.Components.Scene.Lights
             _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowResolution, _shadowResolution, 0.0f, 0.0f));
             {
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
                 Engine.Renderer.AllowDepthWrite(true);
                 scene.Render(_passes, null, null, null, null);
             }

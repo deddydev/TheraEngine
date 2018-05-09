@@ -43,9 +43,16 @@ namespace TheraEngine.Actors.Types
                 new Rotator(0.0f,   0.0f, 0.0f, RotationOrder.YPR), //-Z forward
             };
 
+            PerspectiveCamera c;
             for (int i = 0; i < 6; ++i)
-                _cameras[i] = new PerspectiveCamera(
-                    Vec3.Zero, rotations[i], 1.0f, 10000.0f, 90.0f, 1.0f);
+            {
+                c = new PerspectiveCamera(Vec3.Zero, rotations[i], 1.0f, 10000.0f, 90.0f, 1.0f);
+                c.LocalPoint.Raw = WorldPoint;
+                //c.Resize(_viewport.InternalResolution.Width, _viewport.InternalResolution.Height);
+                c.PostProcessRef.File.ColorGrading.AutoExposure = false;
+                //c.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
+                _cameras[i] = c;
+            }
 
             _renderFBO = GetFBO(resolution);
         }
@@ -54,46 +61,57 @@ namespace TheraEngine.Actors.Types
             _cubeTex = new TexRefCube("SceneCaptureCubeMap", cubeExtent,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
             {
-                MinFilter = ETexMinFilter.LinearMipmapLinear,
-                MagFilter = ETexMagFilter.Linear,
+                MinFilter = ETexMinFilter.NearestMipmapNearest,
+                MagFilter = ETexMagFilter.Nearest,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
             };
             _depth = new RenderBuffer();
-            _depth.SetStorage(ERenderBufferStorage.DepthComponent32f, cubeExtent, cubeExtent);
+            _depth.SetStorage(ERenderBufferStorage.DepthComponent16, cubeExtent, cubeExtent);
             FrameBuffer f = new FrameBuffer();
+            //f.SetRenderTargets(
+            //    (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, 0),
+            //    (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
             return f;
         }
-        
+        protected override void OnWorldTransformChanged()
+        {
+            base.OnWorldTransformChanged();
+            if (_cameras != null)
+                foreach (Camera c in _cameras)
+                    c.LocalPoint.Raw = WorldPoint;
+        }
         /// <summary>
         /// Renders the scene to the ResultTexture cubemap.
         /// </summary>
         public void Capture()
         {
-            _cubeTex = new TexRefCube("", 0, new CubeMipmap(Engine.LoadEngineTexture2D("cubemap guide.png")));
+            //_cubeTex = new TexRefCube("", 0, new CubeMipmap(Engine.LoadEngineTexture2D("cubemap guide.png")));
 
             //if (_renderFBO == null)
             //    SetCubeResolution(512);
 
             var tex = _cubeTex.GetTexture(true);
+            tex.Resizable = false;
+            Scene3D scene = OwningScene;
+            scene.UpdateShadowMaps();
+            scene.Lights.SwapBuffers();
+            scene.RenderShadowMaps();
+            for (int i = 0; i < 6; ++i)
+            {
+                Camera camera = _cameras[i];
+                _viewport.Camera = camera;
+                _viewport.Update(scene, camera, camera.Frustum);
+                _viewport.SwapBuffers();
+                _renderFBO.SetRenderTargets(
+                    (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+                    (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
+                //_renderFBO.UpdateRenderTarget(0, (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i));
+                _viewport.Render(scene, camera, _renderFBO);
+            }
+
             tex.Bind();
-            //BaseScene scene = OwningScene;
-            //for (int i = 0; i < 6; ++i)
-            //{
-            //    Camera camera = _cameras[i];
-            //    camera.LocalPoint.Raw = WorldPoint;
-
-            //    _viewport.Update(scene, camera, camera.Frustum);
-            //    _viewport.SwapBuffers();
-
-            //    _renderFBO.SetRenderTargets(
-            //        (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-            //        (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
-
-            //    _viewport.Render(scene, camera, _renderFBO);
-            //}
-
             tex.SetMipmapGenParams();
             tex.GenerateMipmaps();
         }

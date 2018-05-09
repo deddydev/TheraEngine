@@ -674,7 +674,8 @@ namespace TheraEngine.Rendering
         TextureSwizzleG = 36419,
         TextureSwizzleB = 36420,
         TextureSwizzleA = 36421,
-        TextureSwizzleRgba = 36422
+        TextureSwizzleRgba = 36422,
+        DepthStencilTextureMode = 37098,
     }
     public enum EBlitFramebufferFilter
     {
@@ -690,6 +691,13 @@ namespace TheraEngine.Rendering
         StencilBufferBit    = 0b00100,
         ColorBufferBit      = 0b01000,
         CoverageBufferBitNv = 0b10000,
+    }
+    public enum EGetQueryObject
+    {
+        QueryTarget = 33514,
+        QueryResult = 34918,
+        QueryResultAvailable = 34919,
+        QueryResultNoWait = 37268
     }
     public enum EQueryTarget
     {

@@ -18,9 +18,11 @@ layout(binding = 4) uniform sampler2D Texture4; //Depth
 layout(binding = 5) uniform sampler2D Texture5; //BRDF LUT
 layout(binding = 6) uniform samplerCube Texture6; //Irradiance Map
 layout(binding = 7) uniform samplerCube Texture7; //Prefilter Map
-
+layout(binding = 8)
 uniform sampler2D DirShadowMaps[MAX_DIR_LIGHTS];
+layout(binding = 9)
 uniform sampler2D SpotShadowMaps[MAX_SPOT_LIGHTS];
+layout(binding = 12)
 uniform samplerCube PointShadowMaps[MAX_POINT_LIGHTS];
 
 uniform vec3 CameraPosition;
@@ -38,7 +40,7 @@ uniform mat4 ProjMatrix;
 uniform mat4 InvProjMatrix;
 
 uniform vec3 GlobalAmbient;
-uniform int DirLightCount; 
+uniform int DirLightCount;
 uniform int SpotLightCount;
 uniform int PointLightCount;
 
@@ -114,8 +116,8 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in sampler2D s
 	//    for (int y = -1; y <= 1; ++y)
 	//    {
 	//        float pcfDepth = texture(shadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
-	//        shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;        
-	//    }    
+	//        shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;
+	//    }
 	//}
 	//shadow *= 0.111111111f; //divided by 9
 
@@ -140,9 +142,9 @@ float ReadPointShadowMap(in int lightIndex, in float farPlaneDist, in vec3 fragT
     //           for (int z = -1; z <= 1; ++z)
     //        {
     //            float pcfDepth = texture(map, fragToLightWS + vec3(x, y, z) * texelSize).r * farPlaneDist;
-    //            shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;    
+    //            shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;
     //        }
-    //    }    
+    //    }
     //}
     //shadow *= 0.111111111f; //divided by 9
 
@@ -228,7 +230,7 @@ in vec3 F0)
 	vec3 kS = F;
 	vec3 kD = 1.0f - kS;
 	kD *= 1.0f - metallic;
-	
+
 	vec3 radiance = lightAttenuation * light.Color * light.DiffuseIntensity;
 	return (kD * albedo / PI + spec) * radiance * NoL;
 }
@@ -249,10 +251,10 @@ in vec3 F0)
 	float NoH = max(dot(N, H), 0.0f);
 	float NoV = max(dot(N, V), 0.0f);
 	float HoV = max(dot(H, V), 0.0f);
-	
-   	vec3 color = CalcColor(
-		light.Base, 
-		NoL, NoH, NoV, HoV, 
+
+  vec3 color = CalcColor(
+		light.Base,
+		NoL, NoH, NoV, HoV,
 		1.0f, albedo, rms, F0);
 
 	float shadow = ReadShadowMap2D(
@@ -274,7 +276,8 @@ in vec3 F0)
 	PointLight light = PointLights[lightIndex];
 
 	vec3 L = light.Position - fragPosWS;
-	float lightDist = length(L) / light.Brightness;
+  float realLightDist = length(L);
+	float lightDist = realLightDist / light.Brightness;
 	float radius = light.Radius / light.Brightness;
 	float attn = Attenuate(lightDist, radius);
 	L = normalize(L);
@@ -286,15 +289,15 @@ in vec3 F0)
 	float HoV = max(dot(H, V), 0.0f);
 
 	vec3 color = CalcColor(
-		light.Base, 
-		NoL, NoH, NoV, HoV, 
+		light.Base,
+		NoL, NoH, NoV, HoV,
 		attn, albedo, rms, F0);
 
 	float shadow = ReadPointShadowMap(
-		lightIndex, light.Radius, -L, lightDist, NoL);
+		lightIndex, radius, -L, lightDist, NoL);
 
 	return color * shadow;
-} 
+}
 vec3 CalcSpotLight(
 in int lightIndex,
 in vec3 N,
@@ -334,14 +337,14 @@ in vec3 F0)
 	float NoH = max(dot(N, H), 0.0f);
 	float NoV = max(dot(N, V), 0.0f);
 	float HoV = max(dot(H, V), 0.0f);
-	
+
 	vec3 color = CalcColor(
-		light.Base, 
-		NoL, NoH, NoV, HoV, 
+		light.Base,
+		NoL, NoH, NoV, HoV,
 		attn, albedo, rms, F0);
 
 	float shadow = ReadShadowMap2D(
-		fragPosWS, N, NoL, 
+		fragPosWS, N, NoL,
 		SpotShadowMaps[lightIndex],
 		light.WorldToLightSpaceProjMatrix);
 
@@ -355,7 +358,7 @@ in vec3 rms,
 in float ao)
 {
 	const float MAX_REFLECTION_LOD = 4.0f;
-	
+
 	float roughness = rms.x;
 	float metallic = rms.y;
 	vec3 V = normalize(CameraPosition - fragPosWS);
@@ -380,10 +383,10 @@ in float ao)
 	vec3 kS = SpecF_SchlickRoughnessApprox(NoV, F0, roughness);
 	vec3 kD = (1.0f - kS) * (1.0f - metallic);
 	vec3 R = reflect(-V, normal);
-    	
+
 	vec3 irradiance = texture(Texture6, normal).rgb;
 	vec3 diffuse = irradiance * albedo;
-	vec3 prefilteredColor = textureLod(Texture7, R, roughness * MAX_REFLECTION_LOD).rgb;    
+	vec3 prefilteredColor = textureLod(Texture7, R, roughness * MAX_REFLECTION_LOD).rgb;
 	vec2 brdf = texture(Texture5, vec2(NoV, roughness)).rg;
 	vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
@@ -412,5 +415,5 @@ void main()
 	//Resolve world fragment position using depth and screen UV
 	vec3 fragPosWS = WorldPosFromDepth(depth, uv);
 
-	OutColor = CalcTotalLight(fragPosWS, normal, albedo, rms, ao);
+	OutColor = CalcTotalLight(fragPosWS, normal, albedo, rms, ao) * ao;
 }

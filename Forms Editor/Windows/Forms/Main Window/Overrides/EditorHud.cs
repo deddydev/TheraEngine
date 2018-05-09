@@ -626,7 +626,7 @@ namespace TheraEditor.Windows.Forms
                     if (t != null)
                     {
                         if (t.TreeView.InvokeRequired)
-                            t.TreeView.Invoke((Action)(() => t.TreeView.SelectedNode = t));
+                            t.TreeView.BeginInvoke((Action)(() => t.TreeView.SelectedNode = t));
                         else
                             t.TreeView.SelectedNode = t;
                     }

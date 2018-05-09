@@ -1,5 +1,6 @@
 ﻿using static System.Math;
 using TheraEngine.Core.Maths.Transforms;
+using System.Linq;
 
 namespace System
 {
@@ -520,6 +521,49 @@ namespace System
                 for (int i = 1; i < values.Length; i++)
                     v = Math.Min(v, values[i]);
             return v;
+        }
+        public static int[] PascalTriangleRow(int rowIndex)
+        {
+            int[] values = new int[rowIndex + 1];
+            int c = 1;
+            for (int row = 0; row <= rowIndex; ++row)
+                for (int val = 0; val <= row; val++)
+                {
+                    if (val == 0 || row == 0)
+                        c = 1;
+                    else
+                    {
+                        c = c * (row - val + 1) / val;
+                        if (row == rowIndex)
+                            values[val] = c;
+                    }
+                }
+            return values;
+        }
+        public static int[] PascalTriangleRow(int rowIndex, out int sum)
+        {
+            sum = (int)Pow(2, rowIndex);
+            return PascalTriangleRow(rowIndex);
+        }
+        /// <summary>
+        /// Returns the Y-value from a normal distribution given the following parameters.
+        /// </summary>
+        /// <param name="x">The X-value on the distribution.</param>
+        /// <param name="sigma">The standard deviation.</param>
+        /// <param name="mu">Mu is the mean or expectation of the distribution (and also its median and mode),</param>
+        /// <returns>The Y-value.</returns>
+        public static double NormalDistribution(double x, double sigma = 1.0, double mu = 0.0)
+        {
+            x -= mu;
+            x = x * x;
+            double m = sigma * sigma;
+            double power = -x * 0.5 / m;
+            return Exp(power) / (sigma * Sqrt(2.0 * PI));
+        }
+        public static double[] NormalDistributionKernel(int pascalRow)
+        {
+            int[] rowValues = PascalTriangleRow(pascalRow, out int sum);
+            return rowValues.Select(x => (double)x / sum).ToArray();
         }
         #endregion
     }

@@ -11,7 +11,7 @@ namespace BorderlessForm
     /// <summary>
     /// Based on http://customerborderform.codeplex.com/
     /// </summary>
-    public class BorderlessFormBase : Form
+    public class BorderlessFormBase : DockContent
     {
         public void DecorationMouseDown(HitTestValues hit, Point p)
         {

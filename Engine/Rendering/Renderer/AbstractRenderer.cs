@@ -783,6 +783,12 @@ namespace TheraEngine.Rendering
         public abstract void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type);
         public abstract void EndConditionalRender();
 
+        public abstract void BeginQuery(int bindingId, EQueryTarget target);
+        public abstract void EndQuery(EQueryTarget target);
+        public abstract void QueryCounter(int bindingId);
+        public abstract int GetQueryObjectInt(int bindingId, EGetQueryObject obj);
+        public abstract long GetQueryObjectLong(int bindingId, EGetQueryObject obj);
+
         public abstract void BlendColor(ColorF4 color);
         public abstract void BlendFunc(EBlendingFactor srcFactor, EBlendingFactor destFactor);
         public abstract void BlendFuncSeparate(EBlendingFactor srcFactorRGB, EBlendingFactor destFactorRGB, EBlendingFactor srcFactorAlpha, EBlendingFactor destFactorAlpha);

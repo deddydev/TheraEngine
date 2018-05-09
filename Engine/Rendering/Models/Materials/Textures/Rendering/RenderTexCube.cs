@@ -114,31 +114,30 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                     _storageSet = true;
                 }
 
-                if ((setStorage && _hasPushed) || !setStorage)
-                    for (int i = 0; i < _mipmaps.Length; ++i)
+                for (int i = 0; i < _mipmaps.Length; ++i)
+                {
+                    RenderCubeMipmap mip = _mipmaps[i];
+                    for (int x = 0; x < mip.Sides.Length; ++x)
                     {
-                        RenderCubeMipmap mip = _mipmaps[i];
-                        for (int x = 0; x < mip.Sides.Length; ++x)
+                        RenderCubeSide side = mip.Sides[x];
+                        Bitmap bmp = side.Map;
+
+                        ETexTarget target = ETexTarget.TextureCubeMapPositiveX + x;
+                        if (bmp != null)
                         {
-                            RenderCubeSide side = mip.Sides[x];
-                            Bitmap bmp = side.Map;
+                            BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
 
-                            ETexTarget target = ETexTarget.TextureCubeMapPositiveX + x;
-                            if (bmp != null)
-                            {
-                                BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                            if (_hasPushed || setStorage)
+                                Engine.Renderer.PushTextureSubData(target, i, 0, 0, bmp.Width, bmp.Height, side.PixelFormat, side.PixelType, data.Scan0);
+                            else
+                                Engine.Renderer.PushTextureData(target, i, side.InternalFormat, bmp.Width, bmp.Height, side.PixelFormat, side.PixelType, data.Scan0);
 
-                                if (_hasPushed)
-                                    Engine.Renderer.PushTextureSubData(target, i, 0, 0, bmp.Width, bmp.Height, side.PixelFormat, side.PixelType, data.Scan0);
-                                else
-                                    Engine.Renderer.PushTextureData(target, i, side.InternalFormat, bmp.Width, bmp.Height, side.PixelFormat, side.PixelType, data.Scan0);
-
-                                bmp.UnlockBits(data);
-                            }
-                            else if (!_hasPushed)
-                                Engine.Renderer.PushTextureData(target, i, side.InternalFormat, side.Width, side.Height, side.PixelFormat, side.PixelType, IntPtr.Zero);
+                            bmp.UnlockBits(data);
                         }
+                        else if (!(_hasPushed || setStorage))
+                            Engine.Renderer.PushTextureData(target, i, side.InternalFormat, side.Width, side.Height, side.PixelFormat, side.PixelType, IntPtr.Zero);
                     }
+                }
             }
             _hasPushed = true;
 

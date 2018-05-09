@@ -181,15 +181,8 @@ namespace TheraEngine.Rendering.Models.Materials
                 return;
 
             _texture.Bind();
-
-            if (DepthStencilFormat != EDepthStencilFmt.None)
-            {
-                int u = DepthStencilFormat == EDepthStencilFmt.Stencil ?
-                    (int)OpenTK.Graphics.OpenGL.All.StencilIndex :
-                    (int)OpenTK.Graphics.OpenGL.All.DepthComponent;
-                int id = _texture.BindingId;
-                OpenTK.Graphics.OpenGL.GL.TextureParameterI(id, OpenTK.Graphics.OpenGL.All.DepthStencilTextureMode, ref u);
-            }
+            int dsmode = DepthStencilFormat == EDepthStencilFmt.Stencil ? 6401 : 6402;
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.DepthStencilTextureMode, dsmode);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, LodBias);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)MagFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)MinFilter);

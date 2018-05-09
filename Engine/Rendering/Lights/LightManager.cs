@@ -7,9 +7,9 @@ namespace TheraEngine.Rendering
 {
     public class LightManager : TObject
     {
-        public const int MaxPointLights = 16;
-        public const int MaxSpotLights = 16;
-        public const int MaxDirectionalLights = 3;
+        public const int MaxPointLights = 1;
+        public const int MaxSpotLights = 3;
+        public const int MaxDirectionalLights = 1;
 
         private ColorF3 _globalAmbient;
         private HashSet<DirectionalLightComponent> _directionalLights = new HashSet<DirectionalLightComponent>();

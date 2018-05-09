@@ -177,7 +177,9 @@ namespace TheraEngine.Rendering.OpenGL
                     GL.CreateProgramPipelines(count, ids);
                     break;
                 case EObjectType.Query:
-                    throw new InvalidOperationException("Call CreateQueries instead.");
+                    //throw new InvalidOperationException("Call CreateQueries instead.");
+                    GL.GenQueries(count, ids);
+                    break;
                 case EObjectType.Renderbuffer:
                     GL.CreateRenderbuffers(count, ids);
                     break;
@@ -1034,6 +1036,28 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.EndConditionalRender();
         }
+        public override void BeginQuery(int bindingId, EQueryTarget target)
+        {
+            GL.BeginQuery((QueryTarget)(int)target, bindingId);
+        }
+        public override void EndQuery(EQueryTarget target)
+        {
+            GL.EndQuery((QueryTarget)(int)target);
+        }
+        public override int GetQueryObjectInt(int bindingId, EGetQueryObject obj)
+        {
+            GL.GetQueryObject(bindingId, (GetQueryObjectParam)(int)obj, out int val);
+            return val;
+        }
+        public override long GetQueryObjectLong(int bindingId, EGetQueryObject obj)
+        {
+            GL.GetQueryObject(bindingId, (GetQueryObjectParam)(int)obj, out long val);
+            return val;
+        }
+        public override void QueryCounter(int bindingId)
+        {
+            GL.QueryCounter(bindingId, QueryCounterTarget.Timestamp);
+        }
         public override void UniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding)
         {
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 0, 0);
@@ -1163,10 +1187,10 @@ namespace TheraEngine.Rendering.OpenGL
             => GL.GenerateTextureMipmap(textureBindingId);
         public override void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
         {
-            GL.TextureParameterI(bindingId, All.TextureBaseLevel, ref largestMipmapLevel);
-            GL.TextureParameterI(bindingId, All.TextureMaxLevel, ref smallestAllowedMipmapLevel);
-            GL.TextureParameterI(bindingId, All.TextureMinLod, ref minLOD);
-            GL.TextureParameterI(bindingId, All.TextureMaxLod, ref maxLOD);
+            GL.TextureParameterI(bindingId, TextureParameterName.TextureBaseLevel, ref largestMipmapLevel);
+            GL.TextureParameterI(bindingId, TextureParameterName.TextureMaxLevel, ref smallestAllowedMipmapLevel);
+            GL.TextureParameterI(bindingId, TextureParameterName.TextureMinLod, ref minLOD);
+            GL.TextureParameterI(bindingId, TextureParameterName.TextureMaxLod, ref maxLOD);
         }
         public override void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel)
         {
@@ -1189,7 +1213,7 @@ namespace TheraEngine.Rendering.OpenGL
         public override void BlendColor(ColorF4 color)
             => GL.BlendColor(color.R, color.G, color.B, color.A);
         public override void BlendFunc(EBlendingFactor srcFactor, EBlendingFactor destFactor)
-            => GL.BlendFunc((BlendingFactorSrc)(int)srcFactor, (BlendingFactorDest)(int)destFactor);
+            => GL.BlendFunc((BlendingFactor)(int)srcFactor, (BlendingFactor)(int)destFactor);
         public override void BlendFuncSeparate(EBlendingFactor srcFactorRGB, EBlendingFactor destFactorRGB, EBlendingFactor srcFactorAlpha, EBlendingFactor destFactorAlpha)
             => GL.BlendFuncSeparate((BlendingFactorSrc)(int)srcFactorRGB, (BlendingFactorDest)(int)destFactorRGB, (BlendingFactorSrc)(int)srcFactorAlpha, (BlendingFactorDest)(int)destFactorAlpha);
         public override void BlendEquation(EBlendEquationMode rgb, EBlendEquationMode alpha)

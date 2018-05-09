@@ -63,7 +63,8 @@ namespace TheraEngine.Input.Devices
             OnUnbounded(xPos, yPos);
             Point absolute = Cursor.Position;
             if (BaseRenderPanel.HoveredPanel != null)
-                absolute = (Point)BaseRenderPanel.HoveredPanel.Invoke(BaseRenderPanel.HoveredPanel.PointToClientDelegate, absolute);
+            //    absolute = (Point)BaseRenderPanel.HoveredPanel.Invoke(BaseRenderPanel.HoveredPanel.PointToClientDelegate, absolute);
+            absolute = BaseRenderPanel.HoveredPanel.PointToClient(absolute);
             xPos = absolute.X;
             yPos = absolute.Y;
             OnAbsolute(xPos, yPos);

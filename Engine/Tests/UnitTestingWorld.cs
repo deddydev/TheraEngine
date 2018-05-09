@@ -27,20 +27,21 @@ namespace TheraEngine.Tests
 {
     public class UnitTestingWorld : World
     {
+        private Random _rand = new Random();
         private void RigidBodyCollision_Collided1(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)
         {
             ShaderVec3 color = (ShaderVec3)((StaticMeshComponent)@this.Owner).ModelRef.File.RigidChildren[0].LODs[0].MaterialRef.File.Parameters[0];
-            color.Value = (ColorF3)Color.Green;
+            color.Value = new Vec3((float)_rand.NextDouble(), (float)_rand.NextDouble(), (float)_rand.NextDouble());
             //_collideSound.Play(_param);
         }
 
         public unsafe override void BeginPlay()
         {
-            bool testLandscape = false;
+            bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 1;
+            int pointLights = 0;
             int dirLights = 0;
-            int spotLights = 0;
+            int spotLights = 3;
 
             float margin = 2.0f;
             float radius = 1.0f;

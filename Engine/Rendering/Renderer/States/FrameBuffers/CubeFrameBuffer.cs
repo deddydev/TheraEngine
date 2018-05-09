@@ -14,8 +14,10 @@ namespace TheraEngine.Rendering
         
         private Camera[] _cameras;
         private PrimitiveManager _cube;
-        
-        public CubeFrameBuffer(TMaterial mat, bool perspectiveCameras = true)
+
+        public Camera[] Cameras => _cameras;
+
+        public CubeFrameBuffer(TMaterial mat, float nearZ = 1.0f, float farZ = 1000.0f, bool perspectiveCameras = true)
         {
             Material = mat;
 
@@ -36,8 +38,8 @@ namespace TheraEngine.Rendering
 
             for (int i = 0; i < 6; ++i)
                 _cameras[i] = perspectiveCameras ?
-                    new PerspectiveCamera(Vec3.Zero, rotations[i], 1.0f, 10000.0f, 90.0f, 1.0f) :
-                    (Camera)new OrthographicCamera(2.0f, 2.0f, Vec3.One, Vec3.Zero, rotations[i], Vec2.Half, 1.0f, 10000.0f);
+                    new PerspectiveCamera(Vec3.Zero, rotations[i], nearZ, farZ, 90.0f, 1.0f) :
+                    (Camera)new OrthographicCamera(2.0f, 2.0f, Vec3.One, Vec3.Zero, rotations[i], Vec2.Half, nearZ, farZ);
 
         }
         private void SetUniforms()

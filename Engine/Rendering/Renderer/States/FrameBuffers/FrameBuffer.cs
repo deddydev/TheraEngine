@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Textures;
@@ -14,6 +15,22 @@ namespace TheraEngine.Rendering
         public (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)[] Targets { get; private set; }
         public EDrawBuffersAttachment[] DrawBuffers { get; private set; }
         
+        public void UpdateRenderTarget(int i, (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex) target)
+        {
+            if (BaseRenderPanel.NeedsInvoke(() => UpdateRenderTarget(i, target), BaseRenderPanel.PanelType.Rendering))
+                return;
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+            if (IsActive)
+            {
+                Detach(i);
+            }
+            Targets[i] = target;
+            if (IsActive)
+            {
+                Attach(i);
+            }
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+        }
         public void SetRenderTargets(params (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)[] textures)
         {
             if (IsActive)
@@ -74,66 +91,70 @@ namespace TheraEngine.Rendering
             if (IsActive)
                 AttachAll();
         }
-
-        public void AttachAll()
+        public void Attach(int i)
         {
-            if (BaseRenderPanel.NeedsInvoke(AttachAll, BaseRenderPanel.PanelType.World))
-                return;
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            foreach (var (Target, Attachment, MipLevel, LayerIndex) in Targets)
+            var (Target, Attachment, MipLevel, LayerIndex) = Targets[i];
+            if (Target is BaseTexRef tref)
             {
-                if (Target is BaseTexRef tref)
+                BaseRenderTexture t = tref.GetTextureGeneric(true);
+                t.PushData();
+                t.Bind();
+                if (LayerIndex >= 0 && tref is TexRefCube cuberef)
                 {
-                    BaseRenderTexture t = tref.GetTextureGeneric(true);
-                    t.PushData();
-                    t.Bind();
-                    if (LayerIndex >= 0 && tref is TexRefCube cuberef)
-                    {
-                        cuberef.AttachFaceToFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, MipLevel);
-                    }
-                    else
-                    {
-                        tref.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment, MipLevel);
-                    }
+                    cuberef.AttachFaceToFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, MipLevel);
                 }
-                else if (Target is RenderBuffer buf)
+                else
                 {
-                    buf.Bind();
-                    buf.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment);
+                    tref.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment, MipLevel);
                 }
             }
+            else if (Target is RenderBuffer buf)
+            {
+                buf.Bind();
+                buf.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment);
+            }
+            else
+                throw new Exception();
+        }
+        public void AttachAll()
+        {
+            if (BaseRenderPanel.NeedsInvoke(AttachAll, BaseRenderPanel.PanelType.Rendering))
+                return;
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+            for (int i = 0; i < Targets.Length; ++i)
+                Attach(i);
             Engine.Renderer.SetDrawBuffers(DrawBuffers);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             CheckErrors();
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         }
-
+        public void Detach(int i)
+        {
+            var (Target, Attachment, MipLevel, LayerIndex) = Targets[i];
+            if (Target is BaseTexRef tref)
+            {
+                tref.GetTextureGeneric(true).PushData();
+                if (LayerIndex >= 0 && tref is TexRefCube cuberef)
+                {
+                    cuberef.DetachFaceFromFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, MipLevel);
+                }
+                else
+                {
+                    tref.DetachFromFBO(EFramebufferTarget.Framebuffer, Attachment, MipLevel);
+                }
+            }
+            else if (Target is RenderBuffer buf)
+            {
+                buf.DetachFromFBO(EFramebufferTarget.Framebuffer, Attachment);
+            }
+        }
         public void DetachAll()
         {
-            if (BaseRenderPanel.NeedsInvoke(DetachAll, BaseRenderPanel.PanelType.World))
+            if (BaseRenderPanel.NeedsInvoke(DetachAll, BaseRenderPanel.PanelType.Rendering))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            foreach (var (Target, Attachment, MipLevel, LayerIndex) in Targets)
-            {
-                if (Target is BaseTexRef tref)
-                {
-                    tref.GetTextureGeneric(true).PushData();
-                    if (LayerIndex >= 0 && tref is TexRefCube cuberef)
-                    {
-                        cuberef.DetachFaceFromFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, 0);
-                    }
-                    else
-                    {
-                        tref.DetachFromFBO(EFramebufferTarget.Framebuffer, Attachment, MipLevel);
-                    }
-                }
-                else if (Target is RenderBuffer buf)
-                {
-                    buf.DetachFromFBO(EFramebufferTarget.Framebuffer, Attachment);
-                }
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, Attachment, NullBindingId, MipLevel);
-            }
-
+            for (int i = 0; i < Targets.Length; ++i)
+                Detach(i);
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         }
 

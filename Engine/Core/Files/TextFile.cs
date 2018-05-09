@@ -14,9 +14,9 @@ namespace TheraEngine.Core.Files
     {
         public event Action TextChanged;
 
-        [TSerialize(nameof(Text), IsXmlElementString = true)]
         private string _text = null;
         [TString(true, false, false, true)]
+        [TSerialize(IsXmlElementString = true)]
         public string Text
         {
             get => _text ?? LoadText();

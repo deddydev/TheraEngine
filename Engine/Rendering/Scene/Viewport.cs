@@ -36,8 +36,14 @@ namespace TheraEngine.Rendering
         internal QuadFrameBuffer SSAOFBO;
         internal QuadFrameBuffer SSAOBlurFBO;
         internal QuadFrameBuffer GBufferFBO;
-        internal PingPongFrameBuffer PingPongBloomBlurFBO;
-        internal QuadFrameBuffer ForwardPassFBO;
+        
+        internal QuadFrameBuffer BloomBlurFBO1;
+        internal QuadFrameBuffer BloomBlurFBO2;
+        internal QuadFrameBuffer BloomBlurFBO4;
+        internal QuadFrameBuffer BloomBlurFBO8;
+        internal QuadFrameBuffer BloomBlurFBO16;
+
+        internal QuadFrameBuffer BrightPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
         internal TexRef2D _brdfTex;
 
@@ -268,7 +274,7 @@ namespace TheraEngine.Rendering
         }
         public void Update(BaseScene scene, Camera camera, Frustum frustum)
         {
-            scene.Update(_renderPasses, frustum, camera, HUD, false);
+            scene?.Update(_renderPasses, frustum, camera, HUD, false);
         }
 
         #region Coordinate conversion
@@ -621,6 +627,7 @@ namespace TheraEngine.Rendering
         #region FBOs
         internal TexRef2D _depthStencilTexture;
         internal TexRef2D _hdrSceneTexture;
+        internal TexRef2D _bloomBlurTexture;
         public enum DepthStencilUse
         {
             None,
@@ -645,11 +652,13 @@ namespace TheraEngine.Rendering
             _brdfTex.VWrap = ETexWrapMode.ClampToEdge;
             _brdfTex.MinFilter = ETexMinFilter.Linear;
             _brdfTex.MagFilter = ETexMagFilter.Linear;
+
             TexRef2D[] brdfRefs = new TexRef2D[] { _brdfTex };
             TMaterial brdfMat = new TMaterial("BRDFMat", renderParams, brdfRefs, shader);
             MaterialFrameBuffer fbo = new MaterialFrameBuffer(brdfMat);
             fbo.SetRenderTargets(
                 (_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
+
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), 
                 VertexQuad.MakeQuad( //ndc space quad, so we don't have to load any camera matrices
                     new Vec3(-1.0f, -1.0f, -0.5f),
@@ -657,14 +666,21 @@ namespace TheraEngine.Rendering
                     new Vec3(1.0f, 1.0f, -0.5f),
                     new Vec3(-1.0f, 1.0f, -0.5f),
                     false, false).ToTriangles());
-            PrimitiveManager manager = new PrimitiveManager(data, brdfMat);
+            PrimitiveManager quad = new PrimitiveManager(data, brdfMat);
             BoundingRectangle region = new BoundingRectangle(Vec2.Zero, new Vec2(512.0f, 512.0f));
-            fbo.Bind(EFramebufferTarget.DrawFramebuffer);
-            Engine.Renderer.PushRenderArea(region);
-            Engine.Renderer.Clear(EBufferClear.Color);
-            manager.Render();
-            Engine.Renderer.PopRenderArea();
-            fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+            RenderContext.Captured.Control.Invoke((Action)(() => 
+            {
+                fbo.Bind(EFramebufferTarget.DrawFramebuffer);
+                Engine.Renderer.PushRenderArea(region);
+                {
+                    Engine.Renderer.Clear(EBufferClear.Color);
+                    quad.Render();
+                }
+                Engine.Renderer.PopRenderArea();
+                fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
+            }));
+           
         }
 
         //private TexRef2D[] _fboTextures;
@@ -775,7 +791,8 @@ namespace TheraEngine.Rendering
 
                 TMaterial ssaoMat = new TMaterial("SSAOMat", renderParams, ssaoRefs, ssaoShader);
                 TMaterial ssaoBlurMat = new TMaterial("SSAOBlurMat", renderParams, ssaoBlurRefs, ssaoBlurShader);
-                TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", TMaterial.UniformRequirements.NeedsLightsAndCamera, renderParams, deferredLightingRefs, deferredShader);
+                TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", TMaterial.UniformRequirements.NeedsLights,
+                    renderParams, deferredLightingRefs, deferredShader);
                
                 SSAOFBO = new QuadFrameBuffer(ssaoMat);
                 SSAOFBO.SettingUniforms += SSAO_SetUniforms;
@@ -788,53 +805,75 @@ namespace TheraEngine.Rendering
                 SSAOBlurFBO = new QuadFrameBuffer(ssaoBlurMat);
                 GBufferFBO = new QuadFrameBuffer(deferredMat);
                 GBufferFBO.SettingUniforms += GBuffer_SetUniforms;
+                GBufferFBO.SetRenderTargets((ssaoTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
             }
 
-            TexRef2D blurResult = TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
-                EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte,
-                EFramebufferAttachment.ColorAttachment0);
+            _bloomBlurTexture = TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
+                EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte);
+            _bloomBlurTexture.MagFilter = ETexMagFilter.Linear;
+            _bloomBlurTexture.MinFilter = ETexMinFilter.LinearMipmapLinear;
+            _bloomBlurTexture.UWrap = ETexWrapMode.ClampToEdge;
+            _bloomBlurTexture.VWrap = ETexWrapMode.ClampToEdge;
+
+            //var t = _bloomBlurTexture.GetTexture(true);
+            //t.Bind();
+            //t.SetMipmapGenParams();
+            //t.GenerateMipmaps();
 
             _hdrSceneTexture = TexRef2D.CreateFrameBufferTexture("HDRSceneColor", width, height,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
                 EFramebufferAttachment.ColorAttachment0);
             
-            GLSLShaderFile forwardShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "ForwardPass.fs"), EShaderMode.Fragment);
+            GLSLShaderFile brightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BrightPass.fs"), EShaderMode.Fragment);
             GLSLShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
             GLSLShaderFile postProcessShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "PostProcess.fs"), EShaderMode.Fragment);
-
-            TexRef2D[] forwardRefs = new TexRef2D[]
+            
+            TexRef2D[] brightRefs = new TexRef2D[]
             {
                 _hdrSceneTexture
             };
             TexRef2D[] blurRefs = new TexRef2D[]
             {
-                blurResult,
+                _bloomBlurTexture,
             };
             TexRef2D[] postProcessRefs = new TexRef2D[]
             {
                 _hdrSceneTexture,
-                blurResult,
+                _bloomBlurTexture,
                 depthViewTexture,
                 stencilViewTexture,
             };
-
-            TMaterial forwardMat = new TMaterial("ForwardMat", renderParams, forwardRefs, forwardShader);
-            TMaterial bloomBlurMat = new TMaterial("BloomBlurMat", renderParams, blurRefs, bloomBlurShader);
+            ShaderVar[] blurVars = new ShaderVar[]
+            {
+                new ShaderFloat(0.0f, "Ping"),
+                new ShaderInt(0, "LOD"),
+            };
+            TMaterial brightMat = new TMaterial("BrightPassMat", renderParams, brightRefs, brightShader);
+            TMaterial bloomBlurMat = new TMaterial("BloomBlurMat", renderParams, blurVars, blurRefs, bloomBlurShader);
             TMaterial postProcessMat = new TMaterial("PostProcessMat", renderParams, postProcessRefs, postProcessShader);
 
-            ForwardPassFBO = new QuadFrameBuffer(forwardMat);
-            ForwardPassFBO.SettingUniforms += ForwardPassFBO_SettingUniforms;
-            ForwardPassFBO.SetRenderTargets(
+            BrightPassFBO = new QuadFrameBuffer(brightMat);
+            BrightPassFBO.SettingUniforms += BrightPassFBO_SettingUniforms;
+            BrightPassFBO.SetRenderTargets(
                 (_hdrSceneTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
                 (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
-
-            PingPongBloomBlurFBO = new PingPongFrameBuffer(bloomBlurMat, bloomBlurMat, null);
+            
+            BloomBlurFBO1 = new QuadFrameBuffer(bloomBlurMat);
+            BloomBlurFBO1.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
+            BloomBlurFBO2 = new QuadFrameBuffer(bloomBlurMat);
+            BloomBlurFBO2.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 1, -1));
+            BloomBlurFBO4 = new QuadFrameBuffer(bloomBlurMat);
+            BloomBlurFBO4.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 2, -1));
+            BloomBlurFBO8 = new QuadFrameBuffer(bloomBlurMat);
+            BloomBlurFBO8.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 3, -1));
+            BloomBlurFBO16 = new QuadFrameBuffer(bloomBlurMat);
+            BloomBlurFBO16.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 4, -1));
 
             PostProcessFBO = new QuadFrameBuffer(postProcessMat);
             PostProcessFBO.SettingUniforms += _postProcess_SettingUniforms;
         }
 
-        private void ForwardPassFBO_SettingUniforms(int programBindingId)
+        private void BrightPassFBO_SettingUniforms(int programBindingId)
             => _worldCamera?.PostProcessRef.File.Bloom.SetUniforms(programBindingId);
 
         private void GBuffer_SetUniforms(int programBindingId)
@@ -845,23 +884,23 @@ namespace TheraEngine.Rendering
             _worldCamera.SetUniforms(programBindingId);
             _worldCamera.PostProcessRef.File.Shadows.SetUniforms(programBindingId);
 
-            var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
-            if (probeActor == null)
-                return;
+            //var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
+            //if (probeActor == null)
+            //    return;
 
-            IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
-            int baseCount = GBufferFBO.Material.Textures.Length;
+            //IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
+            //int baseCount = GBufferFBO.Material.Textures.Length;
 
-            TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
-                baseCount, "Texture" + baseCount.ToString(), programBindingId);
-            ++baseCount;
-            if (probe.IrradianceTex != null)
-                TMaterialBase.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
-                    baseCount, "Texture" + baseCount.ToString(), programBindingId);
-            ++baseCount;
-            if (probe.PrefilterTex != null)
-                TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
-                    baseCount, "Texture" + baseCount.ToString(), programBindingId);
+            //TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
+            //    baseCount, "Texture" + baseCount.ToString(), programBindingId);
+            //++baseCount;
+            //if (probe.IrradianceTex != null)
+            //    TMaterialBase.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
+            //        baseCount, "Texture" + baseCount.ToString(), programBindingId);
+            //++baseCount;
+            //if (probe.PrefilterTex != null)
+            //    TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
+            //        baseCount, "Texture" + baseCount.ToString(), programBindingId);
         }
         
         private void SSAO_SetUniforms(int programBindingId)
@@ -883,22 +922,22 @@ namespace TheraEngine.Rendering
             _worldCamera.PostProcessRef.File.ColorGrading.UpdateExposure(_hdrSceneTexture);
             _worldCamera.PostProcessRef.File.SetUniforms(programBindingId);
 
-            var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
-            if (probeActor == null)
-                return;
+            //var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
+            //if (probeActor == null)
+            //    return;
 
-            IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
+            //IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
 
-            TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
-                4, "Texture4", programBindingId);
+            //TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
+            //    4, "Texture4", programBindingId);
 
-            if (probe.ResultTexture != null)
-                TMaterialBase.SetTextureUniform(probe.ResultTexture.GetTexture(true),
-                    5, "Texture5", programBindingId);
+            //if (probe.ResultTexture != null)
+            //    TMaterialBase.SetTextureUniform(probe.ResultTexture.GetTexture(true),
+            //        5, "Texture5", programBindingId);
 
-            if (probe.PrefilterTex != null)
-                TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
-                    6, "Texture6", programBindingId);
+            //if (probe.PrefilterTex != null)
+            //    TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
+            //        6, "Texture6", programBindingId);
         }
 
         #endregion

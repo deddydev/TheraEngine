@@ -81,9 +81,9 @@ namespace TheraEngine.Actors
         {
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
-                comp.Capture();
-                comp.GenerateIrradianceMap();
-                comp.GeneratePrefilterMap();
+                //comp.Capture();
+                //comp.GenerateIrradianceMap();
+                //comp.GeneratePrefilterMap();
             }
         }
         public void InitAll(int resolution)
@@ -97,10 +97,10 @@ namespace TheraEngine.Actors
         {
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
-                comp.SetCubeResolution(resolution);
-                comp.Capture();
-                comp.GenerateIrradianceMap();
-                comp.GeneratePrefilterMap();
+                //comp.SetCubeResolution(resolution);
+                //comp.Capture();
+                //comp.GenerateIrradianceMap();
+                //comp.GeneratePrefilterMap();
             }
         }
     }

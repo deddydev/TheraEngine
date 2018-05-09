@@ -18,12 +18,10 @@ namespace TheraEngine.Rendering.Models.Materials
         protected override void OnSetUniforms(int programBindingId)
         {
             //Set engine uniforms
-            if (Requirements != UniformRequirements.None)
-            {
+            if (Requirements.HasFlag(UniformRequirements.NeedsCamera))
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
-                if (Requirements == UniformRequirements.NeedsLightsAndCamera)
-                    AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
-            }
+            if (Requirements.HasFlag(UniformRequirements.NeedsLights))
+                AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
         }
 
 #if EDITOR
@@ -53,11 +51,13 @@ namespace TheraEngine.Rendering.Models.Materials
         public List<GLSLShaderFile> TessCtrlShaders => _tessCtrlShaders;
         public List<GLSLShaderFile> VertexShaders => _vertexShaders;
         
+        [Flags]
         public enum UniformRequirements
         {
-            None,
-            NeedsCamera,
-            NeedsLightsAndCamera,
+            None = 0,
+            NeedsCamera = 1,
+            NeedsLights = 2,
+            NeedsLightsAndCamera = 3,
         }
         
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]

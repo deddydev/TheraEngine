@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Core.Win32.Native;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Timers
 {
@@ -33,8 +34,6 @@ namespace TheraEngine.Timers
         ManualResetEvent _commandsReady;
         ManualResetEvent _commandsSwappedForRender;
         ManualResetEvent _renderDone;
-        ManualResetEvent _appIdle;
-        ManualResetEvent _appBusy;
 
         public event EventHandler<FrameEventArgs> RenderFrame = delegate { };
         public event EventHandler<FrameEventArgs> UpdateFrame = delegate { };
@@ -42,7 +41,7 @@ namespace TheraEngine.Timers
         /// <summary>
         /// Runs the timer until Stop() is called.
         /// </summary>
-        public void Run(bool singleThreaded = true)
+        public void Run(bool singleThreaded = false)
         {
             if (_running)
                 return;
@@ -52,8 +51,6 @@ namespace TheraEngine.Timers
             _commandsReady = new ManualResetEvent(false);
             _commandsSwappedForRender = new ManualResetEvent(false);
             _renderDone = new ManualResetEvent(true);
-            _appIdle = new ManualResetEvent(false);
-            _appBusy = new ManualResetEvent(true);
             _watch.Start();
             if (singleThreaded)
             {
@@ -62,9 +59,9 @@ namespace TheraEngine.Timers
             }
             else
             {
-                Application.Idle += Application_Idle_MultiThread;
                 Task.Run(() => RunUpdateInternal());
-                Task.Run(() => RunRenderInternal());
+                Application.Idle += Application_Idle_MultiThread;
+                //RunRenderInternal();
             }
         }
 
@@ -72,14 +69,21 @@ namespace TheraEngine.Timers
             => NativeMethods.PeekMessage(
                 out NativeMessage result,
                 IntPtr.Zero, 0, 0, 0) == 0;
-        
+
+        private RenderQuery _renderTimeQuery = new RenderQuery();
         private void Application_Idle_SingleThread(object sender, EventArgs e)
         {
             while (IsApplicationIdle())
             {
-                DispatchUpdate();
-                SwapBuffers?.Invoke();
-                DispatchRender();
+                _renderTimeQuery.BeginQuery(EQueryTarget.TimeElapsed);
+                {
+                    DispatchUpdate();
+                    SwapBuffers?.Invoke();
+                    DispatchRender();
+                }
+                _renderTimeQuery.EndQuery(EQueryTarget.TimeElapsed);
+                double time = _renderTimeQuery.GetQueryObjectLong(EGetQueryObject.QueryResult) * 1e-6;
+                Engine.PrintLine(time.ToString("0.00 ms"));
             }
         }
         private void RunUpdateRenderInternal()
@@ -95,43 +99,49 @@ namespace TheraEngine.Timers
         {
             while (IsApplicationIdle())
             {
-                //_appBusy.Reset();
-                _appIdle.Set();
-                //_appBusy.WaitOne();
-                _appIdle.Reset();
+                _commandsReady.WaitOne(); //Wait for the update thread to finish
+                _commandsReady.Reset();
+                
+                SwapBuffers?.Invoke();
+                _commandsSwappedForRender.Set();
+                DispatchRender();
+                _renderDone.Set(); //Signal the update thread that rendering is done
             }
         }
         private void RunUpdateInternal()
         {
             while (_running)
             {
-                _appIdle.WaitOne();
-
                 //Updating populates the command buffer while render consumes the previous buffer
                 DispatchUpdate();
+
+                //Wait for the previous frame render to complete
                 _renderDone.WaitOne();
-                _commandsReady.Set(); //Signal the render thread the update is done
-                _commandsSwappedForRender.WaitOne(); //Wait until rendering the last frame is inactive
-            }
-        }
-        private void RunRenderInternal()
-        {
-            while (_running)
-            {
-                _commandsSwappedForRender.Reset();
-                _renderDone.Set(); //Signal the update thread that rendering is done
-
-                _commandsReady.WaitOne(); //Wait for the update thread to finish
-                _commandsReady.Reset();
                 _renderDone.Reset();
-                _appIdle.WaitOne();
 
-                SwapBuffers?.Invoke();
-                _commandsSwappedForRender.Set();
+                //Signal the render thread that the update is done
+                _commandsReady.Set();
 
-                DispatchRender();
+                //Wait until the render thread has swapped and is now rendering
+                _commandsSwappedForRender.WaitOne();
+                _commandsSwappedForRender.Reset();
             }
         }
+        //private void RunRenderInternal()
+        //{
+        //    while (_running)
+        //    {
+        //        _commandsSwappedForRender.Reset();
+        //        _renderDone.Set(); //Signal the update thread that rendering is done
+
+        //        _commandsReady.WaitOne(); //Wait for the update thread to finish
+        //        _commandsReady.Reset();
+
+        //        SwapBuffers?.Invoke();
+        //        _commandsSwappedForRender.Set();
+        //        DispatchRender();
+        //    }
+        //}
         public void Stop()
         {
             _running = false;

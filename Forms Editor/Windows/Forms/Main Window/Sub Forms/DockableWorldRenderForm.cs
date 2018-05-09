@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms
             Engine.PostWorldChanged += Engine_WorldPostChanged;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
         }
-
+        
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             Engine.SetWorldPanel(RenderPanel, false);

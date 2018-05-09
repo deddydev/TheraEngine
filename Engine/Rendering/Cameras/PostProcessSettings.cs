@@ -53,8 +53,8 @@ namespace TheraEngine.Rendering.Cameras
         [Category("Post-Process Settings")]
         [TSerialize]
         public GlobalFileRef<TMaterial> PostProcessMaterial { get; set; }
-        [Category("Shadow Settings")]
-        [TSerialize]
+        [Category("Post-Process Settings")]
+        [TSerialize("Shadows")]
         public ShadowSettings Shadows { get; set; }
 
         internal void SetUniforms(int programBindingId)
@@ -85,7 +85,7 @@ namespace TheraEngine.Rendering.Cameras
     {
         [TSerialize]
         [Category("Shadow Map Settings")]
-        public float ShadowBase { get; set; } = 3.0f;
+        public float ShadowBase { get; set; } = 2.0f;
         [TSerialize]
         [Category("Shadow Map Settings")]
         public float ShadowMult { get; set; } = 6.0f;

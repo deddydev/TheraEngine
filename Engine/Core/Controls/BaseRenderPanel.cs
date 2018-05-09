@@ -92,42 +92,21 @@ namespace TheraEngine
                 ControlStyles.Opaque,
                 true);
             UpdateStyles();
-
-            //_globalHud = new UIManager();
-            PointToClientDelegate = new DelPointConvert(PointToClient);
-            PointToScreenDelegate = new DelPointConvert(PointToScreen);
-
+            
             //Create context RIGHT AWAY so render objects can bind to it as they are created
             CreateContext();
+
             //Add the main viewport - at least one viewport should always be rendering
             //AddViewport();
-
-            //_timer = new Timer
-            //{
-            //    Interval = 500
-            //};
-            //_timer.Tick += (sender, e) => EndResize();
         }
-
-        internal delegate Point DelPointConvert(Point p);
-        internal DelPointConvert PointToClientDelegate;
-        internal DelPointConvert PointToScreenDelegate;
 
         protected bool _resizing = false;
         protected VSyncMode _vsyncMode = VSyncMode.Adaptive;
         internal RenderContext _context;
-        //protected UIManager _globalHud;
         protected List<Viewport> _viewports = new List<Viewport>(4);
 
         public List<Viewport> Viewports => _viewports;
-
-        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        //public UIManager GlobalHud
-        //{
-        //    get => _globalHud;
-        //    set => _globalHud = value;
-        //}
-
+        
         /// <summary>
         /// Calls the method. Invokes the render panel if necessary.
         /// </summary>
@@ -281,7 +260,26 @@ namespace TheraEngine
             _context?.Update();
             foreach (Viewport v in _viewports)
                 v.Resize(Width, Height, true);
+            ScreenLocation = base.PointToScreen(Point.Empty);
         }
+        private void UpdateScreenLocation(object sender, EventArgs e) => ScreenLocation = base.PointToScreen(Point.Empty);
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+
+            Control parent = this;
+            while (parent != null)
+            {
+                parent.Move += UpdateScreenLocation;
+                parent = parent.Parent;
+            }
+            Form f = ParentForm;
+            if (f != null)
+            {
+                f.Move += UpdateScreenLocation;
+            }
+        }
+        public Point ScreenLocation { get; private set; }
         #endregion
 
         #region Mouse
@@ -330,14 +328,18 @@ namespace TheraEngine
         //}
         public new Point PointToClient(Point p)
         {
-            p = base.PointToClient(p);
+            p.X -= ScreenLocation.X;
+            p.Y -= ScreenLocation.Y;
+            //p = base.PointToClient(p);
             p.Y = Height - p.Y;
             return p;
         }
         public new Point PointToScreen(Point p)
         {
             p.Y = Height - p.Y;
-            return base.PointToScreen(p);
+            p.X += ScreenLocation.X;
+            p.Y += ScreenLocation.Y;
+            return p;//base.PointToScreen(p);
         }
         #endregion
 

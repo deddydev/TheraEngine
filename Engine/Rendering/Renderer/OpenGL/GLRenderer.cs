@@ -1,13 +1,12 @@
-﻿using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Memory;
-using System.Text;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Functions;
 
 namespace TheraEngine.Rendering.OpenGL
@@ -316,17 +315,29 @@ namespace TheraEngine.Rendering.OpenGL
                 return true;
             }
         }
+        public override void UniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding)
+        {
+            GL.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+        }
         public override void SetActiveTexture(int unit)
         {
-            //if (unit < 0)
-            //    throw new InvalidOperationException("Unit needs to be >= 0.");
-            //if (unit >= Engine.MaxTextureUnits)
-            //    throw new InvalidOperationException("Unit needs to be less than " + Engine.MaxTextureUnits.ToString());
+#if DEBUG
+            int maxUnits = Engine.ComputerInfo.MaxTextureUnits;
+            if (unit < 0)
+                throw new InvalidOperationException("Unit needs to be >= 0.");
+            if (unit >= maxUnits)
+                throw new InvalidOperationException("Unit needs to be less than " + maxUnits.ToString());
+#endif
+            //Max texture unit is not limited by the number in this enum definition
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
         }
-        public override void UseProgram(int programBindingId)
+        public override void UseProgram(int bindingId)
         {
-            GL.UseProgram(programBindingId);
+#if DEBUG
+            if (bindingId <= BaseRenderState.NullBindingId)
+                throw new InvalidOperationException($"{bindingId} is not a valid render state id.");
+#endif
+            GL.UseProgram(bindingId);
         }
         public override void EnableDepthTest(bool enabled)
         {
@@ -355,10 +366,13 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void ApplyRenderParams(RenderingParameters r)
         {
+            if (r == null)
+                return;
+
             Engine.Renderer.ColorMask(r.WriteRed, r.WriteGreen, r.WriteBlue, r.WriteAlpha);
             Engine.Renderer.Cull(r.CullMode);
             GL.PointSize(r.PointSize);
-            GL.LineWidth(r.LineWidth);
+            GL.LineWidth(r.LineWidth.Clamp(0.0f, 1.0f));
 
             if (r.DepthTest.Enabled == ERenderParamUsage.Enabled)
             {
@@ -378,13 +392,13 @@ namespace TheraEngine.Rendering.OpenGL
             else if (r.BlendMode.Enabled == ERenderParamUsage.Disabled)
                 GL.Disable(EnableCap.Blend);
 
-            if (r.AlphaTest.Enabled == ERenderParamUsage.Enabled)
-            {
-                GL.Enable(EnableCap.AlphaTest);
-                GL.AlphaFunc(AlphaFunction.Never + (int)r.AlphaTest.Comp, r.AlphaTest.Ref);
-            }
-            else if (r.AlphaTest.Enabled == ERenderParamUsage.Disabled)
-                GL.Disable(EnableCap.AlphaTest);
+            //if (r.AlphaTest.Enabled == ERenderParamUsage.Enabled)
+            //{
+            //    GL.Enable(EnableCap.AlphaTest);
+            //    GL.AlphaFunc(AlphaFunction.Never + (int)r.AlphaTest.Comp, r.AlphaTest.Ref);
+            //}
+            //else if (r.AlphaTest.Enabled == ERenderParamUsage.Disabled)
+            //    GL.Disable(EnableCap.AlphaTest);
 
             if (r.StencilTest.Enabled == ERenderParamUsage.Enabled)
             {
@@ -709,7 +723,8 @@ namespace TheraEngine.Rendering.OpenGL
         {
             FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (c != FramebufferErrorCode.FramebufferComplete)
-                throw new Exception("Problem compiling framebuffer: " + c.ToString());
+                //throw new Exception("Problem compiling framebuffer: " + c.ToString());
+                Engine.LogWarning("Problem compiling framebuffer: " + c.ToString());
         }
 
         public override void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
@@ -900,20 +915,37 @@ namespace TheraEngine.Rendering.OpenGL
                 BufferStorageFlags.MapPersistentBit |
                 BufferStorageFlags.MapCoherentBit |
                 BufferStorageFlags.ClientStorageBit);
-            buffer._data.Dispose();
-            buffer._data = new DataSource(GL.MapNamedBufferRange(buffer.BindingId, IntPtr.Zero, length,
-                BufferAccessMask.MapPersistentBit |
-                BufferAccessMask.MapCoherentBit |
-                BufferAccessMask.MapReadBit |
-                BufferAccessMask.MapWriteBit), length);
+            //buffer._data.Dispose();
+            //buffer._data = new DataSource(GL.MapNamedBufferRange(buffer.BindingId, IntPtr.Zero, length,
+            //    BufferAccessMask.MapPersistentBit |
+            //    BufferAccessMask.MapCoherentBit |
+            //    BufferAccessMask.MapReadBit |
+            //    BufferAccessMask.MapWriteBit), length);
             //buffer._data = new DataSource(GL.MapNamedBuffer(buffer.BindingId, BufferAccess.ReadWrite), length);
+        }
+        /// <summary>
+        /// Requires 4.5 or ARB_direct_state_access
+        /// </summary>
+        public override void UnmapBufferData(DataBuffer buffer)
+        {
+            //GL.UnmapBuffer(buffer._target);
+            GL.UnmapNamedBuffer(buffer.BindingId);
         }
         public override void PushBufferData(DataBuffer buffer)
         {
-            //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
-            GL.NamedBufferData(buffer.BindingId, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer._usage);
+            //GL.BufferData((BufferTarget)(int)buffer.Target, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer.Usage);
+            GL.NamedBufferData(buffer.BindingId, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer.Usage);
         }
-        public override void InitializeBuffer(DataBuffer buffer)
+        /// <summary>
+        /// Specifies attribute usage in a vertex shader.
+        /// If divisor is 0, attribute advances per-vertex.
+        /// If divisor is greater than 0, advances once per 'divisor' instances.
+        /// </summary>
+        public override void AttributeDivisor(int attributeLocation, int divisor)
+        {
+            GL.VertexAttribDivisor(attributeLocation, divisor);
+        }
+        public override void InitializeBuffer(DataBuffer buffer, bool mapData)
         {
             int glVer = 2;
 
@@ -926,14 +958,14 @@ namespace TheraEngine.Rendering.OpenGL
             {
                 case 0:
 
-                    GL.BindBuffer(buffer._target == EBufferTarget.DataArray ? BufferTarget.ArrayBuffer : BufferTarget.ElementArrayBuffer, buffer.BindingId);
+                    GL.BindBuffer((BufferTarget)(int)buffer.Target, buffer.BindingId);
                     GL.EnableVertexAttribArray(index);
                     if (integral)
                         GL.VertexAttribIPointer(index, componentCount, VertexAttribIntegerType.Byte + componentType, 0, buffer._data.Address);
                     else
                         GL.VertexAttribPointer(index, componentCount, VertexAttribPointerType.Byte + componentType, buffer._normalize, 0, 0);
 
-                    if (DataBuffer.MapData)
+                    if (mapData)
                         MapBufferData(buffer);
                     else
                         PushBufferData(buffer);
@@ -949,7 +981,7 @@ namespace TheraEngine.Rendering.OpenGL
                     else
                         GL.VertexAttribFormat(index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
 
-                    if (DataBuffer.MapData)
+                    if (mapData)
                         MapBufferData(buffer);
                     else
                         PushBufferData(buffer);
@@ -967,8 +999,9 @@ namespace TheraEngine.Rendering.OpenGL
                             GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
                         else
                             GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
-                        
-                        if (DataBuffer.MapData)
+
+                        //GL.BindBuffer((BufferTarget)(int)buffer.Target, buffer.BindingId);
+                        if (mapData)
                             MapBufferData(buffer);
                         else
                             PushBufferData(buffer);
@@ -978,7 +1011,7 @@ namespace TheraEngine.Rendering.OpenGL
                     }
                     else
                     {
-                        if (DataBuffer.MapData)
+                        if (mapData)
                             MapBufferData(buffer);
                         else
                             PushBufferData(buffer);
@@ -986,14 +1019,6 @@ namespace TheraEngine.Rendering.OpenGL
 
                     break;
             }
-        }
-        /// <summary>
-        /// Requires 4.5 or ARB_direct_state_access
-        /// </summary>
-        public override void UnmapBufferData(DataBuffer buffer)
-        {
-            //GL.UnmapBuffer(buffer._target);
-            GL.UnmapNamedBuffer(buffer.BindingId);
         }
         /// <summary>
         /// Requires 3.0 or ARB_vertex_array_object
@@ -1008,16 +1033,14 @@ namespace TheraEngine.Rendering.OpenGL
         /// </summary>
         public override void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer)
         {
-            if (indexBuffer._target != EBufferTarget.DrawIndices)
-                throw new Exception("IndexBuffer needs target type of " + EBufferTarget.DrawIndices.ToString() + ".");
-            int vao = manager.BindingId;
-            int buf = indexBuffer.BindingId;
-            GL.VertexArrayElementBuffer(vao, buf);
+            if (indexBuffer.Target != EBufferTarget.ElementArrayBuffer)
+                throw new Exception("IndexBuffer needs target type of " + EBufferTarget.ElementArrayBuffer.ToString() + ".");
+            GL.VertexArrayElementBuffer(manager.BindingId, indexBuffer.BindingId);
         }
         /// <summary>
         /// Requires 1.1
         /// </summary>
-        public override void RenderCurrentPrimitiveManager()
+        public override void RenderCurrentPrimitiveManager(int instances)
         {
             if (_currentPrimitiveManager != null)
             {
@@ -1025,44 +1048,10 @@ namespace TheraEngine.Rendering.OpenGL
                 int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
                 DrawElementsType elemType = DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType;
                 //Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());
-                GL.DrawElements(type, count, elemType, 0);
+                //GL.DrawElements(type, count, elemType, 0);
+                GL.DrawElementsInstancedBaseInstance(type, count, elemType, IntPtr.Zero, instances, 0);
+                //GL.DrawElementsIndirect(ArbDrawIndirect.DrawIndirectBuffer, ArbDrawIndirect.DrawIndirectBuffer, IntPtr.Zero);
             }
-        }
-        public override void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type)
-        {
-            GL.BeginConditionalRender(queryObjectBindingId, (ConditionalRenderType)(int)type);
-        }
-        public override void EndConditionalRender()
-        {
-            GL.EndConditionalRender();
-        }
-        public override void BeginQuery(int bindingId, EQueryTarget target)
-        {
-            GL.BeginQuery((QueryTarget)(int)target, bindingId);
-        }
-        public override void EndQuery(EQueryTarget target)
-        {
-            GL.EndQuery((QueryTarget)(int)target);
-        }
-        public override int GetQueryObjectInt(int bindingId, EGetQueryObject obj)
-        {
-            GL.GetQueryObject(bindingId, (GetQueryObjectParam)(int)obj, out int val);
-            return val;
-        }
-        public override long GetQueryObjectLong(int bindingId, EGetQueryObject obj)
-        {
-            GL.GetQueryObject(bindingId, (GetQueryObjectParam)(int)obj, out long val);
-            return val;
-        }
-        public override void QueryCounter(int bindingId)
-        {
-            GL.QueryCounter(bindingId, QueryCounterTarget.Timestamp);
-        }
-        public override void UniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding)
-        {
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 0, 0);
-            int location = GL.GetUniformBlockIndex(program, "");
-            GL.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
         }
         #endregion
 
@@ -1276,5 +1265,39 @@ namespace TheraEngine.Rendering.OpenGL
 
         public override void ColorMask(bool r, bool g, bool b, bool a)
             => GL.ColorMask(r, g, b, a);
+
+        public override void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type)
+        {
+            GL.BeginConditionalRender(queryObjectBindingId, (ConditionalRenderType)(int)type);
+        }
+        public override void EndConditionalRender()
+        {
+            GL.EndConditionalRender();
+        }
+
+        #region Queries
+        public override void BeginQuery(int bindingId, EQueryTarget target)
+        {
+            GL.BeginQuery((QueryTarget)(int)target, bindingId);
+        }
+        public override void EndQuery(EQueryTarget target)
+        {
+            GL.EndQuery((QueryTarget)(int)target);
+        }
+        public override int GetQueryObjectInt(int bindingId, EGetQueryObject obj)
+        {
+            GL.GetQueryObject(bindingId, (GetQueryObjectParam)(int)obj, out int val);
+            return val;
+        }
+        public override long GetQueryObjectLong(int bindingId, EGetQueryObject obj)
+        {
+            GL.GetQueryObject(bindingId, (GetQueryObjectParam)(int)obj, out long val);
+            return val;
+        }
+        public override void QueryCounter(int bindingId)
+        {
+            GL.QueryCounter(bindingId, QueryCounterTarget.Timestamp);
+        }
+        #endregion
     }
 }

@@ -13,38 +13,38 @@ uniform mat4 ProjMatrix;
 
 in gl_PerVertex
 {
-    vec4  gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[];
+  vec4  gl_Position;
+  float gl_PointSize;
+  float gl_ClipDistance[];
 } gl_in[];
 
 out gl_PerVertex
 {
-    vec4  gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[];
+  vec4  gl_Position;
+  float gl_PointSize;
+  float gl_ClipDistance[];
 };
 
 void main()
 {
-    for (int i = 0; i < gl_in.length(); i++)
-    {
-	vec4 camPos = gl_in[i].gl_Position;
-        vec3 fragPos = FragPosIn[i];
-        vec3 fragNorm = FragNormIn[i];
+  for (int i = 0; i < gl_in.length(); i++)
+  {
+    vec4 camPos = gl_in[i].gl_Position;
+    vec3 fragPos = FragPosIn[i];
+    vec3 fragNorm = FragNormIn[i];
 
-        gl_Position = camPos;
-        FragPosOut = fragPos;
-        FragNormOut = fragNorm;
-        EmitVertex();
+    gl_Position = camPos;
+    FragPosOut = fragPos;
+    FragNormOut = fragNorm;
+    EmitVertex();
 
-	camPos.xyz += (ProjMatrix * WorldToCameraSpaceMatrix * vec4(fragNorm, 0.0f)).xyz * Magnitude;
+    camPos.xyz += (ProjMatrix * WorldToCameraSpaceMatrix * vec4(fragNorm, 0.0f)).xyz * Magnitude;
 
-        gl_Position = camPos;
-        FragPosOut = fragPos + fragNorm * Magnitude;
-        FragNormOut = fragNorm;
-        EmitVertex();
+    gl_Position = camPos;
+    FragPosOut = fragPos + fragNorm * Magnitude;
+    FragNormOut = fragNorm;
+    EmitVertex();
 
-        EndPrimitive();
-    }
+    EndPrimitive();
+  }
 }

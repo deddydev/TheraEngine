@@ -120,6 +120,8 @@ namespace TheraEditor.Windows.Forms
                 { Keys.Control | Keys.Z, Undo },
                 { Keys.Control | Keys.Y, Redo },
             };
+
+            TheraEngineText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
         }
 
         public UndoManager UndoManager { get; } = new UndoManager();
@@ -434,7 +436,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (InvokeRequired)
                 {
-                    Invoke(new Action<IActor>(SpawnedActors_PostAdded), item);
+                    BeginInvoke(new Action<IActor>(SpawnedActors_PostAdded), item);
                     return;
                 }
                 TreeNode t = new TreeNode(item.ToString()) { Tag = item };
@@ -448,7 +450,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (InvokeRequired)
                 {
-                    Invoke(new Action<IActor>(SpawnedActors_PostRemoved), item);
+                    BeginInvoke(new Action<IActor>(SpawnedActors_PostRemoved), item);
                     return;
                 }
                 if (item?.EditorState?.TreeNode != null)

@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models
 
         public override FaceType Type => FaceType.Triangles;
 
-        private List<VertexTriangle> _triangles = new List<VertexTriangle>();
+        //private List<VertexTriangle> _triangles = new List<VertexTriangle>();
 
         /// <summary>
         ///    2
@@ -19,19 +19,19 @@ namespace TheraEngine.Rendering.Models
         /// </summary>
         public VertexLine(Vertex v0, Vertex v1) : base(v0, v1)
         {
-            Vertex0.AddLine(this);
-            Vertex1.AddLine(this);
+            //Vertex0.AddLine(this);
+            //Vertex1.AddLine(this);
         }
 
         internal void AddFace(VertexTriangle face)
         {
-            _triangles.Add(face);
+            //_triangles.Add(face);
         }
 
-        internal void Unlink()
-        {
-            Vertex0.RemoveLine(this);
-            Vertex1.RemoveLine(this);
-        }
+        //internal void Unlink()
+        //{
+        //    Vertex0.RemoveLine(this);
+        //    Vertex1.RemoveLine(this);
+        //}
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
@@ -23,9 +24,13 @@ namespace TheraEngine.Rendering.Models
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        public Skeleton() : base() { }
+        public Skeleton() : base()
+        {
+            _rc = new RenderCommandDebug3D(Render);
+        }
         public Skeleton(params Bone[] rootBones) : base()
         {
+            _rc = new RenderCommandDebug3D(Render);
             RootBones = rootBones;
             foreach (Bone b in RootBones)
             {
@@ -36,6 +41,7 @@ namespace TheraEngine.Rendering.Models
         }
         public Skeleton(Bone rootBone) : base()
         {
+            _rc = new RenderCommandDebug3D(Render);
             RootBones = new Bone[1] { rootBone };
             rootBone.CalcBindMatrix(true);
             rootBone.TriggerFrameMatrixUpdate();
@@ -128,7 +134,15 @@ namespace TheraEngine.Rendering.Models
 
         public ReadOnlyCollection<Bone> GetCameraRelativeBones() => _cameraBones.AsReadOnly();
         public ReadOnlyCollection<Bone> GetPhysicsDrivableBones() => _physicsDrivableBones.AsReadOnly();
-        
+
+        [PostDeserialize]
+        private void PostDeserialize()
+        {
+            TriggerChildFrameMatrixUpdate();
+            RegenerateBoneCache();
+            //UpdateBones(null, Matrix4.Identity, Matrix4.Identity);
+        }
+
         public Bone GetBone(string boneName)
         {
             if (!_boneNameCache.ContainsKey(boneName))
@@ -162,9 +176,9 @@ namespace TheraEngine.Rendering.Models
             foreach (Bone b in BoneNameCache.Values)
             {
                 Vec3 point = b.WorldMatrix.Translation;
-                Engine.Renderer.RenderPoint(point, b.Parent == null ? Color.Orange : Color.Purple, 15.0f);
+                Engine.Renderer.RenderPoint(point, b.Parent == null ? Color.Orange : Color.Purple, 5.0f);
                 if (b.Parent != null)
-                    Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.Translation, Color.Blue, 5.0f);
+                    Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.Translation, Color.Blue, 1.0f);
                 //float scale = AbstractRenderer.CurrentCamera.DistanceScale(point, 2.0f);
                 //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), Color.Red, 5.0f);
                 //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), Color.Green, 5.0f);
@@ -194,9 +208,10 @@ namespace TheraEngine.Rendering.Models
             //_childMatrixModified = true;
         }
 
+        private RenderCommandDebug3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-
+            passes.Add(_rc, ERenderPass.OpaqueForward);
         }
     }
 }

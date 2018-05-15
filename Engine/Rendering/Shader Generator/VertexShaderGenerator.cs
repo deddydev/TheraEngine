@@ -72,9 +72,9 @@ namespace TheraEngine.Rendering
                 WriteStaticPNBT();
 
             for (int i = 0; i < _info._colorCount; ++i)
-                Line("{0} = {2}{1};", string.Format(FragColorName, i), i, BufferType.Color.ToString());
+                Line("{0} = {2}{1};", string.Format(FragColorName, i), i, EBufferType.Color.ToString());
             for (int i = 0; i < _info._texcoordCount; ++i)
-                Line("{0} = {2}{1};", string.Format(FragUVName, i), i, BufferType.TexCoord.ToString());
+                Line("{0} = {2}{1};", string.Format(FragUVName, i), i, EBufferType.TexCoord.ToString());
 
             string source = EndMain();
             return new GLSLShaderFile(EShaderMode.Vertex, source);
@@ -86,14 +86,14 @@ namespace TheraEngine.Rendering
             int location = 0;
 
             #region Positions
-            BufferType type = BufferType.Position;
+            EBufferType type = EBufferType.Position;
             for (int i = 0; i < meshCount; ++i)
                 WriteInVar(location + i, EShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
             #region Normals
-            type = BufferType.Normal;
+            type = EBufferType.Normal;
             if (_info.HasNormals)
                 for (int i = 0; i < meshCount; ++i)
                     WriteInVar(location + i, EShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
@@ -101,7 +101,7 @@ namespace TheraEngine.Rendering
             #endregion
 
             #region Binormals
-            type = BufferType.Binormal;
+            type = EBufferType.Binormal;
             if (_info.HasBinormals)
                 for (int i = 0; i < meshCount; ++i)
                     WriteInVar(location + i, EShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering
             #endregion
 
             #region Tangents
-            type = BufferType.Tangent;
+            type = EBufferType.Tangent;
             if (_info.HasTangents)
                 for (int i = 0; i < meshCount; ++i)
                     WriteInVar(location + i, EShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
@@ -117,7 +117,7 @@ namespace TheraEngine.Rendering
             #endregion
 
             #region MatrixIds
-            type = BufferType.MatrixIds;
+            type = EBufferType.MatrixIds;
             if (weighted)
             {
                 EShaderVarType varType = Engine.Settings.UseIntegerWeightingIds ? EShaderVarType._ivec4 : EShaderVarType._vec4;
@@ -128,24 +128,24 @@ namespace TheraEngine.Rendering
             #endregion
 
             #region MatrixWeights
-            type = BufferType.MatrixWeights;
+            type = EBufferType.MatrixWeights;
             if (weighted)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(location + i, EShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.MatrixWeights, i));
+                    WriteInVar(location + i, EShaderVarType._vec4, VertexAttribInfo.GetAttribName(EBufferType.MatrixWeights, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
             #region Colors
-            type = BufferType.Color;
+            type = EBufferType.Color;
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteInVar(location + i, EShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.Color, i));
+                WriteInVar(location + i, EShaderVarType._vec4, VertexAttribInfo.GetAttribName(EBufferType.Color, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
             #region TexCoords
-            type = BufferType.TexCoord;
+            type = EBufferType.TexCoord;
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteInVar(location + i, EShaderVarType._vec2, VertexAttribInfo.GetAttribName(BufferType.TexCoord, i));
+                WriteInVar(location + i, EShaderVarType._vec2, VertexAttribInfo.GetAttribName(EBufferType.TexCoord, i));
             //location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
         }
@@ -228,10 +228,10 @@ namespace TheraEngine.Rendering
                 //for (int i = 0; i < 4; ++i)
                 //{
                 if (Engine.Settings.UseIntegerWeightingIds)
-                        Line("index = {0}0[i];", BufferType.MatrixIds.ToString());
+                        Line("index = {0}0[i];", EBufferType.MatrixIds.ToString());
                     else
-                        Line("index = int({0}0[i]);", BufferType.MatrixIds.ToString());
-                    Line("weight = {0}0[i];", BufferType.MatrixWeights.ToString());
+                        Line("index = int({0}0[i]);", EBufferType.MatrixIds.ToString());
+                    Line("weight = {0}0[i];", EBufferType.MatrixWeights.ToString());
 
                     Line($"finalPosition += ({Uniform.BonePosMtxName}[index] * basePosition) * weight;");
                     if (_info.HasNormals)
@@ -274,13 +274,13 @@ namespace TheraEngine.Rendering
                 OpenBracket();
                 for (int i = 0; i < _info._morphCount; ++i)
                 {
-                    Line("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0f) * {2}{3}[i] * {4}[i];", Uniform.BonePosMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    Line("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0f) * {2}{3}[i] * {4}[i];", Uniform.BonePosMtxName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
-                        Line("finalNormal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalNormal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasBinormals)
-                        Line("finalBinorm += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalBinorm += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasTangents)
-                        Line("finalTangent += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalTangent += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (i + 1 != _info._morphCount)
                         Line();
                 }

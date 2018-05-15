@@ -4,6 +4,7 @@ using OpenTK.Platform;
 using System;
 using System.Text;
 using System.Threading;
+using TheraEngine.Core.Extensions;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -17,7 +18,119 @@ namespace TheraEngine.Rendering.OpenGL
 
         public GLWindowContext(BaseRenderPanel c) : base(c) { }
 
-        private GLRenderer _renderer;
+        private static Lazy<GLRenderer> _renderer = new Lazy<GLRenderer>(() => new GLRenderer());
+
+        protected override ThreadSubContext CreateSubContext(Thread thread)
+        {
+            IntPtr handle;
+            if (_control.InvokeRequired)
+                handle = (IntPtr)_control.Invoke(new Func<IntPtr>(() => _control.Handle));
+            else
+                handle = _control.Handle;
+            return new GLThreadSubContext(handle, thread);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    foreach (ThreadSubContext c in _subContexts.Values)
+                        c.Dispose();
+                    _subContexts.Clear();
+                    _currentSubContext = null;
+                }
+                _disposedValue = true;
+            }
+        }
+
+        internal override AbstractRenderer GetRendererInstance() => _renderer.Value;
+
+        public override void ErrorCheck()
+        {
+            GetCurrentSubContext();
+            ErrorCode code = GL.GetError();
+            if (code != ErrorCode.NoError)
+            {
+                Engine.LogWarning(code.ToString());
+                _control?.Reset();
+            }
+        }
+
+        internal unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
+        {
+            return;
+            string s = new string((sbyte*)message);
+            if (severity == DebugSeverity.DebugSeverityNotification)
+                Engine.PrintLine("OPENGL NOIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
+            else
+                Engine.PrintLine(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
+        }
+
+        private DebugProc _error;
+
+        public unsafe override void Initialize()
+        {
+            GetCurrentSubContext();
+
+            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            GL.Disable(EnableCap.CullFace);
+            GL.Enable(EnableCap.Dither);
+            GL.Enable(EnableCap.Multisample);
+            GL.Enable(EnableCap.TextureCubeMapSeamless);
+            GL.FrontFace(FrontFaceDirection.Ccw);
+            GL.Enable(EnableCap.DepthTest);
+            GL.DepthFunc(DepthFunction.Less);
+            GL.DepthMask(true);
+            GL.ClearDepth(1.0f);
+            GL.Enable(EnableCap.DebugOutput);
+            GL.Enable(EnableCap.DebugOutputSynchronous);
+
+            //Throws an error if HandleDebugMessage is passed in directly
+            _error = HandleDebugMessage;
+            GL.DebugMessageCallback(_error, IntPtr.Zero);
+
+            int[] ids = { };
+            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, ids, true);
+
+            //Modify depth range so there is no loss of precision with scale and bias conversion
+            GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.NegativeOneToOne);
+            //GL.DepthRange(0.0, 1.0);
+            //GL.Enable(EnableCap.FramebufferSrgb);
+            GL.Enable(EnableCap.StencilTest);
+            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
+            //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
+            //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
+            //GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
+            //GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
+
+            //GL.DepthFunc(DepthFunction.Less);
+            //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
+
+            GL.UseProgram(0);
+        }
+        public unsafe override void BeginDraw()
+        {
+            GetCurrentSubContext();
+
+            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            //GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, 0.0f);
+        }
+        public override void EndDraw()
+        {
+
+        }
+        
+        public override void Flush()
+        {
+            GetCurrentSubContext();
+            GL.Flush();
+        }
 
         protected class GLThreadSubContext : ThreadSubContext
         {
@@ -31,15 +144,17 @@ namespace TheraEngine.Rendering.OpenGL
 
             public IWindowInfo WindowInfo => _winInfo;
 
-            public GLThreadSubContext(IntPtr controlHandle, Thread thread) 
+            public GLThreadSubContext(IntPtr controlHandle, Thread thread)
                 : base(controlHandle, thread) { }
-            
+
             public override void Generate()
             {
                 _winInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
                 GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 8, new ColorFormat(0), 2, false);
-                _context = new GraphicsContext(mode, _winInfo, 4, 5, GraphicsContextFlags.Debug);
-                _context.ErrorChecking = true;
+                _context = new GraphicsContext(mode, _winInfo, 4, 6, GraphicsContextFlags.Debug)
+                {
+                    ErrorChecking = true
+                };
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();
                 VsyncChanged(_vsyncMode);
@@ -136,105 +251,6 @@ namespace TheraEngine.Rendering.OpenGL
                     Engine.LogException(ex);
                 }
             }
-        }
-        protected override ThreadSubContext CreateSubContext(Thread thread)
-        {
-            IntPtr handle;
-            if (_control.InvokeRequired)
-                handle = (IntPtr)_control.Invoke(new Func<IntPtr>(() => _control.Handle));
-            else
-                handle = _control.Handle;
-            return new GLThreadSubContext(handle, thread);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    foreach (ThreadSubContext c in _subContexts.Values)
-                        c.Dispose();
-                    _subContexts.Clear();
-                    _currentSubContext = null;
-                }
-                _disposedValue = true;
-            }
-        }
-
-        internal override AbstractRenderer GetRendererInstance()
-            => _renderer ?? (_renderer = new GLRenderer());
-
-        public override void ErrorCheck()
-        {
-            GetCurrentSubContext();
-            ErrorCode code = GL.GetError();
-            if (code != ErrorCode.NoError && _control != null)
-                _control.Reset();
-        }
-
-        private unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
-        {
-            string s = new string((sbyte*)message);
-            throw new Exception(string.Format("OPENGL DEBUG: {0} {1} {2} {3} {4}", source, type, id, severity, s));
-        }
-
-        public unsafe override void Initialize()
-        {
-            GetCurrentSubContext();
-            
-            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-            GL.Disable(EnableCap.CullFace);
-            GL.Enable(EnableCap.Dither);
-            GL.Enable(EnableCap.Multisample);
-            GL.Enable(EnableCap.TextureCubeMapSeamless);
-            GL.FrontFace(FrontFaceDirection.Ccw);
-            GL.Enable(EnableCap.DepthTest);
-            GL.DepthFunc(DepthFunction.Less);
-            GL.DepthMask(true);
-            GL.ClearDepth(1.0f);
-            GL.Enable(EnableCap.DebugOutput);
-            GL.Enable(EnableCap.DebugOutputSynchronous);
-            //GL.Enable(EnableCap.DebugOutput);
-            GL.DebugMessageCallback(HandleDebugMessage, IntPtr.Zero);
-            int[] ids = { };
-            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, ids, false);
-            //Modify depth range so there is no loss of precision with scale and bias conversion
-            GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.NegativeOneToOne);
-            //GL.DepthRange(0.0, 1.0);
-            //GL.Enable(EnableCap.FramebufferSrgb);
-            GL.Enable(EnableCap.StencilTest);
-            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
-
-            //GL.DepthFunc(DepthFunction.Less);
-            //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
-
-            GL.UseProgram(0);
-        }
-        public unsafe override void BeginDraw()
-        {
-            GetCurrentSubContext();
-
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            //GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, 0.0f);
-        }
-        public override void EndDraw()
-        {
-
-        }
-        
-        public override void Flush()
-        {
-            GetCurrentSubContext();
-            GL.Flush();
         }
     }
 }

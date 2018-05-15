@@ -60,8 +60,8 @@ namespace TheraEditor.Windows.Forms
 
             Measures.DockPadding = 10;
 
-            Extender.DockWindowFactory = new TheraEditorDockWindowFactory();
-            Extender.FloatWindowFactory = new TheraEditorFloatWindowFactory();
+            //Extender.DockWindowFactory = new TheraEditorDockWindowFactory();
+            //Extender.FloatWindowFactory = new TheraEditorFloatWindowFactory();
         }
     }
 

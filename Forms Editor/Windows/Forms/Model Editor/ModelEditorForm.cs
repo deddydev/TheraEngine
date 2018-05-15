@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using TheraEngine;
@@ -27,6 +28,7 @@ namespace TheraEditor.Windows.Forms
         public ModelEditorForm()
         {
             InitializeComponent();
+            ModelEditorText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
             DockPanel.Theme = new TheraEditorTheme();
             AutoScaleMode = AutoScaleMode.Dpi;
             DoubleBuffered = false;
@@ -202,8 +204,8 @@ namespace TheraEditor.Windows.Forms
             MeshList.DisplayMeshes(stm);
             MaterialList.DisplayMaterials(stm);
 
-            BoundingBox aabb = stm?.CalculateCullingAABB() ?? new BoundingBox();
-            RenderForm1.AlignView(aabb);
+            //BoundingBox aabb = stm?.CalculateCullingAABB() ?? new BoundingBox();
+            //RenderForm1.AlignView(aabb);
         }
         public void SetModel(SkeletalModel skm)
         {
@@ -227,8 +229,8 @@ namespace TheraEditor.Windows.Forms
             MaterialList.DisplayMaterials(skm);
             BoneTreeForm.NodeTree.DisplayNodes(skel);
 
-            BoundingBox aabb = skm.CalculateBindPoseCullingAABB();
-            RenderForm1.AlignView(aabb);
+            //BoundingBox aabb = skm.CalculateBindPoseCullingAABB();
+            //RenderForm1.AlignView(aabb);
         }
         public void LoadAnimations(IEnumerable<SkeletalAnimation> anims)
         {
@@ -238,7 +240,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
             //Editor.Instance.SetRenderTicking(false);
-            GetRenderForm(0);
+            RenderForm1.RenderPanel.CaptureContext();
             SetRenderTicking(true);
         }
         protected override void OnClosed(EventArgs e)
@@ -278,7 +280,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void RenderTick(object sender, FrameEventArgs e)
         {
-            try { Invoke((Action)Redraw); } catch { }
+            //try { Invoke((Action)Redraw); } catch { }
+            Redraw();
         }
         private void Redraw()
         {
@@ -291,7 +294,7 @@ namespace TheraEditor.Windows.Forms
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
 
-            Application.DoEvents();
+            //Application.DoEvents();
         }
         private void btnViewport1_Click(object sender, EventArgs e) => RenderForm1.Focus();
         private void btnViewport2_Click(object sender, EventArgs e) => RenderForm2.Focus();
@@ -328,6 +331,16 @@ namespace TheraEditor.Windows.Forms
         private void chkViewBones_Click(object sender, EventArgs e)
         {
             chkViewBones.Checked = !chkViewBones.Checked;
+            if (_skeletal?.RootComponent?.Skeleton != null)
+            {
+                bool inScene = _skeletal.RootComponent.Skeleton.RenderInfo.Scene != null;
+                if (inScene == chkViewBones.Checked)
+                    return;
+                if (inScene)
+                    _skeletal.RootComponent.OwningScene.Remove(_skeletal.RootComponent.Skeleton);
+                else
+                    _skeletal.RootComponent.OwningScene.Add(_skeletal.RootComponent.Skeleton);
+            }
         }
         private void chkViewConstraints_Click(object sender, EventArgs e)
         {

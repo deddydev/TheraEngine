@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models
         public Vec3 _position, _normal, _tangent, _binormal;
         public Vec2 _texCoord;
         public ColorF4 _color;
-        public List<VertexLine> _connectedEdges = new List<VertexLine>();
+        //public List<VertexLine> _connectedEdges = new List<VertexLine>();
 
         public Vertex() { }
         public Vertex(InfluenceDef inf)
@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.Models
                 _binormal = _binormal,
                 _texCoord = _texCoord,
                 _color = _color,
-                _connectedEdges = new List<VertexLine>(_connectedEdges),
+                //_connectedEdges = new List<VertexLine>(_connectedEdges),
             };
         }
 
@@ -73,25 +73,25 @@ namespace TheraEngine.Rendering.Models
             {
                 DataBuffer b = buffers[i];
                 int index = facepoint.BufferIndices[i];
-                BufferType type = b.BufferType;
+                EBufferType type = b.BufferType;
                 switch (type)
                 {
-                    case BufferType.Position:
+                    case EBufferType.Position:
                         b.Set(index * 12, _position);
                         break;
-                    case BufferType.Normal:
+                    case EBufferType.Normal:
                         b.Set(index * 12, _normal);
                         break;
-                    case BufferType.Binormal:
+                    case EBufferType.Binormal:
                         b.Set(index * 12, _binormal);
                         break;
-                    case BufferType.Tangent:
+                    case EBufferType.Tangent:
                         b.Set(index * 12, _tangent);
                         break;
-                    case BufferType.Color:
+                    case EBufferType.Color:
                         b.Set(index << 4, _color);
                         break;
-                    case BufferType.TexCoord:
+                    case EBufferType.TexCoord:
                         b.Set(index << 3, _texCoord);
                         break;
                 }
@@ -106,25 +106,25 @@ namespace TheraEngine.Rendering.Models
             {
                 DataBuffer b = buffers[i];
                 int index = facepoint.BufferIndices[i];
-                BufferType type = b.BufferType;
+                EBufferType type = b.BufferType;
                 switch (type)
                 {
-                    case BufferType.Position:
+                    case EBufferType.Position:
                         _position = b.Get<Vec3>(index * 12);
                         break;
-                    case BufferType.Normal:
+                    case EBufferType.Normal:
                         _normal = b.Get<Vec3>(index * 12);
                         break;
-                    case BufferType.Binormal:
+                    case EBufferType.Binormal:
                         _binormal = b.Get<Vec3>(index * 12);
                         break;
-                    case BufferType.Tangent:
+                    case EBufferType.Tangent:
                         _tangent = b.Get<Vec3>(index * 12);
                         break;
-                    case BufferType.Color:
+                    case EBufferType.Color:
                         _texCoord = b.Get<Vec2>(index << 4);
                         break;
-                    case BufferType.TexCoord:
+                    case EBufferType.TexCoord:
                         _texCoord = b.Get<Vec2>(index << 3);
                         break;
                 }
@@ -156,36 +156,36 @@ namespace TheraEngine.Rendering.Models
             return true;
         }
 
-        internal void AddLine(VertexLine edge)
-        {
-            if (!_connectedEdges.Contains(edge))
-                _connectedEdges.Add(edge);
-        }
-        internal void RemoveLine(VertexLine edge)
-        {
-            if (_connectedEdges.Contains(edge))
-                _connectedEdges.Remove(edge);
-        }
-        public VertexLine LinkTo(Vertex otherPoint)
-        {
-            foreach (VertexLine edge in _connectedEdges)
-                if (edge.Vertex0 == otherPoint ||
-                    edge.Vertex0 == otherPoint)
-                    return edge;
+        //internal void AddLine(VertexLine edge)
+        //{
+        //    if (!_connectedEdges.Contains(edge))
+        //        _connectedEdges.Add(edge);
+        //}
+        //internal void RemoveLine(VertexLine edge)
+        //{
+        //    if (_connectedEdges.Contains(edge))
+        //        _connectedEdges.Remove(edge);
+        //}
+        //public VertexLine LinkTo(Vertex otherPoint)
+        //{
+        //    foreach (VertexLine edge in _connectedEdges)
+        //        if (edge.Vertex0 == otherPoint ||
+        //            edge.Vertex0 == otherPoint)
+        //            return edge;
 
-            //Creating a new line automatically links the points.
-            return new VertexLine(this, otherPoint);
-        }
-        public void UnlinkFrom(Vertex otherPoint)
-        {
-            for (int i = 0; i < _connectedEdges.Count; ++i)
-                if (_connectedEdges[i].Vertex0 == otherPoint ||
-                    _connectedEdges[i].Vertex1 == otherPoint)
-                {
-                    _connectedEdges[i].Unlink();
-                    return;
-                }
-        }
+        //    //Creating a new line automatically links the points.
+        //    return new VertexLine(this, otherPoint);
+        //}
+        //public void UnlinkFrom(Vertex otherPoint)
+        //{
+        //    for (int i = 0; i < _connectedEdges.Count; ++i)
+        //        if (_connectedEdges[i].Vertex0 == otherPoint ||
+        //            _connectedEdges[i].Vertex1 == otherPoint)
+        //        {
+        //            _connectedEdges[i].Unlink();
+        //            return;
+        //        }
+        //}
 
         public static implicit operator Vertex(Vec3 pos) => new Vertex(pos);
 

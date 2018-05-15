@@ -65,6 +65,8 @@ namespace TheraEngine.Components.Scene.Lights
         [Browsable(false)]
         public OrthographicCamera ShadowCamera => _shadowCamera;
 
+        public MaterialFrameBuffer ShadowMap => _shadowMap;
+
         public DirectionalLightComponent() 
             : this(new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity)
@@ -120,19 +122,14 @@ namespace TheraEngine.Components.Scene.Lights
 
         public override void SetUniforms(int programBindingId)
         {
-            string indexer = Uniform.DirectionalLightsName + "[" + LightIndex + "].";
-
+            string indexer = Uniform.DirectionalLightsName + ".";
             Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
-
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
             TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetTextureGeneric(true),
-                Viewport.GBufferTextureCount + LightIndex,
-                string.Format("DirShadowMaps[{0}]", LightIndex.ToString()),
-                programBindingId);
+                _shadowMap.Material.Textures[0].GetTextureGeneric(true), 4, "Texture4", programBindingId);
         }
 
         public void SetShadowMapResolution(int width, int height)
@@ -166,16 +163,20 @@ namespace TheraEngine.Components.Scene.Lights
         }
         private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
         {
-            //These are listed in order of appearance in the shader
             TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
                 GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
                 EFramebufferAttachment.DepthAttachment);
             depthTex.MinFilter = ETexMinFilter.Nearest;
             depthTex.MagFilter = ETexMagFilter.Nearest;
             TexRef2D[] refs = new TexRef2D[] { depthTex };
+
+            //This material is used for rendering to the framebuffer.
             GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, shader);
+
+            //No culling so if a light exists inside of a mesh it will be obscured.
             mat.RenderParams.CullMode = Culling.None;
+
             return mat;
         }
         public override void UpdateShadowMap(BaseScene scene)

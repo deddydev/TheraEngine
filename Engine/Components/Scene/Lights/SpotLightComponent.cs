@@ -60,6 +60,8 @@ namespace TheraEngine.Components.Scene.Lights
                 _innerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
 
                 _shadowCamera.FarZ = _distance;
+
+                RecalcLocalTransform();
             }
         }
         [TSerialize]
@@ -121,6 +123,8 @@ namespace TheraEngine.Components.Scene.Lights
             _innerCone.Radius = TMath.Tanf(radInner) * _distance;
             
             _shadowCamera.VerticalFieldOfView = Math.Max(outerDegrees, innerDegrees) * 2.0f;
+
+            RecalcLocalTransform();
         }
 
         [Browsable(false)]
@@ -208,7 +212,20 @@ namespace TheraEngine.Components.Scene.Lights
                 _shadowCamera.LocalPoint.Raw = _translation;
             }
 
-            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
+            Matrix4
+                r = _rotation.GetMatrix(),
+                ir = _rotation.Inverted().GetMatrix();
+
+            Matrix4
+                t = _translation.AsTranslationMatrix(),
+                it = (-_translation).AsTranslationMatrix();
+
+            Matrix4
+                s = Matrix4.CreateScale(_outerCone.Radius, _outerCone.Radius, _outerCone.Height),
+                iS = Matrix4.CreateScale(1.0f / _outerCone.Radius, 1.0f / _outerCone.Radius, 1.0f / _outerCone.Height);
+
+            localTransform = t * r * s;
+            inverseLocalTransform = iS * ir * it;
         }
 
         public override void OnSpawned()
@@ -236,26 +253,20 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void SetUniforms(int programBindingId)
         {
-            string indexer = Uniform.SpotLightsName + "[" + _lightIndex + "].";
-
+            string indexer = Uniform.SpotLightsName + ".";
             Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
             Engine.Renderer.Uniform(programBindingId, indexer + "OuterCutoff", _outerCutoff);
             Engine.Renderer.Uniform(programBindingId, indexer + "InnerCutoff", _innerCutoff);
-
             Engine.Renderer.Uniform(programBindingId, indexer + "Position", Position);
             Engine.Renderer.Uniform(programBindingId, indexer + "Radius", _distance);
             Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
             Engine.Renderer.Uniform(programBindingId, indexer + "Exponent", _exponent);
-
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
             TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetTextureGeneric(true), 
-                Viewport.GBufferTextureCount + LightManager.MaxDirectionalLights + LightIndex,
-                string.Format("SpotShadowMaps[{0}]", LightIndex.ToString()),
-                programBindingId);
+                _shadowMap.Material.Textures[0].GetTextureGeneric(true), 4, "Texture4", programBindingId);
         }
 
         public void SetShadowMapResolution(int width, int height)
@@ -290,11 +301,15 @@ namespace TheraEngine.Components.Scene.Lights
                 EFramebufferAttachment.DepthAttachment);
             depthTex.MinFilter = ETexMinFilter.Nearest;
             depthTex.MagFilter = ETexMagFilter.Nearest;
-            //These are listed in order of appearance in the shader
             TexRef2D[] refs = new TexRef2D[] { depthTex };
+
+            //This material is used for rendering to the framebuffer.
             GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("SpotLightShadowMat", new ShaderVar[0], refs, shader);
+
+            //No culling so if a light exists inside of a mesh it will be obscured.
             mat.RenderParams.CullMode = Culling.None;
+
             return mat;
         }
         public override void UpdateShadowMap(BaseScene scene)

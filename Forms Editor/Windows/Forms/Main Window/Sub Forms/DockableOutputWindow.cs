@@ -32,7 +32,7 @@ namespace TheraEditor.Windows.Forms
 
                 if (InvokeRequired)
                 {
-                    Invoke(new Action<string>(Engine_DebugOutput), message);
+                    BeginInvoke(new Action<string>(Engine_DebugOutput), message);
                     return;
                 }
 

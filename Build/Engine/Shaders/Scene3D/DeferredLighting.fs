@@ -20,9 +20,9 @@ layout(binding = 6) uniform samplerCube Texture6; //Irradiance Map
 layout(binding = 7) uniform samplerCube Texture7; //Prefilter Map
 layout(binding = 8)
 uniform sampler2D DirShadowMaps[MAX_DIR_LIGHTS];
-layout(binding = 9)
+layout(binding = 8 + MAX_DIR_LIGHTS)
 uniform sampler2D SpotShadowMaps[MAX_SPOT_LIGHTS];
-layout(binding = 12)
+layout(binding = 8 + MAX_DIR_LIGHTS + MAX_SPOT_LIGHTS)
 uniform samplerCube PointShadowMaps[MAX_POINT_LIGHTS];
 
 uniform vec3 CameraPosition;

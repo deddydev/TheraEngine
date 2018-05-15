@@ -29,12 +29,12 @@ namespace TheraEditor.Core.Extensions
             return null;
         }
 
-        public static void InvokeIfNecessary(this Control control, Delegate del)
+        public static void InvokeIfNecessary(this Control control, Delegate del, params object[] args)
         {
             if (control.InvokeRequired)
-                control.Invoke(del);
+                control.Invoke(del, args);
             else
-                del.DynamicInvoke();
+                del.DynamicInvoke(args);
         }
     }
 }

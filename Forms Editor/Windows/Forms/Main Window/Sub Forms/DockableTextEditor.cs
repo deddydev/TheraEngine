@@ -535,17 +535,19 @@ namespace TheraEditor.Windows.Forms
                     {
                         int start = errors.FindFirstReverse(i - 1, '(');
                         int lineIndex = int.Parse(errors.Substring(start + 1, i - start - 1)) - 1;
-                        Line lineInfo = TextBox[lineIndex];
-                        _errorLines.Add(lineInfo);
-                        lineInfo.BackgroundBrush = _errorBrush;
+                        if (lineIndex >= 0 && lineIndex < TextBox.LinesCount)
+                        {
+                            Line lineInfo = TextBox[lineIndex];
+                            _errorLines.Add(lineInfo);
+                            lineInfo.BackgroundBrush = _errorBrush;
 
-                        string line = lineInfo.Text;
-                        int errorStart = i + 4;//errors.FindFirst(i + 3, ':') + 2;
-                        int errorEnd = errors.FindFirst(errorStart, "\n");
-                        string errorMsg = errors.Substring(errorStart, errorEnd - errorStart);
+                            string line = lineInfo.Text;
+                            int errorStart = i + 4;//errors.FindFirst(i + 3, ':') + 2;
+                            int errorEnd = errors.FindFirst(errorStart, "\n");
+                            string errorMsg = errors.Substring(errorStart, errorEnd - errorStart);
 
-                        lineInfo.AddRange((" // " + errorMsg).Select(x => new FastColoredTextBoxNS.Char(x)));
-
+                            lineInfo.AddRange((" // " + errorMsg).Select(x => new FastColoredTextBoxNS.Char(x)));
+                        }
                         //Match m = Regex.Match(errorMsg, "(?<= \").*(?=\")");
                         //int tokenStart = line.IndexOf(m.Value);
                         //if (tokenStart < 0)

@@ -72,7 +72,7 @@ namespace TheraEngine.Core.Shapes
 
         public static PrimitiveData WireMesh(Vec3 center, Vec3 up, float height, float radius, int sides)
         {
-            up.NormalizeFast();
+            up.Normalize();
 
             VertexLine[] lines = new VertexLine[sides * 2];
 
@@ -91,7 +91,7 @@ namespace TheraEngine.Core.Shapes
         }
         public static PrimitiveData SolidMesh(Vec3 center, Vec3 up, float height, float radius, int sides, bool closeBottom)
         {
-            up.NormalizeFast();
+            up.Normalize();
 
             List<VertexTriangle> tris = new List<VertexTriangle>((sides * 3) * (closeBottom ? 2 : 1));
             
@@ -103,8 +103,8 @@ namespace TheraEngine.Core.Shapes
             for (int i = 0; i < sides; ++i)
             {
                 Vec3 diff = topPoint - sidePoints[i]._position;
-                diff.NormalizeFast();
-                Vec3 normal = diff ^ (up ^ diff);
+                diff.Normalize();
+                Vec3 normal = diff ^ (up ^ diff).Normalized();
                 sidePoints[i]._normal = normal;
 
                 Vertex topVertex = new Vertex(topPoint, normal, new Vec2(0.5f));

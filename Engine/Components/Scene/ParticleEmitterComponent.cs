@@ -1,9 +1,18 @@
-﻿using TheraEngine.Components.Scene.Transforms;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using TheraEngine.Components.Scene.Transforms;
 
-namespace TheraEngine.Components.Scene
+namespace TheraEngine.Rendering.Particles
 {
-    public class ParticleEmitterComponent : TranslationComponent
+    [FileDef("Particle System Component")]
+    public class ParticleSystemComponent : TRComponent
     {
-        public ParticleEmitterComponent() : base() { }
+        private List<Emitter> _emitters;
+
+        public List<Emitter> Emitters
+        {
+            get => _emitters;
+            set => _emitters = value;
+        }
     }
 }

@@ -193,6 +193,22 @@ namespace TheraEngine
         public string ShadersFolder { get; set; }
 
         /// <summary>
+        /// The path to the folder containing premade engine models.
+        /// </summary>
+        [Description("The path to the folder containing premade engine models.")]
+        [Category("Paths")]
+        [TSerialize]
+        public string ModelsFolder { get; set; }
+        
+        /// <summary>
+        /// The path to the folder containing custom engine fonts.
+        /// </summary>
+        [Description("The path to the folder containing custom engine fonts.")]
+        [Category("Paths")]
+        [TSerialize]
+        public string FontsFolder { get; set; }
+
+        /// <summary>
         /// The path to the folder containing premade engine textures.
         /// </summary>
         [Description("The path to the folder containing premade engine textures.")]
@@ -203,7 +219,7 @@ namespace TheraEngine
         public EngineSettings()
         {
             ShadingStyle3D = ShadingStyle.Deferred;
-            SkinOnGPU = true;
+            SkinOnGPU = false;
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
 #if DEBUG
@@ -233,6 +249,7 @@ namespace TheraEngine
             TexturesFolder = engineFolder + "Textures";
             ScriptsFolder = engineFolder + "Scripts";
             WorldsFolder = engineFolder + "Worlds";
+            FontsFolder = engineFolder + "Fonts";
         }
     }
 }

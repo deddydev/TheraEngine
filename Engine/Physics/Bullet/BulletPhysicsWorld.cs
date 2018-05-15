@@ -1,5 +1,7 @@
 ﻿using BulletSharp;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using TheraEngine.Physics.Bullet;
 using TheraEngine.Physics.Bullet.Shapes;
 using TheraEngine.Physics.RayTracing;
@@ -33,7 +35,10 @@ namespace TheraEngine.Physics
         {
             _physicsBroadphase = new DbvtBroadphase();
             _collisionConfig = new SoftBodyRigidBodyCollisionConfiguration();
-            _collisionDispatcher = new CollisionDispatcher(_collisionConfig);
+            _collisionDispatcher = new CollisionDispatcher(_collisionConfig)
+            {
+                NearCallback = NearCallback
+            };
             _constraintSolver = new MultiBodyConstraintSolver() { RandSeed = Seed, };
             _dynamicsWorld = new MultiBodyDynamicsWorld(_collisionDispatcher, _physicsBroadphase, _constraintSolver, _collisionConfig)
             {
@@ -65,6 +70,10 @@ namespace TheraEngine.Physics
             ManifoldPoint.ContactAdded += ManifoldPoint_ContactAdded;
             CompoundCollisionAlgorithm.CompoundChildShapePairCallback = CompoundChildShapeCallback;
         }
+        private void NearCallback(BroadphasePair collisionPair, CollisionDispatcher dispatcher, DispatcherInfo dispatchInfo)
+        {
+            CollisionDispatcher.DefaultNearCallback(collisionPair, dispatcher, dispatchInfo);
+        }
         public void CustomTickCallback(DynamicsWorld world, float timeStep)
         {
             return;
@@ -93,7 +102,8 @@ namespace TheraEngine.Physics
         {
             return true;
         }
-
+        
+        private static HashSet<TContactInfo> _contacts = new HashSet<TContactInfo>();
         private static void PersistentManifold_ContactProcessed(ManifoldPoint cp, CollisionObject body0, CollisionObject body1)
         {
             //PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
@@ -106,6 +116,8 @@ namespace TheraEngine.Physics
             //PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
             //drivers._driver0.ContactEnded(drivers._driver1);
             //drivers._driver1.ContactEnded(drivers._driver0);
+            //TContactInfo contact = userPersistantData as TContactInfo;
+            //_contacts.Remove(contact);
         }
         private static void ManifoldPoint_ContactAdded(ManifoldPoint cp,
             CollisionObjectWrapper colObj0Wrap, int partId0, int index0,
@@ -125,6 +137,12 @@ namespace TheraEngine.Physics
             TCollisionObject obj1 = colObj0Wrap.CollisionObject.UserObject as TCollisionObject;
             TCollisionObject obj2 = colObj1Wrap.CollisionObject.UserObject as TCollisionObject;
             TContactInfo contact = CreateCollisionInfo(cp);
+            contact.BodyA = obj1;
+            contact.BodyB = obj2;
+            //if (_contacts.Contains(contact))
+            //    return;
+            //_contacts.Add(contact);
+            cp.UserPersistentData = contact;
             if (obj1.HasContactResponse && obj2.HasContactResponse)
             {
                 obj1.OnCollided(obj2, contact, true);
@@ -181,15 +199,6 @@ namespace TheraEngine.Physics
         {
             IBulletCollisionObject b = (IBulletCollisionObject)collision;
             _dynamicsWorld.RemoveCollisionObject(b.CollisionObject);
-        }
-        private class CollisionPair
-        {
-            public CollisionPair(TCollisionObject body0, TCollisionObject body1)
-            {
-                _body0 = body0;
-                _body1 = body1;
-            }
-            public TCollisionObject _body0, _body1;
         }
         public override void StepSimulation(float delta)
         {

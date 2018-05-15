@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Security.Permissions;
+using System.Threading;
 using System.Windows.Forms;
 using TheraEngine.Actors;
+using TheraEngine.Core.Extensions;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.DirectX;
@@ -19,16 +21,6 @@ namespace TheraEngine
         Disabled,
         Enabled,
         Adaptive,
-    }
-    public static class ControlExtension
-    {
-        [ReflectionPermission(SecurityAction.Demand, MemberAccess = true)]
-        public static void Reset(this Control c)
-        {
-            typeof(Control).InvokeMember("SetState", BindingFlags.NonPublic |
-            BindingFlags.InvokeMethod | BindingFlags.Instance, null,
-            c, new object[] { 0x400000, false });
-        }
     }
     public abstract class BaseRenderPanel : UserControl, IEnumerable<Viewport>
     {
@@ -48,7 +40,7 @@ namespace TheraEngine
             {
                 case PanelType.World: return WorldPanel;
                 case PanelType.Hovered: return HoveredPanel;
-                case PanelType.Captured: return CapturedPanel;
+                case PanelType.Captured: return FocusedPanel;
                 case PanelType.Rendering: return RenderingPanel;
             }
             return null;
@@ -65,7 +57,7 @@ namespace TheraEngine
         /// <summary>
         /// The render panel that the mouse has last clicked in and not clicked out of.
         /// </summary>
-        public static BaseRenderPanel CapturedPanel;
+        public static BaseRenderPanel FocusedPanel;
         /// <summary>
         /// The render panel that is currently being rendered to.
         /// </summary>
@@ -106,53 +98,62 @@ namespace TheraEngine
         protected List<Viewport> _viewports = new List<Viewport>(4);
 
         public List<Viewport> Viewports => _viewports;
-        
+
         /// <summary>
         /// Calls the method. Invokes the render panel if necessary.
         /// </summary>
-        public static void CheckedInvoke(Action method, PanelType type)
+        //public static void CheckedInvoke(Action method, PanelType type)
+        //{
+        //    if (!NeedsInvoke(method, type))
+        //        method();
+        //}
+        /// <summary>
+        /// Returns true if the render panel needs to be invoked from the calling thread.
+        /// If it does, then it calls the method.
+        /// </summary>
+        public static bool ThreadSafeBlockingInvoke<T>(Delegate method, PanelType type, out T result, params object[] args)
         {
-            if (!NeedsInvoke(method, type))
-                method();
+            Control panel = GetPanel(type);
+            if (panel == null)
+            {
+                result = default;
+                return false;
+            }
+            return panel.ThreadSafeBlockingInvoke(method, out result, args);
         }
         /// <summary>
         /// Returns true if the render panel needs to be invoked from the calling thread.
         /// If it does, then it calls the method.
         /// </summary>
-        public static bool NeedsInvoke(Action method, PanelType type)
+        public static bool ThreadSafeBlockingInvoke(Delegate method, PanelType type, params object[] args)
         {
             Control panel = GetPanel(type);
-            if (panel != null && panel.InvokeRequired)
-            {
-                panel.Invoke(method);
-                return true;
-            }
-            return false;
+            return panel?.ThreadSafeBlockingInvoke(method, args) ?? false;
         }
         /// <summary>
         /// Calls the method. Invokes render panel if necessary.
         /// </summary>
-        public static T CheckedInvoke<T>(Func<T> method, PanelType type)
-        {
-            if (!NeedsInvoke(method, out T returnValue, type))
-                return (T)method.DynamicInvoke();
-            return returnValue;
-        }
+        //public static T CheckedInvoke<T>(Func<T> method, PanelType type)
+        //{
+        //    if (!NeedsInvoke(method, out T returnValue, type))
+        //        return (T)method.DynamicInvoke();
+        //    return returnValue;
+        //}
         /// <summary>
         /// Returns true if the render panel needs to be invoked from the calling thread.
         /// If it does, then it calls the method.
         /// </summary>
-        public static bool NeedsInvoke<T2>(Func<T2> method, out T2 returnValue, PanelType type)
-        {
-            Control panel = GetPanel(type);
-            if (panel != null && panel.InvokeRequired)
-            {
-                returnValue = (T2)panel.Invoke(method);
-                return true;
-            }
-            returnValue = default;
-            return false;
-        }
+        //public static bool NeedsInvoke<T2>(Func<T2> method, out T2 returnValue, PanelType type)
+        //{
+        //    Control panel = GetPanel(type);
+        //    if (panel != null && panel.InvokeRequired)
+        //    {
+        //        returnValue = (T2)panel.Invoke(method);
+        //        return true;
+        //    }
+        //    returnValue = default;
+        //    return false;
+        //}
 
         public VSyncMode VsyncMode
         {
@@ -303,14 +304,14 @@ namespace TheraEngine
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            if (CapturedPanel != this)
-                CapturedPanel = this;
+            if (FocusedPanel != this)
+                FocusedPanel = this;
         }
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            if (CapturedPanel == this)
-                CapturedPanel = null;
+            if (FocusedPanel == this)
+                FocusedPanel = null;
         }
         //protected override void OnMouseCaptureChanged(EventArgs e)
         //{

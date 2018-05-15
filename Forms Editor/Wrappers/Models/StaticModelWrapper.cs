@@ -29,11 +29,12 @@ namespace TheraEditor.Wrappers
         
         public StaticModelWrapper() : base() { }
 
-        public override void EditResource()
+        public override async void EditResource()
         {
             ModelEditorForm d = new ModelEditorForm();
             d.Show();
-            d.SetModel(ResourceRef.File);
+            var mdl = await ResourceRef.GetInstanceAsync();
+            d.SetModel(mdl);
         }
     }
 }

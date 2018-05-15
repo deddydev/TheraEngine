@@ -45,7 +45,7 @@ namespace TheraEngine.Files
             if (_file != null)
                 return _file;
             
-            return File = LoadNewInstance(true, null, null);
+            return File = LoadNewInstance(false, null, null);
         }
         
         public static implicit operator LocalFileRef<T>(T file) => file == null ? null : new LocalFileRef<T>(file);

@@ -117,8 +117,8 @@ namespace TheraEngine.Components.Scene
 
                 RenderingParameters p = new RenderingParameters
                 {
-                    LineWidth = 5.0f,
-                    PointSize = 10.0f
+                    LineWidth = 1.0f,
+                    PointSize = 5.0f
                 };
 
                 PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);

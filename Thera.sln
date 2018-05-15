@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{3BA74071-A8FB-473A-9388-0C8F75872F41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF Editor", "WPF Editor\WPF Editor.csproj", "{9F363CE1-89EB-46E4-9274-48D58F337377}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thera", "Thera\Thera.csproj", "{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forms Editor", "Forms Editor\Forms Editor.csproj", "{87E68E70-16FA-4807-B5DB-04AB2468A8EF}"
@@ -81,30 +79,6 @@ Global
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x64.Build.0 = ReleaseGameObfuscated|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x86.ActiveCfg = ReleaseGameObfuscated|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x86.Build.0 = ReleaseGameObfuscated|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|x64.ActiveCfg = Debug|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|x64.Build.0 = Debug|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|x86.ActiveCfg = Debug|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|x86.Build.0 = Debug|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditor|x64.ActiveCfg = Debug|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditor|x86.ActiveCfg = Debug|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditorObfuscated|x64.ActiveCfg = Debug|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditorObfuscated|x86.ActiveCfg = Debug|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugGame|x64.ActiveCfg = Debug|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugGame|x86.ActiveCfg = Debug|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugGameObfuscated|x64.ActiveCfg = Debug|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugGameObfuscated|x86.ActiveCfg = Debug|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|x64.ActiveCfg = Release|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|x64.Build.0 = Release|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|x86.ActiveCfg = Release|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|x86.Build.0 = Release|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseEditor|x64.ActiveCfg = Release|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseEditor|x86.ActiveCfg = Release|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseEditorObfuscated|x64.ActiveCfg = Release|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseEditorObfuscated|x86.ActiveCfg = Release|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseGame|x64.ActiveCfg = Release|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseGame|x86.ActiveCfg = Release|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseGameObfuscated|x64.ActiveCfg = Release|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseGameObfuscated|x86.ActiveCfg = Release|x86
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|x64.ActiveCfg = Debug|x64
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|x64.Build.0 = Debug|x64
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|x86.ActiveCfg = Debug|x86

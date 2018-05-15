@@ -32,5 +32,7 @@ namespace TheraEngine.Physics
         public Vec3 PositionWorldOnB { get; set; }
         public object UserPersistentData { get; set; }
         public float AppliedImpulse { get; set; }
+        public TCollisionObject BodyA { get; set; }
+        public TCollisionObject BodyB { get; set; }
     }
 }

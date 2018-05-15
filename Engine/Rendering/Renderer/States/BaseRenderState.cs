@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace TheraEngine.Rendering
 {
@@ -127,8 +128,8 @@ namespace TheraEngine.Rendering
         /// </summary>
         public int Generate()
         {
-            if (BaseRenderPanel.NeedsInvoke(Generate, out int value, BaseRenderPanel.PanelType.Rendering))
-                return value;
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Func<int>)Generate, BaseRenderPanel.PanelType.Rendering, out int id))
+                return id;
 
             //Make sure current bind is up to date
             bool hasBind = GetCurrentBind();
@@ -143,7 +144,7 @@ namespace TheraEngine.Rendering
                 return BindingId;
             
             PreGenerated();
-            int id = CreateObject();
+            id = CreateObject();
             if (id != 0)
             {
                 CurrentBind.BindingId = id;
@@ -166,7 +167,7 @@ namespace TheraEngine.Rendering
             if (RenderContext.Captured == null)
                 return;
 
-            if (BaseRenderPanel.NeedsInvoke(Delete, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Delete, BaseRenderPanel.PanelType.Rendering))
                 return;
 
             //Remove current bind from owners list

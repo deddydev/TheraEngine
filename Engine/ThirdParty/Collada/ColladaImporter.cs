@@ -371,7 +371,7 @@ namespace TheraEngine.Rendering.Models
                     m = TMaterial.CreateLitColorMaterial();
 
                 Sphere sphere = null;
-                DataBuffer posBuf = data[BufferType.Position];
+                DataBuffer posBuf = data[EBufferType.Position];
                 if (posBuf != null)
                 {
                     Remapper remap = posBuf.GetData(out Vec3[] positions, true);
@@ -419,7 +419,7 @@ namespace TheraEngine.Rendering.Models
                     m = TMaterial.CreateLitColorMaterial();
 
                 Sphere sphere = null;
-                DataBuffer posBuf = data[BufferType.Position];
+                DataBuffer posBuf = data[EBufferType.Position];
                 if (posBuf != null)
                 {
                     Remapper remap = posBuf.GetData(out Vec3[] positions, true);

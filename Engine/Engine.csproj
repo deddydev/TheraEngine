@@ -365,6 +365,7 @@
     </Compile>
     <Compile Include="Core\EditorUndo\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
+    <Compile Include="Core\Extensions\ControlExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
     <Compile Include="Core\Files\References\FileLoader.cs" />
@@ -376,7 +377,9 @@
     <Compile Include="Core\Reflection\Attributes\Serialization\FileExtension.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\File3rdParty.cs" />
     <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
-    <Compile Include="Core\Controls\BaseRenderPanel.cs" />
+    <Compile Include="Core\Controls\BaseRenderPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
     <Compile Include="Core\ResourcePool.cs" />
     <Compile Include="Input\ServerPlayerController.cs" />
@@ -581,8 +584,7 @@
     <Compile Include="Rendering\Models\Meshes\Primitives\PrimitiveData\PrimitiveDataMembers.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\PrimitiveData\PrimitiveDataXMLSerialize.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\VertexShaderDesc.cs" />
-    <Compile Include="Rendering\Particles\EmitterComponent.cs" />
-    <Compile Include="Rendering\Particles\ParticleSystem.cs" />
+    <Compile Include="Components\Scene\ParticleEmitterComponent.cs" />
     <Compile Include="Rendering\Scene\Scene.cs" />
     <Compile Include="Rendering\Scene\Scene2D.cs" />
     <Compile Include="Tests\TestDefaults.cs" />
@@ -838,7 +840,6 @@
     <None Include="Core\Tools\V-HACD\VHACD.cs" />
     <None Include="Core\Tools\V-HACD\Volume.cs" />
     <Compile Include="Tests\TestCharacter.cs" />
-    <Compile Include="Components\Scene\ParticleEmitterComponent.cs" />
     <Compile Include="Components\Scene\Mesh\MeshSocket.cs" />
     <Compile Include="Components\Scene\Volumes\Blocking.cs" />
     <Compile Include="Components\Scene\Volumes\MapStreaming.cs" />

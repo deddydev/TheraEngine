@@ -209,21 +209,22 @@ namespace TheraEngine.Components.Scene.Mesh
             if (OwningScene == null)
                 return;
 
-            foreach (StaticRenderableMesh m in Meshes)
-            {
-                if (m.CullingVolume != null)
+            if (Meshes != null)
+                foreach (StaticRenderableMesh m in Meshes)
                 {
-                    if (selected)
+                    if (m.CullingVolume != null)
                     {
-                        OwningScene.Add(m.CullingVolume);
+                        if (selected)
+                        {
+                            OwningScene.Add(m.CullingVolume);
+                        }
+                        else
+                        {
+                            OwningScene.Remove(m.CullingVolume);
+                        }
                     }
-                    else
-                    {
-                        OwningScene.Remove(m.CullingVolume);
-                    }
+                    //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
                 }
-                //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
-            }
         }
     }
 }

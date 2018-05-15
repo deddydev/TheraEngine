@@ -1,6 +1,7 @@
 ﻿using System;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
@@ -203,10 +204,34 @@ namespace TheraEngine.Rendering
                         viewport.SSAOBlurFBO.RenderFullscreen();
                         viewport.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
+                        viewport.LightCombineFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        {
+                            //Start with blank slate so additive blending doesn't ghost old frames
+                            Engine.Renderer.Clear(EBufferClear.Color);
+
+                            foreach (DirectionalLightComponent c in _lightManager.DirectionalLights)
+                            {
+                                viewport._dirLightComp = c;
+                                viewport.DirLightFBO.RenderFullscreen();
+                            }
+                            foreach (PointLightComponent c in _lightManager.PointLights)
+                            {
+                                viewport._pointLightComp = c;
+                                viewport.PointLightManager.Render(c.WorldMatrix);
+                            }
+                            foreach (SpotLightComponent c in _lightManager.SpotLights)
+                            {
+                                viewport._spotLightComp = c;
+                                viewport.SpotLightManager.Render(c.WorldMatrix);
+                            }
+                        }
+                        viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
                         viewport.BrightPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             //Render the deferred pass result
-                            viewport.GBufferFBO.RenderFullscreen();
+                            //viewport.GBufferFBO.RenderFullscreen();
+                            viewport.LightCombineFBO.RenderFullscreen();
 
                             Engine.Renderer.EnableDepthTest(true);
                             //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
@@ -373,7 +398,7 @@ namespace TheraEngine.Rendering
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
                     Engine.Renderer.StencilMask(~0);
                     Engine.Renderer.ClearStencil(0);
-                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
+                    //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
 
                     Engine.Renderer.AllowDepthWrite(false);
                     renderingPasses.Render(ERenderPass.Background);
@@ -397,6 +422,7 @@ namespace TheraEngine.Rendering
         {
             if (RenderTree?.Add(obj) == true)
             {
+                obj.RenderInfo.Scene = this;
                 if (obj is I3DRenderable r && r.CullingVolume != null)
                     RegisterCullingVolume(r.CullingVolume);
                 //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
@@ -406,6 +432,7 @@ namespace TheraEngine.Rendering
         {
             if (RenderTree?.Remove(obj) == true)
             {
+                obj.RenderInfo.Scene = null;
                 if (obj is I3DRenderable r && r.CullingVolume != null)
                     UnregisterCullingVolume(r.CullingVolume);
                 //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());

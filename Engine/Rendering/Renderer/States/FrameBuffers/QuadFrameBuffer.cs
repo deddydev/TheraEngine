@@ -26,28 +26,28 @@ namespace TheraEngine.Rendering
         //because the two triangles may not be rasterized at the exact same time.
         private PrimitiveManager _fullScreenTriangle;
         
-        public QuadFrameBuffer(TMaterial mat)
+        public static PrimitiveData Mesh()
         {
-            Material = mat;
-
             VertexTriangle triangle = new VertexTriangle(
                 new Vec3(0.0f, 0.0f, 0.0f),
                 new Vec3(2.0f, 0.0f, 0.0f),
                 new Vec3(0.0f, 2.0f, 0.0f));
+            return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), triangle);
+        }
 
-            _fullScreenTriangle = new PrimitiveManager(PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), triangle), Material);
+        public QuadFrameBuffer(TMaterial mat)
+        {
+            Material = mat;
+
+            _fullScreenTriangle = new PrimitiveManager(Mesh(), Material);
             _fullScreenTriangle.SettingUniforms += SetUniforms;
 
             _quadCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
             _quadCamera.Resize(1.0f, 1.0f);
         }
-        private void SetUniforms()
+        private void SetUniforms(int vertexBindingId, int fragGeomBindingId)
         {
-            int fragId = Engine.Settings.AllowShaderPipelines ?
-               _fullScreenTriangle.Material.Program.BindingId :
-               _fullScreenTriangle.VertexFragProgram.BindingId;
-
-            SettingUniforms?.Invoke(fragId);
+            SettingUniforms?.Invoke(fragGeomBindingId);
         }
         /// <summary>
         /// Renders the FBO to the entire region set by Engine.Renderer.PushRenderArea().

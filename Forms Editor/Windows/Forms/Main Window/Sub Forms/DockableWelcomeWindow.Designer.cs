@@ -33,6 +33,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.webBrowser1 = new System.Windows.Forms.WebBrowser();
             this.label2 = new System.Windows.Forms.Label();
             this.panel3 = new TheraEditor.Windows.Forms.TransparentPanel();
             this.btnNew = new System.Windows.Forms.Button();
@@ -85,6 +86,7 @@
             // 
             this.splitContainer1.Panel2.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("splitContainer1.Panel2.BackgroundImage")));
             this.splitContainer1.Panel2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.splitContainer1.Panel2.Controls.Add(this.webBrowser1);
             this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Panel2.Controls.Add(this.panel3);
             this.splitContainer1.Size = new System.Drawing.Size(896, 517);
@@ -103,14 +105,25 @@
             this.panel1.Size = new System.Drawing.Size(244, 517);
             this.panel1.TabIndex = 1;
             // 
+            // webBrowser1
+            // 
+            this.webBrowser1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webBrowser1.Location = new System.Drawing.Point(0, 0);
+            this.webBrowser1.Margin = new System.Windows.Forms.Padding(0);
+            this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser1.Name = "webBrowser1";
+            this.webBrowser1.ScrollBarsEnabled = false;
+            this.webBrowser1.Size = new System.Drawing.Size(648, 517);
+            this.webBrowser1.TabIndex = 7;
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.Transparent;
-            this.label2.Font = new System.Drawing.Font("Origicide", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(39, 23);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(20, 23);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(245, 37);
+            this.label2.Size = new System.Drawing.Size(222, 39);
             this.label2.TabIndex = 6;
             this.label2.Text = "Thera Engine";
             // 
@@ -180,5 +193,6 @@
         private TransparentPanel panel3;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.WebBrowser webBrowser1;
     }
 }

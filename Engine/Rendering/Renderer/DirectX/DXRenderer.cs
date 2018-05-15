@@ -46,12 +46,12 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
         
-        public override void RenderCurrentPrimitiveManager()
+        public override void RenderCurrentPrimitiveManager(int instances)
         {
             throw new NotImplementedException();
         }
         
-        public override void InitializeBuffer(DataBuffer buffer)
+        public override void InitializeBuffer(DataBuffer buffer, bool mapData)
         {
             throw new NotImplementedException();
         }
@@ -703,6 +703,11 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override long GetQueryObjectLong(int bindingId, EGetQueryObject obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AttributeDivisor(int attributeLocation, int divisor)
         {
             throw new NotImplementedException();
         }

@@ -73,28 +73,28 @@ namespace TheraEditor.Windows.Forms
             // BodyPanel
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
-            this.BodyPanel.Size = new System.Drawing.Size(945, 1093);
+            this.BodyPanel.Size = new System.Drawing.Size(963, 1044);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(945, 1133);
+            this.MainPanel.Size = new System.Drawing.Size(963, 1084);
             // 
             // TitlePanel
             // 
             this.TitlePanel.Controls.Add(this.PaddingPanel);
-            this.TitlePanel.Size = new System.Drawing.Size(945, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(963, 40);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             this.TitlePanel.Controls.SetChildIndex(this.PaddingPanel, 0);
             // 
             // FormTitle
             // 
             this.FormTitle.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
-            this.FormTitle.Size = new System.Drawing.Size(774, 40);
+            this.FormTitle.Size = new System.Drawing.Size(792, 40);
             this.FormTitle.Text = "Model Editor";
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(945, 1141);
+            this.MiddlePanel.Size = new System.Drawing.Size(963, 1092);
             // 
             // DockPanel
             // 
@@ -104,7 +104,7 @@ namespace TheraEditor.Windows.Forms
             this.DockPanel.Location = new System.Drawing.Point(0, 0);
             this.DockPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.DockPanel.Name = "DockPanel";
-            this.DockPanel.Size = new System.Drawing.Size(945, 1093);
+            this.DockPanel.Size = new System.Drawing.Size(963, 1044);
             this.DockPanel.TabIndex = 15;
             // 
             // formMenu
@@ -121,7 +121,7 @@ namespace TheraEditor.Windows.Forms
             this.formMenu.Name = "formMenu";
             this.formMenu.Padding = new System.Windows.Forms.Padding(0);
             this.formMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.formMenu.Size = new System.Drawing.Size(146, 40);
+            this.formMenu.Size = new System.Drawing.Size(325, 40);
             this.formMenu.TabIndex = 16;
             this.formMenu.Text = "menuStrip1";
             // 
@@ -133,25 +133,25 @@ namespace TheraEditor.Windows.Forms
             this.btnReimportFrom});
             this.fileToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 40);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 40);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // btnExport
             // 
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(163, 22);
+            this.btnExport.Size = new System.Drawing.Size(193, 26);
             this.btnExport.Text = "Export";
             // 
             // btnReimport
             // 
             this.btnReimport.Name = "btnReimport";
-            this.btnReimport.Size = new System.Drawing.Size(163, 22);
+            this.btnReimport.Size = new System.Drawing.Size(193, 26);
             this.btnReimport.Text = "Reimport";
             // 
             // btnReimportFrom
             // 
             this.btnReimportFrom.Name = "btnReimportFrom";
-            this.btnReimportFrom.Size = new System.Drawing.Size(163, 22);
+            this.btnReimportFrom.Size = new System.Drawing.Size(193, 26);
             this.btnReimportFrom.Text = "Reimport From...";
             // 
             // btnWindow
@@ -167,7 +167,7 @@ namespace TheraEditor.Windows.Forms
             this.btnConstraintList});
             this.btnWindow.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnWindow.Name = "btnWindow";
-            this.btnWindow.Size = new System.Drawing.Size(63, 40);
+            this.btnWindow.Size = new System.Drawing.Size(76, 40);
             this.btnWindow.Text = "Window";
             // 
             // viewport1ToolStripMenuItem
@@ -178,80 +178,80 @@ namespace TheraEditor.Windows.Forms
             this.btnViewport3,
             this.btnViewport4});
             this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
-            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(205, 26);
             this.viewport1ToolStripMenuItem.Text = "Viewports";
             // 
             // btnViewport1
             // 
             this.btnViewport1.Name = "btnViewport1";
-            this.btnViewport1.Size = new System.Drawing.Size(130, 22);
+            this.btnViewport1.Size = new System.Drawing.Size(156, 26);
             this.btnViewport1.Text = "Viewport 1";
             this.btnViewport1.Click += new System.EventHandler(this.btnViewport1_Click);
             // 
             // btnViewport2
             // 
             this.btnViewport2.Name = "btnViewport2";
-            this.btnViewport2.Size = new System.Drawing.Size(130, 22);
+            this.btnViewport2.Size = new System.Drawing.Size(156, 26);
             this.btnViewport2.Text = "Viewport 2";
             this.btnViewport2.Click += new System.EventHandler(this.btnViewport2_Click);
             // 
             // btnViewport3
             // 
             this.btnViewport3.Name = "btnViewport3";
-            this.btnViewport3.Size = new System.Drawing.Size(130, 22);
+            this.btnViewport3.Size = new System.Drawing.Size(156, 26);
             this.btnViewport3.Text = "Viewport 3";
             this.btnViewport3.Click += new System.EventHandler(this.btnViewport3_Click);
             // 
             // btnViewport4
             // 
             this.btnViewport4.Name = "btnViewport4";
-            this.btnViewport4.Size = new System.Drawing.Size(130, 22);
+            this.btnViewport4.Size = new System.Drawing.Size(156, 26);
             this.btnViewport4.Text = "Viewport 4";
             this.btnViewport4.Click += new System.EventHandler(this.btnViewport4_Click);
             // 
             // btnMeshList
             // 
             this.btnMeshList.Name = "btnMeshList";
-            this.btnMeshList.Size = new System.Drawing.Size(171, 22);
+            this.btnMeshList.Size = new System.Drawing.Size(205, 26);
             this.btnMeshList.Text = "Mesh List";
             this.btnMeshList.Click += new System.EventHandler(this.btnMeshList_Click);
             // 
             // btnMeshEditor
             // 
             this.btnMeshEditor.Name = "btnMeshEditor";
-            this.btnMeshEditor.Size = new System.Drawing.Size(171, 22);
+            this.btnMeshEditor.Size = new System.Drawing.Size(205, 26);
             this.btnMeshEditor.Text = "Mesh Editor";
             // 
             // btnMaterialList
             // 
             this.btnMaterialList.Name = "btnMaterialList";
-            this.btnMaterialList.Size = new System.Drawing.Size(171, 22);
+            this.btnMaterialList.Size = new System.Drawing.Size(205, 26);
             this.btnMaterialList.Text = "Material List";
             this.btnMaterialList.Click += new System.EventHandler(this.btnMaterialList_Click);
             // 
             // btnMaterialEditor
             // 
             this.btnMaterialEditor.Name = "btnMaterialEditor";
-            this.btnMaterialEditor.Size = new System.Drawing.Size(171, 22);
+            this.btnMaterialEditor.Size = new System.Drawing.Size(205, 26);
             this.btnMaterialEditor.Text = "Material Editor";
             // 
             // btnSkeleton
             // 
             this.btnSkeleton.Name = "btnSkeleton";
-            this.btnSkeleton.Size = new System.Drawing.Size(171, 22);
+            this.btnSkeleton.Size = new System.Drawing.Size(205, 26);
             this.btnSkeleton.Text = "Skeleton / Sockets";
             this.btnSkeleton.Click += new System.EventHandler(this.btnSkeleton_Click);
             // 
             // btnCollisionBodyList
             // 
             this.btnCollisionBodyList.Name = "btnCollisionBodyList";
-            this.btnCollisionBodyList.Size = new System.Drawing.Size(171, 22);
+            this.btnCollisionBodyList.Size = new System.Drawing.Size(205, 26);
             this.btnCollisionBodyList.Text = "Collision Body List";
             // 
             // btnConstraintList
             // 
             this.btnConstraintList.Name = "btnConstraintList";
-            this.btnConstraintList.Size = new System.Drawing.Size(171, 22);
+            this.btnConstraintList.Size = new System.Drawing.Size(205, 26);
             this.btnConstraintList.Text = "Constraint List";
             // 
             // btnView
@@ -267,62 +267,62 @@ namespace TheraEditor.Windows.Forms
             this.chkViewConstraints});
             this.btnView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnView.Name = "btnView";
-            this.btnView.Size = new System.Drawing.Size(44, 40);
+            this.btnView.Size = new System.Drawing.Size(53, 40);
             this.btnView.Text = "View";
             // 
             // chkViewNormals
             // 
             this.chkViewNormals.Name = "chkViewNormals";
-            this.chkViewNormals.Size = new System.Drawing.Size(160, 22);
+            this.chkViewNormals.Size = new System.Drawing.Size(190, 26);
             this.chkViewNormals.Text = "Normals";
             this.chkViewNormals.Click += new System.EventHandler(this.chkViewNormals_Click);
             // 
             // chkViewBinormals
             // 
             this.chkViewBinormals.Name = "chkViewBinormals";
-            this.chkViewBinormals.Size = new System.Drawing.Size(160, 22);
+            this.chkViewBinormals.Size = new System.Drawing.Size(190, 26);
             this.chkViewBinormals.Text = "Binormals";
             this.chkViewBinormals.Click += new System.EventHandler(this.chkViewBinormals_Click);
             // 
             // chkViewTangents
             // 
             this.chkViewTangents.Name = "chkViewTangents";
-            this.chkViewTangents.Size = new System.Drawing.Size(160, 22);
+            this.chkViewTangents.Size = new System.Drawing.Size(190, 26);
             this.chkViewTangents.Text = "Tangents";
             this.chkViewTangents.Click += new System.EventHandler(this.chkViewTangents_Click);
             // 
             // chkViewWireframe
             // 
             this.chkViewWireframe.Name = "chkViewWireframe";
-            this.chkViewWireframe.Size = new System.Drawing.Size(160, 22);
+            this.chkViewWireframe.Size = new System.Drawing.Size(190, 26);
             this.chkViewWireframe.Text = "Wireframe";
             this.chkViewWireframe.Click += new System.EventHandler(this.chkViewWireframe_Click);
             // 
             // chkViewCollisions
             // 
             this.chkViewCollisions.Name = "chkViewCollisions";
-            this.chkViewCollisions.Size = new System.Drawing.Size(160, 22);
+            this.chkViewCollisions.Size = new System.Drawing.Size(190, 26);
             this.chkViewCollisions.Text = "Collision Bodies";
             this.chkViewCollisions.Click += new System.EventHandler(this.chkViewCollisions_Click);
             // 
             // chkViewCullingVolumes
             // 
             this.chkViewCullingVolumes.Name = "chkViewCullingVolumes";
-            this.chkViewCullingVolumes.Size = new System.Drawing.Size(160, 22);
+            this.chkViewCullingVolumes.Size = new System.Drawing.Size(190, 26);
             this.chkViewCullingVolumes.Text = "Culling Volumes";
             this.chkViewCullingVolumes.Click += new System.EventHandler(this.chkViewCullingVolumes_Click);
             // 
             // chkViewBones
             // 
             this.chkViewBones.Name = "chkViewBones";
-            this.chkViewBones.Size = new System.Drawing.Size(160, 22);
+            this.chkViewBones.Size = new System.Drawing.Size(190, 26);
             this.chkViewBones.Text = "Bones";
             this.chkViewBones.Click += new System.EventHandler(this.chkViewBones_Click);
             // 
             // chkViewConstraints
             // 
             this.chkViewConstraints.Name = "chkViewConstraints";
-            this.chkViewConstraints.Size = new System.Drawing.Size(160, 22);
+            this.chkViewConstraints.Size = new System.Drawing.Size(190, 26);
             this.chkViewConstraints.Text = "Constraints";
             this.chkViewConstraints.Click += new System.EventHandler(this.chkViewConstraints_Click);
             // 
@@ -334,7 +334,7 @@ namespace TheraEditor.Windows.Forms
             this.PaddingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PaddingPanel.Location = new System.Drawing.Point(44, 0);
             this.PaddingPanel.Name = "PaddingPanel";
-            this.PaddingPanel.Size = new System.Drawing.Size(774, 40);
+            this.PaddingPanel.Size = new System.Drawing.Size(792, 40);
             this.PaddingPanel.TabIndex = 17;
             // 
             // FormTitle2
@@ -343,9 +343,9 @@ namespace TheraEditor.Windows.Forms
             this.FormTitle2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FormTitle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormTitle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.FormTitle2.Location = new System.Drawing.Point(293, 0);
+            this.FormTitle2.Location = new System.Drawing.Point(472, 0);
             this.FormTitle2.Name = "FormTitle2";
-            this.FormTitle2.Size = new System.Drawing.Size(481, 40);
+            this.FormTitle2.Size = new System.Drawing.Size(320, 40);
             this.FormTitle2.TabIndex = 19;
             this.FormTitle2.Text = "Title Text";
             this.FormTitle2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -353,7 +353,7 @@ namespace TheraEditor.Windows.Forms
             // ModelEditorText
             // 
             this.ModelEditorText.Dock = System.Windows.Forms.DockStyle.Left;
-            this.ModelEditorText.Font = new System.Drawing.Font("Origicide", 10F);
+            this.ModelEditorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.ModelEditorText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.ModelEditorText.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.ModelEditorText.Location = new System.Drawing.Point(0, 0);
@@ -366,9 +366,9 @@ namespace TheraEditor.Windows.Forms
             // 
             // ModelEditorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(953, 1141);
+            this.ClientSize = new System.Drawing.Size(971, 1092);
             this.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip = this.formMenu;
             this.MinimumSize = new System.Drawing.Size(319, 54);

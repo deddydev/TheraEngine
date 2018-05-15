@@ -11,10 +11,22 @@ namespace TheraEngine.Rendering.Models
 {
     public enum EBufferTarget
     {
-        DataArray,
-        DrawIndices,
+        ArrayBuffer = 34962,
+        ElementArrayBuffer = 34963,
+        PixelPackBuffer = 35051,
+        PixelUnpackBuffer = 35052,
+        UniformBuffer = 35345,
+        TextureBuffer = 35882,
+        TransformFeedbackBuffer = 35982,
+        CopyReadBuffer = 36662,
+        CopyWriteBuffer = 36663,
+        DrawIndirectBuffer = 36671,
+        ShaderStorageBuffer = 37074,
+        DispatchIndirectBuffer = 37102,
+        QueryBuffer = 37266,
+        AtomicCounterBuffer = 37568
     }
-    public enum BufferType
+    public enum EBufferType
     {
         Position        = 0, //VertexBuffer.MaxMorphs + 1
         Normal          = 1, //VertexBuffer.MaxMorphs + 1
@@ -28,34 +40,34 @@ namespace TheraEngine.Rendering.Models
     }
     public class VertexAttribInfo
     {
-        public VertexAttribInfo(BufferType type, int index = 0)
+        public VertexAttribInfo(EBufferType type, int index = 0)
         {
             _type = type;
             _index = index.Clamp(0, GetMaxBuffersForType(type) - 1);
         }
 
-        public BufferType _type;
+        public EBufferType _type;
         public int _index;
 
-        public static int GetMaxBuffersForType(BufferType type)
+        public static int GetMaxBuffersForType(EBufferType type)
         {
             switch (type)
             {
-                case BufferType.Color:
+                case EBufferType.Color:
                     return VertexShaderDesc.MaxColors;
-                case BufferType.TexCoord:
+                case EBufferType.TexCoord:
                     return VertexShaderDesc.MaxTexCoords;
-                case BufferType.Other:
+                case EBufferType.Other:
                     return VertexShaderDesc.MaxOtherBuffers;
                 default:
                     return VertexShaderDesc.MaxMorphs + 1;
             }
         }
-        public static string GetAttribName(BufferType type, int index) => type.ToString() + index.ToString();
-        public static int GetLocation(BufferType type, int index)
+        public static string GetAttribName(EBufferType type, int index) => type.ToString() + index.ToString();
+        public static int GetLocation(EBufferType type, int index)
         {
             int location = 0;
-            for (BufferType i = 0; i < type; ++i)
+            for (EBufferType i = 0; i < type; ++i)
                 location += GetMaxBuffersForType(i);
             return location + index;
         }
@@ -88,8 +100,9 @@ namespace TheraEngine.Rendering.Models
             Double  = 10
         }
 
-        internal EBufferTarget _target = EBufferTarget.DataArray;
-        internal BufferUsage _usage = BufferUsage.StaticDraw;
+        public bool MapData { get; set; } = true;
+        public EBufferTarget Target { get; private set; } = EBufferTarget.ArrayBuffer;
+        public BufferUsage Usage { get; set; } = BufferUsage.StaticDraw;
         internal int _vaoId = 0;
 
         [TSerialize("Index", XmlNodeType = EXmlNodeType.Attribute)]
@@ -107,7 +120,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("ElementCount", XmlNodeType = EXmlNodeType.Attribute)]
         internal int _elementCount;
         [TSerialize("Type", XmlNodeType = EXmlNodeType.Attribute)]
-        internal BufferType _type = BufferType.Other;
+        internal EBufferType _type = EBufferType.Other;
 
         [TSerialize("Data", IsXmlElementString = true)]
         internal DataSource _data;
@@ -221,7 +234,7 @@ namespace TheraEngine.Rendering.Models
             get => _bufferIndex;
             set => _bufferIndex = value;
         }
-        public BufferType BufferType
+        public EBufferType BufferType
         {
             get => _type;
             set => _type = value;
@@ -239,7 +252,7 @@ namespace TheraEngine.Rendering.Models
             bool integral) : base(EObjectType.Buffer)
         {
             _bufferIndex = index;
-            _target = target;
+            Target = target;
             _location = info.GetLocation();
             _name = info.GetAttribName();
             _type = info._type;
@@ -260,7 +273,7 @@ namespace TheraEngine.Rendering.Models
         {
             _bufferIndex = -1;
             _location = location;
-            _target = target;
+            Target = target;
             _name = name;
             _integral = integral;
         }
@@ -271,7 +284,7 @@ namespace TheraEngine.Rendering.Models
         {
             _bufferIndex = -1;
             _location = -1;
-            _target = target;
+            Target = target;
             _name = name;
             _integral = integral;
         }
@@ -282,7 +295,7 @@ namespace TheraEngine.Rendering.Models
            bool integral) : base(EObjectType.Buffer)
         {
             _bufferIndex = index;
-            _target = target;
+            Target = target;
             _location = info.GetLocation();
             _name = info.GetAttribName();
             _type = info._type;
@@ -314,9 +327,8 @@ namespace TheraEngine.Rendering.Models
         }
         protected override void PostGenerated()
         {
-            Engine.Renderer.InitializeBuffer(this);
+            Engine.Renderer.InitializeBuffer(this, MapData);
         }
-        internal const bool MapData = true;
         private void PushData()
         {
             Engine.Renderer.PushBufferData(this);

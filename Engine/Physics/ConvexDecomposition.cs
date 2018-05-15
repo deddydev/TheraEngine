@@ -29,7 +29,7 @@ namespace TheraEngine.Physics
             int baseIndexOffset = 0;
             foreach (PrimitiveData primData in primitives)
             {
-                primData[Rendering.Models.BufferType.Position].GetData(out Vec3[] array, false);
+                primData[Rendering.Models.EBufferType.Position].GetData(out Vec3[] array, false);
                 meshIndices = primData.GetIndices();
                 foreach (int i in meshIndices)
                     indices.Add(i + baseIndexOffset);

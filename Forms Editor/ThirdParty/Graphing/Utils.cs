@@ -30,7 +30,7 @@ namespace GraphLib
                     n *= 10.0f;
                 }
 
-                return (float)((int)(sig * n / 10));
+                return (int)(sig * n / 10);
             }
             else // n <= 1
             {

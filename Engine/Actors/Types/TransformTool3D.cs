@@ -84,7 +84,7 @@ namespace TheraEngine.Actors.Types
             
             _screenMat = TMaterial.CreateUnlitColorMaterialForward(Color.LightGray);
             _screenMat.RenderParamsRef.File.DepthTest.Enabled = ERenderParamUsage.Disabled;
-            _screenMat.RenderParamsRef.File.LineWidth = 2.0f;
+            _screenMat.RenderParamsRef.File.LineWidth = 1.0f;
 
             bool isTranslate = TransformMode == TransformType.Translate;
             bool isRotate = TransformMode == TransformType.Rotate;
@@ -106,22 +106,22 @@ namespace TheraEngine.Actors.Types
 
                 TMaterial axisMat = TMaterial.CreateUnlitColorMaterialForward(unit);
                 axisMat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-                axisMat.RenderParams.LineWidth = 2.0f;
+                axisMat.RenderParams.LineWidth = 1.0f;
                 _axisMat[normalAxis] = axisMat;
 
                 TMaterial planeMat1 = TMaterial.CreateUnlitColorMaterialForward(unit1);
                 planeMat1.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-                planeMat1.RenderParams.LineWidth = 2.0f;
+                planeMat1.RenderParams.LineWidth = 1.0f;
                 _transPlaneMat[(normalAxis << 1) + 0] = planeMat1;
 
                 TMaterial planeMat2 = TMaterial.CreateUnlitColorMaterialForward(unit2);
                 planeMat2.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-                planeMat2.RenderParams.LineWidth = 2.0f;
+                planeMat2.RenderParams.LineWidth = 1.0f;
                 _transPlaneMat[(normalAxis << 1) + 1] = planeMat2;
                 
                 TMaterial scalePlaneMat = TMaterial.CreateUnlitColorMaterialForward(unit);
                 scalePlaneMat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-                scalePlaneMat.RenderParams.LineWidth = 2.0f;
+                scalePlaneMat.RenderParams.LineWidth = 1.0f;
                 _scalePlaneMat[normalAxis] = scalePlaneMat;
 
                 VertexLine axisLine = new VertexLine(Vec3.Zero, unit * _axisLength);
@@ -214,7 +214,7 @@ namespace TheraEngine.Actors.Types
             sphereMat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Enabled;
             sphereMat.RenderParams.DepthTest.UpdateDepth = true;
             sphereMat.RenderParams.DepthTest.Function = EComparison.Lequal;
-            sphereMat.RenderParams.LineWidth = 2.0f;
+            sphereMat.RenderParams.LineWidth = 1.0f;
             sphereMat.RenderParams.WriteRed = false;
             sphereMat.RenderParams.WriteGreen = false;
             sphereMat.RenderParams.WriteBlue = false;

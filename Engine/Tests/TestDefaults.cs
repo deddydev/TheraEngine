@@ -18,6 +18,10 @@ namespace TheraEngine.Tests
                     DesktopPath = "C:\\Users\\David\\Desktop\\";
                     GoogleDrivePath = "C:\\Users\\David\\Google Drive\\TheraDev\\";
                     break;
+                case "David-Laptop-2":
+                    DesktopPath = "C:\\Users\\dnedd\\Desktop\\";
+                    GoogleDrivePath = "C:\\Users\\dnedd\\Google Drive\\TheraDev\\";
+                    break;
             }
         }
     }

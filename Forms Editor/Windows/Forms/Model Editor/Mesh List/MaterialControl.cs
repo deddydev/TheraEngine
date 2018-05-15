@@ -59,7 +59,7 @@ namespace TheraEditor.Windows.Forms
                 _light.Rotation.Pitch = -45.0f;
                 basicRenderPanel1.Scene.Lights.Add(_light);
                 basicRenderPanel1.PreRendered += BasicRenderPanel1_PreRendered;
-                basicRenderPanel1.Invalidate();
+                RedrawPreview();
             }
         }
 
@@ -108,7 +108,7 @@ namespace TheraEditor.Windows.Forms
                 Rotator r = lightRotation.ToYawPitchRoll();
                 _light.Rotation.SetRotations(r);
 
-                basicRenderPanel1.Invalidate();
+                RedrawPreview();
             }
         }
 
@@ -188,13 +188,13 @@ namespace TheraEditor.Windows.Forms
                             typeof(PropGridText),
                             varType.GetProperty(nameof(ShaderVar.Name)), 
                             shaderVar, this);
-                        textCtrl.ValueChanged += UniformChanged;
+                        textCtrl.ValueChanged += RedrawPreview;
 
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
                             TheraPropertyGrid.GetControlTypes(valType)[0],
                             varType.GetProperty("Value"), 
                             shaderVar, this);
-                        valueCtrl.ValueChanged += UniformChanged;
+                        valueCtrl.ValueChanged += RedrawPreview;
 
                         tblUniforms.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                         tblUniforms.RowCount = tblUniforms.RowStyles.Count;
@@ -217,8 +217,10 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void UniformChanged()
+        private void RedrawPreview()
         {
+            basicRenderPanel1.UpdateTick(null, null);
+            basicRenderPanel1.SwapBuffers();
             basicRenderPanel1.Invalidate();
         }
 

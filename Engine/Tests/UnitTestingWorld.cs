@@ -6,6 +6,7 @@ using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Actors.Types.Lights;
+using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
@@ -40,12 +41,12 @@ namespace TheraEngine.Tests
             bool testLandscape = true;
             bool createWalls = true;
             int pointLights = 0;
-            int dirLights = 0;
-            int spotLights = 3;
+            int dirLights = 1;
+            int spotLights = 0;
 
             float margin = 2.0f;
             float radius = 1.0f;
-            ColorF4 sphereColor = Color.Red;
+            //ColorF4 sphereColor = Color.Red;
             ColorF4 boxColor = Color.Blue;
             ColorF4 floorColor = Color.Gray;
             float diam = radius * 2.0f;
@@ -63,13 +64,14 @@ namespace TheraEngine.Tests
             int maxVel = 50;
             int maxVelMod = maxVel * 100;
             int halfMax = maxVelMod / 2;
-            
             for (int x = -count; x <= count; ++x)
                 for (int z = -count; z <= count; ++z)
                 {
-                    TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor);
-                    mat.Parameter<ShaderFloat>("Roughness").Value = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
-                    mat.Parameter<ShaderFloat>("Metallic").Value = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
+                    float xV = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
+                    float zV = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
+                    TMaterial mat = TMaterial.CreateLitColorMaterial(new ColorF4(xV, zV, 0.0f, 1.0f));
+                    mat.Parameter<ShaderFloat>("Roughness").Value = xV;
+                    mat.Parameter<ShaderFloat>("Metallic").Value = zV;
                     TRigidBodyConstructionInfo cinfo = new TRigidBodyConstructionInfo()
                     {
                         Mass = 100.0f,
@@ -174,7 +176,7 @@ namespace TheraEngine.Tests
                     DirectionalLightComponent dir = dirlight.RootComponent;
                     dir.LightColor = (ColorF3)Color.White;
                     dir.DiffuseIntensity = 1.0f;
-                    dir.WorldRadius = bounds.HalfExtents.LengthFast;
+                    dir.WorldRadius = 500.0f;
                     dir.Rotation.Pitch = -35.0f;
                     dir.Rotation.Yaw = lightAngle * i;
                     actors.Add(dirlight);
@@ -188,12 +190,13 @@ namespace TheraEngine.Tests
                 float upTrans = 20.0f;
                 for (int i = 0; i < pointLights; i++)
                 {
-                    PointLightComponent comp = new PointLightComponent(400.0f, 5.0f, (ColorF3)Color.White, 2000.0f)
+                    PointLightComponent comp = new PointLightComponent(100.0f, 1.0f, (ColorF3)Color.White, 2000.0f)
                     {
                         Translation = new Vec3(
                             TMath.Cosf(i * lightAngle) * lightPosRadius,
                             upTrans,
-                            TMath.Sinf(i * lightAngle) * lightPosRadius)
+                            TMath.Sinf(i * lightAngle) * lightPosRadius),
+                        LightColor = new ColorF3((float)rand.NextDouble(), (float)rand.NextDouble(), (float)rand.NextDouble()),
                     };
                     Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
                     actors.Add(pointLight);
@@ -231,7 +234,7 @@ namespace TheraEngine.Tests
 
             if (testLandscape)
             {
-                int wh = 200;
+                int wh = 401;
                 FastNoise noise = new FastNoise();
                 //noise.SetFrequency(10.0f);
                 DataSource source = new DataSource(wh * wh * 4);
@@ -260,28 +263,28 @@ namespace TheraEngine.Tests
                     source, wh, wh, -50.0f, 50.0f,
                     TCollisionHeightField.EHeightValueType.Single,
                     landscapeInfo);
-                landscape.RootComponent.GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.LightBlue), 1);
+                landscape.RootComponent.GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.LightBlue), 10);
                 //landscape.RootComponent.Translation.Y -= 50.0f;
                 actors.Add(landscape);
             }
 
             //Create shape tracer
-            //actor = new SphereTraceActor();
-            //actors.Add(actor);
+            actor = new SphereTraceActor();
+            actors.Add(actor);
 
-            //float rotationsPerSecond = 0.1f, testRadius = 30.0f, testHeight = 20.0f;
-            //PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
-            //    1.0f / rotationsPerSecond, true, second =>
-            //{
-            //    float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
-            //    //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
-            //    Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
-            //    return new Vec3(coord.X, testHeight, -coord.Y);
-            //});
-            //AnimationContainer anim = new AnimationContainer(
-            //    "RotationTrace", "Translation.Raw", false, animMethod);
-            //actor.RootComponent.AddAnimation(anim, true, false, 
-            //    ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
+            float rotationsPerSecond = 0.2f, testRadius = 20.0f, testHeight = 20.0f;
+            PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
+                1.0f / rotationsPerSecond, true, second =>
+            {
+                float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
+                //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
+                Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
+                return new Vec3(coord.X, testHeight, -coord.Y);
+            });
+            AnimationContainer anim = new AnimationContainer(
+                "RotationTrace", "Translation.Raw", false, animMethod);
+            actor.RootComponent.AddAnimation(anim, true, false,
+                ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create camera shake test
             //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
@@ -404,7 +407,7 @@ namespace TheraEngine.Tests
 
         private void Tick(float delta)
         {
-            ShapeTraceClosest t = new ShapeTraceClosest(_sphere, RootComponent.WorldMatrix, _endTraceTransform, 0, 0xFFFF);
+            ShapeTraceClosest t = new ShapeTraceClosest(_sphere, RootComponent.WorldMatrix, _endTraceTransform, (ushort)(TCollisionGroup.DynamicWorld), (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
             if (_hasHit = t.Trace())
             {
                 _hitPoint = t.HitPointWorld;

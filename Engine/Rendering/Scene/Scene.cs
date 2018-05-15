@@ -121,6 +121,7 @@ namespace TheraEngine.Rendering
         }
         public async void PreRender(Camera camera)
         {
+            //TODO: prerender on own consistent thread
             ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRender(camera); }));
             //foreach (IPreRendered p in _preRenderList)
             //    p.PreRender(camera);

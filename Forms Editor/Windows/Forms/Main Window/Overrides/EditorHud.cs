@@ -83,27 +83,15 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
                         _highlightPoint.Visible = false;
-                    BaseRenderPanel.CheckedInvoke(new Action(() => 
-                    {
-                        if (BaseRenderPanel.CapturedPanel != null)
-                        {
-                            BaseRenderPanel.CapturedPanel.Cursor = Cursors.Default;
-                        }
-                    }),
-                    BaseRenderPanel.PanelType.Captured);
+                    BaseRenderPanel p = BaseRenderPanel.FocusedPanel;
+                    p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Default));
                 }
                 else if (value != null && HighlightedComponent == null)
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
                         _highlightPoint.Visible = true;
-                    BaseRenderPanel.CheckedInvoke(new Action(() =>
-                    {
-                        if (BaseRenderPanel.CapturedPanel != null)
-                        {
-                            BaseRenderPanel.CapturedPanel.Cursor = Cursors.Hand;
-                        }
-                    }),
-                    BaseRenderPanel.PanelType.Captured);
+                    BaseRenderPanel p = BaseRenderPanel.FocusedPanel;
+                    p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Hand));
                 }
 
                 if (HighlightedComponent != null)
@@ -124,6 +112,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void HighlightedComponentChanged(bool highlighted)
         {
+            return;
             if (HighlightedComponent is StaticMeshComponent staticMesh)
             {
                 foreach (StaticRenderableMesh m in staticMesh.Meshes)
@@ -495,11 +484,6 @@ namespace TheraEditor.Windows.Forms
 
             HighlightedComponent = comp;
         }
-        public void DoMouseDown()
-        {
-            MouseDown = true;
-            SetSelectedComponent(true, HighlightedComponent);
-        }
         private bool IsSimulatedBody(out IRigidBodyCollidable body)
         {
             if (_selectedComponent is IRigidBodyCollidable d &&
@@ -516,6 +500,11 @@ namespace TheraEditor.Windows.Forms
                 body = null;
                 return false;
             }
+        }
+        public void DoMouseDown()
+        {
+            MouseDown = true;
+            SetSelectedComponent(true, HighlightedComponent);
         }
         public void DoMouseUp()
         {
@@ -556,6 +545,17 @@ namespace TheraEditor.Windows.Forms
         {
             _dragComponent = null;
 
+            if (_selectedComponent is CameraComponent cam)
+            {
+                SubViewport.ViewportCamera = cam.Camera;
+                SubViewport.IsVisible = true;
+            }
+            else
+            {
+                SubViewport.ViewportCamera = null;
+                SubViewport.IsVisible = false;
+            }
+
             if (_selectedComponent != null)
             {
                 if (OwningWorld == null)
@@ -572,17 +572,6 @@ namespace TheraEditor.Windows.Forms
                 }
                 else// if (comp != null)
                 {
-                    if (_selectedComponent is CameraComponent cam)
-                    {
-                        SubViewport.ViewportCamera = cam.Camera;
-                        SubViewport.IsVisible = true;
-                    }
-                    else
-                    {
-                        SubViewport.ViewportCamera = null;
-                        SubViewport.IsVisible = false;
-                    }
-
                     if (_selectedComponent is IRigidBodyCollidable d &&
                         d.RigidBodyCollision != null &&
                         d.RigidBodyCollision.SimulatingPhysics &&
@@ -632,11 +621,11 @@ namespace TheraEditor.Windows.Forms
                     }
                 }
             }
-            else
-            {
-                SubViewport.IsVisible = false;
-                TransformTool3D.DestroyInstance();
-            }
+            //else
+            //{
+            //    SubViewport.IsVisible = false;
+            //    TransformTool3D.DestroyInstance();
+            //}
         }
         public class HighlightPoint : I3DRenderable
         {

@@ -83,35 +83,35 @@ namespace TheraEngine.Rendering.Models
             for (int i = 0; i < info._morphCount + 1; ++i)
             {
                 var data = firstAppearanceArray.Select(x => vertices[x]._position).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
+                AddBuffer(data, new VertexAttribInfo(EBufferType.Position, i));
             }
             if (info.HasNormals)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
                     var data = firstAppearanceArray.Select(x => vertices[x]._normal).ToList();
-                    AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
+                    AddBuffer(data, new VertexAttribInfo(EBufferType.Normal, i));
                 }
             if (info.HasBinormals)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
                     var data = firstAppearanceArray.Select(x => vertices[x]._binormal).ToList();
-                    AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
+                    AddBuffer(data, new VertexAttribInfo(EBufferType.Binormal, i));
                 }
             if (info.HasTangents)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
                     var data = firstAppearanceArray.Select(x => vertices[x]._tangent).ToList();
-                    AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
+                    AddBuffer(data, new VertexAttribInfo(EBufferType.Tangent, i));
                 }
             for (int i = 0; i < info._colorCount; ++i)
             {
                 var data = firstAppearanceArray.Select(x => vertices[x]._color).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
+                AddBuffer(data, new VertexAttribInfo(EBufferType.Color, i));
             }
             for (int i = 0; i < info._texcoordCount; ++i)
             {
                 var data = firstAppearanceArray.Select(x => vertices[x]._texCoord).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
+                AddBuffer(data, new VertexAttribInfo(EBufferType.TexCoord, i));
             }
         }
     }

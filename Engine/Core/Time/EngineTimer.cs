@@ -41,27 +41,23 @@ namespace TheraEngine.Timers
         /// <summary>
         /// Runs the timer until Stop() is called.
         /// </summary>
-        public void Run(bool singleThreaded = false)
+        public void Run(bool singleThreaded = true)
         {
             if (_running)
                 return;
 
             Engine.PrintLine("Started game loop.");
             _running = true;
-            _commandsReady = new ManualResetEvent(false);
-            _commandsSwappedForRender = new ManualResetEvent(false);
-            _renderDone = new ManualResetEvent(true);
             _watch.Start();
             if (singleThreaded)
-            {
                 Application.Idle += Application_Idle_SingleThread;
-                //Task.Run(() => RunUpdateRenderInternal());
-            }
             else
             {
-                Task.Run(() => RunUpdateInternal());
+                _commandsReady = new ManualResetEvent(false);
+                _commandsSwappedForRender = new ManualResetEvent(false);
+                _renderDone = new ManualResetEvent(true);
+                Task.Run(() => RunUpdateMultiThreadInternal());
                 Application.Idle += Application_Idle_MultiThread;
-                //RunRenderInternal();
             }
         }
 
@@ -75,40 +71,41 @@ namespace TheraEngine.Timers
         {
             while (IsApplicationIdle())
             {
-                _renderTimeQuery.BeginQuery(EQueryTarget.TimeElapsed);
+                //_renderTimeQuery.BeginQuery(EQueryTarget.TimeElapsed);
                 {
                     DispatchUpdate();
                     SwapBuffers?.Invoke();
                     DispatchRender();
                 }
-                _renderTimeQuery.EndQuery(EQueryTarget.TimeElapsed);
-                double time = _renderTimeQuery.GetQueryObjectLong(EGetQueryObject.QueryResult) * 1e-6;
-                Engine.PrintLine(time.ToString("0.00 ms"));
-            }
-        }
-        private void RunUpdateRenderInternal()
-        {
-            while (_running)
-            {
-                DispatchUpdate();
-                SwapBuffers?.Invoke();
-                DispatchRender();
+                //_renderTimeQuery.EndQuery(EQueryTarget.TimeElapsed);
+                //double time = _renderTimeQuery.GetQueryObjectLong(EGetQueryObject.QueryResult) * 1e-6;
+                //Engine.PrintLine(time.ToString("0.00 ms"));
             }
         }
         private void Application_Idle_MultiThread(object sender, EventArgs e)
         {
-            while (IsApplicationIdle())
+            while (_running && IsApplicationIdle())
             {
-                _commandsReady.WaitOne(); //Wait for the update thread to finish
-                _commandsReady.Reset();
-                
-                SwapBuffers?.Invoke();
-                _commandsSwappedForRender.Set();
-                DispatchRender();
-                _renderDone.Set(); //Signal the update thread that rendering is done
+                //_renderTimeQuery.BeginQuery(EQueryTarget.TimeElapsed);
+                {
+                    _commandsReady.WaitOne(); //Wait for the update thread to finish
+                    _commandsReady.Reset();
+
+                    //Swap command buffers
+                    //Update commands will be consumed by the render pass
+                    //And new update commands will be issued for the next render
+                    SwapBuffers?.Invoke();
+                    _commandsSwappedForRender.Set();
+
+                    DispatchRender();
+                    _renderDone.Set(); //Signal the update thread that rendering is done
+                }
+                //_renderTimeQuery.EndQuery(EQueryTarget.TimeElapsed);
+                //double time = _renderTimeQuery.GetQueryObjectLong(EGetQueryObject.QueryResult) * 1e-6;
+                //Engine.PrintLine(time.ToString("0.00 ms"));
             }
         }
-        private void RunUpdateInternal()
+        private void RunUpdateMultiThreadInternal()
         {
             while (_running)
             {
@@ -127,24 +124,20 @@ namespace TheraEngine.Timers
                 _commandsSwappedForRender.Reset();
             }
         }
-        //private void RunRenderInternal()
-        //{
-        //    while (_running)
-        //    {
-        //        _commandsSwappedForRender.Reset();
-        //        _renderDone.Set(); //Signal the update thread that rendering is done
-
-        //        _commandsReady.WaitOne(); //Wait for the update thread to finish
-        //        _commandsReady.Reset();
-
-        //        SwapBuffers?.Invoke();
-        //        _commandsSwappedForRender.Set();
-        //        DispatchRender();
-        //    }
-        //}
         public void Stop()
         {
             _running = false;
+            if (_commandsReady != null)
+            {
+                Application.Idle -= Application_Idle_MultiThread;
+                _commandsSwappedForRender = null;
+                _commandsReady = null;
+                _renderDone = null;
+            }
+            else
+            {
+                Application.Idle -= Application_Idle_SingleThread;
+            }
             _watch.Stop();
             Engine.PrintLine("Game loop ended.");
         }
@@ -219,8 +212,8 @@ namespace TheraEngine.Timers
             _renderTime = timestamp - _renderTimestamp;
         }
 
-        private void OnRenderFrameInternal(FrameEventArgs e) { if (_running) OnRenderFrame(e); }
-        private void OnUpdateFrameInternal(FrameEventArgs e) { if (_running) OnUpdateFrame(e); }
+        private void OnRenderFrameInternal(FrameEventArgs e) { /*if (_running)*/ OnRenderFrame(e); }
+        private void OnUpdateFrameInternal(FrameEventArgs e) { /*if (_running)*/ OnUpdateFrame(e); }
         private void OnRenderFrame(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
         private void OnUpdateFrame(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
 

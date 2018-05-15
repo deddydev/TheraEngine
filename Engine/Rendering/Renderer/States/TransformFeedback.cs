@@ -2,14 +2,14 @@
 
 namespace TheraEngine.Rendering
 {
-    public enum FeedbackType
+    public enum EFeedbackType
     {
         OutValues,
         PerVertex,
     }
     public class TransformFeedback : BaseRenderState
     {
-        public TransformFeedback(FeedbackType type, int bindingLocation, params string[] names) 
+        public TransformFeedback(EFeedbackType type, int bindingLocation, params string[] names) 
             : base(EObjectType.TransformFeedback)
         {
             _type = type;
@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering
             _bindingLocation = bindingLocation;
         }
 
-        FeedbackType _type;
+        EFeedbackType _type;
         string[] _names;
         int _bindingLocation;
 

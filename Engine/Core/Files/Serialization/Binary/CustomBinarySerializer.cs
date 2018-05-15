@@ -13,13 +13,14 @@ namespace TheraEngine.Files.Serialization
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct FileCommonHeader
     {
-        public const int Size = 0x2C;
+        public const int Size = 0x30;
 
         public byte _encrypted;
         public byte _compressed;
         public bushort _endian;
         public bint _stringTableLength;
         public bint _fileLength;
+        public bint _typeNameStringOffset;
         public fixed byte _hash[0x20];
 
         public bool Encrypted
@@ -102,16 +103,6 @@ namespace TheraEngine.Files.Serialization
                 out integrityHash,
                 null, 
                 flags);
-        }
-
-        public static unsafe Type DetermineType(string filePath)
-        {
-            Type t = null;
-            using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
-            {
-
-            }
-            return t;
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Models
         }
         public void GenerateBinormalTangentBuffers(int positionIndex, int normalIndex, int uvIndex, bool addBinormals, bool addTangents)
         {
-            DataBuffer[] pBuffs = GetAllBuffersOfType(BufferType.Position);
+            DataBuffer[] pBuffs = GetAllBuffersOfType(EBufferType.Position);
             if (pBuffs.Length == 0)
             {
                 Engine.LogWarning("No position buffers found.");
@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.Models
             //    Engine.LogWarning("Normal index out of range of available normal buffers.");
             //    return;
             //}
-            DataBuffer[] tBuffs = GetAllBuffersOfType(BufferType.TexCoord);
+            DataBuffer[] tBuffs = GetAllBuffersOfType(EBufferType.TexCoord);
             if (tBuffs.Length == 0)
             {
                 Engine.LogWarning("No texcoord buffers found.");
@@ -112,8 +112,8 @@ namespace TheraEngine.Rendering.Models
                 tangents.Add(tangent);
             }
 
-            AddBuffer(binormals, new VertexAttribInfo(BufferType.Binormal));
-            AddBuffer(tangents, new VertexAttribInfo(BufferType.Tangent));
+            AddBuffer(binormals, new VertexAttribInfo(EBufferType.Binormal));
+            AddBuffer(tangents, new VertexAttribInfo(EBufferType.Tangent));
             _bufferInfo._hasBinormals = true;
             _bufferInfo._hasTangents = true;
             OnBufferInfoChanged();
@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         #region Buffers
-        public DataBuffer this[BufferType type]
+        public DataBuffer this[EBufferType type]
         {
             get => _buffers.FirstOrDefault(x => x.BufferType == type);
             set
@@ -204,7 +204,7 @@ namespace TheraEngine.Rendering.Models
                     throw new IndexOutOfRangeException();
             }
         }
-        public DataBuffer[] GetAllBuffersOfType(BufferType type)
+        public DataBuffer[] GetAllBuffersOfType(EBufferType type)
             => _buffers.Where(x => x.BufferType == type).ToArray();
         public int[] GenerateBuffers(int vaoId)
         {
@@ -234,7 +234,7 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
-            EBufferTarget target = EBufferTarget.DataArray) where T : struct
+            EBufferTarget target = EBufferTarget.ArrayBuffer) where T : struct
         {
             if (_buffers == null)
                 _buffers = new List<DataBuffer>();
@@ -261,7 +261,7 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
-            EBufferTarget target = EBufferTarget.DataArray) where T : struct
+            EBufferTarget target = EBufferTarget.ArrayBuffer) where T : struct
         {
             if (_buffers == null)
                 throw new InvalidOperationException();
@@ -288,7 +288,7 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
-            EBufferTarget target = EBufferTarget.DataArray) where T : IBufferable
+            EBufferTarget target = EBufferTarget.ArrayBuffer) where T : IBufferable
         {
             if (_buffers == null)
                 _buffers = new List<DataBuffer>();
@@ -316,7 +316,7 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
-            EBufferTarget target = EBufferTarget.DataArray) where T : IBufferable
+            EBufferTarget target = EBufferTarget.ArrayBuffer) where T : IBufferable
         {
             if (_buffers == null)
                 throw new InvalidOperationException();

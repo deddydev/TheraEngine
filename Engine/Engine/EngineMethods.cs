@@ -39,9 +39,21 @@ namespace TheraEngine
             //LocalPlayers.PostAdded += ActivePlayers_Added;
             //LocalPlayers.PostRemoved += ActivePlayers_Removed;
 
+            LoadCustomFonts();
+
             _tickLists = new ThreadSafeList<DelTick>[45];
             for (int i = 0; i < _tickLists.Length; ++i)
                 _tickLists[i] = new ThreadSafeList<DelTick>();
+        }
+
+        private static void LoadCustomFonts()
+        {
+            string[] ttf = Directory.GetFiles(Settings.FontsFolder, "*.ttf");
+            string[] otf = Directory.GetFiles(Settings.FontsFolder, "*.otf");
+            foreach (string path in ttf)
+                LoadCustomFont(path);
+            foreach (string path in otf)
+                LoadCustomFont(path);
         }
 
         /// <summary>
@@ -65,6 +77,9 @@ namespace TheraEngine
             => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
         public static GLSLShaderFile LoadEngineShader(string fileName, EShaderMode mode)
             => new GLSLShaderFile(mode, new TextFile(EngineShadersPath(fileName)));
+
+        public static string EngineFontsPath(string fileName)
+            => Path.Combine(Settings.FontsFolder ?? string.Empty, fileName);
 
         public static string EngineScriptsPath(string fileName)
             => Path.Combine(Settings.ScriptsFolder ?? string.Empty, fileName);
@@ -103,6 +118,7 @@ namespace TheraEngine
         }
 
         private static IEnumerable<Type> _typeCache = null;
+
         /// <summary>
         /// Helper to collect all types from all loaded assemblies that match the given predicate.
         /// </summary>
@@ -381,11 +397,20 @@ namespace TheraEngine
                 return;
             _isPaused = wantsPause;
             Paused?.Invoke(_isPaused, toggler);
-            string.Format("Engine{0}paused.", _isPaused ? " " : " un").PrintLine();
+            PrintLine("Engine{0}paused.", _isPaused ? " " : " un");
         }
         #endregion
 
         #region Fonts
+        /// <summary>
+        /// Creates a new font object given the font's name and parameters.
+        /// </summary>
+        /// <param name="fontName"></param>
+        /// <param name="size"></param>
+        /// <param name="style"></param>
+        /// <returns></returns>
+        public static Font MakeFont(string fontName, float size, FontStyle style)
+            => new Font(GetCustomFontFamily(fontName), size, style);
         /// <summary>
         /// Loads a ttf or otf font from the given path and adds it to the collection of fonts.
         /// </summary>
@@ -401,7 +426,7 @@ namespace TheraEngine
             string ext = Path.GetExtension(path).ToLowerInvariant().Substring(1);
             if (!(ext.Equals("ttf") || ext.Equals("otf")))
                 return;
-            _fontIndexMatching[fontFamilyName] = _fontCollection.Families.Length;
+            _fontIndexMatching.Add(fontFamilyName.ToLowerInvariant(), _fontCollection.Families.Length);
             _fontCollection.AddFontFile(path);
         }
         /// <summary>
@@ -409,7 +434,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="fontFamilyName">The name of the font family.</param>
         public static FontFamily GetCustomFontFamily(string fontFamilyName)
-            => _fontIndexMatching.ContainsKey(fontFamilyName) ? GetCustomFontFamily(_fontIndexMatching[fontFamilyName]) : null;
+            => _fontIndexMatching.ContainsKey(fontFamilyName.ToLowerInvariant()) ? GetCustomFontFamily(_fontIndexMatching[fontFamilyName]) : null;
         /// <summary>
         /// Gets a custom font family using its load index.
         /// </summary>

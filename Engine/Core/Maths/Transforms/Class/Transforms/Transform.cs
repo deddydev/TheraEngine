@@ -315,6 +315,7 @@ namespace TheraEngine.Core.Maths.Transforms
             Matrix4 oldMatrix = _transform;
             Matrix4 oldInvMatrix = _inverseTransform;
 
+            _quaternion = _rotation.ToQuaternion();
             _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation, _transformOrder);
             _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _transformOrder);
 

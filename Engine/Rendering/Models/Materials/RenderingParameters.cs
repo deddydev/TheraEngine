@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
@@ -18,18 +17,16 @@ namespace TheraEngine.Rendering.Models.Materials
         "Contains parameters for rendering an object, such as blending and depth testing.")]
     public class RenderingParameters : TFileObject
     {
-        AlphaTest _alphaTest = new AlphaTest();
+        //AlphaTest _alphaTest = new AlphaTest();
         DepthTest _depthTest = new DepthTest();
         StencilTest _stencilTest = new StencilTest();
         BlendMode _blendMode = new BlendMode();
 
         [Browsable(false)]
-        public bool HasTransparency =>
-            BlendMode.Enabled == ERenderParamUsage.Enabled || 
-            AlphaTest.Enabled == ERenderParamUsage.Enabled;
+        public bool HasTransparency => BlendMode.Enabled == ERenderParamUsage.Enabled;
 
         public RenderingParameters() { }
-        public RenderingParameters(bool defaultBlendEnabled, float? defaultAlphaTestDiscardMax)
+        public RenderingParameters(bool defaultBlendEnabled/*, float? defaultAlphaTestDiscardMax*/)
         {
             if (defaultBlendEnabled)
             {
@@ -41,12 +38,12 @@ namespace TheraEngine.Rendering.Models.Materials
                 BlendMode.RgbEquation = EBlendEquationMode.FuncAdd;
                 BlendMode.AlphaEquation = EBlendEquationMode.FuncAdd;
             }
-            if (defaultAlphaTestDiscardMax != null)
-            {
-                AlphaTest.Enabled = ERenderParamUsage.Enabled;
-                AlphaTest.Ref = defaultAlphaTestDiscardMax.Value;
-                AlphaTest.Comp = EComparison.Lequal;
-            }
+            //if (defaultAlphaTestDiscardMax != null)
+            //{
+            //    AlphaTest.Enabled = ERenderParamUsage.Enabled;
+            //    AlphaTest.Ref = defaultAlphaTestDiscardMax.Value;
+            //    AlphaTest.Comp = EComparison.Lequal;
+            //}
         }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
@@ -65,8 +62,8 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float LineWidth { get; set; } = AbstractRenderer.DefaultLineSize;
 
-        [TSerialize]
-        public AlphaTest AlphaTest { get => _alphaTest; set => _alphaTest = value ?? new AlphaTest(); }
+        //[TSerialize]
+        //public AlphaTest AlphaTest { get => _alphaTest; set => _alphaTest = value ?? new AlphaTest(); }
         [TSerialize]
         public DepthTest DepthTest { get => _depthTest; set => _depthTest = value ?? new DepthTest(); }
         [TSerialize]
@@ -74,39 +71,39 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public BlendMode BlendMode { get => _blendMode; set => _blendMode = value ?? new BlendMode(); }
     }
-    public class AlphaTest
-    {
-        //private bool _useConstantAlpha;
-        //private float _constantAlphaValue;
-        //private bool _useAlphaToCoverage;
-        //private ELogicGate _logicGate = ELogicGate.And;
+    //public class AlphaTest
+    //{
+    //    //private bool _useConstantAlpha;
+    //    //private float _constantAlphaValue;
+    //    //private bool _useAlphaToCoverage;
+    //    //private ELogicGate _logicGate = ELogicGate.And;
 
-        [Browsable(false)]
-        public bool IsEnabled => Enabled == ERenderParamUsage.Enabled;
-        [Browsable(false)]
-        public bool IsDisable => Enabled == ERenderParamUsage.Disabled;
-        [Browsable(false)]
-        public bool IsUnchanged => Enabled == ERenderParamUsage.Unchanged;
+    //    [Browsable(false)]
+    //    public bool IsEnabled => Enabled == ERenderParamUsage.Enabled;
+    //    [Browsable(false)]
+    //    public bool IsDisable => Enabled == ERenderParamUsage.Disabled;
+    //    [Browsable(false)]
+    //    public bool IsUnchanged => Enabled == ERenderParamUsage.Unchanged;
 
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Disabled;
-        //[TSerialize(Condition = "Enabled")]
-        //public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
-        //[TSerialize(Condition = "Enabled")]
-        //public float ConstantAlphaValue { get => _constantAlphaValue; set => _constantAlphaValue = value; }
-        //[TSerialize(Condition = "Enabled")]
-        //public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
-        [TSerialize(Condition = nameof(IsEnabled))]
-        public float Ref { get; set; }
-        //[TSerialize(Condition = "Enabled")]
-        //public float Ref1 { get => _ref1; set => _ref1 = value; }
-        [TSerialize(Condition = nameof(IsEnabled))]
-        public EComparison Comp { get; set; } = EComparison.Always;
-        //[TSerialize(Condition = "Enabled")]
-        //public EComparison Comp1 { get => _comp1; set => _comp1 = value; }
-        //[TSerialize(Condition = "Enabled")]
-        //public ELogicGate LogicGate { get => _logicGate; set => _logicGate = value; }
-    }
+    //    [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+    //    public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Disabled;
+    //    //[TSerialize(Condition = "Enabled")]
+    //    //public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
+    //    //[TSerialize(Condition = "Enabled")]
+    //    //public float ConstantAlphaValue { get => _constantAlphaValue; set => _constantAlphaValue = value; }
+    //    //[TSerialize(Condition = "Enabled")]
+    //    //public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
+    //    [TSerialize(Condition = nameof(IsEnabled))]
+    //    public float Ref { get; set; }
+    //    //[TSerialize(Condition = "Enabled")]
+    //    //public float Ref1 { get => _ref1; set => _ref1 = value; }
+    //    [TSerialize(Condition = nameof(IsEnabled))]
+    //    public EComparison Comp { get; set; } = EComparison.Always;
+    //    //[TSerialize(Condition = "Enabled")]
+    //    //public EComparison Comp1 { get => _comp1; set => _comp1 = value; }
+    //    //[TSerialize(Condition = "Enabled")]
+    //    //public ELogicGate LogicGate { get => _logicGate; set => _logicGate = value; }
+    //}
     public class StencilTestFace
     {
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]

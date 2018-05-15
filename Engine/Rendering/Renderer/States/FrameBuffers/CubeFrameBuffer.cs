@@ -42,13 +42,9 @@ namespace TheraEngine.Rendering
                     (Camera)new OrthographicCamera(2.0f, 2.0f, Vec3.One, Vec3.Zero, rotations[i], Vec2.Half, nearZ, farZ);
 
         }
-        private void SetUniforms()
+        private void SetUniforms(int vertexBindingId, int fragGeomBindingId)
         {
-            int fragId = Engine.Settings.AllowShaderPipelines ?
-               _cube.Material.Program.BindingId :
-               _cube.VertexFragProgram.BindingId;
-
-            SettingUniforms?.Invoke(fragId);
+            SettingUniforms?.Invoke(fragGeomBindingId);
         }
 
         /// <summary>

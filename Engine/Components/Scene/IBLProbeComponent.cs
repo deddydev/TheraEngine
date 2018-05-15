@@ -40,7 +40,16 @@ namespace TheraEngine.Actors.Types
             OwningScene.Remove(this);
             base.OnDespawned();
         }
-
+        protected override void OnWorldTransformChanged()
+        {
+            base.OnWorldTransformChanged();
+            if (IsSpawned && _cubeTex != null)
+            {
+                Capture();
+                GenerateIrradianceMap();
+                GeneratePrefilterMap();
+            }
+        }
         //protected override FrameBuffer GetFBO(int cubeExtent)
         //{
         //    _cubeTex = new TexRefCube("SceneCaptureCubeMap", cubeExtent,
@@ -107,6 +116,7 @@ namespace TheraEngine.Actors.Types
             //CubeFrameBuffer fbo = (CubeFrameBuffer)_renderFBO;
 
             float res = _prefilterFBO.Material.Parameter<ShaderFloat>(1).Value;
+            _irradianceFBO.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(res)));
             {
                 for (int i = 0; i < 6; ++i)
@@ -115,15 +125,14 @@ namespace TheraEngine.Actors.Types
                         (_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i),
                         (_irradianceDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
                     ECubemapFace face = ECubemapFace.PosX + i;
-                    _irradianceFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
                         Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                         _irradianceFBO.RenderFullscreen(face);
                     }
-                    _irradianceFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
             }
             Engine.Renderer.PopRenderArea();
+            _irradianceFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         public void GeneratePrefilterMap()
         {

@@ -54,16 +54,16 @@ namespace TheraEngine.Actors
                 extents.Z / probeCount.Z);
             Vec3 baseInc = probeInc * 0.5f;
 
-            IBLProbeComponent[] comps = new IBLProbeComponent[probeCount.X * probeCount.Y * probeCount.Z];
+            IBLProbeComponent[] comps = new IBLProbeComponent[1/*probeCount.X * probeCount.Y * probeCount.Z*/];
 
             int r = 0;
-            for (int x = 0; x < probeCount.X; ++x)
-                for (int y = 0; y < probeCount.Y; ++y)
-                    for (int z = 0; z < probeCount.Z; ++z)
+            //for (int x = 0; x < probeCount.X; ++x)
+            //    for (int y = 0; y < probeCount.Y; ++y)
+            //        for (int z = 0; z < probeCount.Z; ++z)
                     {
                         IBLProbeComponent comp = new IBLProbeComponent()
                         {
-                            Translation = localMin + baseInc + new Vec3(x, y, z) * probeInc
+                            Translation = Vec3.Zero,/*localMin + baseInc + new Vec3(x, y, z) * probeInc*/
                         };
                         comps[r++] = comp;
                     }
@@ -97,10 +97,10 @@ namespace TheraEngine.Actors
         {
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
-                //comp.SetCubeResolution(resolution);
-                //comp.Capture();
-                //comp.GenerateIrradianceMap();
-                //comp.GeneratePrefilterMap();
+                comp.SetCubeResolution(resolution);
+                comp.Capture();
+                comp.GenerateIrradianceMap();
+                comp.GeneratePrefilterMap();
             }
         }
     }

@@ -65,10 +65,10 @@ namespace TheraEngine.Rendering.Models
 
         public CPUSkinInfo(PrimitiveData data, Skeleton skeleton)
         {
-            (_positions = data[BufferType.Position])?.GetData(out _basePositions, false);
-            (_normals = data[BufferType.Normal])?.GetData(out _baseNormals, false);
-            (_binormals = data[BufferType.Binormal])?.GetData(out _baseBinormals, false);
-            (_tangents = data[BufferType.Tangent])?.GetData(out _baseTangents, false);
+            (_positions = data[EBufferType.Position])?.GetData(out _basePositions, false);
+            (_normals = data[EBufferType.Normal])?.GetData(out _baseNormals, false);
+            (_binormals = data[EBufferType.Binormal])?.GetData(out _baseBinormals, false);
+            (_tangents = data[EBufferType.Tangent])?.GetData(out _baseTangents, false);
 
             _influenceIndices = data._facePoints.Select(x => x._influenceIndex).ToArray();
             _influences = data._influences.Select(x => LiveInfluence.FromInfluence(x, skeleton)).ToArray();

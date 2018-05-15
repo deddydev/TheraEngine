@@ -515,7 +515,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<object, RenamedEventArgs>(ContentWatcherRename), sender, e);
+                BeginInvoke(new Action<object, RenamedEventArgs>(ContentWatcherRename), sender, e);
                 return;
             }
 
@@ -535,7 +535,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<object, FileSystemEventArgs>(ContentWatcherUpdate), sender, e);
+                BeginInvoke(new Action<object, FileSystemEventArgs>(ContentWatcherUpdate), sender, e);
                 return;
             }
 

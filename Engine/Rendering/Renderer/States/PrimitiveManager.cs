@@ -29,16 +29,19 @@ namespace TheraEngine.Rendering.Models
         T2 Parameter<T2>(int index) where T2 : ShaderVar;
         T2 Parameter<T2>(string name) where T2 : ShaderVar;
         void Render();
-        void Render(Matrix4 modelMatrix);
-        void Render(Matrix4 modelMatrix, Matrix3 normalMatrix);
-        void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material);
+        void Render(int instances);
+        void Render(Matrix4 modelMatrix, int instances = 1);
+        void Render(Matrix4 modelMatrix, TMaterial material, int instances = 1);
+        void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, int instances = 1);
+        void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material, int instances = 1);
     }
+    public delegate void DelPrimManagerSettingUniforms(int vertexBindingId, int fragGeomBindingId);
     /// <summary>
     /// Used to render raw primitive data.
     /// </summary>
     public class PrimitiveManager : BaseRenderState, IPrimitiveManager
     {
-        public event Action SettingUniforms;
+        public event DelPrimManagerSettingUniforms SettingUniforms;
 
         //Vertex buffer information
         private int[] _bindingIds;
@@ -96,7 +99,7 @@ namespace TheraEngine.Rendering.Models
                     _data.BufferInfoChanged += _data_BufferInfoChanged;
                     _data_BufferInfoChanged();
                     
-                    _indexBuffer = new DataBuffer("FaceIndices", EBufferTarget.DrawIndices, true);
+                    _indexBuffer = new DataBuffer("FaceIndices", EBufferTarget.ElementArrayBuffer, true);
                     //TODO: primitive restart will use MaxValue for restart id
                     if (_data._facePoints.Count < byte.MaxValue)
                     {
@@ -128,7 +131,7 @@ namespace TheraEngine.Rendering.Models
                     _vertexProgram.Destroy();
                 
                 _vertexProgram = new RenderProgram(_vertexShader);
-                _vertexProgram.Generate();
+                //_vertexProgram.Generate();
             }
         }
 
@@ -231,8 +234,8 @@ namespace TheraEngine.Rendering.Models
 
             _modifiedBoneIndices.Clear();
 
-            _data[BufferType.MatrixIds]?.Dispose();
-            _data[BufferType.MatrixWeights]?.Dispose();
+            _data[EBufferType.MatrixIds]?.Dispose();
+            _data[EBufferType.MatrixWeights]?.Dispose();
 
             if (_utilizedBones != null)
                 foreach (Bone b in _utilizedBones)
@@ -284,8 +287,8 @@ namespace TheraEngine.Rendering.Models
                                 }
                             }
 
-                            _data.AddBuffer(matrixIndices, new VertexAttribInfo(BufferType.MatrixIds), false, true);
-                            _data.AddBuffer(matrixWeights, new VertexAttribInfo(BufferType.MatrixWeights));
+                            _data.AddBuffer(matrixIndices, new VertexAttribInfo(EBufferType.MatrixIds), false, true);
+                            _data.AddBuffer(matrixWeights, new VertexAttribInfo(EBufferType.MatrixWeights));
 
                             Destroy();
                             Generate();
@@ -321,8 +324,8 @@ namespace TheraEngine.Rendering.Models
                         }
                         _cpuSkinInfo = null;
 
-                        _data.AddBuffer(matrixIndices, new VertexAttribInfo(BufferType.MatrixIds), false, false);
-                        _data.AddBuffer(matrixWeights, new VertexAttribInfo(BufferType.MatrixWeights));
+                        _data.AddBuffer(matrixIndices, new VertexAttribInfo(EBufferType.MatrixIds), false, false);
+                        _data.AddBuffer(matrixWeights, new VertexAttribInfo(EBufferType.MatrixWeights));
 
                         Destroy();
                         Generate();
@@ -407,11 +410,16 @@ namespace TheraEngine.Rendering.Models
         internal TMaterial GetRenderMaterial(TMaterial localOverrideMat)
             => Engine.Renderer.MaterialOverride ?? localOverrideMat ?? Material;
 
-        public void Render() => Render(Matrix4.Identity, Matrix3.Identity);
-        public void Render(Matrix4 modelMatrix) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3());
-        public void Render(Matrix4 modelMatrix, TMaterial material) => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), material);
-        public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix) => Render(modelMatrix, normalMatrix, null);
-        public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material)
+        public void Render() => Render(1);
+        public void Render(int instances) 
+            => Render(Matrix4.Identity, Matrix3.Identity, instances);
+        public void Render(Matrix4 modelMatrix, int instances = 1) 
+            => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), instances);
+        public void Render(Matrix4 modelMatrix, TMaterial material, int instances = 1)
+            => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), material, instances);
+        public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, int instances = 1)
+            => Render(modelMatrix, normalMatrix, null, instances);
+        public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material, int instances = 1)
         {
             if (_data == null)
                 return;
@@ -427,16 +435,16 @@ namespace TheraEngine.Rendering.Models
 
             TMaterial mat = GetRenderMaterial(material);
 
-            int vtxId, fragId;
+            int vtxId, fragGeomId;
             if (Engine.Settings.AllowShaderPipelines)
             {
                 _pipeline.Bind();
-                _pipeline.Set(EProgramStageMask.FragmentShaderBit | EProgramStageMask.GeometryShaderBit, fragId = mat.Program.BindingId);
+                _pipeline.Set(EProgramStageMask.FragmentShaderBit | EProgramStageMask.GeometryShaderBit, fragGeomId = mat.Program.BindingId);
                 _pipeline.Set(EProgramStageMask.VertexShaderBit, vtxId = _vertexProgram.BindingId);
             }
             else
             {
-                vtxId = fragId = VertexFragProgram.BindingId;
+                vtxId = fragGeomId = VertexFragProgram.BindingId;
                 VertexFragProgram.Use();
             }
             
@@ -461,28 +469,28 @@ namespace TheraEngine.Rendering.Models
                 Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, EEngineUniform.ProjMatrix),               Matrix4.Identity);
             }
 
-            mat.SetUniforms(fragId);
+            mat.SetUniforms(fragGeomId);
 
-            OnSettingUniforms();
+            OnSettingUniforms(vtxId, fragGeomId);
             
-            Engine.Renderer.RenderPrimitiveManager(this, false);
+            Engine.Renderer.RenderPrimitiveManager(this, false, instances);
             _lastRenderedModelMatrix = modelMatrix;
         }
-        private void OnSettingUniforms() => SettingUniforms?.Invoke();
+        private void OnSettingUniforms(int vertexBindingId, int fragGeomBindingId) => SettingUniforms?.Invoke(vertexBindingId, fragGeomBindingId);
         protected override void PostGenerated()
         {
             //Create vertex shader program here
             if (Engine.Settings.AllowShaderPipelines)
             {
                 _vertexProgram = new RenderProgram(_vertexShader);
-                _vertexProgram.Generate();
+                //_vertexProgram.Generate();
             }
             else
             {
                 if (_vertexFragProgram == null)
                 {
                     _vertexFragProgram = new RenderProgram(Material.FragmentShaders[0], _vertexShader);
-                    _vertexFragProgram.Generate();
+                    //_vertexFragProgram.Generate();
                 }
             }
             

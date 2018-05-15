@@ -126,6 +126,8 @@ namespace TheraEngine.Rendering.Models
         [PostDeserialize]
         private void PostDeserialize()
         {
+            foreach (Bone b in _childBones)
+                b._parent = this;
             _frameState = _bindState.HardCopy();
             TriggerFrameMatrixUpdate();
             TriggerChildFrameMatrixUpdate();

@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering
     public abstract class AbstractRenderer
     {
         public const float DefaultPointSize = 5.0f;
-        public const float DefaultLineSize = 5.0f;
+        public const float DefaultLineSize = 1.0f;
         
         public static Camera CurrentCamera => _cameraStack.Count == 0 ? null : _cameraStack.Peek();
         public static Scene2D Current2DScene => _2dSceneStack.Count == 0 ? null : _2dSceneStack.Peek();
@@ -379,20 +379,21 @@ namespace TheraEngine.Rendering
         {
             _currentPrimitiveManager = manager;
         }
-        public void RenderPrimitiveManager(IPrimitiveManager manager, bool preservePreviouslyBound = true)
+        public void RenderPrimitiveManager(IPrimitiveManager manager, bool preservePreviouslyBound = true, int instances = 1)
         {
             IPrimitiveManager prev = _currentPrimitiveManager;
             BindPrimitiveManager(manager);
-            RenderCurrentPrimitiveManager();
+            RenderCurrentPrimitiveManager(instances);
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
         }
-        public abstract void RenderCurrentPrimitiveManager();
+        public abstract void RenderCurrentPrimitiveManager(int instances);
         public abstract void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer);
-        public abstract void InitializeBuffer(DataBuffer buffer);
+        public abstract void InitializeBuffer(DataBuffer buffer, bool mapData);
         public abstract void PushBufferData(DataBuffer buffer);
         public abstract void MapBufferData(DataBuffer buffer);
         public abstract void UnmapBufferData(DataBuffer buffer);
-        
+        public abstract void AttributeDivisor(int attributeLocation, int divisor);
+
         public abstract void ClearColor(ColorF4 color);
         public abstract void Clear(EBufferClear mask);
         public abstract void Cull(Culling culling);

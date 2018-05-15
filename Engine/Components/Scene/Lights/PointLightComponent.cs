@@ -13,6 +13,7 @@ namespace TheraEngine.Components.Scene.Lights
     [FileDef("Point Light Component")]
     public class PointLightComponent : LightComponent, I3DRenderable
     {
+        public MaterialFrameBuffer ShadowMap => _shadowMap;
         [Category("Point Light Component")]
         public Vec3 Position
         {
@@ -80,6 +81,23 @@ namespace TheraEngine.Components.Scene.Lights
             ShadowCameras.FillWith(i => new PerspectiveCamera(Vec3.Zero, rotations[i], 0.01f, radius, 90.0f, 1.0f));
         }
 
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        {
+            Matrix4
+                 r = _rotation.GetMatrix(),
+                 ir = _rotation.Inverted().GetMatrix();
+
+            Matrix4
+                t = _translation.AsTranslationMatrix(),
+                it = (-_translation).AsTranslationMatrix();
+
+            Matrix4
+                s = Matrix4.CreateScale(Radius),
+                iS = Matrix4.CreateScale(1.0f / Radius);
+
+            localTransform = t * r * s;
+            inverseLocalTransform = iS * ir * it;
+        }
         protected override void OnWorldTransformChanged()
         {
             _cullingVolume.SetRenderTransform(WorldMatrix);
@@ -93,7 +111,7 @@ namespace TheraEngine.Components.Scene.Lights
             if (Type == LightType.Dynamic)
             {
                 OwningScene.Lights.Add(this);
-                SetShadowMapResolution(1024);
+                SetShadowMapResolution(512);
             }
 
 #if EDITOR
@@ -117,7 +135,7 @@ namespace TheraEngine.Components.Scene.Lights
         /// </summary>
         public override void SetUniforms(int programBindingId)
         {
-            string indexer = Uniform.PointLightsName + "[" + _lightIndex + "].";
+            string indexer = Uniform.PointLightsName + ".";
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
             Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(programBindingId, indexer + "Position", _cullingVolume.Center);
@@ -125,10 +143,7 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
 
             TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetTextureGeneric(true),
-                Viewport.GBufferTextureCount + LightManager.MaxDirectionalLights + LightManager.MaxSpotLights + LightIndex,
-                string.Format("PointShadowMaps[{0}]", LightIndex.ToString()),
-                programBindingId);
+                _shadowMap.Material.Textures[0].GetTextureGeneric(true), 4, "Texture4", programBindingId);
         }
         /// <summary>
         /// This is to set special uniforms each time something is rendered with the shadow depth shader.
@@ -165,7 +180,6 @@ namespace TheraEngine.Components.Scene.Lights
         }
         private static TMaterial GetShadowMapMaterial(int cubeExtent, EDepthPrecision precision = EDepthPrecision.Int16)
         {
-            //These are listed in order of appearance in the shader
             TexRefCube[] refs = new TexRefCube[]
             {
                 new TexRefCube("PointDepth", cubeExtent,
@@ -179,10 +193,15 @@ namespace TheraEngine.Components.Scene.Lights
                     FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                 },
             };
+
+            //This material is used for rendering to the framebuffer.
             GLSLShaderFile fragShader = Engine.LoadEngineShader("PointLightShadowDepth.fs", EShaderMode.Fragment);
             GLSLShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", EShaderMode.Geometry);
             TMaterial mat = new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader, geomShader);
+
+            //No culling so if a light exists inside of a mesh it will be obscured.
             mat.RenderParams.CullMode = Culling.None;
+
             return mat;
         }
         public override void UpdateShadowMap(BaseScene scene)
@@ -195,7 +214,7 @@ namespace TheraEngine.Components.Scene.Lights
             _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowResolution, _shadowResolution, 0.0f, 0.0f));
             {
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
                 scene.Render(_passes, null, null, null, null);
             }

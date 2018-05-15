@@ -14,6 +14,7 @@ using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Physics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
 
 namespace TheraEngine.Tests
 {
@@ -272,11 +273,11 @@ namespace TheraEngine.Tests
 
             //ToXML(TestDefaults.DesktopPath, "testworld");
 
-            //Task.Run(() => OBJ.Import(TestDefaults.DesktopPath + "sponza.obj", objOptions)).ContinueWith(t =>
-            //{
-            //    Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(t.Result, null)) { Name = "MapActor" };
-            //    SpawnActor(testActor);
-            //});
+            Task.Run(() => OBJ.Import(Path.Combine(Engine.Settings.ModelsFolder, "Sponza", "sponza.obj"), objOptions)).ContinueWith(t =>
+            {
+                Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(t.Result, null)) { Name = "MapActor" };
+                SpawnActor(testActor);
+            });
 
             base.BeginPlay();
         }

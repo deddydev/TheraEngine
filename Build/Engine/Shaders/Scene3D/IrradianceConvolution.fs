@@ -1,9 +1,9 @@
-#version 410
+#version 450
 
 layout (location = 0) out vec3 FragColor;
 layout (location = 0) in vec3 FragPos;
 
-uniform samplerCube Texture0; //Environment map
+layout (binding = 0) uniform samplerCube Texture0; //Environment map
 
 const float PI = 3.14159265359f;
 
@@ -19,7 +19,7 @@ void main()
     up         = cross(N, right);
        
     float sampleDelta = 0.025f;
-    float nrSamples = 0.0f;
+    int nrSamples = 0;
     for (float phi = 0.0f; phi < 2.0f * PI; phi += sampleDelta)
     {
         for (float theta = 0.0f; theta < 0.5f * PI; theta += sampleDelta)
@@ -35,5 +35,5 @@ void main()
         }
     }
 
-    FragColor = PI * irradiance * (1.0f / float(nrSamples));
+    FragColor = vec3(1.0f, 0.0f, 0.0f);//PI * irradiance * (1.0f / float(nrSamples));
 }

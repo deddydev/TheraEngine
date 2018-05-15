@@ -107,8 +107,8 @@ namespace TheraEngine.Actors.Types
             TMaterial prefMat = new TMaterial("PrefilterMat", r, prefilterVars, new TexRefCube[] { _cubeTex }, prefShader);
             _irradianceFBO = new CubeFrameBuffer(irrMat);
             _prefilterFBO = new CubeFrameBuffer(prefMat);
-            _irradianceDepth = new RenderBuffer();
-            _irradianceDepth.SetStorage(ERenderBufferStorage.DepthComponent16, resolution, resolution);
+            //_irradianceDepth = new RenderBuffer();
+            //_irradianceDepth.SetStorage(ERenderBufferStorage.DepthComponent16, resolution, resolution);
             _prefilterDepth = new RenderBuffer();
         }
         public void GenerateIrradianceMap()
@@ -118,18 +118,15 @@ namespace TheraEngine.Actors.Types
             float res = _prefilterFBO.Material.Parameter<ShaderFloat>(1).Value;
             _irradianceFBO.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(res)));
+            for (int i = 0; i < 6; ++i)
             {
-                for (int i = 0; i < 6; ++i)
-                {
-                    _irradianceFBO.SetRenderTargets(
-                        (_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-                        (_irradianceDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
-                    ECubemapFace face = ECubemapFace.PosX + i;
-                    {
-                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                        _irradianceFBO.RenderFullscreen(face);
-                    }
-                }
+                _irradianceFBO.SetRenderTargets((_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i));
+
+                ECubemapFace face = ECubemapFace.PosX + i;
+
+                Engine.Renderer.Clear(EBufferClear.Color);
+                _irradianceFBO.RenderFullscreen(face);
+                
             }
             Engine.Renderer.PopRenderArea();
             _irradianceFBO.Unbind(EFramebufferTarget.DrawFramebuffer);

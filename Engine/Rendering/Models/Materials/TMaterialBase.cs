@@ -61,16 +61,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public BaseTexRef[] Textures
         {
             get => _textures;
-            set
-            {
-                if (_textures != null)
-                    foreach (BaseTexRef t in _textures)
-                        t.Material = null;
-                _textures = value;
-                if (_textures != null)
-                    foreach (BaseTexRef t in _textures)
-                        t.Material = this;
-            }
+            set => _textures = value;
         }
 
         /// <summary>

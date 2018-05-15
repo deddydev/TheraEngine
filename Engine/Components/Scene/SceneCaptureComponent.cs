@@ -87,29 +87,29 @@ namespace TheraEngine.Actors.Types
         /// </summary>
         public void Capture()
         {
-            //_cubeTex = new TexRefCube("", 0, new CubeMipmap(Engine.LoadEngineTexture2D("cubemap guide.png")));
+            _cubeTex = new TexRefCube("", 0, new CubeMipmap(Engine.LoadEngineTexture2D("cubemap guide.png")));
 
             //if (_renderFBO == null)
             //    SetCubeResolution(512);
 
             var tex = _cubeTex.GetTexture(true);
             tex.Resizable = false;
-            Scene3D scene = OwningScene;
-            scene.UpdateShadowMaps();
-            scene.Lights.SwapBuffers();
-            scene.RenderShadowMaps();
-            for (int i = 0; i < 6; ++i)
-            {
-                Camera camera = _cameras[i];
-                _viewport.Camera = camera;
-                _viewport.Update(scene, camera, camera.Frustum);
-                _viewport.SwapBuffers();
-                _renderFBO.SetRenderTargets(
-                    (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-                    (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
-                //_renderFBO.UpdateRenderTarget(0, (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i));
-                _viewport.Render(scene, camera, _renderFBO);
-            }
+            //Scene3D scene = OwningScene;
+            //scene.UpdateShadowMaps();
+            //scene.Lights.SwapBuffers();
+            //scene.RenderShadowMaps();
+            //for (int i = 0; i < 6; ++i)
+            //{
+            //    Camera camera = _cameras[i];
+            //    _viewport.Camera = camera;
+            //    _viewport.Update(scene, camera, camera.Frustum);
+            //    _viewport.SwapBuffers();
+            //    _renderFBO.SetRenderTargets(
+            //        (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+            //        (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
+            //    //_renderFBO.UpdateRenderTarget(0, (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i));
+            //    _viewport.Render(scene, camera, _renderFBO);
+            //}
 
             tex.Bind();
             tex.SetMipmapGenParams();

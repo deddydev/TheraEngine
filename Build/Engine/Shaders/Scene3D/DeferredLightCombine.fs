@@ -56,6 +56,7 @@ void main()
 
 	float roughness = rms.x;
   float metallic = rms.y;
+	float specularIntensity = rms.z;
   vec3 V = normalize(CameraPosition - fragPosWS);
   float NoV = max(dot(normal, V), 0.0f);
   vec3 F0 = mix(vec3(0.04f), albedo, metallic);
@@ -63,7 +64,7 @@ void main()
 
   //Calculate specular and diffuse components
   //Preserve energy by making sure they add up to 1
-  vec3 kS = SpecF_SchlickRoughnessApprox(NoV, F0, roughness);
+  vec3 kS = SpecF_SchlickRoughnessApprox(NoV, F0, roughness) * specularIntensity;
   vec3 kD = (1.0f - kS) * (1.0f - metallic);
   vec3 R = reflect(-V, normal);
 
@@ -71,5 +72,5 @@ void main()
   vec3 prefilteredColor = textureLod(Texture8, R, roughness * MAX_REFLECTION_LOD).rgb;
   vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
-  OutColor = irradiance;//vec3(brdf, 0.0f);//(kD * diffuse + specular) * ao + Lo * ao;
+  OutColor = (kD * diffuse + specular) * ao + Lo;
 }

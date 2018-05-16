@@ -15,7 +15,7 @@ namespace TheraEngine.Actors.Types
         private CubeFrameBuffer _prefilterFBO;
         private TexRefCube _irradianceTex;
         private TexRefCube _prefilterTex;
-        private RenderBuffer _irradianceDepth;
+        //private RenderBuffer _irradianceDepth;
         private RenderBuffer _prefilterDepth;
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
@@ -81,6 +81,7 @@ namespace TheraEngine.Actors.Types
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
+                Resizable = false,
             };
             _prefilterTex = new TexRefCube("PrefilterTex", resolution,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
@@ -90,10 +91,13 @@ namespace TheraEngine.Actors.Types
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
+                Resizable = false,
             };
 
             RenderingParameters r = new RenderingParameters();
-            r.DepthTest.Enabled = ERenderParamUsage.Disabled;
+            r.DepthTest.Enabled = ERenderParamUsage.Enabled;
+            r.DepthTest.Function = EComparison.Always;
+            r.DepthTest.UpdateDepth = false;
 
             ShaderVar[] prefilterVars = new ShaderVar[]
             {
@@ -105,39 +109,33 @@ namespace TheraEngine.Actors.Types
             GLSLShaderFile prefShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "Prefilter.fs"), EShaderMode.Fragment);
             TMaterial irrMat = new TMaterial("IrradianceMat", r, new ShaderVar[0], new TexRefCube[] { _cubeTex }, irrShader);
             TMaterial prefMat = new TMaterial("PrefilterMat", r, prefilterVars, new TexRefCube[] { _cubeTex }, prefShader);
-            _irradianceFBO = new CubeFrameBuffer(irrMat);
-            _prefilterFBO = new CubeFrameBuffer(prefMat);
-            _irradianceDepth = new RenderBuffer();
-            _irradianceDepth.SetStorage(ERenderBufferStorage.DepthComponent16, resolution, resolution);
+            _irradianceFBO = new CubeFrameBuffer(irrMat, 0.1f, 3.0f, false);
+            _prefilterFBO = new CubeFrameBuffer(prefMat, 0.1f, 3.0f, false);
             _prefilterDepth = new RenderBuffer();
         }
         public void GenerateIrradianceMap()
         {
-            //CubeFrameBuffer fbo = (CubeFrameBuffer)_renderFBO;
-
             float res = _prefilterFBO.Material.Parameter<ShaderFloat>(1).Value;
-            _irradianceFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(res)));
+            for (int i = 0; i < 6; ++i)
             {
-                for (int i = 0; i < 6; ++i)
+                _irradianceFBO.SetRenderTargets(
+                    (_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+                    (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
+
+                ECubemapFace face = ECubemapFace.PosX + i;
+
+                Engine.Renderer.PopRenderArea();
+                _irradianceFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                 {
-                    _irradianceFBO.SetRenderTargets(
-                        (_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-                        (_irradianceDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
-                    ECubemapFace face = ECubemapFace.PosX + i;
-                    {
-                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                        _irradianceFBO.RenderFullscreen(face);
-                    }
+                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                    _irradianceFBO.RenderFullscreen(face);
                 }
+                _irradianceFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(res)));
             }
-            Engine.Renderer.PopRenderArea();
-            _irradianceFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         public void GeneratePrefilterMap()
         {
-            //CubeFrameBuffer fbo = (CubeFrameBuffer)_renderFBO;
-
             RenderTexCube cube = _prefilterTex.GetTexture(true);
             cube.Bind();
             cube.SetMipmapGenParams();
@@ -149,30 +147,28 @@ namespace TheraEngine.Actors.Types
             {
                 int mipWidth = (int)(res * Math.Pow(0.5, mip));
                 int mipHeight = (int)(res * Math.Pow(0.5, mip));
+                float roughness = (float)mip / (maxMipLevels - 1);
 
                 _prefilterDepth.SetStorage(ERenderBufferStorage.DepthComponent16, mipWidth, mipHeight);
+                _prefilterFBO.Material.Parameter<ShaderFloat>(0).Value = roughness;
 
-                Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(mipWidth, mipHeight)));
+                for (int i = 0; i < 6; ++i)
                 {
-                    float roughness = (float)mip / (maxMipLevels - 1);
+                    _prefilterFBO.SetRenderTargets(
+                        (_prefilterTex, EFramebufferAttachment.ColorAttachment0, mip, i),
+                        (_prefilterDepth, EFramebufferAttachment.DepthAttachment, mip, -1));
 
-                    _prefilterFBO.Material.Parameter<ShaderFloat>(0).Value = roughness;
+                    ECubemapFace face = ECubemapFace.PosX + i;
 
-                    for (int i = 0; i < 6; ++i)
+                    Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(mipWidth, mipHeight)));
+                    _prefilterFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
-                        _prefilterFBO.SetRenderTargets(
-                            (_prefilterTex, EFramebufferAttachment.ColorAttachment0, mip, i),
-                            (_prefilterDepth, EFramebufferAttachment.DepthAttachment, mip, -1));
-                        ECubemapFace face = ECubemapFace.PosX + i;
-                        _prefilterFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                            _prefilterFBO.RenderFullscreen(face);
-                        }
-                        _prefilterFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        _prefilterFBO.RenderFullscreen(face);
                     }
+                    _prefilterFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                    Engine.Renderer.PopRenderArea();
                 }
-                Engine.Renderer.PopRenderArea();
             }
         }
         private void Render()

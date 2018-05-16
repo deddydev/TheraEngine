@@ -1,9 +1,9 @@
-#version 410
+#version 450
 
 layout (location = 0) out vec3 FragColor;
 layout (location = 0) in vec3 FragPos;
 
-uniform samplerCube Texture0;
+layout (binding = 0) uniform samplerCube Texture0;
 uniform float Roughness = 0.0f;
 uniform float CubemapDim = 512.0f;
 

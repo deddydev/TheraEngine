@@ -28,18 +28,23 @@ namespace TheraEngine.Rendering
             _cameras = new Camera[6];
             Rotator[] rotations = new Rotator[]
             {
-                new Rotator(0.0f,  90.0f, 0.0f, RotationOrder.YPR), //+X right
-                new Rotator(0.0f, -90.0f, 0.0f, RotationOrder.YPR), //-X left
-                new Rotator(90.0f,  0.0f, 0.0f, RotationOrder.YPR), //+Y up
-                new Rotator(-90.0f, 0.0f, 0.0f, RotationOrder.YPR), //-Y down
-                new Rotator(0.0f, 180.0f, 0.0f, RotationOrder.YPR), //+Z backward
-                new Rotator(0.0f,   0.0f, 0.0f, RotationOrder.YPR), //-Z forward
+                new Rotator(0.0f, -90.0f, 180.0f), //+X
+                new Rotator(0.0f,  90.0f, 180.0f), //-X
+                new Rotator(90.0f,  0.0f, 0.0f), //+Y
+                new Rotator(-90.0f, 0.0f, 0.0f), //-Y
+                new Rotator(0.0f, 180.0f, 180.0f), //+Z
+                new Rotator(0.0f,   0.0f, 180.0f), //-Z
             };
 
+            Camera c;
             for (int i = 0; i < 6; ++i)
-                _cameras[i] = perspectiveCameras ?
+            {
+                c = perspectiveCameras ?
                     new PerspectiveCamera(Vec3.Zero, rotations[i], nearZ, farZ, 90.0f, 1.0f) :
                     (Camera)new OrthographicCamera(2.0f, 2.0f, Vec3.One, Vec3.Zero, rotations[i], Vec2.Half, nearZ, farZ);
+                c.Resize(2.0f, 2.0f);
+                _cameras[i] = c;
+            }
 
         }
         private void SetUniforms(int vertexBindingId, int fragGeomBindingId)

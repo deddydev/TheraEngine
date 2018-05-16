@@ -101,6 +101,7 @@ namespace TheraEngine.Actors.Types
             for (int i = 0; i < 6; ++i)
             {
                 Camera camera = _cameras[i];
+                camera.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
                 _viewport.Camera = camera;
                 _viewport.Update(scene, camera, camera.Frustum);
                 _viewport.SwapBuffers();

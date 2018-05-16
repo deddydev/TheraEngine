@@ -9,9 +9,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         private int _index;
         private EFramebufferAttachment? _frameBufferAttachment;
-
-        public TMaterialBase Material { get; internal set; }
-
+        
         [TSerialize]
         public EFramebufferAttachment? FrameBufferAttachment
         {

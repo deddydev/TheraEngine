@@ -199,7 +199,7 @@ namespace TheraEngine.Components.Scene.Lights
             GLSLShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", EShaderMode.Geometry);
             TMaterial mat = new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader, geomShader);
 
-            //No culling so if a light exists inside of a mesh it will be obscured.
+            //No culling so if a light exists inside of a mesh it will shadow everything.
             mat.RenderParams.CullMode = Culling.None;
 
             return mat;

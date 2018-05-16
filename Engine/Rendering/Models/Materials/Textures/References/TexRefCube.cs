@@ -156,7 +156,8 @@ namespace TheraEngine.Rendering.Models.Materials
         private EPixelType _pixelType = EPixelType.UnsignedByte;
         [TSerialize(nameof(InternalFormat))]
         private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
-        
+
+        public bool Resizable { get; set; } = true;
         public EPixelFormat PixelFormat
         {
             get => _pixelFormat;
@@ -371,7 +372,10 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_texture != null)
                 _texture.PostPushData -= SetParameters;
 
-            _texture = new RenderTexCube(CubeExtent, InternalFormat, PixelFormat, PixelType);
+            _texture = new RenderTexCube(CubeExtent, InternalFormat, PixelFormat, PixelType)
+            {
+                Resizable = Resizable,
+            };
 
             _texture.PostPushData += SetParameters;
         }

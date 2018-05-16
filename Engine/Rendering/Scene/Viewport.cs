@@ -1029,8 +1029,8 @@ namespace TheraEngine.Rendering
             IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
             int baseCount = LightCombineFBO.Material.Textures.Length;
 
-            if (probe.ResultTexture != null)
-                TMaterialBase.SetTextureUniform(probe.ResultTexture.GetTexture(true),
+            if (probe.IrradianceTex != null)
+                TMaterialBase.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
                     baseCount, "Texture" + baseCount.ToString(), programBindingId);
             ++baseCount;
             if (probe.PrefilterTex != null)

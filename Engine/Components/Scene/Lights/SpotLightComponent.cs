@@ -307,7 +307,7 @@ namespace TheraEngine.Components.Scene.Lights
             GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
             TMaterial mat = new TMaterial("SpotLightShadowMat", new ShaderVar[0], refs, shader);
 
-            //No culling so if a light exists inside of a mesh it will be obscured.
+            //No culling so if a light exists inside of a mesh it will shadow everything.
             mat.RenderParams.CullMode = Culling.None;
 
             return mat;

@@ -156,7 +156,7 @@ namespace TheraEditor.Windows.Forms
         public DockableWorldRenderForm RenderForm4 => GetRenderForm(3);
         
         public static GlobalFileRef<EditorSettings> GetSettingsRef() => Instance.Project?.EditorSettingsRef ?? DefaultSettingsRef;
-        public static EditorSettings GetSettings() => GetSettingsRef()?.File;
+        public static EditorSettings GetSettings() => Instance.Project?.EditorSettingsRef?.File ?? DefaultSettingsRef?.File;
 
         public T GetForm<T>(ref T value) where T : DockContent, new()
         {
@@ -222,7 +222,7 @@ namespace TheraEditor.Windows.Forms
 
                 if (projectOpened)
                 {
-                    string configFile = _project.EditorSettings.GetFullDockConfigPath();
+                    string configFile = _project.EditorSettings?.GetFullDockConfigPath();
                     //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
 
                     if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
@@ -520,7 +520,7 @@ namespace TheraEditor.Windows.Forms
         //    base.OnResizeEnd(e);
         //}
         public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; }
-            = new GlobalFileRef<EditorSettings>(Path.GetFullPath(string.Format(Application.StartupPath + "{0}..{0}..{0}..{0}Editor{0}Config.xset", Path.DirectorySeparatorChar)), () => new EditorSettings());
+            = new GlobalFileRef<EditorSettings>(Path.Combine(Application.StartupPath, "..", "..", "..", "Editor", "Config.xset"), () => new EditorSettings());
 
         public void ClearDockPanel()
         {

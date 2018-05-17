@@ -456,7 +456,7 @@ namespace TheraEngine.Core.Shapes
         {
             //_boundingSphere.Render();
 
-            float LineSize = 10.0f;
+            float LineSize = 1.0f;
             Color NearColor = Color.Orange;
             Color FarColor = Color.DarkRed;
             Color SideColor = Color.LightGreen;

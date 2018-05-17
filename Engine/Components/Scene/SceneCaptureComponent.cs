@@ -50,7 +50,7 @@ namespace TheraEngine.Actors.Types
                 c.LocalPoint.Raw = WorldPoint;
                 //c.Resize(_viewport.InternalResolution.Width, _viewport.InternalResolution.Height);
                 c.PostProcessRef.File.ColorGrading.AutoExposure = false;
-                //c.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
+                c.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
                 _cameras[i] = c;
             }
 
@@ -61,7 +61,7 @@ namespace TheraEngine.Actors.Types
             _cubeTex = new TexRefCube("SceneCaptureCubeMap", cubeExtent,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
             {
-                MinFilter = ETexMinFilter.NearestMipmapNearest,
+                MinFilter = ETexMinFilter.NearestMipmapLinear,
                 MagFilter = ETexMagFilter.Nearest,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
@@ -87,13 +87,13 @@ namespace TheraEngine.Actors.Types
         /// </summary>
         public void Capture()
         {
-            //_cubeTex = new TexRefCube("", 0, new CubeMipmap(Engine.LoadEngineTexture2D("cubemap guide.png")));
+            //_cubeTex = new TexRefCube("", 512, new CubeMipmap(Engine.LoadEngineTexture2D("skybox.png")));
 
             //if (_renderFBO == null)
             //    SetCubeResolution(512);
 
             var tex = _cubeTex.GetTexture(true);
-            tex.Resizable = false;
+            //tex.Resizable = true;
             Scene3D scene = OwningScene;
             scene.UpdateShadowMaps();
             scene.Lights.SwapBuffers();
@@ -101,7 +101,6 @@ namespace TheraEngine.Actors.Types
             for (int i = 0; i < 6; ++i)
             {
                 Camera camera = _cameras[i];
-                camera.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
                 _viewport.Camera = camera;
                 _viewport.Update(scene, camera, camera.Frustum);
                 _viewport.SwapBuffers();

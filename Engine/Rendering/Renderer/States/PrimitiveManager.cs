@@ -476,7 +476,8 @@ namespace TheraEngine.Rendering.Models
             Engine.Renderer.RenderPrimitiveManager(this, false, instances);
             _lastRenderedModelMatrix = modelMatrix;
         }
-        private void OnSettingUniforms(int vertexBindingId, int fragGeomBindingId) => SettingUniforms?.Invoke(vertexBindingId, fragGeomBindingId);
+        private void OnSettingUniforms(int vertexBindingId, int fragGeomBindingId)
+            => SettingUniforms?.Invoke(vertexBindingId, fragGeomBindingId);
         protected override void PostGenerated()
         {
             //Create vertex shader program here

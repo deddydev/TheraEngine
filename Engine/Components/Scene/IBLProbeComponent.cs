@@ -81,17 +81,17 @@ namespace TheraEngine.Actors.Types
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
-                Resizable = false,
+                //Resizable = true,
             };
             _prefilterTex = new TexRefCube("PrefilterTex", resolution,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
             {
-                MinFilter = ETexMinFilter.Linear,
+                MinFilter = ETexMinFilter.LinearMipmapLinear,
                 MagFilter = ETexMagFilter.Linear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
-                Resizable = false,
+                //Resizable = false,
             };
 
             RenderingParameters r = new RenderingParameters();

@@ -201,7 +201,7 @@ uniform VignetteStruct Vignette;";
         }
         [TSerialize]
         [Category("Color Grade Settings")]
-        public float Exposure { get; set; } = 10.0f;
+        public float Exposure { get; set; } = -1.0f;
 
         [TSerialize]
         [Category("Color Grade Settings")]
@@ -268,16 +268,36 @@ uniform ColorGradeStruct ColorGrade;";
             if (!AutoExposure)
                 return;
 
+            //Calculate average color value using 1x1 mipmap of scene
             var tex = hdrSceneTexture.GetTextureGeneric(true);
             tex.Bind();
             tex.GenerateMipmaps();
+
+            //Get that average color from the scene texture
             Engine.Renderer.GetTexImage(ETexTarget.Texture2D, tex.SmallestMipmapLevel, tex.PixelFormat, tex.PixelType, _rgb);
             Vec3 rgb = new Vec3(_rgb[0], _rgb[1], _rgb[2]);
+
+            //Occasionally returns NaN colors, not sure why. Do nothing if so
             if (float.IsNaN(rgb.X)) return;
             if (float.IsNaN(rgb.Y)) return;
             if (float.IsNaN(rgb.Z)) return;
-            float target = (ExposureDividend / (rgb.Dot(_luminance) + 0.0001f)).Clamp(MinExposure, MaxExposure);
-            Exposure = Interp.Lerp(Exposure, target, ExposureTransitionSpeed);
+
+            //Calculate luminance factor off of the average color
+            float lumDot = rgb.Dot(_luminance);
+
+            //If the dot factor is zero, this means the screen is perfectly black.
+            //Usually that means nothing is being rendered, so don't update the exposure now.
+            //If we were to update the exposure now, the scene would look very bright once it finally starts rendering.
+            if (lumDot == 0.0f)
+                return;
+
+            float target = (ExposureDividend / lumDot).Clamp(MinExposure, MaxExposure);
+
+            //If the current exposure is an invalid value, that means we want the exposure to be set immediately.
+            if (Exposure < MinExposure || Exposure > MaxExposure)
+                Exposure = target;
+            else
+                Exposure = Interp.Lerp(Exposure, target, ExposureTransitionSpeed);
         }
     }
     public class BloomSettings : PostSettings

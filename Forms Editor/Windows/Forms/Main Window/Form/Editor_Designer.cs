@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
+using TheraEngine.Core.Extensions;
 using TheraEngine.Editor;
 using TheraEngine.Files;
 using TheraEngine.GameModes;
@@ -295,42 +296,36 @@ namespace TheraEditor.Windows.Forms
         public World CurrentWorld
         {
             get => Engine.World;
-            set
-            {
-                if (InvokeRequired)
-                {
-                    Invoke((Action)(() => CurrentWorld = value));
-                    return;
-                }
-
-                if (Engine.World != null &&
-                    Engine.World.EditorState != null &&
-                    Engine.World.EditorState.HasChanges)
-                {
-                    DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                    if (r == DialogResult.Cancel)
-                        return;
-                    else if (r == DialogResult.Yes)
-                        Engine.World.Export();
-                    Engine.World.EditorState = null;
-                }
-
-                Engine.SetCurrentWorld(value, true, false);
-
-                bool isNull = Engine.World == null;
-
-                btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = !isNull;
-
-                GenerateInitialActorList();
-                if (!isNull)
-                {
-                    Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
-                    Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
-                }
-                PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World?.Settings;
-            }
+            set => this.ThreadSafeBlockingInvoke((Action)(() => SetWorld(value)));
         }
+        private void SetWorld(World world)
+        {
+            if (Engine.World != null &&
+                Engine.World.EditorState != null &&
+                Engine.World.EditorState.HasChanges)
+            {
+                DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                if (r == DialogResult.Cancel)
+                    return;
+                else if (r == DialogResult.Yes)
+                    Engine.World.Export();
+                Engine.World.EditorState = null;
+            }
 
+            Engine.SetCurrentWorld(world, true, false);
+
+            bool isNull = Engine.World == null;
+
+            btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = !isNull;
+
+            GenerateInitialActorList();
+            if (!isNull)
+            {
+                Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
+                Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
+            }
+            PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World?.Settings;
+        }
         private bool Undo()
         {
             bool canUndo = UndoManager.CanUndo;

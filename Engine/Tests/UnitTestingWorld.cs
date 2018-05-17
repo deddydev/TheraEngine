@@ -177,7 +177,7 @@ namespace TheraEngine.Tests
                     dir.LightColor = (ColorF3)Color.White;
                     dir.DiffuseIntensity = 1.0f;
                     dir.WorldRadius = 500.0f;
-                    dir.Rotation.Pitch = -35.0f;
+                    dir.Rotation.Pitch = -20.0f;
                     dir.Rotation.Yaw = lightAngle * i;
                     actors.Add(dirlight);
                 }

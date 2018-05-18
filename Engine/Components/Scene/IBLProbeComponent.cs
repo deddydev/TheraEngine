@@ -16,7 +16,7 @@ namespace TheraEngine.Actors.Types
         private TexRefCube _irradianceTex;
         private TexRefCube _prefilterTex;
         //private RenderBuffer _irradianceDepth;
-        private RenderBuffer _prefilterDepth;
+        //private RenderBuffer _prefilterDepth;
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
         public Shape CullingVolume => null;
@@ -95,9 +95,7 @@ namespace TheraEngine.Actors.Types
             };
 
             RenderingParameters r = new RenderingParameters();
-            r.DepthTest.Enabled = ERenderParamUsage.Enabled;
-            r.DepthTest.Function = EComparison.Always;
-            r.DepthTest.UpdateDepth = false;
+            r.DepthTest.Enabled = ERenderParamUsage.Unchanged;
 
             ShaderVar[] prefilterVars = new ShaderVar[]
             {
@@ -111,7 +109,7 @@ namespace TheraEngine.Actors.Types
             TMaterial prefMat = new TMaterial("PrefilterMat", r, prefilterVars, new TexRefCube[] { _cubeTex }, prefShader);
             _irradianceFBO = new CubeFrameBuffer(irrMat, 0.1f, 3.0f, false);
             _prefilterFBO = new CubeFrameBuffer(prefMat, 0.1f, 3.0f, false);
-            _prefilterDepth = new RenderBuffer();
+            //_prefilterDepth = new RenderBuffer();
         }
         public void GenerateIrradianceMap()
         {
@@ -119,15 +117,14 @@ namespace TheraEngine.Actors.Types
             for (int i = 0; i < 6; ++i)
             {
                 _irradianceFBO.SetRenderTargets(
-                    (_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-                    (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
+                    (_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i));
 
                 ECubemapFace face = ECubemapFace.PosX + i;
 
                 Engine.Renderer.PopRenderArea();
                 _irradianceFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                 {
-                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                    Engine.Renderer.Clear(EBufferClear.Color);
                     _irradianceFBO.RenderFullscreen(face);
                 }
                 _irradianceFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -149,21 +146,20 @@ namespace TheraEngine.Actors.Types
                 int mipHeight = (int)(res * Math.Pow(0.5, mip));
                 float roughness = (float)mip / (maxMipLevels - 1);
 
-                _prefilterDepth.SetStorage(ERenderBufferStorage.DepthComponent16, mipWidth, mipHeight);
+                //_prefilterDepth.SetStorage(ERenderBufferStorage.DepthComponent16, mipWidth, mipHeight);
                 _prefilterFBO.Material.Parameter<ShaderFloat>(0).Value = roughness;
 
                 for (int i = 0; i < 6; ++i)
                 {
                     _prefilterFBO.SetRenderTargets(
-                        (_prefilterTex, EFramebufferAttachment.ColorAttachment0, mip, i),
-                        (_prefilterDepth, EFramebufferAttachment.DepthAttachment, mip, -1));
+                        (_prefilterTex, EFramebufferAttachment.ColorAttachment0, mip, i));
 
                     ECubemapFace face = ECubemapFace.PosX + i;
 
                     Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(mipWidth, mipHeight)));
                     _prefilterFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
-                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        Engine.Renderer.Clear(EBufferClear.Color);
                         _prefilterFBO.RenderFullscreen(face);
                     }
                     _prefilterFBO.Unbind(EFramebufferTarget.DrawFramebuffer);

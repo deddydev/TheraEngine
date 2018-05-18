@@ -7,21 +7,21 @@ namespace TheraEngine.Actors
 {
     public class IBLProbeGridActor : Actor<TranslationComponent>
     {
-        public Vec3 ProbesPerMeter { get; internal set; }
-        public BoundingBox ProbeBounds { get; internal set; }
+        //public Vec3 ProbesPerMeter { get; internal set; }
+        //public BoundingBox ProbeBounds { get; internal set; }
 
         public IBLProbeGridActor() : base(true)
         {
-            ProbeBounds = new BoundingBox(100.0f);
-            ProbesPerMeter = new Vec3(0.01f);
+            //ProbeBounds = new BoundingBox(100.0f);
+            //ProbesPerMeter = new Vec3(0.01f);
             Initialize();
         }
-        public IBLProbeGridActor(BoundingBox bounds, Vec3 probesPerMeter) : base(true)
-        {
-            ProbeBounds = bounds;
-            ProbesPerMeter = probesPerMeter;
-            Initialize();
-        }
+        //public IBLProbeGridActor(BoundingBox bounds, Vec3 probesPerMeter) : base(true)
+        //{
+        //    ProbeBounds = bounds;
+        //    ProbesPerMeter = probesPerMeter;
+        //    Initialize();
+        //}
 
         public override void OnSpawnedPostComponentSetup()
         {
@@ -54,16 +54,16 @@ namespace TheraEngine.Actors
                 extents.Z / probeCount.Z);
             Vec3 baseInc = probeInc * 0.5f;
 
-            IBLProbeComponent[] comps = new IBLProbeComponent[1/*probeCount.X * probeCount.Y * probeCount.Z*/];
+            IBLProbeComponent[] comps = new IBLProbeComponent[probeCount.X * probeCount.Y * probeCount.Z];
 
             int r = 0;
-            //for (int x = 0; x < probeCount.X; ++x)
-            //    for (int y = 0; y < probeCount.Y; ++y)
-            //        for (int z = 0; z < probeCount.Z; ++z)
+            for (int x = 0; x < probeCount.X; ++x)
+                for (int y = 0; y < probeCount.Y; ++y)
+                    for (int z = 0; z < probeCount.Z; ++z)
                     {
                         IBLProbeComponent comp = new IBLProbeComponent()
                         {
-                            Translation = Vec3.Zero,/*localMin + baseInc + new Vec3(x, y, z) * probeInc*/
+                            Translation = localMin + baseInc + new Vec3(x, y, z) * probeInc
                         };
                         comps[r++] = comp;
                     }
@@ -73,7 +73,7 @@ namespace TheraEngine.Actors
 
         public override void OnSpawnedPreComponentSetup()
         {
-            SetFrequencies(ProbeBounds, ProbesPerMeter);
+            //SetFrequencies(ProbeBounds, ProbesPerMeter);
             base.OnSpawnedPreComponentSetup();
         }
 

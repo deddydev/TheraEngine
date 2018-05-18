@@ -67,7 +67,7 @@ void main()
   vec3 kS = SpecF_SchlickRoughnessApprox(NoV, F0, roughness) * specularIntensity;
   vec3 kD = (1.0f - kS) * (1.0f - metallic);
   vec3 R = reflect(-V, normal);
-
+	//TODO: fix reflection vector, blend environment cubemaps via influence radius
   vec3 diffuse = irradiance * albedo;
   vec3 prefilteredColor = textureLod(Texture8, R, roughness * MAX_REFLECTION_LOD).rgb;
   vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);

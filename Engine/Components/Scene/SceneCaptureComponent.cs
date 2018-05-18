@@ -11,26 +11,29 @@ namespace TheraEngine.Actors.Types
     {
         protected PerspectiveCamera[] _cameras;
         protected FrameBuffer _renderFBO;
-        protected int _resolution;
+        protected int _colorRes;
+        protected int _depthRes;
         protected Viewport _viewport;
-        protected TexRefCube _cubeTex;
-        protected RenderBuffer _depth;
+        protected TexRefCube _envTex;
+        protected TexRefCube _envDepthTex;
+        protected RenderBuffer _tempDepth;
 
-        public TexRefCube ResultTexture => _cubeTex;
+        public bool CaptureDepthCubeMap { get; set; } = false;
+        public TexRefCube ResultTexture => _envTex;
+        public TexRefCube ResultDepthTexture => _envDepthTex;
 
         public SceneCaptureComponent() { }
         
-        public void SetCubeResolution(int resolution)
+        public void SetCubeResolution(int colorResolution, int depthResolution)
         {
-            _resolution = resolution;
+            _colorRes = colorResolution;
+            _depthRes = depthResolution;
             if (_renderFBO == null)
-                Initialize(resolution);
-            else
-                _renderFBO.ResizeTextures(resolution, resolution);
+                Initialize();
         }
-        protected virtual void Initialize(int resolution)
+        protected virtual void Initialize()
         {
-            _viewport = new Viewport(resolution, resolution);
+            _viewport = new Viewport(_colorRes, _colorRes);
 
             _cameras = new PerspectiveCamera[6];
             Rotator[] rotations = new Rotator[]
@@ -54,11 +57,7 @@ namespace TheraEngine.Actors.Types
                 _cameras[i] = c;
             }
 
-            _renderFBO = GetFBO(resolution);
-        }
-        protected virtual FrameBuffer GetFBO(int cubeExtent)
-        {
-            _cubeTex = new TexRefCube("SceneCaptureCubeMap", cubeExtent,
+            _envTex = new TexRefCube("SceneCaptureCubeMap", _colorRes,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
             {
                 MinFilter = ETexMinFilter.NearestMipmapLinear,
@@ -67,13 +66,9 @@ namespace TheraEngine.Actors.Types
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
             };
-            _depth = new RenderBuffer();
-            _depth.SetStorage(ERenderBufferStorage.DepthComponent16, cubeExtent, cubeExtent);
-            FrameBuffer f = new FrameBuffer();
-            //f.SetRenderTargets(
-            //    (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, 0),
-            //    (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
-            return f;
+            _tempDepth = new RenderBuffer();
+            _tempDepth.SetStorage(ERenderBufferStorage.DepthComponent16, _colorRes, _colorRes);
+            _renderFBO = new FrameBuffer();
         }
         protected override void OnWorldTransformChanged()
         {
@@ -92,7 +87,7 @@ namespace TheraEngine.Actors.Types
             //if (_renderFBO == null)
             //    SetCubeResolution(512);
 
-            var tex = _cubeTex.GetTexture(true);
+            var tex = _envTex.GetTexture(true);
             //tex.Resizable = true;
             Scene3D scene = OwningScene;
             scene.UpdateShadowMaps();
@@ -105,9 +100,8 @@ namespace TheraEngine.Actors.Types
                 _viewport.Update(scene, camera, camera.Frustum);
                 _viewport.SwapBuffers();
                 _renderFBO.SetRenderTargets(
-                    (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-                    (_depth, EFramebufferAttachment.DepthAttachment, 0, -1));
-                //_renderFBO.UpdateRenderTarget(0, (_cubeTex, EFramebufferAttachment.ColorAttachment0, 0, i));
+                    (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+                    (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
                 _viewport.Render(scene, camera, _renderFBO);
             }
 

@@ -58,10 +58,12 @@ namespace TheraEngine.Physics.ShapeTracing
             => obj.HasContactResponse && !Ignored.Any(x => x == obj);
         
         internal protected abstract void AddResult(TCollisionObject obj, Vec3 hitNormalLocal, bool normalInWorldSpace, Vec3 hitPointLocal, float hitFraction, int shapePart, int triangleIndex);
-        //internal virtual bool TestApproxCollision(int uniqueID, ushort collisionFilterGroup, ushort collisionFilterMask, Vec3 aabbMin, Vec3 aabbMax, object clientObject)
-        //{
-
-        //}
+        internal virtual bool TestApproxCollision(int uniqueID, ushort collisionGroup, ushort collidesWith, Vec3 aabbMin, Vec3 aabbMax, object clientObject)
+        {
+            bool rayIntersectsOther = (CollisionGroup & collidesWith) == CollisionGroup;
+            bool otherIntersectsRay = (collisionGroup & CollidesWith) == collisionGroup;
+            return rayIntersectsOther && otherIntersectsRay;
+        }
 
         /// <summary>
         /// Performs the trace in the world and returns true if there are any collision results.

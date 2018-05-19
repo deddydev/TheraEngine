@@ -197,10 +197,6 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             Mesh = mesh;
             SetCullingVolume(mesh.CullingVolume);
-
-            //PrimitiveManager m = LODs.First.Value.Manager;
-            //if (m.Data.BufferInfo.HasNormals)
-            //    m.Material.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", ShaderMode.Geometry));
         }
         private void _component_WorldTransformChanged()
         {

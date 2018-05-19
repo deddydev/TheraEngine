@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
-using TheraEngine;
+using TheraEngine.Core.Extensions;
 using TheraEngine.Editor;
 using static TheraEngine.Editor.EditorState;
 
@@ -53,27 +53,25 @@ namespace TheraEditor.Windows.Forms
         }
         private void OnChangeAdded(GlobalValueChange change)
         {
-            if (Editor.Instance.InvokeRequired)
+            Editor.Instance.ThreadSafeBlockingInvoke((Action)(() => 
             {
-                Editor.Instance.Invoke((Action)(() => OnChangeAdded(change)));
-                return;
-            }
-            
-            while (CanRedo)
-                Changes.PopBack().DestroySelf();
-            ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
-            redoColl.Clear();
+                while (CanRedo)
+                    Changes.PopBack().DestroySelf();
+                ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
+                redoColl.Clear();
 
-            Changes.PushBack(change);
-            (++_stateIndex).ClampMax(_maxChanges);
-            CheckChangeSize();
-            _moveToOldVal = true;
-            Editor.Instance.btnRedo.Enabled = false;
-            Editor.Instance.btnUndo.Enabled = true;
+                Changes.PushBack(change);
+                (++_stateIndex).ClampMax(_maxChanges);
+                CheckChangeSize();
+                _moveToOldVal = true;
+                Editor.Instance.btnRedo.Enabled = false;
+                Editor.Instance.btnUndo.Enabled = true;
 
-            ToolStripButton item = new ToolStripButton(
-                change.AsUndoString(), null, UndoStateClicked) { Tag = change };
-            Editor.Instance.btnUndo.DropDownItems.Insert(0, item);
+                ToolStripButton item = new ToolStripButton(
+                    change.AsUndoString(), null, UndoStateClicked)
+                { Tag = change };
+                Editor.Instance.btnUndo.DropDownItems.Insert(0, item);
+            }));
         }
         private void UndoStateClicked(object sender, EventArgs e)
         {
@@ -99,74 +97,68 @@ namespace TheraEditor.Windows.Forms
             _stateIndex < Changes.Count);
         public void Undo(int count = 1)
         {
-            if (Editor.Instance.InvokeRequired)
+            Editor.Instance.ThreadSafeBlockingInvoke((Action)(() =>
             {
-                Editor.Instance.Invoke((Action)(() => Undo(count)));
-                return;
-            }
-
-            while (count-- > 0 && CanUndo)
-            {
-                if (_moveToOldVal != true)
+                while (count-- > 0 && CanUndo)
                 {
+                    if (_moveToOldVal != true)
+                    {
+                        --_stateIndex;
+                        _moveToOldVal = true;
+                    }
+
+                    if (_stateIndex >= Changes.Count)
+                        _stateIndex = Changes.Count - 1;
+
+                    GlobalValueChange c = Changes[(uint)_stateIndex];
+                    c.ApplyOldValue();
                     --_stateIndex;
-                    _moveToOldVal = true;
+
+                    ToolStripItemCollection undoColl = Editor.Instance.btnUndo.DropDownItems;
+                    ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
+                    ToolStripButton item = undoColl[0] as ToolStripButton;
+                    GlobalValueChange change = item.Tag as GlobalValueChange;
+                    undoColl.RemoveAt(0);
+
+                    item = new ToolStripButton(change.AsRedoString(), null, RedoStateClicked) { Tag = change };
+                    redoColl.Insert(0, item);
                 }
 
-                if (_stateIndex >= Changes.Count)
-                    _stateIndex = Changes.Count - 1;
-
-                GlobalValueChange c = Changes[(uint)_stateIndex];
-                c.ApplyOldValue();
-                --_stateIndex;
-
-                ToolStripItemCollection undoColl = Editor.Instance.btnUndo.DropDownItems;
-                ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
-                ToolStripButton item = undoColl[0] as ToolStripButton;
-                GlobalValueChange change = item.Tag as GlobalValueChange;
-                undoColl.RemoveAt(0);
-
-                item = new ToolStripButton(change.AsRedoString(), null, RedoStateClicked) { Tag = change };
-                redoColl.Insert(0, item);
-            }
-
-            Editor.Instance.btnRedo.Enabled = CanRedo;
-            Editor.Instance.btnUndo.Enabled = CanUndo;
+                Editor.Instance.btnRedo.Enabled = CanRedo;
+                Editor.Instance.btnUndo.Enabled = CanUndo;
+            }));
         }
         public void Redo(int count = 1)
         {
-            if (Editor.Instance.InvokeRequired)
+            Editor.Instance.ThreadSafeBlockingInvoke((Action)(() =>
             {
-                Editor.Instance.Invoke((Action)(() => Redo(count)));
-                return;
-            }
-
-            while (count-- > 0 && CanRedo)
-            {
-                if (_moveToOldVal != false)
+                while (count-- > 0 && CanRedo)
                 {
+                    if (_moveToOldVal != false)
+                    {
+                        ++_stateIndex;
+                        _moveToOldVal = false;
+                    }
+                    if (_stateIndex < 0)
+                        _stateIndex = 0;
+
+                    GlobalValueChange c = Changes[(uint)_stateIndex];
+                    c.ApplyNewValue();
                     ++_stateIndex;
-                    _moveToOldVal = false;
+
+                    ToolStripItemCollection undoColl = Editor.Instance.btnUndo.DropDownItems;
+                    ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
+                    ToolStripButton item = redoColl[0] as ToolStripButton;
+                    GlobalValueChange change = item.Tag as GlobalValueChange;
+                    redoColl.RemoveAt(0);
+
+                    item = new ToolStripButton(change.AsUndoString(), null, UndoStateClicked) { Tag = change };
+                    undoColl.Insert(0, item);
                 }
-                if (_stateIndex < 0)
-                    _stateIndex = 0;
 
-                GlobalValueChange c = Changes[(uint)_stateIndex];
-                c.ApplyNewValue();
-                ++_stateIndex;
-
-                ToolStripItemCollection undoColl = Editor.Instance.btnUndo.DropDownItems;
-                ToolStripItemCollection redoColl = Editor.Instance.btnRedo.DropDownItems;
-                ToolStripButton item = redoColl[0] as ToolStripButton;
-                GlobalValueChange change = item.Tag as GlobalValueChange;
-                redoColl.RemoveAt(0);
-
-                item = new ToolStripButton(change.AsUndoString(), null, UndoStateClicked) { Tag = change };
-                undoColl.Insert(0, item);
-            }
-
-            Editor.Instance.btnRedo.Enabled = CanRedo;
-            Editor.Instance.btnUndo.Enabled = CanUndo;
+                Editor.Instance.btnRedo.Enabled = CanRedo;
+                Editor.Instance.btnUndo.Enabled = CanUndo;
+            }));
         }
     }
 }

@@ -129,7 +129,7 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
             TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetTextureGeneric(true), 4, "Texture4", programBindingId);
+                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", programBindingId);
         }
 
         public void SetShadowMapResolution(int width, int height)

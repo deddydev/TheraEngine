@@ -101,8 +101,8 @@ namespace TheraEngine.Components.Scene.Transforms
         }
 
         public void Pivot(float pitch, float yaw, float distance)
-            => Pivot(pitch, yaw, _translation + GetForwardDir() * distance);
-        public void Pivot(float pitch, float yaw, Vec3 focusPoint)
+            => ArcBallRotate(pitch, yaw, _translation + GetForwardDir() * distance);
+        public void ArcBallRotate(float pitch, float yaw, Vec3 focusPoint)
         {
             //"Arcball" rotation
             //All rotation is done within local component space

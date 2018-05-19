@@ -41,10 +41,10 @@ namespace TheraEngine.Physics.Bullet
             if (state != null)
                 state.Body = rigidBody;
 
+            rigidBody.CollisionEnabled = info.CollisionEnabled;
             rigidBody.CollisionGroup = info.CollisionGroup;
             rigidBody.CollidesWith = info.CollidesWith;
             rigidBody.SimulatingPhysics = info.SimulatePhysics;
-            rigidBody.CollisionEnabled = info.CollisionEnabled;
             rigidBody.SleepingEnabled = info.SleepingEnabled;
             rigidBody.IsKinematic = info.IsKinematic;
             rigidBody.CustomMaterialCallback = info.CustomMaterialCallback;

@@ -4,12 +4,9 @@ layout(location = 0) out vec4 OutColor;
 layout(location = 0) in vec3 FragPos;
 
 uniform sampler2D Texture0; //HDR scene color
-uniform sampler2D Texture1; //Bloom0
+uniform sampler2D Texture1; //Bloom
 uniform sampler2D Texture2; //Depth
 uniform usampler2D Texture3; //Stencil
-//layout (binding = 4) uniform sampler2D Texture4; //brdf
-//uniform samplerCube Texture5; //irradiance
-//uniform samplerCube Texture6; //prefilter
 
 uniform vec3 HighlightColor = vec3(0.92f, 1.0f, 0.086f);
 
@@ -129,7 +126,7 @@ void main()
 	ldrSceneColor += mix(-0.5f / 255.0f, 0.5f / 255.0f, rand(uv));
 
 	OutColor = vec4(ldrSceneColor, 1.0f);
-  //uint stencil = texture(Texture3, uv).b;
+  //uint stencil = texture(Texture3, uv).r;
   //float depth = GetDistanceFromDepth(texture(Texture2, uv).r);
-  //OutColor = vec4(vec3(float(stencil)), 1.0f);
+  //OutColor = vec4(vec3(float(stencil) / 255.0f), 1.0f);
 }

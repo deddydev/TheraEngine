@@ -320,6 +320,7 @@
     <Compile Include="Actors\Types\ComponentActors\Lights\SpotLightActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\Lights\DirectionalLightActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\OrthographicCameraActor.cs" />
+    <Compile Include="Actors\Types\ComponentActors\Shapes\ConeActor.cs" />
     <Compile Include="Actors\Types\GroupActor.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawnBase.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawn.cs" />
@@ -363,7 +364,7 @@
     <Compile Include="Core\Controls\BasicRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Core\EditorUndo\StateChange.cs" />
+    <Compile Include="Core\Editor\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
     <Compile Include="Core\Extensions\ControlExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
@@ -382,6 +383,7 @@
     </Compile>
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
     <Compile Include="Core\ResourcePool.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\XAligned\ConeX.cs" />
     <Compile Include="Input\ServerPlayerController.cs" />
     <Compile Include="Physics\AbstractPhysicsInterface.cs" />
     <Compile Include="Physics\AbstractPhysicsShapes.cs" />
@@ -564,7 +566,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Animation\Cutscenes\Cutscene.cs" />
-    <Compile Include="Core\EditorUndo\EditorState.cs" />
+    <Compile Include="Core\Editor\EditorState.cs" />
     <Compile Include="Engine\EngineMethods.cs" />
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />
@@ -994,7 +996,6 @@
     <Folder Include="Components\Logic\AI\" />
     <Folder Include="Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Components\Scene\Shapes\Cylindrical\ZAligned\" />
-    <Folder Include="Core\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Physics\Jitter\Collision Bodies\" />
     <Folder Include="Physics\Jitter\Constraints\" />
     <Folder Include="Rendering\Models\Materials\Functions\Casts\" />

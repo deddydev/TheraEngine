@@ -96,7 +96,7 @@ namespace TheraEngine.Rendering
             var (Target, Attachment, MipLevel, LayerIndex) = Targets[i];
             if (Target is BaseTexRef tref)
             {
-                BaseRenderTexture t = tref.GetTextureGeneric(true);
+                BaseRenderTexture t = tref.GetRenderTextureGeneric(true);
                 t.PushData();
                 t.Bind();
                 if (LayerIndex >= 0 && tref is TexRefCube cuberef)
@@ -133,7 +133,7 @@ namespace TheraEngine.Rendering
             var (Target, Attachment, MipLevel, LayerIndex) = Targets[i];
             if (Target is BaseTexRef tref)
             {
-                tref.GetTextureGeneric(true).PushData();
+                tref.GetRenderTextureGeneric(true).PushData();
                 if (LayerIndex >= 0 && tref is TexRefCube cuberef)
                 {
                     cuberef.DetachFaceFromFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, MipLevel);

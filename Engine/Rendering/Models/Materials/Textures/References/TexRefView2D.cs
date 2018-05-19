@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private void _texture_Generated()
         {
-            BaseRenderTexture vtex = _viewedTexture.GetTextureGeneric(true);
+            BaseRenderTexture vtex = _viewedTexture.GetRenderTextureGeneric(true);
             Engine.Renderer.TextureView(
                 _texture.BindingId, ETexTarget.Texture2D, vtex.BindingId, InternalFormat,
                 _minLevel, _numLevels, _minLayer, _numLayers);

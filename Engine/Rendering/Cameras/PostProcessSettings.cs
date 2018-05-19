@@ -269,7 +269,7 @@ uniform ColorGradeStruct ColorGrade;";
                 return;
 
             //Calculate average color value using 1x1 mipmap of scene
-            var tex = hdrSceneTexture.GetTextureGeneric(true);
+            var tex = hdrSceneTexture.GetRenderTextureGeneric(true);
             tex.Bind();
             tex.GenerateMipmaps();
 

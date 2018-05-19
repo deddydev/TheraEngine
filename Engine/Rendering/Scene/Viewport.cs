@@ -22,8 +22,6 @@ namespace TheraEngine.Rendering
 {
     public class Viewport
     {
-        public const int GBufferTextureCount = 8;
-
         private static Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
         public static Viewport CurrentlyRendering => CurrentlyRenderingViewports.Peek();
 
@@ -34,23 +32,23 @@ namespace TheraEngine.Rendering
         private BaseRenderPanel _owningPanel;
         
         private SSAOInfo _ssaoInfo = new SSAOInfo();
+
         internal QuadFrameBuffer SSAOFBO;
         internal QuadFrameBuffer SSAOBlurFBO;
         internal QuadFrameBuffer GBufferFBO;
-        
         internal QuadFrameBuffer BloomBlurFBO1;
         internal QuadFrameBuffer BloomBlurFBO2;
         internal QuadFrameBuffer BloomBlurFBO4;
         internal QuadFrameBuffer BloomBlurFBO8;
         internal QuadFrameBuffer BloomBlurFBO16;
-        
         internal QuadFrameBuffer LightCombineFBO;
         internal QuadFrameBuffer BrightPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
-        internal TexRef2D _brdfTex;
         internal PrimitiveManager PointLightManager;
         internal PrimitiveManager SpotLightManager;
         internal QuadFrameBuffer DirLightFBO;
+        internal Camera RenderingCamera;
+        internal TexRef2D BrdfTex;
 
         private BoundingRectangle _internalResolution = new BoundingRectangle();
 
@@ -64,17 +62,8 @@ namespace TheraEngine.Rendering
             get => _worldCamera;
             set
             {
-                if (_worldCamera != null)
-                {
-                    if (_worldCamera.OwningComponent != null)
-                        _worldCamera.OwningComponent.WorldTransformChanged -= CameraTransformChanged;
-                    else
-                        _worldCamera.TransformChanged -= CameraTransformChanged;
-
-                    _worldCamera.OwningComponentChanged -= WorldCameraOwningComponentChanged;
-
-                    _worldCamera.Viewports.Remove(this);
-                }
+                _worldCamera?.Viewports?.Remove(this);
+                
                 _worldCamera = value;
 
                 //Engine.PrintLine("Updated viewport " + _index + " camera: " + (_worldCamera == null ? "null" : _worldCamera.GetType().GetFriendlyName()));
@@ -82,45 +71,14 @@ namespace TheraEngine.Rendering
                 if (_worldCamera != null)
                 {
                     _worldCamera.Viewports.Add(this);
-
-                    if (_worldCamera.OwningComponent != null)
-                        _worldCamera.OwningComponent.WorldTransformChanged += CameraTransformChanged;
-                    else
-                        _worldCamera.TransformChanged += CameraTransformChanged;
-
-                    _worldCamera.OwningComponentChanged += WorldCameraOwningComponentChanged;
-
+                    
                     //TODO: what if the same camera is used by multiple viewports?
                     //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
                     _worldCamera.Resize(_internalResolution.Width, _internalResolution.Height);
                     if (_worldCamera is PerspectiveCamera p)
                         p.Aspect = Width / Height;
-
-                    CameraTransformChanged();
                 }
             }
-        }
-
-        private void WorldCameraOwningComponentChanged(CameraComponent previous, CameraComponent current)
-        {
-            if (previous != null)
-                previous.WorldTransformChanged -= CameraTransformChanged;
-            else
-                _worldCamera.TransformChanged -= CameraTransformChanged;
-            if (current != null)
-                current.WorldTransformChanged += CameraTransformChanged;
-            else
-                _worldCamera.TransformChanged += CameraTransformChanged;
-        }
-
-        private void CameraTransformChanged()
-        {
-            //if ((Owners.Count == 0 || Camera == null) && Engine.Audio == null)
-            //    return;
-
-            //Vec3 forward = _worldCamera.ForwardVector;
-            //Vec3 up = _worldCamera.UpVector;
-            //Engine.Audio.UpdateListener(_worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
         }
 
         //public BaseRenderPanel OwningPanel => _owningPanel;
@@ -654,18 +612,18 @@ namespace TheraEngine.Rendering
             renderParams.DepthTest.Function = EComparison.Always;
             renderParams.DepthTest.UpdateDepth = false;
             GLSLShaderFile shader = Engine.LoadEngineShader(Path.Combine("Scene3D", "BRDF.fs"), EShaderMode.Fragment);
-            _brdfTex = TexRef2D.CreateFrameBufferTexture("BRDF_LUT", 512, 512, EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat);
-            _brdfTex.Resizeable = true;
-            _brdfTex.UWrap = ETexWrapMode.ClampToEdge;
-            _brdfTex.VWrap = ETexWrapMode.ClampToEdge;
-            _brdfTex.MinFilter = ETexMinFilter.Linear;
-            _brdfTex.MagFilter = ETexMagFilter.Linear;
+            BrdfTex = TexRef2D.CreateFrameBufferTexture("BRDF_LUT", 512, 512, EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat);
+            BrdfTex.Resizeable = true;
+            BrdfTex.UWrap = ETexWrapMode.ClampToEdge;
+            BrdfTex.VWrap = ETexWrapMode.ClampToEdge;
+            BrdfTex.MinFilter = ETexMinFilter.Linear;
+            BrdfTex.MagFilter = ETexMagFilter.Linear;
 
-            TexRef2D[] brdfRefs = new TexRef2D[] { _brdfTex };
+            TexRef2D[] brdfRefs = new TexRef2D[] { BrdfTex };
             TMaterial brdfMat = new TMaterial("BRDFMat", renderParams, brdfRefs, shader);
             MaterialFrameBuffer fbo = new MaterialFrameBuffer(brdfMat);
             fbo.SetRenderTargets(
-                (_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
+                (BrdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), 
                 VertexQuad.MakeQuad( //ndc space quad, so we don't have to load any camera matrices
@@ -710,8 +668,6 @@ namespace TheraEngine.Rendering
                 EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248,
                 EFramebufferAttachment.DepthStencilAttachment);
             _depthStencilTexture.Resizeable = false;
-            _depthStencilTexture.MinFilter = ETexMinFilter.Linear;
-            _depthStencilTexture.MagFilter = ETexMagFilter.Linear;
 
             TexRefView2D depthViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
@@ -771,6 +727,8 @@ namespace TheraEngine.Rendering
                 TexRef2D ssaoTexture = TexRef2D.CreateFrameBufferTexture("OutputIntensity", width, height,
                     EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0);
+                ssaoTexture.MinFilter = ETexMinFilter.Linear;
+                ssaoTexture.MagFilter = ETexMagFilter.Linear;
                 
                 GLSLShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EShaderMode.Fragment);
                 GLSLShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EShaderMode.Fragment);
@@ -815,48 +773,34 @@ namespace TheraEngine.Rendering
 
                 #region Light Meshes
 
+                BlendMode additiveBlend = new BlendMode()
+                {
+                    //Add the previous and current light colors together using FuncAdd with each mesh render
+                    Enabled = ERenderParamUsage.Enabled,
+                    RgbDstFactor = EBlendingFactor.One,
+                    AlphaDstFactor = EBlendingFactor.One,
+                    RgbSrcFactor = EBlendingFactor.One,
+                    AlphaSrcFactor = EBlendingFactor.One,
+                    RgbEquation = EBlendEquationMode.FuncAdd,
+                    AlphaEquation = EBlendEquationMode.FuncAdd,
+                };
                 RenderingParameters lightRenderParams = new RenderingParameters
                 {
+                    //Render only the backside so that the light still shows if the camera is inside of the volume
+                    //and the light does not add itself twice for the front and back faces.
                     CullMode = Culling.Front,
-                    DepthTest = new DepthTest()
-                    {
-                        Enabled = ERenderParamUsage.Disabled,
-                        UpdateDepth = false,
-                        Function = EComparison.Always,
-                    },
-                    BlendMode = new BlendMode()
-                    {
-                        //Add the previous and current light colors together using FuncAdd with each mesh render
-                        Enabled = ERenderParamUsage.Enabled,
-                        RgbDstFactor = EBlendingFactor.One,
-                        AlphaDstFactor = EBlendingFactor.One,
-                        RgbSrcFactor = EBlendingFactor.One,
-                        AlphaSrcFactor = EBlendingFactor.One,
-                        RgbEquation = EBlendEquationMode.FuncAdd,
-                        AlphaEquation = EBlendEquationMode.FuncAdd,
-                    }
+
+                    BlendMode = additiveBlend,
                 };
+                lightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
                 RenderingParameters dirLightRenderParams = new RenderingParameters
                 {
+                    //Render only the front of the quad that shows over the whole screen
                     CullMode = Culling.Back,
-                    DepthTest = new DepthTest()
-                    {
-                        Enabled = ERenderParamUsage.Disabled,
-                        UpdateDepth = false,
-                        Function = EComparison.Always,
-                    },
-                    BlendMode = new BlendMode()
-                    {
-                        //Add the previous and current light colors together using FuncAdd with each mesh render
-                        Enabled = ERenderParamUsage.Enabled,
-                        RgbDstFactor = EBlendingFactor.One,
-                        AlphaDstFactor = EBlendingFactor.One,
-                        RgbSrcFactor = EBlendingFactor.One,
-                        AlphaSrcFactor = EBlendingFactor.One,
-                        RgbEquation = EBlendEquationMode.FuncAdd,
-                        AlphaEquation = EBlendEquationMode.FuncAdd,
-                    }
+
+                    BlendMode = additiveBlend,
                 };
+                dirLightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
 
                 TexRef2D diffuseTex = TexRef2D.CreateFrameBufferTexture("Diffuse", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat);
@@ -870,15 +814,13 @@ namespace TheraEngine.Rendering
                     ssaoTexture,
                     depthViewTexture,
                     diffuseTex,
-                    _brdfTex,
+                    BrdfTex,
                     //irradiance
                     //prefilter
                 };
                 TMaterial lightCombineMat = new TMaterial("LightCombineMat", renderParams, combineRefs, lightCombineShader);
                 LightCombineFBO = new QuadFrameBuffer(lightCombineMat);
-                LightCombineFBO.SetRenderTargets(
-                    (diffuseTex, EFramebufferAttachment.ColorAttachment0, 0, -1),
-                    (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
+                LightCombineFBO.SetRenderTargets((diffuseTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
                 LightCombineFBO.SettingUniforms += LightCombineFBO_SettingUniforms;
 
                 TexRef2D[] lightRefs = new TexRef2D[]
@@ -895,7 +837,7 @@ namespace TheraEngine.Rendering
                 GLSLShaderFile spotLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingSpot.fs"), EShaderMode.Fragment);
 
                 TMaterial pointLightMat = new TMaterial("PointLightMat", lightRenderParams, lightRefs, pointLightShader);
-                PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 8u);
+                PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += PointLightManager_SettingUniforms;
 
@@ -993,36 +935,36 @@ namespace TheraEngine.Rendering
 
         private void DirLightManager_SettingUniforms(int fragGeomBindingId)
         {
-            if (_worldCamera == null)
+            if (RenderingCamera == null)
                 return;
-            _worldCamera.SetUniforms(fragGeomBindingId);
-            _worldCamera.PostProcessRef.File.Shadows.SetUniforms(fragGeomBindingId);
+            RenderingCamera.SetUniforms(fragGeomBindingId);
+            RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(fragGeomBindingId);
             _dirLightComp.SetUniforms(fragGeomBindingId);
         }
         private void SpotLightManager_SettingUniforms(int vertexBindingId, int fragGeomBindingId)
         {
-            if (_worldCamera == null)
+            if (RenderingCamera == null)
                 return;
-            _worldCamera.SetUniforms(fragGeomBindingId);
-            _worldCamera.PostProcessRef.File.Shadows.SetUniforms(fragGeomBindingId);
+            RenderingCamera.SetUniforms(fragGeomBindingId);
+            RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(fragGeomBindingId);
             _spotLightComp.SetUniforms(fragGeomBindingId);
         }
         private void PointLightManager_SettingUniforms(int vertexBindingId, int fragGeomBindingId)
         {
-            if (_worldCamera == null)
+            if (RenderingCamera == null)
                 return;
-            _worldCamera.SetUniforms(fragGeomBindingId);
-            _worldCamera.PostProcessRef.File.Shadows.SetUniforms(fragGeomBindingId);
+            RenderingCamera.SetUniforms(fragGeomBindingId);
+            RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(fragGeomBindingId);
             _pointLightComp.SetUniforms(fragGeomBindingId);
         }
         private void LightCombineFBO_SettingUniforms(int programBindingId)
         {
-            if (_worldCamera == null)
+            if (RenderingCamera == null)
                 return;
 
-            _worldCamera.SetUniforms(programBindingId);
+            RenderingCamera.SetUniforms(programBindingId);
 
-            var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
+            var probeActor = RenderingCamera.OwningComponent?.OwningScene?.IBLProbeActor;
             if (probeActor == null)
                 return;
 
@@ -1039,15 +981,15 @@ namespace TheraEngine.Rendering
         }
 
         private void BrightPassFBO_SettingUniforms(int programBindingId)
-            => _worldCamera?.PostProcessRef.File.Bloom.SetUniforms(programBindingId);
+            => RenderingCamera?.PostProcessRef.File.Bloom.SetUniforms(programBindingId);
 
         private void GBuffer_SetUniforms(int programBindingId)
         {
-            if (_worldCamera == null)
+            if (RenderingCamera == null)
                 return;
 
-            _worldCamera.SetUniforms(programBindingId);
-            _worldCamera.PostProcessRef.File.Shadows.SetUniforms(programBindingId);
+            RenderingCamera.SetUniforms(programBindingId);
+            //RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(programBindingId);
 
             //var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
             //if (probeActor == null)
@@ -1070,22 +1012,22 @@ namespace TheraEngine.Rendering
         
         private void SSAO_SetUniforms(int programBindingId)
         {
-            if (_worldCamera == null)
+            if (RenderingCamera == null)
                 return;
             Engine.Renderer.Uniform(programBindingId, "NoiseScale", InternalResolution.Extents / 4.0f);
             Engine.Renderer.Uniform(programBindingId, "Samples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
-            _worldCamera.SetUniforms(programBindingId);
-            _worldCamera.PostProcessRef.File.AmbientOcclusion.SetUniforms(programBindingId);
+            RenderingCamera.SetUniforms(programBindingId);
+            RenderingCamera.PostProcessRef.File.AmbientOcclusion.SetUniforms(programBindingId);
         }
 
         private void _postProcess_SettingUniforms(int programBindingId)
         {
-            if (_worldCamera == null)
+            if (RenderingCamera == null)
                 return;
 
-            _worldCamera.SetUniforms(programBindingId);
-            _worldCamera.PostProcessRef.File.ColorGrading.UpdateExposure(_hdrSceneTexture);
-            _worldCamera.PostProcessRef.File.SetUniforms(programBindingId);
+            RenderingCamera.SetUniforms(programBindingId);
+            RenderingCamera.PostProcessRef.File.ColorGrading.UpdateExposure(_hdrSceneTexture);
+            RenderingCamera.PostProcessRef.File.SetUniforms(programBindingId);
 
             //var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
             //if (probeActor == null)

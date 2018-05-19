@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
@@ -56,7 +57,7 @@ namespace TheraEditor.Windows.Forms
         private HighlightPoint _highlightPoint;
         TRigidBody _pickedBody;
         TPointPointConstraint _currentConstraint;
-        private Vec3 _hitPoint;
+        private Vec3 hitPoint;
         private float _toolSize = 1.2f;
         private SceneComponent _selectedComponent, _dragComponent;
         private static Dictionary<int, StencilTest>
@@ -430,7 +431,7 @@ namespace TheraEditor.Windows.Forms
             else if (_dragComponent != null)
             {
                 IRigidBodyCollidable p = _dragComponent as IRigidBodyCollidable;
-                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out float dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
+                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out hitPoint, out float dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 if (dist > DraggingTestDistance)
                     comp = null;
@@ -440,7 +441,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     hitNormal = Vec3.Up;
                     float depth = TMath.DistanceToDepth(DraggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
-                    _hitPoint = v.ScreenToWorld(viewportPoint, depth);
+                    hitPoint = v.ScreenToWorld(viewportPoint, depth);
                 }
 
                 Vec3 rightCameraVector = v.Camera.RightVector;
@@ -450,7 +451,7 @@ namespace TheraEditor.Windows.Forms
                     forward = rightCameraVector ^ hitNormal,
                     up = hitNormal,
                     right = up ^ forward,
-                    translation = _hitPoint;
+                    translation = hitPoint;
 
                 right.NormalizeFast();
                 up.NormalizeFast();
@@ -475,12 +476,24 @@ namespace TheraEditor.Windows.Forms
             if (c == null)
                 return;
 
-            SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out float dist);
+            //Test against HUD
+            SceneComponent comp = v.PickScene(viewportPoint, true, false, out Vec3 hitNormal, out hitPoint, out float dist);
+            if (comp == null)
+            {
+                EditorCameraPawn pawn = OwningPawn as EditorCameraPawn;
+                if (pawn.HasHit)
+                {
+                    hitNormal = pawn.HitNormal;
+                    hitPoint = pawn.HitPoint;
+                    dist = pawn.HitDistance;
+                    comp = pawn.HitObject.Owner as SceneComponent;
+                }
+            }
 
             _highlightPoint.Transform =
-                Matrix4.CreateTranslation(_hitPoint) *
+                Matrix4.CreateTranslation(hitPoint) *
                 hitNormal.LookatAngles().GetMatrix() *
-                Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
+                Matrix4.CreateScale(c.DistanceScale(hitPoint, _toolSize));
 
             HighlightedComponent = comp;
         }
@@ -584,7 +597,7 @@ namespace TheraEditor.Windows.Forms
                         _pickedBody = d.RigidBodyCollision;
                         _pickedBody.ForceActivationState(EBodyActivationState.DisableSleep);
 
-                        Vec3 localPivot = Vec3.TransformPosition(_hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
+                        Vec3 localPivot = Vec3.TransformPosition(hitPoint, _pickedBody.CenterOfMassTransform.Inverted());
 
                         _currentConstraint = TPointPointConstraint.New(_pickedBody, localPivot);
                         _currentConstraint.ImpulseClamp = 60;

@@ -15,8 +15,6 @@ namespace TheraEngine.Actors.Types
         private CubeFrameBuffer _prefilterFBO;
         private TexRefCube _irradianceTex;
         private TexRefCube _prefilterTex;
-        //private RenderBuffer _irradianceDepth;
-        //private RenderBuffer _prefilterDepth;
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
         public Shape CullingVolume => null;
@@ -43,7 +41,7 @@ namespace TheraEngine.Actors.Types
         protected override void OnWorldTransformChanged()
         {
             base.OnWorldTransformChanged();
-            if (IsSpawned && _cubeTex != null)
+            if (IsSpawned && _envTex != null)
             {
                 Capture();
                 GenerateIrradianceMap();
@@ -69,9 +67,9 @@ namespace TheraEngine.Actors.Types
         //    f.SetRenderTargets((_cubeTex, EFramebufferAttachment.ColorAttachment0, 0));
         //    return f;
         //}
-        protected override void Initialize()
+        protected override void InitializeForCapture()
         {
-            base.Initialize();
+            base.InitializeForCapture();
 
             _irradianceTex = new TexRefCube("IrradianceTex", _colorRes,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
@@ -81,7 +79,6 @@ namespace TheraEngine.Actors.Types
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
-                //Resizable = true,
             };
             _prefilterTex = new TexRefCube("PrefilterTex", _colorRes,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
@@ -91,25 +88,21 @@ namespace TheraEngine.Actors.Types
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
-                //Resizable = false,
             };
-
-            RenderingParameters r = new RenderingParameters();
-            r.DepthTest.Enabled = ERenderParamUsage.Unchanged;
 
             ShaderVar[] prefilterVars = new ShaderVar[]
             {
                 new ShaderFloat(0.0f, "Roughness"),
                 new ShaderFloat(_colorRes, "CubemapDim"),
             };
-
             GLSLShaderFile irrShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "IrradianceConvolution.fs"), EShaderMode.Fragment);
             GLSLShaderFile prefShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "Prefilter.fs"), EShaderMode.Fragment);
+            RenderingParameters r = new RenderingParameters();
+            r.DepthTest.Enabled = ERenderParamUsage.Unchanged;
             TMaterial irrMat = new TMaterial("IrradianceMat", r, new ShaderVar[0], new TexRefCube[] { _envTex }, irrShader);
             TMaterial prefMat = new TMaterial("PrefilterMat", r, prefilterVars, new TexRefCube[] { _envTex }, prefShader);
             _irradianceFBO = new CubeFrameBuffer(irrMat, 0.1f, 3.0f, false);
             _prefilterFBO = new CubeFrameBuffer(prefMat, 0.1f, 3.0f, false);
-            //_prefilterDepth = new RenderBuffer();
         }
         public void GenerateIrradianceMap()
         {

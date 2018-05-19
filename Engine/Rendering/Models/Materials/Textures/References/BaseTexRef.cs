@@ -23,12 +23,14 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _index = value;
         }
 
-        public T GetTextureGeneric<T>(bool loadSynchronously = false) where T : BaseRenderTexture
-            => GetTextureGeneric(loadSynchronously) as T;
+        public T GetRenderTextureGeneric<T>(bool loadSynchronously) where T : BaseRenderTexture
+            => GetRenderTextureGeneric(loadSynchronously) as T;
         /// <summary>
         /// Converts this texture reference into a texture made for rendering.
         /// </summary>
-        public abstract BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false);
+        public abstract BaseRenderTexture GetRenderTextureGeneric(bool loadSynchronously);
+        [Browsable(false)]
+        public BaseRenderTexture RenderTextureGeneric => GetRenderTextureGeneric(true);
         /// <summary>
         /// Converts this texture reference into a texture made for rendering.
         /// </summary>

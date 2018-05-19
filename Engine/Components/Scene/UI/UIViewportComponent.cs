@@ -19,6 +19,14 @@ namespace TheraEngine.Rendering.UI
         {
             _fbo = new MaterialFrameBuffer(InterfaceMaterial);
             _quad.SettingUniforms += SetUniforms;
+            _renderCommand = new RenderCommandViewport
+            {
+                Primitives = _quad,
+                NormalMatrix = Matrix3.Identity,
+                Viewport = _viewport,
+                ZIndex = 0,
+                Framebuffer = _fbo
+            };
         }
 
         private static TMaterial GetViewportMaterial()
@@ -58,17 +66,12 @@ namespace TheraEngine.Rendering.UI
 
             return r;
         }
-        private RenderCommandViewport _renderCommand = new RenderCommandViewport();
+        private RenderCommandViewport _renderCommand;
         public override void AddRenderables(RenderPasses passes)
         {
             if (!IsVisible)
                 return;
-            _renderCommand.Primitives = _quad;
             _renderCommand.WorldMatrix = WorldMatrix;
-            _renderCommand.NormalMatrix = Matrix3.Identity;
-            _renderCommand.Viewport = _viewport;
-            _renderCommand.ZIndex = 0;
-            _renderCommand.Framebuffer = _fbo;
             passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
         public void Update(object sender, FrameEventArgs args)

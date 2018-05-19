@@ -45,12 +45,12 @@ namespace TheraEngine
         }
         protected override void OnRender()
         {
-            PreRender();
-            _context.BeginDraw();
+            //PreRender();
+            //_context.BeginDraw();
             foreach (Viewport v in _viewports)
                 v.Render(GetScene(v), GetCamera(v), null);
-            _context.EndDraw();
-            PostRender();
+            //_context.EndDraw();
+            //PostRender();
         }
     }
 }

@@ -16,6 +16,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe bool* Data { get { fixed (bool* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString().ToLowerInvariant();
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -44,6 +45,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe float* Data { get { fixed (float* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString("0.0######") + "f";
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -72,6 +74,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe double* Data { get { fixed (double* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString("0.0######");
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -100,6 +103,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe int* Data { get { fixed (int* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString();
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -128,6 +132,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public unsafe uint* Data { get { fixed (uint* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString();
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]

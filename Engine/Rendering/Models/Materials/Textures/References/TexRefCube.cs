@@ -311,7 +311,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return _texture;
         }
-        public RenderTexCube GetTexture(bool loadSynchronously = false)
+        public RenderTexCube GetTexture(bool loadSynchronously)
         {
             if (_texture != null)
                 return _texture;
@@ -328,7 +328,7 @@ namespace TheraEngine.Rendering.Models.Materials
             return _texture;
         }
         
-        public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
+        public override BaseRenderTexture GetRenderTextureGeneric(bool loadSynchronously) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
         //public bool ResizingDisabled { get; internal set; }

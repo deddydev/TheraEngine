@@ -4,6 +4,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Actors.Types
 {
@@ -18,20 +19,54 @@ namespace TheraEngine.Actors.Types
         protected TexRefCube _envDepthTex;
         protected RenderBuffer _tempDepth;
 
-        public bool CaptureDepthCubeMap { get; set; } = false;
-        public TexRefCube ResultTexture => _envTex;
-        public TexRefCube ResultDepthTexture => _envDepthTex;
+        private bool _captureDepthCubeMap = false;
+        public bool CaptureDepthCubeMap
+        {
+            get => _captureDepthCubeMap;
+            set
+            {
+                if (_captureDepthCubeMap == value)
+                    return;
+                _captureDepthCubeMap = value;
+                if (_captureDepthCubeMap)
+                {
+                    _envDepthTex = new TexRefCube("SceneCaptureDepthCubeMap", _depthRes,
+                        EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
+                    {
+                        MinFilter = ETexMinFilter.NearestMipmapLinear,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.ClampToEdge,
+                        VWrap = ETexWrapMode.ClampToEdge,
+                        WWrap = ETexWrapMode.ClampToEdge,
+                    };
+                }
+                else
+                    _envDepthTex = null;
+            }
+        }
+        
+        public TexRefCube ResultTexture
+        {
+            get => _envTex;
+            set => _envTex = value;
+        }
+        public TexRefCube ResultDepthTexture
+        {
+            get => _envDepthTex;
+            set => _envDepthTex = value;
+        }
 
         public SceneCaptureComponent() { }
         
-        public void SetCubeResolution(int colorResolution, int depthResolution)
+        public void SetCaptureResolution(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
             _colorRes = colorResolution;
             _depthRes = depthResolution;
-            if (_renderFBO == null)
-                Initialize();
+            _captureDepthCubeMap = captureDepth;
+            InitializeForCapture();
         }
-        protected virtual void Initialize()
+
+        protected virtual void InitializeForCapture()
         {
             _viewport = new Viewport(_colorRes, _colorRes);
 
@@ -66,6 +101,18 @@ namespace TheraEngine.Actors.Types
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
             };
+
+            if (CaptureDepthCubeMap)
+                _envDepthTex = new TexRefCube("SceneCaptureDepthCubeMap", _depthRes,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
+                {
+                    MinFilter = ETexMinFilter.NearestMipmapLinear,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.ClampToEdge,
+                    VWrap = ETexWrapMode.ClampToEdge,
+                    WWrap = ETexWrapMode.ClampToEdge,
+                };
+
             _tempDepth = new RenderBuffer();
             _tempDepth.SetStorage(ERenderBufferStorage.DepthComponent16, _colorRes, _colorRes);
             _renderFBO = new FrameBuffer();
@@ -83,28 +130,36 @@ namespace TheraEngine.Actors.Types
         public void Capture()
         {
             //_cubeTex = new TexRefCube("", 512, new CubeMipmap(Engine.LoadEngineTexture2D("skybox.png")));
+            
+            if (_renderFBO == null)
+                SetCaptureResolution(512);
 
-            //if (_renderFBO == null)
-            //    SetCubeResolution(512);
-
-            var tex = _envTex.GetTexture(true);
-            //tex.Resizable = true;
             Scene3D scene = OwningScene;
             scene.UpdateShadowMaps();
             scene.Lights.SwapBuffers();
             scene.RenderShadowMaps();
+
             for (int i = 0; i < 6; ++i)
             {
                 Camera camera = _cameras[i];
-                _viewport.Camera = camera;
                 _viewport.Update(scene, camera, camera.Frustum);
                 _viewport.SwapBuffers();
-                _renderFBO.SetRenderTargets(
-                    (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-                    (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
+                if (CaptureDepthCubeMap)
+                {
+                    _renderFBO.SetRenderTargets(
+                        (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+                        (_envDepthTex, EFramebufferAttachment.DepthAttachment, 0, i));
+                }
+                else
+                {
+                    _renderFBO.SetRenderTargets(
+                        (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+                        (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
+                }
                 _viewport.Render(scene, camera, _renderFBO);
             }
 
+            BaseRenderTexture tex = _envTex.RenderTextureGeneric;
             tex.Bind();
             tex.SetMipmapGenParams();
             tex.GenerateMipmaps();

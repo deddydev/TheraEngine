@@ -8,7 +8,14 @@ namespace TheraEngine.Physics.Bullet
     {
         private ShapeTrace _handler;
 
-        public TConvexResultCallback(ShapeTrace handler) => _handler = handler;
+        public TConvexResultCallback(ShapeTrace handler)
+        {
+            _handler = handler;
+
+            //Because we call base.NeedsCollision, we need to set base properties
+            CollisionFilterMask = (CollisionFilterGroups)_handler.CollidesWith;
+            CollisionFilterGroup = (CollisionFilterGroups)_handler.CollisionGroup;
+        }
         
         public override float AddSingleResult(LocalConvexResult convexResult, bool normalInWorldSpace)
         {
@@ -28,7 +35,11 @@ namespace TheraEngine.Physics.Bullet
 
             return hitFraction;
         }
-        public override bool NeedsCollision(BroadphaseProxy proxy0) => base.NeedsCollision(proxy0);
-            //=> _handler.TestApproxCollision(proxy0.UniqueID, (ushort)proxy0.CollisionFilterGroup, (ushort)proxy0.CollisionFilterMask, (Vec3)proxy0.AabbMin, (Vec3)proxy0.AabbMax, proxy0.ClientObject);
+        public override bool NeedsCollision(BroadphaseProxy proxy0)
+        {
+            //if (_handler.TestApproxCollision(proxy0.UniqueID, (ushort)proxy0.CollisionFilterGroup, (ushort)proxy0.CollisionFilterMask, proxy0.AabbMin, proxy0.AabbMax, proxy0.ClientObject))
+                return base.NeedsCollision(proxy0);
+            //return false;
+        }
     }
 }

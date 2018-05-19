@@ -181,6 +181,8 @@ namespace TheraEngine.Rendering
             {
                 if (viewport != null)
                 {
+                    viewport.RenderingCamera = camera;
+
                     //Enable internal resolution
                     Engine.Renderer.PushRenderArea(viewport.InternalResolution);
                     {
@@ -229,6 +231,7 @@ namespace TheraEngine.Rendering
 
                         viewport.BrightPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
+                            Engine.Renderer.EnableDepthTest(false);
                             //Render the deferred pass result
                             //viewport.GBufferFBO.RenderFullscreen();
                             viewport.LightCombineFBO.RenderFullscreen();
@@ -392,6 +395,8 @@ namespace TheraEngine.Rendering
                         Engine.Renderer.PopRenderArea();
                     }
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                    viewport.RenderingCamera = null;
                 }
                 else
                 {

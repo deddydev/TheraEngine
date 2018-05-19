@@ -6,6 +6,7 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
+using TheraEngine.Physics;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Rendering;
 
@@ -42,28 +43,25 @@ namespace TheraEditor.Actors.Types.Pawns
 
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
+            else if (HasHit)
+            {
+                Segment s = new Segment(RootComponent.WorldPoint, HitPoint);
+                RootComponent.Translation.Raw = s.PointAtLineDistance(up ? -ScrollSpeed : ScrollSpeed);
+            }
             else
                 RootComponent.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
-        }
-        
-        protected override void OnRightClick(bool pressed)
-        {
-            base.OnRightClick(pressed);
-
-            Viewport v = LocalPlayerController.Viewport;
-            Vec2 viewportPoint = HUD.CursorPosition(v);
-            Segment s = v.GetWorldSegment(viewportPoint);
-            RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
-            if (_hasHit = c.Trace())
-                _hitPoint = c.HitPointWorld;
         }
 
         private bool _alt = false;
         private bool _shift = false;
         private bool _leftClickDown = false;
-        private bool _hasHit = false;
-        private Vec3 _hitPoint;
-        private Vec3 _screenPoint;
+
+        public bool HasHit { get; private set; } = false;
+        public Vec3 HitPoint { get; private set; }
+        public Vec3 HitNormal { get; private set; }
+        public float HitDistance { get; private set; }
+        public Vec3 HitScreenPoint { get; private set; }
+        public TCollisionObject HitObject { get; private set; }
 
         private EditorHud EditorHud => HUD as EditorHud;
 
@@ -75,26 +73,41 @@ namespace TheraEditor.Actors.Types.Pawns
                 float yaw = -x * MouseRotateSpeed;
 
                 if (EditorHud.SelectedComponent != null)
-                    RootComponent.Pivot(pitch, yaw, EditorHud.SelectedComponent.WorldPoint);
-                else if (_hasHit)
-                    RootComponent.Pivot(pitch, yaw, _hitPoint);
+                    RootComponent.ArcBallRotate(pitch, yaw, EditorHud.SelectedComponent.WorldPoint);
+                else if (HasHit)
+                    RootComponent.ArcBallRotate(pitch, yaw, HitPoint);
                 else
                     RootComponent.Rotation.AddRotations(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
-                if (_hasHit)
+                if (HasHit)
                 {
-                    Vec3 oldPoint = _hitPoint;
-                    _screenPoint = Camera.WorldToScreen(_hitPoint);
-                    _screenPoint.X += -x;
-                    _screenPoint.Y += -y;
-                    Vec3 hitPoint = Camera.ScreenToWorld(_screenPoint);
+                    Vec3 oldPoint = HitPoint;
+                    Vec3 screenPoint = Camera.WorldToScreen(HitPoint);
+                    screenPoint.X += -x;
+                    screenPoint.Y += -y;
+                    HitScreenPoint = screenPoint;
+                    Vec3 hitPoint = Camera.ScreenToWorld(HitScreenPoint);
                     Vec3 diff = hitPoint - oldPoint;
                     RootComponent.Translation += diff;
                 }
                 else
                     RootComponent.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
+            }
+            else
+            {
+                Viewport v = LocalPlayerController.Viewport;
+                Vec2 viewportPoint = HUD.CursorPosition(v);
+                Segment s = v.GetWorldSegment(viewportPoint);
+                RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
+                if (HasHit = c.Trace())
+                {
+                    HitPoint = c.HitPointWorld;
+                    HitNormal = c.HitNormalWorld;
+                    HitDistance = HitPoint.DistanceToFast(s.StartPoint);
+                    HitObject = c.CollisionObject;
+                }
             }
         }
         protected override void Tick(float delta)

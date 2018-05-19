@@ -46,7 +46,7 @@ namespace TheraEngine.Tests
 
             float margin = 2.0f;
             float radius = 1.0f;
-            //ColorF4 sphereColor = Color.Red;
+            ColorF4 sphereColor = Color.Red;
             ColorF4 boxColor = Color.Blue;
             ColorF4 floorColor = Color.Gray;
             float diam = radius * 2.0f;
@@ -69,42 +69,47 @@ namespace TheraEngine.Tests
                 {
                     float xV = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
                     float zV = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
-                    TMaterial mat = TMaterial.CreateLitColorMaterial(new ColorF4(xV, zV, 0.0f, 1.0f));
+                    TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor/*new ColorF4(xV, zV, 0.0f, 1.0f)*/);
+                    //mat.Requirements = TMaterial.UniformRequirements.NeedsCamera;
+                    //mat.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
                     mat.Parameter<ShaderFloat>("Roughness").Value = xV;
                     mat.Parameter<ShaderFloat>("Metallic").Value = zV;
                     TRigidBodyConstructionInfo cinfo = new TRigidBodyConstructionInfo()
                     {
                         Mass = 100.0f,
-                        Friction = 1.0f,
-                        Restitution = 0.0f,
-                        LinearDamping = 0.2f,
-                        AngularDamping = 0.2f,
+                        Friction = 0.5f,
+                        Restitution = 0.5f,
+                        LinearDamping = 0.1f,
+                        AngularDamping = 0.1f,
                         UseMotionState = true,
-                        RollingFriction = 0.5f,
+                        RollingFriction = 0.1f,
                         SimulatePhysics = true,
                         CollisionEnabled = true,
                         SleepingEnabled = true,
-                        DeactivationTime = 0.4f,
-                        CcdMotionThreshold = 0.4f,
+                        DeactivationTime = 0.1f,
+                        //CcdMotionThreshold = 0.4f,
                         CustomMaterialCallback = true,
-                        LinearSleepingThreshold = 0.3f,
-                        AngularSleepingThreshold = 0.3f,
-                        CcdSweptSphereRadius = radius * 0.95f,
+                        //ContactProcessingThreshold = 3.0f,
+                        LinearSleepingThreshold = 0.0f,
+                        AngularSleepingThreshold = 0.0f,
+                        //CcdSweptSphereRadius = radius * 0.95f,
                         CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
                         CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
                     };
+                    //mat.RenderParams.StencilTest = Editor.EditorState.OutlinePassStencil;
                     Actor<StaticMeshComponent> sphere = ((x ^ z) & 1) == 0 ?
-                        (Actor<StaticMeshComponent>)new BoxActor("TestBox" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo) :
+                        (Actor<StaticMeshComponent>)new ConeActor("TestCone" + (y++).ToString(), radius, radius * 2.0f, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo) :
                         new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo);
-                    sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
-                        rand.Next(-halfMax, halfMax) / maxVel,
-                        rand.Next(-halfMax, halfMax) / maxVel,
-                        rand.Next(-halfMax, halfMax) / maxVel);
-                    sphere.RootComponent.RigidBodyCollision.LinearVelocity = new Vec3(
-                        rand.Next(-halfMax, halfMax) / maxVel,
-                        rand.Next(-halfMax, halfMax) / maxVel,
-                        rand.Next(-halfMax, halfMax) / maxVel);
-                    sphere.RootComponent.RigidBodyCollision.Collided += RigidBodyCollision_Collided1;
+
+                    //sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
+                    //    rand.Next(-halfMax, halfMax) / maxVel,
+                    //    rand.Next(-halfMax, halfMax) / maxVel,
+                    //    rand.Next(-halfMax, halfMax) / maxVel);
+                    //sphere.RootComponent.RigidBodyCollision.LinearVelocity = new Vec3(
+                    //    rand.Next(-halfMax, halfMax) / maxVel,
+                    //    rand.Next(-halfMax, halfMax) / maxVel,
+                    //    rand.Next(-halfMax, halfMax) / maxVel);
+                    //sphere.RootComponent.RigidBodyCollision.Collided += RigidBodyCollision_Collided1;
                     //foreach (var mesh in sphere.RootComponent.Meshes)
                     //    foreach (var lod in mesh.LODs)
                     //    {
@@ -190,13 +195,13 @@ namespace TheraEngine.Tests
                 float upTrans = 20.0f;
                 for (int i = 0; i < pointLights; i++)
                 {
-                    PointLightComponent comp = new PointLightComponent(100.0f, 1.0f, (ColorF3)Color.White, 2000.0f)
+                    PointLightComponent comp = new PointLightComponent(200.0f, 2.0f, (ColorF3)Color.White, 2000.0f)
                     {
                         Translation = new Vec3(
                             TMath.Cosf(i * lightAngle) * lightPosRadius,
                             upTrans,
                             TMath.Sinf(i * lightAngle) * lightPosRadius),
-                        LightColor = new ColorF3((float)rand.NextDouble(), (float)rand.NextDouble(), (float)rand.NextDouble()),
+                        //LightColor = new ColorF3((float)rand.NextDouble(), (float)rand.NextDouble(), (float)rand.NextDouble()),
                     };
                     Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
                     actors.Add(pointLight);
@@ -263,7 +268,10 @@ namespace TheraEngine.Tests
                     source, wh, wh, -50.0f, 50.0f,
                     TCollisionHeightField.EHeightValueType.Single,
                     landscapeInfo);
-                landscape.RootComponent.GenerateHeightFieldMesh(TMaterial.CreateLitColorMaterial(Color.LightBlue), 10);
+                TMaterial mat = TMaterial.CreateLitColorMaterial(Color.LightBlue);
+                mat.Parameter<ShaderFloat>("Roughness").Value = 1.0f;
+                mat.Parameter<ShaderFloat>("Metallic").Value = 0.0f;
+                landscape.RootComponent.GenerateHeightFieldMesh(mat, 10);
                 //landscape.RootComponent.Translation.Y -= 50.0f;
                 actors.Add(landscape);
             }
@@ -406,7 +414,8 @@ namespace TheraEngine.Tests
 
         private void Tick(float delta)
         {
-            ShapeTraceClosest t = new ShapeTraceClosest(_sphere, RootComponent.WorldMatrix, _endTraceTransform, (ushort)(TCollisionGroup.DynamicWorld), (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
+            ShapeTraceClosest t = new ShapeTraceClosest(_sphere, RootComponent.WorldMatrix, _endTraceTransform, 
+                (ushort)(TCollisionGroup.DynamicWorld), (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
             if (_hasHit = t.Trace())
             {
                 _hitPoint = t.HitPointWorld;

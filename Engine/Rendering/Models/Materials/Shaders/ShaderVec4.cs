@@ -18,6 +18,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 _value.Y.ToString().ToLowerInvariant(),
                 _value.Z.ToString().ToLowerInvariant(),
                 _value.W.ToString().ToLowerInvariant());
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -46,6 +47,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetShaderValueString()
             => $"vec4({_value.X:0.0######}f, {_value.Y:0.0######}f, {_value.Z:0.0######}f, {_value.W:0.0######}f)";
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -74,6 +76,7 @@ namespace TheraEngine.Rendering.Models.Materials
             => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetShaderValueString()
             => $"dvec4({_value.X:0.0######}, {_value.Y:0.0######}, {_value.Z:0.0######}, {_value.W:0.0######})";
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -106,6 +109,7 @@ namespace TheraEngine.Rendering.Models.Materials
               _value.Y.ToString(),
               _value.Z.ToString(),
               _value.W.ToString());
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -138,6 +142,7 @@ namespace TheraEngine.Rendering.Models.Materials
               _value.Y.ToString(),
               _value.Z.ToString(),
               _value.W.ToString());
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]

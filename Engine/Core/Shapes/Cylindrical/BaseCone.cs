@@ -16,7 +16,7 @@ namespace TheraEngine.Core.Shapes
             _height = Math.Abs(height);
 
             _localUpAxis = upAxis;
-            _localUpAxis.NormalizeFast();
+            _localUpAxis.Normalize();
 
             _state.Translation.SetRawNoUpdate(center);
             _state.Rotation.SetRotationsNoUpdate(rotation);
@@ -74,7 +74,7 @@ namespace TheraEngine.Core.Shapes
         {
             up.Normalize();
 
-            VertexLine[] lines = new VertexLine[sides * 2];
+            VertexLine[] lines = new VertexLine[sides * 3];
 
             Vec3 topPoint = center + (up * (height / 2.0f));
             Vec3 bottomPoint = center - (up * (height / 2.0f));
@@ -83,8 +83,10 @@ namespace TheraEngine.Core.Shapes
 
             for (int i = 0, x = 0; i < sides; ++i)
             {
-                lines[x++] = new VertexLine(topPoint, sidePoints[i]._position);
-                lines[x++] = new VertexLine(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoints[i]);
+                Vertex sidePoint = sidePoints[i];
+                lines[x++] = new VertexLine(bottomPoint, sidePoint._position);
+                lines[x++] = new VertexLine(topPoint, sidePoint._position);
+                lines[x++] = new VertexLine(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoint);
             }
 
             return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), lines);
@@ -100,20 +102,26 @@ namespace TheraEngine.Core.Shapes
 
             Vertex[] sidePoints = Circle3D.Points(radius, up, bottomPoint, sides);
 
+            Vec3 diff, normal;
+            Vertex topVertex;
+
             for (int i = 0; i < sides; ++i)
             {
-                Vec3 diff = topPoint - sidePoints[i]._position;
+                diff = topPoint - sidePoints[i]._position;
                 diff.Normalize();
-                Vec3 normal = diff ^ (up ^ diff).Normalized();
+                normal = diff ^ (up ^ diff).Normalized();
                 sidePoints[i]._normal = normal;
 
-                Vertex topVertex = new Vertex(topPoint, normal, new Vec2(0.5f));
+                topVertex = new Vertex(topPoint, normal, new Vec2(0.5f));
                 tris.Add(new VertexTriangle(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoints[i], topVertex));
             }
 
             if (closeBottom)
             {
-                List<Vertex> list = new List<Vertex>(sidePoints.Length + 1) { new Vertex(topPoint, -up, new Vec2(0.5f)) };
+                List<Vertex> list = new List<Vertex>(sidePoints.Length + 1)
+                {
+                    new Vertex(topPoint, -up, new Vec2(0.5f))
+                };
                 foreach (Vertex v in sidePoints)
                 {
                     Vertex v2 = v.HardCopy();
@@ -144,7 +152,13 @@ namespace TheraEngine.Core.Shapes
         }
         public override EContainment ContainedWithin(BoundingBox box)
         {
-            throw new NotImplementedException();
+            bool top = box.Contains(GetTopPoint());
+            bool bot = box.Contains(GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
         }
         public override EContainment ContainedWithin(Box box)
         {
@@ -156,11 +170,17 @@ namespace TheraEngine.Core.Shapes
         }
         public override EContainment ContainedWithin(Frustum frustum)
         {
-            throw new NotImplementedException();
+            bool top = frustum.Contains(GetTopPoint());
+            bool bot = frustum.Contains(GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
         }
         public override Shape HardCopy()
         {
-            throw new NotImplementedException();
+            return this;
         }
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {
@@ -168,7 +188,7 @@ namespace TheraEngine.Core.Shapes
         }
         public override Matrix4 GetTransformMatrix()
         {
-            throw new NotImplementedException();
+            return State.Matrix;
         }
         public override Vec3 ClosestPoint(Vec3 point)
         {

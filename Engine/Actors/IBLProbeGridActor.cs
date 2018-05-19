@@ -86,18 +86,18 @@ namespace TheraEngine.Actors
                 //comp.GeneratePrefilterMap();
             }
         }
-        public void InitAll(int resolution)
+        public void InitAll(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
-                comp.SetCubeResolution(resolution);
+                comp.SetCaptureResolution(colorResolution, captureDepth, depthResolution);
             }
         }
-        public void InitAndCaptureAll(int resolution)
+        public void InitAndCaptureAll(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
-                comp.SetCubeResolution(resolution);
+                comp.SetCaptureResolution(colorResolution, captureDepth, depthResolution);
                 comp.Capture();
                 comp.GenerateIrradianceMap();
                 comp.GeneratePrefilterMap();

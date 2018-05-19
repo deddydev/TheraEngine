@@ -71,8 +71,8 @@ namespace TheraEngine.Components.Scene.Lights
             get => _direction;
             set
             {
-                _direction = value.NormalizedFast();
-                _rotation.SetDirection(_direction);
+                _direction = value.Normalized();
+                _rotation.SetDirection(-_direction);
             }
         }
         [Category("Spotlight Component")]
@@ -117,7 +117,7 @@ namespace TheraEngine.Components.Scene.Lights
             float radOuter = TMath.DegToRad(outerDegrees);
             _outerCutoff = TMath.Cosf(radOuter);
             _outerCone.Radius = TMath.Tanf(radOuter) * _distance;
-      
+
             float radInner = TMath.DegToRad(innerDegrees);
             _innerCutoff = TMath.Cosf(radInner);
             _innerCone.Radius = TMath.Tanf(radInner) * _distance;
@@ -196,9 +196,9 @@ namespace TheraEngine.Components.Scene.Lights
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            _direction = _rotation.GetDirection();
+            _direction = -_rotation.GetDirection();
 
-            Vec3 translation = _translation + _direction * (_distance / 2.0f);
+            Vec3 translation = _translation - _direction * (_distance / 2.0f);
 
             _outerCone.State.Rotation.SetDirection(-_direction);
             _outerCone.State.Translation.Raw = translation;
@@ -266,7 +266,7 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
             TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetTextureGeneric(true), 4, "Texture4", programBindingId);
+                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", programBindingId);
         }
 
         public void SetShadowMapResolution(int width, int height)

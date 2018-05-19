@@ -11,6 +11,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public Matrix4 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetShaderValueString() => _value.ToString();
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]
@@ -35,6 +36,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public Matrix3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetShaderValueString() => _value.ToString();
+        [Browsable(false)]
         public override object GenericValue => Value;
 
         [TSerialize(ValueName, IsXmlElementString = true)]

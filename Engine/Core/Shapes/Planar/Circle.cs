@@ -92,7 +92,7 @@ namespace TheraEngine.Core.Shapes
             if (sides < 3)
                 throw new Exception("A (very low res) circle needs at least 3 sides.");
 
-            normal.NormalizeFast();
+            normal.Normalize();
             Quat offset = Quat.BetweenVectors(Vec3.Up, normal);
             Vertex[] points = new Vertex[sides];
             float angleInc = TMath.PIf * 2.0f / sides;

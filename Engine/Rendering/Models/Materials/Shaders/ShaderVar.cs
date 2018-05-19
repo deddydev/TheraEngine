@@ -341,6 +341,7 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
+        [Browsable(false)]
         public abstract object GenericValue { get; }
 
         internal void SetProgramUniform(int programBindingId, string name)

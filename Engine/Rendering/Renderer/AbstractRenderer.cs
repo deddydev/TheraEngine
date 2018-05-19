@@ -202,7 +202,7 @@ namespace TheraEngine.Rendering
                 case DebugPrimitiveType.SolidQuad:
                     return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
                 case DebugPrimitiveType.WireCone:
-                    return BaseCone.WireMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 20);
+                    return BaseCone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
             }
             return null;
         }
@@ -350,7 +350,7 @@ namespace TheraEngine.Rendering
             SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidCone : DebugPrimitiveType.WireCone);
             m.Parameter<ShaderVec4>(0).Value = color;
-            transform = transform * Matrix4.CreateScale(radius, radius, height) * localUpAxis.LookatAngles().GetMatrix();
+            transform = transform * localUpAxis.LookatAngles().GetMatrix() * Matrix4.CreateScale(radius, radius, height);
             m.Render(transform, Matrix3.Identity);
         }
 

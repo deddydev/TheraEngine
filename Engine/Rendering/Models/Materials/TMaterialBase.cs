@@ -144,14 +144,14 @@ namespace TheraEngine.Rendering.Models.Materials
             return new EDrawBuffersAttachment[0];
         }
 
-        public void GenerateTextures(bool loadSynchronously = false)
+        public void GenerateTextures(bool loadSynchronously)
         {
             if (_textures != null)
             {
                 foreach (var t in _textures)
                 //await Task.Run(() => Parallel.ForEach(_textures, t =>
                 {
-                    t.GetTextureGeneric(loadSynchronously).PushData();
+                    t.GetRenderTextureGeneric(loadSynchronously).PushData();
                 }
                 //));
             }
@@ -171,7 +171,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private void SetTextureUniforms(int programBindingId)
         {
             for (int i = 0; i < Textures.Length; ++i)
-                SetTextureUniform(Textures[i].GetTextureGeneric(true), i, "Texture" + i, programBindingId);
+                SetTextureUniform(Textures[i].GetRenderTextureGeneric(true), i, "Texture" + i, programBindingId);
         }
         public static void SetTextureUniform(BaseRenderTexture tref, int textureUnit, string varName, int programBindingId)
         {

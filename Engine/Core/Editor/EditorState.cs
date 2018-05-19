@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
-using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Editor

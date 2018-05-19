@@ -61,10 +61,7 @@ namespace TheraEngine.Timers
             }
         }
 
-        private bool IsApplicationIdle()
-            => NativeMethods.PeekMessage(
-                out NativeMessage result,
-                IntPtr.Zero, 0, 0, 0) == 0;
+        private bool IsApplicationIdle() => NativeMethods.PeekMessage(out NativeMessage result, IntPtr.Zero, 0, 0, 0) == 0;
 
         private RenderQuery _renderTimeQuery = new RenderQuery();
         private void Application_Idle_SingleThread(object sender, EventArgs e)

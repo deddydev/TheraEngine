@@ -222,7 +222,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public void UpdateTexture() => _texture?.PushData();
 
-        public override BaseRenderTexture GetTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
+        public override BaseRenderTexture GetRenderTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
         /// <summary>

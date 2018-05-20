@@ -385,7 +385,7 @@ namespace TheraEditor.Windows.Forms
             PerspectiveCameraActor c = new PerspectiveCameraActor();
             c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
             OwningWorld.SpawnActor(c);
-            //SubViewport.Camera = c.Camera;
+            //SubViewport.ViewportCamera = c.Camera;
 
             SubViewport.IsVisible = false;
         }

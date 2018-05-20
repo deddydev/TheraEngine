@@ -72,7 +72,7 @@ namespace TheraEngine.Components.Scene.Lights
             set
             {
                 _direction = value.Normalized();
-                _rotation.SetDirection(-_direction);
+                _rotation.SetDirection(_direction);
             }
         }
         [Category("Spotlight Component")]
@@ -196,14 +196,14 @@ namespace TheraEngine.Components.Scene.Lights
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            _direction = -_rotation.GetDirection();
+            _direction = _rotation.GetDirection();
 
-            Vec3 translation = _translation - _direction * (_distance / 2.0f);
+            Vec3 translation = _translation + _direction * (_distance / 2.0f);
 
-            _outerCone.State.Rotation.SetDirection(-_direction);
+            _outerCone.State.Rotation.SetDirection(_direction);
             _outerCone.State.Translation.Raw = translation;
 
-            _innerCone.State.Rotation.SetDirection(-_direction);
+            _innerCone.State.Rotation.SetDirection(_direction);
             _innerCone.State.Translation.Raw = translation;
 
             if (_shadowCamera != null)
@@ -226,6 +226,18 @@ namespace TheraEngine.Components.Scene.Lights
 
             localTransform = t * r * s;
             inverseLocalTransform = iS * ir * it;
+        }
+        internal Matrix4 LightMatrix { get; private set; }
+        protected override void OnWorldTransformChanged()
+        {
+            Vec3 translation = _direction * (_distance / 2.0f);
+
+            Matrix4 t = translation.AsTranslationMatrix();
+            Matrix4 s = Matrix4.CreateScale(_outerCone.Radius, _outerCone.Radius, _outerCone.Height);
+
+            LightMatrix = WorldMatrix * t * s;
+
+            base.OnWorldTransformChanged();
         }
 
         public override void OnSpawned()

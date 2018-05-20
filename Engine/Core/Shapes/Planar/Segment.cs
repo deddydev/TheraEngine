@@ -19,7 +19,11 @@ namespace TheraEngine.Core.Shapes
             get => EndPoint - StartPoint;
             set => EndPoint = StartPoint + value;
         }
-        
+
+        public float Length => DirectionVector.Length;
+        public float LengthFast => DirectionVector.LengthFast;
+        public float LengthSquared => DirectionVector.LengthSquared;
+
         public enum Part
         {
             StartPoint,

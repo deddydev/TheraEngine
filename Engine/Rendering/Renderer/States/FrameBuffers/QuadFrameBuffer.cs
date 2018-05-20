@@ -25,7 +25,9 @@ namespace TheraEngine.Rendering
         //Using two triangles may introduce tearing on the line through the screen,
         //because the two triangles may not be rasterized at the exact same time.
         private PrimitiveManager _fullScreenTriangle;
-        
+
+        public PrimitiveManager FullScreenTriangle => _fullScreenTriangle;
+
         public static PrimitiveData Mesh()
         {
             VertexTriangle triangle = new VertexTriangle(

@@ -231,23 +231,19 @@ vec3 WorldPosFromDepth(in float depth, in vec2 uv)
 }
 void main()
 {
-	vec2 uv = FragPos.xy;
-	if (uv.x > 1.0f || uv.y > 1.0f)
-		discard;
+	vec2 uv = gl_FragCoord.xy / vec2(ScreenWidth, ScreenHeight);
 
 	//Retrieve shading information from GBuffer textures
 	vec3 albedo = texture(Texture0, uv).rgb;
 	vec3 normal = texture(Texture1, uv).rgb;
 	vec3 rms = texture(Texture2, uv).rgb;
-	float ao = texture(Texture3, uv).r;
-	float depth = texture(Texture4, uv).r;
+	float depth = texture(Texture3, uv).r;
 
 	//Resolve world fragment position using depth and screen UV
 	vec3 fragPosWS = WorldPosFromDepth(depth, uv);
 
-  float strength = 0.0f;
   float fadeRange = MaxFade - MinFade;
   float dist = length(CameraPosition - fragPosWS);
-  strength = smoothstep(1.0f, 0.0f, clamp((dist - MinFade) / fadeRange, 0.0f, 1.0f));
-  OutColor = vec3(1.0f, 0.0f, 0.0f);//strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
+  float strength = smoothstep(1.0f, 0.0f, clamp((dist - MinFade) / fadeRange, 0.0f, 1.0f));
+  OutColor = strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
 }

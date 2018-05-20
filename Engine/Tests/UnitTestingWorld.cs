@@ -41,8 +41,8 @@ namespace TheraEngine.Tests
             bool testLandscape = true;
             bool createWalls = true;
             int pointLights = 0;
-            int dirLights = 1;
-            int spotLights = 0;
+            int dirLights = 0;
+            int spotLights = 1;
 
             float margin = 2.0f;
             float radius = 1.0f;
@@ -70,6 +70,7 @@ namespace TheraEngine.Tests
                     float xV = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
                     float zV = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
                     TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor/*new ColorF4(xV, zV, 0.0f, 1.0f)*/);
+                    mat.RenderParams.StencilTest = Editor.EditorState.OutlinePassStencil;
                     //mat.Requirements = TMaterial.UniformRequirements.NeedsCamera;
                     //mat.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
                     mat.Parameter<ShaderFloat>("Roughness").Value = xV;
@@ -96,7 +97,6 @@ namespace TheraEngine.Tests
                         CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
                         CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
                     };
-                    //mat.RenderParams.StencilTest = Editor.EditorState.OutlinePassStencil;
                     Actor<StaticMeshComponent> sphere = ((x ^ z) & 1) == 0 ?
                         (Actor<StaticMeshComponent>)new ConeActor("TestCone" + (y++).ToString(), radius, radius * 2.0f, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo) :
                         new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo);
@@ -219,7 +219,7 @@ namespace TheraEngine.Tests
                     SpotLightComponent spot = new SpotLightComponent()
                     {
                         LightColor = (ColorF3)Color.White,
-                        Distance = 2000.0f,
+                        Distance = 500.0f,
                         Brightness = 100.0f,
                         Exponent = 2.0f,
                         OuterCutoffAngleDegrees = 50.0f,
@@ -269,10 +269,12 @@ namespace TheraEngine.Tests
                     TCollisionHeightField.EHeightValueType.Single,
                     landscapeInfo);
                 TMaterial mat = TMaterial.CreateLitColorMaterial(Color.LightBlue);
+                //mat.Requirements = TMaterial.UniformRequirements.NeedsCamera;
+                //mat.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
                 mat.Parameter<ShaderFloat>("Roughness").Value = 1.0f;
                 mat.Parameter<ShaderFloat>("Metallic").Value = 0.0f;
                 landscape.RootComponent.GenerateHeightFieldMesh(mat, 10);
-                //landscape.RootComponent.Translation.Y -= 50.0f;
+                landscape.RootComponent.Translation.Y -= 20.0f;
                 actors.Add(landscape);
             }
 

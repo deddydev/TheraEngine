@@ -76,15 +76,12 @@ namespace TheraEngine.Rendering.OpenGL
             GetCurrentSubContext();
 
             //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-            GL.Disable(EnableCap.CullFace);
-            GL.Enable(EnableCap.Dither);
+            //GL.Disable(EnableCap.CullFace);
+            //GL.Enable(EnableCap.Dither);
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
             GL.FrontFace(FrontFaceDirection.Ccw);
-            GL.Enable(EnableCap.DepthTest);
-            GL.DepthFunc(DepthFunction.Less);
-            GL.DepthMask(true);
-            GL.ClearDepth(1.0f);
+            //GL.ClearDepth(1.0f);
             GL.Enable(EnableCap.DebugOutput);
             GL.Enable(EnableCap.DebugOutputSynchronous);
 
@@ -99,9 +96,9 @@ namespace TheraEngine.Rendering.OpenGL
             GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.NegativeOneToOne);
             //GL.DepthRange(0.0, 1.0);
             //GL.Enable(EnableCap.FramebufferSrgb);
-            GL.Enable(EnableCap.StencilTest);
-            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            //GL.Enable(EnableCap.StencilTest);
+            //GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+            //GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
             //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);

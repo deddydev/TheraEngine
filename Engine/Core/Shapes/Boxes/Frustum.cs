@@ -13,6 +13,15 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Core.Shapes
 {
+    public enum EFrustumPlane
+    {
+        Near,
+        Far,
+        Left,
+        Right,
+        Top,
+        Bottom
+    }
     public interface IVolume
     {
         EContainment Contains(Box box);
@@ -111,43 +120,87 @@ namespace TheraEngine.Core.Shapes
                 nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight, sphereCenter, sphereRadius);
         }
 
-        public void GetCornerPoints(int planeIndex, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft)
+        public Frustum[] GetSubFrustums(int slices)
         {
-            if (planeIndex < 0 || planeIndex > 6)
-                throw new IndexOutOfRangeException();
+            Segment topLeft = new Segment(NearTopLeft, FarTopLeft);
+            Segment topRight = new Segment(NearTopRight, FarTopRight);
+            Segment bottomLeft = new Segment(NearBottomLeft, FarBottomLeft);
+            Segment bottomRight = new Segment(NearBottomRight, FarBottomRight);
+            float totalDist = topLeft.Length;
+            float sliceDist = totalDist / slices;
+            Frustum[] sliceFrustums = new Frustum[slices];
+            for (int i = 0; i < slices; ++i)
+            {
+                float nearDist = i * sliceDist;
+                float farDist = nearDist + sliceDist;
+                Vec3 nearBottomLeft = bottomLeft.PointAtLineDistance(nearDist);
+                Vec3 nearBottomRight = bottomRight.PointAtLineDistance(nearDist);
+                Vec3 nearTopLeft = topLeft.PointAtLineDistance(nearDist);
+                Vec3 nearTopRight = topRight.PointAtLineDistance(nearDist);
+                Vec3 farBottomLeft = bottomLeft.PointAtLineDistance(farDist);
+                Vec3 farBottomRight = bottomRight.PointAtLineDistance(farDist);
+                Vec3 farTopLeft = topLeft.PointAtLineDistance(farDist);
+                Vec3 farTopRight = topRight.PointAtLineDistance(farDist);
+                sliceFrustums[i] = new Frustum(farBottomLeft, farBottomRight, farTopLeft, farTopRight, nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
+            }
+            return sliceFrustums;
+        }
+        public Frustum GetSubFrustum(int slices, int index)
+        {
+            Segment topLeft         = new Segment(NearTopLeft, FarTopLeft);
+            Segment topRight        = new Segment(NearTopRight, FarTopRight);
+            Segment bottomLeft      = new Segment(NearBottomLeft, FarBottomLeft);
+            Segment bottomRight     = new Segment(NearBottomRight, FarBottomRight);
+            float totalDist         = topLeft.Length;
+            float sliceDist         = totalDist / slices;
+            float nearDist          = index * sliceDist;
+            float farDist           = nearDist + sliceDist;
+            Vec3 nearBottomLeft     = bottomLeft.PointAtLineDistance(nearDist);
+            Vec3 nearBottomRight    = bottomRight.PointAtLineDistance(nearDist);
+            Vec3 nearTopLeft        = topLeft.PointAtLineDistance(nearDist);
+            Vec3 nearTopRight       = topRight.PointAtLineDistance(nearDist);
+            Vec3 farBottomLeft      = bottomLeft.PointAtLineDistance(farDist);
+            Vec3 farBottomRight     = bottomRight.PointAtLineDistance(farDist);
+            Vec3 farTopLeft         = topLeft.PointAtLineDistance(farDist);
+            Vec3 farTopRight        = topRight.PointAtLineDistance(farDist);
+            return new Frustum(farBottomLeft, farBottomRight, farTopLeft, farTopRight, nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
+        }
+        
+        public void GetCornerPoints(EFrustumPlane planeIndex, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft)
+        {
             switch (planeIndex)
             {
-                case 0: //Near
+                case EFrustumPlane.Near:
                     bottomLeft = NearBottomLeft;
                     bottomRight = NearBottomRight;
                     topRight = NearTopRight;
                     topLeft = NearTopLeft;
                     break;
-                case 1: //Far
+                case EFrustumPlane.Far:
                     bottomLeft = FarBottomLeft;
                     bottomRight = FarBottomRight;
                     topRight = FarTopRight;
                     topLeft = FarTopLeft;
                     break;
-                case 2: //Left
+                case EFrustumPlane.Left:
                     bottomLeft = FarBottomLeft;
                     bottomRight = NearBottomLeft;
                     topRight = NearTopLeft;
                     topLeft = FarTopLeft;
                     break;
-                case 3: //Right
+                case EFrustumPlane.Right:
                     bottomLeft = NearBottomRight;
                     bottomRight = FarBottomRight;
                     topRight = FarTopRight;
                     topLeft = NearTopRight;
                     break;
-                case 4: //Top
+                case EFrustumPlane.Top:
                     bottomLeft = NearTopLeft;
                     bottomRight = NearTopRight;
                     topRight = FarTopRight;
                     topLeft = FarTopLeft;
                     break;
-                case 5: //Bottom
+                case EFrustumPlane.Bottom:
                     bottomLeft = NearBottomRight;
                     bottomRight = NearBottomLeft;
                     topRight = FarBottomLeft;
@@ -391,7 +444,7 @@ namespace TheraEngine.Core.Shapes
             for (int i = 0; i < 6; ++i)
             {
                 Plane p = Planes[i];
-                GetCornerPoints(i, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft);
+                GetCornerPoints((EFrustumPlane)i, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft);
                 //Intersect the capsule's inner segment with the plane as a ray
                 if (Collision.RayIntersectsPlane(bot.Center, top.Center, p.IntersectionPoint, p.Normal, out Vec3 point))
                 {

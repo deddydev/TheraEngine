@@ -112,22 +112,31 @@ namespace TheraEngine.Core.Shapes
                 normal = diff ^ (up ^ diff).Normalized();
                 sidePoints[i]._normal = normal;
 
-                topVertex = new Vertex(topPoint, normal, new Vec2(0.5f));
+                topVertex = new Vertex(topPoint, up, new Vec2(0.5f));
                 tris.Add(new VertexTriangle(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoints[i], topVertex));
+                if (tris.Count - 2 >= 0)
+                {
+                    VertexTriangle lastTri = tris[tris.Count - 2];
+                    lastTri.Vertex0._normal += normal;
+                    lastTri.Vertex0._normal.Normalize();
+                }
             }
 
             if (closeBottom)
             {
                 List<Vertex> list = new List<Vertex>(sidePoints.Length + 1)
                 {
-                    new Vertex(topPoint, -up, new Vec2(0.5f))
+                    new Vertex(bottomPoint, -up, new Vec2(0.5f))
                 };
-                foreach (Vertex v in sidePoints)
+                for (int i = sidePoints.Length - 1; i >= 0; --i)
                 {
-                    Vertex v2 = v.HardCopy();
+                    Vertex v2 = sidePoints[i].HardCopy();
                     v2._normal = -up;
                     list.Add(v2);
                 }
+                Vertex v3 = sidePoints[sidePoints.Length - 1].HardCopy();
+                v3._normal = -up;
+                list.Add(v3);
                 tris.AddRange(new VertexTriangleFan(list).ToTriangles());
             }
 

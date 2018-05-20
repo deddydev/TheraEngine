@@ -319,7 +319,7 @@ namespace TheraEngine.Editor
                 StencilPassDepthFailOp = EStencilOp.Replace,
                 BothPassOp = EStencilOp.Replace,
                 Func = EComparison.Always,
-                Ref = 2,
+                Ref = 1,
                 WriteMask = 0xFF,
                 ReadMask = 0xFF,
             },

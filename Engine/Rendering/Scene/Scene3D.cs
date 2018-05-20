@@ -181,7 +181,7 @@ namespace TheraEngine.Rendering
             {
                 if (viewport != null)
                 {
-                    viewport.RenderingCamera = camera;
+                    viewport.RenderingCameras.Push(camera);
 
                     //Enable internal resolution
                     Engine.Renderer.PushRenderArea(viewport.InternalResolution);
@@ -193,6 +193,7 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.ClearStencil(0);
                             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
                             Engine.Renderer.EnableDepthTest(true);
+                            Engine.Renderer.ClearDepth(1.0f);
                             renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
                             Engine.Renderer.EnableDepthTest(false);
                         }
@@ -213,18 +214,18 @@ namespace TheraEngine.Rendering
 
                             foreach (DirectionalLightComponent c in _lightManager.DirectionalLights)
                             {
-                                viewport._dirLightComp = c;
+                                viewport._lightComp = c;
                                 viewport.DirLightFBO.RenderFullscreen();
                             }
                             foreach (PointLightComponent c in _lightManager.PointLights)
                             {
-                                viewport._pointLightComp = c;
-                                viewport.PointLightManager.Render(c.WorldMatrix);
+                                viewport._lightComp = c;
+                                viewport.PointLightManager.Render(c.LightMatrix);
                             }
                             foreach (SpotLightComponent c in _lightManager.SpotLights)
                             {
-                                viewport._spotLightComp = c;
-                                viewport.SpotLightManager.Render(c.WorldMatrix);
+                                viewport._lightComp = c;
+                                viewport.SpotLightManager.Render(c.LightMatrix);
                             }
                         }
                         viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -382,21 +383,27 @@ namespace TheraEngine.Rendering
                     }
                     Engine.Renderer.PopRenderArea();
 
-                    //Render the last pass to the actual screen resolution, 
-                    //or the provided target FBO
-                    target?.Bind(EFramebufferTarget.DrawFramebuffer);
+                    //Full viewport resolution now
+                    Engine.Renderer.PushRenderArea(viewport.Region);
                     {
-                        Engine.Renderer.PushRenderArea(viewport.Region);
+                        viewport.HudFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        {
+                            hud?.UIScene?.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
+                        }
+                        viewport.HudFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                        //Render the last pass to the actual screen resolution, 
+                        //or the provided target FBO
+                        target?.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             viewport.PostProcessFBO.RenderFullscreen();
-                            hud?.UIScene?.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
-                            Engine.Renderer.EnableDepthTest(true);
+                            //viewport.HudFBO.RenderFullscreen();
                         }
-                        Engine.Renderer.PopRenderArea();
+                        target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                     }
-                    target?.Unbind(EFramebufferTarget.DrawFramebuffer);
+                    Engine.Renderer.PopRenderArea();
 
-                    viewport.RenderingCamera = null;
+                    viewport.RenderingCameras.Pop();
                 }
                 else
                 {

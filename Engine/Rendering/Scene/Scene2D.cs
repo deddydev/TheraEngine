@@ -59,10 +59,18 @@ namespace TheraEngine.Rendering
             {
                 if (viewport != null)
                 {
+                    viewport.RenderingCameras.Push(camera);
+
                     //Render the to the actual screen resolution
                     Engine.Renderer.PushRenderArea(viewport.Region);
                     {
-                        //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        //Engine.Renderer.StencilMask(~0);
+                        //Engine.Renderer.ClearStencil(0);
+                        //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
+                        //Engine.Renderer.EnableDepthTest(true);
+                        //Engine.Renderer.ClearDepth(1.0f);
+                        //renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
+                        //Engine.Renderer.EnableDepthTest(false);
 
                         //Engine.Renderer.EnableDepthTest(true);
                         Engine.Renderer.AllowDepthWrite(false);
@@ -80,6 +88,8 @@ namespace TheraEngine.Rendering
                         //RenderTree.DebugRender(v.Region, false, 0.1f);
                     }
                     Engine.Renderer.PopRenderArea();
+
+                    viewport.RenderingCameras.Pop();
                 }
                 else
                 {

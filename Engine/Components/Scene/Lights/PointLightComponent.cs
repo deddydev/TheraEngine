@@ -91,18 +91,16 @@ namespace TheraEngine.Components.Scene.Lights
                 t = _translation.AsTranslationMatrix(),
                 it = (-_translation).AsTranslationMatrix();
 
-            Matrix4
-                s = Matrix4.CreateScale(Radius),
-                iS = Matrix4.CreateScale(1.0f / Radius);
-
-            localTransform = t * r * s;
-            inverseLocalTransform = iS * ir * it;
+            localTransform = t * r;
+            inverseLocalTransform = ir * it;
         }
+        internal Matrix4 LightMatrix { get; private set; }
         protected override void OnWorldTransformChanged()
         {
             _cullingVolume.SetRenderTransform(WorldMatrix);
             foreach (PerspectiveCamera cam in ShadowCameras)
                 cam.LocalPoint.Raw = WorldMatrix.Translation;
+            LightMatrix = WorldMatrix * Matrix4.CreateScale(Radius);
             base.OnWorldTransformChanged();
         }
 
@@ -162,8 +160,6 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(resolution));
                 _shadowMap.Material.SettingUniforms += SetShadowDepthUniforms;
-
-                //_shadowMap.Generate();
             }
             else
                 _shadowMap.ResizeTextures(resolution, resolution);

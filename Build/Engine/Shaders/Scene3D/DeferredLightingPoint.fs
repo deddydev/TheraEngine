@@ -5,7 +5,6 @@ const float InvPI = 0.31831f;
 
 layout(location = 0) out vec3 OutColor; //Diffuse lighting output
 layout(location = 0) in vec3 FragPos;
-layout(location = 1) in vec3 FragNorm;
 
 layout(binding = 0) uniform sampler2D Texture0; //AlbedoOpacity
 layout(binding = 1) uniform sampler2D Texture1; //Normal
@@ -223,20 +222,12 @@ void main()
 	vec3 normal = texture(Texture1, uv).rgb;
 	vec3 rms = texture(Texture2, uv).rgb;
 	float depth = texture(Texture3, uv).r;
-  //gl_FragDepth = depth;
 
 	//Resolve world fragment position using depth and screen UV
 	vec3 fragPosWS = WorldPosFromDepth(depth, uv);
 
   float fadeRange = MaxFade - MinFade;
-  vec3 fragToCam = CameraPosition - fragPosWS;
-  //vec3 sphereFragToCam = normalize(CameraPosition - FragPos);
-  float dist = length(fragToCam);
-  //float NoL = dot(-FragNorm, sphereFragToCam);
+  float dist = length(CameraPosition - fragPosWS);
   float strength = smoothstep(1.0f, 0.0f, clamp((dist - MinFade) / fadeRange, 0.0f, 1.0f));
   OutColor = strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
-  //if (gl_FrontFacing)
-	// OutColor = vec3(1.0f, 0.0f, 0.0f);
-  //else
-  // OutColor = vec3(0.0f, 1.0f, 0.0f);
 }

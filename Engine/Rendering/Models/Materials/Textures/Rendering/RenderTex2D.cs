@@ -45,7 +45,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         private Bitmap[] _mipmaps;
 
         public override ETexTarget TextureTarget => ETexTarget.Texture2D;
-        public bool Resizable { get; set; } = false;
+        public bool Resizable { get; set; } = true;
         public int Width => _mipmaps == null ? _width : (_mipmaps.Length > 0 ? _mipmaps[0].Width : _width);
         public int Height => _mipmaps == null ? _height : (_mipmaps.Length > 0 ? _mipmaps[0].Height : _height);
         public Bitmap[] Mipmaps

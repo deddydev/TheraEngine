@@ -32,13 +32,13 @@ void main()
     vec2 uv = FragPos.xy;
     if (uv.x > 1.0f || uv.y > 1.0f)
         discard;
-    
+
     vec3 Normal = texture(Texture0, uv).rgb;
     float Depth = texture(Texture2, uv).r;
 
     vec3 FragPosVS = ViewPosFromDepth(Depth, uv);
     vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0f)).xyz;
-    
+
     vec3 randomVec = vec3(texture(Texture1, uv * NoiseScale).rg * 2.0f - 1.0f, 0.0f);
     vec3 viewNormal = normalize(vec3(WorldToCameraSpaceMatrix * vec4(Normal, 0.0f)));
     vec3 viewTangent = normalize(randomVec - viewNormal * dot(randomVec, viewNormal));
@@ -51,7 +51,6 @@ void main()
     vec3 noiseSample;
     vec4 offset;
     float sampleDepth;
-    float rangeCheck;
     float occlusion = 0.0f;
 
     for (int i = 0; i < kernelSize; ++i)
@@ -62,11 +61,10 @@ void main()
         offset = ProjMatrix * vec4(noiseSample, 1.0f);
         offset.xyz /= offset.w;
         offset.xyz = offset.xyz * 0.5f + 0.5f;
-	
+
         sampleDepth = ViewPosFromDepth(texture(Texture2, offset.xy).r, offset.xy).z;
 
-        rangeCheck = smoothstep(0.0f, 1.0f, Radius / abs(FragPosVS.z - sampleDepth));
-        occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0f : 0.0f) * rangeCheck;  
+        occlusion += (sampleDepth >= noiseSample.z + bias ? smoothstep(0.0f, 1.0f, Radius / abs(FragPosVS.z - sampleDepth)) : 0.0f);
     }
 
     OutIntensity = pow(1.0f - (occlusion / kernelSize), Power);

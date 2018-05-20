@@ -523,6 +523,12 @@ namespace TheraEngine.Components
         }
         protected virtual void HandleSingleChildAdded(SceneComponent item)
         {
+            if (item == null)
+            {
+                Engine.LogWarning("Null scene component child added.");
+                return;
+            }
+
             bool spawnedMismatch = IsSpawned != item.IsSpawned;
 
             item._parent = this;

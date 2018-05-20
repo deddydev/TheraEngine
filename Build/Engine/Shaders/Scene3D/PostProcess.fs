@@ -60,7 +60,7 @@ float GetStencilHighlightIntensity(vec2 uv)
     vec2 texelX = vec2(texelSize.x, 0.0f);
     vec2 texelY = vec2(0.0f, texelSize.y);
     uint stencilCurrent = texture(Texture3, uv).r;
-    uint selectionBits = stencilCurrent & 3;
+    uint selectionBits = stencilCurrent & 1;
     uint diff = 0;
     vec2 zero = vec2(0.0f);
 
@@ -71,20 +71,12 @@ float GetStencilHighlightIntensity(vec2 uv)
           vec2 yNeg = clamp(uv - texelY * i, zero, uv);
           vec2 xPos = clamp(uv + texelX * i, zero, uv);
           vec2 xNeg = clamp(uv - texelX * i, zero, uv);
-          diff |= (texture(Texture3, yPos).r & 3) - selectionBits;
-          diff |= (texture(Texture3, yNeg).r & 3) - selectionBits;
-          diff |= (texture(Texture3, xPos).r & 3) - selectionBits;
-          diff |= (texture(Texture3, xNeg).r & 3) - selectionBits;
+          diff += (texture(Texture3, yPos).r & 1) - selectionBits;
+          diff += (texture(Texture3, yNeg).r & 1) - selectionBits;
+          diff += (texture(Texture3, xPos).r & 1) - selectionBits;
+          diff += (texture(Texture3, xNeg).r & 1) - selectionBits;
     }
     return clamp(float(diff), 0.0f, 1.0f);
-}
-float GetDistanceFromDepth(float depth)
-{
-    float CameraNearZ = 0.1f;
-    float CameraFarZ = 10000.0f;
-    float depthSample = 2.0f * depth - 1.0f;
-    float zLinear = 2.0f * CameraNearZ * CameraFarZ / (CameraFarZ + CameraNearZ - depthSample * (CameraFarZ - CameraNearZ));
-    return zLinear / CameraFarZ;
 }
 void main()
 {

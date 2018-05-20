@@ -161,7 +161,7 @@ namespace TheraEngine.Components.Scene.Lights
             }
             return EPixelInternalFormat.DepthComponent32f;
         }
-        private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
+        private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
             TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
                 GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,

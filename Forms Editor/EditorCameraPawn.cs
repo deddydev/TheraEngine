@@ -22,7 +22,7 @@ namespace TheraEditor.Actors.Types.Pawns
         public override void RegisterInput(InputInterface input)
         {
             base.RegisterInput(input);
-            input.RegisterButtonPressed(EMouseButton.RightClick, OnLeftClick, EInputPauseType.TickAlways);
+            input.RegisterButtonPressed(EMouseButton.LeftClick, OnLeftClick, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.AltLeft, OnAlt, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.AltRight, OnAlt, EInputPauseType.TickAlways);
             input.RegisterButtonPressed(EKey.ShiftLeft, OnShift, EInputPauseType.TickAlways);
@@ -44,10 +44,7 @@ namespace TheraEditor.Actors.Types.Pawns
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else if (HasHit)
-            {
-                Segment s = new Segment(RootComponent.WorldPoint, HitPoint);
-                RootComponent.Translation.Raw = s.PointAtLineDistance(up ? -ScrollSpeed : ScrollSpeed);
-            }
+                RootComponent.Translation.Raw = Segment.PointAtLineDistance(RootComponent.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
             else
                 RootComponent.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
         }
@@ -65,8 +62,15 @@ namespace TheraEditor.Actors.Types.Pawns
 
         private EditorHud EditorHud => HUD as EditorHud;
 
+        private bool DragZooming => _ctrl && _leftClickDown;
+
         protected override void MouseMove(float x, float y)
         {
+            //This fixes stationary jitter caused by float imprecision
+            //when recalculating the same hit point every update
+            if (x == 0.0f && y == 0.0f)
+                return;
+
             if (Rotating)
             {
                 float pitch = y * MouseRotateSpeed;
@@ -94,6 +98,14 @@ namespace TheraEditor.Actors.Types.Pawns
                 }
                 else
                     RootComponent.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
+            }
+            else if (DragZooming)
+            {
+                bool forward = y < 0.0f;
+                if (HasHit)
+                    RootComponent.Translation.Raw = Segment.PointAtLineDistance(RootComponent.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
+                else
+                    RootComponent.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
             }
             else
             {

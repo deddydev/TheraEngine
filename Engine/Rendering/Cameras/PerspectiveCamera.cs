@@ -4,21 +4,38 @@ using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Files;
+using System.Drawing;
 
 namespace TheraEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {
-        public PerspectiveCamera() : this(0.1f, 10000.0f, 78.0f, 16.0f / 9.0f) { }
+        public PerspectiveCamera() 
+            : this(0.1f, 10000.0f, 78.0f, 16.0f / 9.0f)
+        {
+        }
         public PerspectiveCamera(Vec3 point, Rotator rotation, float nearZ, float farZ, float fovY, float aspect)
-            : base(aspect, 1.0f, nearZ, farZ, point, rotation) { VerticalFieldOfView = fovY; }
+            : base(aspect, 1.0f, nearZ, farZ, point, rotation)
+        {
+            VerticalFieldOfView = fovY;
+        }
         public PerspectiveCamera(float nearZ, float farZ, float fovY, float aspect)
-            : base(aspect, 1.0f, nearZ, farZ) { VerticalFieldOfView = fovY; }
+            : base(aspect, 1.0f, nearZ, farZ)
+        {
+            VerticalFieldOfView = fovY;
+        }
+        private void InitFrustumCascade()
+        {
+            _transformedFrustumCascade = new Frustum[4];
+            _transformedFrustumCascade.FillWith(i => new Frustum());
+        }
 
         [TSerialize("Width", XmlNodeType = EXmlNodeType.Attribute, Order = 0)]
         private float _width;
         [TSerialize("Height", XmlNodeType = EXmlNodeType.Attribute, Order = 1)]
         private float _height;
+
+        private Frustum[] _transformedFrustumCascade;
 
         private bool _overrideAspect = false;
 
@@ -110,6 +127,19 @@ namespace TheraEngine.Rendering.Cameras
 
             CalculateProjection();
         }
+        protected override void UpdateTransformedFrustum()
+        {
+            base.UpdateTransformedFrustum();
+            _transformedFrustum.SetSubFrustums(_transformedFrustumCascade);
+        }
+        public override void Render()
+        {
+            foreach (Frustum f in _transformedFrustumCascade)
+                f.Render();
+
+            if (ViewTarget != null)
+                Engine.Renderer.RenderLine(WorldPoint, ViewTarget.Raw, Color.DarkGray, 1.0f);
+        }
         public override void SetUniforms(int programBindingId)
         {
             base.SetUniforms(programBindingId);
@@ -123,6 +153,8 @@ namespace TheraEngine.Rendering.Cameras
             _height = height;
             if (!_overrideAspect)
                 _aspect = _width / _height;
+            if (_transformedFrustumCascade == null)
+                InitFrustumCascade();
             base.Resize(width, height);
         }
         public void Pivot(float y, float x, float radius)

@@ -29,14 +29,14 @@ namespace TheraEngine.Core.Shapes
         {
             Vec3 startPoint = GetBottomCenterPoint();
             Vec3 endPoint = GetTopCenterPoint();
-            Segment.Part part = Segment.GetDistancePointToSegmentPart(startPoint, endPoint, point, out float closestPartDist);
+            Segment.ESegmentPart part = Segment.GetDistancePointToSegmentPart(startPoint, endPoint, point, out float closestPartDist);
             switch (part)
             {
-                case Segment.Part.StartPoint:
+                case Segment.ESegmentPart.StartPoint:
                     return Ray.PointAtLineDistance(startPoint, point, _radius);
-                case Segment.Part.EndPoint:
+                case Segment.ESegmentPart.EndPoint:
                     return Ray.PointAtLineDistance(endPoint, point, _radius);
-                case Segment.Part.Line:
+                case Segment.ESegmentPart.Line:
                     return Ray.GetPerpendicularVectorFromPoint(startPoint, endPoint - startPoint, point);
             }
             throw new Exception();

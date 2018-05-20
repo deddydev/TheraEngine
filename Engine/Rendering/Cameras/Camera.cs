@@ -296,7 +296,7 @@ namespace TheraEngine.Rendering.Cameras
             _worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
             OnTransformChanged();
         }
-        protected void UpdateTransformedFrustum()
+        protected virtual void UpdateTransformedFrustum()
             => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, CameraToWorldSpaceMatrix);
 
         /// <summary>
@@ -524,11 +524,11 @@ namespace TheraEngine.Rendering.Cameras
         public Vec3 GetPointAtDistance(Vec2 screenPoint, float distance)
             => GetWorldSegment(screenPoint).PointAtLineDistance(distance);
 
-        public void Render()
+        public virtual void Render()
         {
             _transformedFrustum.Render();
             if (_viewTarget != null)
-                Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, 10.0f);
+                Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, 1.0f);
         }
         public Plane GetScreenPlane()
         {

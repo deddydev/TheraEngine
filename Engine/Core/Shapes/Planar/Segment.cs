@@ -1,8 +1,12 @@
 ﻿using TheraEngine.Rendering.Models;
 using System;
+using System.ComponentModel;
 
 namespace TheraEngine.Core.Shapes
 {
+    /// <summary>
+    /// Represents a line in 3D space with specific start and end points.
+    /// </summary>
     public struct Segment
     {
         public Segment(Vec3 startPoint, Vec3 endPoint)
@@ -13,24 +17,26 @@ namespace TheraEngine.Core.Shapes
 
         public Vec3 StartPoint;
         public Vec3 EndPoint;
-
+        
         public Vec3 DirectionVector
         {
             get => EndPoint - StartPoint;
             set => EndPoint = StartPoint + value;
         }
-
+        [Browsable(false)]
         public float Length => DirectionVector.Length;
+        [Browsable(false)]
         public float LengthFast => DirectionVector.LengthFast;
+        [Browsable(false)]
         public float LengthSquared => DirectionVector.LengthSquared;
 
-        public enum Part
+        public enum ESegmentPart
         {
             StartPoint,
             Line,
             EndPoint
         }
-        public static Part GetDistancePointToSegmentPart(
+        public static ESegmentPart GetDistancePointToSegmentPart(
             Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point, out float closestPartDist)
         {
             Vec3 dir = segmentEndPoint - segmentStartPoint;
@@ -43,20 +49,20 @@ namespace TheraEngine.Core.Shapes
                 if (perpRayDist < distToEnd)
                 {
                     closestPartDist = perpRayDist;
-                    return Part.Line;
+                    return ESegmentPart.Line;
                 }
                 closestPartDist = distToEnd;
-                return Part.EndPoint;
+                return ESegmentPart.EndPoint;
             }
             else
             {
                 if (distToStart < distToEnd)
                 {
                     closestPartDist = distToStart;
-                    return Part.StartPoint;
+                    return ESegmentPart.StartPoint;
                 }
                 closestPartDist = distToEnd;
-                return Part.EndPoint;
+                return ESegmentPart.EndPoint;
             }
         }
 
@@ -134,6 +140,11 @@ namespace TheraEngine.Core.Shapes
         {
             Vec3 diff = EndPoint - StartPoint;
             return StartPoint + (diff * (distance / diff.LengthFast));
+        }
+        public static Vec3 PointAtLineDistance(Vec3 startPoint, Vec3 endPoint, float distance)
+        {
+            Vec3 diff = endPoint - startPoint;
+            return startPoint + (diff * (distance / diff.LengthFast));
         }
     }
 }

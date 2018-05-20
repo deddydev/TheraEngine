@@ -165,7 +165,50 @@ namespace TheraEngine.Core.Shapes
             Vec3 farTopRight        = topRight.PointAtLineDistance(farDist);
             return new Frustum(farBottomLeft, farBottomRight, farTopLeft, farTopRight, nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
         }
-        
+        public void SetSubFrustumOf(Frustum parentFrustum, int slices, int index)
+        {
+            Segment topLeft = new Segment(NearTopLeft, FarTopLeft);
+            Segment topRight = new Segment(NearTopRight, FarTopRight);
+            Segment bottomLeft = new Segment(NearBottomLeft, FarBottomLeft);
+            Segment bottomRight = new Segment(NearBottomRight, FarBottomRight);
+            float totalDist = topLeft.Length;
+            float sliceDist = totalDist / slices;
+            float nearDist = index * sliceDist;
+            float farDist = nearDist + sliceDist;
+            Vec3 nearBottomLeft = bottomLeft.PointAtLineDistance(nearDist);
+            Vec3 nearBottomRight = bottomRight.PointAtLineDistance(nearDist);
+            Vec3 nearTopLeft = topLeft.PointAtLineDistance(nearDist);
+            Vec3 nearTopRight = topRight.PointAtLineDistance(nearDist);
+            Vec3 farBottomLeft = bottomLeft.PointAtLineDistance(farDist);
+            Vec3 farBottomRight = bottomRight.PointAtLineDistance(farDist);
+            Vec3 farTopLeft = topLeft.PointAtLineDistance(farDist);
+            Vec3 farTopRight = topRight.PointAtLineDistance(farDist);
+            UpdatePoints(farBottomLeft, farBottomRight, farTopLeft, farTopRight, nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
+        }
+        public void SetSubFrustums(Frustum[] slices, bool useEdgeDistance = false)
+        {
+            Segment topLeft = new Segment(NearTopLeft, FarTopLeft);
+            Segment topRight = new Segment(NearTopRight, FarTopRight);
+            Segment bottomLeft = new Segment(NearBottomLeft, FarBottomLeft);
+            Segment bottomRight = new Segment(NearBottomRight, FarBottomRight);
+            float totalDist = useEdgeDistance ? topLeft.Length : Far.DistanceTo(NearTopLeft);
+            float sliceDist = totalDist / slices.Length;
+            for (int i = 0; i < slices.Length; ++i)
+            {
+                float nearDist = i * sliceDist;
+                float farDist = nearDist + sliceDist;
+                Vec3 nearBottomLeft = bottomLeft.PointAtLineDistance(nearDist);
+                Vec3 nearBottomRight = bottomRight.PointAtLineDistance(nearDist);
+                Vec3 nearTopLeft = topLeft.PointAtLineDistance(nearDist);
+                Vec3 nearTopRight = topRight.PointAtLineDistance(nearDist);
+                Vec3 farBottomLeft = bottomLeft.PointAtLineDistance(farDist);
+                Vec3 farBottomRight = bottomRight.PointAtLineDistance(farDist);
+                Vec3 farTopLeft = topLeft.PointAtLineDistance(farDist);
+                Vec3 farTopRight = topRight.PointAtLineDistance(farDist);
+                slices[i].UpdatePoints(farBottomLeft, farBottomRight, farTopLeft, farTopRight, nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
+            }
+        }
+
         public void GetCornerPoints(EFrustumPlane planeIndex, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft)
         {
             switch (planeIndex)
@@ -449,19 +492,19 @@ namespace TheraEngine.Core.Shapes
                 if (Collision.RayIntersectsPlane(bot.Center, top.Center, p.IntersectionPoint, p.Normal, out Vec3 point))
                 {
                     //Make sure the resulting point is even within the range of the capsule
-                    Segment.Part part = Segment.GetDistancePointToSegmentPart(bot.Center, top.Center, point, out float closestPartDist);
+                    Segment.ESegmentPart part = Segment.GetDistancePointToSegmentPart(bot.Center, top.Center, point, out float closestPartDist);
                     if (closestPartDist > radius)
                         continue;
 
                     switch (part)
                     {
-                        case Segment.Part.Line:
+                        case Segment.ESegmentPart.Line:
                             Vec3 perp = Ray.GetPerpendicularVectorFromPoint(bot.Center, top.Center - bot.Center, point);
 
                             break;
-                        case Segment.Part.StartPoint:
-                        case Segment.Part.EndPoint:
-                            Vec3 partPoint = part == Segment.Part.StartPoint ? bot.Center : top.Center;
+                        case Segment.ESegmentPart.StartPoint:
+                        case Segment.ESegmentPart.EndPoint:
+                            Vec3 partPoint = part == Segment.ESegmentPart.StartPoint ? bot.Center : top.Center;
 
                             break;
                     }
@@ -505,15 +548,12 @@ namespace TheraEngine.Core.Shapes
         public IEnumerator<Plane> GetEnumerator() => ((IEnumerable<Plane>)_planes).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Plane>)_planes).GetEnumerator();
 
-        public void Render()
+        public void Render() => Render(Color.Orange, Color.DarkRed, Color.LightGreen, 1.0f, false);
+        public void Render(Color NearColor, Color FarColor, Color SideColor, float LineSize, bool RenderSphere)
         {
-            //_boundingSphere.Render();
-
-            float LineSize = 1.0f;
-            Color NearColor = Color.Orange;
-            Color FarColor = Color.DarkRed;
-            Color SideColor = Color.LightGreen;
-
+            if (RenderSphere)
+                _boundingSphere.Render();
+            
             Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, SideColor, LineSize);
             Engine.Renderer.RenderLine(NearTopRight, FarTopRight, SideColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomLeft, FarBottomLeft, SideColor, LineSize);

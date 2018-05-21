@@ -214,18 +214,15 @@ namespace TheraEngine.Rendering
 
                             foreach (DirectionalLightComponent c in _lightManager.DirectionalLights)
                             {
-                                viewport._lightComp = c;
-                                viewport.DirLightFBO.RenderFullscreen();
+                                viewport.RenderDirLight(c);
                             }
                             foreach (PointLightComponent c in _lightManager.PointLights)
                             {
-                                viewport._lightComp = c;
-                                viewport.PointLightManager.Render(c.LightMatrix);
+                                viewport.RenderPointLight(c);
                             }
                             foreach (SpotLightComponent c in _lightManager.SpotLights)
                             {
-                                viewport._lightComp = c;
-                                viewport.SpotLightManager.Render(c.LightMatrix);
+                                viewport.RenderSpotLight(c);
                             }
                         }
                         viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);

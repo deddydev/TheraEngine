@@ -260,6 +260,23 @@ namespace TheraEngine.Rendering
         /// to a point relative to the internal resolution.
         /// </summary>
         public Vec2 ToInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Extents / _region.Extents);
+
+        internal void RenderDirLight(DirectionalLightComponent c)
+        {
+            _lightComp = c;
+            DirLightFBO.RenderFullscreen();
+        }
+        internal void RenderPointLight(PointLightComponent c)
+        {
+            _lightComp = c;
+            PointLightManager.Render(c.LightMatrix);
+        }
+        internal void RenderSpotLight(SpotLightComponent c)
+        {
+            _lightComp = c;
+            SpotLightManager.Render(c.LightMatrix);
+        }
+
         /// <summary>
         /// Converts a viewport point relative to the internal resolution
         /// to a point relative to the actual screen resolution.
@@ -941,7 +958,7 @@ namespace TheraEngine.Rendering
             #endregion
         }
 
-        internal LightComponent _lightComp;
+        private LightComponent _lightComp;
 
         private void LightManager_SettingUniforms(int vertexBindingId, int fragGeomBindingId)
         {

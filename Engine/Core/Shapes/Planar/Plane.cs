@@ -83,7 +83,7 @@ namespace TheraEngine.Core.Shapes
         /// <summary>
         /// Constructs a plane given a normal and distance from the origin.
         /// </summary>
-        public Plane(Vec3 normal, float distance)
+        public Plane(float distance, Vec3 normal)
         {
             normal.NormalizeFast();
             _normal = normal;

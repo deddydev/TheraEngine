@@ -24,10 +24,12 @@ namespace TheraEngine.Rendering.Cameras
         {
             VerticalFieldOfView = fovY;
         }
-        private void InitFrustumCascade()
+        private void InitFrustumCascade(int slices = 4)
         {
-            _transformedFrustumCascade = new Frustum[4];
+            _transformedFrustumCascade = new Frustum[slices];
             _transformedFrustumCascade.FillWith(i => new Frustum());
+            _transformedFrustumProjMatrices = new Matrix4[slices];
+            _transformedFrustumShadowMatrices = new Matrix4[slices];
         }
 
         [TSerialize("Width", XmlNodeType = EXmlNodeType.Attribute, Order = 0)]
@@ -36,6 +38,8 @@ namespace TheraEngine.Rendering.Cameras
         private float _height;
 
         private Frustum[] _transformedFrustumCascade;
+        private Matrix4[] _transformedFrustumProjMatrices;
+        private Matrix4[] _transformedFrustumShadowMatrices;
 
         private bool _overrideAspect = false;
 
@@ -114,6 +118,17 @@ namespace TheraEngine.Rendering.Cameras
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
             _projectionInverse = Matrix4.CreateInversePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
+
+            int slices = _transformedFrustumCascade.Length;
+            float zRange = _farZ - _nearZ;
+            float zSliceRange = zRange / slices;
+            float nearZ = _nearZ;
+            for (int i = 0; i < slices; ++i, nearZ += zSliceRange)
+            {
+                Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, nearZ, nearZ + zSliceRange);
+                _transformedFrustumProjMatrices[i] = proj;
+                _transformedFrustumShadowMatrices[i] = proj * WorldToCameraSpaceMatrix;
+            }
             base.CalculateProjection();
         }
         public void SetProjectionParams(float aspect, float fovy, float farz, float nearz)

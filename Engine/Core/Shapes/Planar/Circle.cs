@@ -14,12 +14,12 @@ namespace TheraEngine.Core.Shapes
     {
         public Circle3D(float radius)
         {
-            _plane = new Plane(Vec3.Up, 0.0f);
+            _plane = new Plane(0.0f, Vec3.Up);
             _radius = radius;
         }
         public Circle3D(float radius, Vec3 normal, float distance)
         {
-            _plane = new Plane(normal, distance);
+            _plane = new Plane(distance, normal);
             _radius = radius;
         }
         public Circle3D(float radius, Vec3 point)

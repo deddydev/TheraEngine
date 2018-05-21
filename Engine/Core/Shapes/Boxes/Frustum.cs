@@ -197,14 +197,35 @@ namespace TheraEngine.Core.Shapes
             {
                 float nearDist = i * sliceDist;
                 float farDist = nearDist + sliceDist;
-                Vec3 nearBottomLeft = bottomLeft.PointAtLineDistance(nearDist);
-                Vec3 nearBottomRight = bottomRight.PointAtLineDistance(nearDist);
-                Vec3 nearTopLeft = topLeft.PointAtLineDistance(nearDist);
-                Vec3 nearTopRight = topRight.PointAtLineDistance(nearDist);
-                Vec3 farBottomLeft = bottomLeft.PointAtLineDistance(farDist);
-                Vec3 farBottomRight = bottomRight.PointAtLineDistance(farDist);
-                Vec3 farTopLeft = topLeft.PointAtLineDistance(farDist);
-                Vec3 farTopRight = topRight.PointAtLineDistance(farDist);
+                Vec3 nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight, farBottomLeft, farBottomRight, farTopLeft, farTopRight;
+                if (useEdgeDistance)
+                {
+                    nearBottomLeft  = bottomLeft.PointAtLineDistance(nearDist);
+                    nearBottomRight = bottomRight.PointAtLineDistance(nearDist);
+                    nearTopLeft     = topLeft.PointAtLineDistance(nearDist);
+                    nearTopRight    = topRight.PointAtLineDistance(nearDist);
+                    farBottomLeft   = bottomLeft.PointAtLineDistance(farDist);
+                    farBottomRight  = bottomRight.PointAtLineDistance(farDist);
+                    farTopLeft      = topLeft.PointAtLineDistance(farDist);
+                    farTopRight     = topRight.PointAtLineDistance(farDist);
+                }
+                else
+                {
+                    Vec3 nearPlanePoint = NearTopLeft + Near.Normal * nearDist;
+                    Vec3 farPlanePoint  = NearTopLeft + Near.Normal * farDist;
+                    Vec3 bottomLeftDir  = bottomLeft.DirectionVector.Normalized();
+                    Vec3 bottomRightDir = bottomRight.DirectionVector.Normalized();
+                    Vec3 topLeftDir     = topLeft.DirectionVector.Normalized();
+                    Vec3 topRightDir    = topRight.DirectionVector.Normalized();
+                    Collision.RayIntersectsPlane(bottomLeft.StartPoint,     bottomLeftDir,  nearPlanePoint, Vec3.Forward,  out nearBottomLeft);
+                    Collision.RayIntersectsPlane(bottomRight.StartPoint,    bottomRightDir, nearPlanePoint, Vec3.Forward,  out nearBottomRight);
+                    Collision.RayIntersectsPlane(topLeft.StartPoint,        topLeftDir,     nearPlanePoint, Vec3.Forward,  out nearTopLeft);
+                    Collision.RayIntersectsPlane(topRight.StartPoint,       topRightDir,    nearPlanePoint, Vec3.Forward,  out nearTopRight);
+                    Collision.RayIntersectsPlane(bottomLeft.StartPoint,     bottomLeftDir,  farPlanePoint,  Vec3.Backward, out farBottomLeft);
+                    Collision.RayIntersectsPlane(bottomRight.StartPoint,    bottomRightDir, farPlanePoint,  Vec3.Backward, out farBottomRight);
+                    Collision.RayIntersectsPlane(topLeft.StartPoint,        topLeftDir,     farPlanePoint,  Vec3.Backward, out farTopLeft);
+                    Collision.RayIntersectsPlane(topRight.StartPoint,       topRightDir,    farPlanePoint,  Vec3.Backward, out farTopRight);
+                }
                 slices[i].UpdatePoints(farBottomLeft, farBottomRight, farTopLeft, farTopRight, nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
             }
         }
@@ -381,7 +402,7 @@ namespace TheraEngine.Core.Shapes
             _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
 
-            CalculateBoundingSphere();
+            //CalculateBoundingSphere();
         }
         private void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,

@@ -531,10 +531,7 @@ namespace TheraEngine.Rendering.Cameras
                 Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, 1.0f);
         }
         public Plane GetScreenPlane()
-        {
-            Vec3 forward = ForwardVector;
-            return new Plane(forward, Plane.ComputeDistance(WorldPoint, forward));
-        }
+            => new Plane(WorldPoint, ForwardVector);
 
         public Vec3 GetScreenPlaneOriginDistance()
             => Plane.ComputeDistance(WorldPoint, ForwardVector);

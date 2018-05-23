@@ -383,18 +383,21 @@ namespace TheraEngine.Rendering
                     //Full viewport resolution now
                     Engine.Renderer.PushRenderArea(viewport.Region);
                     {
-                        viewport.HudFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        Scene2D hudScene = hud?.UIScene;
+                        if (hudScene != null)
                         {
-                            hud?.UIScene?.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
+                            viewport.HudFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                            {
+                                hudScene.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
+                            }
+                            viewport.HudFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
                         }
-                        viewport.HudFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         //Render the last pass to the actual screen resolution, 
                         //or the provided target FBO
                         target?.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             viewport.PostProcessFBO.RenderFullscreen();
-                            //viewport.HudFBO.RenderFullscreen();
                         }
                         target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                     }

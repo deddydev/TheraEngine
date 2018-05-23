@@ -15,15 +15,12 @@ layout(binding = 5) uniform sampler2D Texture5; //Diffuse Light Color
 layout(binding = 6) uniform sampler2D Texture6; //BRDF
 layout(binding = 7) uniform samplerCube Texture7; //Irradiance
 layout(binding = 8) uniform samplerCube Texture8; //Prefilter
-layout(binding = 9) uniform samplerCube Texture9; //Env Depth
 
 uniform vec3 CameraPosition;
 uniform mat4 WorldToCameraSpaceMatrix;
 uniform mat4 CameraToWorldSpaceMatrix;
 uniform mat4 ProjMatrix;
 uniform mat4 InvProjMatrix;
-uniform vec3 PrefilterEnvPos;
-uniform mat4 EnvViewMatrices[6];
 
 vec3 SpecF_SchlickRoughness(in float VoH, in vec3 F0, in float roughness)
 {
@@ -72,7 +69,6 @@ void main()
   vec3 R = reflect(-V, normal);
 
 	//TODO: fix reflection vector, blend environment cubemaps via influence radius
-	float envDepth = texture(Texture9, R).r;
 
   vec3 diffuse = irradiance * albedo;
   vec3 prefilteredColor = textureLod(Texture8, R, roughness * MAX_REFLECTION_LOD).rgb;

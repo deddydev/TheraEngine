@@ -1,6 +1,6 @@
-﻿using NetworkCommsDotNet;
-using NetworkCommsDotNet.Connections;
-using NetworkCommsDotNet.Connections.UDP;
+﻿//using NetworkCommsDotNet;
+//using NetworkCommsDotNet.Connections;
+//using NetworkCommsDotNet.Connections.UDP;
 using System;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -31,29 +31,29 @@ namespace TheraEngine.Networking
 
         public event DelDataRecieved DataRecieved;
 
-        private Connection _connection;
+        //private Connection _connection;
 
         public void Start(string ip = "192.168.0.1", int port = 10000)
         {
-            ConnectionInfo connInfo = new ConnectionInfo(ip, port);
-            _connection = UDPConnection.GetConnection(connInfo, UDPOptions.None, false);
-            _connection.AppendShutdownHandler(ConnectionEstablishShutdown);
+            //ConnectionInfo connInfo = new ConnectionInfo(ip, port);
+            //_connection = UDPConnection.GetConnection(connInfo, UDPOptions.None, false);
+            //_connection.AppendShutdownHandler(ConnectionEstablishShutdown);
 
             //SendReceiveOptions customSendReceiveOptions = new SendReceiveOptions<>();
 
             //_connection.AppendIncomingPacketHandler<NetworkPacketObject>("ServerUpdate", RecievedData, sro);
         }
-        private void RecievedData(PacketHeader packetHeader, Connection connection, NetworkPacketObject data)
-        {
-            DataRecieved?.Invoke(data);
-        }
+        //private void RecievedData(PacketHeader packetHeader, Connection connection, NetworkPacketObject data)
+        //{
+        //    DataRecieved?.Invoke(data);
+        //}
         public void SendData(NetworkPacketObject data)
         {
 
         }
-        public void ConnectionEstablishShutdown(Connection connection)
-        {
+        //public void ConnectionEstablishShutdown(Connection connection)
+        //{
 
-        }
+        //}
     }
 }

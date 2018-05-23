@@ -885,7 +885,7 @@ namespace TheraEngine.Rendering
             _bloomBlurTexture.VWrap = ETexWrapMode.ClampToEdge;
             
             _hdrSceneTexture = TexRef2D.CreateFrameBufferTexture("HDRSceneColor", width, height,
-                EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat,
+                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
                 EFramebufferAttachment.ColorAttachment0);
             //_hdrSceneTexture.Resizeable = false;
             _hdrSceneTexture.UWrap = ETexWrapMode.ClampToEdge;
@@ -897,7 +897,14 @@ namespace TheraEngine.Rendering
             GLSLShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
             GLSLShaderFile postProcessShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "PostProcess.fs"), EShaderMode.Fragment);
             GLSLShaderFile hudShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "HudFBO.fs"), EShaderMode.Fragment);
-            
+
+            TexRef2D hudTexture = TexRef2D.CreateFrameBufferTexture("Hud", width, height,
+                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat, EFramebufferAttachment.ColorAttachment0);
+            hudTexture.MinFilter = ETexMinFilter.Nearest;
+            hudTexture.MagFilter = ETexMagFilter.Nearest;
+            hudTexture.UWrap = ETexWrapMode.ClampToEdge;
+            hudTexture.VWrap = ETexWrapMode.ClampToEdge;
+
             TexRef2D[] brightRefs = new TexRef2D[]
             {
                 _hdrSceneTexture
@@ -912,13 +919,8 @@ namespace TheraEngine.Rendering
                 _bloomBlurTexture,
                 depthViewTexture,
                 stencilViewTexture,
+                hudTexture,
             };
-            TexRef2D hudTexture = TexRef2D.CreateFrameBufferTexture("Hud", width, height,
-                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat, EFramebufferAttachment.ColorAttachment0);
-            hudTexture.MinFilter = ETexMinFilter.Nearest;
-            hudTexture.MagFilter = ETexMagFilter.Nearest;
-            hudTexture.UWrap = ETexWrapMode.ClampToEdge;
-            hudTexture.VWrap = ETexWrapMode.ClampToEdge;
             TexRef2D[] hudRefs = new TexRef2D[]
             {
                 hudTexture,

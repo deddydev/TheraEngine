@@ -229,9 +229,6 @@
     <Reference Include="Jitter, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JitterPhysics.0.2.0.20\lib\net4\Jitter.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=4.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.4.4.0\lib\net461\MathNet.Numerics.dll</HintPath>
-    </Reference>
     <Reference Include="MIConvexHull, Version=1.0.17.1019, Culture=neutral, PublicKeyToken=bdc96d69606221fd, processorArchitecture=MSIL">
       <HintPath>..\packages\MIConvexHull.1.1.17.1019\lib\netstandard1.0\MIConvexHull.dll</HintPath>
     </Reference>
@@ -250,14 +247,23 @@
     <Reference Include="MoonSharp.Interpreter, Version=2.0.0.0, Culture=neutral, PublicKeyToken=921e73ce94aa17f8, processorArchitecture=MSIL">
       <HintPath>..\packages\MoonSharp.2.0.0.0\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
-    <Reference Include="NetworkCommsDotNet, Version=3.0.0.0, Culture=neutral, PublicKeyToken=f58108eb6480f6ec, processorArchitecture=MSIL">
-      <HintPath>..\packages\NetworkCommsDotNet.3.0.3\lib\NetworkCommsDotNet.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.10.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.0.0\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="PcapDotNet.Base, Version=1.0.4.25027, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pcap.Net.x86.1.0.4.1\lib\net45\PcapDotNet.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="PcapDotNet.Core, Version=1.0.4.25067, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=x86">
+      <HintPath>..\packages\Pcap.Net.x86.1.0.4.1\lib\net45\PcapDotNet.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="PcapDotNet.Core.Extensions, Version=1.0.4.25069, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=x86">
+      <HintPath>..\packages\Pcap.Net.x86.1.0.4.1\lib\net45\PcapDotNet.Core.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="PcapDotNet.Packets, Version=1.0.4.25028, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pcap.Net.x86.1.0.4.1\lib\net45\PcapDotNet.Packets.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.4.0.1\lib\net45\SharpDX.dll</HintPath>

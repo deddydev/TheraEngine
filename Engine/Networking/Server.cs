@@ -1,6 +1,6 @@
 ﻿namespace TheraEngine.Networking
 {
-    public class Server : NetworkConnection
+    public class Server : Client
     {
 
     }

@@ -50,10 +50,8 @@ namespace TheraEngine
         {
             string[] ttf = Directory.GetFiles(Settings.FontsFolder, "*.ttf");
             string[] otf = Directory.GetFiles(Settings.FontsFolder, "*.otf");
-            foreach (string path in ttf)
-                LoadCustomFont(path);
-            foreach (string path in otf)
-                LoadCustomFont(path);
+            foreach (string path in ttf) LoadCustomFont(path);
+            foreach (string path in otf) LoadCustomFont(path);
         }
 
         /// <summary>

@@ -353,7 +353,7 @@ namespace TheraEngine.Tests
 
             base.BeginPlay();
 
-            //iblProbes.InitAndCaptureAll(512);
+            iblProbes.InitAndCaptureAll(512);
         }
     }
 

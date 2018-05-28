@@ -933,7 +933,7 @@ namespace TheraEngine.Rendering
             TMaterial brightMat = new TMaterial("BrightPassMat", renderParams, brightRefs, brightShader);
             TMaterial bloomBlurMat = new TMaterial("BloomBlurMat", renderParams, blurVars, blurRefs, bloomBlurShader);
             TMaterial postProcessMat = new TMaterial("PostProcessMat", renderParams, postProcessRefs, postProcessShader);
-            TMaterial hudMat = new TMaterial("HudMat", renderParams, postProcessRefs, hudShader);
+            TMaterial hudMat = new TMaterial("HudMat", renderParams, hudRefs, hudShader);
 
             BrightPassFBO = new QuadFrameBuffer(brightMat);
             BrightPassFBO.SettingUniforms += BrightPassFBO_SettingUniforms;

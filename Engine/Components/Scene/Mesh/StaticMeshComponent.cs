@@ -212,7 +212,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (Meshes != null)
                 foreach (StaticRenderableMesh m in Meshes)
                 {
-                    if (m.CullingVolume != null)
+                    if (m?.CullingVolume != null)
                     {
                         if (selected)
                         {

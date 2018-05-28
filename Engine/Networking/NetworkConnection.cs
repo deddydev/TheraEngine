@@ -45,11 +45,11 @@ namespace TheraEngine.Networking
             for (int i = 0; i < allDevices.Count; ++i)
             {
                 LivePacketDevice device = allDevices[i];
-                Console.Write((i + 1) + ". " + device.Name);
+                string name = (i + 1) + ". " + device.Name;
                 if (device.Description != null)
-                    Engine.PrintLine(" (" + device.Description + ")");
+                    Engine.PrintLine(name + " (" + device.Description + ")");
                 else
-                    Engine.PrintLine(" (No description available)");
+                    Engine.PrintLine(name + " (No description available)");
             }
 
             int deviceIndex = 1;
@@ -74,12 +74,9 @@ namespace TheraEngine.Networking
             {
                 Engine.PrintLine("Listening on " + selectedDevice.Description + "...");
 
-                //A high level filtering expression.
-                //See http://www.winpcap.org/docs/docs_40_2/html/group__language.html
+                //http://www.winpcap.org/docs/docs_40_2/html/group__language.html
                 using (BerkeleyPacketFilter filter = _comm.CreateFilter("ip and udp"))
-                {
                     _comm.SetFilter(filter);
-                }
             }
         }
 
@@ -122,9 +119,9 @@ namespace TheraEngine.Networking
         public unsafe void SendData(NetworkPacketObject* data, int length)
         {
             byte[] dataArr = new byte[length];
-            Marshal.Copy(new IntPtr(data), 0, dataArr, length);
-            Packet p = new Packet()
-            _comm.SendPacket()
+            Marshal.Copy(new IntPtr(data), dataArr, 0, length);
+            Packet p = new Packet(dataArr, DateTime.Now, DataLinkKind.IpV4);
+            _comm.SendPacket(p);
         }
 
         #region IDisposable Support

@@ -1,5 +1,9 @@
-﻿using System;
+﻿using MIConvexHull;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TheraEngine.Actors.Types;
+using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
 
@@ -54,21 +58,61 @@ namespace TheraEngine.Actors
                 extents.Z / probeCount.Z);
             Vec3 baseInc = probeInc * 0.5f;
 
-            IBLProbeComponent[] comps = new IBLProbeComponent[1/*probeCount.X * probeCount.Y * probeCount.Z*/];
+            IBLProbeComponent[] comps = new IBLProbeComponent[probeCount.X * probeCount.Y * probeCount.Z];
 
             int r = 0;
-            //for (int x = 0; x < probeCount.X; ++x)
-            //    for (int y = 0; y < probeCount.Y; ++y)
-            //        for (int z = 0; z < probeCount.Z; ++z)
+            for (int x = 0; x < probeCount.X; ++x)
+                for (int y = 0; y < probeCount.Y; ++y)
+                    for (int z = 0; z < probeCount.Z; ++z)
                     {
                         IBLProbeComponent comp = new IBLProbeComponent()
                         {
-                            //Translation = localMin + baseInc + new Vec3(x, y, z) * probeInc
+                            Translation = localMin + baseInc + new Vec3(x, y, z) * probeInc
                         };
                         comps[r++] = comp;
                     }
 
             RootComponent.ChildComponents.AddRange(comps);
+
+            Link();
+        }
+
+        private class DelaunayTriVertex : IVertex
+        {
+            private SceneComponent _probe;
+
+            public DelaunayTriVertex(Vec3 point)
+            {
+  
+            }
+
+            public DelaunayTriVertex(SceneComponent probe)
+            {
+                _probe = probe;
+                Vec3 point = probe.WorldPoint;
+                Position = new double[]
+                {
+                    point.X,
+                    point.Y,
+                    point.Z,
+                };
+            }
+
+            public double[] Position { get; set; }
+
+            public override string ToString()
+            {
+                return _probe.WorldPoint.ToString();
+            }
+        }
+        private void Link()
+        {
+            List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
+            var tri = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
+            foreach (var cell in tri.Cells)
+            {
+                
+            }
         }
 
         public override void OnSpawnedPreComponentSetup()

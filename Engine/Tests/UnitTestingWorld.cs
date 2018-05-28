@@ -341,7 +341,7 @@ namespace TheraEngine.Tests
             actors.Add(skyboxActor);
 
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
-            iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.01f));
+            iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
             actors.Add(iblProbes);
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
@@ -353,7 +353,7 @@ namespace TheraEngine.Tests
 
             base.BeginPlay();
 
-            iblProbes.InitAndCaptureAll(512);
+            //iblProbes.InitAndCaptureAll(512);
         }
     }
 

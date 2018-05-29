@@ -66,7 +66,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.DestroyHandle();
         }
 
-        private async void LoadDictionary(IDictionary dic)
+        private void LoadDictionary(IDictionary dic)
         {
             if (dic == null)
                 propGridDicItems.DestroyProperties();
@@ -75,7 +75,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
                 //await Task.Run(() => Parallel.For(0, dic.Count, i =>
                 int r = 0;
-                foreach (var key in dic.Keys)
+                object[] dicKeys = new object[dic.Keys.Count];
+                dic.Keys.CopyTo(dicKeys, 0);
+                Array.Sort(dicKeys);
+                foreach (var key in dicKeys)
                 {
                     Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(dic[key]?.GetType());
                     List<PropGridItem> keys = TheraPropertyGrid.InstantiateKeyPropertyEditors(controlTypes, dic, key, DataChangeHandler);

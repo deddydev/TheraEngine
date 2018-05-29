@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _object = GetValue();
 
             string typeName = (_object?.GetType() ?? DataType).GetFriendlyName();
-            lblObjectTypeName.Text = IListOwner != null ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
+            //lblObjectTypeName.Text = IListOwner != null ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
 
             if ((checkBox1.Checked = _object == null))
             {
@@ -134,6 +134,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected internal override void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
         {
             base.SetProperty(propertyInfo, propertyOwner);
+            UpdateMouseDown();
+        }
+        protected internal override void SetIDictionaryOwner(IDictionary dic, Type dataType, object key, bool isKey)
+        {
+            base.SetIDictionaryOwner(dic, dataType, key, isKey);
             UpdateMouseDown();
         }
 

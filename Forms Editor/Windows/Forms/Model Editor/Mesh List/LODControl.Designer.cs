@@ -51,14 +51,10 @@
             this.propGridSingle1.DataType = null;
             this.propGridSingle1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propGridSingle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.propGridSingle1.IListIndex = 0;
-            this.propGridSingle1.IListOwner = null;
             this.propGridSingle1.Label = null;
             this.propGridSingle1.Location = new System.Drawing.Point(125, 0);
             this.propGridSingle1.Margin = new System.Windows.Forms.Padding(0);
             this.propGridSingle1.Name = "propGridSingle1";
-            this.propGridSingle1.Property = null;
-            this.propGridSingle1.PropertyOwner = null;
             this.propGridSingle1.ReadOnly = false;
             this.propGridSingle1.Size = new System.Drawing.Size(0, 27);
             this.propGridSingle1.TabIndex = 0;

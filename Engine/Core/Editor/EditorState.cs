@@ -163,13 +163,11 @@ namespace TheraEngine.Editor
         {
             public IDictionary DictionaryOwner { get; set; }
             public object Key { get; set; }
-
-            public bool IsKey => Key == null;
-            public bool IsValue => Key != null;
+            public bool IsKey { get; set; }
 
             public override void ApplyNewValue()
             {
-                if (IsValue)
+                if (!IsKey)
                     DictionaryOwner[Key] = NewValue;
                 else
                 {
@@ -185,7 +183,7 @@ namespace TheraEngine.Editor
             }
             public override void ApplyOldValue()
             {
-                if (IsValue)
+                if (!IsKey)
                     DictionaryOwner[Key] = OldValue;
                 else
                 {
@@ -203,7 +201,7 @@ namespace TheraEngine.Editor
             public override string DisplayChangeAsRedo()
             {
                 return string.Format("{0}.{1} {2} -> {3}",
-                  PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
+                  DictionaryOwner.ToString(), Key.ToString(),
                   OldValue == null ? "null" : OldValue.ToString(),
                   NewValue == null ? "null" : NewValue.ToString());
             }
@@ -211,7 +209,7 @@ namespace TheraEngine.Editor
             public override string DisplayChangeAsUndo()
             {
                 return string.Format("{0}.{1} {2} <- {3}",
-                  PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
+                  DictionaryOwner.ToString(), Key.ToString(),
                   OldValue == null ? "null" : OldValue.ToString(),
                   NewValue == null ? "null" : NewValue.ToString());
             }
@@ -281,7 +279,20 @@ namespace TheraEngine.Editor
             });
             IsDirty = true;
         }
-        
+        public void AddChange(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey, GlobalValueChange change)
+        {
+            ChangedValues.Add(new DictionaryValueChange()
+            {
+                GlobalChange = change,
+                OldValue = oldValue,
+                NewValue = newValue,
+                DictionaryOwner = dicOwner,
+                Key = key,
+                IsKey = isKey,
+            });
+            IsDirty = true;
+        }
+
         private static Dictionary<int, StencilTest> 
             _highlightedMaterials = new Dictionary<int, StencilTest>(), 
             _selectedMaterials = new Dictionary<int, StencilTest>();

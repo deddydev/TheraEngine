@@ -51,6 +51,16 @@ namespace TheraEditor.Windows.Forms
             editorState.AddChange(oldValue, newValue, propertyOwner, propertyInfo, change);
             OnChangeAdded(change);
         }
+        public void AddChange(EditorState editorState, object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
+        {
+            GlobalValueChange change = new GlobalValueChange()
+            {
+                State = editorState,
+                ChangeIndex = editorState.ChangedValues.Count,
+            };
+            editorState.AddChange(oldValue, newValue, dicOwner, key, isKey, change);
+            OnChangeAdded(change);
+        }
         private void OnChangeAdded(GlobalValueChange change)
         {
             Editor.Instance.ThreadSafeBlockingInvoke((Action)(() => 

@@ -21,6 +21,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public event Action DoneEditing;
         public event Action ValueChanged;
+
+        public T GetParentInfo<T>() where T : PropGridItemParentInfo
+            => ParentInfo as T;
         
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
@@ -99,7 +102,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             try
             {
-                return ParentInfo?.GetValue();
+                return ParentInfo?.Value;
             }
             catch (Exception ex)
             {
@@ -121,46 +124,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (submitStateChange)
             {
-                object oldValue = ParentInfo.GetValue();
+                object oldValue = ParentInfo.Value;
 
+                ParentInfo.Value = newValue;
+                newValue = ParentInfo.Value;
+
+                SubmitStateChange(oldValue, newValue);
             }
-
-            if (IListOwner != null)
+            else
             {
-                if (submitStateChange)
-                {
-                    object oldValue = IListOwner[IListIndex];
-                    IListOwner[IListIndex] = newValue;
-                    SubmitStateChange(oldValue, newValue);
-                }
-                else
-                    IListOwner[IListIndex] = newValue;
-
-                if (_isEditing)
-                    _newValue = newValue;
+                ParentInfo.Value = newValue;
+                newValue = ParentInfo.Value;
             }
-            else if (Property != null && Property.CanWrite)
-            {
-                if (submitStateChange)
-                {
-                    object oldValue = Property.GetValue(PropertyOwner);
-                    Property.SetValue(PropertyOwner, newValue);
-                    newValue = Property.GetValue(PropertyOwner);
-                    SubmitStateChange(oldValue, newValue);
-                    if (_isEditing)
-                        _newValue = newValue;
-                }
-                else
-                {
-                    Property.SetValue(PropertyOwner, newValue);
-                    if (_isEditing)
-                        _newValue = Property.GetValue(PropertyOwner);
-                }
-                //Update the display in case the property's set method modified the submitted data
-                UpdateDisplay();
-            }
-            //else
-            //    throw new InvalidOperationException();
+            if (_isEditing)
+                _newValue = newValue;
+            
+            UpdateDisplay();
             ValueChanged?.Invoke();
         }
 
@@ -191,28 +170,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //    _oldValue, _newValue, classObject, info);
             }
         }
-        internal protected virtual void SetIDictionaryOwner(IDictionary dic, Type dataType, object key)
+        internal protected virtual void SetIDictionaryOwner(IDictionary dic, Type dataType, object key, bool isKey)
         {
-            IDictionaryOwner = dic;
-            IDictionaryKey = key;
+            ParentInfo = new PropGridItemParentIDictionaryInfo(dic, key, isKey);
             DataType = dataType;
             SetControlsEnabled(!dic.IsReadOnly && !_readOnly);
             UpdateDisplay();
         }
         internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
         {
-            IListOwner = list;
-            IListIndex = index;
+            ParentInfo = new PropGridItemParentIListInfo(list, index);
             DataType = elementType;
             SetControlsEnabled(!list.IsReadOnly && !_readOnly);
             UpdateDisplay();
         }
         internal protected virtual void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
         {
-            Property = propertyInfo;
-            PropertyOwner = propertyOwner;
-            DataType = Property.PropertyType;
-            SetControlsEnabled(Property.CanWrite && !_readOnly);
+            ParentInfo = new PropGridItemParentPropertyInfo(propertyOwner, propertyInfo);
+            DataType = propertyInfo.PropertyType;
+            SetControlsEnabled(propertyInfo.CanWrite && !_readOnly);
             UpdateDisplay();
         }
         internal void SetLabel(Label label)
@@ -264,6 +240,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.OnHandleDestroyed(e);
         }
         public override string ToString()
-            => DataType?.ToString() + " - " + Property.Name;
+            => DataType?.ToString() + " - " + ParentInfo?.ToString();
     }
 }

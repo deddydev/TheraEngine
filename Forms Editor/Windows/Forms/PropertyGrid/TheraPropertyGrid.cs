@@ -386,10 +386,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             return controlTypes.Select(x => InstantiatePropertyEditors(x, list, listIndex, elementType, dataChangeHandler)).ToList();
         }
         public static List<PropGridItem> InstantiateValuePropertyEditors(
-            Deque<Type> controlTypes, IDictionary dic, int listIndex, IDataChangeHandler dataChangeHandler)
+            Deque<Type> controlTypes, IDictionary dic, object key, IDataChangeHandler dataChangeHandler)
         {
-            Type elementType = dic.DetermineValueType();
-            return controlTypes.Select(x => InstantiatePropertyEditors(x, dic, listIndex, elementType, dataChangeHandler)).ToList();
+            Type valueType = dic.DetermineValueType();
+            return controlTypes.Select(x => InstantiatePropertyEditors(x, dic, key, false, valueType, dataChangeHandler)).ToList();
+        }
+        public static List<PropGridItem> InstantiateKeyPropertyEditors(
+            Deque<Type> controlTypes, IDictionary dic, object key, IDataChangeHandler dataChangeHandler)
+        {
+            Type keyType = dic.DetermineKeyType();
+            return controlTypes.Select(x => InstantiatePropertyEditors(x, dic, key, true, keyType, dataChangeHandler)).ToList();
         }
         /// <summary>
         /// Instantiates the given PropGridItem-derived control type for the given object in a list.
@@ -418,11 +424,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             control.Show();
             return control;
         }
-        public static PropGridItem InstantiatePropertyEditors(Type controlType, IDictionary dic, object key, Type valueType, IDataChangeHandler dataChangeHandler)
+        public static PropGridItem InstantiatePropertyEditors(Type controlType, IDictionary dic, object key, bool isKey, Type dataType, IDataChangeHandler dataChangeHandler)
         {
             PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
 
-            control.SetIListOwner(list, listElementType, listIndex);
+            control.SetIDictionaryOwner(dic, dataType, key, isKey);
             control.Dock = DockStyle.Fill;
             control.Visible = true;
 
@@ -449,7 +455,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             PropGridMethod control = new PropGridMethod()
             {
                 Method = m,
-                PropertyOwner = obj,
+                ParentInfo = new PropGridItemParentPropertyInfo(obj, null),
             };
 
             //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
@@ -660,6 +666,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             btnSave.Visible = true;
             Editor.Instance.UndoManager.AddChange(TargetFileObject.EditorState, oldValue, newValue, listOwner, listIndex);
+        }
+        public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
+        {
+            if (TargetFileObject == null)
+                return;
+            btnSave.Visible = true;
+            Editor.Instance.UndoManager.AddChange(TargetFileObject.EditorState, oldValue, newValue, dicOwner, key, isKey);
         }
 
         private void btnMoveDownLogicComp_Click(object sender, EventArgs e)
@@ -1000,6 +1013,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     {
         void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo);
         void IListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex);
-        void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key);
+        void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey);
     }
 }

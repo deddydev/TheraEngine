@@ -85,7 +85,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
 
             string displayName = displayNameAttrib?.DisplayName;
-            string propName = editors[0].Property?.Name;
+            var parentInfo = editors[0].ParentInfo;
+            string propName = editors[0].GetParentInfo<PropGridItemParentPropertyInfo>()?.Property?.Name;
             string name;
 
             if (!string.IsNullOrWhiteSpace(displayName))
@@ -96,9 +97,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 name = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
             }
+            else if (parentInfo is PropGridItemParentIListInfo listInfo)
+            {
+                name = string.Format("[{0}]", listInfo.Index);
+            }
+            else if (parentInfo is PropGridItemParentIDictionaryInfo dicInfo)
+            {
+                name = string.Format("[{0}]", dicInfo.Key.ToString());
+            }
             else
             {
-                name = string.Format("[{0}]", editors[0].IListIndex);
+                name = null;
             }
 
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
@@ -160,24 +169,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (label.Tag != null)
                 toolTip1.Hide(label);
         }
-
         private void Label_MouseEnter(object sender, EventArgs e)
         {
             Label label = sender as Label;
             if (label.Tag != null)
                 toolTip1.Show(label.Tag.ToString(), label);
         }
-
         private void lblCategoryName_MouseEnter(object sender, EventArgs e)
         {
             lblCategoryName.BackColor = pnlSide.BackColor = Color.FromArgb(14, 18, 34);
         }
-
         private void lblCategoryName_MouseLeave(object sender, EventArgs e)
         {
             lblCategoryName.BackColor = pnlSide.BackColor = Color.FromArgb(54, 58, 74);
         }
-
         private void lblCategoryName_MouseDown(object sender, MouseEventArgs e)
         {
             tblProps.Visible = !tblProps.Visible;
@@ -191,7 +196,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
         }
-
         //private void PropGridCategory_Resize(object sender, EventArgs e)
         //{
         //    tblProps.MinimumSize = tblProps.MaximumSize = new Size(Width - 10, 0);

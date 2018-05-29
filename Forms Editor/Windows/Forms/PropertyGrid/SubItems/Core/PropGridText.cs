@@ -29,9 +29,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             chkNull.Checked = value == null;
-            if (Property != null)
+            PropGridItemParentPropertyInfo propInfo = GetParentInfo<PropGridItemParentPropertyInfo>();
+            if (propInfo?.Property != null)
             {
-                object[] attribs = Property.GetCustomAttributes(true);
+                object[] attribs = propInfo.Property.GetCustomAttributes(true);
                 if (attribs.FirstOrDefault(x => x is TStringAttribute) is TStringAttribute s)
                 {
                     btnEdit.Visible = _multiLine = s.MultiLine;

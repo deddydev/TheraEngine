@@ -44,10 +44,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //Label.MouseDown += LabelMouseDown;
             //Label.MouseUp += LabelMouseUp;
 
-            if (PropertyOwner is TObject obj)
+            PropGridItemParentPropertyInfo propInfo = GetParentInfo<PropGridItemParentPropertyInfo>();
+            if (propInfo.Owner is TObject obj)
             {
                 var anims = obj.Animations?.
-                    Where(x => x.RootFolder?.PropertyName == Property.Name && x.RootFolder?.Animation.File != null).
+                    Where(x => x.RootFolder?.PropertyName == propInfo.Property.Name && x.RootFolder?.Animation.File != null).
                     Select(x => new MenuItem(x.Name, EditAnimation) { Tag = x }).
                     ToArray();
 
@@ -80,9 +81,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void CreateAnimation(object sender, EventArgs e)
         {
-            if (PropertyOwner is TObject obj)
+            PropGridItemParentPropertyInfo propInfo = GetParentInfo<PropGridItemParentPropertyInfo>();
+            if (propInfo.Owner is TObject obj)
             {
-                var anim = new AnimationContainer("NewAnimVec4", Property.Name, false, new PropAnimVec4(0.0f, true, true));
+                var anim = new AnimationContainer("NewAnimVec4", propInfo.Property.Name, false, new PropAnimVec4(0.0f, true, true));
                 obj.AddAnimation(anim);
                 var menu = Label.ContextMenu.MenuItems;
                 var menuItem = new MenuItem(anim.Name, EditAnimation) { Tag = anim };

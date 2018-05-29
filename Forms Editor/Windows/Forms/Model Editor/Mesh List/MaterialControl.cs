@@ -224,12 +224,6 @@ namespace TheraEditor.Windows.Forms
             basicRenderPanel1.Invalidate();
         }
 
-        public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
-        {
-            //btnSave.Visible = true;
-            Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
-        }
-
         private void lblMatName_Click(object sender, EventArgs e)
         {
             //panel2.Visible = !panel2.Visible;
@@ -266,10 +260,17 @@ namespace TheraEditor.Windows.Forms
 
         }
 
+        public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
+        {
+            Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
+        }
         public void IListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
         {
-            //btnSave.Visible = true;
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, listOwner, listIndex);
+        }
+        public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
+        {
+            Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, dicOwner, key, isKey);
         }
     }
 }

@@ -21,28 +21,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public event Action DoneEditing;
         public event Action ValueChanged;
-
-        //[EditorBrowsable(EditorBrowsableState.Never)]
-        //[Browsable(false)]
-        //public TheraPropertyGrid PropertyGrid { get; internal set; }
+        
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public PropGridItemParentInfo ParentInfo { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type DataType { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public PropertyInfo Property { get; set; }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public object PropertyOwner { get; set; }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
         public Label Label { get; set; }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public int IListIndex { get; set; }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public IList IListOwner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public bool ReadOnly
@@ -51,7 +39,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             set
             {
                 _readOnly = value;
-                SetControlsEnabled(!_readOnly && (Property != null ? Property.CanWrite : (IListOwner != null ? !IListOwner.IsReadOnly : true)));
+                SetControlsEnabled(!_readOnly && (ParentInfo == null || !ParentInfo.IsReadOnly()));
             }
         }
         /// <summary>
@@ -103,23 +91,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// </summary>
         protected void SubmitStateChange(object oldValue, object newValue)
         {
-            if (DataChangeHandler == null)
-                return;
-
-            if (IListOwner != null)
-            {
-                DataChangeHandler.ListObjectChanged(oldValue, newValue, IListOwner, IListIndex);
-                //PropertyGrid.btnSave.Visible = true;
-                //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
-                //    oldValue, newValue, IListOwner, IListIndex);
-            }
-            else if (Property != null && Property.CanWrite)
-            {
-                DataChangeHandler.PropertyObjectChanged(oldValue, newValue, PropertyOwner, Property);
-                //PropertyGrid.btnSave.Visible = true;
-                //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
-                //    oldValue, newValue, PropertyOwner, Property);
-            }
+            ParentInfo?.SubmitStateChange(oldValue, newValue, DataChangeHandler);
             DoneEditing?.Invoke();
         }
 
@@ -127,16 +99,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             try
             {
-                if (IListOwner != null)
-                    return IListOwner[IListIndex];
-
-                if (Property == null)
-                    throw new InvalidOperationException();
-
-                if (!Property.CanRead)
-                    return null;
-
-                return Property.GetValue(PropertyOwner);
+                return ParentInfo?.GetValue();
             }
             catch (Exception ex)
             {
@@ -154,6 +117,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 Engine.LogWarning("Tried setting class object to the same reference. Are you sure you didn't mean to update a property within?");
                 return;
+            }
+
+            if (submitStateChange)
+            {
+                object oldValue = ParentInfo.GetValue();
+
             }
 
             if (IListOwner != null)
@@ -221,6 +190,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
                 //    _oldValue, _newValue, classObject, info);
             }
+        }
+        internal protected virtual void SetIDictionaryOwner(IDictionary dic, Type dataType, object key)
+        {
+            IDictionaryOwner = dic;
+            IDictionaryKey = key;
+            DataType = dataType;
+            SetControlsEnabled(!dic.IsReadOnly && !_readOnly);
+            UpdateDisplay();
         }
         internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
         {

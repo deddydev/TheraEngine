@@ -159,6 +159,65 @@ namespace TheraEngine.Editor
 
             public override string ToString() => DisplayChangeAsRedo();
         }
+        public class DictionaryValueChange : LocalValueChange
+        {
+            public IDictionary DictionaryOwner { get; set; }
+            public object Key { get; set; }
+
+            public bool IsKey => Key == null;
+            public bool IsValue => Key != null;
+
+            public override void ApplyNewValue()
+            {
+                if (IsValue)
+                    DictionaryOwner[Key] = NewValue;
+                else
+                {
+                    if (!DictionaryOwner.Contains(OldValue))
+                        return;
+                    object value = DictionaryOwner[OldValue];
+                    if (DictionaryOwner.Contains(NewValue))
+                        DictionaryOwner[NewValue] = value;
+                    else
+                        DictionaryOwner.Add(NewValue, value);
+                    DictionaryOwner.Remove(OldValue);
+                }
+            }
+            public override void ApplyOldValue()
+            {
+                if (IsValue)
+                    DictionaryOwner[Key] = OldValue;
+                else
+                {
+                    if (!DictionaryOwner.Contains(NewValue))
+                        return;
+                    object value = DictionaryOwner[NewValue];
+                    if (DictionaryOwner.Contains(OldValue))
+                        DictionaryOwner[OldValue] = value;
+                    else
+                        DictionaryOwner.Add(OldValue, value);
+                    DictionaryOwner.Remove(NewValue);
+                }
+            }
+
+            public override string DisplayChangeAsRedo()
+            {
+                return string.Format("{0}.{1} {2} -> {3}",
+                  PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
+                  OldValue == null ? "null" : OldValue.ToString(),
+                  NewValue == null ? "null" : NewValue.ToString());
+            }
+
+            public override string DisplayChangeAsUndo()
+            {
+                return string.Format("{0}.{1} {2} <- {3}",
+                  PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
+                  OldValue == null ? "null" : OldValue.ToString(),
+                  NewValue == null ? "null" : NewValue.ToString());
+            }
+
+            public override string ToString() => DisplayChangeAsRedo();
+        }
         public class GlobalValueChange
         {
             public EditorState State { get; set; }

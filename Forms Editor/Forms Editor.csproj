@@ -479,6 +479,13 @@
     </Compile>
     <Compile Include="Windows\Forms\PropertyGrid\PropGridItemAttribute.cs" />
     <Compile Include="Windows\Forms\PropertyGrid\StringConverters.cs" />
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridDictionary.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridDictionary.Designer.cs">
+      <DependentUpon>PropGridDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridItemParentInfo.cs" />
     <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridMethod.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -860,6 +867,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridCategory.resx">
       <DependentUpon>PropGridCategory.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridDictionary.resx">
+      <DependentUpon>PropGridDictionary.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridMethod.resx">
       <DependentUpon>PropGridMethod.cs</DependentUpon>

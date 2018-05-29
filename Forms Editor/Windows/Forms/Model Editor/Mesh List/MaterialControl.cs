@@ -266,7 +266,7 @@ namespace TheraEditor.Windows.Forms
 
         }
 
-        public void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
+        public void IListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
         {
             //btnSave.Visible = true;
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, listOwner, listIndex);

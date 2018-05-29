@@ -38,22 +38,22 @@ namespace TheraEngine.Core.Files
         int elementIndex);
     public class BaseXMLSchemeReader
     {
-        public static Type[] FindPublicTypes(Predicate<Type> match)
-        {
-            return
-                (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-                 where !domainAssembly.IsDynamic
-                 from assemblyType in domainAssembly.GetExportedTypes()
-                 where match(assemblyType) && !assemblyType.IsAbstract
-                 select assemblyType).ToArray();
-        }
+        //public static Type[] FindPublicTypes(Predicate<Type> match)
+        //{
+        //    return
+        //        (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+        //         where !domainAssembly.IsDynamic
+        //         from assemblyType in domainAssembly.GetExportedTypes()
+        //         where match(assemblyType) && !assemblyType.IsAbstract
+        //         select assemblyType).ToArray();
+        //}
         public class ChildInfo
         {
             public ChildInfo(Child data)
             {
                 Data = data;
                 Occurrences = 0;
-                Types = FindPublicTypes((Type t) => Data.ChildEntryType.IsAssignableFrom(t) && t.GetCustomAttribute<Name>() != null);
+                Types = Engine.FindAllTypes((Type t) => Data.ChildEntryType.IsAssignableFrom(t) && t.GetCustomAttribute<Name>() != null).ToArray();
                 ElementNames = new Name[Types.Length];
                 for (int i = 0; i < Types.Length; ++i)
                 {

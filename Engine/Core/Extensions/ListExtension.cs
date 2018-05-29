@@ -12,6 +12,20 @@
                 return listType.GenericTypeArguments[0];
             return null;
         }
+        public static Type DetermineKeyType(this IDictionary dic)
+        {
+            Type listType = dic.GetType();
+            if (listType.IsGenericType)
+                return listType.GenericTypeArguments[0];
+            return null;
+        }
+        public static Type DetermineValueType(this IDictionary dic)
+        {
+            Type listType = dic.GetType();
+            if (listType.IsGenericType)
+                return listType.GenericTypeArguments[1];
+            return null;
+        }
         ///// <summary>
         ///// Returns true if index >= 0 && index<count
         ///// Use this so you don't have to write that every time.

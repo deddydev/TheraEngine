@@ -39,8 +39,8 @@ namespace TheraEngine.Animation
         {
             string[] theseNames = new string[_boneFrames.Keys.Count];
             _boneFrames.Keys.CopyTo(theseNames, 0);
-            string[] thoseNames = new string[other._boneAnimations.Keys.Count];
-            other._boneAnimations.Keys.CopyTo(thoseNames, 0);
+            string[] thoseNames = new string[other.BoneAnimations.Keys.Count];
+            other.BoneAnimations.Keys.CopyTo(thoseNames, 0);
             return theseNames.Intersect(thoseNames);
         }
         public ModelAnimationFrame BlendedWith(ModelAnimationFrame other, float otherWeight)
@@ -70,15 +70,15 @@ namespace TheraEngine.Animation
             {
                 if (_boneFrames.ContainsKey(name))
                 {
-                    if (other._boneAnimations.ContainsKey(name))
-                        blendedFrame.AddBoneFrame(_boneFrames[name].BlendedWith(other._boneAnimations[name], frameIndex, otherWeight));
+                    if (other.BoneAnimations.ContainsKey(name))
+                        blendedFrame.AddBoneFrame(_boneFrames[name].BlendedWith(other.BoneAnimations[name], frameIndex, otherWeight));
                     else
                         blendedFrame.AddBoneFrame(_boneFrames[name].BlendedWith(null, otherWeight));
                 }
                 else
                 {
-                    if (other._boneAnimations.ContainsKey(name))
-                        blendedFrame.AddBoneFrame(other._boneAnimations[name].BlendedWith(frameIndex, null, 1.0f - otherWeight));
+                    if (other.BoneAnimations.ContainsKey(name))
+                        blendedFrame.AddBoneFrame(other.BoneAnimations[name].BlendedWith(frameIndex, null, 1.0f - otherWeight));
                 }
             }
             return blendedFrame;
@@ -110,15 +110,15 @@ namespace TheraEngine.Animation
             {
                 if (_boneFrames.ContainsKey(name))
                 {
-                    if (other._boneAnimations.ContainsKey(name))
-                        _boneFrames[name].BlendedWith(other._boneAnimations[name], frameIndex, otherWeight);
+                    if (other.BoneAnimations.ContainsKey(name))
+                        _boneFrames[name].BlendedWith(other.BoneAnimations[name], frameIndex, otherWeight);
                     else
                         _boneFrames[name].BlendedWith(null, otherWeight);
                 }
                 else
                 {
-                    if (other._boneAnimations.ContainsKey(name))
-                        other._boneAnimations[name].BlendedWith(frameIndex, null, 1.0f - otherWeight);
+                    if (other.BoneAnimations.ContainsKey(name))
+                        other.BoneAnimations[name].BlendedWith(frameIndex, null, 1.0f - otherWeight);
                 }
             }
         }

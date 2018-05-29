@@ -36,7 +36,9 @@ namespace TheraEngine.Animation
             : base(frameCount, FPS, looped, isBaked) { }
 
         [TSerialize("BoneAnimations")]
-        public Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
+        private Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
+
+        public Dictionary<string, BoneAnimation> BoneAnimations { get => _boneAnimations; set => _boneAnimations = value; }
 
         public override void SetLength(float seconds, bool stretchAnimation)
         {
@@ -158,6 +160,7 @@ namespace TheraEngine.Animation
     }
     public class BoneAnimation
     {
+        public BoneAnimation() { }
         public BoneAnimation(SkeletalAnimation parent, string name)
         {
             _name = name;

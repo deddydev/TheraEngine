@@ -340,7 +340,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="propertyOwner">The object that owns the property.</param>
         /// <param name="stateChangeMethod">The method that will be called upon a change in value.</param>
         /// <returns></returns>
-        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, PropertyInfo prop, object propertyOwner, IDataChangeHandler dataChangeHandler)
+        public static List<PropGridItem> InstantiatePropertyEditors(
+            Deque<Type> controlTypes, PropertyInfo prop, object propertyOwner, IDataChangeHandler dataChangeHandler)
             => controlTypes.Select(x => InstantiatePropertyEditor(x, prop, propertyOwner, dataChangeHandler)).ToList();
         /// <summary>
         /// Instantiates the given PropGridItem-derived control type for the given property.
@@ -350,7 +351,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="propertyOwner">The object that owns the property.</param>
         /// <param name="stateChangeMethod">The method that will be called upon a change in value.</param>
         /// <returns></returns>
-        public static PropGridItem InstantiatePropertyEditor(Type controlType, PropertyInfo prop, object propertyOwner, IDataChangeHandler dataChangeHandler)
+        public static PropGridItem InstantiatePropertyEditor(
+            Type controlType, PropertyInfo prop, object propertyOwner, IDataChangeHandler dataChangeHandler)
         {
             PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
 
@@ -377,10 +379,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="listIndex"></param>
         /// <param name="stateChangeMethod"></param>
         /// <returns></returns>
-        public static List<PropGridItem> InstantiatePropertyEditors(Deque<Type> controlTypes, IList list, int listIndex, IDataChangeHandler dataChangeHandler)
+        public static List<PropGridItem> InstantiatePropertyEditors(
+            Deque<Type> controlTypes, IList list, int listIndex, IDataChangeHandler dataChangeHandler)
         {
             Type elementType = list.DetermineElementType();
             return controlTypes.Select(x => InstantiatePropertyEditors(x, list, listIndex, elementType, dataChangeHandler)).ToList();
+        }
+        public static List<PropGridItem> InstantiateValuePropertyEditors(
+            Deque<Type> controlTypes, IDictionary dic, int listIndex, IDataChangeHandler dataChangeHandler)
+        {
+            Type elementType = dic.DetermineValueType();
+            return controlTypes.Select(x => InstantiatePropertyEditors(x, dic, listIndex, elementType, dataChangeHandler)).ToList();
         }
         /// <summary>
         /// Instantiates the given PropGridItem-derived control type for the given object in a list.
@@ -391,6 +400,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="stateChangeMethod"></param>
         /// <returns></returns>
         public static PropGridItem InstantiatePropertyEditors(Type controlType, IList list, int listIndex, Type listElementType, IDataChangeHandler dataChangeHandler)
+        {
+            PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
+
+            control.SetIListOwner(list, listElementType, listIndex);
+            control.Dock = DockStyle.Fill;
+            control.Visible = true;
+
+            if (dataChangeHandler != null)
+            {
+                control.DataChangeHandler = dataChangeHandler;
+                //Engine.PrintLine(stateChangeMethod.Method.Name);
+            }
+            else
+                throw new Exception();
+
+            control.Show();
+            return control;
+        }
+        public static PropGridItem InstantiatePropertyEditors(Type controlType, IDictionary dic, object key, Type valueType, IDataChangeHandler dataChangeHandler)
         {
             PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
 
@@ -626,7 +654,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             btnSave.Visible = true;
             Editor.Instance.UndoManager.AddChange(TargetFileObject.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
         }
-        public void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
+        public void IListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
         {
             if (TargetFileObject == null)
                 return;
@@ -971,6 +999,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public interface IDataChangeHandler
     {
         void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo);
-        void ListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex);
+        void IListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex);
+        void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key);
     }
 }

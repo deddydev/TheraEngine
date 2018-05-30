@@ -87,7 +87,7 @@ namespace TheraEngine.Files.Serialization
 
                     string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
 
-                    TFileObject file = fref.File;
+                    IFileObject file = fref.File;
                     if (file.FileExtension != null)
                     {
                         string fileName = SerializationCommon.ResolveFileName(

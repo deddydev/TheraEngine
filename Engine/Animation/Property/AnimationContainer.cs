@@ -22,7 +22,7 @@ namespace TheraEngine.Animation
         [TSerialize("EndedAnimations")]
         private int _endedAnimations = 0;
         [TSerialize("State")]
-        private AnimationState _state = AnimationState.Stopped;
+        private EAnimationState _state = EAnimationState.Stopped;
         [TSerialize("TickGroup")]
         private ETickGroup _group = ETickGroup.PostPhysics;
         [TSerialize("TickOrder")]
@@ -33,9 +33,9 @@ namespace TheraEngine.Animation
         [PostDeserialize]
         private void PostDeserialize()
         {
-            if (_state == AnimationState.Playing)
+            if (_state == EAnimationState.Playing)
             {
-                _state = AnimationState.Stopped;
+                _state = EAnimationState.Stopped;
                 Start(_group, _order, _pausedBehavior);
             }
         }
@@ -89,7 +89,7 @@ namespace TheraEngine.Animation
         {
             if (Owners.Count == 0 && IsTicking)
                 UnregisterTick(_group, _order, Tick, _pausedBehavior);
-            else if (_state == AnimationState.Playing && Owners.Count != 0 && !IsTicking)
+            else if (_state == EAnimationState.Playing && Owners.Count != 0 && !IsTicking)
                 RegisterTick(_group, _order, Tick, _pausedBehavior);
         }
 
@@ -104,7 +104,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        public AnimationState State
+        public EAnimationState State
         {
             get => _state;
             set
@@ -113,16 +113,16 @@ namespace TheraEngine.Animation
                     return;
                 switch (value)
                 {
-                    case AnimationState.Playing:
-                        if (_state == AnimationState.Paused)
+                    case EAnimationState.Playing:
+                        if (_state == EAnimationState.Paused)
                             SetPaused(false);
                         else
                             Start(_group, _order, _pausedBehavior);
                         break;
-                    case AnimationState.Paused:
+                    case EAnimationState.Paused:
                         SetPaused(true);
                         break;
-                    case AnimationState.Stopped:
+                    case EAnimationState.Stopped:
                         Stop();
                         break;
                 }
@@ -136,7 +136,7 @@ namespace TheraEngine.Animation
             {
                 if (_group == value)
                     return;
-                if (_state != AnimationState.Stopped)
+                if (_state != EAnimationState.Stopped)
                 {
                     UnregisterTick(_group, _order, Tick, _pausedBehavior);
                     RegisterTick(value, _order, Tick, _pausedBehavior);
@@ -151,7 +151,7 @@ namespace TheraEngine.Animation
             {
                 if (_order == value)
                     return;
-                if (_state != AnimationState.Stopped)
+                if (_state != EAnimationState.Stopped)
                 {
                     UnregisterTick(_group, _order, Tick, _pausedBehavior);
                     RegisterTick(_group, value, Tick, _pausedBehavior);
@@ -166,7 +166,7 @@ namespace TheraEngine.Animation
             {
                 if (_pausedBehavior == value)
                     return;
-                if (_state != AnimationState.Stopped)
+                if (_state != EAnimationState.Stopped)
                 {
                     UnregisterTick(_group, _order, Tick, _pausedBehavior);
                     RegisterTick(_group, _order, Tick, value);
@@ -190,24 +190,24 @@ namespace TheraEngine.Animation
         public void Start() => Start(_group, _order, _pausedBehavior);
         public void Start(ETickGroup group, ETickOrder order, EInputPauseType pausedBehavior)
         {
-            if (_state == AnimationState.Playing)
+            if (_state == EAnimationState.Playing)
                 return;
 
             _group = group;
             _order = order;
             _pausedBehavior = pausedBehavior;
-            _state = AnimationState.Playing;
+            _state = EAnimationState.Playing;
 
             _root?.StartAnimations();
             AnimationStarted?.Invoke(this);
             RegisterTick(_group, _order, Tick, _pausedBehavior);
         }
         [Browsable(true)]
-        public void TogglePause() => SetPaused(_state != AnimationState.Paused);
+        public void TogglePause() => SetPaused(_state != EAnimationState.Paused);
         [Browsable(true)]
         public void SetPaused(bool pause)
         {
-            if (_state == AnimationState.Stopped)
+            if (_state == EAnimationState.Stopped)
             {
                 if (!pause)
                 {
@@ -216,18 +216,18 @@ namespace TheraEngine.Animation
             }
             else if (pause)
             {
-                if (_state == AnimationState.Paused)
+                if (_state == EAnimationState.Paused)
                     return;
 
-                _state = AnimationState.Paused;
+                _state = EAnimationState.Paused;
                 UnregisterTick(_group, _order, Tick, _pausedBehavior);
             }
             else
             {
-                if (_state != AnimationState.Paused)
+                if (_state != EAnimationState.Paused)
                     return;
 
-                _state = AnimationState.Playing;
+                _state = EAnimationState.Playing;
                 RegisterTick(_group, _order, Tick, _pausedBehavior);
             }
         }
@@ -237,13 +237,13 @@ namespace TheraEngine.Animation
         [Browsable(true)]
         public void Stop()
         {
-            if (_state == AnimationState.Stopped)
+            if (_state == EAnimationState.Stopped)
                 return;
 
             if (_endedAnimations < _totalAnimCount)
                 _root?.StopAnimations();
 
-            _state = AnimationState.Stopped;
+            _state = EAnimationState.Stopped;
             UnregisterTick(_group, _order, Tick, _pausedBehavior);
             AnimationEnded?.Invoke(this);
         }

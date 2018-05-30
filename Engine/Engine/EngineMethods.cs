@@ -210,11 +210,11 @@ namespace TheraEngine
             //Steamworks.SteamAPI.Shutdown();
             Stop();
             SetCurrentWorld(null, true, true);
-            IEnumerable<TFileObject> files = LocalFileInstances.SelectMany(x => x.Value);
-            foreach (TFileObject o in files)
+            IEnumerable<IFileObject> files = LocalFileInstances.SelectMany(x => x.Value);
+            foreach (IFileObject o in files)
                 o?.Unload();
             files = GlobalFileInstances.Values;
-            foreach (TFileObject o in files)
+            foreach (IFileObject o in files)
                 o?.Unload();
             var contexts = new List<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in contexts)
@@ -607,12 +607,12 @@ namespace TheraEngine
         //    return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
         //}
 
-        internal static bool AddLocalFileInstance<T>(string path, T file) where T : TFileObject
+        internal static bool AddLocalFileInstance<T>(string path, T file) where T : class, IFileObject
         {
             if (string.IsNullOrEmpty(path) || file == null)
                 return false;
 
-            LocalFileInstances.AddOrUpdate(path, new List<TFileObject>() { file }, (key, oldValue) =>
+            LocalFileInstances.AddOrUpdate(path, new List<IFileObject>() { file }, (key, oldValue) =>
             {
                 oldValue.Add(file);
                 return oldValue;
@@ -620,7 +620,7 @@ namespace TheraEngine
             
             return true;
         }
-        internal static bool AddGlobalFileInstance<T>(string path, T file) where T : TFileObject
+        internal static bool AddGlobalFileInstance<T>(string path, T file) where T : class, IFileObject
         {
             if (string.IsNullOrEmpty(path) || file == null)
                 return false;

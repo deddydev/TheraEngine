@@ -16,44 +16,44 @@ namespace TheraEngine.Animation
             : base(frameCount, fPS, looped, isBaked) { }
         public void Tick(object obj, PropertyInfo property, float delta)
         {
-            if (_state != AnimationState.Playing)
+            if (_state != EAnimationState.Playing)
                 return;
             property.SetValue(obj, GetValueGeneric(_currentTime));
             Progress(delta);
         }
         public void Tick(object obj, MethodInfo method, float delta)
         {
-            if (_state != AnimationState.Playing)
+            if (_state != EAnimationState.Playing)
                 return;
             method.Invoke(obj, new object[] { GetValueGeneric(_currentTime) });
             Progress(delta);
         }
         public override void Start()
         {
-            if (_state == AnimationState.Playing)
+            if (_state == EAnimationState.Playing)
                 return;
             PreStarted();
-            _state = AnimationState.Playing;
+            _state = EAnimationState.Playing;
             CurrentTime = 0.0f;
             OnAnimationStarted();
             PostStarted();
         }
         public override void Stop()
         {
-            if (_state == AnimationState.Stopped)
+            if (_state == EAnimationState.Stopped)
                 return;
             PreStopped();
             CurrentTime = 0.0f;
-            _state = AnimationState.Stopped;
+            _state = EAnimationState.Stopped;
             OnAnimationEnded();
             PostStopped();
         }
         public override void Pause()
         {
-            if (_state != AnimationState.Playing)
+            if (_state != EAnimationState.Playing)
                 return;
             PrePaused();
-            _state = AnimationState.Paused;
+            _state = EAnimationState.Paused;
             OnAnimationPaused();
             PostPaused();
         }

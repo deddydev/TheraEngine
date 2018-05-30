@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering.Textures
             Engine.PrintLine("Loading texture async from " + path);
             Task.Run(() => TextureConverter.Decode(path)).ContinueWith(t => { _bitmaps = t.Result; onFinishedAsync?.Invoke(this); });
         }
-        protected internal override void Read3rdParty(string filePath)
+        public override void Read3rdParty(string filePath)
         {
             Engine.PrintLine("Loading texture from " + filePath);
             _bitmaps = TextureConverter.Decode(filePath);

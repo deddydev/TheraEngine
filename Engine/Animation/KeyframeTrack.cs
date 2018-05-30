@@ -374,7 +374,7 @@ namespace TheraEngine.Animation
         protected Keyframe _next, _prev;
 
         private bool _isFirst;
-        private int _trackIndex;
+        //private int _trackIndex;
         private BaseKeyframeTrack _owningTrack;
 
         public Keyframe()
@@ -429,13 +429,16 @@ namespace TheraEngine.Animation
 
         private void Relink(Keyframe key)
         {
-            if (key.Second > _next.Second && _next.Second > Second)
+            if (key == null)
+                return;
+
+            if (_next != null && key.Second > _next.Second && _next.Second > Second)
             {
                 _next.Relink(key);
                 return;
             }
 
-            if (key.Second < Second && _prev.Second < Second)
+            if (_prev != null && key.Second < Second && _prev.Second < Second)
             {
                 _prev.Relink(key);
                 return;
@@ -444,10 +447,11 @@ namespace TheraEngine.Animation
             key._next = _next;
             key._prev = this;
 
-            _next._prev = key;
+            if (_next != null)
+                _next._prev = key;
             _next = key;
 
-            if (key.Next.IsFirst && key.Second < key.Next.Second)
+            if (key.Next != null && key.Next.IsFirst && key.Second < key.Next.Second)
                 key.Next.OwningTrack.FirstKey = key;
 
             if (!key.IsFirst)
@@ -461,13 +465,14 @@ namespace TheraEngine.Animation
                 key.OwningTrack = key.Next.OwningTrack;
             }
 
-            OwningTrack.OnChanged();
+            OwningTrack?.OnChanged();
         }
 
         public Keyframe Link(Keyframe key)
         {
             Relink(key);
-            ++key.OwningTrack.Count;
+            if (key.OwningTrack != null)
+                ++key.OwningTrack.Count;
             return key;
         }
 

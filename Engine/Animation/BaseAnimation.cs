@@ -8,7 +8,7 @@ namespace TheraEngine.Animation
     /// <summary>
     /// Dictates the current state of an animation.
     /// </summary>
-    public enum AnimationState
+    public enum EAnimationState
     {
         /// <summary>
         /// Stopped means that the animation is not playing and is set to its initial start position.
@@ -58,7 +58,7 @@ namespace TheraEngine.Animation
         [TSerialize("Looped")]
         protected bool _looped = false;
         [TSerialize("State")]
-        protected AnimationState _state = AnimationState.Stopped;
+        protected EAnimationState _state = EAnimationState.Stopped;
         [TSerialize("IsBaked")]
         protected bool _isBaked = false;
 
@@ -156,7 +156,7 @@ namespace TheraEngine.Animation
                 _currentTime = value;
                 if (_currentTime > _lengthInSeconds || _currentTime < 0.0f)
                 {
-                    if (_state == AnimationState.Playing && !_looped)
+                    if (_state == EAnimationState.Playing && !_looped)
                         Stop();
                     else
                         _currentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
@@ -166,14 +166,14 @@ namespace TheraEngine.Animation
         }
 
         [Category("Animation")]
-        public AnimationState State  => _state;
+        public EAnimationState State  => _state;
 
         [PostDeserialize]
         private void PostDeserialize()
         {
-            if (_state == AnimationState.Playing)
+            if (_state == EAnimationState.Playing)
             {
-                _state = AnimationState.Stopped;
+                _state = EAnimationState.Stopped;
                 Start();
             }
         }
@@ -183,10 +183,10 @@ namespace TheraEngine.Animation
         protected virtual void PostStarted() { }
         public virtual void Start()
         {
-            if (_state == AnimationState.Playing)
+            if (_state == EAnimationState.Playing)
                 return;
             PreStarted();
-            _state = AnimationState.Playing;
+            _state = EAnimationState.Playing;
             AnimationStarted?.Invoke();
             CurrentTime = 0.0f;
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
@@ -196,11 +196,11 @@ namespace TheraEngine.Animation
         protected virtual void PostStopped() { }
         public virtual void Stop()
         {
-            if (_state == AnimationState.Stopped)
+            if (_state == EAnimationState.Stopped)
                 return;
             PreStopped();
             _currentTime = 0.0f;
-            _state = AnimationState.Stopped;
+            _state = EAnimationState.Stopped;
             OnAnimationEnded();
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostStopped();
@@ -209,10 +209,10 @@ namespace TheraEngine.Animation
         protected virtual void PostPaused() { }
         public virtual void Pause()
         {
-            if (_state != AnimationState.Playing)
+            if (_state != EAnimationState.Playing)
                 return;
             PrePaused();
-            _state = AnimationState.Paused;
+            _state = EAnimationState.Paused;
             OnAnimationPaused();
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostPaused();

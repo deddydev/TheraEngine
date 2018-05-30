@@ -46,7 +46,7 @@ namespace TheraEngine.Files
         ThirdParty  = 2,
         //Programatic = 3,
     }
-    public interface IFileObject : IObjectBase
+    public interface IFileObject : IObject
     {
         string FilePath { get; set; }
         List<IFileRef> References { get; set; }
@@ -60,6 +60,7 @@ namespace TheraEngine.Files
         void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.Default);
         string GetFilePath(string dir, string name, ProprietaryFileFormat format);
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
+        void Read3rdParty(string path);
     }
     //[FileExt("tasset")]
     //[FileDef("Thera Engine Asset")]
@@ -688,9 +689,9 @@ namespace TheraEngine.Files
             Write3rdParty(FilePath);
             Engine.PrintLine("Saved third party file to {0}", FilePath);
         }
-        internal unsafe static T Read3rdParty<T>(string filePath) where T : TFileObject
+        public unsafe static T Read3rdParty<T>(string filePath) where T : TFileObject
             => Read3rdParty(typeof(T), filePath) as T;
-        internal unsafe static TFileObject Read3rdParty(Type classType, string filePath)
+        public unsafe static TFileObject Read3rdParty(Type classType, string filePath)
         {
             string ext = Path.GetExtension(filePath).Substring(1);
             DelThirdPartyFileMethod loader = Get3rdPartyLoader(classType, ext);
@@ -758,13 +759,13 @@ namespace TheraEngine.Files
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to write the object to a path.
         /// </summary>
         /// <param name="filePath">The path of the file to write.</param>
-        internal protected virtual void Write3rdParty(string filePath)
+        public virtual void Write3rdParty(string filePath)
             => throw new NotImplementedException("Override of \"internal protected virtual void WriteThirdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
         /// <summary>
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to read the object from a path.
         /// </summary>
         /// <param name="filePath">The path of the file to read.</param>
-        internal protected virtual void Read3rdParty(string filePath)
+        public virtual void Read3rdParty(string filePath)
             => throw new NotImplementedException("Override of \"internal protected virtual void ReadThirdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
         #endregion
     }

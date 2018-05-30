@@ -1,16 +1,13 @@
-﻿using TheraEngine.Worlds;
-using System.Collections.Generic;
-using TheraEngine.Animation;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using TheraEngine.Actors;
-using System;
+using TheraEngine.Animation;
+using TheraEngine.Files;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Cutscenes
 {
-    public class CutsceneKeyframe
-    {
-        public AnimationContainer Animation { get; set; }
-        public float LaunchSecond { get; set; }
-    }
     public class Cutscene : BaseAnimation
     {
         public Cutscene() : base(0.0f, false, false) { }
@@ -19,25 +16,25 @@ namespace TheraEngine.Cutscenes
         public Cutscene(int frameCount, float FPS, bool looped, bool isBaked = false)
             : base(frameCount, FPS, looped, isBaked) { }
         
-        public World World
-        {
-            get => _world;
-            set => _world = value;
-        }
-        public List<IActor> InvolvedActors
+        public List<GlobalFileRef<IActor>> InvolvedActors
         {
             get => _involvedActors;
             set => _involvedActors = value;
         }
-        
-        LinkedList<CutsceneKeyframe> _keys = new LinkedList<CutsceneKeyframe>();
+        public GlobalFileRef<World> WorldRef
+        {
+            get => _worldRef;
+            set => _worldRef = value;
+        }
+
+        [TSerialize]
+        private KeyframeTrack<CutsceneKeyframe> _keyframes;
 
         //ONLY render actors visible in the cutsene to improve performance
         //Precompute visibility in the editor, then compile the list of visible actors here.
-        private List<IActor> _involvedActors;
-        //How long this cutscene runs for, in seconds
-        private float _length;
-        private World _world;
+        private List<GlobalFileRef<IActor>> _involvedActors;
+        private GlobalFileRef<World> _worldRef;
+        private Camera CurrentCamera { get; set; }
 
         /// <summary>
         /// Initializes starting positions of all cutscene actors and animations.
@@ -48,22 +45,29 @@ namespace TheraEngine.Cutscenes
         }
         protected override void PreStarted()
         {
-            if (Engine.World != _world)
-                Engine.SetCurrentWorld(_world, false, false);
+            if (Engine.World != _worldRef.File)
+                Engine.SetCurrentWorld(_worldRef.File, false, false);
         }
-        public void Tick(float delta)
-        {
-
-        }
-
         protected override void BakedChanged()
         {
-            throw new NotImplementedException();
-        }
 
+        }
         public override void Bake(float framesPerSecond)
         {
-            throw new NotImplementedException();
+
+        }
+    }
+    public class CutsceneKeyframe : Keyframe
+    {
+        public AnimationContainer Animation { get; set; }
+
+        public override void ReadFromString(string str)
+        {
+
+        }
+        public override string WriteToString()
+        {
+            return null;
         }
     }
 }

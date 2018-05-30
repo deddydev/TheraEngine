@@ -220,7 +220,7 @@ namespace TheraEngine.Animation
                 "ScaleY",
                 "ScaleZ",
             };
-            if (reader.BeginElement() && reader.Name.Equals("TransformKeyCollection", false))
+            if (reader.Name.Equals("TransformKeyCollection", false))
             {
                 if (reader.ReadAttribute() && reader.Name.Equals("LengthInSeconds", false))
                     LengthInSeconds = float.TryParse(reader.Value, out float length) ? length : 0.0f;
@@ -229,7 +229,7 @@ namespace TheraEngine.Animation
 
                 while (reader.BeginElement())
                 {
-                    int trackIndex = names.IndexOf(reader.Name);
+                    int trackIndex = names.IndexOf(reader.Name.ToString());
                     if (_tracks.IndexInRange(trackIndex))
                     {
                         KeyframeTrack<FloatKeyframe> track = _tracks[trackIndex];

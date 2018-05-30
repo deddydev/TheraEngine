@@ -9,7 +9,7 @@ namespace TheraEngine.Files
 {
     public interface IFileRef : IFileLoader
     {
-        TFileObject File { get; }
+        IFileObject File { get; }
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         void UnloadReference();
@@ -20,7 +20,7 @@ namespace TheraEngine.Files
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
     [FileExt("ref")]
-    public abstract class FileRef<T> : FileLoader<T>, IFileRef where T : TFileObject
+    public abstract class FileRef<T> : FileLoader<T>, IFileRef where T : class, IFileObject
     {
         #region Constructors
         public FileRef() : base() { }
@@ -107,7 +107,7 @@ namespace TheraEngine.Files
         [Browsable(false)]
         public override bool FileExists => File != null || base.FileExists;
 
-        TFileObject IFileRef.File => File;
+        IFileObject IFileRef.File => File;
         
         [Category("File Reference")]
         [BrowsableIf("_file != null")]

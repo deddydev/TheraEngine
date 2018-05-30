@@ -9,7 +9,7 @@ using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Files
 {
-    public interface IFileLoader
+    public interface IFileLoader : IFileObject
     {
         bool EngineRelativePath { get; set; }
         string ReferencePathRelative { get; set; }
@@ -21,7 +21,7 @@ namespace TheraEngine.Files
     /// </summary>
     [FileExt("ldr")]
     [FileDef("File Loader")]
-    public class FileLoader<T> : TFileObject, IFileLoader where T : TFileObject
+    public class FileLoader<T> : TFileObject, IFileLoader where T : class, IFileObject
     {
         #region Constructors
         public FileLoader() : this(typeof(T)) { }

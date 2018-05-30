@@ -14,7 +14,7 @@ namespace TheraEngine.Files
     /// </summary>
     [FileExt("lref")]
     [FileDef("Local File Reference")]
-    public class LocalFileRef<T> : FileRef<T>, ILocalFileRef where T : TFileObject
+    public class LocalFileRef<T> : FileRef<T>, ILocalFileRef where T : class, IFileObject
     {
         public LocalFileRef()
             : base() { }

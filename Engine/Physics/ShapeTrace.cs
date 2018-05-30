@@ -35,12 +35,12 @@ namespace TheraEngine.Physics.ShapeTracing
     }
     public abstract class ShapeTrace
     {
-        public TCollisionShape Shape { get; private set; }
-        public Matrix4 Start { get; private set; }
-        public Matrix4 End { get; private set; }
+        public TCollisionShape Shape { get; set; }
+        public Matrix4 Start { get; set; }
+        public Matrix4 End { get; set; }
         public ushort CollisionGroup { get; set; }
         public ushort CollidesWith { get; set; }
-        public TCollisionObject[] Ignored { get; private set; }
+        public TCollisionObject[] Ignored { get; set; }
         public float AllowedCcdPenetration { get; set; } = -1.0f;
         public abstract bool HasHit { get; }
 

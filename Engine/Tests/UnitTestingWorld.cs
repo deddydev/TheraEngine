@@ -282,7 +282,7 @@ namespace TheraEngine.Tests
             actor = new SphereTraceActor();
             actors.Add(actor);
 
-            float rotationsPerSecond = 0.2f, testRadius = 20.0f, testHeight = 20.0f;
+            float rotationsPerSecond = 0.2f, testRadius = 15.0f, testHeight = 20.0f;
             PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
                 1.0f / rotationsPerSecond, true, second =>
             {
@@ -362,14 +362,18 @@ namespace TheraEngine.Tests
         public SphereTraceActor()
         {
             _renderCommand = new RenderCommandDebug3D(Render);
+            _sphere = TCollisionSphere.New(2.0f);
+            _shapeCast = new ShapeTraceClosest(_sphere, Matrix4.Identity, Matrix4.Identity,
+                (ushort)(TCollisionGroup.DynamicWorld), (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
         }
 
         private Vec3 _direction;
         private Matrix4 _endTraceTransform = Matrix4.Identity;
-        private TCollisionSphere _sphere = TCollisionSphere.New(3.0f);
+        private TCollisionSphere _sphere;
         private bool _hasHit = false;
         private Vec3 _hitPoint, _hitNormal, _drawPoint;
         private float _testDistance = 40.0f;
+        private ShapeTraceClosest _shapeCast;
 
         public float TestDistance
         {
@@ -416,13 +420,13 @@ namespace TheraEngine.Tests
 
         private void Tick(float delta)
         {
-            ShapeTraceClosest t = new ShapeTraceClosest(_sphere, RootComponent.WorldMatrix, _endTraceTransform, 
-                (ushort)(TCollisionGroup.DynamicWorld), (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
-            if (_hasHit = t.Trace())
+            _shapeCast.Start = RootComponent.WorldMatrix;
+            _shapeCast.End = _endTraceTransform;
+            if (_hasHit = _shapeCast.Trace())
             {
-                _hitPoint = t.HitPointWorld;
-                _hitNormal = t.HitNormalWorld;
-                _drawPoint = RootComponent.Translation + _direction * t.HitFraction;
+                _hitPoint = _shapeCast.HitPointWorld;
+                _hitNormal = _shapeCast.HitNormalWorld;
+                _drawPoint = RootComponent.Translation + _direction * _shapeCast.HitFraction;
             }
             else
             {

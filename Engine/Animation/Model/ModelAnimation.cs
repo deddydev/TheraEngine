@@ -194,7 +194,7 @@ namespace TheraEngine.Animation
         public string _name;
         private bool _useKeyframes = true;
 
-        [TSerialize("TransformKeys")]
+        [TSerialize("TransformKeyCollection")]
         private TransformKeyCollection _tracks = new TransformKeyCollection();
 
         [Category("Bone Animation")]

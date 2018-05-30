@@ -23,7 +23,7 @@ namespace TheraEngine
     {
 
     }
-    public interface IBaseSubMesh : IObjectBase
+    public interface IBaseSubMesh : IObject
     {
         bool VisibleByDefault { get; set; }
         List<LOD> LODs { get; }

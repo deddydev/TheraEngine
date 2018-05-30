@@ -286,6 +286,12 @@
     <Compile Include="Windows\Forms\Model Editor\DockableMaterialEditor.Designer.cs">
       <DependentUpon>DockableMaterialEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Animation\DockableAnimationEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Animation\DockableAnimationEditor.Designer.cs">
+      <DependentUpon>DockableAnimationEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Model Editor\DockableMeshEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -772,6 +778,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialEditor.resx">
       <DependentUpon>DockableMaterialEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Animation\DockableAnimationEditor.resx">
+      <DependentUpon>DockableAnimationEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMeshEditor.resx">
       <DependentUpon>DockableMeshEditor.cs</DependentUpon>

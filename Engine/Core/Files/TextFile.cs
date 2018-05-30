@@ -48,12 +48,12 @@ namespace TheraEngine.Core.Files
         public static implicit operator TextFile(string text)
             => FromText(text);
 
-        protected internal override void Read3rdParty(string filePath)
+        public override void Read3rdParty(string filePath)
         {
             FilePath = filePath;
             Text = LoadText();
         }
-        protected internal override void Write3rdParty(string filePath)
+        public override void Write3rdParty(string filePath)
         {
             File.WriteAllText(filePath, Text);
         }

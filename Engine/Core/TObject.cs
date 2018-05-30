@@ -9,7 +9,7 @@ using TheraEngine.Scripting;
 
 namespace TheraEngine
 {
-    public interface IObjectBase
+    public interface IObject
     {
         string Name { get; set; }
         object UserObject { get; set; }
@@ -48,7 +48,7 @@ namespace TheraEngine
     public delegate void ResourceEventHandler(TObject node);
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
-    public abstract class TObject
+    public abstract class TObject : IObject
     {
         /// <summary>
         /// Event called any time a new object is created.

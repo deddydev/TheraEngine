@@ -26,31 +26,18 @@ namespace TheraEngine.Rendering.Models.Materials
 
 #if EDITOR
         [TSerialize]
-        public ResultFunc EditorMaterialEnd
-        {
-            get => _editorMaterialEnd;
-            set => _editorMaterialEnd = value;
-        }
-        private ResultFunc _editorMaterialEnd;
+        public ResultFunc EditorMaterialEnd { get; set; }
 #endif
 
-        private List<GLSLShaderFile> _geometryShaders = new List<GLSLShaderFile>();
-        private List<GLSLShaderFile> _tessEvalShaders = new List<GLSLShaderFile>();
-        private List<GLSLShaderFile> _tessCtrlShaders = new List<GLSLShaderFile>();
-        private List<GLSLShaderFile> _fragmentShaders = new List<GLSLShaderFile>();
-        private List<GLSLShaderFile> _vertexShaders = new List<GLSLShaderFile>();
-        
         [TSerialize("Shaders")]
         private List<GLSLShaderFile> _shaders = new List<GLSLShaderFile>();
-        
-        private UniformRequirements _requirements = UniformRequirements.None;
 
-        public List<GLSLShaderFile> FragmentShaders => _fragmentShaders;
-        public List<GLSLShaderFile> GeometryShaders => _geometryShaders;
-        public List<GLSLShaderFile> TessEvalShaders => _tessEvalShaders;
-        public List<GLSLShaderFile> TessCtrlShaders => _tessCtrlShaders;
-        public List<GLSLShaderFile> VertexShaders => _vertexShaders;
-        
+        public List<GLSLShaderFile> FragmentShaders { get; } = new List<GLSLShaderFile>();
+        public List<GLSLShaderFile> GeometryShaders { get; } = new List<GLSLShaderFile>();
+        public List<GLSLShaderFile> TessEvalShaders { get; } = new List<GLSLShaderFile>();
+        public List<GLSLShaderFile> TessCtrlShaders { get; } = new List<GLSLShaderFile>();
+        public List<GLSLShaderFile> VertexShaders { get; } = new List<GLSLShaderFile>();
+
         [Flags]
         public enum UniformRequirements
         {
@@ -59,13 +46,9 @@ namespace TheraEngine.Rendering.Models.Materials
             NeedsLights = 2,
             NeedsLightsAndCamera = 3,
         }
-        
+
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public UniformRequirements Requirements
-        {
-            get => _requirements;
-            set => _requirements = value;
-        }
+        public UniformRequirements Requirements { get; set; } = UniformRequirements.None;
 
         public TMaterial()
             : this("NewMaterial", new RenderingParameters()) { }
@@ -146,11 +129,11 @@ namespace TheraEngine.Rendering.Models.Materials
         [PostDeserialize]
         private void ShadersChanged()
         {
-            _fragmentShaders.Clear();
-            _geometryShaders.Clear();
-            _tessCtrlShaders.Clear();
-            _tessEvalShaders.Clear();
-            _vertexShaders.Clear();
+            FragmentShaders.Clear();
+            GeometryShaders.Clear();
+            TessCtrlShaders.Clear();
+            TessEvalShaders.Clear();
+            VertexShaders.Clear();
 
             if (_program != null)
             {
@@ -164,19 +147,19 @@ namespace TheraEngine.Rendering.Models.Materials
                     switch (s.Type)
                     {
                         case EShaderMode.Vertex:
-                            _vertexShaders.Add(s);
+                            VertexShaders.Add(s);
                             break;
                         case EShaderMode.Fragment:
-                            _fragmentShaders.Add(s);
+                            FragmentShaders.Add(s);
                             break;
                         case EShaderMode.Geometry:
-                            _geometryShaders.Add(s);
+                            GeometryShaders.Add(s);
                             break;
                         case EShaderMode.TessControl:
-                            _tessCtrlShaders.Add(s);
+                            TessCtrlShaders.Add(s);
                             break;
                         case EShaderMode.TessEvaluation:
-                            _tessEvalShaders.Add(s);
+                            TessEvalShaders.Add(s);
                             break;
                     }
                 }

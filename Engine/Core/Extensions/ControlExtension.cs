@@ -52,6 +52,7 @@ namespace TheraEngine.Core.Extensions
                     {
                         Application.DoEvents();
                         Thread.Sleep(0);
+                        break;
                     }
                     c.EndInvoke(async);
                 }

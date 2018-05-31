@@ -6,6 +6,7 @@ using System.Linq;
 using TheraEngine.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Components.Logic.Animation;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Animation
 {
@@ -37,6 +38,13 @@ namespace TheraEngine.Animation
 
         [TSerialize("BoneAnimations")]
         private Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
+
+        [PostDeserialize]
+        private void PostDeserialize()
+        {
+            foreach (BoneAnimation b in _boneAnimations.Values)
+                b.Parent = this;
+        }
 
         public Dictionary<string, BoneAnimation> BoneAnimations { get => _boneAnimations; set => _boneAnimations = value; }
 
@@ -77,7 +85,7 @@ namespace TheraEngine.Animation
             foreach (BoneAnimation bone in _boneAnimations.Values)
                 bone.UpdateSkeleton(skeleton);
         }
-        public IEnumerable<string> GetAllNames(ModelAnimationFrame other)
+        public IEnumerable<string> GetAllNames(SkeletalAnimationFrame other)
         {
             return other.GetAllNames(this);
         }
@@ -114,9 +122,9 @@ namespace TheraEngine.Animation
             }
         }
 
-        public ModelAnimationFrame GetFrame()
+        public SkeletalAnimationFrame GetFrame()
         {
-            ModelAnimationFrame frame = new ModelAnimationFrame();
+            SkeletalAnimationFrame frame = new SkeletalAnimationFrame();
             foreach (BoneAnimation bone in _boneAnimations.Values)
                 frame.AddBoneFrame(bone.GetFrame());
             return frame;

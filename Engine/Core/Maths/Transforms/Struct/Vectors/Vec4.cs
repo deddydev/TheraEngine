@@ -21,6 +21,8 @@ namespace TheraEngine.Core.Maths.Transforms
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable, IParsable
     {
+        public static readonly int Size = sizeof(Vec4);
+
         public float X, Y, Z, W;
 
         [Browsable(false)]
@@ -45,7 +47,7 @@ namespace TheraEngine.Core.Maths.Transforms
         public static readonly Vec4 One = new Vec4(1.0f, 1.0f, 1.0f, 1.0f);
         public static readonly Vec4 Min = new Vec4(float.MinValue);
         public static readonly Vec4 Max = new Vec4(float.MaxValue);
-        
+
         public Vec4(float value)
         {
             X = value;

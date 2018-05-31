@@ -780,13 +780,17 @@ namespace TheraEngine.Rendering
         IncrWrap = 34055,
         DecrWrap = 34056
     }
+    public enum EBufferRangeTarget
+    {
+        UniformBuffer = 35345,
+        TransformFeedbackBuffer = 35982,
+        ShaderStorageBuffer = 37074,
+        AtomicCounterBuffer = 37568
+    }
     public enum EFramebufferTarget
     {
         ReadFramebuffer = 36008,
         DrawFramebuffer = 36009,
-        /// <summary>
-        /// Same as DrawFramebuffer.
-        /// </summary>
         Framebuffer     = 36160,
     }
     public enum EDrawBuffersAttachment : ushort

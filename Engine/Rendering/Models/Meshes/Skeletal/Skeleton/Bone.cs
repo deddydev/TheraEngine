@@ -129,8 +129,8 @@ namespace TheraEngine.Rendering.Models
             foreach (Bone b in _childBones)
                 b._parent = this;
             _frameState = _bindState.HardCopy();
+            _frameState.MatrixChanged += FrameStateMatrixChanged;
             TriggerFrameMatrixUpdate();
-            TriggerChildFrameMatrixUpdate();
         }
 
         private bool _frameMatrixChanged = false;
@@ -213,8 +213,8 @@ namespace TheraEngine.Rendering.Models
         public Matrix4 InverseBindMatrix => _inverseBindMatrix;
         [Browsable(false)]
         public Matrix4 VertexMatrix => _vtxPosMtx;
-        [Browsable(false)]
-        public Matrix4 NormalMatrix => _vtxNrmMtx;
+        //[Browsable(false)]
+        //public Matrix4 NormalMatrix => _vtxNrmMtx;
         [Browsable(false)]
         public bool FrameMatrixChanged => _frameMatrixChanged;
         //[Browsable(false)]
@@ -354,7 +354,8 @@ namespace TheraEngine.Rendering.Models
         public void CalcFrameMatrix(Camera c, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
         {
             bool usesCamera = UsesCamera;
-            if (_frameMatrixChanged || force || usesCamera)
+            bool needsUpdate = _frameMatrixChanged || force || usesCamera;
+            if (needsUpdate)
             {
                 if (usesCamera)
                 {
@@ -387,7 +388,7 @@ namespace TheraEngine.Rendering.Models
                 
                 //Precalculate vertex/normal weighting matrices
                 _vtxPosMtx = FrameMatrix * InverseBindMatrix;
-                _vtxNrmMtx = (BindMatrix * InverseFrameMatrix).Transposed().GetRotationMatrix4();
+                //_vtxNrmMtx = (BindMatrix * InverseFrameMatrix).Transposed().GetRotationMatrix4();
 
                 //Process skinning information dealing with this bone
                 if (Engine.Settings.SkinOnGPU)
@@ -402,19 +403,18 @@ namespace TheraEngine.Rendering.Models
                     _influencedInfluences.ForEach(x => x._hasChanged = true);
                 }
 
+                //Recalculate child component transforms
                 foreach (SceneComponent comp in _childComponents)
                     comp.RecalcWorldTransform();
-            }
 
-            //Update child bone transforms
-            if (/*_childFrameMatrixChanged ||*/ _frameMatrixChanged || usesCamera || force)
-            {
+                //Inform subscribers that the bone's transform has changed
                 SocketTransformChanged?.Invoke(this);
-                foreach (Bone b in _childBones)
-                    b.CalcFrameMatrix(c, _frameMatrix, _inverseFrameMatrix, force || _frameMatrixChanged || usesCamera);
             }
 
-            //_childFrameMatrixChanged = false;
+            //Recalculate child bone transforms
+            foreach (Bone b in _childBones)
+                b.CalcFrameMatrix(c, _frameMatrix, _inverseFrameMatrix, needsUpdate);
+
             _frameMatrixChanged = false;
         }
         

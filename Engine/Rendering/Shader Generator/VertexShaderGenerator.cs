@@ -60,7 +60,7 @@ namespace TheraEngine.Rendering
                 Line("vec4 gl_Position;");
                 Line("float gl_PointSize;");
                 Line("float gl_ClipDistance[];");
-                CloseBracket(true);
+                CloseBracket(null, true);
                 Line();
             }
             
@@ -159,8 +159,10 @@ namespace TheraEngine.Rendering
             {
                 if (Engine.Settings.SkinOnGPU)
                 {
-                    WriteUniform(EShaderVarType._mat4, Uniform.BonePosMtxName + "[" + (_info._boneCount + 1) + "]");
-                    WriteUniform(EShaderVarType._mat4, Uniform.BoneNrmMtxName + "[" + (_info._boneCount + 1) + "]");
+                    StartUniformBlock("Bones");
+                    WriteUniform(EShaderVarType._mat4, Uniform.BoneTransformsName + "[" + (_info._boneCount + 1) + "]");
+                    //WriteUniform(EShaderVarType._mat4, Uniform.BoneNrmMtxName + "[" + (_info._boneCount + 1) + "]");
+                    EndUniformBlock("BoneDef");
                 }
                 if (UseMorphs)
                     WriteUniform(EShaderVarType._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
@@ -203,18 +205,18 @@ namespace TheraEngine.Rendering
             {
                 if (_info.HasNormals)
                 {
-                    Line("vec4 finalNormal = vec4(0.0f);");
-                    Line("vec4 baseNormal = vec4(Normal0, 0.0f);");
+                    Line("vec3 finalNormal = vec3(0.0f);");
+                    Line("vec3 baseNormal = Normal0;");
                 }
                 if (_info.HasBinormals)
                 {
-                    Line("vec4 finalBinormal = vec4(0.0f);");
-                    Line("vec4 baseBinormal = vec4(Binormal0, 0.0f);");
+                    Line("vec3 finalBinormal = vec3(0.0f);");
+                    Line("vec3 baseBinormal = Binormal0;");
                 }
                 if (_info.HasTangents)
                 {
-                    Line("vec4 finalTangent = vec4(0.0f);");
-                    Line("vec4 baseTangent = vec4(Tangent0, 0.0f);");
+                    Line("vec3 finalTangent = vec3(0.0f);");
+                    Line("vec3 baseTangent = Tangent0;");
                 }
             }
             Line();
@@ -223,34 +225,37 @@ namespace TheraEngine.Rendering
                 Line("int index;");
                 Line("float weight;");
 
-                Loop(4);
-                OpenBracket();
-                //for (int i = 0; i < 4; ++i)
-                //{
-                if (Engine.Settings.UseIntegerWeightingIds)
+                OpenLoop(4);
+                {
+                    if (Engine.Settings.UseIntegerWeightingIds)
                         Line("index = {0}0[i];", EBufferType.MatrixIds.ToString());
                     else
                         Line("index = int({0}0[i]);", EBufferType.MatrixIds.ToString());
+
                     Line("weight = {0}0[i];", EBufferType.MatrixWeights.ToString());
 
-                    Line($"finalPosition += ({Uniform.BonePosMtxName}[index] * basePosition) * weight;");
-                    if (_info.HasNormals)
-                        Line($"finalNormal += ({Uniform.BoneNrmMtxName}[index] * baseNormal) * weight;");
-                    if (_info.HasBinormals)
-                        Line($"finalBinormal += ({Uniform.BoneNrmMtxName}[index] * baseBinormal) * weight;");
-                    if (_info.HasTangents)
-                        Line($"finalTangent += ({Uniform.BoneNrmMtxName}[index] * baseTangent) * weight;");
-                //}
+                    Line($"finalPosition += (BoneDef.{Uniform.BoneTransformsName}[index] * basePosition) * weight;");
+                    if (_info.HasNormals || _info.HasBinormals || _info.HasTangents)
+                    {
+                        Line($"mat3 nrmMtx = mat3(transpose(inverse(BoneDef.{Uniform.BoneTransformsName}[index])));");
+                        if (_info.HasNormals)
+                            Line($"finalNormal += (nrmMtx * baseNormal) * weight;");
+                        if (_info.HasBinormals)
+                            Line($"finalBinormal += (nrmMtx * baseBinormal) * weight;");
+                        if (_info.HasTangents)
+                            Line($"finalTangent += (nrmMtx * baseTangent) * weight;");
+                    }
+                }
                 CloseBracket();
 
                 Line();
                 Line("finalPosition = ModelMatrix * vec4(finalPosition.xyz, 1.0f);");
                 if (_info.HasNormals)
-                    Line($"{FragNormName} = normalize(NormalMatrix * finalNormal.xyz);");
+                    Line($"{FragNormName} = normalize(NormalMatrix * finalNormal);");
                 if (_info.HasBinormals)
-                    Line($"{FragBinormName} = normalize(NormalMatrix * finalBinormal.xyz);");
+                    Line($"{FragBinormName} = normalize(NormalMatrix * finalBinormal);");
                 if (_info.HasTangents)
-                    Line($"{FragTanName} = normalize(NormalMatrix * finalTangent.xyz);");
+                    Line($"{FragTanName} = normalize(NormalMatrix * finalTangent);");
             }
             else
             {
@@ -270,17 +275,16 @@ namespace TheraEngine.Rendering
                     Line("baseTangent *= baseWeight;");
                 Line();
 
-                Loop(4);
-                OpenBracket();
+                OpenLoop(4);
                 for (int i = 0; i < _info._morphCount; ++i)
                 {
-                    Line("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0f) * {2}{3}[i] * {4}[i];", Uniform.BonePosMtxName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    Line("finalPosition += BoneDef.{0}[{1}{3}[i]] * vec4(Position{5}, 1.0f) * {2}{3}[i] * {4}[i];", Uniform.BoneTransformsName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
-                        Line("finalNormal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalNormal += (mat3(BoneDef.{0}[{1}{3}[i]]) * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneTransformsName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasBinormals)
-                        Line("finalBinorm += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalBinorm += (mat3(BoneDef.{0}[{1}{3}[i]]) * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneTransformsName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasTangents)
-                        Line("finalTangent += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        Line("finalTangent += (mat3(BoneDef.{0}[{1}{3}[i]]) * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneTransformsName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (i + 1 != _info._morphCount)
                         Line();
                 }
@@ -316,8 +320,9 @@ namespace TheraEngine.Rendering
             if (UseMorphs)
             {
                 Line("float totalWeight = 0.0f;");
-                Loop(_info._morphCount);
+                OpenLoop(_info._morphCount);
                 Line($"totalWeight += {Uniform.MorphWeightsName}[i];");
+                CloseBracket();
 
                 Line("float baseWeight = 1.0f - totalWeight;");
                 Line("float invTotal = 1.0f / (totalWeight + baseWeight);");

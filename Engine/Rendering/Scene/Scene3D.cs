@@ -181,229 +181,232 @@ namespace TheraEngine.Rendering
             {
                 if (viewport != null)
                 {
-                    viewport.RenderingCameras.Push(camera);
-
-                    //Enable internal resolution
-                    Engine.Renderer.PushRenderArea(viewport.InternalResolution);
+                    if (!viewport._updatingFBOs)
                     {
-                        //Render to deferred framebuffer.
-                        viewport.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.RenderingCameras.Push(camera);
+
+                        //Enable internal resolution
+                        Engine.Renderer.PushRenderArea(viewport.InternalResolution);
                         {
-                            Engine.Renderer.StencilMask(~0);
-                            Engine.Renderer.ClearStencil(0);
-                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
-                            Engine.Renderer.EnableDepthTest(true);
-                            Engine.Renderer.ClearDepth(1.0f);
-                            renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
-                            Engine.Renderer.EnableDepthTest(false);
-                        }
-                        viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                        viewport.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        viewport.SSAOFBO.RenderFullscreen();
-                        viewport.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                        viewport.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        viewport.SSAOBlurFBO.RenderFullscreen();
-                        viewport.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                        viewport.LightCombineFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            //Start with blank slate so additive blending doesn't ghost old frames
-                            Engine.Renderer.Clear(EBufferClear.Color);
-
-                            foreach (DirectionalLightComponent c in _lightManager.DirectionalLights)
+                            //Render to deferred framebuffer.
+                            viewport.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                             {
-                                viewport.RenderDirLight(c);
+                                Engine.Renderer.StencilMask(~0);
+                                Engine.Renderer.ClearStencil(0);
+                                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
+                                Engine.Renderer.EnableDepthTest(true);
+                                Engine.Renderer.ClearDepth(1.0f);
+                                renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
+                                Engine.Renderer.EnableDepthTest(false);
                             }
-                            foreach (PointLightComponent c in _lightManager.PointLights)
+                            viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                            viewport.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                            viewport.SSAOFBO.RenderFullscreen();
+                            viewport.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                            viewport.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                            viewport.SSAOBlurFBO.RenderFullscreen();
+                            viewport.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                            viewport.LightCombineFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                             {
-                                viewport.RenderPointLight(c);
+                                //Start with blank slate so additive blending doesn't ghost old frames
+                                Engine.Renderer.Clear(EBufferClear.Color);
+
+                                foreach (DirectionalLightComponent c in _lightManager.DirectionalLights)
+                                {
+                                    viewport.RenderDirLight(c);
+                                }
+                                foreach (PointLightComponent c in _lightManager.PointLights)
+                                {
+                                    viewport.RenderPointLight(c);
+                                }
+                                foreach (SpotLightComponent c in _lightManager.SpotLights)
+                                {
+                                    viewport.RenderSpotLight(c);
+                                }
                             }
-                            foreach (SpotLightComponent c in _lightManager.SpotLights)
+                            viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                            viewport.BrightPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                             {
-                                viewport.RenderSpotLight(c);
+                                Engine.Renderer.EnableDepthTest(false);
+                                //Render the deferred pass result
+                                //viewport.GBufferFBO.RenderFullscreen();
+                                viewport.LightCombineFBO.RenderFullscreen();
+
+                                Engine.Renderer.EnableDepthTest(true);
+                                //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
+                                //RenderTree.DebugRender(camera?.Frustum, true);
+
+                                renderingPasses.Render(ERenderPass.OpaqueForward);
+
+                                Engine.Renderer.AllowDepthWrite(false);
+                                renderingPasses.Render(ERenderPass.Background);
+                                Engine.Renderer.EnableDepthTest(true);
+
+                                //Render forward transparent objects next
+                                renderingPasses.Render(ERenderPass.TransparentForward);
+
+                                //Render forward on-top objects last
+                                renderingPasses.Render(ERenderPass.OnTopForward);
+                                Engine.Renderer.EnableDepthTest(false);
                             }
-                        }
-                        viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                            viewport.BrightPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                        viewport.BrightPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            Engine.Renderer.EnableDepthTest(false);
-                            //Render the deferred pass result
-                            //viewport.GBufferFBO.RenderFullscreen();
-                            viewport.LightCombineFBO.RenderFullscreen();
+                            #region Bloom
 
-                            Engine.Renderer.EnableDepthTest(true);
-                            //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
-                            //RenderTree.DebugRender(camera?.Frustum, true);
+                            viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
+                            viewport.BrightPassFBO.RenderFullscreen();
+                            viewport.BloomBlurFBO1.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                            renderingPasses.Render(ERenderPass.OpaqueForward);
+                            var tex = viewport._bloomBlurTexture.GetTexture(true);
+                            tex.Bind();
+                            tex.GenerateMipmaps();
 
-                            Engine.Renderer.AllowDepthWrite(false);
-                            renderingPasses.Render(ERenderPass.Background);
-                            Engine.Renderer.EnableDepthTest(true);
-
-                            //Render forward transparent objects next
-                            renderingPasses.Render(ERenderPass.TransparentForward);
-
-                            //Render forward on-top objects last
-                            renderingPasses.Render(ERenderPass.OnTopForward);
-                            Engine.Renderer.EnableDepthTest(false);
-                        }
-                        viewport.BrightPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                        #region Bloom
-
-                        viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
-                        viewport.BrightPassFBO.RenderFullscreen();
-                        viewport.BloomBlurFBO1.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                        var tex = viewport._bloomBlurTexture.GetTexture(true);
-                        tex.Bind();
-                        tex.GenerateMipmaps();
-
-                        Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                            viewport.InternalResolution.Width * 0.0625f, viewport.InternalResolution.Height * 0.0625f));
-                        {
-                            viewport.BloomBlurFBO16.Bind(EFramebufferTarget.DrawFramebuffer);
+                            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
+                                viewport.InternalResolution.Width * 0.0625f, viewport.InternalResolution.Height * 0.0625f));
                             {
-                                viewport.BloomBlurFBO16.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
-                                viewport.BloomBlurFBO16.Material.Parameter<ShaderInt>(1).Value = 4;
-                                viewport.BloomBlurFBO16.RenderFullscreen();
-                            }
-                            viewport.BloomBlurFBO16.Unbind(EFramebufferTarget.DrawFramebuffer);
+                                viewport.BloomBlurFBO16.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    viewport.BloomBlurFBO16.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
+                                    viewport.BloomBlurFBO16.Material.Parameter<ShaderInt>(1).Value = 4;
+                                    viewport.BloomBlurFBO16.RenderFullscreen();
+                                }
+                                viewport.BloomBlurFBO16.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                            viewport.BloomBlurFBO16.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                viewport.BloomBlurFBO16.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
-                                viewport.BloomBlurFBO16.Material.Parameter<ShaderInt>(1).Value = 4;
-                                viewport.BloomBlurFBO16.RenderFullscreen();
+                                viewport.BloomBlurFBO16.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    viewport.BloomBlurFBO16.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
+                                    viewport.BloomBlurFBO16.Material.Parameter<ShaderInt>(1).Value = 4;
+                                    viewport.BloomBlurFBO16.RenderFullscreen();
+                                }
+                                viewport.BloomBlurFBO16.Unbind(EFramebufferTarget.DrawFramebuffer);
                             }
-                            viewport.BloomBlurFBO16.Unbind(EFramebufferTarget.DrawFramebuffer);
+                            Engine.Renderer.PopRenderArea();
+
+                            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
+                                viewport.InternalResolution.Width * 0.125f, viewport.InternalResolution.Height * 0.125f));
+                            {
+                                viewport.BloomBlurFBO8.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    viewport.BloomBlurFBO8.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
+                                    viewport.BloomBlurFBO8.Material.Parameter<ShaderInt>(1).Value = 3;
+                                    viewport.BloomBlurFBO8.RenderFullscreen();
+                                }
+                                viewport.BloomBlurFBO8.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                                viewport.BloomBlurFBO8.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    viewport.BloomBlurFBO8.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
+                                    viewport.BloomBlurFBO8.Material.Parameter<ShaderInt>(1).Value = 3;
+                                    viewport.BloomBlurFBO8.RenderFullscreen();
+                                }
+                                viewport.BloomBlurFBO8.Unbind(EFramebufferTarget.DrawFramebuffer);
+                            }
+                            Engine.Renderer.PopRenderArea();
+
+                            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
+                                viewport.InternalResolution.Width * 0.25f, viewport.InternalResolution.Height * 0.25f));
+                            {
+                                viewport.BloomBlurFBO4.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    viewport.BloomBlurFBO4.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
+                                    viewport.BloomBlurFBO4.Material.Parameter<ShaderInt>(1).Value = 2;
+                                    viewport.BloomBlurFBO4.RenderFullscreen();
+                                }
+                                viewport.BloomBlurFBO4.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                                viewport.BloomBlurFBO4.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    viewport.BloomBlurFBO4.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
+                                    viewport.BloomBlurFBO4.Material.Parameter<ShaderInt>(1).Value = 2;
+                                    viewport.BloomBlurFBO4.RenderFullscreen();
+                                }
+                                viewport.BloomBlurFBO4.Unbind(EFramebufferTarget.DrawFramebuffer);
+                            }
+                            Engine.Renderer.PopRenderArea();
+
+                            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
+                                viewport.InternalResolution.Width * 0.5f, viewport.InternalResolution.Height * 0.5f));
+                            {
+                                viewport.BloomBlurFBO2.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    viewport.BloomBlurFBO2.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
+                                    viewport.BloomBlurFBO2.Material.Parameter<ShaderInt>(1).Value = 1;
+                                    viewport.BloomBlurFBO2.RenderFullscreen();
+                                }
+                                viewport.BloomBlurFBO2.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                                viewport.BloomBlurFBO2.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    viewport.BloomBlurFBO2.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
+                                    viewport.BloomBlurFBO2.Material.Parameter<ShaderInt>(1).Value = 1;
+                                    viewport.BloomBlurFBO2.RenderFullscreen();
+                                }
+                                viewport.BloomBlurFBO2.Unbind(EFramebufferTarget.DrawFramebuffer);
+                            }
+                            Engine.Renderer.PopRenderArea();
+
+                            //Don't blur original image, barely makes a difference to result
+                            //Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
+                            //    viewport.InternalResolution.Width, viewport.InternalResolution.Height));
+                            //{
+                            //    viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
+                            //    {
+                            //        viewport.BloomBlurFBO1.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
+                            //        viewport.BloomBlurFBO1.Material.Parameter<ShaderInt>(1).Value = 0;
+                            //        viewport.BloomBlurFBO1.RenderFullscreen();
+                            //    }
+                            //    viewport.BloomBlurFBO1.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                            //    viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
+                            //    {
+                            //        viewport.BloomBlurFBO1.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
+                            //        viewport.BloomBlurFBO1.Material.Parameter<ShaderInt>(1).Value = 0;
+                            //        viewport.BloomBlurFBO1.RenderFullscreen();
+                            //    }
+                            //    viewport.BloomBlurFBO1.Unbind(EFramebufferTarget.DrawFramebuffer);
+                            //}
+                            //Engine.Renderer.PopRenderArea();
+
+                            #endregion
+
+                            //TODO: Apply camera post process material pass here
+                            TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
+                            if (post != null)
+                            {
+
+                            }
                         }
                         Engine.Renderer.PopRenderArea();
 
-                        Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                            viewport.InternalResolution.Width * 0.125f, viewport.InternalResolution.Height * 0.125f));
+                        //Full viewport resolution now
+                        Engine.Renderer.PushRenderArea(viewport.Region);
                         {
-                            viewport.BloomBlurFBO8.Bind(EFramebufferTarget.DrawFramebuffer);
+                            Scene2D hudScene = hud?.UIScene;
+                            if (hudScene != null)
                             {
-                                viewport.BloomBlurFBO8.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
-                                viewport.BloomBlurFBO8.Material.Parameter<ShaderInt>(1).Value = 3;
-                                viewport.BloomBlurFBO8.RenderFullscreen();
+                                viewport.HudFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                                {
+                                    hudScene.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
+                                }
+                                viewport.HudFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
                             }
-                            viewport.BloomBlurFBO8.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                            viewport.BloomBlurFBO8.Bind(EFramebufferTarget.DrawFramebuffer);
+                            //Render the last pass to the actual screen resolution, 
+                            //or the provided target FBO
+                            target?.Bind(EFramebufferTarget.DrawFramebuffer);
                             {
-                                viewport.BloomBlurFBO8.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
-                                viewport.BloomBlurFBO8.Material.Parameter<ShaderInt>(1).Value = 3;
-                                viewport.BloomBlurFBO8.RenderFullscreen();
+                                viewport.PostProcessFBO.RenderFullscreen();
                             }
-                            viewport.BloomBlurFBO8.Unbind(EFramebufferTarget.DrawFramebuffer);
+                            target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                         }
                         Engine.Renderer.PopRenderArea();
 
-                        Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                            viewport.InternalResolution.Width * 0.25f, viewport.InternalResolution.Height * 0.25f));
-                        {
-                            viewport.BloomBlurFBO4.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                viewport.BloomBlurFBO4.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
-                                viewport.BloomBlurFBO4.Material.Parameter<ShaderInt>(1).Value = 2;
-                                viewport.BloomBlurFBO4.RenderFullscreen();
-                            }
-                            viewport.BloomBlurFBO4.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                            viewport.BloomBlurFBO4.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                viewport.BloomBlurFBO4.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
-                                viewport.BloomBlurFBO4.Material.Parameter<ShaderInt>(1).Value = 2;
-                                viewport.BloomBlurFBO4.RenderFullscreen();
-                            }
-                            viewport.BloomBlurFBO4.Unbind(EFramebufferTarget.DrawFramebuffer);
-                        }
-                        Engine.Renderer.PopRenderArea();
-
-                        Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                            viewport.InternalResolution.Width * 0.5f, viewport.InternalResolution.Height * 0.5f));
-                        {
-                            viewport.BloomBlurFBO2.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                viewport.BloomBlurFBO2.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
-                                viewport.BloomBlurFBO2.Material.Parameter<ShaderInt>(1).Value = 1;
-                                viewport.BloomBlurFBO2.RenderFullscreen();
-                            }
-                            viewport.BloomBlurFBO2.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                            viewport.BloomBlurFBO2.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                viewport.BloomBlurFBO2.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
-                                viewport.BloomBlurFBO2.Material.Parameter<ShaderInt>(1).Value = 1;
-                                viewport.BloomBlurFBO2.RenderFullscreen();
-                            }
-                            viewport.BloomBlurFBO2.Unbind(EFramebufferTarget.DrawFramebuffer);
-                        }
-                        Engine.Renderer.PopRenderArea();
-
-                        //Don't blur original image, barely makes a difference to result
-                        //Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                        //    viewport.InternalResolution.Width, viewport.InternalResolution.Height));
-                        //{
-                        //    viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
-                        //    {
-                        //        viewport.BloomBlurFBO1.Material.Parameter<ShaderFloat>(0).Value = 0.0f;
-                        //        viewport.BloomBlurFBO1.Material.Parameter<ShaderInt>(1).Value = 0;
-                        //        viewport.BloomBlurFBO1.RenderFullscreen();
-                        //    }
-                        //    viewport.BloomBlurFBO1.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                        //    viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
-                        //    {
-                        //        viewport.BloomBlurFBO1.Material.Parameter<ShaderFloat>(0).Value = 1.0f;
-                        //        viewport.BloomBlurFBO1.Material.Parameter<ShaderInt>(1).Value = 0;
-                        //        viewport.BloomBlurFBO1.RenderFullscreen();
-                        //    }
-                        //    viewport.BloomBlurFBO1.Unbind(EFramebufferTarget.DrawFramebuffer);
-                        //}
-                        //Engine.Renderer.PopRenderArea();
-
-                        #endregion
-
-                        //TODO: Apply camera post process material pass here
-                        TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
-                        if (post != null)
-                        {
-
-                        }
+                        viewport.RenderingCameras.Pop();
                     }
-                    Engine.Renderer.PopRenderArea();
-
-                    //Full viewport resolution now
-                    Engine.Renderer.PushRenderArea(viewport.Region);
-                    {
-                        Scene2D hudScene = hud?.UIScene;
-                        if (hudScene != null)
-                        {
-                            viewport.HudFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                hudScene.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
-                            }
-                            viewport.HudFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-                        }
-
-                        //Render the last pass to the actual screen resolution, 
-                        //or the provided target FBO
-                        target?.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            viewport.PostProcessFBO.RenderFullscreen();
-                        }
-                        target?.Unbind(EFramebufferTarget.DrawFramebuffer);
-                    }
-                    Engine.Renderer.PopRenderArea();
-
-                    viewport.RenderingCameras.Pop();
                 }
                 else
                 {

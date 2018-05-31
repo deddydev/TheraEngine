@@ -231,7 +231,7 @@ namespace TheraEngine.Actors.Types
             }
 
             PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), list);
-            material.RenderParams.CullMode = Culling.Back;
+            material.RenderParams.CullMode = ECulling.Back;
             _mesh = new PrimitiveManager(data, material);
         }
         

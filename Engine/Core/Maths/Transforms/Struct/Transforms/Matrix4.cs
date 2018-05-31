@@ -4,6 +4,7 @@ using static System.TMath;
 using TheraEngine;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
+using TheraEngine.Rendering.Models;
 
 namespace System
 {
@@ -15,8 +16,10 @@ namespace System
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Matrix4 : IEquatable<Matrix4>, IUniformable, IParsable
+    public unsafe struct Matrix4 : IEquatable<Matrix4>, IUniformable, IParsable, IBufferable
     {
+        public static readonly int Size = sizeof(Matrix4);
+
         public Vec4 Row0;
         public Vec4 Row1;
         public Vec4 Row2;
@@ -305,6 +308,10 @@ namespace System
         /// Gets the trace of the matrix, the sum of the values along the diagonal.
         /// </summary>
         public float Trace => Row0.X + Row1.Y + Row2.Z + Row3.W;
+
+        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Float;
+        public int ComponentCount => 16;
+        bool IBufferable.Normalize => false;
 
         public float this[int rowIndex, int columnIndex]
         {
@@ -1118,7 +1125,6 @@ namespace System
                 Row2.WriteToString() + " " +
                 Row3.WriteToString();
         }
-
         public void ReadFromString(string str)
         {
             string[] v = str.Split(' ');
@@ -1126,6 +1132,14 @@ namespace System
             Row1 = new Vec4(float.Parse(v[4]), float.Parse(v[5]), float.Parse(v[6]), float.Parse(v[7]));
             Row2 = new Vec4(float.Parse(v[8]), float.Parse(v[9]), float.Parse(v[10]), float.Parse(v[11]));
             Row3 = new Vec4(float.Parse(v[12]), float.Parse(v[13]), float.Parse(v[14]), float.Parse(v[15]));
+        }
+        public void Write(VoidPtr address)
+        {
+            *(Matrix4*)address = this;
+        }
+        public void Read(VoidPtr address)
+        {
+            this = *(Matrix4*)address;
         }
     }
 }

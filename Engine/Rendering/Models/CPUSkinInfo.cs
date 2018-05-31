@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.Models
                     Bone b = _bones[i];
                     float w = _weights[i];
                     _positionMatrix += b.VertexMatrix * w;
-                    _normalMatrix += b.NormalMatrix * w;
+                    _normalMatrix += b.VertexMatrix.Inverted().Transposed().GetRotationMatrix4() * w;
                 }
             }
         }
@@ -97,7 +97,7 @@ namespace TheraEngine.Rendering.Models
             }
             catch
             {
-                Engine.LogWarning("Modified vertex indices was modified while being evaluated; could not finish updating buffers.");
+                //Engine.LogWarning("Modified vertex indices was modified while being evaluated; could not finish updating buffers.");
             }
         }
     }

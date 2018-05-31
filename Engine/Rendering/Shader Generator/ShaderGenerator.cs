@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Functions;
-using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering
 {
@@ -62,17 +60,30 @@ namespace TheraEngine.Rendering
         }
         public void WriteUniform(EShaderVarType type, string name)
         {
-            Line("uniform {0} {1};", type.ToString().Substring(1), name);
+            Line("{2}{0} {1};", type.ToString().Substring(1), name, _inBlock ? "" : "uniform ");
+        }
+        private bool _inBlock = false;
+        public void StartUniformBlock(string structName)
+        {
+            _inBlock = true;
+            Line("uniform {0}", structName);
+            OpenBracket();
+        }
+        public void EndUniformBlock(string variableName)
+        {
+            CloseBracket(variableName, true);
+            _inBlock = false;
         }
         public void Comment(string comment, params object[] args)
         {
             Line("//" + comment, args);
         }
-        public void Loop(int startIndex, int count, string varName = "i")
+        public void OpenLoop(int startIndex, int count, string varName = "i")
         {
             Line($"for (int {varName} = {startIndex}; {varName} < {count}; ++{varName})");
+            OpenBracket();
         }
-        public void Loop(int count, string varName = "i") => Loop(0, count, varName);
+        public void OpenLoop(int count, string varName = "i") => OpenLoop(0, count, varName);
         public void StartMain()
         {
             Line("void main()");
@@ -118,12 +129,22 @@ namespace TheraEngine.Rendering
         {
             Line("{");
         }
-        public void CloseBracket(bool includeSemicolon = false)
+        public void CloseBracket(string name = null, bool includeSemicolon = false)
         {
-            if (includeSemicolon)
-                Line("};");
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                if (includeSemicolon)
+                    Line("} " + name + ";");
+                else
+                    Line("} " + name);
+            }
             else
-                Line("}");
+            {
+                if (includeSemicolon)
+                    Line("};");
+                else
+                    Line("}");
+            }
         }
         #endregion
 

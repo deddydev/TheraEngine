@@ -341,6 +341,7 @@ namespace TheraEngine.Rendering
             mTop.Render(topTransform, Matrix3.Identity);
             mBot.Render(botTransform, Matrix3.Identity);
         }
+
         public void RenderCylinder(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             throw new NotImplementedException();
@@ -388,15 +389,18 @@ namespace TheraEngine.Rendering
         }
         public abstract void RenderCurrentPrimitiveManager(int instances);
         public abstract void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer);
-        public abstract void InitializeBuffer(DataBuffer buffer, bool mapData);
+        public abstract void BindBufferBase(EBufferRangeTarget rangeTarget, int blockIndex, int bufferBindingId);
+        public abstract int GetUniformBlockIndex(int programBindingId, string name);
+        public abstract void InitializeBuffer(DataBuffer buffer);
         public abstract void PushBufferData(DataBuffer buffer);
+        public abstract void PushBufferSubData(DataBuffer buffer, int offset, int length);
         public abstract void MapBufferData(DataBuffer buffer);
         public abstract void UnmapBufferData(DataBuffer buffer);
         public abstract void AttributeDivisor(int attributeLocation, int divisor);
 
         public abstract void ClearColor(ColorF4 color);
         public abstract void Clear(EBufferClear mask);
-        public abstract void Cull(Culling culling);
+        public abstract void Cull(ECulling culling);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
         public abstract byte GetStencilIndex(float x, float y);

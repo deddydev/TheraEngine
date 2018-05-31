@@ -115,7 +115,7 @@ namespace TheraEngine.Rendering.Models
             }
         }
     }
-    public enum Culling
+    public enum ECulling
     {
         None,
         Back,

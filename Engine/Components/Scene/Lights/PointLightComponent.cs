@@ -196,7 +196,7 @@ namespace TheraEngine.Components.Scene.Lights
             TMaterial mat = new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader, geomShader);
 
             //No culling so if a light exists inside of a mesh it will shadow everything.
-            mat.RenderParams.CullMode = Culling.None;
+            mat.RenderParams.CullMode = ECulling.None;
 
             return mat;
         }

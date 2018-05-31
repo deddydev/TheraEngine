@@ -56,7 +56,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public bool WriteAlpha { get; set; } = true;
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Culling CullMode { get; set; } = Culling.Back;
+        public ECulling CullMode { get; set; } = ECulling.Back;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float PointSize { get; set; } = AbstractRenderer.DefaultPointSize;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]

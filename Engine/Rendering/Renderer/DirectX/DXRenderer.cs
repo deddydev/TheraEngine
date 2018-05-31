@@ -51,11 +51,6 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
         
-        public override void InitializeBuffer(DataBuffer buffer, bool mapData)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void PushBufferData(DataBuffer buffer)
         {
             throw new NotImplementedException();
@@ -71,7 +66,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void Cull(Culling culling)
+        public override void Cull(ECulling culling)
         {
             throw new NotImplementedException();
         }
@@ -708,6 +703,26 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void AttributeDivisor(int attributeLocation, int divisor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BindBufferBase(EBufferRangeTarget rangeTarget, int blockIndex, int bufferBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetUniformBlockIndex(int programBindingId, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InitializeBuffer(DataBuffer buffer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PushBufferSubData(DataBuffer buffer, int offset, int length)
         {
             throw new NotImplementedException();
         }

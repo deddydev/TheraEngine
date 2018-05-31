@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering.Models
         public string GetAttribName() => GetAttribName(_type, _index);
         public int GetLocation() => GetLocation(_type, _index);
     }
-    public enum BufferUsage
+    public enum EBufferUsage
     {
         StreamDraw  = 0,
         StreamRead  = 1,
@@ -97,12 +97,12 @@ namespace TheraEngine.Rendering.Models
             Int     = 4,
             UInt    = 5,
             Float   = 6,
-            Double  = 10
+            Double  = 10,
         }
 
         public bool MapData { get; set; } = true;
         public EBufferTarget Target { get; private set; } = EBufferTarget.ArrayBuffer;
-        public BufferUsage Usage { get; set; } = BufferUsage.StaticDraw;
+        public EBufferUsage Usage { get; set; } = EBufferUsage.StaticDraw;
         internal int _vaoId = 0;
 
         [TSerialize("Index", XmlNodeType = EXmlNodeType.Attribute)]
@@ -325,22 +325,32 @@ namespace TheraEngine.Rendering.Models
                 return -1;
             }
         }
-        protected override void PostGenerated()
-        {
-            Engine.Renderer.InitializeBuffer(this, MapData);
-        }
-        private void PushData()
-        {
-            Engine.Renderer.PushBufferData(this);
-        }
+
+        protected override void PostGenerated() => Engine.Renderer.InitializeBuffer(this);
+        public void PushData() => Engine.Renderer.PushBufferData(this);
+        public void PushSubData(int offset, int length) => Engine.Renderer.PushBufferSubData(this, offset, length);
+        
+        /// <summary>
+        /// Reads the struct value at the given offset into the buffer.
+        /// Offset is in bytes; NOT relative to the size of the struct.
+        /// </summary>
+        /// <typeparam name="T">The type of value to read.</typeparam>
+        /// <param name="offset">The offset into the buffer, in bytes.</param>
+        /// <returns>The T value at the given offset.</returns>
         public T Get<T>(int offset) where T : struct
-        {
-            return (T)Marshal.PtrToStructure(_data.Address + offset, typeof(T));
-        }
+            => (T)Marshal.PtrToStructure(_data.Address + offset, typeof(T));
+
+        /// <summary>
+        /// Writes the struct value into the buffer at the given offset.
+        /// Offset is in bytes; NOT relative to the size of the struct.
+        /// This will not update the data in GPU memory. To do that, call PushData or PushSubData after this call.
+        /// </summary>
+        /// <typeparam name="T">The type of value to write.</typeparam>
+        /// <param name="offset">The offset into the buffer, in bytes.</param>
+        /// <param name="value">The value to write.</param>
         public void Set<T>(int offset, T value) where T : struct
-        {
-            Marshal.StructureToPtr(value, _data.Address + offset, true);
-        }
+            => Marshal.StructureToPtr(value, _data.Address + offset, true);
+        
         public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = false) where T : struct
         {
             if (typeof(T) == typeof(sbyte))
@@ -438,6 +448,17 @@ namespace TheraEngine.Rendering.Models
                 return null;
             }
         }
+
+        public void SetBlockName(int programBindingId, string blockName)
+        {
+            int blockIndex = Engine.Renderer.GetUniformBlockIndex(programBindingId, blockName);
+            SetBlockIndex(programBindingId, blockIndex);
+        }
+        public void SetBlockIndex(int programBindingId, int blockIndex)
+        {
+            Engine.Renderer.BindBufferBase((EBufferRangeTarget)(int)Target, blockIndex, BindingId);
+        }
+
         public Remapper GetData<T>(out T[] array, bool remap = true) where T : IBufferable
         {
             //Engine.DebugPrint("\nGetting vertex data from buffer " + Index + " - " + Name);

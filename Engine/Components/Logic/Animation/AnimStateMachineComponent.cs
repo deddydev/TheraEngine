@@ -28,6 +28,12 @@ namespace TheraEngine.Components.Logic.Animation
             _states = new List<AnimState>();
             _skeleton = new GlobalFileRef<Skeleton>();
         }
+        public AnimStateMachineComponent(Skeleton skeleton)
+        {
+            _initialStateIndex = -1;
+            _states = new List<AnimState>();
+            _skeleton = skeleton;
+        }
 
         [PostDeserialize]
         private void InitPostDeserialize()
@@ -125,7 +131,7 @@ namespace TheraEngine.Components.Logic.Animation
         Linear,             //start + (end - start) * time
         CosineEaseInOut,    //start + (end - start) * (1.0f - cos(time)) / 2.0f
         QuadraticEaseStart, //start + (end - start) * time^power
-        QuadraticEaseEnd,   //start + (end - start) * (1.0f - (1.0f - x)^power)
+        QuadraticEaseEnd,   //start + (end - start) * (1.0f - (1.0f - time)^power)
         Custom,             //start + (end - start) * customInterp(time)
     }
     public class BlendManager
@@ -234,7 +240,7 @@ namespace TheraEngine.Components.Logic.Animation
             //stateNode.Value.Tick(delta);
 
             //Get frame of first animation
-            ModelAnimationFrame frame = stateNode.Value.GetFrame();
+            SkeletalAnimationFrame frame = stateNode.Value.GetFrame();
 
             if (_blendQueue.Count > 0)
             {

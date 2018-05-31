@@ -52,6 +52,7 @@ namespace TheraEngine.Rendering
         internal Stack<Camera> RenderingCameras { get; } = new Stack<Camera>();
         internal TexRef2D BrdfTex;
 
+        internal bool _updatingFBOs;
         private BoundingRectangle _internalResolution = new BoundingRectangle();
 
         private float _leftPercentage = 0.0f;
@@ -163,7 +164,7 @@ namespace TheraEngine.Rendering
             
             InitFBOs();
 
-             _worldCamera?.Resize(w, h);
+            _worldCamera?.Resize(w, h);
         }
 
         public void Resize(
@@ -673,6 +674,7 @@ namespace TheraEngine.Rendering
             //SSAOBlurFBO?.Destroy();
             //SSAOFBO?.Destroy();
 
+            _updatingFBOs = true;
             int width = InternalResolution.IntWidth;
             int height = InternalResolution.IntHeight;
             const string SceneShaderPath = "Scene3D";
@@ -692,7 +694,7 @@ namespace TheraEngine.Rendering
             TexRefView2D depthViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
-                //Resizeable = false,
+                Resizeable = false,
                 DepthStencilFormat = EDepthStencilFmt.Depth,
                 MinFilter = ETexMinFilter.Nearest,
                 MagFilter = ETexMagFilter.Nearest,
@@ -703,7 +705,7 @@ namespace TheraEngine.Rendering
             TexRefView2D stencilViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
-                //Resizeable = false,
+                Resizeable = false,
                 DepthStencilFormat = EDepthStencilFmt.Stencil,
                 MinFilter = ETexMinFilter.Nearest,
                 MagFilter = ETexMagFilter.Nearest,
@@ -727,7 +729,7 @@ namespace TheraEngine.Rendering
                     MagFilter = ETexMagFilter.Nearest,
                     UWrap = ETexWrapMode.Repeat,
                     VWrap = ETexWrapMode.Repeat,
-                    Resizeable = true,
+                    Resizeable = false,
                 };
                 Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
                 BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
@@ -808,7 +810,7 @@ namespace TheraEngine.Rendering
                 {
                     //Render only the backside so that the light still shows if the camera is inside of the volume
                     //and the light does not add itself twice for the front and back faces.
-                    CullMode = Culling.Front,
+                    CullMode = ECulling.Front,
 
                     BlendMode = additiveBlend,
                 };
@@ -816,7 +818,7 @@ namespace TheraEngine.Rendering
                 RenderingParameters dirLightRenderParams = new RenderingParameters
                 {
                     //Render only the front of the quad that shows over the whole screen
-                    CullMode = Culling.Back,
+                    CullMode = ECulling.Back,
 
                     BlendMode = additiveBlend,
                 };
@@ -940,6 +942,7 @@ namespace TheraEngine.Rendering
             BrightPassFBO.SetRenderTargets(
                 (_hdrSceneTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
                 (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
+            BrightPassFBO.Generate();
 
             BloomBlurFBO1 = new QuadFrameBuffer(bloomBlurMat);
             BloomBlurFBO1.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
@@ -958,6 +961,8 @@ namespace TheraEngine.Rendering
             HudFBO = new QuadFrameBuffer(hudMat);
 
             #endregion
+
+            _updatingFBOs = false;
         }
 
         private LightComponent _lightComp;

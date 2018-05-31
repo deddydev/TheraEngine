@@ -185,6 +185,11 @@ For example, a logic component could give any actor health and/or allow it to ta
         [Browsable(false)]
         public bool IsConstructing => _isConstructing;
 
+        public T1 GetLogicComponent<T1>() where T1 : LogicComponent
+        {
+            return LogicComponents.FirstOrDefault(x => x is T1) as T1;
+        }
+
         //[Browsable(false)]
         //public List<I3DRenderable> RenderableComponentCache => _renderableComponentCache;
         //[Browsable(false)]

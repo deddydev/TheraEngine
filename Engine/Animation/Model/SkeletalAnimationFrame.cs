@@ -6,7 +6,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Animation
 {
-    public class ModelAnimationFrame
+    public class SkeletalAnimationFrame
     {
         public Dictionary<string, BoneFrame> _boneFrames = new Dictionary<string, BoneFrame>();
 
@@ -27,7 +27,7 @@ namespace TheraEngine.Animation
             foreach (BoneFrame b in _boneFrames.Values)
                 b.UpdateSkeleton(skeleton);
         }
-        public IEnumerable<string> GetAllNames(ModelAnimationFrame other)
+        public IEnumerable<string> GetAllNames(SkeletalAnimationFrame other)
         {
             string[] theseNames = new string[_boneFrames.Keys.Count];
             _boneFrames.Keys.CopyTo(theseNames, 0);
@@ -43,9 +43,9 @@ namespace TheraEngine.Animation
             other.BoneAnimations.Keys.CopyTo(thoseNames, 0);
             return theseNames.Intersect(thoseNames);
         }
-        public ModelAnimationFrame BlendedWith(ModelAnimationFrame other, float otherWeight)
+        public SkeletalAnimationFrame BlendedWith(SkeletalAnimationFrame other, float otherWeight)
         {
-            ModelAnimationFrame blendedFrame = new ModelAnimationFrame();
+            SkeletalAnimationFrame blendedFrame = new SkeletalAnimationFrame();
             foreach (string name in GetAllNames(other))
             {
                 if (_boneFrames.ContainsKey(name))
@@ -63,9 +63,9 @@ namespace TheraEngine.Animation
             }
             return blendedFrame;
         }
-        public ModelAnimationFrame BlendedWith(SkeletalAnimation other, float frameIndex, float otherWeight)
+        public SkeletalAnimationFrame BlendedWith(SkeletalAnimation other, float frameIndex, float otherWeight)
         {
-            ModelAnimationFrame blendedFrame = new ModelAnimationFrame();
+            SkeletalAnimationFrame blendedFrame = new SkeletalAnimationFrame();
             foreach (string name in GetAllNames(other))
             {
                 if (_boneFrames.ContainsKey(name))
@@ -84,7 +84,7 @@ namespace TheraEngine.Animation
             return blendedFrame;
         }
 
-        public void BlendWith(ModelAnimationFrame other, float otherWeight)
+        public void BlendWith(SkeletalAnimationFrame other, float otherWeight)
         {
             foreach (string name in GetAllNames(other))
             {

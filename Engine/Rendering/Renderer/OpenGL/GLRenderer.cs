@@ -717,7 +717,7 @@ namespace TheraEngine.Rendering.OpenGL
 
         #endregion
 
-        #region Framebuffers     
+        #region Framebuffers
 
         public override void CheckFrameBufferErrors()
         {
@@ -872,22 +872,22 @@ namespace TheraEngine.Rendering.OpenGL
         #endregion
 
         #region Primitives
-        public override void Cull(Culling culling)
+        public override void Cull(ECulling culling)
         {
-            if (culling == Culling.None)
+            if (culling == ECulling.None)
                 GL.Disable(EnableCap.CullFace);
             else
             {
                 GL.Enable(EnableCap.CullFace);
                 switch (culling)
                 {
-                    case Culling.Back:
+                    case ECulling.Back:
                         GL.CullFace(CullFaceMode.Back);
                         break;
-                    case Culling.Front:
+                    case ECulling.Front:
                         GL.CullFace(CullFaceMode.Front);
                         break;
-                    case Culling.Both:
+                    case ECulling.Both:
                         GL.CullFace(CullFaceMode.FrontAndBack);
                         break;
                 }
@@ -936,6 +936,10 @@ namespace TheraEngine.Rendering.OpenGL
             //GL.BufferData((BufferTarget)(int)buffer.Target, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer.Usage);
             GL.NamedBufferData(buffer.BindingId, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer.Usage);
         }
+        public override void PushBufferSubData(DataBuffer buffer, int offset, int length)
+        {
+            GL.NamedBufferSubData(buffer.BindingId, (IntPtr)offset, length, buffer._data.Address);
+        }
         /// <summary>
         /// Specifies attribute usage in a vertex shader.
         /// If divisor is 0, attribute advances per-vertex.
@@ -945,7 +949,15 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.VertexAttribDivisor(attributeLocation, divisor);
         }
-        public override void InitializeBuffer(DataBuffer buffer, bool mapData)
+        public override void BindBufferBase(EBufferRangeTarget rangeTarget, int blockIndex, int bufferBindingId)
+        {
+            GL.BindBufferBase((BufferRangeTarget)(int)rangeTarget, blockIndex, bufferBindingId);
+        }
+        public override int GetUniformBlockIndex(int programBindingId, string name)
+        {
+            return GL.GetUniformBlockIndex(programBindingId, name);
+        }
+        public override void InitializeBuffer(DataBuffer buffer)
         {
             int glVer = 2;
 
@@ -959,13 +971,17 @@ namespace TheraEngine.Rendering.OpenGL
                 case 0:
 
                     GL.BindBuffer((BufferTarget)(int)buffer.Target, buffer.BindingId);
-                    GL.EnableVertexAttribArray(index);
-                    if (integral)
-                        GL.VertexAttribIPointer(index, componentCount, VertexAttribIntegerType.Byte + componentType, 0, buffer._data.Address);
-                    else
-                        GL.VertexAttribPointer(index, componentCount, VertexAttribPointerType.Byte + componentType, buffer._normalize, 0, 0);
 
-                    if (mapData)
+                    if (buffer.Target == EBufferTarget.ArrayBuffer)
+                    {
+                        GL.EnableVertexAttribArray(index);
+                        if (integral)
+                            GL.VertexAttribIPointer(index, componentCount, VertexAttribIntegerType.Byte + componentType, 0, buffer._data.Address);
+                        else
+                            GL.VertexAttribPointer(index, componentCount, VertexAttribPointerType.Byte + componentType, buffer._normalize, 0, 0);
+                    }
+
+                    if (buffer.MapData)
                         MapBufferData(buffer);
                     else
                         PushBufferData(buffer);
@@ -975,18 +991,25 @@ namespace TheraEngine.Rendering.OpenGL
                 case 1:
 
                     GL.BindVertexBuffer(index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
-                    GL.EnableVertexAttribArray(index);
-                    if (integral)
-                        GL.VertexAttribIFormat(index, componentCount, VertexAttribIntegerType.Byte + componentType, 0);
-                    else
-                        GL.VertexAttribFormat(index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
 
-                    if (mapData)
+                    if (buffer.Target == EBufferTarget.ArrayBuffer)
+                    {
+                        GL.EnableVertexAttribArray(index);
+                        if (integral)
+                            GL.VertexAttribIFormat(index, componentCount, VertexAttribIntegerType.Byte + componentType, 0);
+                        else
+                            GL.VertexAttribFormat(index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
+                    }
+
+                    if (buffer.MapData)
                         MapBufferData(buffer);
                     else
                         PushBufferData(buffer);
 
-                    GL.VertexAttribBinding(index, index);
+                    if (buffer.Target == EBufferTarget.ArrayBuffer)
+                    {
+                        GL.VertexAttribBinding(index, index);
+                    }
 
                     break;
 
@@ -994,24 +1017,29 @@ namespace TheraEngine.Rendering.OpenGL
 
                     if (index >= 0)
                     {
-                        GL.EnableVertexArrayAttrib(vaoId, index);
-                        if (integral)
-                            GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
-                        else
-                            GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
-
-                        //GL.BindBuffer((BufferTarget)(int)buffer.Target, buffer.BindingId);
-                        if (mapData)
+                        if (buffer.Target == EBufferTarget.ArrayBuffer)
+                        {
+                            GL.EnableVertexArrayAttrib(vaoId, index);
+                            if (integral)
+                                GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
+                            else
+                                GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
+                        }
+                        
+                        if (buffer.MapData)
                             MapBufferData(buffer);
                         else
                             PushBufferData(buffer);
-                        
-                        GL.VertexArrayAttribBinding(vaoId, index, index);
-                        GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
+
+                        if (buffer.Target == EBufferTarget.ArrayBuffer)
+                        {
+                            GL.VertexArrayAttribBinding(vaoId, index, index);
+                            GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
+                        }
                     }
                     else
                     {
-                        if (mapData)
+                        if (buffer.MapData)
                             MapBufferData(buffer);
                         else
                             PushBufferData(buffer);

@@ -332,6 +332,16 @@ namespace TheraEngine.Rendering.Models
                     }
 
                     _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneNameCache[x]).ToArray();
+                    _boneMatrixBuffer?.Dispose();
+                    _boneMatrixBuffer = new DataBuffer("BoneMatrices", EBufferTarget.UniformBuffer, false)
+                    {
+                        MapData = false,
+                        Usage = EBufferUsage.DynamicDraw,
+                    };
+                    List<Matrix4> matrices = _utilizedBones.Select(x => x.VertexMatrix).ToList();
+                    matrices.Insert(0, Matrix4.Identity);
+                    _boneMatrixBuffer.SetData(matrices, false);
+                    _boneMatrixBuffer.Generate();
                     _boneRemap = new Dictionary<int, int>();
                     for (int i = 0; i < _utilizedBones.Length; ++i)
                     {
@@ -347,9 +357,12 @@ namespace TheraEngine.Rendering.Models
             else
             {
                 _utilizedBones = null;
+                _boneMatrixBuffer?.Dispose();
+                _boneMatrixBuffer = null;
             }
             UpdateBoneInfo(true);
         }
+        private DataBuffer _boneMatrixBuffer;
         private void SetSkinningUniforms(int programBindingId)
         {
             if (!_bufferInfo.IsWeighted)
@@ -358,27 +371,35 @@ namespace TheraEngine.Rendering.Models
             _processingSkinning = true;
             if (Engine.Settings.SkinOnGPU)
             {
-                //Engine.Renderer.ProgramUniform(programBindingId, Uniform.BonePosMtxName + "[0]", Matrix4.Identity);
-                //Engine.Renderer.ProgramUniform(programBindingId, Uniform.BoneNrmMtxName + "[0]", Matrix4.Identity);
+                //Matrix4[] pos = _modifiedBoneIndices.Select(x => _utilizedBones[_boneRemap[x]].VertexMatrix).ToArray();
+                //Matrix4[] nrm = _modifiedBoneIndices.Select(x => _utilizedBones[_boneRemap[x]].NormalMatrix).ToArray();
+                //Engine.Renderer.Uniform(programBindingId, Uniform.BonePosMtxName, pos);
+                //Engine.Renderer.Uniform(programBindingId, Uniform.BoneNrmMtxName, nrm);
 
-                var pos = _modifiedBoneIndices.Select(x => _utilizedBones[_boneRemap[x]].VertexMatrix).ToArray();
-                var nrm = _modifiedBoneIndices.Select(x => _utilizedBones[_boneRemap[x]].NormalMatrix).ToArray();
-                Engine.Renderer.Uniform(programBindingId, Uniform.BonePosMtxName, pos);
-                Engine.Renderer.Uniform(programBindingId, Uniform.BoneNrmMtxName, nrm);
+                Matrix4 vtxMtx;
+                int boneIndex;
+                int minIndex = _utilizedBones.Length, maxIndex = -1;
+                foreach (int i in _modifiedBoneIndices)
+                {
+                    boneIndex = _boneRemap[i];
+                    vtxMtx = _utilizedBones[boneIndex].VertexMatrix;
 
-                //Update modified bone matrix uniforms
-                //foreach (int index in _modifiedBoneIndices)                
-                //{
-                //    int remappedIndex = _boneRemap[index];
-                //    Bone b = _utilizedBones[remappedIndex];
+                    //Increment the bone index for all subsequent data calculations 
+                    //to account for the identity matrix at index 0
+                    ++boneIndex;
 
-                //    //Increase index to account for identity matrix at index 0
-                //    ++remappedIndex;
-
-                //    Engine.Renderer.ProgramUniform(programBindingId, Uniform.BonePosMtxName + "[" + remappedIndex + "]", b.VertexMatrix);
-                //    Engine.Renderer.ProgramUniform(programBindingId, Uniform.BoneNrmMtxName + "[" + remappedIndex + "]", b.NormalMatrix);
-                //}
-
+                    _boneMatrixBuffer.Set(boneIndex * Matrix4.Size, vtxMtx);
+                    if (boneIndex < minIndex)
+                        minIndex = boneIndex;
+                    if (boneIndex > maxIndex)
+                        maxIndex = boneIndex;
+                }
+                int offset = minIndex * Matrix4.Size;
+                int length = (maxIndex + 1 - minIndex) * Matrix4.Size;
+                
+                _boneMatrixBuffer.SetBlockName(programBindingId, "Bones");
+                _boneMatrixBuffer.PushSubData(offset, length);
+                
                 //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
                 _modifiedBoneIndices.Clear();
             }
@@ -430,7 +451,7 @@ namespace TheraEngine.Rendering.Models
             if (_singleBind != null)
             {
                 modelMatrix = modelMatrix * _singleBind.VertexMatrix;
-                normalMatrix = normalMatrix * _singleBind.NormalMatrix.GetRotationMatrix3();
+                normalMatrix = normalMatrix * _singleBind.VertexMatrix.Inverted().Transposed().GetRotationMatrix3();
             }
 
             TMaterial mat = GetRenderMaterial(material);

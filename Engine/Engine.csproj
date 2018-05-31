@@ -409,7 +409,6 @@
     <Compile Include="Physics\Bullet\BulletPhysicsWorld.cs" />
     <Compile Include="Networking\Client.cs" />
     <Compile Include="Networking\NetworkPacketObject.cs" />
-    <Compile Include="Networking\NetworkPacketObjectSerializer.cs" />
     <Compile Include="Networking\Server.cs" />
     <Compile Include="Physics\Bullet\Collision Bodies\BulletSoftBody.cs" />
     <Compile Include="Physics\Bullet\Collision Bodies\BulletRigidBody.cs" />
@@ -580,7 +579,7 @@
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
-    <Compile Include="Animation\Model\ModelAnimationFrame.cs" />
+    <Compile Include="Animation\Model\SkeletalAnimationFrame.cs" />
     <Compile Include="Animation\Property\PropAnimQuat.cs" />
     <Compile Include="Animation\Property\PropAnimVec2.cs" />
     <Compile Include="Animation\Property\PropAnimVec3.cs" />
@@ -603,7 +602,7 @@
     <Compile Include="Animation\BaseAnimation.cs" />
     <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
     <Compile Include="Animation\Model\BlendSpace1D.cs" />
-    <Compile Include="Animation\Model\ModelAnimation.cs" />
+    <Compile Include="Animation\Model\SkeletalAnimation.cs" />
     <Compile Include="Engine\Game.cs" />
     <Compile Include="Networking\NetworkConnection.cs" />
     <Compile Include="Animation\Functions\AnimationFunction.cs" />

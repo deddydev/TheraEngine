@@ -2,8 +2,8 @@
 {
     public class Uniform
     {
-        public static readonly string BonePosMtxName = "BonePosMtx";
-        public static readonly string BoneNrmMtxName = "BoneNrmMtx";
+        public static readonly string BoneTransformsName = "Transforms";
+        //public static readonly string BoneNrmMtxName = "BoneNrmMtx";
         public static readonly string MorphWeightsName = "MorphWeights";
         public static readonly string PointLightsName = "PointLightData";
         public static readonly string SpotLightsName = "SpotLightData";

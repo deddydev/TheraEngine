@@ -100,17 +100,6 @@ namespace TheraEngine.Rendering.Models
             get => _visible;
             set => _visible = value;
         }
-
-        public void UpdateBones(Camera c, Matrix4 worldMatrix, Matrix4 inverseWorldMatrix)
-        {
-            //Looping recursively is more efficient than looping through the whole bone cache
-            //because bone subtrees that do not need updating will be skipped entirely
-            //instead of being iterated through
-            if (RootBones != null)
-                foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix(c, worldMatrix, inverseWorldMatrix);
-        }
-
         public bool VisibleInEditorOnly
         {
             get => _visibleInEditorOnly;
@@ -138,7 +127,7 @@ namespace TheraEngine.Rendering.Models
         [PostDeserialize]
         private void PostDeserialize()
         {
-            TriggerChildFrameMatrixUpdate();
+            //TriggerChildFrameMatrixUpdate();
             RegenerateBoneCache();
             //UpdateBones(null, Matrix4.Identity, Matrix4.Identity);
         }
@@ -203,15 +192,51 @@ namespace TheraEngine.Rendering.Models
         {
             _physicsDrivableBones.Remove(bone);
         }
-        public void TriggerChildFrameMatrixUpdate()
-        {
-            //_childMatrixModified = true;
-        }
+        //public void TriggerChildFrameMatrixUpdate()
+        //{
+        //    //_childMatrixModified = true;
+        //}
 
         private RenderCommandDebug3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_rc, ERenderPass.OpaqueForward);
         }
+
+        private Dictionary<int, IPrimitiveManager> _managers = new Dictionary<int, IPrimitiveManager>();
+        internal void AddPrimitiveManager(IPrimitiveManager m)
+        {
+            if (!_managers.ContainsKey(m.BindingId))
+                _managers.Add(m.BindingId, m);
+        }
+        internal void RemovePrimitiveManager(IPrimitiveManager m)
+        {
+            if (_managers.ContainsKey(m.BindingId))
+                _managers.Remove(m.BindingId);
+        }
+        internal void SwapBuffers()
+        {
+            foreach (IPrimitiveManager m in _managers.Values)
+            {
+                m.SwapModifiedBuffers();
+            }
+        }
+        public void UpdateBones(Camera c, Matrix4 worldMatrix, Matrix4 inverseWorldMatrix)
+        {
+            //Looping recursively is more efficient than looping through the whole bone cache
+            //because bone subtrees that do not need updating will be skipped entirely
+            //instead of being iterated through
+            if (RootBones != null)
+            {
+                foreach (IPrimitiveManager m in _managers.Values)
+                {
+                    m.ModifiedBoneIndicesUpdating.Clear();
+                    m.ModifiedVertexIndicesUpdating.Clear();
+                }
+                foreach (Bone b in RootBones)
+                    b.CalcFrameMatrix(c, worldMatrix, inverseWorldMatrix);
+            }
+        }
+
     }
 }

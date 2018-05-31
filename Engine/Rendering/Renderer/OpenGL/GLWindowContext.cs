@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering.OpenGL
             if (severity == DebugSeverity.DebugSeverityNotification)
                 Engine.PrintLine("OPENGL NOIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
             else
-                Engine.PrintLine(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
+                throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
         }
 
         private DebugProc _error;

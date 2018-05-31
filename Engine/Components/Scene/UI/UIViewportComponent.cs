@@ -90,7 +90,8 @@ namespace TheraEngine.Rendering.UI
 
         private void SwapBuffers()
         {
-            _viewport.SwapBuffers();
+            BaseScene scene = ViewportCamera?.OwningComponent?.OwningScene;
+            _viewport.SwapBuffers(scene);
         }
 
         public override void OnDespawned()

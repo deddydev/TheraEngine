@@ -41,7 +41,7 @@ namespace TheraEngine
         public override void SwapBuffers()
         {
             foreach (Viewport v in _viewports)
-                v.SwapBuffers();
+                v.SwapBuffers(GetScene(v));
         }
         protected override void OnRender()
         {

@@ -233,9 +233,10 @@ namespace TheraEngine.Rendering
         {
             scene.Render(_renderPasses, camera, this, HUD, target);
         }
-        internal protected virtual void SwapBuffers()
+        internal protected virtual void SwapBuffers(BaseScene scene)
         {
             _renderPasses.SwapBuffers();
+            scene?.PreRenderSwap();
             HUD?.RenderPasses.SwapBuffers();
         }
         public void Update(BaseScene scene, Camera camera, Frustum frustum)

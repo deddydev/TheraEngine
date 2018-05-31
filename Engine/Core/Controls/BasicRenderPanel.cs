@@ -60,7 +60,7 @@ namespace TheraEngine
         public override void SwapBuffers()
         {
             if (_viewports.Count > 0)
-                _viewports[0].SwapBuffers();
+                _viewports[0].SwapBuffers(Scene);
         }
         protected override void OnRender()
         {

@@ -75,6 +75,19 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         private bool _hasPushed = false;
         private bool _storageSet = false;
 
+        protected override void PostGenerated()
+        {
+            _hasPushed = false;
+            _storageSet = false;
+            base.PostGenerated();
+        }
+        protected override void PostDeleted()
+        {
+            _hasPushed = false;
+            _storageSet = false;
+            base.PostDeleted();
+        }
+
         //TODO: use PBO per texture for quick data updates
         public override void PushData()
         {

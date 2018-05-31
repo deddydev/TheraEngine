@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -18,13 +19,16 @@ namespace TheraEngine.Rendering.Models
     public interface IPrimitiveManager
     {
         int BindingId { get; }
-        ThreadSafeHashSet<int> ModifiedBoneIndices { get; }
-        ThreadSafeHashSet<int> ModifiedVertexIndices { get; }
+        HashSet<int> ModifiedBoneIndicesRendering { get; }
+        HashSet<int> ModifiedVertexIndicesRendering { get; }
+        HashSet<int> ModifiedBoneIndicesUpdating { get; }
+        HashSet<int> ModifiedVertexIndicesUpdating { get; }
         PrimitiveData Data { get; set; }
         DataBuffer IndexBuffer { get; }
         TMaterial Material { get; set; }
         EDrawElementType ElementType { get; }
 
+        void SwapModifiedBuffers();
         void SkeletonChanged(Skeleton skeleton);
         T2 Parameter<T2>(int index) where T2 : ShaderVar;
         T2 Parameter<T2>(string name) where T2 : ShaderVar;
@@ -64,12 +68,9 @@ namespace TheraEngine.Rendering.Models
         private Bone _singleBind;
         private Bone[] _utilizedBones;
         private Dictionary<int, int> _boneRemap;
-
-        //Realtime skinning information
-        private volatile ThreadSafeHashSet<int> _modifiedVertexIndices = new ThreadSafeHashSet<int>();
-        private volatile ThreadSafeHashSet<int> _modifiedBoneIndices = new ThreadSafeHashSet<int>();
+        
         private CPUSkinInfo _cpuSkinInfo; //Only used in CPU skinning mode
-        private bool _processingSkinning = false;
+        //private bool _processingSkinning = false;
 
         public PrimitiveManager() : base(EObjectType.VertexArray) { }
         public PrimitiveManager(PrimitiveData data, TMaterial material) : this()
@@ -164,8 +165,21 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        public ThreadSafeHashSet<int> ModifiedVertexIndices => _modifiedVertexIndices;
-        public ThreadSafeHashSet<int> ModifiedBoneIndices => _modifiedBoneIndices;
+        public HashSet<int> ModifiedVertexIndicesRendering => _modifiedVertexIndicesRendering;
+        public HashSet<int> ModifiedBoneIndicesRendering => _modifiedBoneIndicesRendering;
+        public HashSet<int> ModifiedVertexIndicesUpdating => _modifiedVertexIndicesUpdating;
+        public HashSet<int> ModifiedBoneIndicesUpdating => _modifiedBoneIndicesUpdating;
+
+        private HashSet<int> _modifiedVertexIndicesRendering = new HashSet<int>();
+        private HashSet<int> _modifiedBoneIndicesRendering = new HashSet<int>();
+        private HashSet<int> _modifiedVertexIndicesUpdating = new HashSet<int>();
+        private HashSet<int> _modifiedBoneIndicesUpdating = new HashSet<int>();
+
+        public void SwapModifiedBuffers()
+        {
+            THelpers.Swap(ref _modifiedVertexIndicesRendering, ref _modifiedVertexIndicesUpdating);
+            THelpers.Swap(ref _modifiedBoneIndicesRendering, ref _modifiedBoneIndicesUpdating);
+        }
 
         public DataBuffer IndexBuffer => _indexBuffer;
         public EDrawElementType ElementType => _elementType;
@@ -231,9 +245,8 @@ namespace TheraEngine.Rendering.Models
         public void SkeletonChanged(Skeleton skeleton)
         {
             UpdateBoneInfo(false);
-
-            _modifiedBoneIndices.Clear();
-
+            
+            _modifiedBoneIndicesUpdating.Clear();
             _data[EBufferType.MatrixIds]?.Dispose();
             _data[EBufferType.MatrixWeights]?.Dispose();
 
@@ -281,7 +294,7 @@ namespace TheraEngine.Rendering.Models
                                     }
                                     else
                                     {
-                                        matrixIndices[i][j] = index;
+                                        matrixIndices[i][j] = index + 1;
                                         matrixWeights[i][j] = weight.Weight;
                                     }
                                 }
@@ -317,7 +330,7 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 else
                                 {
-                                    matrixIndices[i][j] = index;
+                                    matrixIndices[i][j] = index + 1;
                                     matrixWeights[i][j] = weight.Weight;
                                 }
                             }
@@ -347,7 +360,7 @@ namespace TheraEngine.Rendering.Models
                     {
                         Bone b = _utilizedBones[i];
 
-                        _modifiedBoneIndices.Add(b._index);
+                        _modifiedBoneIndicesUpdating.Add(b._index);
 
                         b.AddPrimitiveManager(this);
                         _boneRemap.Add(b._index, i);
@@ -368,47 +381,46 @@ namespace TheraEngine.Rendering.Models
             if (!_bufferInfo.IsWeighted)
                 return;
 
-            _processingSkinning = true;
+            //_processingSkinning = true;
             if (Engine.Settings.SkinOnGPU)
             {
-                //Matrix4[] pos = _modifiedBoneIndices.Select(x => _utilizedBones[_boneRemap[x]].VertexMatrix).ToArray();
-                //Matrix4[] nrm = _modifiedBoneIndices.Select(x => _utilizedBones[_boneRemap[x]].NormalMatrix).ToArray();
-                //Engine.Renderer.Uniform(programBindingId, Uniform.BonePosMtxName, pos);
-                //Engine.Renderer.Uniform(programBindingId, Uniform.BoneNrmMtxName, nrm);
-
-                Matrix4 vtxMtx;
-                int boneIndex;
-                int minIndex = _utilizedBones.Length, maxIndex = -1;
-                foreach (int i in _modifiedBoneIndices)
+                if (_modifiedBoneIndicesRendering.Count > 0)
                 {
-                    boneIndex = _boneRemap[i];
-                    vtxMtx = _utilizedBones[boneIndex].VertexMatrix;
+                    Matrix4 vtxMtx;
+                    int boneIndex;
+                    int minIndex = _utilizedBones.Length, maxIndex = -1;
+                    foreach (int i in _modifiedBoneIndicesRendering)
+                    {
+                        boneIndex = _boneRemap[i];
+                        vtxMtx = _utilizedBones[boneIndex].VertexMatrix;
 
-                    //Increment the bone index for all subsequent data calculations 
-                    //to account for the identity matrix at index 0
-                    ++boneIndex;
+                        //Increment the bone index for all subsequent data calculations 
+                        //to account for the identity matrix at index 0
+                        ++boneIndex;
 
-                    _boneMatrixBuffer.Set(boneIndex * Matrix4.Size, vtxMtx);
-                    if (boneIndex < minIndex)
-                        minIndex = boneIndex;
-                    if (boneIndex > maxIndex)
-                        maxIndex = boneIndex;
+                        _boneMatrixBuffer.Set(boneIndex * Matrix4.Size, vtxMtx);
+                        if (boneIndex < minIndex)
+                            minIndex = boneIndex;
+                        if (boneIndex > maxIndex)
+                            maxIndex = boneIndex;
+                    }
+                    int offset = minIndex * Matrix4.Size;
+                    int length = (maxIndex + 1 - minIndex) * Matrix4.Size;
+
+                    _boneMatrixBuffer.PushData();
+                    _boneMatrixBuffer.SetBlockName(programBindingId, "Bones");
+                    _boneMatrixBuffer.PushSubData(/*offset, length*/0, _boneMatrixBuffer.DataLength);
+
+                    //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
+                    //_modifiedBoneIndices.Clear();
                 }
-                int offset = minIndex * Matrix4.Size;
-                int length = (maxIndex + 1 - minIndex) * Matrix4.Size;
-                
-                _boneMatrixBuffer.SetBlockName(programBindingId, "Bones");
-                _boneMatrixBuffer.PushSubData(offset, length);
-                
-                //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
-                _modifiedBoneIndices.Clear();
             }
             else
             {
-                _cpuSkinInfo?.UpdatePNBT(_modifiedVertexIndices);
-                _modifiedVertexIndices.Clear();
+                _cpuSkinInfo?.UpdatePNBT(_modifiedVertexIndicesRendering);
+                //_modifiedVertexIndices.Clear();
             }
-            _processingSkinning = false;
+            //_processingSkinning = false;
         }
         /// <summary>
         /// Retrieves the linked material's uniform parameter at the given index.

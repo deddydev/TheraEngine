@@ -200,9 +200,13 @@ namespace TheraEngine.Components.Scene.Mesh
 
         //private void Tick(float delta) => PreRender();
 
-        public void PreRender(Camera camera)
+        public void PreRenderUpdate(Camera camera)
         {
             Skeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
+        }
+        public void PreRenderSwap()
+        {
+            Skeleton?.SwapBuffers();
         }
 
         protected internal override void OnHighlightChanged(bool highlighted)

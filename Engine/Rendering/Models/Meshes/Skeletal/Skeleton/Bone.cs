@@ -86,7 +86,8 @@ namespace TheraEngine.Rendering.Models
             _skeleton = owner;
 
             Skeleton.BoneNameCache.Add(Name, this);
-            Skeleton.BoneIndexCache.Add(_index = _skeleton.BoneIndexCache.Count, this);
+            _index = _skeleton.BoneIndexCache.Count;
+            Skeleton.BoneIndexCache.Add(_index, this);
 
             if (UsesCamera)
                 Skeleton.AddCameraBone(this);
@@ -129,6 +130,7 @@ namespace TheraEngine.Rendering.Models
             foreach (Bone b in _childBones)
                 b._parent = this;
             _frameState = _bindState.HardCopy();
+            CalcBindMatrix(true);
             _frameState.MatrixChanged += FrameStateMatrixChanged;
             TriggerFrameMatrixUpdate();
         }
@@ -334,14 +336,16 @@ namespace TheraEngine.Rendering.Models
 
         }
 
-        public void AddPrimitiveManager(IPrimitiveManager m)
+        internal void AddPrimitiveManager(IPrimitiveManager m)
         {
             if (!_influencedVertices.ContainsKey(m.BindingId))
                 _influencedVertices.Add(m.BindingId, new Tuple<IPrimitiveManager, ThreadSafeList<int>>(m, new ThreadSafeList<int>()));
+            Skeleton?.AddPrimitiveManager(m);
         }
-        public void RemovePrimitiveManager(IPrimitiveManager m)
+        internal void RemovePrimitiveManager(IPrimitiveManager m)
         {
             _influencedVertices.Remove(m.BindingId);
+            Skeleton?.RemovePrimitiveManager(m);
         }
 
         [Browsable(false)]
@@ -394,12 +398,12 @@ namespace TheraEngine.Rendering.Models
                 if (Engine.Settings.SkinOnGPU)
                 {
                     foreach (var m in _influencedVertices.Values)
-                        m.Item1.ModifiedBoneIndices.Add(_index);
+                        m.Item1.ModifiedBoneIndicesUpdating.Add(_index);
                 }
                 else
                 {
                     foreach (var m in _influencedVertices.Values)
-                        m.Item1.ModifiedVertexIndices.UnionWith(m.Item2);
+                        m.Item1.ModifiedVertexIndicesUpdating.UnionWith(m.Item2);
                     _influencedInfluences.ForEach(x => x._hasChanged = true);
                 }
 
@@ -426,11 +430,7 @@ namespace TheraEngine.Rendering.Models
         {
             _bindMatrix = parentMatrix * _bindState.Matrix;
             _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
-
-            //_vtxPosMtx = FrameMatrix * InverseBindMatrix;
-            //_vtxNrmMtx = (InverseFrameMatrix * BindMatrix).GetRotationMatrix4();
-            //_vtxNrmMtx.Transpose();
-
+            
             TriggerFrameMatrixUpdate();
             
             foreach (Bone b in _childBones)

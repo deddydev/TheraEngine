@@ -199,26 +199,27 @@ namespace TheraEngine.Rendering
         /// <param name="singleRig"></param>
         private void WriteRiggedPNBT()
         {
+            bool hasNBT = _info.HasNormals || _info.HasTangents || _info.HasBinormals;
+
             Line("vec4 finalPosition = vec4(0.0f);");
             Line("vec4 basePosition = vec4(Position0, 1.0f);");
-            if (_info.HasNormals || _info.HasTangents || _info.HasBinormals)
+
+            if (_info.HasNormals)
             {
-                if (_info.HasNormals)
-                {
-                    Line("vec3 finalNormal = vec3(0.0f);");
-                    Line("vec3 baseNormal = Normal0;");
-                }
-                if (_info.HasBinormals)
-                {
-                    Line("vec3 finalBinormal = vec3(0.0f);");
-                    Line("vec3 baseBinormal = Binormal0;");
-                }
-                if (_info.HasTangents)
-                {
-                    Line("vec3 finalTangent = vec3(0.0f);");
-                    Line("vec3 baseTangent = Tangent0;");
-                }
+                Line("vec3 finalNormal = vec3(0.0f);");
+                Line("vec3 baseNormal = Normal0;");
             }
+            if (_info.HasBinormals)
+            {
+                Line("vec3 finalBinormal = vec3(0.0f);");
+                Line("vec3 baseBinormal = Binormal0;");
+            }
+            if (_info.HasTangents)
+            {
+                Line("vec3 finalTangent = vec3(0.0f);");
+                Line("vec3 baseTangent = Tangent0;");
+            }
+            
             Line();
             if (!MultiRig)
             {
@@ -235,7 +236,7 @@ namespace TheraEngine.Rendering
                     Line("weight = {0}0[i];", EBufferType.MatrixWeights.ToString());
 
                     Line($"finalPosition += (BoneDef.{Uniform.BoneTransformsName}[index] * basePosition) * weight;");
-                    if (_info.HasNormals || _info.HasBinormals || _info.HasTangents)
+                    if (hasNBT)
                     {
                         Line($"mat3 nrmMtx = mat3(transpose(inverse(BoneDef.{Uniform.BoneTransformsName}[index])));");
                         if (_info.HasNormals)

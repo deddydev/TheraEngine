@@ -91,7 +91,8 @@ namespace TheraEngine.Rendering
     /// </summary>
     public interface IPreRendered
     {
-        void PreRender(Camera camera);
+        void PreRenderUpdate(Camera camera);
+        void PreRenderSwap();
     }
     public abstract class BaseScene
     {
@@ -117,14 +118,19 @@ namespace TheraEngine.Rendering
         public virtual void Update(RenderPasses populatingPasses, IVolume cullingVolume, Camera camera, IUIManager hud, bool shadowPass)
         {
             hud?.UIScene?.Update(hud.RenderPasses, cullingVolume, hud.Camera, null, shadowPass);
-            PreRender(camera);
+            PreRenderUpdate(camera);
         }
-        public async void PreRender(Camera camera)
+        public void PreRenderUpdate(Camera camera)
         {
             //TODO: prerender on own consistent thread
             //ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRender(camera); }));
             foreach (IPreRendered p in _preRenderList)
-                p.PreRender(camera);
+                p.PreRenderUpdate(camera);
+        }
+        public void PreRenderSwap()
+        {
+            foreach (IPreRendered p in _preRenderList)
+                p.PreRenderSwap();
         }
         public void AddPreRenderedObject(IPreRendered obj)
         {

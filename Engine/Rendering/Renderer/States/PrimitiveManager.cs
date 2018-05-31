@@ -355,6 +355,7 @@ namespace TheraEngine.Rendering.Models
                     matrices.Insert(0, Matrix4.Identity);
                     _boneMatrixBuffer.SetData(matrices, false);
                     _boneMatrixBuffer.Generate();
+                    _boneMatrixBuffer.PushData();
                     _boneRemap = new Dictionary<int, int>();
                     for (int i = 0; i < _utilizedBones.Length; ++i)
                     {
@@ -374,21 +375,20 @@ namespace TheraEngine.Rendering.Models
                 _boneMatrixBuffer = null;
             }
             UpdateBoneInfo(true);
+            SwapModifiedBuffers();
         }
         private DataBuffer _boneMatrixBuffer;
         private void SetSkinningUniforms(int programBindingId)
         {
             if (!_bufferInfo.IsWeighted)
                 return;
-
-            //_processingSkinning = true;
+            
             if (Engine.Settings.SkinOnGPU)
             {
                 if (_modifiedBoneIndicesRendering.Count > 0)
                 {
                     Matrix4 vtxMtx;
                     int boneIndex;
-                    int minIndex = _utilizedBones.Length, maxIndex = -1;
                     foreach (int i in _modifiedBoneIndicesRendering)
                     {
                         boneIndex = _boneRemap[i];
@@ -399,28 +399,16 @@ namespace TheraEngine.Rendering.Models
                         ++boneIndex;
 
                         _boneMatrixBuffer.Set(boneIndex * Matrix4.Size, vtxMtx);
-                        if (boneIndex < minIndex)
-                            minIndex = boneIndex;
-                        if (boneIndex > maxIndex)
-                            maxIndex = boneIndex;
                     }
-                    int offset = minIndex * Matrix4.Size;
-                    int length = (maxIndex + 1 - minIndex) * Matrix4.Size;
-
-                    _boneMatrixBuffer.PushData();
-                    _boneMatrixBuffer.SetBlockName(programBindingId, "Bones");
-                    _boneMatrixBuffer.PushSubData(/*offset, length*/0, _boneMatrixBuffer.DataLength);
-
                     //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
-                    //_modifiedBoneIndices.Clear();
                 }
+                _boneMatrixBuffer.SetBlockName(programBindingId, "Bones");
+                _boneMatrixBuffer.PushSubData(0, _boneMatrixBuffer.DataLength);
             }
             else
             {
                 _cpuSkinInfo?.UpdatePNBT(_modifiedVertexIndicesRendering);
-                //_modifiedVertexIndices.Clear();
             }
-            //_processingSkinning = false;
         }
         /// <summary>
         /// Retrieves the linked material's uniform parameter at the given index.

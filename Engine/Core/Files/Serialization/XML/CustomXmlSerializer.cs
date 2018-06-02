@@ -63,48 +63,78 @@ namespace TheraEngine.Files.Serialization
             if (obj == null)
                 return;
 
-            if (obj is IFileRef fref && !fref.StoredInternally && fref.IsLoaded)
+            if (obj is IFileRef fref && !fref.StoredInternally)
             {
-                bool fileExists =
-                    !string.IsNullOrWhiteSpace(fref.ReferencePathAbsolute) &&
-                    fref.ReferencePathAbsolute.IsDirectoryPath() == false &&
-                    File.Exists(fref.ReferencePathAbsolute);
-                if (!fileExists)
+                if (fref.PathType == EPathType.FileRelative)
                 {
-                    if (fref is IGlobalFileRef && !_flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
-                        return;
-                    if (fref is ILocalFileRef && !_flags.HasFlag(ESerializeFlags.ExportLocalRefs))
-                        return;
-
-                    string absPath;
-                    if (!fref.EngineRelativePath)
-                    {
-                        absPath = Path.Combine(_fileDir, fref.ReferencePathRelative);
-                        //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
-                    }
+                    string root = Path.GetPathRoot(fref.ReferencePathAbsolute);
+                    int colonIndex = root.IndexOf(":");
+                    if (colonIndex > 0)
+                        root = root.Substring(0, colonIndex);
                     else
-                        absPath = fref.ReferencePathAbsolute;
+                        root = string.Empty;
+                    
+                    string root2 = Path.GetPathRoot(_fileDir);
+                    colonIndex = root2.IndexOf(":");
+                    if (colonIndex > 0)
+                        root2 = root2.Substring(0, colonIndex);
+                    else
+                        root2 = string.Empty;
 
-                    string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
-
-                    IFileObject file = fref.File;
-                    if (file.FileExtension != null)
+                    if (!string.Equals(root, root2))
                     {
-                        string fileName = SerializationCommon.ResolveFileName(
-                            _fileDir, file.Name, file.FileExtension.GetProperExtension(ProprietaryFileFormat.XML));
-                        file.Export(dir, fileName, FileFormat.XML, null, _flags);
+                        fref.PathType = EPathType.Absolute;
                     }
                     else
                     {
-                        var f = file.File3rdPartyExtensions;
-                        if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
+                        string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(_fileDir);
+                        fref.ReferencePath = rel;
+                    }
+                }
+                if (fref.IsLoaded)
+                {
+                    bool fileExists =
+                        !string.IsNullOrWhiteSpace(fref.ReferencePathAbsolute) &&
+                        fref.ReferencePathAbsolute.IsDirectoryPath() == false &&
+                        File.Exists(fref.ReferencePathAbsolute);
+                    if (!fileExists)
+                    {
+                        if (fref is IGlobalFileRef && !_flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
+                            return;
+                        if (fref is ILocalFileRef && !_flags.HasFlag(ESerializeFlags.ExportLocalRefs))
+                            return;
+
+                        string absPath;
+                        if (fref.PathType == EPathType.FileRelative)
                         {
-                            string ext = f.ExportableExtensions[0];
-                            string fileName = SerializationCommon.ResolveFileName(_fileDir, file.Name, ext);
-                            file.Export(dir, fileName, FileFormat.ThirdParty, ext, _flags);
+                            string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(_fileDir);
+                            absPath = Path.GetFullPath(Path.Combine(_fileDir, rel));
+                            //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
                         }
                         else
-                            Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
+                            absPath = fref.ReferencePathAbsolute;
+
+                        string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
+
+                        IFileObject file = fref.File;
+                        if (file.FileExtension != null)
+                        {
+                            string fileName = SerializationCommon.ResolveFileName(
+                                _fileDir, file.Name, file.FileExtension.GetProperExtension(ProprietaryFileFormat.XML));
+                            file.Export(dir, fileName, FileFormat.XML, null, _flags);
+                        }
+                        else
+                        {
+                            var f = file.File3rdPartyExtensions;
+                            if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
+                            {
+                                string ext = f.ExportableExtensions[0];
+                                string fileName = SerializationCommon.ResolveFileName(_fileDir, file.Name, ext);
+                                file.Export(dir, fileName, FileFormat.ThirdParty, ext, _flags);
+                            }
+                            else
+                                Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
+                        }
                     }
                 }
             }

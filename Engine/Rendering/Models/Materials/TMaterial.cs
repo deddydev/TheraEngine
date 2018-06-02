@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Files;
 using TheraEngine.Rendering.Models.Materials.Functions;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.ProfileCommon.Technique;
 
@@ -30,7 +32,7 @@ namespace TheraEngine.Rendering.Models.Materials
 #endif
 
         [TSerialize("Shaders")]
-        private List<GLSLShaderFile> _shaders = new List<GLSLShaderFile>();
+        private List<GlobalFileRef<GLSLShaderFile>> _shaders = new List<GlobalFileRef<GLSLShaderFile>>();
 
         public List<GLSLShaderFile> FragmentShaders { get; } = new List<GLSLShaderFile>();
         public List<GLSLShaderFile> GeometryShaders { get; } = new List<GLSLShaderFile>();
@@ -116,11 +118,32 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public void SetShaders(params GLSLShaderFile[] shaders)
         {
+            SetShaders((IEnumerable<GLSLShaderFile>)shaders);
+        }
+        public void SetShaders(IEnumerable<GLSLShaderFile> shaders)
+        {
             _shaders.Clear();
-            _shaders.AddRange(shaders);
+            foreach (GLSLShaderFile f in shaders)
+                _shaders.Add(f);
             ShadersChanged();
         }
         public void AddShader(GLSLShaderFile shader)
+        {
+            _shaders.Add(shader);
+            ShadersChanged();
+        }
+        public void SetShaders(params GlobalFileRef<GLSLShaderFile>[] shaders)
+        {
+            SetShaders((IEnumerable<GlobalFileRef<GLSLShaderFile>>)shaders);
+        }
+        public void SetShaders(IEnumerable<GlobalFileRef<GLSLShaderFile>> shaders)
+        {
+            _shaders.Clear();
+            foreach (GlobalFileRef<GLSLShaderFile> f in shaders)
+                _shaders.Add(f);
+            ShadersChanged();
+        }
+        public void AddShader(GlobalFileRef<GLSLShaderFile> shader)
         {
             _shaders.Add(shader);
             ShadersChanged();
@@ -165,7 +188,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 }
 
             if (Engine.Settings != null && Engine.Settings.AllowShaderPipelines)
-                Program = new RenderProgram(_shaders);
+                Program = new RenderProgram(_shaders.Select(x => x.File));
         }
         
         #region Basic Material Generation

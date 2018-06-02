@@ -43,6 +43,9 @@ namespace TheraEngine.Maths
         {
             //assert size > 0;
 
+            if (size == 0)
+                return null;
+
             // Set center to the first point in S
             for (int i = 0; i < dim; ++i)
                 center[i] = S.Coord(0, i);
@@ -85,6 +88,9 @@ namespace TheraEngine.Maths
         }
         private void Compute()
         {
+            if (size == 0)
+                return;
+
             // Invariant: The ball B(center,radius) always contains the whole
             // point set S and has the points in support on its boundary.
             while (true)

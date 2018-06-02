@@ -1,5 +1,4 @@
-﻿using BulletSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -73,11 +72,11 @@ namespace TheraEngine.Rendering.Models
                         }
                     }
 
-                    COLLADA.Scene scene = root.GetChild<COLLADA.Scene>();
+                    Scene scene = root.GetChild<Scene>();
                     if (scene != null)
                     {
                         data.Models = new List<ModelScene>();
-                        var visualScenes = scene.GetChildren<COLLADA.Scene.InstanceVisualScene>();
+                        var visualScenes = scene.GetChildren<Scene.InstanceVisualScene>();
                         foreach (var visualSceneRef in visualScenes)
                         {
                             var visualScene = visualSceneRef.GetUrlInstance();
@@ -353,6 +352,11 @@ namespace TheraEngine.Rendering.Models
                         data = DecodeMorphedPrimitivesUnweighted(_bindMatrix, _morphController);
                     else
                         throw new InvalidOperationException("No valid geometry or morph controller entry for object.");
+                }
+                if (data == null)
+                {
+                    //Something went wrong and the mesh couldn't be created
+                    return;
                 }
 
                 if (addBinormals || addTangents)

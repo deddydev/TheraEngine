@@ -7,6 +7,7 @@ using System.Reflection;
 using TheraEngine;
 using System.Collections;
 using TheraEngine.Timers;
+using System.Threading;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -213,21 +214,37 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// List of all visible PropGridItems that need to be updated.
         /// </summary>
         private static List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
-        internal static void UpdateVisibleItems()
+        private static bool UpdatingVisibleItems = false;
+        internal static void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
-            if (VisibleItems.Count > 0)
+            if (UpdatingVisibleItems)
+                return;
+            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
+            UpdatingVisibleItems = true;
+            Task.Run(() =>
             {
-                //foreach (PropGridItem item in VisibleItems)
-                //{
-                //    item.UpdateDisplay();
-                //}
-                Task.Run(() => Parallel.For(0, VisibleItems.Count, i =>
+                while (UpdatingVisibleItems)
                 {
-                    if (VisibleItems.IndexInRange(i))
-                        VisibleItems[i].Invoke((Action)VisibleItems[i].UpdateDisplay);
-                }));
-                //Application.DoEvents();
-            }
+                    if (VisibleItems.Count > 0)
+                        Parallel.For(0, VisibleItems.Count, i =>
+                        {
+                            try
+                            {
+                                if (!VisibleItems.IndexInRange(i))
+                                    return;
+                                var item = VisibleItems[i];
+                                if (!item.Disposing && !item.IsDisposed)
+                                    item.Invoke((Action)item.UpdateDisplay);
+                            }
+                            catch { }
+                        });
+                    Thread.Sleep(sleepTime);
+                }
+            });
+        }
+        internal static void StopUpdatingVisibleItems()
+        {
+            UpdatingVisibleItems = false;
         }
         protected override void OnHandleCreated(EventArgs e)
         {

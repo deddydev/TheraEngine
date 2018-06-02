@@ -31,17 +31,17 @@ namespace TheraEngine.Rendering.Models
                 Engine.LogWarning("Position index out of range of available position buffers.");
                 return;
             }
-            //VertexBuffer[] nBuffs = GetAllBuffersOfType(BufferType.Normal);
-            //if (nBuffs.Length == 0)
-            //{
-            //    Engine.LogWarning("No normal buffers found.");
-            //    return;
-            //}
-            //if (!nBuffs.IndexInRange(normalIndex))
-            //{
-            //    Engine.LogWarning("Normal index out of range of available normal buffers.");
-            //    return;
-            //}
+            DataBuffer[] nBuffs = GetAllBuffersOfType(EBufferType.Normal);
+            if (nBuffs.Length == 0)
+            {
+                Engine.LogWarning("No normal buffers found.");
+                return;
+            }
+            if (!nBuffs.IndexInRange(normalIndex))
+            {
+                Engine.LogWarning("Normal index out of range of available normal buffers.");
+                return;
+            }
             DataBuffer[] tBuffs = GetAllBuffersOfType(EBufferType.TexCoord);
             if (tBuffs.Length == 0)
             {

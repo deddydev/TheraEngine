@@ -24,20 +24,20 @@ namespace TheraEngine.Rendering.Models
 
         /// <summary>      
         /// 3--2
-        /// |\ |
-        /// | \|
+        /// | /|
+        /// |/ |
         /// 0--1
-        /// Order: 013 312
+        /// Order: 012 023
         /// </summary>
         /// <returns></returns>
-        public override VertexTriangle[] ToTriangles()
-        {
-            return new VertexTriangle[]
-            {
-                new VertexTriangle(Vertex0.HardCopy(), Vertex1.HardCopy(), Vertex3.HardCopy()),
-                new VertexTriangle(Vertex3.HardCopy(), Vertex1.HardCopy(), Vertex2.HardCopy()),
-            };
-        }
+        //public override VertexTriangle[] ToTriangles()
+        //{
+        //    return new VertexTriangle[]
+        //    {
+        //        new VertexTriangle(Vertex0.HardCopy(), Vertex1.HardCopy(), Vertex2.HardCopy()),
+        //        new VertexTriangle(Vertex0.HardCopy(), Vertex2.HardCopy(), Vertex3.HardCopy()),
+        //    };
+        //}
         public static VertexQuad MakeQuad(
             Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, bool addAutoNormal = false, bool flipVerticalUVCoord = false)
         {

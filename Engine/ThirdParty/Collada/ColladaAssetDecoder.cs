@@ -6,6 +6,7 @@ using static TheraEngine.Rendering.Models.Collada.COLLADA;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryControllers.Controller;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries.Geometry.Mesh;
+using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryGeometries.Geometry.Mesh.Polylist;
 using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryVisualScenes;
 using static TheraEngine.Rendering.Models.Collada.Source;
 
@@ -339,8 +340,6 @@ namespace TheraEngine.Rendering.Models
                             case ESemantic.TEXCOORD:
                                 vtx._texCoord = new Vec2(list[startIndex], list[startIndex + 1]);
                                 vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
-                                //vtx._texCoord.X = vtx._texCoord.X.RemapToRange(0.0f, 1.0f);
-                                //vtx._texCoord.Y = vtx._texCoord.Y.RemapToRange(0.0f, 1.0f);
                                 break;
                             case ESemantic.COLOR:
                                 vtx._color = new ColorF4(list[startIndex], list[startIndex + 1], list[startIndex + 2], list[startIndex + 3]);
@@ -386,8 +385,26 @@ namespace TheraEngine.Rendering.Models
                         faces.Add(new VertexTriangleStrip(vertices.Select(x => x[setIndex]).ToArray()));
                         break;
 
-                    case EColladaPrimitiveType.Polygons:
                     case EColladaPrimitiveType.Polylist:
+                        Polylist polyListPrim = (Polylist)prim;
+                        PolyCounts countsElem = polyListPrim.PolyCountsElement;
+                        int[] counts = countsElem.StringContent.Values;
+
+                        VertexPolygon[] polys = new VertexPolygon[counts.Length];
+
+                        for (int vtxIndex = 0, polyIndex = 0; polyIndex < counts.Length; ++polyIndex)
+                        {
+                            int count = counts[polyIndex];
+                            Vertex[] verts = new Vertex[count];
+                            for (int polyVtxIndex = 0; polyVtxIndex < count; ++polyVtxIndex, ++vtxIndex)
+                                verts[polyVtxIndex] = vertices[vtxIndex][setIndex];
+                            polys[polyIndex] = new VertexPolygon(verts);
+                        }
+
+                        faces.AddRange(polys);
+                        break;
+
+                    case EColladaPrimitiveType.Polygons:
                         Engine.LogWarning("Primitive type {0} not supported. Mesh will be empty.", prim.Type.ToString());
                         break;
                 }
@@ -410,8 +427,8 @@ namespace TheraEngine.Rendering.Models
             }
 
             Engine.LogWarning("Mesh has no primitives.");
-
-            return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions());
+            
+            return null;//PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions());
         }
         public static PrimitiveData CreateData(
             VertexShaderDesc info,
@@ -435,7 +452,7 @@ namespace TheraEngine.Rendering.Models
 
             Engine.LogWarning("Mesh has no primitives.");
 
-            return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions());
+            return null;//PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions());
         }
     }
 }

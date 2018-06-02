@@ -42,7 +42,10 @@ namespace TheraEngine.Rendering.Models
         public static PrimitiveData FromPointList(IEnumerable<Vec3> points)
             => new PrimitiveData(VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
         
-        public PrimitiveData() { }
+        public PrimitiveData()
+        {
+
+        }
         public PrimitiveData(VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
         {
             _bufferInfo = info;

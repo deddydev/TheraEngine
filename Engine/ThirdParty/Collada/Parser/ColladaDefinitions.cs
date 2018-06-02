@@ -1461,7 +1461,7 @@ namespace TheraEngine.Rendering.Models
                             [Attr("count", true)]
                             public int Count { get; set; } = 0;
                             [Attr("material", false)]
-                            public string Material { get; set; } = null;
+                            public ColladaURI Material { get; set; } = null;
                             
                             public int PointCount { get; set; }
                             public int FaceCount { get; private set; }
@@ -1519,9 +1519,15 @@ namespace TheraEngine.Rendering.Models
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Polygons;
                         }
                         [Name("polylist")]
+                        [Child(typeof(PolyCounts), 0, 1)]
                         public class Polylist : BasePrimitive
                         {
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Polylist;
+                            
+                            public PolyCounts PolyCountsElement => GetChild<PolyCounts>();
+
+                            [Name("vcount")]
+                            public class PolyCounts : BaseStringElement<BasePrimitive, ElementIntArray> { }
                         }
                         [Name("triangles")]
                         public class Triangles : BasePrimitive

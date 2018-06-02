@@ -27,17 +27,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             ctxSceneComps.Renderer = new TheraForm.TheraToolstripRenderer();
         }
         
-        internal static GameTimer UpdateTimer = new GameTimer();
+        //internal static GameTimer UpdateTimer = new GameTimer();
         protected override void OnHandleCreated(EventArgs e)
         {
             if (!Engine.DesignMode)
-                UpdateTimer.StartMultiFire(PropGridItem.UpdateVisibleItems, Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
+            {
+                PropGridItem.BeginUpdatingVisibleItems(Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
+            }
             base.OnHandleCreated(e);
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {
             if (!Engine.DesignMode)
-                UpdateTimer.Stop();
+            {
+                PropGridItem.StopUpdatingVisibleItems();
+            }
             base.OnHandleDestroyed(e);
         }
 

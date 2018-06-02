@@ -228,6 +228,8 @@ namespace TheraEngine.Components.Scene.Mesh
             get => _skeleton;
             set
             {
+                if (_skeleton == value)
+                    return;
                 _skeleton = value;
                 foreach (RenderableLOD m in LODs)
                     m.Manager?.SkeletonChanged(_skeleton);

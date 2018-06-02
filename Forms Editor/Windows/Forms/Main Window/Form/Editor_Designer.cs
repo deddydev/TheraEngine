@@ -539,9 +539,9 @@ namespace TheraEditor.Windows.Forms
                         _project.Export();
                 }
 
-                string configFile = _project.EditorSettings.GetFullDockConfigPath();
-                //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
-                //DockPanel.SaveAsXml(configFile);
+                string configFile = _project.EditorSettings?.GetFullDockConfigPath();
+                if (configFile != null && configFile.IsDirectoryPath() == false)
+                    DockPanel.SaveAsXml(configFile);
 
                 ClearDockPanel();
 

@@ -286,7 +286,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             CreateMethodControl(m.Method, m.DisplayName, m.Attribs, pnlProps, _categories, obj);
                         }
 
-                        if (Editor.Instance.Project.EditorSettings.PropertyGrid.IgnoreLoneSubCategories && _categories.Count == 1)
+                        bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
+                        if (ignoreLoneSubCats && _categories.Count == 1)
                             _categories.Values.ToArray()[0].CategoryName = null;
                         
                         Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());

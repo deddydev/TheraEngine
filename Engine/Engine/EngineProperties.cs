@@ -58,7 +58,7 @@ namespace TheraEngine
         /// <summary>
         /// Event for when the engine is paused or unpaused and by which player.
         /// </summary>
-        public static event Action<bool, LocalPlayerIndex> Paused;
+        public static event Action<bool, LocalPlayerIndex> PauseChanged;
         /// <summary>
         /// Event for sending debug console output text.
         /// </summary>

@@ -151,19 +151,22 @@ namespace TheraEngine
         /// </summary>
         public static async void Initialize(bool loadOpeningWorldGameMode = true)
         {
-            RenderLibrary = _game.UserSettingsRef.File.RenderLibrary;
-            AudioLibrary = _game.UserSettingsRef.File.AudioLibrary;
-            InputLibrary = _game.UserSettingsRef.File.InputLibrary;
-            PhysicsLibrary = _game.UserSettingsRef.File.PhysicsLibrary;
+            if (_game != null)
+            {
+                RenderLibrary = _game.UserSettingsRef.File?.RenderLibrary ?? RenderLibrary.OpenGL;
+                AudioLibrary = _game.UserSettingsRef.File?.AudioLibrary ?? AudioLibrary.OpenAL;
+                InputLibrary = _game.UserSettingsRef.File?.InputLibrary ?? InputLibrary.OpenTK;
+                PhysicsLibrary = _game.UserSettingsRef.File?.PhysicsLibrary ?? PhysicsLibrary.Bullet;
 
-            //Set initial world (this would generally be a world for opening videos or the main menu)
-            SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
+                //Set initial world (this would generally be a world for opening videos or the main menu)
+                SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
+
+                //Preload transition world now
+                await Game.TransitionWorldRef.LoadNewInstanceAsync();
+            }
 
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
-
-            //Preload transition world now
-            await Game.TransitionWorldRef.LoadNewInstanceAsync();
 
             //InitializeVR();
         }
@@ -394,7 +397,7 @@ namespace TheraEngine
             if (!force && wantsPause && ActiveGameMode.DisallowPausing)
                 return;
             _isPaused = wantsPause;
-            Paused?.Invoke(_isPaused, toggler);
+            PauseChanged?.Invoke(_isPaused, toggler);
             PrintLine("Engine{0}paused.", _isPaused ? " " : " un");
         }
         #endregion

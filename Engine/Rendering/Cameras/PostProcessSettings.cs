@@ -289,7 +289,11 @@ uniform ColorGradeStruct ColorGrade;";
             //Usually that means nothing is being rendered, so don't update the exposure now.
             //If we were to update the exposure now, the scene would look very bright once it finally starts rendering.
             if (lumDot == 0.0f)
+            {
+                if (Exposure < MinExposure)
+                    Exposure = MinExposure;
                 return;
+            }
 
             float target = (ExposureDividend / lumDot).Clamp(MinExposure, MaxExposure);
 

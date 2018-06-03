@@ -411,7 +411,7 @@ namespace TheraEngine.Rendering.Models
             [Attr("offset", true)]
             public uint Offset { get; set; }
             [Attr("set", false)]
-            public uint Set { get; set; }
+            public uint Set { get; set; } = 0u;
             [Attr("semantic", true)]
             public string Semantic { get; set; }
             [Attr("source", true)]

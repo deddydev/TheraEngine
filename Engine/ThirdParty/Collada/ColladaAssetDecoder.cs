@@ -216,138 +216,103 @@ namespace TheraEngine.Rendering.Models
             var m = geo.MeshElement;
             if (m == null)
                 return;
-            
+
+            Vertices vertsElem;
             foreach (var prim in m.PrimitiveElements)
             {
-                Dictionary<ESemantic, Dictionary<int, Source>> sources = new Dictionary<ESemantic, Dictionary<int, Source>>();
+                Dictionary<ESemantic, int> semanticCounts = new Dictionary<ESemantic, int>();
+                Dictionary<ESemantic, Dictionary<int, Source>> inputSources = new Dictionary<ESemantic, Dictionary<int, Source>>();
+                Dictionary<ESemantic, Source> vertexInputSources = new Dictionary<ESemantic, Source>();
                 foreach (InputShared inp in prim.InputElements)
                 {
-                    ESemantic semantic = inp.CommonSemanticType;
                     if (inp.CommonSemanticType == ESemantic.VERTEX)
                     {
-                        var verts = inp.Source.GetElement<Vertices>(inp.Root);
-                        sources.Add(ESemantic.VERTEX, new Dictionary<int, Source>());
-                        int i = 0;
-                        foreach (var input in verts.InputElements)
+                        vertsElem = inp.Source.GetElement<Vertices>(inp.Root);
+                        foreach (InputUnshared input in vertsElem.InputElements)
                         {
-                            src = input.Source.GetElement<Source>(verts.Root);
-                            sources[ESemantic.VERTEX].Add(i++, src);
+                            ESemantic semantic = inp.CommonSemanticType;
+                            if (semanticCounts.ContainsKey(semantic))
+                                ++semanticCounts[semantic];
+                            else
+                                semanticCounts.Add(semantic, 1);
+
+                            src = input.Source.GetElement<Source>(vertsElem.Root);
+                            vertexInputSources[input.CommonSemanticType] = src;
                         }
                         continue;
                     }
                     else
                     {
+                        ESemantic semantic = inp.CommonSemanticType;
+                        if (semanticCounts.ContainsKey(semantic))
+                            ++semanticCounts[semantic];
+                        else
+                            semanticCounts.Add(semantic, 1);
+
                         src = inp.Source.GetElement<Source>(inp.Root);
                         if (src != null)
                         {
-                            if (!sources.ContainsKey(semantic))
-                                sources.Add(semantic, new Dictionary<int, Source>());
+                            if (!inputSources.ContainsKey(semantic))
+                                inputSources.Add(semantic, new Dictionary<int, Source>());
 
                             int set = (int)inp.Set;
-                            if (!sources[semantic].ContainsKey(set))
-                                sources[semantic].Add(set, src);
+                            if (!inputSources[semantic].ContainsKey(set))
+                                inputSources[semantic].Add(set, src);
                             else
-                                sources[semantic][set] = src;
+                                inputSources[semantic][set] = src;
                         }
                     }
                 }
 
-                if (sources.ContainsKey(ESemantic.VERTEX))
-                    info._morphCount = sources[ESemantic.VERTEX].Count - 1;
-                else
-                    Engine.LogWarning("Mesh has no vertices.");
-
+                info._morphCount = 0;
                 info._hasNormals =
-                    sources.ContainsKey(ESemantic.NORMAL) &&
-                    sources[ESemantic.NORMAL].Count > 0;
+                    semanticCounts.ContainsKey(ESemantic.NORMAL) && semanticCounts[ESemantic.NORMAL] > 0;
                 info._hasBinormals =
-                    sources.ContainsKey(ESemantic.TEXBINORMAL) &&
-                    sources[ESemantic.TEXBINORMAL].Count > 0;
+                    (semanticCounts.ContainsKey(ESemantic.TEXBINORMAL) && semanticCounts[ESemantic.TEXBINORMAL] > 0) ||
+                    (semanticCounts.ContainsKey(ESemantic.BINORMAL) && semanticCounts[ESemantic.BINORMAL] > 0);
                 info._hasTangents =
-                    sources.ContainsKey(ESemantic.TEXTANGENT) &&
-                    sources[ESemantic.TEXTANGENT].Count > 0;
-
+                    (semanticCounts.ContainsKey(ESemantic.TEXTANGENT) && semanticCounts[ESemantic.TEXTANGENT] > 0) ||
+                    (semanticCounts.ContainsKey(ESemantic.TANGENT) && semanticCounts[ESemantic.TANGENT] > 0);
                 info._colorCount =
-                    sources.ContainsKey(ESemantic.COLOR) ? 
-                    sources[ESemantic.COLOR].Count : 0;
+                    semanticCounts.ContainsKey(ESemantic.COLOR) ? semanticCounts[ESemantic.COLOR] : 0;
                 info._texcoordCount =
-                    sources.ContainsKey(ESemantic.TEXCOORD) ?
-                    sources[ESemantic.TEXCOORD].Count : 0;
+                    semanticCounts.ContainsKey(ESemantic.TEXCOORD) ? semanticCounts[ESemantic.TEXCOORD] : 0;
                 
                 int maxSets = TMath.Max(
                     info._morphCount + 1,
                     info._colorCount,
                     info._texcoordCount);
                 
-                int stride, pointIndex, startIndex;
-                Vertex vtx;
-                Vertex[][] vertices;
-                float[] list;
+                Vertex[][] vertices = new Vertex[prim.PointCount][];
+                int[] indices = prim.IndicesElement.StringContent.Values;
 
-                Matrix4 invBind = bindMatrix;
+                Matrix4 invTranspBindMatrix = bindMatrix;
                 if (info.HasNormals || info.HasBinormals || info.HasTangents)
                 {
-                    invBind.Invert();
-                    invBind.Transpose();
+                    invTranspBindMatrix.Invert();
+                    invTranspBindMatrix.Transpose();
                 }
-
-                TechniqueCommon.Accessor acc;
-                var indices = prim.IndicesElement.StringContent.Values;
-
-                vertices = new Vertex[prim.PointCount][];
+                
                 foreach (var inp in prim.InputElements)
                 {
                     int set = (int)inp.Set;
                     int offset = (int)inp.Offset;
 
-                    src = sources[inp.CommonSemanticType][set];
-                    acc = src.TechniqueCommonElement.AccessorElement;
-                    stride = (int)acc.Stride;
-
-                    list = src.GetArrayElement<FloatArray>().StringContent.Values;
-                    for (int i = 0, x = 0; i < prim.PointCount; ++i, x += prim.InputElements.Length)
+                    if (inp.CommonSemanticType == ESemantic.VERTEX)
                     {
-                        if (vertices[i] == null)
-                            vertices[i] = new Vertex[maxSets];
-
-                        startIndex = (pointIndex = indices[x + inp.Offset]) * stride;
-
-                        vtx = vertices[i][set];
-                        if (vtx == null)
-                            vtx = new Vertex();
-
-                        switch (inp.CommonSemanticType)
+                        foreach (ESemantic s in vertexInputSources.Keys)
                         {
-                            case ESemantic.VERTEX:
-                                Vec3 position = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                position = Vec3.TransformPosition(position, bindMatrix);
-                                vtx._position = position;
-                                if (infList != null)
-                                    vtx._influence = infList[pointIndex];
-                                break;
-                            case ESemantic.NORMAL:
-                                Vec3 normal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                vtx._normal = Vec3.TransformVector(normal, invBind);
-                                break;
-                            case ESemantic.TEXBINORMAL:
-                                Vec3 binormal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                vtx._binormal = Vec3.TransformVector(binormal, invBind);
-                                break;
-                            case ESemantic.TEXTANGENT:
-                                Vec3 tangent = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
-                                vtx._tangent = Vec3.TransformVector(tangent, invBind);
-                                break;
-                            case ESemantic.TEXCOORD:
-                                vtx._texCoord = new Vec2(list[startIndex], list[startIndex + 1]);
-                                vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
-                                break;
-                            case ESemantic.COLOR:
-                                vtx._color = new ColorF4(list[startIndex], list[startIndex + 1], list[startIndex + 2], list[startIndex + 3]);
-                                break;
+                            src = vertexInputSources[s];
+                            DecodeSource(src, s, offset, set, maxSets, prim, indices, vertices, infList, bindMatrix, invTranspBindMatrix);
                         }
-                        vertices[i][set] = vtx;
+                    }
+                    else
+                    {
+                        src = inputSources[inp.CommonSemanticType][set];
+                        DecodeSource(src, inp.CommonSemanticType, offset, set, maxSets, prim, indices, vertices, infList, bindMatrix, invTranspBindMatrix);
                     }
                 }
+
                 int setIndex = 0;
                 switch (prim.Type)
                 {
@@ -404,10 +369,93 @@ namespace TheraEngine.Rendering.Models
                         faces.AddRange(polys);
                         break;
 
+                    default:
                     case EColladaPrimitiveType.Polygons:
-                        Engine.LogWarning("Primitive type {0} not supported. Mesh will be empty.", prim.Type.ToString());
+                        Engine.LogWarning("Primitive type '{0}' not supported. Mesh will be empty.", prim.Type.ToString());
                         break;
                 }
+            }
+        }
+
+        private static void DecodeSource(
+            Source src,
+            ESemantic semantic,
+            int offset,
+            int set,
+            int maxSets,
+            BasePrimitive prim,
+            int[] indices,
+            Vertex[][] vertices,
+            InfluenceDef[] infList,
+            Matrix4 bindMatrix,
+            Matrix4 invTranspBindMatrix)
+        {
+            var acc = src.TechniqueCommonElement.AccessorElement;
+            int stride = (int)acc.Stride;
+            int startIndex, pointIndex;
+            
+            float[] list = src.GetArrayElement<FloatArray>().StringContent.Values;
+            for (int i = 0, x = 0; i < prim.PointCount; ++i, x += prim.InputElements.Length)
+            {
+                if (vertices[i] == null)
+                    vertices[i] = new Vertex[maxSets];
+
+                startIndex = (pointIndex = indices[x + offset]) * stride;
+
+                Vertex vtx = vertices[i][set];
+                if (vtx == null)
+                    vtx = new Vertex();
+
+                switch (semantic)
+                {
+                    case ESemantic.POSITION:
+                        Vec3 position = new Vec3(
+                            list[startIndex],
+                            list[startIndex + 1],
+                            list[startIndex + 2]);
+                        position = Vec3.TransformPosition(position, bindMatrix);
+                        vtx._position = position;
+                        if (infList != null)
+                            vtx._influence = infList[pointIndex];
+                        break;
+                    case ESemantic.NORMAL:
+                        Vec3 normal = new Vec3(
+                            list[startIndex],
+                            list[startIndex + 1],
+                            list[startIndex + 2]);
+                        vtx._normal = Vec3.TransformVector(normal, invTranspBindMatrix);
+                        break;
+                    case ESemantic.BINORMAL:
+                    case ESemantic.TEXBINORMAL:
+                        Vec3 binormal = new Vec3(
+                            list[startIndex],
+                            list[startIndex + 1],
+                            list[startIndex + 2]);
+                        vtx._binormal = Vec3.TransformVector(binormal, invTranspBindMatrix);
+                        break;
+                    case ESemantic.TANGENT:
+                    case ESemantic.TEXTANGENT:
+                        Vec3 tangent = new Vec3(
+                            list[startIndex],
+                            list[startIndex + 1],
+                            list[startIndex + 2]);
+                        vtx._tangent = Vec3.TransformVector(tangent, invTranspBindMatrix);
+                        break;
+                    case ESemantic.TEXCOORD:
+                        vtx._texCoord = new Vec2(
+                            list[startIndex], 
+                            list[startIndex + 1]);
+                        vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
+                        break;
+                    case ESemantic.COLOR:
+                        vtx._color = new ColorF4(
+                            list[startIndex], 
+                            list[startIndex + 1], 
+                            list[startIndex + 2], 
+                            list[startIndex + 3]);
+                        break;
+                }
+                vertices[i][set] = vtx;
             }
         }
 

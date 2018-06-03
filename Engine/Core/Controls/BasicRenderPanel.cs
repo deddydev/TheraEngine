@@ -20,32 +20,34 @@ namespace TheraEngine
             get => _viewports.Count == 0 ? null : _viewports [0].Camera;
             set
             {
-                if (_viewports.Count == 0)
-                    AddViewport();
-                _viewports[0].Camera = value;
+                GetOrAddViewport(Actors.LocalPlayerIndex.One).Camera = value;
             }
         }
 
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-            AddViewport();
-        }
-
-        protected override void SetVisibleCore(bool value)
-        {
-            base.SetVisibleCore(value);
-        }
-        protected override void OnParentVisibleChanged(EventArgs e)
-        {
-            base.OnParentVisibleChanged(e);
-        }
-        protected override void OnVisibleChanged(EventArgs e)
-        {
-            base.OnVisibleChanged(e);
-            if (!Engine.DesignMode && Visible && _viewports.Count == 0)
-                AddViewport();
-        }
+        //protected override void OnLoad(EventArgs e)
+        //{
+        //    base.OnLoad(e);
+        //    AddViewport();
+        //}
+        //protected override void OnHandleCreated(EventArgs e)
+        //{
+        //    base.OnHandleCreated(e);
+        //    AddViewport();
+        //}
+        //protected override void SetVisibleCore(bool value)
+        //{
+        //    base.SetVisibleCore(value);
+        //}
+        //protected override void OnParentVisibleChanged(EventArgs e)
+        //{
+        //    base.OnParentVisibleChanged(e);
+        //}
+        //protected override void OnVisibleChanged(EventArgs e)
+        //{
+        //    base.OnVisibleChanged(e);
+        //    if (!Engine.DesignMode && Visible && _viewports.Count == 0)
+        //        AddViewport();
+        //}
 
         protected virtual void PreRender() => PreRendered?.Invoke();
         protected virtual void PostRender() => PostRendered?.Invoke();
@@ -69,11 +71,11 @@ namespace TheraEngine
 
             Viewport v = _viewports[0];
 
-            PreRender();
-            _context.BeginDraw();
+            //PreRender();
+            //_context.BeginDraw();
             v.Render(Scene, v.Camera, null);
-            _context.EndDraw();
-            PostRender();
+            //_context.EndDraw();
+            //PostRender();
         }
     }
 }

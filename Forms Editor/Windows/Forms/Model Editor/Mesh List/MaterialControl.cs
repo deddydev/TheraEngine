@@ -48,8 +48,11 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
             float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
-            basicRenderPanel1.Camera = new PerspectiveCamera(
+            PerspectiveCamera c = new PerspectiveCamera(
                 new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
+            c.PostProcessRef.File.ColorGrading.AutoExposure = false;
+            c.PostProcessRef.File.ColorGrading.Exposure = 10.0f;
+            basicRenderPanel1.Camera = c;
             if (_light == null)
             {
                 _light = new DirectionalLightComponent();
@@ -214,6 +217,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     lblMatName.Text = "<null>";
                 }
+
+                RedrawPreview();
             }
         }
 

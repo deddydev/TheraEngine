@@ -56,7 +56,7 @@ namespace TheraEditor.Windows.Forms
             if (_light == null)
             {
                 _light = new DirectionalLightComponent();
-                _light.SetShadowMapResolution(1, 1);
+                _light.SetShadowMapResolution(128, 128);
                 _light.WorldRadius = 100.0f;
                 _light.Rotation.Yaw = 45.0f;
                 _light.Rotation.Pitch = -45.0f;
@@ -176,6 +176,7 @@ namespace TheraEditor.Windows.Forms
                         _spherePrim = new PrimitiveRenderWrapper( //0.8f instead of 1.0f for border padding
                             new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
                         basicRenderPanel1.Scene.Add(_spherePrim);
+                        basicRenderPanel1.Scene.Lights.Add(_light);
                     }
                     else
                         _spherePrim.Material = _material;

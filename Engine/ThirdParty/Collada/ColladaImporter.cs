@@ -406,6 +406,11 @@ namespace TheraEngine.Rendering.Models
                     else
                         throw new InvalidOperationException("No valid geometry or morph controller entry for object.");
                 }
+                if (data == null)
+                {
+                    //Something went wrong and the mesh couldn't be created
+                    return;
+                }
 
                 if (addBinormals || addTangents)
                     data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);

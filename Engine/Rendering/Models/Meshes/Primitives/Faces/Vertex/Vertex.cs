@@ -19,9 +19,7 @@ namespace TheraEngine.Rendering.Models
         public Vec3 Binormal { get; set; }
         public Vec2 TexCoord { get; set; }
         public ColorF4 Color { get; set; }
-
-        //public List<VertexLine> _connectedEdges = new List<VertexLine>();
-
+        
         public Vertex() { }
         public Vertex(InfluenceDef inf)
             { Influence = inf; }
@@ -45,7 +43,6 @@ namespace TheraEngine.Rendering.Models
                 Binormal = Binormal,
                 TexCoord = TexCoord,
                 Color = Color,
-                //_connectedEdges = new List<VertexLine>(_connectedEdges),
             };
         }
 

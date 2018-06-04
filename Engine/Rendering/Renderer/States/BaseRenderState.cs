@@ -133,7 +133,6 @@ namespace TheraEngine.Rendering
 
             //Make sure current bind is up to date
             bool hasBind = GetCurrentBind();
-
             if (!hasBind)
             {
                 Engine.LogWarning("Unable to create render object: no captured render context.");

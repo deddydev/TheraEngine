@@ -6,7 +6,7 @@ using System.Linq;
 namespace TheraEngine.Rendering.Models
 {
     /// <summary>
-    /// Describes a weighted group of 4 bones. Contains no actual transformation information.
+    /// Describes a weighted group of up to 4 bones. Contains no actual transformation information.
     /// </summary>
     public class InfluenceDef
     {
@@ -98,14 +98,14 @@ namespace TheraEngine.Rendering.Models
         }
         public static bool operator ==(InfluenceDef left, InfluenceDef right)
         {
-            if (ReferenceEquals(left, null))
-                return ReferenceEquals(right, null);
+            if (left is null)
+                return right is null;
             return left.Equals(right);
         }
         public static bool operator !=(InfluenceDef left, InfluenceDef right)
         {
-            if (ReferenceEquals(left, null))
-                return !ReferenceEquals(right, null);
+            if (left is null)
+                return !(right is null);
             return !left.Equals(right);
         }
         public override bool Equals(object obj)

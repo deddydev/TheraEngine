@@ -148,8 +148,8 @@ namespace TheraEngine.Actors.Types
                         VertexTriangle left1 = list[triCount - 2];
                         VertexTriangle left2 = list[triCount - 1];
                         
-                        Vec3 prevBottomRightNorm = left1.Vertex2._normal + left2.Vertex1._normal;
-                        Vec3 prevTopRightNorm = left2.Vertex2._normal;
+                        Vec3 prevBottomRightNorm = left1.Vertex2.Normal + left2.Vertex1.Normal;
+                        Vec3 prevTopRightNorm = left2.Vertex2.Normal;
 
                         topLeftNorm += prevTopRightNorm;
                         bottomLeftNorm += prevBottomRightNorm;
@@ -159,8 +159,8 @@ namespace TheraEngine.Actors.Types
                         VertexTriangle top1 = list[triCount - xTriStride];
                         VertexTriangle top2 = list[triCount - xTriStride + 1];
                         
-                        Vec3 upperBottomLeftNorm = top1.Vertex1._normal;
-                        Vec3 upperBottomRightNorm = top1.Vertex2._normal + top2.Vertex1._normal;
+                        Vec3 upperBottomLeftNorm = top1.Vertex1.Normal;
+                        Vec3 upperBottomRightNorm = top1.Vertex2.Normal + top2.Vertex1.Normal;
 
                         topLeftNorm += upperBottomLeftNorm;
                         topRightNorm += upperBottomRightNorm;
@@ -170,7 +170,7 @@ namespace TheraEngine.Actors.Types
                         VertexTriangle topLeft1 = list[triCount - xTriStride - 2];
                         VertexTriangle topLeft2 = list[triCount - xTriStride - 1];
                         
-                        Vec3 upperLeftBottomRightNorm = topLeft1.Vertex2._normal + topLeft2.Vertex1._normal;
+                        Vec3 upperLeftBottomRightNorm = topLeft1.Vertex2.Normal + topLeft2.Vertex1.Normal;
 
                         topLeftNorm += upperLeftBottomRightNorm;
                     }
@@ -179,7 +179,7 @@ namespace TheraEngine.Actors.Types
                         VertexTriangle topRight1 = list[triCount - xTriStride + 2];
                         //VertexTriangle topRight2 = list[triCount - xTriStride + 3];
                         
-                        Vec3 upperRightBottomLeftNorm = topRight1.Vertex1._normal;
+                        Vec3 upperRightBottomLeftNorm = topRight1.Vertex1.Normal;
 
                         topRightNorm += upperRightBottomLeftNorm;
                     }
@@ -195,23 +195,23 @@ namespace TheraEngine.Actors.Types
                         VertexTriangle left1 = list[triCount - 2];
                         VertexTriangle left2 = list[triCount - 1];
                         
-                        left2.Vertex2._normal = topLeftNorm;
-                        left1.Vertex2._normal = left2.Vertex1._normal = bottomLeftNorm;
+                        left2.Vertex2.Normal = topLeftNorm;
+                        left1.Vertex2.Normal = left2.Vertex1.Normal = bottomLeftNorm;
                     }
                     if (triCount - xTriStride >= 0)
                     {
                         VertexTriangle top1 = list[triCount - xTriStride];
                         VertexTriangle top2 = list[triCount - xTriStride + 1];
                         
-                        top1.Vertex1._normal = topLeftNorm;
-                        top1.Vertex2._normal = top2.Vertex1._normal = topRightNorm;
+                        top1.Vertex1.Normal = topLeftNorm;
+                        top1.Vertex2.Normal = top2.Vertex1.Normal = topRightNorm;
                     }
                     if (triCount - xTriStride - 2 >= 0)
                     {
                         VertexTriangle topLeft1 = list[triCount - xTriStride - 2];
                         VertexTriangle topLeft2 = list[triCount - xTriStride - 1];
 
-                        topLeft1.Vertex2._normal = topLeft2.Vertex1._normal = topLeftNorm;
+                        topLeft1.Vertex2.Normal = topLeft2.Vertex1.Normal = topLeftNorm;
                     }
 
                     list.Add(new VertexTriangle(

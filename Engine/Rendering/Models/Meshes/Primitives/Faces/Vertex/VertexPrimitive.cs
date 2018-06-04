@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.Models
 
         public BoundingBox GetCullingVolume()
         {
-            Vec3[] positions = _vertices.Select(x => x._position).ToArray();
+            Vec3[] positions = _vertices.Select(x => x.Position).ToArray();
             return BoundingBox.FromMinMax(Vec3.ComponentMin(positions), Vec3.ComponentMax(positions));
         }
 

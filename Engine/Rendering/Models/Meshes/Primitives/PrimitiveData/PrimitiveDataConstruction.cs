@@ -81,39 +81,39 @@ namespace TheraEngine.Rendering.Models
             CreateFacePoints(firstAppearanceArray.Length);
 
             if (info.HasSkinning)
-                SetInfluences(firstAppearanceArray.Select(x => vertices[x]._influence).ToArray());
+                SetInfluences(firstAppearanceArray.Select(x => vertices[x].Influence).ToArray());
 
             for (int i = 0; i < info._morphCount + 1; ++i)
             {
-                var data = firstAppearanceArray.Select(x => vertices[x]._position).ToList();
+                var data = firstAppearanceArray.Select(x => vertices[x].Position).ToList();
                 AddBuffer(data, new VertexAttribInfo(EBufferType.Position, i));
             }
             if (info.HasNormals)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
-                    var data = firstAppearanceArray.Select(x => vertices[x]._normal).ToList();
+                    var data = firstAppearanceArray.Select(x => vertices[x].Normal).ToList();
                     AddBuffer(data, new VertexAttribInfo(EBufferType.Normal, i));
                 }
             if (info.HasBinormals)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
-                    var data = firstAppearanceArray.Select(x => vertices[x]._binormal).ToList();
+                    var data = firstAppearanceArray.Select(x => vertices[x].Binormal).ToList();
                     AddBuffer(data, new VertexAttribInfo(EBufferType.Binormal, i));
                 }
             if (info.HasTangents)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
-                    var data = firstAppearanceArray.Select(x => vertices[x]._tangent).ToList();
+                    var data = firstAppearanceArray.Select(x => vertices[x].Tangent).ToList();
                     AddBuffer(data, new VertexAttribInfo(EBufferType.Tangent, i));
                 }
             for (int i = 0; i < info._colorCount; ++i)
             {
-                var data = firstAppearanceArray.Select(x => vertices[x]._color).ToList();
+                var data = firstAppearanceArray.Select(x => vertices[x].Color).ToList();
                 AddBuffer(data, new VertexAttribInfo(EBufferType.Color, i));
             }
             for (int i = 0; i < info._texcoordCount; ++i)
             {
-                var data = firstAppearanceArray.Select(x => vertices[x]._texCoord).ToList();
+                var data = firstAppearanceArray.Select(x => vertices[x].TexCoord).ToList();
                 AddBuffer(data, new VertexAttribInfo(EBufferType.TexCoord, i));
             }
         }

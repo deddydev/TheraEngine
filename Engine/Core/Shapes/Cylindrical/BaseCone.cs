@@ -84,8 +84,8 @@ namespace TheraEngine.Core.Shapes
             for (int i = 0, x = 0; i < sides; ++i)
             {
                 Vertex sidePoint = sidePoints[i];
-                lines[x++] = new VertexLine(bottomPoint, sidePoint._position);
-                lines[x++] = new VertexLine(topPoint, sidePoint._position);
+                lines[x++] = new VertexLine(bottomPoint, sidePoint.Position);
+                lines[x++] = new VertexLine(topPoint, sidePoint.Position);
                 lines[x++] = new VertexLine(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoint);
             }
 
@@ -107,18 +107,18 @@ namespace TheraEngine.Core.Shapes
 
             for (int i = 0; i < sides; ++i)
             {
-                diff = topPoint - sidePoints[i]._position;
+                diff = topPoint - sidePoints[i].Position;
                 diff.Normalize();
                 normal = diff ^ (up ^ diff).Normalized();
-                sidePoints[i]._normal = normal;
+                sidePoints[i].Normal = normal;
 
                 topVertex = new Vertex(topPoint, up, new Vec2(0.5f));
                 tris.Add(new VertexTriangle(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoints[i], topVertex));
                 if (tris.Count - 2 >= 0)
                 {
                     VertexTriangle lastTri = tris[tris.Count - 2];
-                    lastTri.Vertex0._normal += normal;
-                    lastTri.Vertex0._normal.Normalize();
+                    lastTri.Vertex0.Normal += normal;
+                    lastTri.Vertex0.Normal.Normalize();
                 }
             }
 
@@ -131,11 +131,11 @@ namespace TheraEngine.Core.Shapes
                 for (int i = 0; i < sidePoints.Length; ++i)
                 {
                     Vertex v2 = sidePoints[i].HardCopy();
-                    v2._normal = -up;
+                    v2.Normal = -up;
                     list.Add(v2);
                 }
                 Vertex v3 = sidePoints[sidePoints.Length - 1].HardCopy();
-                v3._normal = -up;
+                v3.Normal = -up;
                 list.Add(v3);
                 tris.AddRange(new VertexTriangleFan(list).ToTriangles());
             }

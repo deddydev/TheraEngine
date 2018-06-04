@@ -102,7 +102,7 @@ namespace TheraEngine.Components.Scene
                 {
                     Vertex pos = new Vertex(_spline.GetValueKeyframed(i));
                     splinePoints[i] = pos;
-                    velocity[i] = new VertexLine(pos, new Vertex(pos._position + _spline.GetVelocityKeyframed(i).NormalizedFast()));
+                    velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _spline.GetVelocityKeyframed(i).NormalizedFast()));
                 }
                 i = 0;
                 foreach (Vec3Keyframe keyframe in _spline)

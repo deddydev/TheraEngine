@@ -11,10 +11,14 @@ namespace TheraEngine.Rendering.Models
     {
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool VisibleByDefault { get; set; }
+
         [TSerialize(Order = 0)]
         public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit);
+
         [TSerialize(Order = 1)]
         public Shape CullingVolume { get; set; }
+
+        [Browsable(false)]
         [TSerialize(Order = 2)]
         public List<LOD> LODs { get; set; }
 

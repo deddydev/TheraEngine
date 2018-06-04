@@ -40,7 +40,8 @@
             // 
             this.pnlMain.Controls.Add(this.lblMaterial);
             this.pnlMain.Controls.Add(this.pnlVisDist);
-            this.pnlMain.Size = new System.Drawing.Size(0, 61);
+            this.pnlMain.Location = new System.Drawing.Point(8, 16);
+            this.pnlMain.Size = new System.Drawing.Size(0, 50);
             // 
             // propGridSingle1
             // 
@@ -52,11 +53,12 @@
             this.propGridSingle1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propGridSingle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.propGridSingle1.Label = null;
-            this.propGridSingle1.Location = new System.Drawing.Point(125, 0);
+            this.propGridSingle1.Location = new System.Drawing.Point(94, 0);
             this.propGridSingle1.Margin = new System.Windows.Forms.Padding(0);
             this.propGridSingle1.Name = "propGridSingle1";
+            this.propGridSingle1.ParentInfo = null;
             this.propGridSingle1.ReadOnly = false;
-            this.propGridSingle1.Size = new System.Drawing.Size(0, 27);
+            this.propGridSingle1.Size = new System.Drawing.Size(0, 22);
             this.propGridSingle1.TabIndex = 0;
             // 
             // pnlVisDist
@@ -65,8 +67,9 @@
             this.pnlVisDist.Controls.Add(this.label1);
             this.pnlVisDist.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlVisDist.Location = new System.Drawing.Point(0, 0);
+            this.pnlVisDist.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pnlVisDist.Name = "pnlVisDist";
-            this.pnlVisDist.Size = new System.Drawing.Size(0, 27);
+            this.pnlVisDist.Size = new System.Drawing.Size(0, 22);
             this.pnlVisDist.TabIndex = 1;
             // 
             // label1
@@ -74,8 +77,9 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Left;
             this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(125, 27);
+            this.label1.Size = new System.Drawing.Size(94, 22);
             this.label1.TabIndex = 1;
             this.label1.Text = "Visible Distance";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -85,9 +89,10 @@
             this.lblMaterial.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(76)))), ((int)(((byte)(90)))));
             this.lblMaterial.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblMaterial.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblMaterial.Location = new System.Drawing.Point(0, 27);
+            this.lblMaterial.Location = new System.Drawing.Point(0, 22);
+            this.lblMaterial.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMaterial.Name = "lblMaterial";
-            this.lblMaterial.Size = new System.Drawing.Size(0, 34);
+            this.lblMaterial.Size = new System.Drawing.Size(0, 28);
             this.lblMaterial.TabIndex = 2;
             this.lblMaterial.Text = "Material Name";
             this.lblMaterial.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -97,13 +102,13 @@
             // 
             // LODControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.DropDownName = "LOD";
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "LODControl";
-            this.Size = new System.Drawing.Size(10, 86);
+            this.Size = new System.Drawing.Size(8, 66);
             this.pnlMain.ResumeLayout(false);
             this.pnlVisDist.ResumeLayout(false);
             this.pnlVisDist.PerformLayout();

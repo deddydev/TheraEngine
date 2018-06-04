@@ -230,7 +230,7 @@ namespace TheraEngine.Rendering.Models
                         vertsElem = inp.Source.GetElement<Vertices>(inp.Root);
                         foreach (InputUnshared input in vertsElem.InputElements)
                         {
-                            ESemantic semantic = inp.CommonSemanticType;
+                            ESemantic semantic = input.CommonSemanticType;
                             if (semanticCounts.ContainsKey(semantic))
                                 ++semanticCounts[semantic];
                             else
@@ -263,20 +263,20 @@ namespace TheraEngine.Rendering.Models
                         }
                     }
                 }
+                
+                info._morphCount    = 0; //Morphs are stored in separate geometry entries, so they need to be combined later
+                info._hasNormals    = semanticCounts.ContainsKey(ESemantic.NORMAL) && semanticCounts[ESemantic.NORMAL] > 0;
 
-                info._morphCount = 0;
-                info._hasNormals =
-                    semanticCounts.ContainsKey(ESemantic.NORMAL) && semanticCounts[ESemantic.NORMAL] > 0;
-                info._hasBinormals =
-                    (semanticCounts.ContainsKey(ESemantic.TEXBINORMAL) && semanticCounts[ESemantic.TEXBINORMAL] > 0) ||
-                    (semanticCounts.ContainsKey(ESemantic.BINORMAL) && semanticCounts[ESemantic.BINORMAL] > 0);
-                info._hasTangents =
-                    (semanticCounts.ContainsKey(ESemantic.TEXTANGENT) && semanticCounts[ESemantic.TEXTANGENT] > 0) ||
-                    (semanticCounts.ContainsKey(ESemantic.TANGENT) && semanticCounts[ESemantic.TANGENT] > 0);
-                info._colorCount =
-                    semanticCounts.ContainsKey(ESemantic.COLOR) ? semanticCounts[ESemantic.COLOR] : 0;
-                info._texcoordCount =
-                    semanticCounts.ContainsKey(ESemantic.TEXCOORD) ? semanticCounts[ESemantic.TEXCOORD] : 0;
+                bool hasTexBinormal = semanticCounts.ContainsKey(ESemantic.TEXBINORMAL) && semanticCounts[ESemantic.TEXBINORMAL] > 0;
+                bool hasBinormal    = semanticCounts.ContainsKey(ESemantic.BINORMAL) && semanticCounts[ESemantic.BINORMAL] > 0;
+                info._hasBinormals  = hasTexBinormal || hasBinormal;
+
+                bool hasTexTangent  = semanticCounts.ContainsKey(ESemantic.TEXTANGENT) && semanticCounts[ESemantic.TEXTANGENT] > 0;
+                bool hasTangent     = semanticCounts.ContainsKey(ESemantic.TANGENT) && semanticCounts[ESemantic.TANGENT] > 0;
+                info._hasTangents   = hasTexTangent || hasTangent;
+
+                info._colorCount    = semanticCounts.ContainsKey(ESemantic.COLOR) ? semanticCounts[ESemantic.COLOR] : 0;
+                info._texcoordCount = semanticCounts.ContainsKey(ESemantic.TEXCOORD) ? semanticCounts[ESemantic.TEXCOORD] : 0;
                 
                 int maxSets = TMath.Max(
                     info._morphCount + 1,
@@ -414,16 +414,16 @@ namespace TheraEngine.Rendering.Models
                             list[startIndex + 1],
                             list[startIndex + 2]);
                         position = Vec3.TransformPosition(position, bindMatrix);
-                        vtx._position = position;
+                        vtx.Position = position;
                         if (infList != null)
-                            vtx._influence = infList[pointIndex];
+                            vtx.Influence = infList[pointIndex];
                         break;
                     case ESemantic.NORMAL:
                         Vec3 normal = new Vec3(
                             list[startIndex],
                             list[startIndex + 1],
                             list[startIndex + 2]);
-                        vtx._normal = Vec3.TransformVector(normal, invTranspBindMatrix);
+                        vtx.Normal = Vec3.TransformVector(normal, invTranspBindMatrix);
                         break;
                     case ESemantic.BINORMAL:
                     case ESemantic.TEXBINORMAL:
@@ -431,7 +431,7 @@ namespace TheraEngine.Rendering.Models
                             list[startIndex],
                             list[startIndex + 1],
                             list[startIndex + 2]);
-                        vtx._binormal = Vec3.TransformVector(binormal, invTranspBindMatrix);
+                        vtx.Binormal = Vec3.TransformVector(binormal, invTranspBindMatrix);
                         break;
                     case ESemantic.TANGENT:
                     case ESemantic.TEXTANGENT:
@@ -439,16 +439,15 @@ namespace TheraEngine.Rendering.Models
                             list[startIndex],
                             list[startIndex + 1],
                             list[startIndex + 2]);
-                        vtx._tangent = Vec3.TransformVector(tangent, invTranspBindMatrix);
+                        vtx.Tangent = Vec3.TransformVector(tangent, invTranspBindMatrix);
                         break;
                     case ESemantic.TEXCOORD:
-                        vtx._texCoord = new Vec2(
-                            list[startIndex], 
-                            list[startIndex + 1]);
-                        vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
+                        vtx.TexCoord = new Vec2(
+                            list[startIndex],
+                            1.0f - list[startIndex + 1]); // Y coordinate is inverted
                         break;
                     case ESemantic.COLOR:
-                        vtx._color = new ColorF4(
+                        vtx.Color = new ColorF4(
                             list[startIndex], 
                             list[startIndex + 1], 
                             list[startIndex + 2], 

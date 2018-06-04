@@ -144,7 +144,7 @@ namespace TheraEngine.Rendering.Models
                     return _material;
                 else
                 {
-                    Engine.LogWarning("Material " + _material.Name + " is not valid.");
+                    //Engine.LogWarning("Material " + _material.Name + " is not valid.");
                     return TMaterial.InvalidMaterial;
                 }
             }

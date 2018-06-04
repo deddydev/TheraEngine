@@ -63,17 +63,12 @@ namespace TheraEngine
         [TString(false, false, false)]
         [TSerialize(nameof(Name), XmlNodeType = EXmlNodeType.Attribute)]
         protected string _name = null;
-        private object _userData = null;
-        
+
         [TSerialize]
         //[BrowsableIf("_userData != null")]
         [Browsable(false)]
         [Category("Object")]
-        public object UserObject
-        {
-            get => _userData;
-            set => _userData = value;
-        }
+        public object UserObject { get; set; } = null;
 
         #region Name
         [TString(false, false, false)]

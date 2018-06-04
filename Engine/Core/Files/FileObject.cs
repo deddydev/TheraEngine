@@ -97,10 +97,6 @@ namespace TheraEngine.Files
             //throw new Exception("No File3rdParty attribute specified for " + t.ToString());
         }
 
-        private List<IFileRef> _references = new List<IFileRef>();
-        private string _filePath;
-        private int _calculatedSize;
-
         public delegate TFileObject DelThirdPartyFileMethod(string path);
         static TFileObject()
         {
@@ -145,21 +141,17 @@ namespace TheraEngine.Files
 
         [TString(false, true, false)]
         [Category("Object")]
-        public string FilePath
-        {
-            get => _filePath;
-            set => _filePath = value;
-        }
+        public string FilePath { get; set; }
         [Browsable(false)]
         public string DirectoryPath => !string.IsNullOrEmpty(FilePath) && FilePath.IsValidPath() ? Path.GetDirectoryName(FilePath) : string.Empty;
         [Browsable(false)]
-        public int CalculatedSize => _calculatedSize;
+        public int CalculatedSize { get; private set; }
         [Browsable(false)]
-        public List<IFileRef> References { get => _references; set => _references = value; }
+        public List<IFileRef> References { get; set; } = new List<IFileRef>();
 
         public void Unload()
         {
-            List<IFileRef> oldRefs = new List<IFileRef>(_references);
+            List<IFileRef> oldRefs = new List<IFileRef>(References);
             foreach (IFileRef r in oldRefs)
                 r.UnloadReference();
             OnUnload();
@@ -358,7 +350,7 @@ namespace TheraEngine.Files
                 case FileFormat.XML:
                     return FromXML<T>(filePath);
             }
-            return default(T);
+            return default;
         }
         /// <summary>
         /// Opens a new instance of the file object at the given file path.
@@ -379,12 +371,12 @@ namespace TheraEngine.Files
         //[GridCallable("Save")]
         public void Export(ESerializeFlags flags = ESerializeFlags.Default)
         {
-            if (string.IsNullOrEmpty(_filePath))
+            if (string.IsNullOrEmpty(FilePath))
             {
                 Engine.LogWarning("File was not exported; no path to export to.");
                 return;
             }
-            GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
+            GetDirNameFmt(FilePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt, flags);
         }
         //[GridCallable("Save")]
@@ -521,7 +513,7 @@ namespace TheraEngine.Files
 
             if (ext.ManualXmlConfigSerialize)
             {
-                using (FileStream stream = new FileStream(_filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
+                using (FileStream stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
                 using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
                 {
                     writer.Flush();
@@ -533,7 +525,7 @@ namespace TheraEngine.Files
                 }
             }
             else
-                new CustomXmlSerializer().Serialize(this, _filePath, flags);
+                new CustomXmlSerializer().Serialize(this, FilePath, flags);
 
             Engine.PrintLine("Saved XML file to {0}", FilePath);
         }
@@ -604,7 +596,7 @@ namespace TheraEngine.Files
 
             if (ext.ManualBinConfigSerialize)
             {
-                using (FileStream stream = new FileStream(_filePath,
+                using (FileStream stream = new FileStream(FilePath,
                     FileMode.OpenOrCreate,
                     FileAccess.ReadWrite,
                     FileShare.ReadWrite,
@@ -631,7 +623,7 @@ namespace TheraEngine.Files
             {
                 CustomBinarySerializer.Serialize(
                     this,
-                    _filePath,
+                    FilePath,
                     Endian.EOrder.Big,
                     true,
                     true,
@@ -652,8 +644,8 @@ namespace TheraEngine.Files
         /// <returns>The size of the object, in bytes.</returns>
         internal int CalculateSize(StringTable table, ESerializeFlags flags)
         {
-            _calculatedSize = OnCalculateSize(table, flags);
-            return _calculatedSize;
+            CalculatedSize = OnCalculateSize(table, flags);
+            return CalculatedSize;
         }
         /// <summary>
         /// Calculates the size of this object, in bytes.

@@ -11,60 +11,64 @@ namespace TheraEngine.Rendering.Models
             GetData(facepoint, buffers);
         }
 
-        public int _index = -1;
-        public InfluenceDef _influence;
-        public Vec3 _position, _normal, _tangent, _binormal;
-        public Vec2 _texCoord;
-        public ColorF4 _color;
+        public int Index { get; set; } = -1;
+        public InfluenceDef Influence { get; set; }
+        public Vec3 Position { get; set; }
+        public Vec3 Normal { get; set; }
+        public Vec3 Tangent { get; set; }
+        public Vec3 Binormal { get; set; }
+        public Vec2 TexCoord { get; set; }
+        public ColorF4 Color { get; set; }
+
         //public List<VertexLine> _connectedEdges = new List<VertexLine>();
 
         public Vertex() { }
         public Vertex(InfluenceDef inf)
-            { _influence = inf; }
+            { Influence = inf; }
         public Vertex(Vec3 position)
-            { _position = position; }
+            { Position = position; }
         public Vertex(Vec3 position, InfluenceDef inf) 
-            : this(position) { _influence = inf; }
+            : this(position) { Influence = inf; }
 
         public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal) 
-            : this(position, inf) { _normal = normal; }
+            : this(position, inf) { Normal = normal; }
 
         public Vertex HardCopy()
         {
             return new Vertex()
             {
-                _index = _index,
-                _influence = _influence,
-                _position = _position,
-                _normal = _normal,
-                _tangent = _tangent,
-                _binormal = _binormal,
-                _texCoord = _texCoord,
-                _color = _color,
+                Index = Index,
+                Influence = Influence,
+                Position = Position,
+                Normal = Normal,
+                Tangent = Tangent,
+                Binormal = Binormal,
+                TexCoord = TexCoord,
+                Color = Color,
                 //_connectedEdges = new List<VertexLine>(_connectedEdges),
             };
         }
 
         public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord) 
-            : this(position, inf, normal) { _texCoord = texCoord; }
+            : this(position, inf, normal) { TexCoord = texCoord; }
         public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
-            : this(position, inf, normal, texCoord) { _color = color; }
+            : this(position, inf, normal, texCoord) { Color = color; }
         public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
-            : this(position, inf, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
+            : this(position, inf, normal, texCoord, color) { Binormal = binormal; Tangent = tangent; }
 
         public Vertex(Vec3 position, InfluenceDef inf, Vec2 texCoord)
-            : this(position, inf) { _texCoord = texCoord; }
+            : this(position, inf) { TexCoord = texCoord; }
         public Vertex(Vec3 position, Vec2 texCoord)
-            : this(position) { _texCoord = texCoord; }
+            : this(position) { TexCoord = texCoord; }
 
         public Vertex(Vec3 position, Vec3 normal) 
             : this(position, null, normal) { }
         public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord)
-            : this(position, null, normal) { _texCoord = texCoord; }
+            : this(position, null, normal) { TexCoord = texCoord; }
         public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord, ColorF4 color)
-            : this(position, null, normal, texCoord) { _color = color; }
+            : this(position, null, normal, texCoord) { Color = color; }
         public Vertex(Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color)
-            : this(position, null, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
+            : this(position, null, normal, texCoord, color) { Binormal = binormal; Tangent = tangent; }
 
         public void SetData(FacePoint facepoint, List<DataBuffer> buffers)
         {
@@ -77,22 +81,22 @@ namespace TheraEngine.Rendering.Models
                 switch (type)
                 {
                     case EBufferType.Position:
-                        b.Set(index * 12, _position);
+                        b.Set(index * 12, Position);
                         break;
                     case EBufferType.Normal:
-                        b.Set(index * 12, _normal);
+                        b.Set(index * 12, Normal);
                         break;
                     case EBufferType.Binormal:
-                        b.Set(index * 12, _binormal);
+                        b.Set(index * 12, Binormal);
                         break;
                     case EBufferType.Tangent:
-                        b.Set(index * 12, _tangent);
+                        b.Set(index * 12, Tangent);
                         break;
                     case EBufferType.Color:
-                        b.Set(index << 4, _color);
+                        b.Set(index << 4, Color);
                         break;
                     case EBufferType.TexCoord:
-                        b.Set(index << 3, _texCoord);
+                        b.Set(index << 3, TexCoord);
                         break;
                 }
             }
@@ -110,22 +114,22 @@ namespace TheraEngine.Rendering.Models
                 switch (type)
                 {
                     case EBufferType.Position:
-                        _position = b.Get<Vec3>(index * 12);
+                        Position = b.Get<Vec3>(index * 12);
                         break;
                     case EBufferType.Normal:
-                        _normal = b.Get<Vec3>(index * 12);
+                        Normal = b.Get<Vec3>(index * 12);
                         break;
                     case EBufferType.Binormal:
-                        _binormal = b.Get<Vec3>(index * 12);
+                        Binormal = b.Get<Vec3>(index * 12);
                         break;
                     case EBufferType.Tangent:
-                        _tangent = b.Get<Vec3>(index * 12);
+                        Tangent = b.Get<Vec3>(index * 12);
                         break;
                     case EBufferType.Color:
-                        _texCoord = b.Get<Vec2>(index << 4);
+                        TexCoord = b.Get<Vec2>(index << 4);
                         break;
                     case EBufferType.TexCoord:
-                        _texCoord = b.Get<Vec2>(index << 3);
+                        TexCoord = b.Get<Vec2>(index << 3);
                         break;
                 }
             }
@@ -139,19 +143,19 @@ namespace TheraEngine.Rendering.Models
             const float precision = 0.00001f;
             if (other == null)
                 return false;
-            if (_influence != other._influence)
+            if (Influence != other.Influence)
                 return false;
-            if (!_position.Equals(other._position, precision))
+            if (!Position.Equals(other.Position, precision))
                 return false;
-            if (!_normal.Equals(other._normal, precision))
+            if (!Normal.Equals(other.Normal, precision))
                 return false;
-            if (!_binormal.Equals(other._binormal, precision))
+            if (!Binormal.Equals(other.Binormal, precision))
                 return false;
-            if (!_tangent.Equals(other._tangent, precision))
+            if (!Tangent.Equals(other.Tangent, precision))
                 return false;
-            if (!_color.Equals(other._color, precision))
+            if (!Color.Equals(other.Color, precision))
                 return false;
-            if (!_texCoord.Equals(other._texCoord, precision))
+            if (!TexCoord.Equals(other.TexCoord, precision))
                 return false;
             return true;
         }

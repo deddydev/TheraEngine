@@ -128,18 +128,18 @@ namespace TheraEngine.Actors.Types
                 Vec3 halfUnit = unit * _axisHalfLength;
 
                 VertexLine transLine1 = new VertexLine(halfUnit, halfUnit + unit1 * _axisHalfLength);
-                transLine1.Vertex0._color = unit1;
-                transLine1.Vertex1._color = unit1;
+                transLine1.Vertex0.Color = unit1;
+                transLine1.Vertex1.Color = unit1;
                 VertexLine transLine2 = new VertexLine(halfUnit, halfUnit + unit2 * _axisHalfLength);
-                transLine2.Vertex0._color = unit2;
-                transLine2.Vertex1._color = unit2;
+                transLine2.Vertex0.Color = unit2;
+                transLine2.Vertex1.Color = unit2;
 
                 VertexLine scaleLine1 = new VertexLine(unit1 * _scaleHalf1LDist, unit2 * _scaleHalf1LDist);
-                scaleLine1.Vertex0._color = unit;
-                scaleLine1.Vertex1._color = unit;
+                scaleLine1.Vertex0.Color = unit;
+                scaleLine1.Vertex1.Color = unit;
                 VertexLine scaleLine2 = new VertexLine(unit1 * _scaleHalf2LDist, unit2 * _scaleHalf2LDist);
-                scaleLine2.Vertex0._color = unit;
-                scaleLine2.Vertex1._color = unit;
+                scaleLine2.Vertex0.Color = unit;
+                scaleLine2.Vertex1.Color = unit;
 
                 string axis = ((char)('X' + normalAxis)).ToString();
 

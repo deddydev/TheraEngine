@@ -133,6 +133,7 @@
             this.texThumbnail.Location = new System.Drawing.Point(0, 0);
             this.texThumbnail.Name = "texThumbnail";
             this.texThumbnail.Size = new System.Drawing.Size(168, 172);
+            this.texThumbnail.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.texThumbnail.TabIndex = 2;
             this.texThumbnail.TabStop = false;
             // 
@@ -148,6 +149,7 @@
             this.lstTextures.TabIndex = 1;
             this.lstTextures.UseCompatibleStateImageBehavior = false;
             this.lstTextures.View = System.Windows.Forms.View.List;
+            this.lstTextures.SelectedIndexChanged += new System.EventHandler(this.lstTextures_SelectedIndexChanged);
             // 
             // panel3
             // 

@@ -33,7 +33,13 @@ namespace TheraEditor.Wrappers
 
         public override void EditResource()
         {
-            DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, Resource.Text, Path.GetFileName(ResourceRef.ReferencePathAbsolute), ETextEditorMode.Python, DefaultSaveText);
+            DockableTextEditor.ShowNew(
+                Editor.Instance.DockPanel,
+                DockState.Document, 
+                Resource.Text, 
+                Path.GetFileName(ResourceRef.ReferencePathAbsolute),
+                ETextEditorMode.Python,
+                DefaultSaveText);
         }
     }
 }

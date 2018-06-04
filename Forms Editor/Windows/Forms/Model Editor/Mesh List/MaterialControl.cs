@@ -62,6 +62,7 @@ namespace TheraEditor.Windows.Forms
                 _light.Rotation.Pitch = -45.0f;
                 basicRenderPanel1.Scene.Lights.Add(_light);
                 basicRenderPanel1.PreRendered += BasicRenderPanel1_PreRendered;
+                basicRenderPanel1.RegisterTick();
                 RedrawPreview();
             }
         }
@@ -173,15 +174,15 @@ namespace TheraEditor.Windows.Forms
                     if (_spherePrim == null)
                     {
                         basicRenderPanel1.Scene.Clear(BoundingBox.FromHalfExtentsTranslation(2.0f, 0.0f));
+                        basicRenderPanel1.Scene.Lights.Add(_light);
                         _spherePrim = new PrimitiveRenderWrapper( //0.8f instead of 1.0f for border padding
                             new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
                         basicRenderPanel1.Scene.Add(_spherePrim);
-                        basicRenderPanel1.Scene.Lights.Add(_light);
                     }
                     else
                         _spherePrim.Material = _material;
 
-                    theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef;
+                    theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef.File;
 
                     foreach (ShaderVar shaderVar in _material.Parameters)
                     {
@@ -225,14 +226,16 @@ namespace TheraEditor.Windows.Forms
 
         private void RedrawPreview()
         {
-            basicRenderPanel1.UpdateTick(null, null);
-            basicRenderPanel1.SwapBuffers();
-            basicRenderPanel1.Invalidate();
+            //basicRenderPanel1.UpdateTick(null, null);
+            //basicRenderPanel1.SwapBuffers();
+            //basicRenderPanel1.Invalidate();
         }
 
         private void lblMatName_Click(object sender, EventArgs e)
         {
             //panel2.Visible = !panel2.Visible;
+            theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef.File;
+
         }
 
         private void lblMatName_MouseEnter(object sender, EventArgs e)
@@ -274,6 +277,28 @@ namespace TheraEditor.Windows.Forms
         {
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, listOwner, listIndex);
         }
+
+        private void lstTextures_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lstTextures.SelectedItems.Count > 0)
+            {
+                BaseTexRef tref = lstTextures.SelectedItems[0].Tag as BaseTexRef;
+                if (tref is TexRef2D tref2d)
+                {
+                    if (tref2d.Mipmaps != null &&
+                        tref2d.Mipmaps.Length > 0 &&
+                        tref2d.Mipmaps[0] != null &&
+                        tref2d.Mipmaps[0].File != null &&
+                        tref2d.Mipmaps[0].File.Bitmaps != null &&
+                        tref2d.Mipmaps[0].File.Bitmaps.Length > 0)
+                        texThumbnail.Image = tref2d.Mipmaps[0].File.Bitmaps[0];
+                }
+                theraPropertyGrid1.TargetFileObject = tref;
+            }
+            else
+                theraPropertyGrid1.TargetFileObject = null;
+        }
+
         public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
         {
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, dicOwner, key, isKey);

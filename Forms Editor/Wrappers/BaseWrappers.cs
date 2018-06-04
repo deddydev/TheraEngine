@@ -15,6 +15,7 @@ namespace TheraEditor.Wrappers
     {
         private Type _fileType;
         private string _imageName, _selectedImageName;
+        private string _thirdPartyExt;
         
         public NodeWrapperAttribute(Type type, string imageName)
         {
@@ -27,12 +28,16 @@ namespace TheraEditor.Wrappers
             _imageName = imageName;
             _selectedImageName = selectedImageName;
         }
-
+        public NodeWrapperAttribute(string thirdPartyExtension)
+        {
+            _thirdPartyExt = thirdPartyExtension;
+        }
 
         public Type FileType => _fileType;
         public string ImageName => _imageName;
         public string SelectedImageName => _selectedImageName;
-
+        public string ThirdPartyExtension => _thirdPartyExt;
+        
         /// <summary>
         /// Key is file type, Value is tree node wrapper type
         /// </summary>
@@ -42,22 +47,40 @@ namespace TheraEditor.Wrappers
             {
                 if (_wrappers == null)
                 {
-                    _wrappers = new Dictionary<Type, Type>();
                     LoadWrappers(Assembly.GetExecutingAssembly());
                 }
                 return _wrappers;
             }
         }
-        
+        public static Dictionary<string, Type> ThirdPartyWrappers
+        {
+            get
+            {
+                if (_thirdPartyWrappers == null)
+                {
+                    LoadWrappers(Assembly.GetExecutingAssembly());
+                }
+                return _thirdPartyWrappers;
+            }
+        }
+
         public static void LoadWrappers(Assembly assembly)
         {
+            _wrappers = new Dictionary<Type, Type>();
+            _thirdPartyWrappers = new Dictionary<string, Type>();
             if (assembly != null)
                 foreach (Type asmType in assembly.GetTypes())
                     foreach (NodeWrapperAttribute attr in asmType.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
-                        _wrappers[attr.FileType] = asmType;
+                    {
+                        if (attr.ThirdPartyExtension != null)
+                            _thirdPartyWrappers[attr.ThirdPartyExtension] = asmType;
+                        else
+                            _wrappers[attr.FileType] = asmType;
+                    }
         }
-
+        
         private static Dictionary<Type, Type> _wrappers;
+        private static Dictionary<string, Type> _thirdPartyWrappers;
     }
     public abstract class BaseWrapper : TreeNode
     {
@@ -113,31 +136,44 @@ namespace TheraEditor.Wrappers
             }
             else
             {
-                Type mainType = TFileObject.DetermineType(path);
-                if (mainType != null)
+                string ext = Path.GetExtension(path).Substring(1).ToLowerInvariant();
+                if (NodeWrapperAttribute.ThirdPartyWrappers.ContainsKey(ext))
                 {
-                    //Try to find wrapper for type or any inherited type, in order
-                    Type tempType = mainType;
-                    while (tempType != null && w == null)
-                    {
-                        if (NodeWrapperAttribute.Wrappers.ContainsKey(tempType))
-                            w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[tempType]) as BaseWrapper;
-                        else
-                            tempType = tempType.BaseType;
-                    }
-                    
-                    if (w == null)
-                    {
-                        //Make wrapper for whatever file type this is
-                        Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(mainType);
-                        w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
-                    }
+                    w = Activator.CreateInstance(NodeWrapperAttribute.ThirdPartyWrappers[ext]) as BaseWrapper;
 
                     w.Text = Path.GetFileName(path);
                     w.FilePath = w.Name = path;
                 }
                 else
-                    w = new GenericFileWrapper(path);
+                {
+                    Type mainType = TFileObject.DetermineType(path);
+                    if (mainType != null)
+                    {
+                        //Try to find wrapper for type or any inherited type, in order
+                        Type tempType = mainType;
+                        while (tempType != null && w == null)
+                        {
+                            if (NodeWrapperAttribute.Wrappers.ContainsKey(tempType))
+                                w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[tempType]) as BaseWrapper;
+                            else
+                                tempType = tempType.BaseType;
+                        }
+
+                        if (w == null)
+                        {
+                            //Make wrapper for whatever file type this is
+                            Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(mainType);
+                            w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
+                        }
+
+                        w.Text = Path.GetFileName(path);
+                        w.FilePath = w.Name = path;
+                    }
+                    else
+                    {
+                        w = new GenericFileWrapper(path);
+                    }
+                }
             }
             return w;
         }

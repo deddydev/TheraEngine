@@ -46,14 +46,6 @@ namespace TheraEngine
                 _tickLists[i] = new ThreadSafeList<DelTick>();
         }
 
-        private static void LoadCustomFonts()
-        {
-            string[] ttf = Directory.GetFiles(Settings.FontsFolder, "*.ttf");
-            string[] otf = Directory.GetFiles(Settings.FontsFolder, "*.otf");
-            foreach (string path in ttf) LoadCustomFont(path);
-            foreach (string path in otf) LoadCustomFont(path);
-        }
-
         /// <summary>
         /// Call this in the program's main method run a game in the engine.
         /// Will create a render form,  initialize the engine, and start the game, so no other methods are needed.
@@ -442,6 +434,15 @@ namespace TheraEngine
         /// <param name="fontFamilyIndex">The index of the font, in the order it was loaded in.</param>
         public static FontFamily GetCustomFontFamily(int fontFamilyIndex)
             => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
+        private static void LoadCustomFonts()
+        {
+            if (DesignMode)
+                return;
+            string[] ttf = Directory.GetFiles(Settings.FontsFolder, "*.ttf");
+            string[] otf = Directory.GetFiles(Settings.FontsFolder, "*.otf");
+            foreach (string path in ttf) LoadCustomFont(path);
+            foreach (string path in otf) LoadCustomFont(path);
+        }
         #endregion
 
         #region Output

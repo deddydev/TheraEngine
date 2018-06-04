@@ -12,8 +12,20 @@ namespace TheraEngine.Rendering
         public PrimitiveRenderWrapper(PrimitiveManager m) => Primitives = m;
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit);
-        public Matrix4 Transform { get; set; } = Matrix4.Identity;
-        public PrimitiveManager Primitives { get; set; }
+        public Matrix4 Transform
+        {
+            get => _rc.WorldMatrix;
+            set
+            {
+                _rc.WorldMatrix = value;
+                _rc.NormalMatrix = Transform.Transposed().Inverted().GetRotationMatrix3();
+            }
+        }
+        public PrimitiveManager Primitives
+        {
+            get => _rc.Primitives;
+            set => _rc.Primitives = value;
+        }
         public TMaterial Material
         {
             get => Primitives?.Material;
@@ -30,9 +42,6 @@ namespace TheraEngine.Rendering
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            _rc.Primitives = Primitives;
-            _rc.WorldMatrix = Transform;
-            _rc.NormalMatrix = Transform.Transposed().Inverted().GetRotationMatrix3();
             passes.Add(_rc, RenderInfo.RenderPass);
         }
     }

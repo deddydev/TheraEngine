@@ -23,17 +23,18 @@ namespace TheraEditor.Wrappers
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
-            StaticModelWrapper w = GetInstance<StaticModelWrapper>();
+            SkeletalModelWrapper w = GetInstance<SkeletalModelWrapper>();
         }
         #endregion
         
         public SkeletalModelWrapper() : base() { }
 
-        public override void EditResource()
+        public override async void EditResource()
         {
             ModelEditorForm d = new ModelEditorForm();
             d.Show();
-            d.SetModel(Resource);
+            var mdl = await ResourceRef.GetInstanceAsync();
+            d.SetModel(mdl);
         }
     }
 }

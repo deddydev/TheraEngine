@@ -16,13 +16,14 @@ namespace TheraEngine.Rendering
     [Flags]
     public enum EProgramStageMask
     {
-        AllShaderBits = -1,
-        VertexShaderBit = 1,
-        FragmentShaderBit = 2,
-        GeometryShaderBit = 4,
-        TessControlShaderBit = 8,
+        AllShaderBits           = -1,
+        None                    = 00,
+        VertexShaderBit         = 01,
+        FragmentShaderBit       = 02,
+        GeometryShaderBit       = 04,
+        TessControlShaderBit    = 08,
         TessEvaluationShaderBit = 16,
-        ComputeShaderBit = 32
+        ComputeShaderBit        = 32
     }
     public enum EProgParam
     {

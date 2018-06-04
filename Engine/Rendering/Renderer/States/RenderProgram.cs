@@ -7,16 +7,22 @@ namespace TheraEngine.Rendering
 {
     public class RenderProgram : BaseRenderState, IEnumerable<RenderShader>
     {
+        public EProgramStageMask ShaderTypeMask { get; private set; } = EProgramStageMask.None;
+
         private List<RenderShader> _shaders;
         protected List<RenderShader> Shaders
         {
             get => _shaders;
             set
             {
-                _shaders = value;
+                _shaders = value ?? new List<RenderShader>();
 
                 if (_shaders.Any(x => x == null))
                     _shaders = _shaders.Where(x => x != null).ToList();
+
+                ShaderTypeMask = EProgramStageMask.None;
+                foreach (var shader in _shaders)
+                    ShaderTypeMask |= (EProgramStageMask)(int)shader.ShaderMode;
 
                 //Force a recompilation.
                 //TODO: recompile shaders without destroying program.
@@ -31,6 +37,7 @@ namespace TheraEngine.Rendering
             if (shader == null)
                 return -1;
             _shaders.Add(new RenderShader(shader));
+            ShaderTypeMask |= (EProgramStageMask)(int)shader.Type;
             Destroy();
             return _shaders.Count - 1;
         }
@@ -39,6 +46,7 @@ namespace TheraEngine.Rendering
             if (shader == null)
                 return -1;
             _shaders.Add(shader);
+            ShaderTypeMask |= (EProgramStageMask)(int)shader.ShaderMode;
             Destroy();
             return _shaders.Count - 1;
         }
@@ -47,6 +55,7 @@ namespace TheraEngine.Rendering
             if (shader == null)
                 return;
             _shaders.Remove(shader);
+            ShaderTypeMask &= ~(EProgramStageMask)(int)shader.ShaderMode;
             Destroy();
         }
 

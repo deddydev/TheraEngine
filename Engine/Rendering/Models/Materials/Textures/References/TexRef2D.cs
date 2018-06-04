@@ -197,7 +197,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 return _texture;
 
             if (!_isLoading)
-                await Task.Run((Action)LoadMipmaps);
+                await Task.Run(LoadMipmaps);
 
             return _texture;
         }
@@ -281,6 +281,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public void LoadMipmaps()
         {
             _isLoading = true;
+            _mipmaps?.ForEach(tex => tex.GetInstance());
             DetermineTextureFormat(false);
             CreateRenderTexture();
             _isLoading = false;
@@ -294,8 +295,8 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_mipmaps != null && _mipmaps.Length > 0)
             {
                 var tref = _mipmaps[0];
-                if (tref.IsLoaded && !force)
-                    return;
+                //if (!tref.IsLoaded && !force)
+                //    return;
                 var t = tref.File;
                 if (t != null && t.Bitmaps.Length > 0)
                 {

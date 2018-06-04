@@ -11,6 +11,7 @@ namespace TheraEngine.Rendering
         public event Action SourceChanged;
         
         private string _sourceCache = null;
+        public EShaderMode ShaderMode { get; private set; }
         private GLSLShaderFile _file = null;
         public GLSLShaderFile File
         {
@@ -25,9 +26,12 @@ namespace TheraEngine.Rendering
                 _file = value;
                 if (_file != null)
                 {
+                    ShaderMode = _file.Type;
                     _file.TextChanged += File_SourceChanged;
                     File_SourceChanged();
                 }
+                else
+                    ShaderMode = EShaderMode.Fragment;
             }
         }
 
@@ -37,13 +41,14 @@ namespace TheraEngine.Rendering
         public RenderShader() : base(EObjectType.Shader) { }
         public RenderShader(GLSLShaderFile file) : this() => File = file;
         
-        public void SetSource(string text, bool compile = true)
+        public void SetSource(string text, EShaderMode mode, bool compile = true)
         {
             _sourceCache = text;
+            ShaderMode = mode;
             IsCompiled = false;
             if (!IsActive)
                 return;
-            Engine.Renderer.SetShaderMode(File.Type);
+            Engine.Renderer.SetShaderMode(ShaderMode);
             Engine.Renderer.SetShaderSource(BindingId, _sourceCache);
             if (compile)
             {
@@ -56,10 +61,11 @@ namespace TheraEngine.Rendering
         private void File_SourceChanged()
         {
             _sourceCache = File.Text;
+            ShaderMode = File.Type;
             IsCompiled = false;
             if (!IsActive)
                 return;
-            Engine.Renderer.SetShaderMode(File.Type);
+            Engine.Renderer.SetShaderMode(ShaderMode);
             Engine.Renderer.SetShaderSource(BindingId, _sourceCache);
             bool success = Compile(out string info);
             if (!success)
@@ -68,13 +74,13 @@ namespace TheraEngine.Rendering
         }
         protected override void PreGenerated()
         {
-            Engine.Renderer.SetShaderMode(File.Type);
+            Engine.Renderer.SetShaderMode(ShaderMode);
         }
         protected override void PostGenerated()
         {
-            if (File != null && _sourceCache != null && _sourceCache.Length > 0)
+            if (_sourceCache != null && _sourceCache.Length > 0)
             {
-                Engine.Renderer.SetShaderMode(File.Type);
+                Engine.Renderer.SetShaderMode(ShaderMode);
                 Engine.Renderer.SetShaderSource(BindingId, _sourceCache);
                 if (!Compile(out string info))
                     Engine.PrintLine(GetSource(true));
@@ -99,7 +105,7 @@ namespace TheraEngine.Rendering
         }
         public bool Compile(out string info, bool printLogInfo = true)
         {
-            Engine.Renderer.SetShaderMode(File.Type);
+            Engine.Renderer.SetShaderMode(ShaderMode);
             IsCompiled = Engine.Renderer.CompileShader(BindingId, out info);
             if (printLogInfo)
             {

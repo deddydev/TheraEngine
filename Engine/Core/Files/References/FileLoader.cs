@@ -251,7 +251,7 @@ namespace TheraEngine.Files
 
             try
             {
-                if (IsPureThirdPartyFormat())
+                if (IsThirdPartyImportableExt(Path.GetExtension(absolutePath).Substring(1)))
                 {
                     T file = Activator.CreateInstance<T>();
                     file.FilePath = absolutePath;
@@ -370,11 +370,15 @@ namespace TheraEngine.Files
         /// Returns true if the file needs special deserialization handling.
         /// If so, the class needs a constructor that takes the file's absolute path (string) as its only argument.
         /// </summary>
-        private bool IsPureThirdPartyFormat()
+        private bool IsThirdPartyImportableExt(string ext)
         {
-            FileExt extHdr = GetFileExtension(_subType);
             File3rdParty header = GetFile3rdPartyExtensions(_subType);
-            return extHdr == null && (header?.HasAnyExtensions ?? false);
+            return header?.ImportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
+        }
+        private bool IsThirdPartyExportableExt(string ext)
+        {
+            File3rdParty header = GetFile3rdPartyExtensions(_subType);
+            return header?.ExportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
         public override string ToString() => ReferencePathAbsolute;
         

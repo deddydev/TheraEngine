@@ -1,20 +1,17 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using TheraEngine.Core.Files;
-using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
     public enum EShaderMode
     {
-        Fragment,           // https://www.opengl.org/wiki/Fragment_Shader
-        Vertex,             // https://www.opengl.org/wiki/Vertex_Shader
-        Geometry,           // https://www.opengl.org/wiki/Geometry_Shader
-        TessEvaluation,     // https://www.opengl.org/wiki/Tessellation_Evaluation_Shader
-        TessControl,        // https://www.opengl.org/wiki/Tessellation_Control_Shader
-        Compute             // https://www.opengl.org/wiki/Compute_Shader
+        Vertex          = 01, // https://www.opengl.org/wiki/Vertex_Shader
+        Fragment        = 02, // https://www.opengl.org/wiki/Fragment_Shader
+        Geometry        = 04, // https://www.opengl.org/wiki/Geometry_Shader
+        TessControl     = 08, // https://www.opengl.org/wiki/Tessellation_Control_Shader
+        TessEvaluation  = 16, // https://www.opengl.org/wiki/Tessellation_Evaluation_Shader
+        Compute         = 32, // https://www.opengl.org/wiki/Compute_Shader
     }
     /// <summary>
     /// A shader script file.

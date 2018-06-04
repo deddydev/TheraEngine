@@ -12,6 +12,7 @@ namespace TheraEngine.Files.Serialization
     public partial class CustomXmlSerializer
     {
         private XMLReader _reader;
+        private string _filePath;
         
         public unsafe static Type DetermineType(string filePath)
         {
@@ -36,6 +37,7 @@ namespace TheraEngine.Files.Serialization
         /// </summary>
         public unsafe object Deserialize(string filePath)
         {
+            _filePath = filePath;
             object obj = null;
             using (FileMap map = FileMap.FromFile(filePath))
             using (_reader = new XMLReader(map.Address, map.Length, true))
@@ -77,6 +79,8 @@ namespace TheraEngine.Files.Serialization
         {
             //Create the object
             object obj = SerializationCommon.CreateObject(objType);
+            if (obj is TFileObject tobj)
+                tobj.FilePath = _filePath;
 
             #region Methods
 

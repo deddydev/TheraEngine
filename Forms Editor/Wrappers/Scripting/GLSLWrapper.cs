@@ -54,7 +54,37 @@ namespace TheraEditor.Wrappers
 
         private (bool, string) M_CompileGLSL(string text)
         {
-            _shader.SetSource(text, false);
+            string ext = Path.GetExtension(ResourceRef.ReferencePathAbsolute).Substring(1);
+            EShaderMode mode = EShaderMode.Fragment;
+            switch (ext)
+            {
+                default:
+                case "fs":
+                case "frag":
+                    mode = EShaderMode.Fragment;
+                    break;
+                case "vs":
+                case "vert":
+                    mode = EShaderMode.Vertex;
+                    break;
+                case "gs":
+                case "geom":
+                    mode = EShaderMode.Geometry;
+                    break;
+                case "tcs":
+                case "tesc":
+                    mode = EShaderMode.TessControl;
+                    break;
+                case "tes":
+                case "tese":
+                    mode = EShaderMode.TessEvaluation;
+                    break;
+                case "cs":
+                case "comp":
+                    mode = EShaderMode.Compute;
+                    break;
+            }
+            _shader.SetSource(text, mode, false);
             bool success = _shader.Compile(out string info, false);
             return (success, info);
         }

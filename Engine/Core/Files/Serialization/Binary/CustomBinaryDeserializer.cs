@@ -537,6 +537,8 @@ namespace TheraEngine.Files.Serialization
 
             //Create the object
             object obj = SerializationCommon.CreateObject(t);
+            //if (obj is TFileObject tobj)
+            //    tobj.FilePath = _filePath;
 
             //Get pre and post deserialize methods
             MethodInfo[] methods = t.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);

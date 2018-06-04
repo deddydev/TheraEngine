@@ -128,7 +128,7 @@ namespace TheraEngine.Core.Shapes
                 {
                     new Vertex(bottomPoint, -up, new Vec2(0.5f))
                 };
-                for (int i = sidePoints.Length - 1; i >= 0; --i)
+                for (int i = 0; i < sidePoints.Length; ++i)
                 {
                     Vertex v2 = sidePoints[i].HardCopy();
                     v2._normal = -up;

@@ -471,6 +471,7 @@ namespace TheraEngine.Files
                     file = SerializationCommon.CreateObject(type) as TFileObject;
                     if (file != null && reader.BeginElement())
                     {
+                        file.FilePath = filePath;
                         //if (reader.Name.Equals(t.ToString(), true))
                         file.Read(reader);
                         //else
@@ -568,6 +569,7 @@ namespace TheraEngine.Files
                 file = SerializationCommon.CreateObject(type) as TFileObject;
                 if (file != null)
                 {
+                    file.FilePath = filePath;
                     FileMap map = FileMap.FromFile(filePath);
                     FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
                     file.Read(hdr->Data, hdr->Strings);

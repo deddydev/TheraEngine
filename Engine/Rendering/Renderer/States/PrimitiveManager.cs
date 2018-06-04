@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Models
         void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, int instances = 1);
         void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material, int instances = 1);
     }
-    public delegate void DelPrimManagerSettingUniforms(int vertexBindingId, int fragGeomBindingId);
+    public delegate void DelPrimManagerSettingUniforms(int vertexBindingId, int matBindingId);
     /// <summary>
     /// Used to render raw primitive data.
     /// </summary>
@@ -456,16 +456,19 @@ namespace TheraEngine.Rendering.Models
 
             TMaterial mat = GetRenderMaterial(material);
 
-            int vtxId, fragGeomId;
+            int vtxId, matId;
             if (Engine.Settings.AllowShaderPipelines)
             {
                 _pipeline.Bind();
-                _pipeline.Set(EProgramStageMask.FragmentShaderBit | EProgramStageMask.GeometryShaderBit, fragGeomId = mat.Program.BindingId);
-                _pipeline.Set(EProgramStageMask.VertexShaderBit, vtxId = _vertexProgram.BindingId);
+                _pipeline.Set(mat.Program.ShaderTypeMask, matId = mat.Program.BindingId);
+                if (!mat.Program.ShaderTypeMask.HasFlag(EProgramStageMask.VertexShaderBit))
+                    _pipeline.Set(EProgramStageMask.VertexShaderBit, vtxId = _vertexProgram.BindingId);
+                else
+                    vtxId = matId;
             }
             else
             {
-                vtxId = fragGeomId = VertexFragProgram.BindingId;
+                vtxId = matId = VertexFragProgram.BindingId;
                 VertexFragProgram.Use();
             }
             
@@ -490,15 +493,15 @@ namespace TheraEngine.Rendering.Models
                 Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, EEngineUniform.ProjMatrix),               Matrix4.Identity);
             }
 
-            mat.SetUniforms(fragGeomId);
+            mat.SetUniforms(matId);
 
-            OnSettingUniforms(vtxId, fragGeomId);
+            OnSettingUniforms(vtxId, matId);
             
             Engine.Renderer.RenderPrimitiveManager(this, false, instances);
             _lastRenderedModelMatrix = modelMatrix;
         }
-        private void OnSettingUniforms(int vertexBindingId, int fragGeomBindingId)
-            => SettingUniforms?.Invoke(vertexBindingId, fragGeomBindingId);
+        private void OnSettingUniforms(int vertexBindingId, int matBindingId)
+            => SettingUniforms?.Invoke(vertexBindingId, matBindingId);
         protected override void PostGenerated()
         {
             //Create vertex shader program here

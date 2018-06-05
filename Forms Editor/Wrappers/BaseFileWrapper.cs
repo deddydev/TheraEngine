@@ -102,6 +102,8 @@ namespace TheraEditor.Wrappers
         public BaseFileWrapper() : this(_defaultMenu) { }
         public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
         {
+            return;
+
             var nodeWrappers = GetType().GetCustomAttributesExt<NodeWrapperAttribute>();
             if (nodeWrappers.Length > 0)
             {

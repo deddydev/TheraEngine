@@ -72,7 +72,7 @@ namespace TheraEditor.Wrappers
                 foreach (Type asmType in assembly.GetTypes())
                     foreach (NodeWrapperAttribute attr in asmType.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
                     {
-                        if (attr.ThirdPartyExtension != null)
+                        if (!string.IsNullOrWhiteSpace(attr.ThirdPartyExtension))
                             _thirdPartyWrappers[attr.ThirdPartyExtension] = asmType;
                         else
                             _wrappers[attr.FileType] = asmType;
@@ -195,7 +195,7 @@ namespace TheraEditor.Wrappers
             TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
             w.Text = name + "." + file.FileExtension.GetProperExtension((ProprietaryFileFormat)fmt);
             w.SingleInstance = file;
-            w.SelectedImageIndex = w.ImageIndex = 0;
+            //w.SelectedImageIndex = w.ImageIndex = 0;
             return w;
         }
 

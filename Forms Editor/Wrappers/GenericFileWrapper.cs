@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Forms;
 using TheraEngine.Files;
 
 namespace TheraEditor.Wrappers
@@ -8,6 +9,7 @@ namespace TheraEditor.Wrappers
     public class GenericFileWrapper : BaseFileWrapper
     {
         public GenericFileWrapper() : base() { }
+        public GenericFileWrapper(ContextMenuStrip menu) : base(menu) { }
         public GenericFileWrapper(string path) : base()
         {
             Text = Path.GetFileName(path);

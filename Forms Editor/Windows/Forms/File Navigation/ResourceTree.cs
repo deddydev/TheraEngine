@@ -505,6 +505,16 @@ namespace TheraEditor.Windows.Forms
                         Engine.LogWarning("Could not wrap path {0}", currentPath);
                         return null;
                     }
+                    if (!(n is FolderWrapper))
+                    {
+                        string ext = Path.GetExtension(currentPath).Substring(1).ToLowerInvariant();
+                        if (!Images.Images.ContainsKey(ext))
+                        {
+                            Icon iconForFile = Icon.ExtractAssociatedIcon(currentPath);
+                            Images.Images.Add(ext, iconForFile);
+                        }
+                        n.ImageKey = n.SelectedImageKey = n.StateImageKey  = ext;
+                    }
                     current.Nodes.Add(n);
                     current = n;
                 }

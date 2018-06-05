@@ -6,6 +6,7 @@ using System.IO;
 using System.Diagnostics;
 using Microsoft.VisualBasic.FileIO;
 using TheraEditor.Windows.Forms;
+using System.Drawing;
 
 namespace TheraEditor.Wrappers
 {
@@ -164,6 +165,7 @@ namespace TheraEditor.Wrappers
                         finally
                         {
                             Nodes.Add(node);
+
                         }
                     }
 
@@ -172,7 +174,17 @@ namespace TheraEditor.Wrappers
                     {
                         BaseWrapper node = Wrap(file);
                         if (node != null)
+                        {
+                            var tree = GetTree();
+                            string ext = Path.GetExtension(file).Substring(1).ToLowerInvariant();
+                            if (!tree.ImageList.Images.ContainsKey(ext))
+                            {
+                                Icon iconForFile = Icon.ExtractAssociatedIcon(file);
+                                tree.ImageList.Images.Add(ext, iconForFile);
+                            }
+                            node.ImageKey = node.SelectedImageKey = node.StateImageKey = ext;
                             Nodes.Add(node);
+                        }
                     }
                 }
                 _isPopulated = true;

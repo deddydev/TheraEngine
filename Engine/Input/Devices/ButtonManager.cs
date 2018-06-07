@@ -129,18 +129,27 @@ namespace TheraEngine.Input.Devices
         }
         protected void PerformStateAction(bool pressed)
         {
-            List<DelButtonState> list = _onStateChanged[(int)EInputPauseType.TickAlways];
+            int index = (int)EInputPauseType.TickAlways;
+            List<DelButtonState> list = _onStateChanged[index];
+
             if (list != null)
             {
+                SendStateToServer(index, pressed);
+
                 int i = list.Count;
                 for (int x = 0; x < i; ++x)
                     list[x](pressed);
             }
-            list = Engine.IsPaused ?
-                _onStateChanged[(int)EInputPauseType.TickOnlyWhenPaused] :
-                _onStateChanged[(int)EInputPauseType.TickOnlyWhenUnpaused];
+
+            index = Engine.IsPaused ?
+                (int)EInputPauseType.TickOnlyWhenPaused :
+                (int)EInputPauseType.TickOnlyWhenUnpaused;
+
+            list = _onStateChanged[index];
             if (list != null)
             {
+                SendStateToServer(index, pressed);
+
                 int i = list.Count;
                 for (int x = 0; x < i; ++x)
                     list[x](pressed);
@@ -150,23 +159,40 @@ namespace TheraEngine.Input.Devices
         {
             int index = (int)type * 3;
             List<Action> list = _actions[index];
+
             if (list != null)
             {
+                SendActionToServer(index);
+
                 int i = list.Count;
                 for (int x = 0; x < i; ++x)
                     list[x]();
             }
-            list = Engine.IsPaused ?
-                _actions[index + (int)EInputPauseType.TickOnlyWhenPaused] :
-                _actions[index + (int)EInputPauseType.TickOnlyWhenUnpaused];
+
+            index += Engine.IsPaused ?
+                (int)EInputPauseType.TickOnlyWhenPaused : 
+                (int)EInputPauseType.TickOnlyWhenUnpaused;
+
+            list = _actions[index];
             if (list != null)
             {
+                SendActionToServer(index);
+
                 int i = list.Count;
                 for (int x = 0; x < i; ++x)
                     list[x]();
             }
-            //Engine.DebugPrint(_name + ": " + type.ToString());
         }
+
+        private void SendStateToServer(int listIndex, bool pressed)
+        {
+
+        }
+        private void SendActionToServer(int listIndex)
+        {
+
+        }
+
         public override string ToString() => Name;
     }
 }

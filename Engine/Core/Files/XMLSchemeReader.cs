@@ -334,7 +334,7 @@ namespace TheraEngine.Core.Files
         {
             XmlReaderSettings settings = new XmlReaderSettings()
             {
-                ConformanceLevel = ConformanceLevel.Auto,
+                ConformanceLevel = ConformanceLevel.Document,
                 DtdProcessing = DtdProcessing.Ignore,
                 CheckCharacters = false,
                 IgnoreWhitespace = true,

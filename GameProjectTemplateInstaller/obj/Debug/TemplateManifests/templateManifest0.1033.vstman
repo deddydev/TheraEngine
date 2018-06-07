@@ -1,0 +1,20 @@
+﻿<VSTemplateManifest Version="1.0" Locale="1033" xmlns="http://schemas.microsoft.com/developer/vstemplatemanifest/2015">
+  <VSTemplateContainer TemplateType="Project">
+    <RelativePathOnDisk>CSharp\1033\GameProjectTemplate</RelativePathOnDisk>
+    <TemplateFileName>GameProjectTemplate.vstemplate</TemplateFileName>
+    <VSTemplateHeader>
+      <TemplateData xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+        <Name>GameProjectTemplate</Name>
+        <Description>GameProjectTemplate</Description>
+        <Icon>GameProjectTemplate.ico</Icon>
+        <ProjectType>CSharp</ProjectType>
+        <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+        <SortOrder>1000</SortOrder>
+        <TemplateID>d24fc43c-2c7a-4019-a05b-c1177bfbf5a6</TemplateID>
+        <CreateNewFolder>true</CreateNewFolder>
+        <DefaultName>GameProjectTemplate</DefaultName>
+        <ProvideDefaultName>true</ProvideDefaultName>
+      </TemplateData>
+    </VSTemplateHeader>
+  </VSTemplateContainer>
+</VSTemplateManifest>

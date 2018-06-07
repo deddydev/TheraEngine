@@ -1,0 +1,7 @@
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\bin\Debug\GameProjectTemplate.zip
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\bin\Debug\GameProjectTemplateInstaller.vsix
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\bin\Debug\extension.vsixmanifest
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\GameProjectTemplateInstaller.csproj.CoreCompileInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\GameProjectTemplateInstaller.dll
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\GameProjectTemplateInstaller.pdb
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\extension.vsixmanifest

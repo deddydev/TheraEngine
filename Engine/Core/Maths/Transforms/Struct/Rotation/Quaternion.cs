@@ -63,7 +63,66 @@ namespace System
 
         public float Length => (float)Sqrt(LengthSquared);
         public float LengthSquared => Xyzw.LengthSquared;
-        
+
+        public float this[int index]
+        {
+            get => Data[index];
+            set => Data[index] = value;
+        }
+
+        public static Vec3 CompressCayley(Quat q)
+        {
+            float s = 1.0f / (1.0f + q.W);
+            return s * new Vec3(q.X, q.Y, q.Z);
+        }
+        public static Quat DecompressCayley(Vec3 v)
+        {
+            float s = 2.0f / (1.0f + v.LengthSquared);
+            return new Quat(s * v, 1.0f - s);
+        }
+        public static int CompressSmallest3(Quat q, out bool one)
+        {
+            int greatestIndex = 0;
+            float maxValue = float.MinValue, currentValue;
+            Vec4 abs = new Vec4();
+            for (int i = 0; i < 4; ++i)
+            {
+                currentValue = Abs(q[i]);
+                if (currentValue > maxValue)
+                {
+                    maxValue = currentValue;
+                    greatestIndex = i;
+                }
+                abs[i] = currentValue;
+            }
+
+            if (one = maxValue.EqualTo(1.0f, 0.001f))
+                return greatestIndex;
+            
+            int sign = (q[greatestIndex] < 0) ? -1 : 1;
+            int finalValue = (greatestIndex & 3) << 30;
+            int shift, comp;
+            float value;
+            for (int i = 0, x = 0; i < 4; ++i)
+            {
+                if (i == greatestIndex)
+                    continue;
+                shift = (2 - x++) * 10;
+
+                //1024 = 2^10 = 10 bits unsigned possible numbers
+                //This is non-inclusive 0 to 1023
+                value = abs[i] * 1024.0f;
+
+                comp = (int)(value / float.MaxValue) * sign;
+                finalValue |= (comp & 0x3FF) << shift;
+            }
+            return finalValue;
+        }
+        //public static Quat DecompressSmallest3(int compressed, bool one)
+        //{
+
+        //}
+
         public void ToAxisAngle(out Vec3 axis, out float angle)
         {
             Vec4 result = ToAxisAngle();

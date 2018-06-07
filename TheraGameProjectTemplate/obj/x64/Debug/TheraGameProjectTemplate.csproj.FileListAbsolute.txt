@@ -1,2 +1,0 @@
-C:\Users\David\Documents\Repositories\TheraEngine\TheraGameProjectTemplate\obj\x64\Debug\TheraGameProjectTemplate.csprojResolveAssemblyReference.cache
-C:\Users\David\Documents\Repositories\TheraEngine\TheraGameProjectTemplate\obj\x64\Debug\TheraGameProjectTemplate.csproj.CoreCompileInputs.cache

@@ -52,7 +52,7 @@ namespace TheraEditor.Wrappers
             _shader = null;
         }
 
-        private (bool, string) M_CompileGLSL(string text)
+        private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)
         {
             string ext = Path.GetExtension(ResourceRef.ReferencePathAbsolute).Substring(1);
             EShaderMode mode = EShaderMode.Fragment;

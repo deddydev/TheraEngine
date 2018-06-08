@@ -1,6 +1,7 @@
 ﻿using SharpDX.XInput;
 using System.Collections.Generic;
 using System.Linq;
+using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices.DirectX
 {
@@ -8,7 +9,7 @@ namespace TheraEngine.Input.Devices.DirectX
     {
         const float ByteDiv = 1.0f / byte.MaxValue;
         const float ShortDiv = 1.0f / short.MaxValue;
-
+        
         private Controller _controller;
 
         public DXGamepad(int index) : base(index)

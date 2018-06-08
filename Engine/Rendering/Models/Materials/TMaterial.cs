@@ -39,6 +39,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public List<GLSLShaderFile> TessEvalShaders { get; } = new List<GLSLShaderFile>();
         public List<GLSLShaderFile> TessCtrlShaders { get; } = new List<GLSLShaderFile>();
         public List<GLSLShaderFile> VertexShaders { get; } = new List<GLSLShaderFile>();
+        public List<GlobalFileRef<GLSLShaderFile>> Shaders => _shaders;
 
         [Flags]
         public enum UniformRequirements
@@ -185,12 +186,19 @@ namespace TheraEngine.Rendering.Models.Materials
                             TessEvalShaders.Add(s);
                             break;
                     }
+
+                    s.TextChanged += S_TextChanged;
                 }
 
             if (Engine.Settings != null && Engine.Settings.AllowShaderPipelines)
                 Program = new RenderProgram(_shaders.Select(x => x.File));
         }
-        
+
+        private void S_TextChanged()
+        {
+
+        }
+
         #region Basic Material Generation
         public static TMaterial CreateUnlitTextureMaterialForward(TexRef2D texture, RenderingParameters renderParams)
         {

@@ -23,7 +23,7 @@ namespace TheraEditor.Windows.Forms
     }
     public partial class DockableTextEditor : DockContent
     {
-        public Func<string, (bool, string)> CompileGLSL;
+        public Func<string, DockableTextEditor, (bool, string)> CompileGLSL;
 
         public DockableTextEditor()
         {
@@ -526,7 +526,7 @@ namespace TheraEditor.Windows.Forms
 
             if (Mode == ETextEditorMode.GLSL)
             {
-                var result = CompileGLSL?.Invoke(TextBox.Text);
+                var result = CompileGLSL?.Invoke(TextBox.Text, this);
                 if (result != null && !result.Value.Item1)
                 {
                     string errors = result.Value.Item2;

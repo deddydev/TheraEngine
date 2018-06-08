@@ -4,16 +4,20 @@ using PcapDotNet.Packets.IpV4;
 using PcapDotNet.Packets.Transport;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 
 namespace TheraEngine.Networking
 {
-    public unsafe delegate void DelDataRecieved(NetworkPacketObject* data, int length);
-    public class NetworkConnection : IDisposable
+    public unsafe delegate void DelDataRecieved(TPacketHeader* data, int length);
+    public abstract class NetworkConnection : IDisposable
     {
         public static bool AnyConnectionsAvailable => NetworkInterface.GetIsNetworkAvailable();
+
+        public abstract bool IsServer { get; }
+
         public static IPAddress GetLocalIPAddressV4()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -30,11 +34,18 @@ namespace TheraEngine.Networking
                     return ip;
             throw new Exception("Local v6 IP address not found.");
         }
+
         PacketCommunicator _comm;
-        public void Start()
+
+        public ReadOnlyCollection<LivePacketDevice> GetDeviceList() => LivePacketDevice.AllLocalMachine;
+
+        /// <summary>
+        /// http://www.winpcap.org/docs/docs_40_2/html/group__language.html
+        /// </summary>
+        /// <param name="filter"></param>
+        public void ConnectAuto(string filter = "ip and udp")
         {
-            // Retrieve the device list from the local machine
-            IList<LivePacketDevice> allDevices = LivePacketDevice.AllLocalMachine;
+            ReadOnlyCollection<LivePacketDevice> allDevices = GetDeviceList();
 
             if (allDevices.Count == 0)
             {
@@ -64,64 +75,74 @@ namespace TheraEngine.Networking
             //    }
             //} while (deviceIndex == 0);
             
-            PacketDevice selectedDevice = allDevices[deviceIndex - 1];
-
-            _comm =
-                selectedDevice.Open(65536,                                  // portion of the packet to capture
-                                                                            // 65536 guarantees that the whole packet will be captured on all the link layers
-                                    PacketDeviceOpenAttributes.Promiscuous, // promiscuous mode
-                                    1000);                                  // read timeout
-            {
-                Engine.PrintLine("Listening on " + selectedDevice.Description + "...");
-
-                //http://www.winpcap.org/docs/docs_40_2/html/group__language.html
-                using (BerkeleyPacketFilter filter = _comm.CreateFilter("ip and udp"))
-                    _comm.SetFilter(filter);
-            }
+            Connect(allDevices[deviceIndex - 1], filter);
         }
-
-        public void RecievePackets()
+        /// <summary>
+        /// http://www.winpcap.org/docs/docs_40_2/html/group__language.html
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="filter"></param>
+        public void Connect(LivePacketDevice device, string filter = "ip and udp")
         {
-            do
-            {
-                PacketCommunicatorReceiveResult result = _comm.ReceivePacket(out Packet packet);
-                switch (result)
-                {
-                    case PacketCommunicatorReceiveResult.Timeout:
-                        continue;
-                    case PacketCommunicatorReceiveResult.Ok:
-                        PacketRecieved(packet);
-                        break;
-                    default:
-                        throw new InvalidOperationException("The result " + result + " should never be reached here");
-                }
-            } while (true);
+            //65536 guarantees that the whole packet will be captured on all the link layers
+            _comm = device.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000);
+            _comm.NonBlocking = true;
+
+            Engine.PrintLine("Established connection to " + device.Description);
+
+            using (BerkeleyPacketFilter pFilter = _comm.CreateFilter(filter))
+                _comm.SetFilter(pFilter);
         }
 
+        /// <summary>
+        /// Retrieves all packets that have arrived and need to be processed.
+        /// </summary>
+        public void RecievePackets() => _comm.ReceiveSomePackets(out int retrievedCount, -1, PacketRecieved);
+        
         private unsafe void PacketRecieved(Packet packet)
         {
-            Console.WriteLine(packet.Timestamp.ToString("yyyy-MM-dd hh:mm:ss.fff") + " length:" + packet.Length);
+            Engine.PrintLine(packet.Timestamp.ToString("yyyy-MM-dd hh:mm:ss.fff") + " length:" + packet.Length);
 
             IpV4Datagram ip = packet.Ethernet.IpV4;
             UdpDatagram udp = ip.Udp;
             
             Engine.PrintLine(ip.Source + ":" + udp.SourcePort + " -> " + ip.Destination + ":" + udp.DestinationPort);
 
-            GCHandle pinnedArray = GCHandle.Alloc(packet.Buffer, GCHandleType.Pinned);
-            NetworkPacketObject* data = (NetworkPacketObject*)pinnedArray.AddrOfPinnedObject();
+            byte[] buffer = packet.Buffer;
+            EPacketType type = (EPacketType)(buffer[0] >> 6);
 
+            //GCHandle pinnedArray = GCHandle.Alloc(packet.Buffer, GCHandleType.Pinned);
+            //TPacketHeader* data = (TPacketHeader*)pinnedArray.AddrOfPinnedObject();
 
+            //switch (data->PacketType)
+            //{
+            //    default:
+            //    case EPacketType.Invalid:
 
-            pinnedArray.Free();
+            //        break;
+            //    case EPacketType.Input:
+                    
+            //        break;
+            //    case EPacketType.Transform:
+
+            //        break;
+            //}
+
+            //pinnedArray.Free();
         }
         
-        public event DelDataRecieved DataRecieved;
-        public unsafe void SendData(NetworkPacketObject* data, int length)
+        public unsafe void SendPacket<T>(T data, DataLinkKind kind = DataLinkKind.IpV4) where T : unmanaged
+            => SendPacket(CreatePacket(data), kind);
+        
+        public unsafe void SendPacket(byte[] data, DataLinkKind kind = DataLinkKind.IpV4)
+            => _comm.SendPacket(new Packet(data, DateTime.Now, kind));
+        
+        public static unsafe byte[] CreatePacket<T>(T data) where T : unmanaged
         {
-            byte[] dataArr = new byte[length];
-            Marshal.Copy(new IntPtr(data), dataArr, 0, length);
-            Packet p = new Packet(dataArr, DateTime.Now, DataLinkKind.IpV4);
-            _comm.SendPacket(p);
+            byte[] dataArr = new byte[sizeof(T)];
+            void* addr = &data;
+            Marshal.Copy((IntPtr)addr, dataArr, 0, dataArr.Length);
+            return dataArr;
         }
 
         #region IDisposable Support
@@ -160,10 +181,5 @@ namespace TheraEngine.Networking
             // GC.SuppressFinalize(this);
         }
         #endregion
-
-        //public void ConnectionEstablishShutdown(Connection connection)
-        //{
-
-        //}
     }
 }

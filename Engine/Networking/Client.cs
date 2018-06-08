@@ -2,6 +2,6 @@
 {
     public class Client : NetworkConnection
     {
-        
+        public override bool IsServer => false;
     }
 }

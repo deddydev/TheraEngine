@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
@@ -57,20 +56,31 @@ namespace TheraEngine.Rendering
                     Engine.PrintLine(GetSource(true));
             }
             SourceChanged?.Invoke();
+            if (OwningProgram != null && OwningProgram.IsActive)
+            {
+                OwningProgram.Destroy();
+                OwningProgram.Generate();
+            }
         }
         private void File_SourceChanged()
         {
             _sourceCache = File.Text;
             ShaderMode = File.Type;
             IsCompiled = false;
-            if (!IsActive)
-                return;
-            Engine.Renderer.SetShaderMode(ShaderMode);
-            Engine.Renderer.SetShaderSource(BindingId, _sourceCache);
-            bool success = Compile(out string info);
-            if (!success)
-                Engine.PrintLine(GetSource(true));
+            //if (!IsActive)
+            //    return;
+            //Engine.Renderer.SetShaderMode(ShaderMode);
+            //Engine.Renderer.SetShaderSource(BindingId, _sourceCache);
+            //bool success = Compile(out string info);
+            //if (!success)
+            //    Engine.PrintLine(GetSource(true));
+            Destroy();
             SourceChanged?.Invoke();
+            if (OwningProgram != null && OwningProgram.IsActive)
+            {
+                OwningProgram.Destroy();
+                //OwningProgram.Generate();
+            }
         }
         protected override void PreGenerated()
         {

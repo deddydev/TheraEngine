@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices
 {
@@ -17,15 +18,16 @@ namespace TheraEngine.Input.Devices
 
         public abstract void SetCursorPosition(float x, float y);
 
-        protected override int GetAxisCount() { return 0; }
-        protected override int GetButtonCount() { return 3; }
+        protected override int GetAxisCount() => 0; 
+        protected override int GetButtonCount() => 3;
+        public override EDeviceType DeviceType => EDeviceType.Mouse;
 
         private ButtonManager CacheButton(EMouseButton button)
         {
-            int b = (int)button;
-            if (_buttonStates[b] == null)
-                _buttonStates[b] = new ButtonManager(button.ToString());
-            return _buttonStates[b];
+            int index = (int)button;
+            if (_buttonStates[index] == null)
+                _buttonStates[index] = new ButtonManager(index, button.ToString(), SendButtonPressedState, SendButtonAction);
+            return _buttonStates[index];
         }
         public void RegisterButtonPressed(EMouseButton button, EInputPauseType pauseType, DelButtonState func, bool unregister)
         {
@@ -55,8 +57,7 @@ namespace TheraEngine.Input.Devices
     public class CursorManager
     {
         private float _lastX, _lastY;
-
-        List<DelCursorUpdate>[] _onCursorUpdate = new List<DelCursorUpdate>[9];
+        readonly List<DelCursorUpdate>[] _onCursorUpdate = new List<DelCursorUpdate>[9];
 
         internal void Tick(float xPos, float yPos, float delta)
         {

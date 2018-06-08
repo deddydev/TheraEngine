@@ -14,6 +14,7 @@ using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Input.Devices.DirectX;
 using TheraEngine.Input.Devices.OpenTK;
+using TheraEngine.Networking;
 using TheraEngine.Physics;
 using TheraEngine.Physics.Bullet;
 using TheraEngine.Physics.Jitter;
@@ -55,6 +56,8 @@ namespace TheraEngine
         public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
+        public static NetworkConnection NetworkConnection { get; internal set; }
+        
         /// <summary>
         /// Event for when the engine is paused or unpaused and by which player.
         /// </summary>

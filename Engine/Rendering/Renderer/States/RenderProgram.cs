@@ -22,7 +22,10 @@ namespace TheraEngine.Rendering
 
                 ShaderTypeMask = EProgramStageMask.None;
                 foreach (var shader in _shaders)
+                {
+                    shader.OwningProgram = this;
                     ShaderTypeMask |= (EProgramStageMask)(int)shader.ShaderMode;
+                }
 
                 //Force a recompilation.
                 //TODO: recompile shaders without destroying program.
@@ -36,7 +39,8 @@ namespace TheraEngine.Rendering
         {
             if (shader == null)
                 return -1;
-            _shaders.Add(new RenderShader(shader));
+            RenderShader rs = new RenderShader(shader) { OwningProgram = this };
+            _shaders.Add(rs);
             ShaderTypeMask |= (EProgramStageMask)(int)shader.Type;
             Destroy();
             return _shaders.Count - 1;
@@ -45,6 +49,7 @@ namespace TheraEngine.Rendering
         {
             if (shader == null)
                 return -1;
+            shader.OwningProgram = this;
             _shaders.Add(shader);
             ShaderTypeMask |= (EProgramStageMask)(int)shader.ShaderMode;
             Destroy();
@@ -52,8 +57,9 @@ namespace TheraEngine.Rendering
         }
         public void RemoveShader(RenderShader shader)
         {
-            if (shader == null)
+            if (shader == null || !_shaders.Contains(shader))
                 return;
+            shader.OwningProgram = null;
             _shaders.Remove(shader);
             ShaderTypeMask &= ~(EProgramStageMask)(int)shader.ShaderMode;
             Destroy();
@@ -88,19 +94,21 @@ namespace TheraEngine.Rendering
             IsValid = true;
 
             int id = Engine.Renderer.GenerateProgram(Engine.Settings.AllowShaderPipelines);
-
-            //Generate shader objects
-            RenderShader shader;
+            
             if (_shaders.Count == 0)
             {
                 IsValid = false;
                 return NullBindingId;
             }
 
+            RenderShader shader;
             for (int i = 0; i < _shaders.Count; ++i)
             {
                 shader = _shaders[i];
-                shader.Generate();
+
+                if (!shader.IsActive)
+                    shader.Generate();
+
                 if (IsValid = IsValid && shader.IsCompiled)
                     Engine.Renderer.AttachShader(shader.BindingId, id);
                 else

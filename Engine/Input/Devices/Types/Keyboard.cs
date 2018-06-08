@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices
 {
@@ -11,16 +12,17 @@ namespace TheraEngine.Input.Devices
 
         protected override int GetAxisCount() => 0;
         protected override int GetButtonCount() => 132;
+        public override EDeviceType DeviceType => EDeviceType.Keyboard;
 
         private ButtonManager CacheKey(EKey key)
         {
-            int b = (int)key;
-            if (_buttonStates[b] == null)
+            int index = (int)key;
+            if (_buttonStates[index] == null)
             {
-                _buttonStates[b] = new ButtonManager(key.ToString());
+                _buttonStates[index] = new ButtonManager(index, key.ToString(), SendButtonPressedState, SendButtonAction);
                 _registeredKeys.Add(key);
             }
-            return _buttonStates[b];
+            return _buttonStates[index];
         }
         public void RegisterButtonPressed(EKey key, EInputPauseType pauseType, DelButtonState func, bool unregister)
         {

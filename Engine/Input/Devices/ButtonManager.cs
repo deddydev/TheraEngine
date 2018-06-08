@@ -4,57 +4,42 @@ using System.Linq;
 
 namespace TheraEngine.Input.Devices
 {
+    public delegate void DelSendButtonPressedState(int buttonIndex, int listIndex, bool pressed);
+    public delegate void DelSendButtonAction(int buttonIndex, int listIndex);
     public delegate void DelButtonState(bool pressed);
     public class ButtonManager
     {
-        public ButtonManager(string name)
+        const float TimerMax = 0.5f;
+
+        private readonly DelSendButtonPressedState SendStateToServer;
+        private readonly DelSendButtonAction SendActionToServer;
+
+        public ButtonManager(int index, string name, DelSendButtonPressedState onPressState, DelSendButtonAction onAction)
         {
             int count = 12;
             _actions = new List<Action>[count];
             _usedActions = new List<int>(count);
             Name = name;
+            SendStateToServer = onPressState;
+            SendActionToServer = onAction;
+            Index = index;
         }
 
-        internal protected List<DelButtonState>[] _onStateChanged = new List<DelButtonState>[3];
+        public int Index { get; }
+        public string Name { get; }
 
-        const float TimerMax = 0.5f;
-
-        public string Name { get; protected set; }
         public bool IsPressed { get; protected set; }
+
+        protected List<DelButtonState>[] _onStateChanged = new List<DelButtonState>[3];
+        protected List<Action>[] _actions;
+        protected List<int> _usedActions;
 
         protected float _holdDelaySeconds = 0.2f;
         protected float _maxSecondsBetweenPresses = 0.2f;
         protected float _timer;
 
-        protected List<Action>[] _actions;
-        internal protected List<int> _usedActions;
-
-        internal void Tick(bool isPressed, float delta)
-        {
-            if (IsPressed != isPressed)
-            {
-                if (IsPressed = isPressed)
-                {
-                    if (_timer <= _maxSecondsBetweenPresses)
-                        OnDoublePressed();
-
-                    _timer = 0.0f;
-                    OnPressed();
-                }
-                else
-                    OnReleased();
-            }
-            else if (_timer < TimerMax)
-            {
-                _timer += delta;
-                if (IsPressed && _timer >= _holdDelaySeconds)
-                {
-                    _timer = TimerMax;
-                    OnHeld();
-                }
-            }
-        }
-        public bool IsEmpty() => _usedActions.Count == 0 && _onStateChanged.All(x => x == null || x.Count == 0);
+        #region Registration
+        public virtual bool IsEmpty() => _usedActions.Count == 0 && _onStateChanged.All(x => x == null || x.Count == 0);
         public void Register(Action func, ButtonInputType type, EInputPauseType pauseType, bool unregister)
         {
             int index = (int)type * 3 + (int)pauseType;
@@ -109,6 +94,34 @@ namespace TheraEngine.Input.Devices
             for (int i = 0; i < 3; ++i)
                 _onStateChanged[i] = null;
         }
+        #endregion
+
+        #region Actions
+        internal void Tick(bool isPressed, float delta)
+        {
+            if (IsPressed != isPressed)
+            {
+                if (IsPressed = isPressed)
+                {
+                    if (_timer <= _maxSecondsBetweenPresses)
+                        OnDoublePressed();
+
+                    _timer = 0.0f;
+                    OnPressed();
+                }
+                else
+                    OnReleased();
+            }
+            else if (_timer < TimerMax)
+            {
+                _timer += delta;
+                if (IsPressed && _timer >= _holdDelaySeconds)
+                {
+                    _timer = TimerMax;
+                    OnHeld();
+                }
+            }
+        }
         private void OnPressed()
         {
             PerformAction(ButtonInputType.Pressed);
@@ -130,68 +143,52 @@ namespace TheraEngine.Input.Devices
         protected void PerformStateAction(bool pressed)
         {
             int index = (int)EInputPauseType.TickAlways;
-            List<DelButtonState> list = _onStateChanged[index];
 
-            if (list != null)
-            {
-                SendStateToServer(index, pressed);
-
-                int i = list.Count;
-                for (int x = 0; x < i; ++x)
-                    list[x](pressed);
-            }
+            ExecutePressedStateList(index, pressed);
 
             index = Engine.IsPaused ?
                 (int)EInputPauseType.TickOnlyWhenPaused :
                 (int)EInputPauseType.TickOnlyWhenUnpaused;
 
-            list = _onStateChanged[index];
+            ExecutePressedStateList(index, pressed);
+        }
+        protected void PerformAction(ButtonInputType type)
+        {
+            int index = (int)type * 3;
+
+            ExecuteActionList(index);
+
+            index += Engine.IsPaused ?
+                (int)EInputPauseType.TickOnlyWhenPaused : 
+                (int)EInputPauseType.TickOnlyWhenUnpaused;
+
+            ExecuteActionList(index);
+        }
+        private void ExecuteActionList(int listIndex)
+        {
+            List<Action> list = _actions[listIndex];
             if (list != null)
             {
-                SendStateToServer(index, pressed);
+                SendActionToServer(Index, listIndex);
+
+                int i = list.Count;
+                for (int x = 0; x < i; ++x)
+                    list[x]();
+            }
+        }
+        private void ExecutePressedStateList(int listIndex, bool pressed)
+        {
+            List<DelButtonState> list = _onStateChanged[listIndex];
+            if (list != null)
+            {
+                SendActionToServer(Index, listIndex);
 
                 int i = list.Count;
                 for (int x = 0; x < i; ++x)
                     list[x](pressed);
             }
         }
-        protected void PerformAction(ButtonInputType type)
-        {
-            int index = (int)type * 3;
-            List<Action> list = _actions[index];
-
-            if (list != null)
-            {
-                SendActionToServer(index);
-
-                int i = list.Count;
-                for (int x = 0; x < i; ++x)
-                    list[x]();
-            }
-
-            index += Engine.IsPaused ?
-                (int)EInputPauseType.TickOnlyWhenPaused : 
-                (int)EInputPauseType.TickOnlyWhenUnpaused;
-
-            list = _actions[index];
-            if (list != null)
-            {
-                SendActionToServer(index);
-
-                int i = list.Count;
-                for (int x = 0; x < i; ++x)
-                    list[x]();
-            }
-        }
-
-        private void SendStateToServer(int listIndex, bool pressed)
-        {
-
-        }
-        private void SendActionToServer(int listIndex)
-        {
-
-        }
+        #endregion
 
         public override string ToString() => Name;
     }

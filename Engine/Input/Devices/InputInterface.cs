@@ -36,8 +36,8 @@ namespace TheraEngine.Input.Devices
 
         public event DelWantsInputsRegistered WantsInputsRegistered;
 
-        public InputInterface(int playerIndex)
-            => PlayerIndex = playerIndex;
+        public InputInterface(int localPlayerIndex)
+            => LocalPlayerIndex = localPlayerIndex;
 
         public BaseGamePad Gamepad { get; private set; }
         public BaseKeyboard Keyboard { get; private set; }
@@ -46,7 +46,7 @@ namespace TheraEngine.Input.Devices
         //TODO: contain reference to owning local player controller
         //and use its player index enum instead
         //Also update devices when the player index is changed
-        public int PlayerIndex
+        public int LocalPlayerIndex
         {
             get => _playerIndex;
             set
@@ -99,22 +99,66 @@ namespace TheraEngine.Input.Devices
         }
         private void GetDevices()
         {
+            AttachInterfaceToDevices(true);
+
             InputDevice[] gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
             InputDevice[] keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
             InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
 
             if (_playerIndex >= 0 && _playerIndex < gamepads.Length)
+            {
                 Gamepad = gamepads[_playerIndex] as BaseGamePad;
+            }
 
             //Keyboard and mouse are reserved for the first player only
             //TODO: support multiple mice and keyboard? Could get difficult with laptops and trackpads and whatnot. Probably no-go.
             //TODO: support input from ALL keyboards and mice for first player. Not just the first found keyboard and mouse.
 
             if (keyboards.Length > 0 && _playerIndex == 0)
+            {
                 Keyboard = keyboards[0] as BaseKeyboard;
+            }
 
             if (mice.Length > 0 && _playerIndex == 0)
+            {
                 Mouse = mice[0] as BaseMouse;
+            }
+
+            AttachInterfaceToDevices(false);
+        }
+
+        private void AttachInterfaceToDevices(bool detach)
+        {
+            if (detach)
+            {
+                if (Gamepad != null)
+                {
+                    Gamepad.InputInterface = null;
+                }
+                if (Keyboard != null)
+                {
+                    Keyboard.InputInterface = null;
+                }
+                if (Mouse != null)
+                {
+                    Mouse.InputInterface = null;
+                }
+            }
+            else
+            {
+                if (Gamepad != null)
+                {
+                    Gamepad.InputInterface = this;
+                }
+                if (Keyboard != null)
+                {
+                    Keyboard.InputInterface = this;
+                }
+                if (Mouse != null)
+                {
+                    Mouse.InputInterface = this;
+                }
+            }
         }
 
         #region Mouse input registration

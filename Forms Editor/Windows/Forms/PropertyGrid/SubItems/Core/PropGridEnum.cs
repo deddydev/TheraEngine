@@ -74,7 +74,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 newValue = oldValue + ", " + box.Tag.ToString();
             else
                 newValue = string.Join(", ", oldValue.Replace(box.Tag.ToString(), string.Empty).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
-            UpdateValue(Enum.Parse(DataType, newValue), true);
+            if (string.IsNullOrWhiteSpace(newValue))
+                UpdateValue(0, true);
+            else
+            {
+                //TODO: fix parsing types that have names that are included in others
+                try
+                {
+                    UpdateValue(Enum.Parse(DataType, newValue), true);
+                }
+                catch
+                {
+                    UpdateValue(0, true);
+                }
+            }
         }
 
         protected internal override void SetProperty(PropertyInfo propertyInfo, object propertyOwner)

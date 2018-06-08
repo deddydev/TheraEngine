@@ -12,6 +12,7 @@ using TheraEngine.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
+using TheraEngine.Networking;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
@@ -304,6 +305,7 @@ namespace TheraEngine
         /// </summary>
         private static void Tick(object sender, FrameEventArgs e)
         {
+            NetworkConnection?.RecievePackets();
             float delta = e.Time * TimeDilation;
             TickGroup(ETickGroup.PrePhysics, delta);
             if (!_isPaused && World != null)
@@ -724,5 +726,27 @@ namespace TheraEngine
                     LocalPlayers[device.Index].Input.UpdateDevices();
             }
         }
+
+        #region Networking
+
+        public static void EstablishNetworkConnection(bool asServer)
+        {
+            if (asServer)
+            {
+                NetworkConnection = new Server();
+                NetworkConnection.ConnectAuto();
+            }
+            else
+            {
+                NetworkConnection = new Client();
+
+            }
+        }
+        public static void DisconnectFromNetwork()
+        {
+
+        }
+
+        #endregion
     }
 }

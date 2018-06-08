@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices
 {
@@ -30,11 +31,12 @@ namespace TheraEngine.Input.Devices
 
         public bool IsConnected => _isConnected;
         public int Index => _index;
+        public abstract EDeviceType DeviceType { get; }
+        public InputInterface InputInterface { get; internal set; }
 
         public InputDevice(int index)
         {
             _index = index;
-            //Engine.DebugPrint(GetType().ToString() + _index + " created.");
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, UpdateStates);
             ResetStates();
         }
@@ -63,6 +65,86 @@ namespace TheraEngine.Input.Devices
         public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
             m?.Register(func, type, pauseType, unregister);
+        }
+
+        private bool CanSend()
+            => Engine.NetworkConnection != null &&
+            !Engine.NetworkConnection.IsServer &&
+            InputInterface != null &&
+            Engine.LocalPlayers.IndexInRange(InputInterface.LocalPlayerIndex);
+        
+        protected void SendButtonAction(int buttonIndex, int listIndex)
+        {
+            if (!CanSend())
+                return;
+
+            TPacketInput packet = new TPacketInput();
+            packet.Header.PacketType = EPacketType.Input;
+            packet.DeviceType = DeviceType;
+            packet.InputType = EInputType.ButtonAction;
+            packet.InputIndex = (byte)buttonIndex;
+            packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+
+            Engine.NetworkConnection.SendPacket(packet);
+        }
+        protected void SendButtonPressedState(int buttonIndex, int listIndex, bool pressed)
+        {
+            if (!CanSend())
+                return;
+
+            TPacketPressedInput packet = new TPacketPressedInput();
+            packet.Header.Header.PacketType = EPacketType.Input;
+            packet.Header.DeviceType = DeviceType;
+            packet.Header.InputType = EInputType.ButtonPressedState;
+            packet.Header.InputIndex = (byte)buttonIndex;
+            packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            packet.Pressed = (byte)(pressed ? 1 : 0);
+
+            Engine.NetworkConnection.SendPacket(packet);
+        }
+        protected void SendAxisButtonAction(int axisIndex, int listIndex)
+        {
+            if (!CanSend())
+                return;
+
+            TPacketInput packet = new TPacketInput();
+            packet.Header.PacketType = EPacketType.Input;
+            packet.DeviceType = DeviceType;
+            packet.InputType = EInputType.AxisButtonAction;
+            packet.InputIndex = (byte)axisIndex;
+            packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+
+            Engine.NetworkConnection.SendPacket(packet);
+        }
+        protected void SendAxisButtonPressedState(int axisIndex, int listIndex, bool pressed)
+        {
+            if (!CanSend())
+                return;
+
+            TPacketPressedInput packet = new TPacketPressedInput();
+            packet.Header.Header.PacketType = EPacketType.Input;
+            packet.Header.DeviceType = DeviceType;
+            packet.Header.InputType = EInputType.AxisButtonPressedState;
+            packet.Header.InputIndex = (byte)axisIndex;
+            packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            packet.Pressed = (byte)(pressed ? 1 : 0);
+
+            Engine.NetworkConnection.SendPacket(packet);
+        }
+        protected void SendAxisValue(int axisIndex, int listIndex, float value)
+        {
+            if (!CanSend())
+                return;
+
+            TPacketAxisInput packet = new TPacketAxisInput();
+            packet.Header.Header.PacketType = EPacketType.Input;
+            packet.Header.DeviceType = DeviceType;
+            packet.Header.InputType = EInputType.AxisValue;
+            packet.Header.InputIndex = (byte)axisIndex;
+            packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            packet.Value = value;
+
+            Engine.NetworkConnection.SendPacket(packet);
         }
     }
 }

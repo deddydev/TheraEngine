@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
@@ -8,10 +9,12 @@ using TheraEngine;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -166,6 +169,7 @@ namespace TheraEditor.Windows.Forms
                 tblUniforms.RowStyles.Clear();
                 tblUniforms.RowCount = 0;
                 lstTextures.Clear();
+                lstShaders.Clear();
 
                 if (_material != null)
                 {
@@ -214,6 +218,21 @@ namespace TheraEditor.Windows.Forms
                             tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
                         lstTextures.Items.Add(item);
                     }
+                    
+                    foreach (var shaderRef in _material.Shaders)
+                    {
+                        string text = string.Empty;
+                        if (!string.IsNullOrWhiteSpace(shaderRef.ReferencePathAbsolute))
+                            text = Path.GetFileNameWithoutExtension(shaderRef.ReferencePathAbsolute) + " ";
+                        else if (!string.IsNullOrWhiteSpace(shaderRef.File?.Name))
+                            text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
+
+                        text += "[" + shaderRef.File.Type.ToString() + "]";
+
+                        ListViewItem item = new ListViewItem(text) { Tag = shaderRef };
+
+                        lstShaders.Items.Add(item);
+                    }
                 }
                 else
                 {
@@ -234,7 +253,7 @@ namespace TheraEditor.Windows.Forms
         private void lblMatName_Click(object sender, EventArgs e)
         {
             //panel2.Visible = !panel2.Visible;
-            theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef.File;
+            theraPropertyGrid1.TargetFileObject = _material;
 
         }
 
@@ -299,6 +318,43 @@ namespace TheraEditor.Windows.Forms
                 theraPropertyGrid1.TargetFileObject = null;
         }
 
+        private void lstShaders_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (lstShaders.SelectedItems.Count == 0)
+                return;
+
+            GlobalFileRef<GLSLShaderFile> fileRef = lstShaders.SelectedItems[0].Tag as GlobalFileRef<GLSLShaderFile>;
+            if (fileRef.File == null)
+                return;
+
+            DockableTextEditor textEditor = new DockableTextEditor
+            {
+                Tag = fileRef
+            };
+            DockContent form = FindForm() as DockContent;
+            DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
+            textEditor.Show(p, DockState.Document);
+            textEditor.InitText(fileRef.File.Text, Path.GetFileName(fileRef.ReferencePathAbsolute), ETextEditorMode.GLSL);
+            textEditor.Saved += M_Saved;
+            textEditor.CompileGLSL = M_CompileGLSL;
+        }
+        private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)
+        {
+            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
+            EShaderMode mode = fileRef.File.Type;
+            fileRef.File.Text = text;
+            //bool success = _shader.Compile(out string info, false);
+            return (true, null);
+        }
+
+        private void M_Saved(DockableTextEditor editor)
+        {
+            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
+            fileRef.File.Text = editor.GetText();
+            Editor.Instance.ContentTree.WatchProjectDirectory = false;
+            fileRef.ExportReference();
+            Editor.Instance.ContentTree.WatchProjectDirectory = true;
+        }
         public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
         {
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, dicOwner, key, isKey);

@@ -394,6 +394,7 @@
     <Compile Include="Core\ResourcePool.cs" />
     <Compile Include="Core\Shapes\Cylindrical\XAligned\ConeX.cs" />
     <Compile Include="Input\ServerPlayerController.cs" />
+    <Compile Include="Networking\Packets.cs" />
     <Compile Include="Physics\AbstractPhysicsInterface.cs" />
     <Compile Include="Physics\AbstractPhysicsShapes.cs" />
     <Compile Include="Physics\AbstractPhysicsWorld.cs" />
@@ -408,7 +409,6 @@
     <Compile Include="Physics\Bullet\Shapes\BulletSphere.cs" />
     <Compile Include="Physics\Bullet\BulletPhysicsWorld.cs" />
     <Compile Include="Networking\Client.cs" />
-    <Compile Include="Networking\NetworkPacketObject.cs" />
     <Compile Include="Networking\Server.cs" />
     <Compile Include="Physics\Bullet\Collision Bodies\BulletSoftBody.cs" />
     <Compile Include="Physics\Bullet\Collision Bodies\BulletRigidBody.cs" />

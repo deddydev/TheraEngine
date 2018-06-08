@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TheraEngine.Input.Devices.OpenTK;
 using TheraEngine.Input.Devices.DirectX;
+using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices
 {
@@ -51,6 +52,7 @@ namespace TheraEngine.Input.Devices
 
         protected override int GetButtonCount() => 14;
         protected override int GetAxisCount() => 6;
+        public override EDeviceType DeviceType => EDeviceType.Gamepad;
 
         protected abstract bool ButtonExists(GamePadButton button);
         protected abstract List<bool> ButtonsExist(List<GamePadButton> buttons);
@@ -59,17 +61,18 @@ namespace TheraEngine.Input.Devices
 
         private ButtonManager CacheButton(GamePadButton button)
         {
-            int b = (int)button;
-            if (_buttonStates[b] == null && ButtonExists(button))
-               _buttonStates[b] = new ButtonManager(button.ToString());
-            return _buttonStates[b];
+            int index = (int)button;
+            if (_buttonStates[index] == null && ButtonExists(button))
+               _buttonStates[index] = new ButtonManager(index, button.ToString(), SendButtonPressedState, SendButtonAction);
+            return _buttonStates[index];
         }
+
         private AxisManager CacheAxis(GamePadAxis axis)
         {
-            int a = (int)axis;
-            if (_axisStates[a] == null && AxistExists(axis))
-                _axisStates[a] = new AxisManager(axis.ToString());
-            return _axisStates[a];
+            int index = (int)axis;
+            if (_axisStates[index] == null && AxistExists(axis))
+                _axisStates[index] = new AxisManager(index, axis.ToString(), SendAxisButtonPressedState, SendAxisButtonAction, SendAxisValue);
+            return _axisStates[index];
         }
 
         public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)

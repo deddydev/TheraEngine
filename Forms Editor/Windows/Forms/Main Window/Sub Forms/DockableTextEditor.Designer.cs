@@ -258,7 +258,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnSave;
         private System.Windows.Forms.ToolStripMenuItem btnSaveAs;
         private System.Windows.Forms.ToolStripMenuItem btnSelectPaths;
-        private FastColoredTextBoxNS.FastColoredTextBox TextBox;
+        public FastColoredTextBoxNS.FastColoredTextBox TextBox;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel StatusText;
         private System.Windows.Forms.ListBox lstAutocomplete;

@@ -1,43 +1,38 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
-using System.Reflection;
-using TheraEngine.Files;
 using System.IO;
+using System.Reflection;
+using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
-using Microsoft.VisualBasic.FileIO;
-using System.Drawing;
+using TheraEngine.Files;
 
 namespace TheraEditor.Wrappers
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     sealed class NodeWrapperAttribute : Attribute
     {
-        private Type _fileType;
-        private string _imageName, _selectedImageName;
-        private string _thirdPartyExt;
-        
         public NodeWrapperAttribute(Type type, string imageName)
         {
-            _fileType = type;
-            _imageName = _selectedImageName = imageName;
+            FileType = type;
+            ImageName = SelectedImageName = imageName;
         }
         public NodeWrapperAttribute(Type type, string imageName, string selectedImageName)
         {
-            _fileType = type;
-            _imageName = imageName;
-            _selectedImageName = selectedImageName;
+            FileType = type;
+            ImageName = imageName;
+            SelectedImageName = selectedImageName;
         }
         public NodeWrapperAttribute(string thirdPartyExtension)
         {
-            _thirdPartyExt = thirdPartyExtension;
+            ThirdPartyExtension = thirdPartyExtension;
         }
 
-        public Type FileType => _fileType;
-        public string ImageName => _imageName;
-        public string SelectedImageName => _selectedImageName;
-        public string ThirdPartyExtension => _thirdPartyExt;
-        
+        public Type FileType { get; }
+        public string ImageName { get; }
+        public string SelectedImageName { get; }
+        public string ThirdPartyExtension { get; }
+
         /// <summary>
         /// Key is file type, Value is tree node wrapper type
         /// </summary>

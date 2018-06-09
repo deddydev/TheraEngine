@@ -8,8 +8,9 @@ namespace TheraEngine.Rendering
     {
         public event DelCompile Compiled;
         public event Action SourceChanged;
-        
-        private string _sourceCache = null;
+
+        public string SourceText { get; private set; } = null;
+
         public EShaderMode ShaderMode { get; private set; }
         private GLSLShaderFile _file = null;
         public GLSLShaderFile File
@@ -20,7 +21,7 @@ namespace TheraEngine.Rendering
                 if (_file != null)
                 {
                     _file.TextChanged -= File_SourceChanged;
-                    _sourceCache = null;
+                    SourceText = null;
                 }
                 _file = value;
                 if (_file != null)
@@ -42,13 +43,13 @@ namespace TheraEngine.Rendering
         
         public void SetSource(string text, EShaderMode mode, bool compile = true)
         {
-            _sourceCache = text;
+            SourceText = text;
             ShaderMode = mode;
             IsCompiled = false;
             if (!IsActive)
                 return;
             Engine.Renderer.SetShaderMode(ShaderMode);
-            Engine.Renderer.SetShaderSource(BindingId, _sourceCache);
+            Engine.Renderer.SetShaderSource(BindingId, SourceText);
             if (compile)
             {
                 bool success = Compile(out string info);
@@ -64,7 +65,7 @@ namespace TheraEngine.Rendering
         }
         private void File_SourceChanged()
         {
-            _sourceCache = File.Text;
+            SourceText = File.Text;
             ShaderMode = File.Type;
             IsCompiled = false;
             //if (!IsActive)
@@ -88,10 +89,10 @@ namespace TheraEngine.Rendering
         }
         protected override void PostGenerated()
         {
-            if (_sourceCache != null && _sourceCache.Length > 0)
+            if (SourceText != null && SourceText.Length > 0)
             {
                 Engine.Renderer.SetShaderMode(ShaderMode);
-                Engine.Renderer.SetShaderSource(BindingId, _sourceCache);
+                Engine.Renderer.SetShaderSource(BindingId, SourceText);
                 if (!Compile(out string info))
                     Engine.PrintLine(GetSource(true));
             }
@@ -102,7 +103,7 @@ namespace TheraEngine.Rendering
             if (lineNumbers)
             {
                 //Split the source by new lines
-                string[] s = _sourceCache.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                string[] s = SourceText.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
                 //Add the line number to the source so we can go right to errors on specific lines
                 int lineNumber = 1;
@@ -110,7 +111,7 @@ namespace TheraEngine.Rendering
                     source += string.Format("{0}: {1} {2}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line, Environment.NewLine);
             }
             else
-                source += _sourceCache + Environment.NewLine;
+                source += SourceText + Environment.NewLine;
             return source;
         }
         public bool Compile(out string info, bool printLogInfo = true)

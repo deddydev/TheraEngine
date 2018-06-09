@@ -34,8 +34,8 @@ namespace TheraEngine.Rendering
                 get => _bindingId;
                 set
                 {
-                    if (_bindingId > NullBindingId)
-                        throw new Exception("Context binding already has an id!");
+                    //if (_bindingId > NullBindingId)
+                    //    throw new Exception("Context binding already has an id!");
                     _bindingId = value;
                     //if (_bindingId == 0)
                     //    _generatedFailSafe = true;

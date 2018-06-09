@@ -2,11 +2,15 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Concurrent;
+using System;
 
 namespace TheraEngine.Rendering
 {
     public class RenderProgram : BaseRenderState, IEnumerable<RenderShader>
     {
+        internal static ConcurrentDictionary<int, RenderProgram> LivePrograms = new ConcurrentDictionary<int, RenderProgram>();
+
         public EProgramStageMask ShaderTypeMask { get; private set; } = EProgramStageMask.None;
 
         private List<RenderShader> _shaders;
@@ -33,6 +37,25 @@ namespace TheraEngine.Rendering
                 Destroy();
             }
         }
+
+        private ConcurrentDictionary<int, ConcurrentDictionary<string, int>> _uniformCache =
+            new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
+
+        public int GetCachedUniformLocation(string name)
+        {
+            int bindingId = BindingId;
+            if (_uniformCache.TryGetValue(bindingId, out ConcurrentDictionary<string, int> progDic))
+                return progDic.GetOrAdd(name, n => Engine.Renderer.OnGetUniformLocation(bindingId, n));
+            else
+            {
+                progDic = new ConcurrentDictionary<string, int>();
+                int loc = Engine.Renderer.OnGetUniformLocation(bindingId, name);
+                if (!progDic.TryAdd(name, loc) || !_uniformCache.TryAdd(bindingId, progDic))
+                    throw new Exception();
+                return loc;
+            }
+        }
+
         public bool IsValid { get; private set; } = false;
 
         public int AddShader(GLSLShaderFile shader)
@@ -85,12 +108,19 @@ namespace TheraEngine.Rendering
 
         public override void Destroy()
         {
+            if (IsActive)
+                LivePrograms.TryRemove(BindingId, out RenderProgram prog);
+
             base.Destroy();
+
             IsValid = false;
+            _uniformCache.Clear();
         }
 
         protected override int CreateObject()
         {
+            _uniformCache.Clear();
+
             IsValid = true;
 
             int id = Engine.Renderer.GenerateProgram(Engine.Settings.AllowShaderPipelines);
@@ -112,31 +142,31 @@ namespace TheraEngine.Rendering
                 if (IsValid = IsValid && shader.IsCompiled)
                     Engine.Renderer.AttachShader(shader.BindingId, id);
                 else
-                    return id;
+                    return NullBindingId;
             }
 
             bool valid = Engine.Renderer.LinkProgram(id, out string info);
             if (!(IsValid = IsValid && valid))
             {
-                if (info.Contains("Vertex info"))
-                {
-                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Vertex);
-                    string source = s.GetSource(true);
-                    Engine.PrintLine(source);
-                }
-                else if (info.Contains("Geometry info"))
-                {
-                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Geometry);
-                    string source = s.GetSource(true);
-                    Engine.PrintLine(source);
-                }
-                else if (info.Contains("Fragment info"))
-                {
-                    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Fragment);
-                    string source = s.GetSource(true);
-                    Engine.PrintLine(source);
-                }
-                return id;
+                //if (info.Contains("Vertex info"))
+                //{
+                //    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Vertex);
+                //    string source = s.GetSource(true);
+                //    Engine.PrintLine(source);
+                //}
+                //else if (info.Contains("Geometry info"))
+                //{
+                //    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Geometry);
+                //    string source = s.GetSource(true);
+                //    Engine.PrintLine(source);
+                //}
+                //else if (info.Contains("Fragment info"))
+                //{
+                //    RenderShader s = _shaders.FirstOrDefault(x => x.File.Type == EShaderMode.Fragment);
+                //    string source = s.GetSource(true);
+                //    Engine.PrintLine(source);
+                //}
+                return NullBindingId;
             }
 
             //Destroy shader objects. We don't need them now.
@@ -146,6 +176,8 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.DetachShader(shader.BindingId, id);
                 shader.Destroy();
             }
+
+            LivePrograms.AddOrUpdate(id, this, (key, oldProg) => this);
 
             return id;
         }

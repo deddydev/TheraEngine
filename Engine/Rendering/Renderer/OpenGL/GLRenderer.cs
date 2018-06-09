@@ -303,10 +303,10 @@ namespace TheraEngine.Rendering.OpenGL
             if (status == 0)
             {
                 GL.GetProgramInfoLog(bindingId, out info);
-                if (string.IsNullOrEmpty(info))
-                    Engine.LogWarning("Unable to link program, but no error was returned.");
-                else
-                    Engine.LogWarning(info);
+                //if (string.IsNullOrEmpty(info))
+                //    Engine.LogWarning("Unable to link program, but no error was returned.");
+                //else
+                //    Engine.LogWarning(info);
                 return false;
             }
             else
@@ -432,14 +432,13 @@ namespace TheraEngine.Rendering.OpenGL
             }
         }
 
-        protected override int OnGetAttribLocation(int programBindingId, string name)
+        internal override int OnGetAttribLocation(int programBindingId, string name)
         {
             return GL.GetAttribLocation(programBindingId, name);
         }
-        protected override int OnGetUniformLocation(int programBindingId, string name)
+        internal override int OnGetUniformLocation(int programBindingId, string name)
         {
-            int loc = GL.GetUniformLocation(programBindingId, name);
-            return loc;
+            return GL.GetUniformLocation(programBindingId, name);
         }
 
         #region Uniform
@@ -678,8 +677,17 @@ namespace TheraEngine.Rendering.OpenGL
         public override void Uniform(int programBindingId, int location, params float[] p)
         {
             if (location >= 0)
-                fixed (float* first = &p[0])
-                    GL.ProgramUniform1(programBindingId, location, p.Length, first);
+            {
+                if (p.Length == 1)
+                {
+                    GL.ProgramUniform1(programBindingId, location, p[0]);
+                }
+                else
+                {
+                    fixed (float* first = &p[0])
+                        GL.ProgramUniform1(programBindingId, location, p.Length, first);
+                }
+            }
         }
         public override void Uniform(int programBindingId, int location, Matrix4 p)
         {

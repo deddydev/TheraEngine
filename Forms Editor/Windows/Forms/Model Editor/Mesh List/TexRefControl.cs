@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEditor.Windows.Forms.PropertyGrid;
-using System.Reflection;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -19,25 +9,20 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
         }
-
-        private BaseTexRef _texRef;
-        public BaseTexRef TexRef
+        public void SetTexRef(BaseTexRef texture)
         {
-            get => _texRef;
-            set
+            lblTexName.Text = texture?.Name;
+            if (texture is TexRef2D tref2d)
             {
-                _texRef = value;
-                if (_texRef != null)
-                {
-
-                }
+                if (tref2d.Mipmaps != null &&
+                    tref2d.Mipmaps.Length > 0 &&
+                    tref2d.Mipmaps[0] != null &&
+                    tref2d.Mipmaps[0].File != null &&
+                    tref2d.Mipmaps[0].File.Bitmaps != null &&
+                    tref2d.Mipmaps[0].File.Bitmaps.Length > 0)
+                    texThumbnail.Image = tref2d.Mipmaps[0].File.Bitmaps[0];
             }
-        }
-
-        private void Control_PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
-        {
-            //btnSave.Visible = true;
-            //Editor.Instance.UndoManager.AddChange(TargetObject.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
+            theraPropertyGrid1.TargetFileObject = texture;
         }
     }
 }

@@ -64,6 +64,7 @@ namespace TheraEngine.Rendering.OpenGL
             131185,
             131204,
             131169,
+            131216,
         };
         internal unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
         {

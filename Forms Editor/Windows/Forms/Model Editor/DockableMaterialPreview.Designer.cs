@@ -1,6 +1,6 @@
 ﻿namespace TheraEditor.Windows.Forms
 {
-    partial class DockableMaterialEditor
+    partial class DockableMaterialPreview
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.materialControl1 = new TheraEditor.Windows.Forms.MaterialControl();
+            this.materialControl1 = new TheraEditor.Windows.Forms.MaterialPreviewControl();
             this.SuspendLayout();
             // 
             // materialControl1
@@ -59,6 +59,6 @@
 
         #endregion
 
-        private MaterialControl materialControl1;
+        private MaterialPreviewControl materialControl1;
     }
 }

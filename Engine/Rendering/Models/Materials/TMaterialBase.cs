@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -11,14 +12,12 @@ namespace TheraEngine.Rendering.Models.Materials
     public abstract class TMaterialBase : TFileObject
     {
         public event DelSettingUniforms SettingUniforms;
-        public event DelSettingUniforms SettingTextureUniforms;
-        
+
+        protected float _secondsLive = 0.0f;
         protected ShaderVar[] _parameters;
         protected BaseTexRef[] _textures;
         protected RenderProgram _program;
-
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
-
         private LocalFileRef<RenderingParameters> _renderParamsRef = new RenderingParameters();
 
         [Browsable(false)]
@@ -46,7 +45,61 @@ namespace TheraEngine.Rendering.Models.Materials
             }
             protected set
             {
+                if (_program != null)
+                    _program.Generated -= _program_Generated;
                 _program = value;
+                if (_program != null)
+                    _program.Generated += _program_Generated;
+            }
+        }
+
+        private void _program_Generated()
+        {
+            _secondsLive = 0.0f;
+            if (Program.IsValid)
+            {
+                List<ShaderVar> vars = new List<ShaderVar>();
+                foreach (RenderShader shader in Program)
+                {
+                    string text = shader.SourceText;
+                    int mainIndex = text.IndexOf("main(");
+                    if (mainIndex > 0)
+                        text = text.Substring(0, mainIndex);
+
+                    const string uniform = "uniform";
+                    int[] uniformIndices = text.FindAllOccurrences(0, uniform);
+                    foreach (int index in uniformIndices)
+                    {
+                        int startIndex = index + uniform.Length;
+                        int semicolonIndex = text.FindFirst(startIndex, ';');
+                        string utext = text.Substring(startIndex, semicolonIndex - startIndex).Trim();
+                        utext = utext.ReplaceWhitespace(" ");
+                        object value = null;
+
+                        int equalIndex = utext.FindFirst(0, '=');
+                        if (equalIndex >= 0)
+                        {
+
+                        }
+
+                        string[] parts = utext.Split(' ');
+                        string type = parts[0];
+                        string name = parts[1];
+                        if (Enum.TryParse(type, out EShaderVarType result))
+                        {
+                            Type t = ShaderVar.ShaderTypeAssociations[result];
+                            //int defaultValue, string name, IShaderVarOwner owner
+                            if (Activator.CreateInstance(t, value, name, null) is ShaderVar var)
+                            {
+                                vars.Add(var);
+                            }
+                            else
+                            {
+                                throw new Exception();
+                            }
+                        }
+                    }
+                }
             }
         }
 

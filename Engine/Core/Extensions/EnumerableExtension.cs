@@ -72,15 +72,15 @@ namespace System
         }
         public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
         {
-            try
-            {
+            //try
+            //{
                 foreach (T item in enumeration)
                     action(item);
-            }
-            catch(Exception ex)
-            {
-                Engine.PrintLine(ex.ToString());
-            }
+            //}
+            //catch(Exception ex)
+            //{
+                //Engine.PrintLine(ex.ToString());
+            //}
         }
     }
 }

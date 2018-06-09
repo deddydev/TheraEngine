@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -20,141 +21,12 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class MaterialControl : UserControl, IDataChangeHandler
     {
-        private float _cameraFovY = 45.0f;
-        public float CameraFovY
-        {
-            get => _cameraFovY;
-            set
-            {
-                _cameraFovY = value;
-                if (basicRenderPanel1.Camera is PerspectiveCamera cam)
-                {
-                    cam.VerticalFieldOfView = _cameraFovY;
-                    float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
-                    cam.LocalPoint.Z = camDist;
-                }
-            }
-        }
-
         public MaterialControl()
         {
             InitializeComponent();
-            basicRenderPanel1.MouseDown += BasicRenderPanel1_MouseDown;
-            basicRenderPanel1.MouseUp += BasicRenderPanel1_MouseUp;
-            basicRenderPanel1.MouseMove += BasicRenderPanel1_MouseMove;
-            pnlMatInfo.MouseEnter += PnlMatInfo_MouseEnter;
-            pnlMatInfo.MouseLeave += PnlMatInfo_MouseLeave;
-            pnlMatInfo.MouseDown += PnlMatInfo_MouseDown;
         }
 
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-            float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
-            PerspectiveCamera c = new PerspectiveCamera(
-                new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
-            c.PostProcessRef.File.ColorGrading.AutoExposure = false;
-            c.PostProcessRef.File.ColorGrading.Exposure = 10.0f;
-            basicRenderPanel1.Camera = c;
-            if (_light == null)
-            {
-                _light = new DirectionalLightComponent();
-                _light.SetShadowMapResolution(128, 128);
-                _light.WorldRadius = 100.0f;
-                _light.Rotation.Yaw = 45.0f;
-                _light.Rotation.Pitch = -45.0f;
-                basicRenderPanel1.Scene.Lights.Add(_light);
-                basicRenderPanel1.PreRendered += BasicRenderPanel1_PreRendered;
-                basicRenderPanel1.RegisterTick();
-                RedrawPreview();
-            }
-        }
-
-        private int _prevX, _prevY;
-        private bool _dragging = false;
-        private void BasicRenderPanel1_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (_dragging)
-            {
-                int dx = e.X - _prevX;
-                int dy = e.Y - _prevY;
-                _prevX = e.X;
-                _prevY = e.Y;
-                
-                if (dx == 0 && dy == 0)
-                    return;
-
-                //up is negative, left is negative
-
-                Quat lightRotation = _light.Rotation.GetMatrix().ExtractRotation(false);
-
-                Vec2 vec = new Vec2(dx, dy);
-                Vec3 axis = Vec3.Zero;
-
-                if (dx == 0)
-                {
-                    if (dy < 0)
-                        axis = -Vec3.UnitX;
-                    else
-                        axis = Vec3.UnitX;
-                }
-                else if (dy == 0)
-                {
-                    if (dx < 0)
-                        axis = -Vec3.UnitY;
-                    else
-                        axis = Vec3.UnitY;
-                }
-                //else
-                //{
-                //    axis = new Vec3(1.0f / vec, 0.0f).Normalized();
-                //}
-                float vecLen = vec.Length;
-                Quat rot = Quat.FromAxisAngle(axis, vecLen);
-                lightRotation = rot * lightRotation;
-                Rotator r = lightRotation.ToYawPitchRoll();
-                _light.Rotation.SetRotations(r);
-
-                RedrawPreview();
-            }
-        }
-
-        private void BasicRenderPanel1_MouseUp(object sender, MouseEventArgs e)
-        {
-            _dragging = false;
-        }
-
-        private void BasicRenderPanel1_MouseDown(object sender, MouseEventArgs e)
-        {
-            _prevX = e.X;
-            _prevY = e.Y;
-            _dragging = true;
-        }
-
-        private void PnlMatInfo_MouseDown(object sender, MouseEventArgs e)
-        {
-            //tblUniforms.Visible = !tblUniforms.Visible;
-        }
-
-        private void PnlMatInfo_MouseLeave(object sender, EventArgs e)
-        {
-            pnlMatInfo.BackColor = Color.FromArgb(62, 83, 90);
-        }
-
-        private void PnlMatInfo_MouseEnter(object sender, EventArgs e)
-        {
-            pnlMatInfo.BackColor = Color.FromArgb(42, 63, 70);
-        }
-        
-        private void BasicRenderPanel1_PreRendered()
-        {
-            _light.RenderShadowMap(basicRenderPanel1.Scene);
-        }
-        
-        private DirectionalLightComponent _light;
-        private PrimitiveRenderWrapper _spherePrim;
         private TMaterial _material;
-
         public TMaterial Material
         {
             get => _material;
@@ -174,18 +46,7 @@ namespace TheraEditor.Windows.Forms
                 if (_material != null)
                 {
                     lblMatName.Text = _material.Name;
-
-                    if (_spherePrim == null)
-                    {
-                        basicRenderPanel1.Scene.Clear(BoundingBox.FromHalfExtentsTranslation(2.0f, 0.0f));
-                        basicRenderPanel1.Scene.Lights.Add(_light);
-                        _spherePrim = new PrimitiveRenderWrapper( //0.8f instead of 1.0f for border padding
-                            new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
-                        basicRenderPanel1.Scene.Add(_spherePrim);
-                    }
-                    else
-                        _spherePrim.Material = _material;
-
+                    
                     theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef.File;
 
                     foreach (ShaderVar shaderVar in _material.Parameters)
@@ -272,22 +133,7 @@ namespace TheraEditor.Windows.Forms
             //_material.Name = txtMatName.Text;
             lblMatName.Text = _material.Name;
         }
-
-        private void chkDepthTest_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox3_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
+        
         public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
         {
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
@@ -302,21 +148,13 @@ namespace TheraEditor.Windows.Forms
             if (lstTextures.SelectedItems.Count > 0)
             {
                 BaseTexRef tref = lstTextures.SelectedItems[0].Tag as BaseTexRef;
-                if (tref is TexRef2D tref2d)
-                {
-                    if (tref2d.Mipmaps != null &&
-                        tref2d.Mipmaps.Length > 0 &&
-                        tref2d.Mipmaps[0] != null &&
-                        tref2d.Mipmaps[0].File != null &&
-                        tref2d.Mipmaps[0].File.Bitmaps != null &&
-                        tref2d.Mipmaps[0].File.Bitmaps.Length > 0)
-                        texThumbnail.Image = tref2d.Mipmaps[0].File.Bitmaps[0];
-                }
-                theraPropertyGrid1.TargetFileObject = tref;
+                
             }
             else
                 theraPropertyGrid1.TargetFileObject = null;
         }
+
+        private Dictionary<GLSLShaderFile, DockableTextEditor> _textEditors = new Dictionary<GLSLShaderFile, DockableTextEditor>();
 
         private void lstShaders_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -324,20 +162,41 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             GlobalFileRef<GLSLShaderFile> fileRef = lstShaders.SelectedItems[0].Tag as GlobalFileRef<GLSLShaderFile>;
-            if (fileRef.File == null)
+            GLSLShaderFile file = fileRef.File;
+
+            if (file == null)
                 return;
 
-            DockableTextEditor textEditor = new DockableTextEditor
+            if (_textEditors.ContainsKey(file))
             {
-                Tag = fileRef
-            };
-            DockContent form = FindForm() as DockContent;
-            DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
-            textEditor.Show(p, DockState.Document);
-            textEditor.InitText(fileRef.File.Text, Path.GetFileName(fileRef.ReferencePathAbsolute), ETextEditorMode.GLSL);
-            textEditor.Saved += M_Saved;
-            textEditor.CompileGLSL = M_CompileGLSL;
+                _textEditors[file].Focus();
+            }
+            else
+            {
+                DockContent form = FindForm() as DockContent;
+                DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
+
+                DockableTextEditor textEditor = new DockableTextEditor
+                {
+                    Tag = fileRef
+                };
+                textEditor.Show(p, DockState.DockLeft);
+                textEditor.InitText(fileRef.File.Text, Path.GetFileName(fileRef.ReferencePathAbsolute), ETextEditorMode.GLSL);
+                textEditor.Saved += M_Saved;
+                textEditor.CompileGLSL = M_CompileGLSL;
+                textEditor.FormClosed += TextEditor_FormClosed;
+
+                _textEditors.Add(file, textEditor);
+            }
         }
+
+        private void TextEditor_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            DockableTextEditor editor = sender as DockableTextEditor;
+            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
+            _textEditors.Remove(fileRef.File);
+        }
+
         private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)
         {
             GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;

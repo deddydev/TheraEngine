@@ -280,6 +280,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\Bone Tree\BoneTreeNode.cs" />
+    <Compile Include="Windows\Forms\Model Editor\DockableMaterialPreview.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableMaterialPreview.Designer.cs">
+      <DependentUpon>DockableMaterialPreview.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Model Editor\DockableMaterialEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -333,6 +339,12 @@
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.Designer.cs">
       <DependentUpon>TexRefControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Mesh List\MaterialPreview.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Mesh List\MaterialPreview.Designer.cs">
+      <DependentUpon>MaterialPreview.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\Mesh List\MaterialControl.cs">
       <SubType>UserControl</SubType>
@@ -780,6 +792,9 @@
     <EmbeddedResource Include="Windows\Forms\Misc\LoginControl.resx">
       <DependentUpon>LoginControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialPreview.resx">
+      <DependentUpon>DockableMaterialPreview.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialEditor.resx">
       <DependentUpon>DockableMaterialEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -804,11 +819,14 @@
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\LODControl.resx">
       <DependentUpon>LODControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MeshControl.resx">
-      <DependentUpon>MeshControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.resx">
       <DependentUpon>TexRefControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MaterialPreview.resx">
+      <DependentUpon>MaterialPreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MeshControl.resx">
+      <DependentUpon>MeshControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MaterialControl.resx">
       <DependentUpon>MaterialControl.cs</DependentUpon>

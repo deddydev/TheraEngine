@@ -28,104 +28,81 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.basicRenderPanel1 = new TheraEngine.BasicRenderPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.lblMaterialName = new System.Windows.Forms.Label();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.tblUniforms = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
-            this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.panel3.SuspendLayout();
+            this.lblTexName = new System.Windows.Forms.Label();
+            this.theraPropertyGrid1 = new TheraEditor.Windows.Forms.PropertyGrid.TheraPropertyGrid();
+            this.texThumbnail = new System.Windows.Forms.PictureBox();
+            this.splitter1 = new System.Windows.Forms.Splitter();
+            ((System.ComponentModel.ISupportInitialize)(this.texThumbnail)).BeginInit();
             this.SuspendLayout();
             // 
-            // basicRenderPanel1
+            // lblTexName
             // 
-            this.basicRenderPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.basicRenderPanel1.Location = new System.Drawing.Point(5, 5);
-            this.basicRenderPanel1.Name = "basicRenderPanel1";
-            this.basicRenderPanel1.Size = new System.Drawing.Size(140, 139);
-            this.basicRenderPanel1.TabIndex = 0;
-            this.basicRenderPanel1.VsyncMode = TheraEngine.VSyncMode.Disabled;
+            this.lblTexName.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblTexName.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTexName.Location = new System.Drawing.Point(0, 0);
+            this.lblTexName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblTexName.Name = "lblTexName";
+            this.lblTexName.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.lblTexName.Size = new System.Drawing.Size(524, 32);
+            this.lblTexName.TabIndex = 0;
+            this.lblTexName.Text = "Texture Name";
+            this.lblTexName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // panel1
+            // theraPropertyGrid1
             // 
-            this.panel1.Controls.Add(this.basicRenderPanel1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(5);
-            this.panel1.Size = new System.Drawing.Size(150, 149);
-            this.panel1.TabIndex = 1;
+            this.theraPropertyGrid1.AutoScroll = true;
+            this.theraPropertyGrid1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.theraPropertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.theraPropertyGrid1.Enabled = false;
+            this.theraPropertyGrid1.Location = new System.Drawing.Point(0, 287);
+            this.theraPropertyGrid1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.theraPropertyGrid1.Name = "theraPropertyGrid1";
+            this.theraPropertyGrid1.Size = new System.Drawing.Size(524, 211);
+            this.theraPropertyGrid1.TabIndex = 7;
             // 
-            // lblMaterialName
+            // texThumbnail
             // 
-            this.lblMaterialName.AutoSize = true;
-            this.lblMaterialName.Location = new System.Drawing.Point(156, 5);
-            this.lblMaterialName.Name = "lblMaterialName";
-            this.lblMaterialName.Size = new System.Drawing.Size(99, 17);
-            this.lblMaterialName.TabIndex = 2;
-            this.lblMaterialName.Text = "Material Name";
+            this.texThumbnail.Dock = System.Windows.Forms.DockStyle.Top;
+            this.texThumbnail.Location = new System.Drawing.Point(0, 32);
+            this.texThumbnail.Margin = new System.Windows.Forms.Padding(2);
+            this.texThumbnail.Name = "texThumbnail";
+            this.texThumbnail.Size = new System.Drawing.Size(524, 252);
+            this.texThumbnail.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.texThumbnail.TabIndex = 2;
+            this.texThumbnail.TabStop = false;
             // 
-            // panel2
+            // splitter1
             // 
-            this.panel2.Controls.Add(this.panel1);
-            this.panel2.Controls.Add(this.lblMaterialName);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 0);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(479, 149);
-            this.panel2.TabIndex = 3;
+            this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitter1.Location = new System.Drawing.Point(0, 284);
+            this.splitter1.Name = "splitter1";
+            this.splitter1.Size = new System.Drawing.Size(524, 3);
+            this.splitter1.TabIndex = 8;
+            this.splitter1.TabStop = false;
             // 
-            // panel3
+            // TexRefControl
             // 
-            this.panel3.Controls.Add(this.tblUniforms);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel3.Location = new System.Drawing.Point(0, 149);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(479, 228);
-            this.panel3.TabIndex = 3;
-            // 
-            // tblUniforms
-            // 
-            this.tblUniforms.ColumnCount = 2;
-            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblUniforms.Location = new System.Drawing.Point(0, 0);
-            this.tblUniforms.Name = "tblUniforms";
-            this.tblUniforms.RowCount = 1;
-            this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.Size = new System.Drawing.Size(479, 228);
-            this.tblUniforms.TabIndex = 0;
-            // 
-            // MaterialControl
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.Controls.Add(this.panel3);
-            this.Controls.Add(this.panel2);
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(43)))), ((int)(((byte)(50)))));
+            this.Controls.Add(this.theraPropertyGrid1);
+            this.Controls.Add(this.splitter1);
+            this.Controls.Add(this.texThumbnail);
+            this.Controls.Add(this.lblTexName);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.Name = "MaterialControl";
-            this.Size = new System.Drawing.Size(479, 377);
-            this.panel1.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
-            this.panel3.ResumeLayout(false);
+            this.Margin = new System.Windows.Forms.Padding(0);
+            this.Name = "TexRefControl";
+            this.Size = new System.Drawing.Size(524, 498);
+            ((System.ComponentModel.ISupportInitialize)(this.texThumbnail)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private TheraEngine.BasicRenderPanel basicRenderPanel1;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label lblMaterialName;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Panel panel3;
-        private BetterTableLayoutPanel tblUniforms;
+        private System.Windows.Forms.Label lblTexName;
+        private PropertyGrid.TheraPropertyGrid theraPropertyGrid1;
+        private System.Windows.Forms.PictureBox texThumbnail;
+        private System.Windows.Forms.Splitter splitter1;
     }
 }

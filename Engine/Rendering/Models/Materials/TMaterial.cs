@@ -20,10 +20,23 @@ namespace TheraEngine.Rendering.Models.Materials
         protected override void OnSetUniforms(int programBindingId)
         {
             //Set engine uniforms
-            if (Requirements.HasFlag(UniformRequirements.NeedsCamera))
+            if (Requirements.HasFlag(UniformRequirements.Camera))
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
-            if (Requirements.HasFlag(UniformRequirements.NeedsLights))
+            if (Requirements.HasFlag(UniformRequirements.Lights))
                 AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
+            if (Requirements.HasFlag(UniformRequirements.RenderTime))
+            {
+                _secondsLive += Engine.UpdateDelta;
+                Engine.Renderer.Uniform(programBindingId, nameof(UniformRequirements.RenderTime), _secondsLive);
+            }
+            if (Requirements.HasFlag(UniformRequirements.ViewportDimensions))
+            {
+                //Engine.Renderer.Uniform(programBindingId, nameof(UniformRequirements.ViewportDimensions), viewportDimensions);
+            }
+            if (Requirements.HasFlag(UniformRequirements.MousePosition))
+            {
+                //Engine.Renderer.Uniform(programBindingId, nameof(UniformRequirements.MousePosition), mousePosition);
+            }
         }
 
 #if EDITOR
@@ -31,7 +44,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public ResultFunc EditorMaterialEnd { get; set; }
 #endif
 
-        [TSerialize("Shaders")]
+        [TSerialize(nameof(Shaders))]
         private List<GlobalFileRef<GLSLShaderFile>> _shaders = new List<GlobalFileRef<GLSLShaderFile>>();
 
         public List<GLSLShaderFile> FragmentShaders { get; } = new List<GLSLShaderFile>();
@@ -44,10 +57,14 @@ namespace TheraEngine.Rendering.Models.Materials
         [Flags]
         public enum UniformRequirements
         {
-            None = 0,
-            NeedsCamera = 1,
-            NeedsLights = 2,
-            NeedsLightsAndCamera = 3,
+            None                    = 0b00000,
+            Camera                  = 0b00001,
+            Lights                  = 0b00010,
+            RenderTime              = 0b00100,
+            ViewportDimensions      = 0b01000,
+            MousePosition           = 0b10000,
+
+            LightsAndCamera         = Lights | Camera,
         }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
@@ -186,17 +203,10 @@ namespace TheraEngine.Rendering.Models.Materials
                             TessEvalShaders.Add(s);
                             break;
                     }
-
-                    s.TextChanged += S_TextChanged;
                 }
 
             if (Engine.Settings != null && Engine.Settings.AllowShaderPipelines)
                 Program = new RenderProgram(_shaders.Select(x => x.File));
-        }
-
-        private void S_TextChanged()
-        {
-
         }
 
         #region Basic Material Generation
@@ -224,7 +234,7 @@ namespace TheraEngine.Rendering.Models.Materials
             GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", frag)
             {
-                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+                Requirements = deferred ? UniformRequirements.None : UniformRequirements.LightsAndCamera
             };
         }
         public static TMaterial CreateLitTextureMaterial(TexRef2D texture)
@@ -234,7 +244,7 @@ namespace TheraEngine.Rendering.Models.Materials
             GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", new TexRef2D[] { texture }, frag)
             {
-                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+                Requirements = deferred ? UniformRequirements.None : UniformRequirements.LightsAndCamera
             };
         }
         public static TMaterial CreateUnlitColorMaterialForward()
@@ -286,7 +296,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return new TMaterial("LitColorMaterial", parameters, frag)
             {
-                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+                Requirements = deferred ? UniformRequirements.None : UniformRequirements.LightsAndCamera
             };
         }
 
@@ -415,7 +425,7 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
             GLSLShaderFile s = new GLSLShaderFile(EShaderMode.Fragment, source);
             return new TMaterial("BlinnMaterial", parameters, s)
             {
-                Requirements = UniformRequirements.NeedsLightsAndCamera
+                Requirements = UniformRequirements.LightsAndCamera
             };
         }
         #endregion

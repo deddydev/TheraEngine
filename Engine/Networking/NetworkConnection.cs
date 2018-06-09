@@ -3,7 +3,6 @@ using PcapDotNet.Packets;
 using PcapDotNet.Packets.IpV4;
 using PcapDotNet.Packets.Transport;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.NetworkInformation;

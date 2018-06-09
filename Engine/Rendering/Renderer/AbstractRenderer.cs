@@ -474,6 +474,9 @@ namespace TheraEngine.Rendering
         /// <returns></returns>
         public int GetAttribLocation(int programBindingId, string name)
         {
+            int loc2 = OnGetAttribLocation(programBindingId, name);
+            return loc2;
+
             if (_attribCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> progDic))
                 return progDic.GetOrAdd(name, n => OnGetAttribLocation(programBindingId, n));
             else
@@ -491,7 +494,7 @@ namespace TheraEngine.Rendering
         /// <param name="programBindingId"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        protected abstract int OnGetAttribLocation(int programBindingId, string name);
+        internal abstract int OnGetAttribLocation(int programBindingId, string name);
 
         /// <summary>
         /// Retrieves the uniform location from the program.
@@ -502,23 +505,20 @@ namespace TheraEngine.Rendering
         /// <returns></returns>
         public int GetUniformLocation(int programBindingId, string name)
         {
-            //int loc = OnGetUniformLocation(programBindingId, name);
-            //return loc;
-            if (_uniformCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> progDic))
-                return progDic.GetOrAdd(name, n => OnGetUniformLocation(programBindingId, n));
+            if (RenderProgram.LivePrograms.ContainsKey(programBindingId))
+            {
+                var program = RenderProgram.LivePrograms[programBindingId];
+                return program.GetCachedUniformLocation(name);
+            }
             else
             {
-                progDic = new ConcurrentDictionary<string, int>();
-                int loc = OnGetUniformLocation(programBindingId, name);
-                if (!progDic.TryAdd(name, loc) || !_uniformCache.TryAdd(programBindingId, progDic))
-                    throw new Exception();
-                return loc;
+                return OnGetUniformLocation(programBindingId, name);
             }
         }
         /// <summary>
         /// Retrieves the uniform location from the program.
         /// </summary>
-        protected abstract int OnGetUniformLocation(int programBindingId, string name);
+        internal abstract int OnGetUniformLocation(int programBindingId, string name);
         public abstract void UniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding);
         //public void Uniform(string name, params IUniformable4Int[] p) => Uniform(GetUniformLocation(name), p);
         //public void Uniform(string name, params IUniformable4Float[] p) => Uniform(GetUniformLocation(name), p);

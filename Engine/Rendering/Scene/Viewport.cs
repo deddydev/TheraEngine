@@ -778,7 +778,7 @@ namespace TheraEngine.Rendering
 
                 TMaterial ssaoMat = new TMaterial("SSAOMat", renderParams, ssaoRefs, ssaoShader);
                 TMaterial ssaoBlurMat = new TMaterial("SSAOBlurMat", renderParams, ssaoBlurRefs, ssaoBlurShader);
-                TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", TMaterial.UniformRequirements.NeedsLights,
+                TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", TMaterial.UniformRequirements.Lights,
                     renderParams, deferredLightingRefs, deferredShader);
 
                 SSAOFBO = new QuadFrameBuffer(ssaoMat);
@@ -859,17 +859,17 @@ namespace TheraEngine.Rendering
                 GLSLShaderFile pointLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingPoint.fs"), EShaderMode.Fragment);
                 GLSLShaderFile spotLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingSpot.fs"), EShaderMode.Fragment);
 
-                TMaterial pointLightMat = new TMaterial("PointLightMat", TMaterial.UniformRequirements.NeedsCamera, lightRenderParams, lightRefs, pointLightShader);
+                TMaterial pointLightMat = new TMaterial("PointLightMat", TMaterial.UniformRequirements.Camera, lightRenderParams, lightRefs, pointLightShader);
                 PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;
 
-                TMaterial spotLightMat = new TMaterial("SpotLightMat", TMaterial.UniformRequirements.NeedsCamera, lightRenderParams, lightRefs, spotLightShader);
+                TMaterial spotLightMat = new TMaterial("SpotLightMat", TMaterial.UniformRequirements.Camera, lightRenderParams, lightRefs, spotLightShader);
                 PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
                 SpotLightManager = new PrimitiveManager(spotLightMesh, spotLightMat);
                 SpotLightManager.SettingUniforms += LightManager_SettingUniforms;
                 
-                TMaterial dirLightMat = new TMaterial("DirLightMat", TMaterial.UniformRequirements.NeedsCamera, dirLightRenderParams, lightRefs, dirLightShader);
+                TMaterial dirLightMat = new TMaterial("DirLightMat", TMaterial.UniformRequirements.Camera, dirLightRenderParams, lightRefs, dirLightShader);
                 DirLightFBO = new QuadFrameBuffer(dirLightMat);
                 DirLightFBO.FullScreenTriangle.SettingUniforms += LightManager_SettingUniforms;
 

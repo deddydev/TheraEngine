@@ -46,16 +46,16 @@ namespace TheraEngine.Core.Extensions
             if (c != null && c.InvokeRequired)
             {
                 IAsyncResult async = c.BeginInvoke(method, args);
-                if (!async.CompletedSynchronously)
-                {
-                    while (!async.IsCompleted)
-                    {
-                        Application.DoEvents();
-                        Thread.Sleep(0);
-                        break;
-                    }
-                    c.EndInvoke(async);
-                }
+                //if (!async.CompletedSynchronously)
+                //{
+                //    while (!async.IsCompleted)
+                //    {
+                //        Application.DoEvents();
+                //        Thread.Sleep(0);
+                //        break;
+                //    }
+                //    //c.EndInvoke(async);
+                //}
                 return true;
             }
             return false;

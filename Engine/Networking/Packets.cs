@@ -5,9 +5,17 @@ namespace TheraEngine.Networking
 {
     public enum EPacketType : int
     {
-        Invalid = 0,
-        Input = 1,
-        Transform = 2,
+        Invalid         = 0,
+        Input           = 1,
+        Transform       = 2,
+        SetState        = 3,
+        ClientResponse  = 4,
+    }
+    public enum EStateType : int
+    {
+        Invalid  = 0,
+        World    = 1,
+        GameMode = 2,
     }
     public enum EInputType : byte
     {

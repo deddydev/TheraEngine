@@ -16,7 +16,7 @@ namespace TheraEngine.Input.Devices
 
             int count = 6; //2 input types * 3 pause types
             _axisActions = new List<DelAxisValue>[count];
-            _usedActions = new List<int>(count);
+            _usedAxisActions = new List<int>(count);
         }
 
         public List<DelAxisValue>[] _axisActions;

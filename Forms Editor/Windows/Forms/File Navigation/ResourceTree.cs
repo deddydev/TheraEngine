@@ -724,10 +724,9 @@ namespace TheraEditor.Windows.Forms
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BaseWrapper[] DraggedNodes => _draggedNodes;
+        public BaseWrapper[] DraggedNodes { get; private set; }
 
         private BaseWrapper _dropNode = null;
-        private BaseWrapper[] _draggedNodes;
         private BaseWrapper _previousDropNode = null;
         private System.Windows.Forms.Timer _dragTimer = new System.Windows.Forms.Timer();
         private ImageList _draggingImageList = new ImageList();
@@ -737,23 +736,26 @@ namespace TheraEditor.Windows.Forms
             if (SelectedNodes.Count == 0)
                 return;
             
-            _draggedNodes = new BaseWrapper[SelectedNodes.Count];
-            SelectedNodes.CopyTo(_draggedNodes);
+            DraggedNodes = new BaseWrapper[SelectedNodes.Count];
+            SelectedNodes.CopyTo(DraggedNodes);
             SelectedNodes.Clear();
 
             string text;
             Bitmap bmp;
-            if (_draggedNodes.Length == 1)
+            if (DraggedNodes.Length == 1)
             {
-                int w = (_draggedNodes[0].Bounds.Size.Width + Indent).Clamp(1, 256);
-                int h = _draggedNodes[0].Bounds.Height.Clamp(1, 256);
-                text = _draggedNodes[0].Text;
+                if (DraggedNodes[0] == null)
+                    return;
+
+                int w = (DraggedNodes[0].Bounds.Size.Width + Indent).Clamp(1, 256);
+                int h = DraggedNodes[0].Bounds.Height.Clamp(1, 256);
+                text = DraggedNodes[0].Text;
                 _draggingImageList.ImageSize = new Size(w, h);
                 bmp = new Bitmap(w, h);
             }
             else
             {
-                text = _draggedNodes.Length.ToString() + " items";
+                text = DraggedNodes.Length.ToString() + " items";
                 Size size = TextRenderer.MeasureText(text, Font);
                 _draggingImageList.ImageSize = size;
                 bmp = new Bitmap(size.Width, size.Height);
@@ -766,8 +768,8 @@ namespace TheraEditor.Windows.Forms
             _draggingImageList.Images.Add(bmp);
             
             Point p = PointToClient(MousePosition);
-            int dx = p.X + Indent - _draggedNodes[0].Bounds.Left;
-            int dy = p.Y - _draggedNodes[0].Bounds.Top;
+            int dx = p.X + Indent - DraggedNodes[0].Bounds.Left;
+            int dy = p.Y - DraggedNodes[0].Bounds.Top;
 
             if (DragHelper.ImageList_BeginDrag(_draggingImageList.Handle, 0, dx, dy))
             {
@@ -789,7 +791,7 @@ namespace TheraEditor.Windows.Forms
             DragHelper.ImageList_EndDrag();
             _dragTimer.Enabled = false;
             _dropNode = null;
-            _draggedNodes = null;
+            DraggedNodes = null;
             _previousDropNode = null;
             _draggingImageList.Images.Clear();
         }
@@ -815,7 +817,7 @@ namespace TheraEditor.Windows.Forms
             TreeNode tmpNode = _dropNode;
             while (tmpNode != null)
             {
-                if (_draggedNodes.Any(x => x == tmpNode))
+                if (DraggedNodes.Any(x => x == tmpNode))
                 {
                     _dropNode = null;
                     SelectedNode = null;
@@ -836,104 +838,6 @@ namespace TheraEditor.Windows.Forms
                 _previousDropNode = _dropNode;
             }
         }
-        //private static bool CompareToType(Type compared, Type to)
-        //{
-        //    Type bType;
-        //    if (compared == to)
-        //        return true;
-        //    else
-        //    {
-        //        bType = compared.BaseType;
-        //        while (bType != null && bType != typeof(FileObject))
-        //        {
-        //            if (to == bType)
-        //                return true;
-
-        //            bType = bType.BaseType;
-        //        }
-        //    }
-        //    return false;
-        //}
-        //private static bool CompareTypes(FileObject r1, FileObject r2)
-        //{
-        //    return CompareTypes(r1.GetType(), r2.GetType());
-        //}
-        //private static bool CompareTypes(Type type1, Type type2)
-        //{
-        //    Type bType1, bType2;
-        //    if (type1 == type2)
-        //        return true;
-        //    else
-        //    {
-        //        bType2 = type2.BaseType;
-        //        while (bType2 != null && bType2 != typeof(FileObject))
-        //        {
-        //            bType1 = type1.BaseType;
-        //            while (bType1 != null && bType1 != typeof(FileObject))
-        //            {
-        //                if (bType1 == bType2)
-        //                    return true;
-        //                bType1 = bType1.BaseType;
-        //            }
-        //            bType2 = bType2.BaseType;
-        //        }
-        //    }
-        //    return false;
-        //}
-
-        //private static bool TryDrop(FileObject dragging, FileObject dropping)
-        //{
-        //    //if (dropping.Parent == null)
-        //    //    return false;
-
-        //    bool good = false;
-        //    //int destIndex = dropping.Index;
-
-        //    //good = CompareTypes(dragging, dropping);
-            
-        //    //foreach (Type t in dropping.Parent.AllowedChildTypes)
-        //    //    if (good = CompareToType(dragging.GetType(), t))
-        //    //        break;
-
-        //    //if (good)
-        //    //{
-        //    //    if (dragging.Parent != null)
-        //    //        dragging.Parent.RemoveChild(dragging);
-        //    //    if (destIndex < dropping.Parent.Children.Count)
-        //    //        dropping.Parent.InsertChild(dragging, true, destIndex);
-        //    //    else
-        //    //        dropping.Parent.AddChild(dragging, true);
-
-        //    //    dragging.OnMoved();
-        //    //}
-
-        //    return good;
-        //}
-
-        //private static bool TryAddChild(ResourceNode dragging, ResourceNode dropping)
-        //{
-        //    bool good = false;
-
-        //    Type dt = dragging.GetType();
-        //    if (dropping.Children.Count != 0)
-        //        good = CompareTypes(dropping.Children[0].GetType(), dt);
-        //    else
-        //        foreach (Type t in dropping.AllowedChildTypes)
-        //            if (good = CompareToType(dt, t))
-        //                break;
-
-        //    if (good)
-        //    {
-        //        if (dragging.Parent != null)
-        //            dragging.Parent.RemoveChild(dragging);
-        //        dropping.AddChild(dragging);
-
-        //        dragging.OnMoved();
-        //    }
-
-        //    return good;
-        //}
-
         private void TreeView1_DragDrop(object sender, DragEventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
@@ -948,12 +852,13 @@ namespace TheraEditor.Windows.Forms
                 else
                 {
                     BeginUpdate();
-                    foreach (BaseWrapper draggedNode in _draggedNodes)
+                    foreach (BaseWrapper draggedNode in DraggedNodes)
                         if (draggedNode != _dropNode)
                             _dropNode.HandleNodeDrop(draggedNode, copy);
                     EndUpdate();
                 }
             }
+            _dragTimer.Enabled = false;
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -1016,6 +921,104 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
+        //private static bool CompareToType(Type compared, Type to)
+        //{
+        //    Type bType;
+        //    if (compared == to)
+        //        return true;
+        //    else
+        //    {
+        //        bType = compared.BaseType;
+        //        while (bType != null && bType != typeof(FileObject))
+        //        {
+        //            if (to == bType)
+        //                return true;
+
+        //            bType = bType.BaseType;
+        //        }
+        //    }
+        //    return false;
+        //}
+        //private static bool CompareTypes(FileObject r1, FileObject r2)
+        //{
+        //    return CompareTypes(r1.GetType(), r2.GetType());
+        //}
+        //private static bool CompareTypes(Type type1, Type type2)
+        //{
+        //    Type bType1, bType2;
+        //    if (type1 == type2)
+        //        return true;
+        //    else
+        //    {
+        //        bType2 = type2.BaseType;
+        //        while (bType2 != null && bType2 != typeof(FileObject))
+        //        {
+        //            bType1 = type1.BaseType;
+        //            while (bType1 != null && bType1 != typeof(FileObject))
+        //            {
+        //                if (bType1 == bType2)
+        //                    return true;
+        //                bType1 = bType1.BaseType;
+        //            }
+        //            bType2 = bType2.BaseType;
+        //        }
+        //    }
+        //    return false;
+        //}
+
+        //private static bool TryDrop(FileObject dragging, FileObject dropping)
+        //{
+        //    //if (dropping.Parent == null)
+        //    //    return false;
+
+        //    bool good = false;
+        //    //int destIndex = dropping.Index;
+
+        //    //good = CompareTypes(dragging, dropping);
+
+        //    //foreach (Type t in dropping.Parent.AllowedChildTypes)
+        //    //    if (good = CompareToType(dragging.GetType(), t))
+        //    //        break;
+
+        //    //if (good)
+        //    //{
+        //    //    if (dragging.Parent != null)
+        //    //        dragging.Parent.RemoveChild(dragging);
+        //    //    if (destIndex < dropping.Parent.Children.Count)
+        //    //        dropping.Parent.InsertChild(dragging, true, destIndex);
+        //    //    else
+        //    //        dropping.Parent.AddChild(dragging, true);
+
+        //    //    dragging.OnMoved();
+        //    //}
+
+        //    return good;
+        //}
+
+        //private static bool TryAddChild(ResourceNode dragging, ResourceNode dropping)
+        //{
+        //    bool good = false;
+
+        //    Type dt = dragging.GetType();
+        //    if (dropping.Children.Count != 0)
+        //        good = CompareTypes(dropping.Children[0].GetType(), dt);
+        //    else
+        //        foreach (Type t in dropping.AllowedChildTypes)
+        //            if (good = CompareToType(dt, t))
+        //                break;
+
+        //    if (good)
+        //    {
+        //        if (dragging.Parent != null)
+        //            dragging.Parent.RemoveChild(dragging);
+        //        dropping.AddChild(dragging);
+
+        //        dragging.OnMoved();
+        //    }
+
+        //    return good;
+        //}
+
         #endregion
 
         #region Multiselect

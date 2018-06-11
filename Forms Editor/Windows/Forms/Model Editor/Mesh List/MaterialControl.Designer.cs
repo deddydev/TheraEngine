@@ -32,17 +32,18 @@
             this.lstTextures = new System.Windows.Forms.ListView();
             this.lstShaders = new System.Windows.Forms.ListView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabRendering = new System.Windows.Forms.TabPage();
+            this.propGridEnum1 = new TheraEditor.Windows.Forms.PropertyGrid.PropGridEnum();
+            this.theraPropertyGrid1 = new TheraEditor.Windows.Forms.PropertyGrid.TheraPropertyGrid();
+            this.tabUniforms = new System.Windows.Forms.TabPage();
+            this.tblUniforms = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.tabTextures = new System.Windows.Forms.TabPage();
             this.tabShaders = new System.Windows.Forms.TabPage();
-            this.tabUniforms = new System.Windows.Forms.TabPage();
-            this.tabRendering = new System.Windows.Forms.TabPage();
-            this.theraPropertyGrid1 = new TheraEditor.Windows.Forms.PropertyGrid.TheraPropertyGrid();
-            this.tblUniforms = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.tabControl1.SuspendLayout();
+            this.tabRendering.SuspendLayout();
+            this.tabUniforms.SuspendLayout();
             this.tabTextures.SuspendLayout();
             this.tabShaders.SuspendLayout();
-            this.tabUniforms.SuspendLayout();
-            this.tabRendering.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblMatName
@@ -75,6 +76,7 @@
             this.lstTextures.UseCompatibleStateImageBehavior = false;
             this.lstTextures.View = System.Windows.Forms.View.List;
             this.lstTextures.SelectedIndexChanged += new System.EventHandler(this.lstTextures_SelectedIndexChanged);
+            this.lstTextures.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstTextures_MouseDoubleClick);
             // 
             // lstShaders
             // 
@@ -104,6 +106,73 @@
             this.tabControl1.Size = new System.Drawing.Size(524, 466);
             this.tabControl1.TabIndex = 5;
             // 
+            // tabRendering
+            // 
+            this.tabRendering.Controls.Add(this.theraPropertyGrid1);
+            this.tabRendering.Controls.Add(this.propGridEnum1);
+            this.tabRendering.Location = new System.Drawing.Point(4, 22);
+            this.tabRendering.Name = "tabRendering";
+            this.tabRendering.Size = new System.Drawing.Size(516, 440);
+            this.tabRendering.TabIndex = 3;
+            this.tabRendering.Text = "Rendering";
+            this.tabRendering.UseVisualStyleBackColor = true;
+            // 
+            // propGridEnum1
+            // 
+            this.propGridEnum1.AutoSize = true;
+            this.propGridEnum1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.propGridEnum1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.propGridEnum1.DataChangeHandler = null;
+            this.propGridEnum1.DataType = null;
+            this.propGridEnum1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.propGridEnum1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.propGridEnum1.Label = null;
+            this.propGridEnum1.Location = new System.Drawing.Point(0, 0);
+            this.propGridEnum1.Margin = new System.Windows.Forms.Padding(0);
+            this.propGridEnum1.Name = "propGridEnum1";
+            this.propGridEnum1.ParentInfo = null;
+            this.propGridEnum1.ReadOnly = false;
+            this.propGridEnum1.Size = new System.Drawing.Size(516, 0);
+            this.propGridEnum1.TabIndex = 8;
+            // 
+            // theraPropertyGrid1
+            // 
+            this.theraPropertyGrid1.AutoScroll = true;
+            this.theraPropertyGrid1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.theraPropertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.theraPropertyGrid1.Enabled = false;
+            this.theraPropertyGrid1.Location = new System.Drawing.Point(0, 0);
+            this.theraPropertyGrid1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.theraPropertyGrid1.Name = "theraPropertyGrid1";
+            this.theraPropertyGrid1.Size = new System.Drawing.Size(516, 440);
+            this.theraPropertyGrid1.TabIndex = 7;
+            // 
+            // tabUniforms
+            // 
+            this.tabUniforms.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.tabUniforms.Controls.Add(this.tblUniforms);
+            this.tabUniforms.Location = new System.Drawing.Point(4, 22);
+            this.tabUniforms.Name = "tabUniforms";
+            this.tabUniforms.Size = new System.Drawing.Size(516, 440);
+            this.tabUniforms.TabIndex = 2;
+            this.tabUniforms.Text = "Uniforms";
+            // 
+            // tblUniforms
+            // 
+            this.tblUniforms.AutoScroll = true;
+            this.tblUniforms.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tblUniforms.ColumnCount = 2;
+            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tblUniforms.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblUniforms.Location = new System.Drawing.Point(0, 0);
+            this.tblUniforms.Margin = new System.Windows.Forms.Padding(0);
+            this.tblUniforms.Name = "tblUniforms";
+            this.tblUniforms.RowCount = 1;
+            this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblUniforms.Size = new System.Drawing.Size(516, 440);
+            this.tblUniforms.TabIndex = 0;
+            // 
             // tabTextures
             // 
             this.tabTextures.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
@@ -126,54 +195,6 @@
             this.tabShaders.TabIndex = 1;
             this.tabShaders.Text = "Shaders";
             // 
-            // tabUniforms
-            // 
-            this.tabUniforms.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.tabUniforms.Controls.Add(this.tblUniforms);
-            this.tabUniforms.Location = new System.Drawing.Point(4, 22);
-            this.tabUniforms.Name = "tabUniforms";
-            this.tabUniforms.Size = new System.Drawing.Size(516, 440);
-            this.tabUniforms.TabIndex = 2;
-            this.tabUniforms.Text = "Uniforms";
-            // 
-            // tabRendering
-            // 
-            this.tabRendering.Controls.Add(this.theraPropertyGrid1);
-            this.tabRendering.Location = new System.Drawing.Point(4, 22);
-            this.tabRendering.Name = "tabRendering";
-            this.tabRendering.Size = new System.Drawing.Size(516, 440);
-            this.tabRendering.TabIndex = 3;
-            this.tabRendering.Text = "Rendering";
-            this.tabRendering.UseVisualStyleBackColor = true;
-            // 
-            // theraPropertyGrid1
-            // 
-            this.theraPropertyGrid1.AutoScroll = true;
-            this.theraPropertyGrid1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.theraPropertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.theraPropertyGrid1.Enabled = false;
-            this.theraPropertyGrid1.Location = new System.Drawing.Point(0, 0);
-            this.theraPropertyGrid1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.theraPropertyGrid1.Name = "theraPropertyGrid1";
-            this.theraPropertyGrid1.Size = new System.Drawing.Size(516, 440);
-            this.theraPropertyGrid1.TabIndex = 7;
-            // 
-            // tblUniforms
-            // 
-            this.tblUniforms.AutoScroll = true;
-            this.tblUniforms.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tblUniforms.ColumnCount = 2;
-            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblUniforms.Location = new System.Drawing.Point(0, 0);
-            this.tblUniforms.Margin = new System.Windows.Forms.Padding(0);
-            this.tblUniforms.Name = "tblUniforms";
-            this.tblUniforms.RowCount = 1;
-            this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblUniforms.Size = new System.Drawing.Size(516, 440);
-            this.tblUniforms.TabIndex = 0;
-            // 
             // MaterialControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -187,10 +208,11 @@
             this.Name = "MaterialControl";
             this.Size = new System.Drawing.Size(524, 498);
             this.tabControl1.ResumeLayout(false);
+            this.tabRendering.ResumeLayout(false);
+            this.tabRendering.PerformLayout();
+            this.tabUniforms.ResumeLayout(false);
             this.tabTextures.ResumeLayout(false);
             this.tabShaders.ResumeLayout(false);
-            this.tabUniforms.ResumeLayout(false);
-            this.tabRendering.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -206,5 +228,6 @@
         private System.Windows.Forms.TabPage tabShaders;
         private System.Windows.Forms.TabPage tabUniforms;
         private System.Windows.Forms.TabPage tabRendering;
+        private PropertyGrid.PropGridEnum propGridEnum1;
     }
 }

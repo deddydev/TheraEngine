@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheraEngine.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
@@ -8,6 +9,18 @@ namespace TheraEngine.Rendering.Models.Materials
         Unchanged,
         Disabled,
         Enabled,
+    }
+    [Flags]
+    public enum EUniformRequirements
+    {
+        None = 0b00000,
+        Camera = 0b00001,
+        Lights = 0b00010,
+        RenderTime = 0b00100,
+        ViewportDimensions = 0b01000,
+        MousePosition = 0b10000,
+
+        LightsAndCamera = Lights | Camera,
     }
     /// <summary>
     /// Contains parameters for rendering an object, such as blending and depth testing.
@@ -47,6 +60,9 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public EUniformRequirements Requirements { get; set; } = EUniformRequirements.None;
+
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool WriteRed { get; set; } = true;
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool WriteGreen { get; set; } = true;
@@ -70,6 +86,28 @@ namespace TheraEngine.Rendering.Models.Materials
         public StencilTest StencilTest { get => _stencilTest; set => _stencilTest = value ?? new StencilTest(); }
         [TSerialize]
         public BlendMode BlendMode { get => _blendMode; set => _blendMode = value ?? new BlendMode(); }
+
+        internal void SetUniforms(int programBindingId, ref float secondsLive)
+        {
+            //Set engine uniforms
+            if (Requirements.HasFlag(EUniformRequirements.Camera))
+                AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
+            if (Requirements.HasFlag(EUniformRequirements.Lights))
+                AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
+            if (Requirements.HasFlag(EUniformRequirements.RenderTime))
+            {
+                secondsLive += Engine.UpdateDelta;
+                Engine.Renderer.Uniform(programBindingId, nameof(EUniformRequirements.RenderTime), secondsLive);
+            }
+            if (Requirements.HasFlag(EUniformRequirements.ViewportDimensions))
+            {
+                //Engine.Renderer.Uniform(programBindingId, nameof(UniformRequirements.ViewportDimensions), viewportDimensions);
+            }
+            if (Requirements.HasFlag(EUniformRequirements.MousePosition))
+            {
+                //Engine.Renderer.Uniform(programBindingId, nameof(UniformRequirements.MousePosition), mousePosition);
+            }
+        }
     }
     //public class AlphaTest
     //{

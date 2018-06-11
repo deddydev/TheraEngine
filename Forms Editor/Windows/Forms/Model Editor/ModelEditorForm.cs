@@ -88,6 +88,11 @@ namespace TheraEditor.Windows.Forms
             return value;
         }
 
+        private DockableTexRefControl _texRefForm;
+        public bool TexRefFormActive => _texRefForm != null;
+        public DockableTexRefControl TexRefForm => GetForm(
+            ref _texRefForm, DockState.DockLeft);
+        
         private DockableBoneTree _boneTreeForm;
         public bool BoneTreeFormActive => _boneTreeForm != null;
         public DockableBoneTree BoneTreeForm => GetForm(

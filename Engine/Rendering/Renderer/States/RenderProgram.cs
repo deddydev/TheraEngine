@@ -9,6 +9,9 @@ namespace TheraEngine.Rendering
 {
     public class RenderProgram : BaseRenderState, IEnumerable<RenderShader>
     {
+        /// <summary>
+        /// Dictionary containing all active render programs stored using their binding ids.
+        /// </summary>
         internal static ConcurrentDictionary<int, RenderProgram> LivePrograms = new ConcurrentDictionary<int, RenderProgram>();
 
         public EProgramStageMask ShaderTypeMask { get; private set; } = EProgramStageMask.None;
@@ -37,9 +40,10 @@ namespace TheraEngine.Rendering
                 Destroy();
             }
         }
-
-        private ConcurrentDictionary<int, ConcurrentDictionary<string, int>> _uniformCache =
-            new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
+        
+        private readonly ConcurrentDictionary<int, ConcurrentDictionary<string, int>> 
+            _uniformCache = new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>(),
+            _attribCache = new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
 
         public int GetCachedUniformLocation(string name)
         {
@@ -51,6 +55,20 @@ namespace TheraEngine.Rendering
                 progDic = new ConcurrentDictionary<string, int>();
                 int loc = Engine.Renderer.OnGetUniformLocation(bindingId, name);
                 if (!progDic.TryAdd(name, loc) || !_uniformCache.TryAdd(bindingId, progDic))
+                    throw new Exception();
+                return loc;
+            }
+        }
+        public int GetCachedAttributeLocation(string name)
+        {
+            int bindingId = BindingId;
+            if (_attribCache.TryGetValue(bindingId, out ConcurrentDictionary<string, int> progDic))
+                return progDic.GetOrAdd(name, n => Engine.Renderer.OnGetAttribLocation(bindingId, n));
+            else
+            {
+                progDic = new ConcurrentDictionary<string, int>();
+                int loc = Engine.Renderer.OnGetAttribLocation(bindingId, name);
+                if (!progDic.TryAdd(name, loc) || !_attribCache.TryAdd(bindingId, progDic))
                     throw new Exception();
                 return loc;
             }

@@ -29,12 +29,11 @@ namespace TheraEngine.Rendering
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext => RenderContext.Captured;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
-        
-        public TMaterial MaterialOverride
-        {
-            get => _fragmentShaderOverride;
-            set => _fragmentShaderOverride = value;
-        }
+
+        /// <summary>
+        /// Set this to force every mesh to render with this material.
+        /// </summary>
+        public TMaterial MaterialOverride { get; set; }
 
         protected static IPrimitiveManager _currentPrimitiveManager;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
@@ -414,30 +413,6 @@ namespace TheraEngine.Rendering
         public abstract void MemoryBarrierByRegion(EMemoryBarrierRegionFlags flags);
 
         #region Shaders
-        /*
-         * ---Shader initialization routine---
-         * 
-         * Per shader:
-         * - GL.CreateShader
-         * - GL.ShaderSource
-         * - GL.CompileShader
-         * - optional debug: GL.GetShader, GL.GetShaderInfoLog
-         * 
-         * GL.CreateProgram
-         * GL.AttachShader(s)
-         * GL.LinkProgram
-         * 
-         * ---Render usage---
-         * 
-         * GL.UseProgram
-         * 
-         * Per Uniform:
-         * GL.GetUniformLocation
-         * GL.Uniform
-         * 
-         */
-
-        private TMaterial _fragmentShaderOverride;
 
         public abstract void SetBindFragDataLocation(int bindingId, int location, string name);
         public abstract void SetShaderMode(EShaderMode type);
@@ -459,12 +434,7 @@ namespace TheraEngine.Rendering
         /// Sets various render parameters before rendering a mesh such as culling and blending.
         /// </summary>
         public abstract void ApplyRenderParams(RenderingParameters r);
-
-        private ConcurrentDictionary<int, ConcurrentDictionary<string, int>> _uniformCache = 
-            new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
-        private ConcurrentDictionary<int, ConcurrentDictionary<string, int>> _attribCache = 
-            new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
-
+        
         /// <summary>
         /// Retrieves the attribute location from the program.
         /// Caches if found.
@@ -474,19 +444,13 @@ namespace TheraEngine.Rendering
         /// <returns></returns>
         public int GetAttribLocation(int programBindingId, string name)
         {
-            int loc2 = OnGetAttribLocation(programBindingId, name);
-            return loc2;
-
-            if (_attribCache.TryGetValue(programBindingId, out ConcurrentDictionary<string, int> progDic))
-                return progDic.GetOrAdd(name, n => OnGetAttribLocation(programBindingId, n));
-            else
+            if (RenderProgram.LivePrograms.ContainsKey(programBindingId))
             {
-                progDic = new ConcurrentDictionary<string, int>();
-                int loc = OnGetAttribLocation(programBindingId, name);
-                if (!progDic.TryAdd(name, loc) || !_attribCache.TryAdd(programBindingId, progDic))
-                    throw new Exception();
-                return loc;
+                var program = RenderProgram.LivePrograms[programBindingId];
+                return program.GetCachedAttributeLocation(name);
             }
+            else
+                return OnGetAttribLocation(programBindingId, name);
         }
         /// <summary>
         /// Retrieves the attribute location from the program.
@@ -511,9 +475,7 @@ namespace TheraEngine.Rendering
                 return program.GetCachedUniformLocation(name);
             }
             else
-            {
                 return OnGetUniformLocation(programBindingId, name);
-            }
         }
         /// <summary>
         /// Retrieves the uniform location from the program.

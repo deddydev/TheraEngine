@@ -23,6 +23,8 @@ namespace TheraEngine.Rendering.Models.Materials
         private bool _value;
 
         public ShaderBool() : this(false, NoName) { }
+        public ShaderBool(string name)
+            : this(false, name, null) { }
         public ShaderBool(bool defaultValue, string name)
             : this(defaultValue, name, null) { }
         public ShaderBool(bool defaultValue, string name, IShaderVarOwner owner)

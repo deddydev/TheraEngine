@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,6 +11,8 @@ namespace TheraEngine.Rendering.Models.Materials
     public abstract class TMaterialBase : TFileObject
     {
         public event DelSettingUniforms SettingUniforms;
+        public event Action ParametersChanged;
+        public event Action TexturesChanged;
 
         protected float _secondsLive = 0.0f;
         protected ShaderVar[] _parameters;
@@ -85,21 +86,49 @@ namespace TheraEngine.Rendering.Models.Materials
                         string[] parts = utext.Split(' ');
                         string type = parts[0];
                         string name = parts[1];
-                        if (Enum.TryParse(type, out EShaderVarType result))
+
+                        if (type.Contains("sampler"))
                         {
-                            Type t = ShaderVar.ShaderTypeAssociations[result];
-                            //int defaultValue, string name, IShaderVarOwner owner
-                            if (Activator.CreateInstance(t, value, name, null) is ShaderVar var)
+
+                        }
+                        else
+                        {
+                            if (Enum.TryParse("_" + type, out EShaderVarType result))
                             {
-                                vars.Add(var);
-                            }
-                            else
-                            {
-                                throw new Exception();
+                                Type t = ShaderVar.ShaderTypeAssociations[result];
+
+                                int arrayIndexStart = name.IndexOf("[");
+                                if (arrayIndexStart > 0)
+                                {
+                                    int arrayIndexEnd = name.IndexOf("]");
+                                    int arrayCount = int.Parse(name.Substring(arrayIndexStart + 1, arrayIndexEnd - arrayIndexStart - 1));
+
+                                    Type genericVarType = typeof(ShaderArray<>);
+                                    Type genericValType = typeof(ShaderArrayValueHandler<>);
+
+                                    Type valueType = genericValType.MakeGenericType(t);
+                                    t = genericVarType.MakeGenericType(t);
+
+                                    value = Activator.CreateInstance(valueType, arrayCount);
+                                    name = name.Substring(0, arrayIndexStart);
+                                }
+                                else
+                                    value = t.GetDefaultValue();
+
+                                //int defaultValue, string name, IShaderVarOwner owner
+                                if (Activator.CreateInstance(t, value, name, null) is ShaderVar var)
+                                {
+                                    vars.Add(var);
+                                }
+                                else
+                                {
+                                    throw new Exception();
+                                }
                             }
                         }
                     }
                 }
+                Parameters = vars.ToArray();
             }
         }
 
@@ -107,14 +136,22 @@ namespace TheraEngine.Rendering.Models.Materials
         public ShaderVar[] Parameters
         {
             get => _parameters;
-            set => _parameters = value;
+            set
+            {
+                _parameters = value;
+                ParametersChanged?.Invoke();
+            }
         }
 
         [TSerialize(Order = 1)]
         public BaseTexRef[] Textures
         {
             get => _textures;
-            set => _textures = value;
+            set
+            {
+                _textures = value;
+                TexturesChanged?.Invoke();
+            }
         }
 
         /// <summary>

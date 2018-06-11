@@ -3,35 +3,41 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    //public class ShaderArray<T> : ShaderVar where T : ShaderVar
-    //{
-    //    [Browsable(false)]
-    //    public override ShaderVarType TypeName { get { return _elementTypeName; } }
-    //    public ArrayHandler<T> Value { get => _value; set { _value = value; OnValueChanged(); } }
-    //    public int Length { get { return _value.Length; } }
-    //    internal override void SetProgramUniform(int programBindingId, int location)
-    //    {
-    //        throw new NotImplementedException();
-    //        //Engine.Renderer.Uniform();
-    //    }
-    //    internal override string GetShaderValueString() { return _value.ToString(); }
-    //    public override object GenericValue => Value;
+    public class ShaderArray<T> : ShaderVar where T : ShaderVar
+    {
+        [Browsable(false)]
+        public override EShaderVarType TypeName => TypeAssociations[typeof(T)];
+        public ShaderArrayValueHandler<T> Value { get => _value; set { _value = value; OnValueChanged(); } }
+        public int Length => _value.Length;
+        internal override void SetProgramUniform(int programBindingId, int location)
+        {
+            //throw new NotImplementedException();
+            //Engine.Renderer.Uniform();
+        }
+        internal override string GetShaderValueString() => _value.ToString();
+        public override object GenericValue => Value;
+        
+        private ShaderArrayValueHandler<T> _value;
 
-    //    public ShaderVarType _elementTypeName;
-    //    private ArrayHandler<T> _value;
-
-    //    public ShaderArray(ArrayHandler<T> defaultValue, ShaderVarType elementType, string name, IShaderVarOwner owner) 
-    //        : base(name, owner) { _value = defaultValue; _elementTypeName = elementType; }
-    //}
-    public class ArrayHandler<T> : IUniformableArray<T> where T : ShaderVar
+        public ShaderArray(string name)
+            : this(name, null) { }
+        public ShaderArray(string name, IShaderVarOwner owner)
+            : base(name, owner) { _value = new ShaderArrayValueHandler<T>(); }
+        public ShaderArray(ShaderArrayValueHandler<T> defaultValue, string name, IShaderVarOwner owner)
+            : base(name, owner) { _value = defaultValue; }
+    }
+    public class ShaderArrayValueHandler<T> : IUniformableArray<T> where T : ShaderVar
     {
         public int Length => Values.Length;
-        public T[] Values
+        public T[] Values { get; set; }
+
+        public ShaderArrayValueHandler()
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            Values = null;
+        }
+        public ShaderArrayValueHandler(int count)
+        {
+            Values = new T[count];
         }
     }
 }

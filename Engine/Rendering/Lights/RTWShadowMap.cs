@@ -129,7 +129,7 @@ namespace TheraEngine.Rendering
 
             TMaterial m = new TMaterial()
             {
-                Requirements = TMaterial.UniformRequirements.None
+                Requirements = TMaterial.EUniformRequirements.None
             };
 
             Material = m;

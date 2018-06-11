@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
-using TheraEngine.Components.Scene.Lights;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -24,6 +17,7 @@ namespace TheraEditor.Windows.Forms
         public MaterialControl()
         {
             InitializeComponent();
+            propGridEnum1.DataType = typeof(TMaterial.EUniformRequirements);
         }
 
         private TMaterial _material;
@@ -48,6 +42,7 @@ namespace TheraEditor.Windows.Forms
                     lblMatName.Text = _material.Name;
                     
                     theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef.File;
+                    propGridEnum1.SetPropertyByName(nameof(RenderingParameters.Requirements), _material.RenderParamsRef.File);
 
                     foreach (ShaderVar shaderVar in _material.Parameters)
                     {
@@ -114,24 +109,23 @@ namespace TheraEditor.Windows.Forms
         private void lblMatName_Click(object sender, EventArgs e)
         {
             //panel2.Visible = !panel2.Visible;
-            theraPropertyGrid1.TargetFileObject = _material;
-
+            //theraPropertyGrid1.TargetFileObject = _material.RenderParams;
         }
 
         private void lblMatName_MouseEnter(object sender, EventArgs e)
         {
-            lblMatName.BackColor = Color.FromArgb(42, 53, 60);
+            //lblMatName.BackColor = Color.FromArgb(42, 53, 60);
         }
 
         private void lblMatName_MouseLeave(object sender, EventArgs e)
         {
-            lblMatName.BackColor = Color.FromArgb(32, 43, 50);
+            //lblMatName.BackColor = Color.FromArgb(32, 43, 50);
         }
 
         private void txtMatName_TextChanged(object sender, EventArgs e)
         {
             //_material.Name = txtMatName.Text;
-            lblMatName.Text = _material.Name;
+            //lblMatName.Text = _material.Name;
         }
         
         public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
@@ -145,13 +139,7 @@ namespace TheraEditor.Windows.Forms
 
         private void lstTextures_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (lstTextures.SelectedItems.Count > 0)
-            {
-                BaseTexRef tref = lstTextures.SelectedItems[0].Tag as BaseTexRef;
-                
-            }
-            else
-                theraPropertyGrid1.TargetFileObject = null;
+
         }
 
         private Dictionary<GLSLShaderFile, DockableTextEditor> _textEditors = new Dictionary<GLSLShaderFile, DockableTextEditor>();
@@ -217,6 +205,20 @@ namespace TheraEditor.Windows.Forms
         public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
         {
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, dicOwner, key, isKey);
+        }
+
+        private void lstTextures_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (lstTextures.SelectedItems.Count == 0)
+                return;
+
+            if (!(lstTextures.SelectedItems[0].Tag is BaseTexRef tref))
+                return;
+
+            DockContent form = FindForm() as DockContent;
+            DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
+            ModelEditorForm editor = p.FindForm() as ModelEditorForm;
+            editor.TexRefForm.texRefControl1.SetTexRef(tref);
         }
     }
 }

@@ -284,6 +284,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\Bone Tree\BoneTreeNode.cs" />
+    <Compile Include="Windows\Forms\Model Editor\DockableTexRefControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\DockableTexRefControl.Designer.cs">
+      <DependentUpon>DockableTexRefControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Model Editor\DockableMaterialPreview.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -795,6 +801,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Misc\LoginControl.resx">
       <DependentUpon>LoginControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableTexRefControl.resx">
+      <DependentUpon>DockableTexRefControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialPreview.resx">
       <DependentUpon>DockableMaterialPreview.cs</DependentUpon>

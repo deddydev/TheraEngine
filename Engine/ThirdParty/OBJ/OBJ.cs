@@ -95,7 +95,7 @@ namespace TheraEngine.Rendering.Models
                 };
                 return new TMaterial("UnnamedMaterial", parameters, new TexRef2D[0], shader)
                 {
-                    Requirements = forward ? TMaterial.UniformRequirements.LightsAndCamera : TMaterial.UniformRequirements.None
+                    Requirements = forward ? TMaterial.EUniformRequirements.LightsAndCamera : TMaterial.EUniformRequirements.None
                 };
             }
             else
@@ -124,7 +124,7 @@ namespace TheraEngine.Rendering.Models
 
                 return new TMaterial(objMat.Name, parameters, textures, shader)
                 {
-                    Requirements = forward ? TMaterial.UniformRequirements.LightsAndCamera : TMaterial.UniformRequirements.None
+                    Requirements = forward ? TMaterial.EUniformRequirements.LightsAndCamera : TMaterial.EUniformRequirements.None
                 };
             }
         }

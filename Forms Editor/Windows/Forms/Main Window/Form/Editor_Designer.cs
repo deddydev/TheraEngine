@@ -881,10 +881,10 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void btnContact_Click(object sender, EventArgs e)
-        {
+        //private void btnContact_Click(object sender, EventArgs e)
+        //{
 
-        }
+        //}
 
         private void connectAsServerToolStripMenuItem_Click(object sender, EventArgs e)
         {

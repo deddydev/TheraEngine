@@ -19,24 +19,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         protected override void OnSetUniforms(int programBindingId)
         {
-            //Set engine uniforms
-            if (Requirements.HasFlag(UniformRequirements.Camera))
-                AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
-            if (Requirements.HasFlag(UniformRequirements.Lights))
-                AbstractRenderer.Current3DScene.Lights.SetUniforms(programBindingId);
-            if (Requirements.HasFlag(UniformRequirements.RenderTime))
-            {
-                _secondsLive += Engine.UpdateDelta;
-                Engine.Renderer.Uniform(programBindingId, nameof(UniformRequirements.RenderTime), _secondsLive);
-            }
-            if (Requirements.HasFlag(UniformRequirements.ViewportDimensions))
-            {
-                //Engine.Renderer.Uniform(programBindingId, nameof(UniformRequirements.ViewportDimensions), viewportDimensions);
-            }
-            if (Requirements.HasFlag(UniformRequirements.MousePosition))
-            {
-                //Engine.Renderer.Uniform(programBindingId, nameof(UniformRequirements.MousePosition), mousePosition);
-            }
+            RenderParams?.SetUniforms(programBindingId, ref _secondsLive);
         }
 
 #if EDITOR
@@ -53,81 +36,39 @@ namespace TheraEngine.Rendering.Models.Materials
         public List<GLSLShaderFile> TessCtrlShaders { get; } = new List<GLSLShaderFile>();
         public List<GLSLShaderFile> VertexShaders { get; } = new List<GLSLShaderFile>();
         public List<GlobalFileRef<GLSLShaderFile>> Shaders => _shaders;
-
-        [Flags]
-        public enum UniformRequirements
-        {
-            None                    = 0b00000,
-            Camera                  = 0b00001,
-            Lights                  = 0b00010,
-            RenderTime              = 0b00100,
-            ViewportDimensions      = 0b01000,
-            MousePosition           = 0b10000,
-
-            LightsAndCamera         = Lights | Camera,
-        }
-
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public UniformRequirements Requirements { get; set; } = UniformRequirements.None;
-
+        
         public TMaterial()
             : this("NewMaterial", new RenderingParameters()) { }
 
         public TMaterial(string name, params GLSLShaderFile[] shaders)
-            : this(name, UniformRequirements.None, null, new ShaderVar[0], new BaseTexRef[0], shaders) { }
+            : this(name, null, new ShaderVar[0], new BaseTexRef[0], shaders) { }
 
         public TMaterial(string name, RenderingParameters renderParams, params GLSLShaderFile[] shaders)
-            : this(name, UniformRequirements.None, renderParams, new ShaderVar[0], new BaseTexRef[0], shaders) { }
+            : this(name, renderParams, new ShaderVar[0], new BaseTexRef[0], shaders) { }
 
         public TMaterial(string name, ShaderVar[] vars, params GLSLShaderFile[] shaders)
-            : this(name, UniformRequirements.None, null, vars, new BaseTexRef[0], shaders) { }
+            : this(name, null, vars, new BaseTexRef[0], shaders) { }
         
         public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, params GLSLShaderFile[] shaders)
-            : this(name, UniformRequirements.None, renderParams, vars, new BaseTexRef[0], shaders) { }
+            : this(name, renderParams, vars, new BaseTexRef[0], shaders) { }
 
         public TMaterial(string name, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
-            : this(name, UniformRequirements.None, null, new ShaderVar[0], textures, shaders) { }
+            : this(name, null, new ShaderVar[0], textures, shaders) { }
 
         public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
-            : this(name, UniformRequirements.None, renderParams, new ShaderVar[0], textures,  shaders) { }
+            : this(name, renderParams, new ShaderVar[0], textures,  shaders) { }
 
         public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
-            : this(name, UniformRequirements.None, null, vars, textures,shaders) { }
-
-        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
-            : this(name, UniformRequirements.None, renderParams, vars, textures, shaders) { }
-
-        public TMaterial(string name, UniformRequirements requirements, params GLSLShaderFile[] shaders)
-            : this(name, requirements, null, new ShaderVar[0], new BaseTexRef[0], shaders) { }
-
-        public TMaterial(string name, UniformRequirements requirements, RenderingParameters renderParams, params GLSLShaderFile[] shaders)
-            : this(name, requirements, renderParams, new ShaderVar[0], new BaseTexRef[0], shaders) { }
-
-        public TMaterial(string name, UniformRequirements requirements, ShaderVar[] vars, params GLSLShaderFile[] shaders)
-            : this(name, requirements, null, vars, new BaseTexRef[0], shaders) { }
-
-        public TMaterial(string name, UniformRequirements requirements, RenderingParameters renderParams, ShaderVar[] vars, params GLSLShaderFile[] shaders)
-            : this(name, requirements, renderParams, vars, new BaseTexRef[0], shaders) { }
-
-        public TMaterial(string name, UniformRequirements requirements, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
-            : this(name, requirements, null, new ShaderVar[0], textures, shaders) { }
-
-        public TMaterial(string name, UniformRequirements requirements, RenderingParameters renderParams, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
-            : this(name, requirements, renderParams, null, textures, shaders) { }
-
-        public TMaterial(string name, UniformRequirements requirements, ShaderVar[] vars, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
-            : this(name, requirements, null, vars, textures, shaders) { }
-
+            : this(name, null, vars, textures,shaders) { }
+        
         public TMaterial(
             string name,
-            UniformRequirements requirements,
             RenderingParameters renderParams, 
             ShaderVar[] vars,
             BaseTexRef[] textures,
             params GLSLShaderFile[] shaders)
         {
             _name = name;
-            Requirements = requirements;
             RenderParams = renderParams ?? new RenderingParameters();
             _parameters = vars ?? new ShaderVar[0];
             Textures = textures ?? new BaseTexRef[0];
@@ -215,37 +156,35 @@ namespace TheraEngine.Rendering.Models.Materials
             return new TMaterial("UnlitTextureMaterial", new BaseTexRef[] { texture },
                 ShaderHelpers.UnlitTextureFragForward())
             {
-                Requirements = UniformRequirements.None,
                 RenderParams = renderParams,
             };
         }
         public static TMaterial CreateUnlitTextureMaterialForward()
         {
             return new TMaterial("UnlitTextureMaterial",
-                ShaderHelpers.UnlitTextureFragForward())
-            {
-                Requirements = UniformRequirements.None,
-            };
+                ShaderHelpers.UnlitTextureFragForward());
         }
         public static TMaterial CreateLitTextureMaterial() 
             => CreateLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static TMaterial CreateLitTextureMaterial(bool deferred)
         {
-            GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
-            return new TMaterial("LitTextureMaterial", frag)
+            RenderingParameters param = new RenderingParameters()
             {
-                Requirements = deferred ? UniformRequirements.None : UniformRequirements.LightsAndCamera
+                Requirements = deferred ? EUniformRequirements.None : EUniformRequirements.LightsAndCamera
             };
+            GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
+            return new TMaterial("LitTextureMaterial", param, frag);
         }
         public static TMaterial CreateLitTextureMaterial(TexRef2D texture)
             => CreateLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
         public static TMaterial CreateLitTextureMaterial(TexRef2D texture, bool deferred)
         {
-            GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
-            return new TMaterial("LitTextureMaterial", new TexRef2D[] { texture }, frag)
+            RenderingParameters param = new RenderingParameters()
             {
-                Requirements = deferred ? UniformRequirements.None : UniformRequirements.LightsAndCamera
+                Requirements = deferred ? EUniformRequirements.None : EUniformRequirements.LightsAndCamera
             };
+            GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
+            return new TMaterial("LitTextureMaterial", param, new TexRef2D[] { texture }, frag);
         }
         public static TMaterial CreateUnlitColorMaterialForward()
             => CreateUnlitColorMaterialForward(Color.DarkTurquoise);
@@ -255,10 +194,7 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 new ShaderVec4(color, "MatColor"),
             };
-            return new TMaterial("UnlitColorMaterial", parameters, ShaderHelpers.UnlitColorFragForward())
-            {
-                Requirements = UniformRequirements.None
-            };
+            return new TMaterial("UnlitColorMaterial", parameters, ShaderHelpers.UnlitColorFragForward());
         }
         public static TMaterial CreateLitColorMaterial() 
             => CreateLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
@@ -296,7 +232,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return new TMaterial("LitColorMaterial", parameters, frag)
             {
-                Requirements = deferred ? UniformRequirements.None : UniformRequirements.LightsAndCamera
+                Requirements = deferred ? EUniformRequirements.None : EUniformRequirements.LightsAndCamera
             };
         }
 
@@ -425,7 +361,7 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
             GLSLShaderFile s = new GLSLShaderFile(EShaderMode.Fragment, source);
             return new TMaterial("BlinnMaterial", parameters, s)
             {
-                Requirements = UniformRequirements.LightsAndCamera
+                Requirements = EUniformRequirements.LightsAndCamera
             };
         }
         #endregion

@@ -185,6 +185,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             SetControlsEnabled(!list.IsReadOnly && !_readOnly);
             UpdateDisplay();
         }
+        protected internal void SetPropertyByName(string propertyName, object propertyOwner)
+        {
+            PropertyInfo propertyInfo = propertyOwner.GetType().GetProperty(propertyName);
+            SetProperty(propertyInfo, propertyOwner);
+        }
         internal protected virtual void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
         {
             ParentInfo = new PropGridItemParentPropertyInfo(propertyOwner, propertyInfo);

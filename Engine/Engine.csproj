@@ -205,6 +205,9 @@
     <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
       <HintPath>..\packages\AngleSharp.0.9.9.2\lib\net45\AngleSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Ayx.BitIO, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ayx.BitIO.1.0.0\lib\net20\Ayx.BitIO.dll</HintPath>
+    </Reference>
     <Reference Include="BulletSharp">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\BulletSharp.dll</HintPath>
     </Reference>
@@ -376,6 +379,7 @@
     <Compile Include="Core\Editor\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
     <Compile Include="Core\Extensions\ControlExtension.cs" />
+    <Compile Include="Core\Extensions\GenericExtensions.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
     <Compile Include="Core\Files\References\FileLoader.cs" />

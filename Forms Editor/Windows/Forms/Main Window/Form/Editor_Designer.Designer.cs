@@ -70,6 +70,9 @@
             this.btnPlay = new System.Windows.Forms.ToolStripMenuItem();
             this.btnPlayDetached = new System.Windows.Forms.ToolStripMenuItem();
             this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
+            this.networkingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.connectAsServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.connectAsClientToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnContact = new System.Windows.Forms.ToolStripMenuItem();
             this.btnDocumentation = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,16 +94,16 @@
             // BodyPanel
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
-            this.BodyPanel.Size = new System.Drawing.Size(1525, 1036);
+            this.BodyPanel.Size = new System.Drawing.Size(1561, 1054);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(1525, 1076);
+            this.MainPanel.Size = new System.Drawing.Size(1561, 1094);
             // 
             // TitlePanel
             // 
             this.TitlePanel.Controls.Add(this.PaddingPanel);
-            this.TitlePanel.Size = new System.Drawing.Size(1525, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(1561, 40);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             this.TitlePanel.Controls.SetChildIndex(this.PaddingPanel, 0);
             // 
@@ -108,13 +111,13 @@
             // 
             this.FormTitle.Margin = new System.Windows.Forms.Padding(0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(0);
-            this.FormTitle.Size = new System.Drawing.Size(1354, 40);
+            this.FormTitle.Size = new System.Drawing.Size(1390, 40);
             this.FormTitle.Text = "Title Text";
             this.FormTitle.TextAlign = System.Drawing.ContentAlignment.TopLeft;
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(1525, 1084);
+            this.MiddlePanel.Size = new System.Drawing.Size(1561, 1102);
             // 
             // menuStrip1
             // 
@@ -134,7 +137,7 @@
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(0);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(259, 40);
+            this.menuStrip1.Size = new System.Drawing.Size(409, 40);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -347,7 +350,7 @@
             this.viewport4ToolStripMenuItem});
             this.btnViewViewport.Image = ((System.Drawing.Image)(resources.GetObject("btnViewViewport.Image")));
             this.btnViewViewport.Name = "btnViewViewport";
-            this.btnViewViewport.Size = new System.Drawing.Size(201, 26);
+            this.btnViewViewport.Size = new System.Drawing.Size(220, 30);
             this.btnViewViewport.Text = "Viewport";
             // 
             // viewport1ToolStripMenuItem
@@ -437,7 +440,8 @@
             this.btnGame.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnPlay,
             this.btnPlayDetached,
-            this.btnCompile});
+            this.btnCompile,
+            this.networkingToolStripMenuItem});
             this.btnGame.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnGame.Name = "btnGame";
             this.btnGame.Size = new System.Drawing.Size(60, 40);
@@ -463,6 +467,29 @@
             this.btnCompile.Size = new System.Drawing.Size(179, 26);
             this.btnCompile.Text = "Compile";
             this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
+            // 
+            // networkingToolStripMenuItem
+            // 
+            this.networkingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectAsServerToolStripMenuItem,
+            this.connectAsClientToolStripMenuItem});
+            this.networkingToolStripMenuItem.Name = "networkingToolStripMenuItem";
+            this.networkingToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.networkingToolStripMenuItem.Text = "Networking";
+            // 
+            // connectAsServerToolStripMenuItem
+            // 
+            this.connectAsServerToolStripMenuItem.Name = "connectAsServerToolStripMenuItem";
+            this.connectAsServerToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.connectAsServerToolStripMenuItem.Text = "Host Server";
+            this.connectAsServerToolStripMenuItem.Click += new System.EventHandler(this.connectAsServerToolStripMenuItem_Click);
+            // 
+            // connectAsClientToolStripMenuItem
+            // 
+            this.connectAsClientToolStripMenuItem.Name = "connectAsClientToolStripMenuItem";
+            this.connectAsClientToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.connectAsClientToolStripMenuItem.Text = "Connect To Server";
+            this.connectAsClientToolStripMenuItem.Click += new System.EventHandler(this.connectAsClientToolStripMenuItem_Click);
             // 
             // btnHelp
             // 
@@ -531,7 +558,7 @@
             this.DockPanel.Margin = new System.Windows.Forms.Padding(2);
             this.DockPanel.Name = "DockPanel";
             this.DockPanel.ShowDocumentIcon = true;
-            this.DockPanel.Size = new System.Drawing.Size(1525, 1036);
+            this.DockPanel.Size = new System.Drawing.Size(1561, 1054);
             this.DockPanel.SupportDeeplyNestedContent = true;
             this.DockPanel.TabIndex = 7;
             // 
@@ -543,7 +570,7 @@
             this.PaddingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PaddingPanel.Location = new System.Drawing.Point(44, 0);
             this.PaddingPanel.Name = "PaddingPanel";
-            this.PaddingPanel.Size = new System.Drawing.Size(1354, 40);
+            this.PaddingPanel.Size = new System.Drawing.Size(1390, 40);
             this.PaddingPanel.TabIndex = 9;
             // 
             // FormTitle2
@@ -552,9 +579,9 @@
             this.FormTitle2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FormTitle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormTitle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.FormTitle2.Location = new System.Drawing.Point(395, 0);
+            this.FormTitle2.Location = new System.Drawing.Point(545, 0);
             this.FormTitle2.Name = "FormTitle2";
-            this.FormTitle2.Size = new System.Drawing.Size(959, 40);
+            this.FormTitle2.Size = new System.Drawing.Size(845, 40);
             this.FormTitle2.TabIndex = 2;
             this.FormTitle2.Text = "Title Text";
             this.FormTitle2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -563,7 +590,7 @@
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.ClientSize = new System.Drawing.Size(1533, 1084);
+            this.ClientSize = new System.Drawing.Size(1569, 1102);
             this.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(0, 0);
@@ -632,6 +659,9 @@
         private System.Windows.Forms.Label FormTitle2;
         private System.Windows.Forms.ToolStripMenuItem vREnabledToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem btnViewAnalytics;
+        private System.Windows.Forms.ToolStripMenuItem networkingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem connectAsServerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem connectAsClientToolStripMenuItem;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

@@ -1,4 +1,5 @@
-﻿using PcapDotNet.Core;
+﻿using Ayx.BitIO;
+using PcapDotNet.Core;
 using PcapDotNet.Packets;
 using PcapDotNet.Packets.IpV4;
 using PcapDotNet.Packets.Transport;
@@ -7,10 +8,10 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+using TheraEngine.Core.Extensions;
 
 namespace TheraEngine.Networking
 {
-    public unsafe delegate void DelDataRecieved(TPacketHeader* data, int length);
     public abstract class NetworkConnection : IDisposable
     {
         public static bool AnyConnectionsAvailable => NetworkInterface.GetIsNetworkAvailable();
@@ -38,6 +39,19 @@ namespace TheraEngine.Networking
 
         public ReadOnlyCollection<LivePacketDevice> GetDeviceList() => LivePacketDevice.AllLocalMachine;
 
+        #region Initialization
+        protected delegate void DelReadBits(Packet packet, BitReader reader);
+        protected DelReadBits[] MessageTypeFuncs;
+        public NetworkConnection()
+        {
+            MessageTypeFuncs = new DelReadBits[]
+            {
+                ReadDataPacket,
+                ReadInputPacket,
+                ReadConnectionPacket,
+                ReadStatePacket,
+            };
+        }
         /// <summary>
         /// http://www.winpcap.org/docs/docs_40_2/html/group__language.html
         /// </summary>
@@ -92,57 +106,56 @@ namespace TheraEngine.Networking
             using (BerkeleyPacketFilter pFilter = _comm.CreateFilter(filter))
                 _comm.SetFilter(pFilter);
         }
+        #endregion
 
+        #region Recieving
         /// <summary>
         /// Retrieves all packets that have arrived and need to be processed.
         /// </summary>
         public void RecievePackets() => _comm.ReceiveSomePackets(out int retrievedCount, -1, PacketRecieved);
-        
-        private unsafe void PacketRecieved(Packet packet)
+        private void PacketRecieved(Packet packet)
         {
             Engine.PrintLine(packet.Timestamp.ToString("yyyy-MM-dd hh:mm:ss.fff") + " length:" + packet.Length);
 
-            IpV4Datagram ip = packet.Ethernet.IpV4;
+            IpV4Datagram ip = packet.IpV4.IpV4;
             UdpDatagram udp = ip.Udp;
             
             Engine.PrintLine(ip.Source + ":" + udp.SourcePort + " -> " + ip.Destination + ":" + udp.DestinationPort);
 
             byte[] buffer = packet.Buffer;
-            EPacketType type = (EPacketType)(buffer[0] >> 6);
 
             //GCHandle pinnedArray = GCHandle.Alloc(packet.Buffer, GCHandleType.Pinned);
-            //TPacketHeader* data = (TPacketHeader*)pinnedArray.AddrOfPinnedObject();
+            //byte* data = (byte*)pinnedArray.AddrOfPinnedObject();
 
-            //switch (data->PacketType)
-            //{
-            //    default:
-            //    case EPacketType.Invalid:
+            BitReader reader = new BitReader(buffer);
 
-            //        break;
-            //    case EPacketType.Input:
-                    
-            //        break;
-            //    case EPacketType.Transform:
-
-            //        break;
-            //}
-
+            int packetType = reader.ReadByte();
+            if (MessageTypeFuncs.IndexInArrayRange(packetType))
+                MessageTypeFuncs[packetType](packet, reader);
+            
             //pinnedArray.Free();
         }
-        
+        public void ReadDataPacket(Packet packet, BitReader reader)
+        {
+
+        }
+        public void ReadInputPacket(Packet packet, BitReader reader)
+        {
+
+        }
+        public abstract void ReadConnectionPacket(Packet packet, BitReader reader);
+        public void ReadStatePacket(Packet packet, BitReader reader)
+        {
+            
+        }
+        #endregion
+
+        #region Sending
         public unsafe void SendPacket<T>(T data, DataLinkKind kind = DataLinkKind.IpV4) where T : unmanaged
-            => SendPacket(CreatePacket(data), kind);
-        
+            => SendPacket(data.ToByteArray(), kind);
         public unsafe void SendPacket(byte[] data, DataLinkKind kind = DataLinkKind.IpV4)
             => _comm.SendPacket(new Packet(data, DateTime.Now, kind));
-        
-        public static unsafe byte[] CreatePacket<T>(T data) where T : unmanaged
-        {
-            byte[] dataArr = new byte[sizeof(T)];
-            void* addr = &data;
-            Marshal.Copy((IntPtr)addr, dataArr, 0, dataArr.Length);
-            return dataArr;
-        }
+        #endregion
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

@@ -57,7 +57,9 @@ namespace TheraEngine
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
         public static NetworkConnection NetworkConnection { get; internal set; }
-        
+        public static Server ServerConnection => NetworkConnection as Server;
+        public static Client ClientConnection => NetworkConnection as Client;
+
         /// <summary>
         /// Event for when the engine is paused or unpaused and by which player.
         /// </summary>

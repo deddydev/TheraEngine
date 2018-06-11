@@ -111,7 +111,6 @@ namespace TheraEditor.Windows.Forms
 
         }
 
-
         private void BtnViewActorTree_Click(object sender, EventArgs e)
         {
             ActorTreeForm.Focus();

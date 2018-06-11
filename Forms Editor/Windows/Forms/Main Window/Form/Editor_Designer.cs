@@ -880,5 +880,20 @@ namespace TheraEditor.Windows.Forms
                     CurrentWorld = TFileObject.Load<World>(ofd.FileName);
             }
         }
+
+        private void btnContact_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void connectAsServerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void connectAsClientToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

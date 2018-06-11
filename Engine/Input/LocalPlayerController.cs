@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.ComponentModel;
+using TheraEngine.Actors;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Actors;
-using System.Collections.Concurrent;
-using System.ComponentModel;
-using System;
 
 namespace TheraEngine.Input
 {
@@ -15,7 +14,7 @@ namespace TheraEngine.Input
 
         public LocalPlayerController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base()
         {
-            _index = index;
+            LocalPlayerIndex = index;
             int i = (int)index;
 
             _input = new InputInterface(i);
@@ -34,7 +33,7 @@ namespace TheraEngine.Input
         }
         public LocalPlayerController(LocalPlayerIndex index) : base()
         {
-            _index = index;
+            LocalPlayerIndex = index;
             int i = (int)index;
 
             _input = new InputInterface(i);
@@ -52,20 +51,19 @@ namespace TheraEngine.Input
         ~LocalPlayerController()
         {
             _input.WantsInputsRegistered -= RegisterInput;
-            int index = (int)_index;
+            int index = (int)LocalPlayerIndex;
             if (index >= 0 && index < Engine.LocalPlayers.Count)
                 Engine.LocalPlayers.RemoveAt(index);
         }
 
         private Viewport _viewport;
-        private LocalPlayerIndex _index;
         protected InputInterface _input;
 
         [Category("Local Player Controller")]
         public InputInterface Input => _input;
 
         [Category("Local Player Controller")]
-        public LocalPlayerIndex LocalPlayerIndex => _index;
+        public LocalPlayerIndex LocalPlayerIndex { get; }
 
         [Category("Local Player Controller")]
         public Viewport Viewport

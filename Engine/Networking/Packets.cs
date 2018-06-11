@@ -3,15 +3,21 @@ using TheraEngine.Core.Maths;
 
 namespace TheraEngine.Networking
 {
-    public enum EPacketType : int
+    public enum EPacketType : byte
     {
         Invalid         = 0,
         Input           = 1,
-        Transform       = 2,
-        SetState        = 3,
-        ClientResponse  = 4,
+        Connection      = 2,
+        State           = 3,
     }
-    public enum EStateType : int
+    public enum EConnectionMessage : byte
+    {
+        Request                 = 0,
+        Accepted                = 1,
+        Denied                  = 2,
+        LocalPlayerCountChanged = 3,
+    }
+    public enum EStateType : byte
     {
         Invalid  = 0,
         World    = 1,
@@ -41,12 +47,24 @@ namespace TheraEngine.Networking
         DoubleClicked,
         Held,
     }
-    [StructLayout(LayoutKind.Sequential, Pack = 0)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TPacketHeader
     {
         public EPacketType PacketType;
     }
-    [StructLayout(LayoutKind.Sequential, Pack = 0)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TPacketConnection
+    {
+        public TPacketHeader Header;
+        public EConnectionMessage ConnectionMessage;
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TPacketConnectionAccepted
+    {
+        public TPacketConnection Header;
+        public byte ServerIndex;
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TPacketInput
     {
         public TPacketHeader Header;
@@ -55,19 +73,19 @@ namespace TheraEngine.Networking
         public byte PlayerIndex;
         public byte InputIndex;
     }
-    [StructLayout(LayoutKind.Sequential, Pack = 0)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TPacketPressedInput
     {
         public TPacketInput Header;
         public byte Pressed;
     }
-    [StructLayout(LayoutKind.Sequential, Pack = 0)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TPacketAxisInput
     {
         public TPacketInput Header;
         public float Value;
     }
-    [StructLayout(LayoutKind.Sequential, Pack = 0)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TPacketTransform
     {
         public TPacketHeader Header;

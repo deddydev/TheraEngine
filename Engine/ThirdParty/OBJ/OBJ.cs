@@ -93,10 +93,11 @@ namespace TheraEngine.Rendering.Models
                     //new ShaderFloat(0.0f, "SpecularCoef"),
                     //new ShaderFloat(0.0f, "Transparency"),
                 };
-                return new TMaterial("UnnamedMaterial", parameters, new TexRef2D[0], shader)
+                RenderingParameters param = new RenderingParameters()
                 {
-                    Requirements = forward ? TMaterial.EUniformRequirements.LightsAndCamera : TMaterial.EUniformRequirements.None
+                    Requirements = forward ? EUniformRequirements.LightsAndCamera : EUniformRequirements.None
                 };
+                return new TMaterial("UnnamedMaterial", param, parameters, new TexRef2D[0], shader);
             }
             else
             {
@@ -122,10 +123,11 @@ namespace TheraEngine.Rendering.Models
                 else
                     textures = new TexRef2D[0];
 
-                return new TMaterial(objMat.Name, parameters, textures, shader)
+                RenderingParameters param = new RenderingParameters()
                 {
-                    Requirements = forward ? TMaterial.EUniformRequirements.LightsAndCamera : TMaterial.EUniformRequirements.None
+                    Requirements = forward ? EUniformRequirements.LightsAndCamera : EUniformRequirements.None
                 };
+                return new TMaterial(objMat.Name, parameters, textures, shader);
             }
         }
 

@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine;
@@ -16,6 +18,7 @@ using TheraEngine.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
+using TheraEngine.Networking;
 using TheraEngine.Rendering;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
@@ -888,12 +891,32 @@ namespace TheraEditor.Windows.Forms
 
         private void connectAsServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            Server s = Engine.ServerConnection;
+            if (s == null)
+            {
+                s = new Server();
+                Engine.NetworkConnection = s;
+            }
+            
+            s.InitializeConnection();
         }
 
-        private void connectAsClientToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void connectAsClientToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Client c = Engine.ClientConnection;
+            if (c == null)
+            {
+                c = new Client();
+                Engine.NetworkConnection = c;
+            }
+            
+            c.InitializeConnection();
 
+            bool success = await c.RequestConnectionAsync();
+            if (success)
+                Engine.PrintLine("Successfully connected to the target server.");
+            else
+                Engine.PrintLine("Failed to connect to the target server.");
         }
     }
 }

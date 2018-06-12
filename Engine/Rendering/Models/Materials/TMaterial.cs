@@ -230,10 +230,11 @@ namespace TheraEngine.Rendering.Models.Materials
                 };
             }
 
-            return new TMaterial("LitColorMaterial", parameters, frag)
+            RenderingParameters param = new RenderingParameters()
             {
                 Requirements = deferred ? EUniformRequirements.None : EUniformRequirements.LightsAndCamera
             };
+            return new TMaterial("LitColorMaterial", param, parameters, frag);
         }
 
         /// <summary>
@@ -359,10 +360,11 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
 //}
 
             GLSLShaderFile s = new GLSLShaderFile(EShaderMode.Fragment, source);
-            return new TMaterial("BlinnMaterial", parameters, s)
+            RenderingParameters param = new RenderingParameters()
             {
                 Requirements = EUniformRequirements.LightsAndCamera
             };
+            return new TMaterial("BlinnMaterial", param, parameters, s);
         }
         #endregion
     }

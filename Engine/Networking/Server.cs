@@ -1,44 +1,63 @@
 ﻿using Ayx.BitIO;
-using PcapDotNet.Packets;
-using PcapDotNet.Packets.IpV4;
-using PcapDotNet.Packets.Transport;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 
 namespace TheraEngine.Networking
 {
     public class Server : NetworkConnection
     {
         public override bool IsServer => true;
+        public override int LocalPort => ServerPort;
+        public override int RemotePort => ClientPort;
 
         public int MaxConnectedClients { get; set; } = 1;
         public bool CanConnectNewClient() => ConnectedClients.Count < MaxConnectedClients;
         public Dictionary<string, NetworkClient> ConnectedClients { get; } = new Dictionary<string, NetworkClient>();
 
-        public NetworkClient FindConnectedClient(IpV4Address ip, ushort port)
+        public NetworkClient FindConnectedClient(IPEndPoint endPoint)
         {
-            string addr = ip + ":" + port.ToString();
+            string addr = endPoint.ToString();
             if (ConnectedClients.ContainsKey(addr))
                 return ConnectedClients[addr];
             return null;
         }
-
-        public override void ReadConnectionPacket(Packet packet, BitReader reader)
+        public int AddClient(NetworkClient client)
         {
-            IpV4Datagram ip = packet.IpV4.IpV4;
-            UdpDatagram udp = ip.Udp;
-
+            string addr = client.EndPoint.ToString();
+            if (ConnectedClients.ContainsKey(addr))
+                ConnectedClients[addr] = client;
+            else
+                ConnectedClients.Add(addr, client);
+            return ConnectedClients.Count - 1;
+        }
+        
+        public override void ReadConnectionPacket(IPEndPoint endPoint, BitReader reader)
+        {
             EConnectionMessage message = (EConnectionMessage)reader.ReadByte();
             switch (message)
             {
                 case EConnectionMessage.Request:
-                    NetworkClient client = FindConnectedClient(ip.Source, udp.SourcePort);
+                    Engine.PrintLine("Recieved connection request.");
+                    NetworkClient client = FindConnectedClient(endPoint);
                     if (client == null)
                     {
-
+                        client = new NetworkClient(endPoint);
+                        int index = AddClient(client);
+                        TPacketConnectionAccepted response = new TPacketConnectionAccepted();
+                        response.Header.Header.PacketType = EPacketType.Connection;
+                        response.Header.ConnectionMessage = EConnectionMessage.Accepted;
+                        response.ServerIndex = (byte)index;
+                        Engine.PrintLine("Accepted request.");
+                        SendPacket(response, 2.0f);
                     }
                     else
                     {
-
+                        TPacketConnection response = new TPacketConnection();
+                        response.Header.PacketType = EPacketType.Connection;
+                        response.ConnectionMessage = EConnectionMessage.Denied;
+                        Engine.PrintLine("Denied request.");
+                        SendPacket(response, 2.0f);
                     }
                     break;
                 case EConnectionMessage.Denied:
@@ -54,6 +73,12 @@ namespace TheraEngine.Networking
     }
     public class NetworkClient
     {
+        public NetworkClient(IPEndPoint endPoint)
+        {
+            EndPoint = endPoint;
+        }
+
+        public IPEndPoint EndPoint { get; }
         /// <summary>
         /// How many seconds can pass without recieving any packets from the client
         /// before considering it disconnected.

@@ -111,17 +111,10 @@
     <StartupObject>TheraEditor.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="betterlistviewexpress, Version=3.15.0.0, Culture=neutral, PublicKeyToken=e6c91a3add447be2, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Component Owl\Better ListView Express\Redistributable\betterlistviewexpress.dll</HintPath>
-    </Reference>
     <Reference Include="BulletSharp">
       <HintPath Condition="'$(Platform)'=='x86'">$(SolutionDir)\Libraries\x86\BulletSharp.dll</HintPath>
       <HintPath Condition="'$(Platform)'=='x64'">$(SolutionDir)\Libraries\x64\BulletSharp.dll</HintPath>
       <HintPath Condition="'$(Platform)'=='AnyCPU'">$(SolutionDir)\Libraries\AnyCPU\BulletSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="DiffSharp, Version=0.7.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\DiffSharp.0.7.7\lib\net46\DiffSharp.dll</HintPath>
     </Reference>
     <Reference Include="Enums.NET">
       <HintPath>..\Libraries\Enums.NET.2.2.0\Bin\Net45\Enums.NET.dll</HintPath>

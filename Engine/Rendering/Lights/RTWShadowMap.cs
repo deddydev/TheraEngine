@@ -127,11 +127,7 @@ namespace TheraEngine.Rendering
             //impt_effect.Load("../shaders/rtw_map.cgfx");
             //tess_effect.Load("../shaders/rtw_tessellator.cgfx");
 
-            TMaterial m = new TMaterial()
-            {
-                Requirements = TMaterial.EUniformRequirements.None
-            };
-
+            TMaterial m = new TMaterial();
             Material = m;
         }
     }

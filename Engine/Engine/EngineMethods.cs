@@ -312,6 +312,7 @@ namespace TheraEngine
                 World.StepSimulation(delta);
             TickGroup(ETickGroup.PostPhysics, delta);
             UpdateScenes?.Invoke(sender, e);
+            NetworkConnection?.SendPackets(e.Time);
         }
         /// <summary>
         /// Ticks all lists of methods registered to this group.
@@ -734,7 +735,7 @@ namespace TheraEngine
             if (asServer)
             {
                 NetworkConnection = new Server();
-                NetworkConnection.ConnectAuto();
+                NetworkConnection.InitializeConnection();
             }
             else
             {

@@ -17,7 +17,6 @@ namespace TheraEditor.Windows.Forms
         public MaterialControl()
         {
             InitializeComponent();
-            propGridEnum1.DataType = typeof(TMaterial.EUniformRequirements);
         }
 
         private TMaterial _material;

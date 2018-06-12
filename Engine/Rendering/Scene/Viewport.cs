@@ -778,8 +778,14 @@ namespace TheraEngine.Rendering
 
                 TMaterial ssaoMat = new TMaterial("SSAOMat", renderParams, ssaoRefs, ssaoShader);
                 TMaterial ssaoBlurMat = new TMaterial("SSAOBlurMat", renderParams, ssaoBlurRefs, ssaoBlurShader);
-                TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", TMaterial.EUniformRequirements.Lights,
-                    renderParams, deferredLightingRefs, deferredShader);
+
+                RenderingParameters renderParamsDeferred = new RenderingParameters();
+                renderParamsDeferred.DepthTest.Enabled = ERenderParamUsage.Unchanged;
+                renderParamsDeferred.DepthTest.UpdateDepth = false;
+                renderParamsDeferred.DepthTest.Function = EComparison.Always;
+                renderParamsDeferred.Requirements = EUniformRequirements.Lights;
+
+                TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", renderParamsDeferred, deferredLightingRefs, deferredShader);
 
                 SSAOFBO = new QuadFrameBuffer(ssaoMat);
                 SSAOFBO.SettingUniforms += SSAO_SetUniforms;
@@ -812,7 +818,7 @@ namespace TheraEngine.Rendering
                     //Render only the backside so that the light still shows if the camera is inside of the volume
                     //and the light does not add itself twice for the front and back faces.
                     CullMode = ECulling.Front,
-
+                    Requirements = EUniformRequirements.Camera,
                     BlendMode = additiveBlend,
                 };
                 lightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
@@ -820,7 +826,7 @@ namespace TheraEngine.Rendering
                 {
                     //Render only the front of the quad that shows over the whole screen
                     CullMode = ECulling.Back,
-
+                    Requirements = EUniformRequirements.Camera,
                     BlendMode = additiveBlend,
                 };
                 dirLightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
@@ -859,17 +865,17 @@ namespace TheraEngine.Rendering
                 GLSLShaderFile pointLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingPoint.fs"), EShaderMode.Fragment);
                 GLSLShaderFile spotLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingSpot.fs"), EShaderMode.Fragment);
 
-                TMaterial pointLightMat = new TMaterial("PointLightMat", TMaterial.EUniformRequirements.Camera, lightRenderParams, lightRefs, pointLightShader);
+                TMaterial pointLightMat = new TMaterial("PointLightMat", lightRenderParams, lightRefs, pointLightShader);
                 PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;
 
-                TMaterial spotLightMat = new TMaterial("SpotLightMat", TMaterial.EUniformRequirements.Camera, lightRenderParams, lightRefs, spotLightShader);
+                TMaterial spotLightMat = new TMaterial("SpotLightMat", lightRenderParams, lightRefs, spotLightShader);
                 PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
                 SpotLightManager = new PrimitiveManager(spotLightMesh, spotLightMat);
                 SpotLightManager.SettingUniforms += LightManager_SettingUniforms;
                 
-                TMaterial dirLightMat = new TMaterial("DirLightMat", TMaterial.EUniformRequirements.Camera, dirLightRenderParams, lightRefs, dirLightShader);
+                TMaterial dirLightMat = new TMaterial("DirLightMat", dirLightRenderParams, lightRefs, dirLightShader);
                 DirLightFBO = new QuadFrameBuffer(dirLightMat);
                 DirLightFBO.FullScreenTriangle.SettingUniforms += LightManager_SettingUniforms;
 

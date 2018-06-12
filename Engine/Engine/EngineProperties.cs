@@ -56,7 +56,7 @@ namespace TheraEngine
         public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
-        public static NetworkConnection NetworkConnection { get; internal set; }
+        public static NetworkConnection NetworkConnection { get; set; }
         public static Server ServerConnection => NetworkConnection as Server;
         public static Client ClientConnection => NetworkConnection as Client;
 

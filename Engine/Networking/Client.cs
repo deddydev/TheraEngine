@@ -35,7 +35,7 @@ namespace TheraEngine.Networking
             TPacketConnection conn = new TPacketConnection();
             conn.Header.PacketType = EPacketType.Connection;
             conn.ConnectionMessage = EConnectionMessage.Request;
-            SendPacket(conn, timeout, () => !_connectionResponseRecieved);
+            SendPacket(conn, timeout, () => _connectionResponseRecieved);
 
             TimeSpan timeoutSpan = TimeSpan.FromSeconds(timeout);
             Stopwatch watch = Stopwatch.StartNew();
@@ -43,6 +43,8 @@ namespace TheraEngine.Networking
 
             if (!_connectionResponseRecieved)
                 Engine.PrintLine("Server connection request timed out.");
+            else
+                Engine.PrintLine("Recieved a response from the server.");
 
             return _connectionAccepted;
         }

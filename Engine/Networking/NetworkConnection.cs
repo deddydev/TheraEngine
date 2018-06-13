@@ -67,9 +67,23 @@ namespace TheraEngine.Networking
         /// <summary>
         /// Retrieves all packets that have arrived and need to be processed.
         /// </summary>
-        public void RecievePackets()
+        public async void RecievePackets()
         {
-            _udpConnection.ReceiveAsync().ContinueWith(PacketRecieved);
+            try
+            {
+                var result = await _udpConnection.ReceiveAsync();
+                byte[] buffer = result.Buffer;
+
+                BitReader reader = new BitReader(buffer);
+
+                int packetType = reader.ReadByte();
+                if (MessageTypeFuncs.IndexInArrayRange(packetType))
+                    MessageTypeFuncs[packetType](result.RemoteEndPoint, reader);
+            }
+            catch (SocketException ex)
+            {
+                Engine.PrintLine(ex.ToString());
+            }
         }
         public void SendPackets(float delta)
         {
@@ -79,7 +93,10 @@ namespace TheraEngine.Networking
                 var pack = node.Value;
                 _udpConnection.Send(pack.Item1, pack.Item1.Length);
                 pack.Item2 -= delta;
-                if (pack.Item2 <= 0.0f)
+                bool stopWhen = false;
+                if (pack.Item3 != null)
+                    stopWhen = pack.Item3();
+                if (pack.Item2 <= 0.0f || stopWhen)
                 {
                     var temp = node.Next;
                     _queuedPackets.Remove(node);
@@ -115,11 +132,11 @@ namespace TheraEngine.Networking
         #endregion
 
         #region Sending
-        public unsafe void SendPacket<T>(T data, float timeout = 2.0f, Func<bool> continueWhileTrue = null) where T : unmanaged
-            => SendPacket(data.ToByteArray(), timeout, continueWhileTrue);
-        public unsafe void SendPacket(byte[] data, float timeout = 2.0f, Func<bool> continueWhileTrue = null)
+        public unsafe void SendPacket<T>(T data, float timeout = 2.0f, Func<bool> stopWhen = null) where T : unmanaged
+            => SendPacket(data.ToByteArray(), timeout, stopWhen);
+        public unsafe void SendPacket(byte[] data, float timeout = 2.0f, Func<bool> stopWhen = null)
         {
-            _queuedPackets.AddLast((data, timeout, continueWhileTrue));
+            _queuedPackets.AddLast((data, timeout, stopWhen));
         }
         #endregion
     }

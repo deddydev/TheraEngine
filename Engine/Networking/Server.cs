@@ -50,6 +50,8 @@ namespace TheraEngine.Networking
                         response.Header.ConnectionMessage = EConnectionMessage.Accepted;
                         response.ServerIndex = (byte)index;
                         Engine.PrintLine("Accepted request.");
+
+                        _udpConnection.Connect(endPoint);
                         SendPacket(response, 1.0f);
                     }
                     else

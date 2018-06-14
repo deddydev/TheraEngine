@@ -15,7 +15,8 @@ namespace TheraEngine.Networking
         public override int RemotePort => ServerPort;
 
         public int ServerIndex { get; set; }
-
+        public IPEndPoint ServerEndPoint { get; set; }
+        
         private bool _connectionResponseRecieved = false;
         private bool _connectionAccepted = false;
 
@@ -76,12 +77,22 @@ namespace TheraEngine.Networking
                     Engine.PrintLine("Server denied connection request.");
                     break;
                 case EConnectionMessage.Accepted:
-                    //The server successfully added this client to the list.
-                    ServerIndex = reader.ReadByte();
-                    //ConnectionAccepted?.Invoke();
-                    _connectionAccepted = true;
-                    _connectionResponseRecieved = true;
-                    Engine.PrintLine("Server accepted connection request.");
+                    if (_connectionResponseRecieved &&
+                        _connectionAccepted && 
+                        ServerEndPoint.ToString() == endPoint.ToString())
+                    {
+                        Engine.PrintLine("Server previously accepted connection request. Ignoring new request.");
+                    }
+                    else
+                    {
+                        //The server successfully added this client to the list.
+                        ServerIndex = reader.ReadByte();
+                        ServerEndPoint = endPoint;
+                        //ConnectionAccepted?.Invoke();
+                        _connectionAccepted = true;
+                        _connectionResponseRecieved = true;
+                        Engine.PrintLine("Server accepted connection request.");
+                    }
                     break;
                 case EConnectionMessage.LocalPlayerCountChanged:
                     

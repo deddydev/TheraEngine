@@ -1,4 +1,5 @@
 ﻿using Ayx.BitIO;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -13,7 +14,7 @@ namespace TheraEngine.Networking
 
         public int MaxConnectedClients { get; set; } = 1;
         public bool CanConnectNewClient() => ConnectedClients.Count < MaxConnectedClients;
-        public Dictionary<string, NetworkClient> ConnectedClients { get; } = new Dictionary<string, NetworkClient>();
+        public ConcurrentDictionary<string, NetworkClient> ConnectedClients { get; } = new ConcurrentDictionary<string, NetworkClient>();
 
         public NetworkClient FindConnectedClient(IPEndPoint endPoint)
         {
@@ -28,7 +29,7 @@ namespace TheraEngine.Networking
             if (ConnectedClients.ContainsKey(addr))
                 ConnectedClients[addr] = client;
             else
-                ConnectedClients.Add(addr, client);
+                ConnectedClients.TryAdd(addr, client);
             return ConnectedClients.Count - 1;
         }
         
@@ -49,7 +50,7 @@ namespace TheraEngine.Networking
                         response.Header.ConnectionMessage = EConnectionMessage.Accepted;
                         response.ServerIndex = (byte)index;
                         Engine.PrintLine("Accepted request.");
-                        SendPacket(response, 2.0f);
+                        SendPacket(response, 1.0f);
                     }
                     else
                     {
@@ -57,7 +58,7 @@ namespace TheraEngine.Networking
                         response.Header.PacketType = EPacketType.Connection;
                         response.ConnectionMessage = EConnectionMessage.Denied;
                         Engine.PrintLine("Denied request.");
-                        SendPacket(response, 2.0f);
+                        SendPacket(response, 5.0f);
                     }
                     break;
                 case EConnectionMessage.Denied:

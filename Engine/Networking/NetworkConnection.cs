@@ -1,10 +1,13 @@
 ﻿using Ayx.BitIO;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using TheraEngine.Core;
 using TheraEngine.Core.Extensions;
 
 namespace TheraEngine.Networking
@@ -60,6 +63,48 @@ namespace TheraEngine.Networking
             _udpConnection.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _udpConnection.Client.Bind(new IPEndPoint(IPAddress.Any, LocalPort));
             _udpConnection.Connect("localhost", RemotePort);
+            Task.Run(async () =>
+            {
+                while (_udpConnection != null)
+                {
+                    var packet = await _udpConnection.ReceiveAsync();
+                    CachePacket(packet.RemoteEndPoint, packet.Buffer);
+                }
+            });
+            Task.Run(() =>
+            {
+                TimeSpan span = TimeSpan.FromSeconds(1.0 / 10.0);
+                Stopwatch w = Stopwatch.StartNew();
+                while (_udpConnection != null)
+                {
+                    var node = _queuedPackets.First;
+                    while (node != null)
+                    {
+                        var pack = node.Value;
+                        _udpConnection.Send(pack.Item1, pack.Item1.Length);
+                        node = node.Next;
+                    }
+                    while (w.Elapsed < span) ;
+                    w.Restart();
+                }
+            });
+        }
+        //private ConcurrentDictionary<IPEndPoint, List<byte[]>> _packetCacheRecieving 
+        //    = new ConcurrentDictionary<IPEndPoint, List<byte[]>>();
+        //private ConcurrentDictionary<IPEndPoint, List<byte[]>> _packetCacheReading
+        //    = new ConcurrentDictionary<IPEndPoint, List<byte[]>>();
+        private void CachePacket(IPEndPoint remoteEndPoint, byte[] buffer)
+        {
+            BitReader reader = new BitReader(buffer);
+
+            int packetType = reader.ReadByte();
+            if (MessageTypeFuncs.IndexInArrayRange(packetType))
+                MessageTypeFuncs[packetType](remoteEndPoint, reader);
+
+            //_packetCacheRecieving.AddOrUpdate(
+            //    remoteEndPoint,
+            //    m => { return new List<byte[]>() { buffer }; },
+            //    (r, x) => { x.Add(buffer); return x; });
         }
         #endregion
 
@@ -67,23 +112,21 @@ namespace TheraEngine.Networking
         /// <summary>
         /// Retrieves all packets that have arrived and need to be processed.
         /// </summary>
-        public async void RecievePackets()
+        public void RecievePackets()
         {
-            try
-            {
-                var result = await _udpConnection.ReceiveAsync();
-                byte[] buffer = result.Buffer;
+            //_packetCacheReading.Clear();
+            //THelpers.Swap(ref _packetCacheRecieving, ref _packetCacheReading);
+            //foreach (var packet in _packetCacheReading)
+            //{
+            //    foreach (var buffer in packet.Value)
+            //    {
+            //        BitReader reader = new BitReader(buffer);
 
-                BitReader reader = new BitReader(buffer);
-
-                int packetType = reader.ReadByte();
-                if (MessageTypeFuncs.IndexInArrayRange(packetType))
-                    MessageTypeFuncs[packetType](result.RemoteEndPoint, reader);
-            }
-            catch (SocketException ex)
-            {
-                Engine.PrintLine(ex.ToString());
-            }
+            //        int packetType = reader.ReadByte();
+            //        if (MessageTypeFuncs.IndexInArrayRange(packetType))
+            //            MessageTypeFuncs[packetType](packet.Key, reader);
+            //    }
+            //}
         }
         public void SendPackets(float delta)
         {
@@ -91,7 +134,7 @@ namespace TheraEngine.Networking
             while (node != null)
             {
                 var pack = node.Value;
-                _udpConnection.Send(pack.Item1, pack.Item1.Length);
+                
                 pack.Item2 -= delta;
                 bool stopWhen = false;
                 if (pack.Item3 != null)

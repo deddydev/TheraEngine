@@ -161,10 +161,40 @@ namespace TheraEngine.Rendering
             int h = _internalResolution.IntHeight;
 
             //Engine.PrintLine("Internal resolution changed: {0}x{1}", w, h);
-            
-            InitFBOs();
+
+            ClearFBOs();
 
             _worldCamera?.Resize(w, h);
+        }
+
+        private void ClearFBOs()
+        {
+            BloomBlurFBO1?.Destroy();
+            BloomBlurFBO1 = null;
+            BloomBlurFBO2?.Destroy();
+            BloomBlurFBO2 = null;
+            BloomBlurFBO4?.Destroy();
+            BloomBlurFBO4 = null;
+            BloomBlurFBO8?.Destroy();
+            BloomBlurFBO8 = null;
+            BloomBlurFBO16?.Destroy();
+            BloomBlurFBO16 = null;
+            BrightPassFBO?.Destroy();
+            BrightPassFBO = null;
+            DirLightFBO?.Destroy();
+            DirLightFBO = null;
+            GBufferFBO?.Destroy();
+            GBufferFBO = null;
+            HudFBO?.Destroy();
+            HudFBO = null;
+            LightCombineFBO?.Destroy();
+            LightCombineFBO = null;
+            PostProcessFBO?.Destroy();
+            PostProcessFBO = null;
+            SSAOBlurFBO?.Destroy();
+            SSAOBlurFBO = null;
+            SSAOFBO?.Destroy();
+            SSAOFBO = null;
         }
 
         public void Resize(

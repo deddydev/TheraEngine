@@ -162,7 +162,7 @@ namespace TheraEngine.Rendering
 
             //Engine.PrintLine("Internal resolution changed: {0}x{1}", w, h);
 
-            ClearFBOs();
+            InitFBOs();
 
             _worldCamera?.Resize(w, h);
         }

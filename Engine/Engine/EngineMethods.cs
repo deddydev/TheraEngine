@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Core.Files;
@@ -229,7 +230,7 @@ namespace TheraEngine
         /// HALTS update and render ticks. Not recommended for use as this literally halts all visuals and user input.
         /// </summary>
         public static void Stop() => _timer.Stop();
-        private static event EventHandler<FrameEventArgs> UpdateScenes = delegate { };
+        private static event EventHandler<FrameEventArgs> Update = delegate { };
         /// <summary>
         /// Registers the given function to be called every update tick.
         /// </summary>
@@ -241,7 +242,7 @@ namespace TheraEngine
             if (render != null)
                 _timer.RenderFrame += render;
             if (update != null)
-                UpdateScenes += update;
+                Update += update;
             if (swapBuffers != null)
                 _timer.SwapBuffers += swapBuffers;
         }
@@ -256,7 +257,7 @@ namespace TheraEngine
             if (render != null)
                 _timer.RenderFrame -= render;
             if (update != null)
-                UpdateScenes -= update;
+                Update -= update;
             if (swapBuffers != null)
                 _timer.SwapBuffers -= swapBuffers;
         }
@@ -308,11 +309,11 @@ namespace TheraEngine
             NetworkConnection?.RecievePackets();
             float delta = e.Time * TimeDilation;
             TickGroup(ETickGroup.PrePhysics, delta);
-            if (!_isPaused && World != null)
-                World.StepSimulation(delta);
+            if (!_isPaused)
+                World?.StepSimulation(delta);
             TickGroup(ETickGroup.PostPhysics, delta);
-            UpdateScenes?.Invoke(sender, e);
-            NetworkConnection?.SendPackets(e.Time);
+            Update?.Invoke(sender, e);
+            NetworkConnection?.UpdatePacketQueue(e.Time);
         }
         /// <summary>
         /// Ticks all lists of methods registered to this group.
@@ -324,13 +325,13 @@ namespace TheraEngine
             int start = (int)group;
             for (int i = start; i < start + 15; i += 3)
             {
-                for (int j = 0; j < 3; ++j)
-                //Parallel.For(0, 3, (int j) => 
+                //for (int j = 0; j < 3; ++j)
+                Parallel.For(0, 3, (int j) => 
                 {
                     if (j == 0 || (j == 1 && !IsPaused) || (j == 2 && IsPaused))
                         TickList(i + j, delta);
                 }
-                //);
+                );
             }
         }
         /// <summary>
@@ -340,8 +341,8 @@ namespace TheraEngine
         {
             ThreadSafeList<DelTick> currentList = _tickLists[_currentTickList = index];
 
-            //Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
-            currentList.ForEach(x => x(delta));
+            Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
+            //currentList.ForEach(x => x(delta));
 
             _currentTickList = -1;
 
@@ -735,7 +736,7 @@ namespace TheraEngine
             if (asServer)
             {
                 NetworkConnection = new Server();
-                NetworkConnection.InitializeConnection();
+                NetworkConnection.InitializeLocalConnection();
             }
             else
             {

@@ -57,22 +57,54 @@ namespace TheraEngine.Networking
                 ReadStatePacket,
             };
         }
-        public void InitializeConnection()
+        public void InitializeLocalConnection()
         {
             _udpConnection = new UdpClient();
             _udpConnection.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _udpConnection.Client.Bind(new IPEndPoint(IPAddress.Any, LocalPort));
             _udpConnection.Connect("localhost", RemotePort);
+
+            ReceivePackets();
+            SendPackets();
+        }
+        public void InitializeConnection(int localPort, IPEndPoint targetPoint)
+        {
+            IPAddress localAddr = GetLocalIPAddressV4();
+
+            _udpConnection = new UdpClient();
+            _udpConnection.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            _udpConnection.Client.Bind(new IPEndPoint(localAddr, localPort));
+
+            if (targetPoint != null)
+                _udpConnection.Connect(targetPoint);
+
+            ReceivePackets();
+            SendPackets();
+        }
+        private bool _isReceiving = false;
+        private bool _isSending = false;
+        private void ReceivePackets()
+        {
+            if (_isReceiving)
+                return;
             Task.Run(async () =>
             {
+                _isReceiving = true;
                 while (_udpConnection != null)
                 {
                     var packet = await _udpConnection.ReceiveAsync();
-                    CachePacket(packet.RemoteEndPoint, packet.Buffer);
+                    InterpretPacket(packet.RemoteEndPoint, packet.Buffer);
                 }
+                _isReceiving = false;
             });
+        }
+        private void SendPackets()
+        {
+            if (_isSending)
+                return;
             Task.Run(() =>
             {
+                _isSending = true;
                 TimeSpan span = TimeSpan.FromSeconds(1.0 / 10.0);
                 Stopwatch w = Stopwatch.StartNew();
                 while (_udpConnection != null)
@@ -87,13 +119,14 @@ namespace TheraEngine.Networking
                     while (w.Elapsed < span) ;
                     w.Restart();
                 }
+                _isSending = false;
             });
         }
         //private ConcurrentDictionary<IPEndPoint, List<byte[]>> _packetCacheRecieving 
         //    = new ConcurrentDictionary<IPEndPoint, List<byte[]>>();
         //private ConcurrentDictionary<IPEndPoint, List<byte[]>> _packetCacheReading
         //    = new ConcurrentDictionary<IPEndPoint, List<byte[]>>();
-        private void CachePacket(IPEndPoint remoteEndPoint, byte[] buffer)
+        private void InterpretPacket(IPEndPoint remoteEndPoint, byte[] buffer)
         {
             BitReader reader = new BitReader(buffer);
 
@@ -128,7 +161,7 @@ namespace TheraEngine.Networking
             //    }
             //}
         }
-        public void SendPackets(float delta)
+        public void UpdatePacketQueue(float delta)
         {
             var node = _queuedPackets.First;
             while (node != null)

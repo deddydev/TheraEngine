@@ -126,6 +126,8 @@ namespace TheraEditor.Windows.Forms
             };
 
             TheraEngineText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
+
+            lblYourIpPort.Text = "Your IP: " + NetworkConnection.GetLocalIPAddressV4();
         }
 
         public UndoManager UndoManager { get; } = new UndoManager();
@@ -897,8 +899,10 @@ namespace TheraEditor.Windows.Forms
                 s = new Server();
                 Engine.NetworkConnection = s;
             }
-            
-            s.InitializeConnection();
+
+            s.InitializeConnection(NetworkConnection.ServerPort, null);
+
+            Engine.PrintLine($"Started hosting server at {NetworkConnection.GetLocalIPAddressV4()}:{NetworkConnection.ServerPort}.");
         }
 
         private async void connectAsClientToolStripMenuItem_Click(object sender, EventArgs e)
@@ -909,14 +913,69 @@ namespace TheraEditor.Windows.Forms
                 c = new Client();
                 Engine.NetworkConnection = c;
             }
-            
-            c.InitializeConnection();
+
+            IPAddress addr = CreateAddress(txtTargetIPPort.Text);
+            if (addr != null)
+            {
+                IPEndPoint point = new IPEndPoint(addr, NetworkConnection.ServerPort);
+                c.InitializeConnection(NetworkConnection.ClientPort, point);
+
+                Engine.PrintLine($"Requesting connection to server at {point.Address.ToString()}:{NetworkConnection.ServerPort}.");
+            }
+            else
+            {
+                Engine.PrintLine($"'{txtTargetIPPort.Text}' is not a valid IP configuration.");
+                return;
+            }
+
 
             bool success = await c.RequestConnectionAsync();
             if (success)
                 Engine.PrintLine("Successfully connected to the target server.");
             else
                 Engine.PrintLine("Failed to connect to the target server.");
+        }
+
+        private IPEndPoint CreateEndPoint(string ipPort)
+        {
+            string[] target = ipPort.Trim().Split(':');
+            if (target.Length != 2)
+                return null;
+
+            if (!int.TryParse(target[1], out int port))
+                return null;
+
+            string[] ipParts = target[0].Split('.');
+            if (ipParts.Length != 4)
+                return null;
+
+            long ip = 0L;
+            for (int i = ipParts.Length - 1; i >= 0; --i)
+            {
+                if (!uint.TryParse(ipParts[i], out uint partValue))
+                    return null;
+
+                ip |= partValue << (8 * i);
+            }
+
+            return new IPEndPoint(ip, port);
+        }
+        private IPAddress CreateAddress(string ipAddr)
+        {
+            string[] ipParts = ipAddr.Split('.');
+            if (ipParts.Length != 4)
+                return null;
+
+            long ip = 0L;
+            for (int i = ipParts.Length - 1; i >= 0; --i)
+            {
+                if (!uint.TryParse(ipParts[i], out uint partValue))
+                    return null;
+
+                ip |= partValue << (8 * i);
+            }
+
+            return new IPAddress(ip);
         }
     }
 }

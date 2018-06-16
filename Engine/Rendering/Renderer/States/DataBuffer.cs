@@ -449,12 +449,12 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        public void SetBlockName(int programBindingId, string blockName)
+        public void SetBlockName(RenderProgram program, string blockName)
         {
-            int blockIndex = Engine.Renderer.GetUniformBlockIndex(programBindingId, blockName);
-            SetBlockIndex(programBindingId, blockIndex);
+            int blockIndex = Engine.Renderer.GetUniformBlockIndex(program.BindingId, blockName);
+            SetBlockIndex(blockIndex);
         }
-        public void SetBlockIndex(int programBindingId, int blockIndex)
+        public void SetBlockIndex(int blockIndex)
         {
             Engine.Renderer.BindBufferBase((EBufferRangeTarget)(int)Target, blockIndex, BindingId);
         }

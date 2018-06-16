@@ -50,7 +50,7 @@ namespace TheraEngine.Rendering
         internal QuadFrameBuffer DirLightFBO;
         internal Camera RenderingCamera => RenderingCameras.Peek();
         internal Stack<Camera> RenderingCameras { get; } = new Stack<Camera>();
-        internal TexRef2D BrdfTex;
+        internal TexRef2D BrdfTex = null;
 
         internal bool _updatingFBOs;
         private BoundingRectangle _internalResolution = new BoundingRectangle();
@@ -141,7 +141,6 @@ namespace TheraEngine.Rendering
             _owningPanel = panel;
             _index = index;
             _ssaoInfo.Generate();
-            PrecomputeBRDF();
             Resize(panel.Width, panel.Height);
         }
         public Viewport(float width, float height)
@@ -149,7 +148,6 @@ namespace TheraEngine.Rendering
             _index = 0;
             SetFullScreen();
             _ssaoInfo.Generate();
-            PrecomputeBRDF();
             Resize(width, height);
         }
         public void SetInternalResolution(float width, float height)
@@ -162,7 +160,7 @@ namespace TheraEngine.Rendering
 
             //Engine.PrintLine("Internal resolution changed: {0}x{1}", w, h);
 
-            InitFBOs();
+            ClearFBOs();
 
             _worldCamera?.Resize(w, h);
         }
@@ -253,6 +251,12 @@ namespace TheraEngine.Rendering
         {
             if (scene == null || scene.Count == 0)
                 return;
+
+            if (BrdfTex == null)
+                PrecomputeBRDF();
+
+            if (PostProcessFBO == null)
+                InitFBOs();
 
             CurrentlyRenderingViewports.Push(this);
             OnRender(scene, camera, target);
@@ -655,8 +659,8 @@ namespace TheraEngine.Rendering
 
         private void PrecomputeBRDF()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PrecomputeBRDF, BaseRenderPanel.PanelType.Rendering))
-                return;
+            //if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PrecomputeBRDF, BaseRenderPanel.PanelType.Rendering))
+            //    return;
 
             RenderingParameters renderParams = new RenderingParameters();
             renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;

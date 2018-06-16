@@ -20,6 +20,8 @@ namespace TheraEngine.Networking
         private bool _connectionResponseRecieved = false;
         private bool _connectionAccepted = false;
 
+        private NetworkClient _connection;
+
         /// <summary>
         /// Attempts to connect to the server.
         /// </summary>
@@ -102,6 +104,11 @@ namespace TheraEngine.Networking
                     
                     break;
             }
+        }
+
+        public override void UpdatePacketQueue(float delta)
+        {
+            _connection?.UpdatePacketQueue(delta);
         }
     }
 }

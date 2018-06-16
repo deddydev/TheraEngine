@@ -728,27 +728,5 @@ namespace TheraEngine
                     LocalPlayers[device.Index].Input.UpdateDevices();
             }
         }
-
-        #region Networking
-
-        public static void EstablishNetworkConnection(bool asServer)
-        {
-            if (asServer)
-            {
-                NetworkConnection = new Server();
-                NetworkConnection.InitializeLocalConnection();
-            }
-            else
-            {
-                NetworkConnection = new Client();
-
-            }
-        }
-        public static void DisconnectFromNetwork()
-        {
-
-        }
-
-        #endregion
     }
 }

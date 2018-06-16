@@ -186,10 +186,10 @@ namespace TheraEngine.Rendering.Models.Materials
             //    _uniqueID = -1;
             //}
         }
-        public void SetUniforms(int programBindingId)
+        public void SetUniforms(RenderProgram program)
         {
-            if (programBindingId <= 0)
-                programBindingId = Program.BindingId;
+            if (program == null)
+                program = Program;
 
             //Apply special rendering parameters
             if (RenderParams != null)
@@ -197,14 +197,14 @@ namespace TheraEngine.Rendering.Models.Materials
 
             //Set variable uniforms
             foreach (ShaderVar v in _parameters)
-                v.SetProgramUniform(Program.BindingId);
+                v.SetProgramUniform(Program);
 
             //Set texture uniforms
-            SetTextureUniforms(programBindingId);
+            SetTextureUniforms(program);
 
-            OnSetUniforms(programBindingId);
+            OnSetUniforms(program);
 
-            SettingUniforms?.Invoke(programBindingId);
+            SettingUniforms?.Invoke(program);
         }
         protected virtual void OnSetUniforms(int programBindingId) { }
 
@@ -258,18 +258,18 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (t is TexRef2D t2d)
                     t2d.Resize(width, height);
         }
-        private void SetTextureUniforms(int programBindingId)
+        private void SetTextureUniforms(RenderProgram program)
         {
             for (int i = 0; i < Textures.Length; ++i)
-                SetTextureUniform(Textures[i].GetRenderTextureGeneric(true), i, "Texture" + i, programBindingId);
+                SetTextureUniform(Textures[i].GetRenderTextureGeneric(true), i, "Texture" + i, program);
         }
-        public static void SetTextureUniform(BaseRenderTexture tref, int textureUnit, string varName, int programBindingId)
+        public static void SetTextureUniform(BaseRenderTexture tref, int textureUnit, string varName, RenderProgram program)
         {
             if (tref == null)
                 return;
 
             Engine.Renderer.SetActiveTexture(textureUnit);
-            Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
+            Engine.Renderer.Uniform(program, varName, textureUnit);
             tref.Bind();
         }
     }

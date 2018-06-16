@@ -13,9 +13,9 @@
         //{
         //    return info.GetLocation();
         //}
-        public static int GetLocation(int programBindingId, EEngineUniform u)
+        public static int GetLocation(RenderProgram program, EEngineUniform u)
         {
-            return Engine.Renderer.GetUniformLocation(programBindingId, u.ToString());
+            return Engine.Renderer.GetUniformLocation(program, u.ToString());
             //return VertexBuffer.MaxBufferCount + (int)u;
         }
         //public static int GetFirstOpenUniformLocation()

@@ -344,22 +344,22 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public abstract object GenericValue { get; }
 
-        internal void SetProgramUniform(int programBindingId, string name)
+        internal void SetProgramUniform(RenderProgram program, string name)
         {
-            int loc = Engine.Renderer.GetUniformLocation(programBindingId, name);
+            int loc = Engine.Renderer.GetUniformLocation(program, name);
             if (loc >= 0)
-                SetProgramUniform(programBindingId, loc);
+                SetProgramUniform(program, loc);
             //else
             //    throw new Exception();
         }
 
-        internal void SetProgramUniform(int programBindingId) 
-            => SetProgramUniform(programBindingId, Name);
+        internal void SetProgramUniform(RenderProgram program) 
+            => SetProgramUniform(program, Name);
 
         //internal void SetUniform(string name) { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, name)); }
         //internal void SetUniform() { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, Name)); }
 
-        internal abstract void SetProgramUniform(int programBindingId, int location);
+        internal abstract void SetProgramUniform(RenderProgram program, int location);
 
         public ShaderVar(string userName, IShaderVarOwner owner)
         {

@@ -1,13 +1,11 @@
 ﻿using Ayx.BitIO;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using TheraEngine.Core;
 using TheraEngine.Core.Extensions;
 
 namespace TheraEngine.Networking
@@ -16,6 +14,7 @@ namespace TheraEngine.Networking
     {
         public const int ServerPort = 9000;
         public const int ClientPort = 7000;
+        public const long LocalHostIp = 0x7F000001;
 
         public static bool AnyConnectionsAvailable => NetworkInterface.GetIsNetworkAvailable();
         
@@ -39,10 +38,6 @@ namespace TheraEngine.Networking
                     return ip;
             throw new Exception("Local v6 IP address not found.");
         }
-        
-        protected UdpClient _udpConnection;
-        protected LinkedList<(byte[], float, Func<bool>)> _queuedPackets 
-            = new LinkedList<(byte[], float, Func<bool>)>();
 
         #region Initialization
         protected delegate void DelReadBits(IPEndPoint endPoint, BitReader reader);
@@ -57,71 +52,48 @@ namespace TheraEngine.Networking
                 ReadStatePacket,
             };
         }
-        public void InitializeLocalConnection()
-        {
-            _udpConnection = new UdpClient();
-            _udpConnection.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            _udpConnection.Client.Bind(new IPEndPoint(IPAddress.Any, LocalPort));
-            _udpConnection.Connect("localhost", RemotePort);
+        //public void InitializeLocalConnection()
+        //{
+        //    _connection = new UdpClient();
+        //    _connection.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+        //    _connection.Client.Bind(new IPEndPoint(IPAddress.Any, LocalPort));
+        //    _connection.Connect("localhost", RemotePort);
 
-            ReceivePackets();
-            SendPackets();
-        }
-        public void InitializeConnection(int localPort, IPEndPoint targetPoint)
+        //    ReceivePackets();
+        //    SendPackets();
+        //}
+        public virtual void InitializeConnection(int localPort, IPEndPoint endPoint)
         {
             IPAddress localAddr = GetLocalIPAddressV4();
 
-            _udpConnection = new UdpClient();
-            _udpConnection.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            _udpConnection.Client.Bind(new IPEndPoint(localAddr, localPort));
+            _connection = new UdpClient();
+            _connection.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            _connection.Client.Bind(new IPEndPoint(localAddr, localPort));
 
-            if (targetPoint != null)
-                _udpConnection.Connect(targetPoint);
+            if (endPoint != null)
+                _connection.Connect(endPoint);
 
             ReceivePackets();
-            SendPackets();
+            //SendPackets();
         }
+        protected UdpClient _connection;
         private bool _isReceiving = false;
-        private bool _isSending = false;
-        private void ReceivePackets()
+        protected void ReceivePackets()
         {
             if (_isReceiving)
                 return;
             Task.Run(async () =>
             {
                 _isReceiving = true;
-                while (_udpConnection != null)
+                while (_connection != null)
                 {
-                    var packet = await _udpConnection.ReceiveAsync();
+                    var packet = await _connection.ReceiveAsync();
                     InterpretPacket(packet.RemoteEndPoint, packet.Buffer);
                 }
                 _isReceiving = false;
             });
         }
-        private void SendPackets()
-        {
-            if (_isSending)
-                return;
-            Task.Run(() =>
-            {
-                _isSending = true;
-                TimeSpan span = TimeSpan.FromSeconds(1.0 / 10.0);
-                Stopwatch w = Stopwatch.StartNew();
-                while (_udpConnection != null)
-                {
-                    var node = _queuedPackets.First;
-                    while (node != null)
-                    {
-                        var pack = node.Value;
-                        _udpConnection.Send(pack.Item1, pack.Item1.Length);
-                        node = node.Next;
-                    }
-                    while (w.Elapsed < span) ;
-                    w.Restart();
-                }
-                _isSending = false;
-            });
-        }
+        
         //private ConcurrentDictionary<IPEndPoint, List<byte[]>> _packetCacheRecieving 
         //    = new ConcurrentDictionary<IPEndPoint, List<byte[]>>();
         //private ConcurrentDictionary<IPEndPoint, List<byte[]>> _packetCacheReading
@@ -161,27 +133,7 @@ namespace TheraEngine.Networking
             //    }
             //}
         }
-        public void UpdatePacketQueue(float delta)
-        {
-            var node = _queuedPackets.First;
-            while (node != null)
-            {
-                var pack = node.Value;
-                
-                pack.Item2 -= delta;
-                bool stopWhen = false;
-                if (pack.Item3 != null)
-                    stopWhen = pack.Item3();
-                if (pack.Item2 <= 0.0f || stopWhen)
-                {
-                    var temp = node.Next;
-                    _queuedPackets.Remove(node);
-                    node = temp;
-                }
-                else
-                    node = node.Next;
-            }
-        }
+        public abstract void UpdatePacketQueue(float delta);
         private void PacketRecieved(Task<UdpReceiveResult> result)
         {
             byte[] buffer = result.Result.Buffer;
@@ -208,11 +160,11 @@ namespace TheraEngine.Networking
         #endregion
 
         #region Sending
-        public unsafe void SendPacket<T>(T data, float timeout = 2.0f, Func<bool> stopWhen = null) where T : unmanaged
+        public void SendPacket<T>(T data, float timeout = 2.0f, Func<bool> stopWhen = null) where T : unmanaged
             => SendPacket(data.ToByteArray(), timeout, stopWhen);
-        public unsafe void SendPacket(byte[] data, float timeout = 2.0f, Func<bool> stopWhen = null)
+        public void SendPacket(byte[] data, float timeout = 2.0f, Func<bool> stopWhen = null)
         {
-            _queuedPackets.AddLast((data, timeout, stopWhen));
+            //_queuedPackets.AddLast((data, timeout, stopWhen));
         }
         #endregion
     }

@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Dictionary containing all active render programs stored using their binding ids.
         /// </summary>
-        internal static ConcurrentDictionary<int, RenderProgram> LivePrograms = new ConcurrentDictionary<int, RenderProgram>();
+        //internal static ConcurrentDictionary<int, RenderProgram> LivePrograms = new ConcurrentDictionary<int, RenderProgram>();
 
         public EProgramStageMask ShaderTypeMask { get; private set; } = EProgramStageMask.None;
 
@@ -126,8 +126,8 @@ namespace TheraEngine.Rendering
 
         public override void Destroy()
         {
-            if (IsActive)
-                LivePrograms.TryRemove(BindingId, out RenderProgram prog);
+            //if (IsActive)
+            //    LivePrograms.TryRemove(BindingId, out RenderProgram prog);
 
             base.Destroy();
 
@@ -195,7 +195,7 @@ namespace TheraEngine.Rendering
                 shader.Destroy();
             }
 
-            LivePrograms.AddOrUpdate(id, this, (key, oldProg) => this);
+            //LivePrograms.AddOrUpdate(id, this, (key, oldProg) => this);
 
             return id;
         }

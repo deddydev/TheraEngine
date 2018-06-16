@@ -928,7 +928,6 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-
             bool success = await c.RequestConnectionAsync();
             if (success)
                 Engine.PrintLine("Successfully connected to the target server.");

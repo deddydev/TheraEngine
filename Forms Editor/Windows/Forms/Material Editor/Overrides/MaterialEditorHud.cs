@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
@@ -136,7 +138,7 @@ namespace TheraEditor.Windows.Forms
             if (!EndFunc.Generate(out GLSLShaderFile[] shaderFiles, out ShaderVar[] shaderVars))
                 return;
             TargetMaterial.Parameters = shaderVars;
-            TargetMaterial.SetShaders(shaderFiles);
+            TargetMaterial.Shaders.Set(shaderFiles.Select(x => new GlobalFileRef<GLSLShaderFile>(x)));
         }
 
         private ResultFunc Decompile(TMaterial mat)

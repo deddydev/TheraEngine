@@ -277,52 +277,52 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\Bone Tree\BoneTreeNode.cs" />
-    <Compile Include="Windows\Forms\Model Editor\DockableTexRefControl.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\DockableTexRefControl.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableTexRefControl.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\DockableTexRefControl.Designer.cs">
       <DependentUpon>DockableTexRefControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMaterialPreview.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\DockableMaterialPreview.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMaterialPreview.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\DockableMaterialPreview.Designer.cs">
       <DependentUpon>DockableMaterialPreview.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMaterialEditor.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\DockableMaterialEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMaterialEditor.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\DockableMaterialEditor.Designer.cs">
       <DependentUpon>DockableMaterialEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Animation\DockableAnimationEditor.cs">
+    <Compile Include="Windows\Forms\Model Editor\Animation\DockableAnimationList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Animation\DockableAnimationEditor.Designer.cs">
-      <DependentUpon>DockableAnimationEditor.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Model Editor\Animation\DockableAnimationList.Designer.cs">
+      <DependentUpon>DockableAnimationList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMeshEditor.cs">
+    <Compile Include="Windows\Forms\Model Editor\Mesh List\DockableMeshEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMeshEditor.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Mesh List\DockableMeshEditor.Designer.cs">
       <DependentUpon>DockableMeshEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMaterialList.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\DockableMaterialList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMaterialList.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\DockableMaterialList.Designer.cs">
       <DependentUpon>DockableMaterialList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMeshList.cs">
+    <Compile Include="Windows\Forms\Model Editor\Mesh List\DockableMeshList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableMeshList.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Mesh List\DockableMeshList.Designer.cs">
       <DependentUpon>DockableMeshList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableBoneTree.cs">
+    <Compile Include="Windows\Forms\Model Editor\Bone Tree\DockableBoneTree.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\DockableBoneTree.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Bone Tree\DockableBoneTree.Designer.cs">
       <DependentUpon>DockableBoneTree.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\DockableModelEditorRenderForm.cs">
@@ -337,22 +337,22 @@
     <Compile Include="Windows\Forms\Model Editor\Mesh List\LODControl.Designer.cs">
       <DependentUpon>LODControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\TexRefControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\TexRefControl.Designer.cs">
       <DependentUpon>TexRefControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Mesh List\MaterialPreview.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\MaterialPreview.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Mesh List\MaterialPreview.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\MaterialPreview.Designer.cs">
       <DependentUpon>MaterialPreview.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Mesh List\MaterialControl.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\MaterialControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Model Editor\Mesh List\MaterialControl.Designer.cs">
+    <Compile Include="Windows\Forms\Model Editor\Materials\MaterialControl.Designer.cs">
       <DependentUpon>MaterialControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\Mesh List\MeshControl.cs">
@@ -795,28 +795,28 @@
     <EmbeddedResource Include="Windows\Forms\Misc\LoginControl.resx">
       <DependentUpon>LoginControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableTexRefControl.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\DockableTexRefControl.resx">
       <DependentUpon>DockableTexRefControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialPreview.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\DockableMaterialPreview.resx">
       <DependentUpon>DockableMaterialPreview.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialEditor.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\DockableMaterialEditor.resx">
       <DependentUpon>DockableMaterialEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\Animation\DockableAnimationEditor.resx">
-      <DependentUpon>DockableAnimationEditor.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Animation\DockableAnimationList.resx">
+      <DependentUpon>DockableAnimationList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMeshEditor.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\DockableMeshEditor.resx">
       <DependentUpon>DockableMeshEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMaterialList.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\DockableMaterialList.resx">
       <DependentUpon>DockableMaterialList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableMeshList.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\DockableMeshList.resx">
       <DependentUpon>DockableMeshList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\DockableBoneTree.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Bone Tree\DockableBoneTree.resx">
       <DependentUpon>DockableBoneTree.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\DockableModelEditorRenderForm.resx">
@@ -825,16 +825,16 @@
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\LODControl.resx">
       <DependentUpon>LODControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\TexRefControl.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\TexRefControl.resx">
       <DependentUpon>TexRefControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MaterialPreview.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\MaterialPreview.resx">
       <DependentUpon>MaterialPreview.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MeshControl.resx">
       <DependentUpon>MeshControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Model Editor\Mesh List\MaterialControl.resx">
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\MaterialControl.resx">
       <DependentUpon>MaterialControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\ModelEditorForm.resx">

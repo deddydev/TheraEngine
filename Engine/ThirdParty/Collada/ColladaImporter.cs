@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Files;
@@ -28,7 +29,7 @@ namespace TheraEngine.Rendering.Models
             public List<ModelScene> Models { get; set; }
             public List<BasePropAnim> PropertyAnimations { get; set; }
         }
-        public static Data Import(string filePath, ModelImportOptions options)
+        public static async Task<Data> ImportAsync(string filePath, ModelImportOptions options)
         {
             if (!File.Exists(filePath))
                 return null;
@@ -40,7 +41,7 @@ namespace TheraEngine.Rendering.Models
             //using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
             {
                 var schemeReader = new XMLSchemeReader<COLLADA>();
-                var root = schemeReader.Import(filePath, options.IgnoreFlags);
+                var root = await schemeReader.ImportAsync(filePath, options.IgnoreFlags);
                 if (root != null)
                 {
                     Matrix4 baseTransform = options.InitialTransform.Matrix;
@@ -548,19 +549,19 @@ namespace TheraEngine.Rendering.Models
                     switch (input.CommonSemanticType)
                     {
                         case ESemantic.INPUT:
-                            inputData = source.GetArrayElement<Source.FloatArray>().StringContent.Values;
+                            inputData = source.GetArrayElement<FloatArray>().StringContent.Values;
                             break;
                         case ESemantic.OUTPUT:
-                            outputData = source.GetArrayElement<Source.FloatArray>().StringContent.Values;
+                            outputData = source.GetArrayElement<FloatArray>().StringContent.Values;
                             break;
                         case ESemantic.INTERPOLATION:
                             interpTypeData = source.GetArrayElement<NameArray>().StringContent.Values;
                             break;
                         case ESemantic.IN_TANGENT:
-                            inTanData = source.GetArrayElement<Source.FloatArray>().StringContent.Values;
+                            inTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
                             break;
                         case ESemantic.OUT_TANGENT:
-                            outTanData = source.GetArrayElement<Source.FloatArray>().StringContent.Values;
+                            outTanData = source.GetArrayElement<FloatArray>().StringContent.Values;
                             break;
                     }
                 }
@@ -839,7 +840,7 @@ namespace TheraEngine.Rendering.Models
                         }
                         else
                         {
-                            Engine.LogWarning("Non-joint transform matrix animation not supported.");
+                            //Engine.LogWarning("Non-joint transform matrix animation not supported.");
                         }
                     }
                     else if (target is Node.Translate trans)

@@ -5,6 +5,7 @@ using System;
 using System.Xml;
 using TheraEngine.Physics;
 using TheraEngine.Core.Shapes;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -13,8 +14,8 @@ namespace TheraEngine.Rendering.Models
     [FileDef("Static Model")]
     public class StaticModel : TFileObject, IModelFile
     {
-        [ThirdPartyLoader("dae")]
-        public static TFileObject LoadDAE(string path)
+        [ThirdPartyLoader("dae", true)]
+        public static async Task<TFileObject> LoadDAEAsync(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {
@@ -24,7 +25,7 @@ namespace TheraEngine.Rendering.Models
                 Core.Files.IgnoreFlags.Cameras |
                 Core.Files.IgnoreFlags.Lights
             };
-            return Collada.Import(path, o)?.Models[0].StaticModel;
+            return (await Collada.ImportAsync(path, o))?.Models[0].StaticModel;
         }
         [ThirdPartyLoader("obj")]
         public static TFileObject LoadOBJ(string path)

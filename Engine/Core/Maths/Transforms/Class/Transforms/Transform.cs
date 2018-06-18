@@ -258,6 +258,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 _rotation.Changed += CreateTransform;
             }
         }
+        [Browsable(false)]
         public Quat Quaternion
         {
             get

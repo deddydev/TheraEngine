@@ -263,22 +263,22 @@ namespace TheraEngine.Components.Scene.Lights
                 OwningScene.Remove(this);
 #endif
         }
-        public override void SetUniforms(int programBindingId)
+        public override void SetUniforms(RenderProgram program)
         {
             string indexer = Uniform.SpotLightsName + ".";
-            Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
-            Engine.Renderer.Uniform(programBindingId, indexer + "OuterCutoff", _outerCutoff);
-            Engine.Renderer.Uniform(programBindingId, indexer + "InnerCutoff", _innerCutoff);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Position", Position);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Radius", _distance);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Exponent", _exponent);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
+            program.Uniform(indexer + "Direction", _direction);
+            program.Uniform(indexer + "OuterCutoff", _outerCutoff);
+            program.Uniform(indexer + "InnerCutoff", _innerCutoff);
+            program.Uniform(indexer + "Position", Position);
+            program.Uniform(indexer + "Radius", _distance);
+            program.Uniform(indexer + "Brightness", _brightness);
+            program.Uniform(indexer + "Exponent", _exponent);
+            program.Uniform(indexer + "Base.Color", _color.Raw);
+            program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            program.Uniform(indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
             TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", programBindingId);
+                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", program);
         }
 
         public void SetShadowMapResolution(int width, int height)

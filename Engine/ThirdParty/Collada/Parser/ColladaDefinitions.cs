@@ -1279,8 +1279,8 @@ namespace TheraEngine.Rendering.Models
                             /// The <phong> shader uses the common Phong shading equation, that is:
                             /// color = emission + ambient * al + diffuse * max(N * L, 0) + specular * max(R * I, 0)^shininess
                             /// where:
-                            /// • al – A constant amount of ambient light contribution coming from the scene.In the COMMON
-                            /// profile, this is the sum of all the <light><technique_common><ambient><color> values in the <visual_scene>.
+                            /// • al – A constant amount of ambient light contribution coming from the scene.
+                            /// In the COMMON profile, this is the sum of all the <light><technique_common><ambient><color> values in the <visual_scene>.
                             /// • N – Normal vector
                             /// • L – Light vector
                             /// • I – Eye vector

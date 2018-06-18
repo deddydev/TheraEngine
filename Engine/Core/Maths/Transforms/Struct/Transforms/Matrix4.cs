@@ -1128,10 +1128,8 @@ namespace System
         public void ReadFromString(string str)
         {
             string[] v = str.Split(' ');
-            Row0 = new Vec4(float.Parse(v[0]), float.Parse(v[1]), float.Parse(v[2]), float.Parse(v[3]));
-            Row1 = new Vec4(float.Parse(v[4]), float.Parse(v[5]), float.Parse(v[6]), float.Parse(v[7]));
-            Row2 = new Vec4(float.Parse(v[8]), float.Parse(v[9]), float.Parse(v[10]), float.Parse(v[11]));
-            Row3 = new Vec4(float.Parse(v[12]), float.Parse(v[13]), float.Parse(v[14]), float.Parse(v[15]));
+            for (int i = 0; i < 16; ++i)
+                Data[i] = i < v.Length ? float.Parse(v[i]) : 0.0f;
         }
         public void Write(VoidPtr address)
         {

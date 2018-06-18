@@ -52,11 +52,11 @@ namespace TheraEngine.Rendering
             _quadCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
             _quadCamera.Resize(1.0f, 1.0f);
         }
-        private void SetUniforms(int vertexBindingId, int fragGeomBindingId)
+        private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
-            Engine.Renderer.Uniform(fragGeomBindingId, "Ping", Ping ? 0.0f : 1.0f);
-            Engine.Renderer.Uniform(fragGeomBindingId, "Iteration", Iteration);
-            SettingUniforms?.Invoke(fragGeomBindingId);
+            materialProgram.Uniform("Ping", Ping ? 0.0f : 1.0f);
+            materialProgram.Uniform("Iteration", Iteration);
+            SettingUniforms?.Invoke(materialProgram);
         }
         public void BindCurrentTarget(EFramebufferTarget target)
         {

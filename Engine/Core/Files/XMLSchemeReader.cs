@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using static TheraEngine.Rendering.Models.Collada;
 
 namespace TheraEngine.Core.Files
@@ -49,11 +51,17 @@ namespace TheraEngine.Core.Files
         //}
         public class ChildInfo
         {
+            private static readonly Type[] ElementTypes;
+            static ChildInfo()
+            {
+                Type elemType = typeof(IElement);
+                ElementTypes = Engine.FindAllTypes((Type t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<Name>() != null).ToArray();
+            }
             public ChildInfo(Child data)
             {
                 Data = data;
                 Occurrences = 0;
-                Types = Engine.FindAllTypes((Type t) => Data.ChildEntryType.IsAssignableFrom(t) && t.GetCustomAttribute<Name>() != null).ToArray();
+                Types = ElementTypes.Where((Type t) => Data.ChildEntryType.IsAssignableFrom(t)).ToArray();
                 ElementNames = new Name[Types.Length];
                 for (int i = 0; i < Types.Length; ++i)
                 {
@@ -94,243 +102,249 @@ namespace TheraEngine.Core.Files
                 return string.Join(" ", ElementNames.Select(x => x.ElementName)) + " " + string.Join(" ", Occurrences);
             }
         }
-        public static IElement ParseElement(
-            Type elementType,
-            IElement parent,
-            XMLReader reader,
-            string version,
-            IgnoreFlags ignore,
-            string parentTree,
-            int elementIndex)
-        => ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, ignore, parentTree, elementIndex);
-            public static IElement ParseElement(
-            IElement entry,
-            IElement parent,
-            XMLReader reader,
-            string version,
-            IgnoreFlags ignore,
-            string parentTree,
-            int elementIndex)
-        {
-            DateTime startTime = DateTime.Now;
+        //public static IElement ParseElement(
+        //    Type elementType,
+        //    IElement parent,
+        //    XMLReader reader,
+        //    string version,
+        //    IgnoreFlags ignore,
+        //    string parentTree,
+        //    int elementIndex)
+        //=> ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, ignore, parentTree, elementIndex);
+        //    public static IElement ParseElement(
+        //    IElement entry,
+        //    IElement parent,
+        //    XMLReader reader,
+        //    string version,
+        //    IgnoreFlags ignore,
+        //    string parentTree,
+        //    int elementIndex)
+        //{
+        //    DateTime startTime = DateTime.Now;
 
-            Type elementType = entry.GetType();
-            entry.GenericParent = parent;
-            entry.ElementIndex = elementIndex;
+        //    Type elementType = entry.GetType();
+        //    entry.GenericParent = parent;
+        //    entry.ElementIndex = elementIndex;
 
-            string parentElementName = reader.Name;
-            if (string.IsNullOrEmpty(parentElementName))
-                throw new Exception();
-            parentTree += parentElementName + "/";
-            entry.Tree = parentTree;
+        //    string parentElementName = reader.Name;
+        //    if (string.IsNullOrEmpty(parentElementName))
+        //        throw new Exception();
+        //    parentTree += parentElementName + "/";
+        //    entry.Tree = parentTree;
 
-            //if (!reader.BeginElement())
-            //{
-            //    Engine.PrintLine("Encountered an unexpected node: {0}", reader.Name);
-            //    reader.EndElement();
-            //    entry.PostRead();
-            //    return entry;
-            //}
+        //    //if (!reader.BeginElement())
+        //    //{
+        //    //    Engine.PrintLine("Encountered an unexpected node: {0}", reader.Name);
+        //    //    reader.EndElement();
+        //    //    entry.PostRead();
+        //    //    return entry;
+        //    //}
             
-            entry.PreRead();
-            if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
-            {
-                Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
-                entry.PostRead();
-                return entry;
-            }
+        //    entry.PreRead();
+        //    if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
+        //    {
+        //        Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
+        //        entry.PostRead();
+        //        return entry;
+        //    }
 
-            if ((ignore & IgnoreFlags.Extra) != 0 && entry is Extra)
-            {
-                entry.PostRead();
-                return entry;
-            }
-            if ((ignore & IgnoreFlags.Asset) != 0 && entry is Asset)
-            {
-                entry.PostRead();
-                return entry;
-            }
-            if ((ignore & IgnoreFlags.Animations) != 0 && entry is COLLADA.LibraryAnimations)
-            {
-                entry.PostRead();
-                return entry;
-            }
-            if ((ignore & IgnoreFlags.Cameras) != 0 && entry is InstanceCamera)
-            {
-                entry.PostRead();
-                return entry;
-            }
-            if ((ignore & IgnoreFlags.Lights) != 0 && entry is InstanceLight)
-            {
-                entry.PostRead();
-                return entry;
-            }
-            if ((ignore & IgnoreFlags.Controllers) != 0 && entry is InstanceController)
-            {
-                entry.PostRead();
-                return entry;
-            }
-            if ((ignore & IgnoreFlags.Geometry) != 0 && entry is InstanceGeometry)
-            {
-                entry.PostRead();
-                return entry;
-            }
+        //    if ((ignore & IgnoreFlags.Extra) != 0 && entry is Extra)
+        //    {
+        //        entry.PostRead();
+        //        return entry;
+        //    }
+        //    if ((ignore & IgnoreFlags.Asset) != 0 && entry is Asset)
+        //    {
+        //        entry.PostRead();
+        //        return entry;
+        //    }
+        //    if ((ignore & IgnoreFlags.Animations) != 0 && entry is COLLADA.LibraryAnimations)
+        //    {
+        //        entry.PostRead();
+        //        return entry;
+        //    }
+        //    if ((ignore & IgnoreFlags.Cameras) != 0 && entry is InstanceCamera)
+        //    {
+        //        entry.PostRead();
+        //        return entry;
+        //    }
+        //    if ((ignore & IgnoreFlags.Lights) != 0 && entry is InstanceLight)
+        //    {
+        //        entry.PostRead();
+        //        return entry;
+        //    }
+        //    if ((ignore & IgnoreFlags.Controllers) != 0 && entry is InstanceController)
+        //    {
+        //        entry.PostRead();
+        //        return entry;
+        //    }
+        //    if ((ignore & IgnoreFlags.Geometry) != 0 && entry is InstanceGeometry)
+        //    {
+        //        entry.PostRead();
+        //        return entry;
+        //    }
 
-            #region Read attributes
-            MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            while (reader.ReadAttribute())
-            {
-                string name = reader.Name;
-                string value = reader.Value;
-                MemberInfo info = members.FirstOrDefault(x =>
-                {
-                    var a = x.GetCustomAttribute<Attr>();
-                    return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
-                });
+        //    #region Read attributes
+        //    MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        //    while (reader.ReadAttribute())
+        //    {
+        //        string name = reader.Name;
+        //        string value = reader.Value;
+        //        MemberInfo info = members.FirstOrDefault(x =>
+        //        {
+        //            var a = x.GetCustomAttribute<Attr>();
+        //            return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
+        //        });
 
-                if (info == null)
-                    Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
-                else if (info is FieldInfo field)
-                    field.SetValue(entry, value.ParseAs(field.FieldType));
-                else if (info is PropertyInfo property)
-                    property.SetValue(entry, value.ParseAs(property.PropertyType));
-            }
-            #endregion
+        //        if (info == null)
+        //        {
+        //            //Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
+        //        }
+        //        else if (info is FieldInfo field)
+        //            field.SetValue(entry, value.ParseAs(field.FieldType));
+        //        else if (info is PropertyInfo property)
+        //            property.SetValue(entry, value.ParseAs(property.PropertyType));
+        //    }
+        //    #endregion
 
-            if (entry is IVersion v)
-                version = v.Version;
+        //    if (entry is IVersion v)
+        //        version = v.Version;
 
-            entry.OnAttributesRead();
+        //    entry.OnAttributesRead();
 
-            #region Read child elements
+        //    #region Read child elements
 
-            if (entry is IStringElement StringEntry)
-            {
-                StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
-                StringEntry.GenericStringContent.ReadFromString(reader.ReadElementString());
-            }
-            else
-            {
-                ChildInfo[] childElements = elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
-                MultiChildInfo[] multiChildElements = elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
+        //    if (entry is IStringElement StringEntry)
+        //    {
+        //        StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
+        //        StringEntry.GenericStringContent.ReadFromString(reader.ReadElementString());
+        //    }
+        //    else
+        //    {
+        //        ChildInfo[] childElements = elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
+        //        MultiChildInfo[] multiChildElements = elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
 
-                int childIndex = 0;
+        //        int childIndex = 0;
 
-                //Read all child elements
-                while (reader.BeginElement())
-                {
-                    string elementName = reader.Name;
-                    if (string.IsNullOrEmpty(elementName))
-                        throw new Exception();
+        //        //Read all child elements
+        //        while (reader.BeginElement())
+        //        {
+        //            string elementName = reader.Name;
+        //            if (string.IsNullOrEmpty(elementName))
+        //                throw new Exception();
 
-                    bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
-                        Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
+        //            bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
+        //                Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
 
-                    if (isUnsupported)
-                    {
-                        if (string.IsNullOrEmpty(elementName))
-                            throw new Exception();
-                        Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                        reader.EndElement();
-                    }
-                    else
-                    {
-                        int typeIndex = -1;
-                        foreach (ChildInfo child in childElements)
-                        {
-                            typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
-                            if (typeIndex >= 0)
-                            {
-                                if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
-                                    Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
+        //            if (isUnsupported)
+        //            {
+        //                if (string.IsNullOrEmpty(elementName))
+        //                    throw new Exception();
+        //                //Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+        //                reader.EndElement();
+        //            }
+        //            else
+        //            {
+        //                int typeIndex = -1;
+        //                foreach (ChildInfo child in childElements)
+        //                {
+        //                    typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
+        //                    if (typeIndex >= 0)
+        //                    {
+        //                        if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
+        //                            Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
-                                //entry.QueueChildElement(child.Types[typeIndex], reader, version, parseExtraElements, parentTree, childIndex, reader.Name, reader.Value);
-                                ParseElement(child.Types[typeIndex], entry, reader, version, ignore, parentTree, childIndex);
-                                break;
-                            }
-                        }
-                        if (typeIndex < 0)
-                        {
-                            MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
-                            {
-                                for (int i = 0; i < c.Data.Types.Length; ++i)
-                                {
-                                    Name name = c.ElementNames[i];
-                                    if (name.Matches(elementName, version))
-                                    {
-                                        ++c.Occurrences[i];
-                                        //entry.QueueChildElement(c.Data.Types[i], reader, version, parseExtraElements, parentTree, childIndex, reader.Name, reader.Value);
-                                        ParseElement(c.Data.Types[i], entry, reader, version, ignore, parentTree, childIndex);
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            });
+        //                        //entry.QueueChildElement(child.Types[typeIndex], reader, version, parseExtraElements, parentTree, childIndex, reader.Name, reader.Value);
+        //                        ParseElement(child.Types[typeIndex], entry, reader, version, ignore, parentTree, childIndex);
+        //                        break;
+        //                    }
+        //                }
+        //                if (typeIndex < 0)
+        //                {
+        //                    int i = 0;
+        //                    MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
+        //                    {
+        //                        for (i = 0; i < c.Data.Types.Length; ++i)
+        //                        {
+        //                            Name name = c.ElementNames[i];
+        //                            if (name.Matches(elementName, version))
+        //                            {
+        //                                ++c.Occurrences[i];
+        //                                //entry.QueueChildElement(c.Data.Types[i], reader, version, parseExtraElements, parentTree, childIndex, reader.Name, reader.Value);
+        //                                return true;
+        //                            }
+        //                        }
+        //                        return false;
+        //                    });
 
-                            if (info == null)
-                            {
-                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                            }
-                        }
-                        reader.EndElement();
-                    }
+        //                    if (info == null)
+        //                    {
+        //                        //Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+        //                    }
+        //                    else
+        //                    {
+        //                        ParseElement(info.Data.Types[i], entry, reader, version, ignore, parentTree, childIndex);
+        //                    }
+        //                }
+        //                reader.EndElement();
+        //            }
 
-                    ++childIndex;
-                }
+        //            ++childIndex;
+        //        }
 
-                Name[] underCounted = childElements.
-                    Where(x => x.Occurrences < x.Data.MinCount).
-                    SelectMany(x => x.ElementNames).
-                    Where(x => x.VersionMatches(version)).ToArray();
-                if (underCounted.Length > 0)
-                    foreach (Name c in underCounted)
-                        Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
-            }
+        //        Name[] underCounted = childElements.
+        //            Where(x => x.Occurrences < x.Data.MinCount).
+        //            SelectMany(x => x.ElementNames).
+        //            Where(x => x.VersionMatches(version)).ToArray();
+        //        if (underCounted.Length > 0)
+        //            foreach (Name c in underCounted)
+        //                Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
+        //    }
 
-            #endregion
+        //    #endregion
       
-            entry.PostRead();
+        //    entry.PostRead();
 
-            TimeSpan elapsed = DateTime.Now - startTime;
-            if (elapsed.TotalSeconds > 1.0f)
-                if (entry is IID id && !string.IsNullOrEmpty(id.ID))
-                    Engine.PrintLine("Parsing {0}{2} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString(), id.ID);
-                else
-                    Engine.PrintLine("Parsing {0} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString());
+        //    TimeSpan elapsed = DateTime.Now - startTime;
+        //    if (elapsed.TotalSeconds > 1.0f)
+        //        if (entry is IID id && !string.IsNullOrEmpty(id.ID))
+        //            Engine.PrintLine("Parsing {0}{2} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString(), id.ID);
+        //        else
+        //            Engine.PrintLine("Parsing {0} took {1} seconds.", parentTree, elapsed.TotalSeconds.ToString());
 
-            return entry;
-        }
+        //    return entry;
+        //}
     }
     public class XMLSchemeReader<T> : BaseXMLSchemeReader where T : class, IElement
     {
         public XMLSchemeReader() { }
-        public T Import(XMLReader reader, IgnoreFlags ignore)
-        {
-            string previousTree = "";
-            Type t = typeof(T);
-            Name name = t.GetCustomAttribute<Name>();
-            if (name == null || string.IsNullOrEmpty(name.ElementName))
-            {
-                Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
-                return null;
-            }
+        //public T Import(XMLReader reader, IgnoreFlags ignore)
+        //{
+        //    string previousTree = "";
+        //    Type t = typeof(T);
+        //    Name name = t.GetCustomAttribute<Name>();
+        //    if (name == null || string.IsNullOrEmpty(name.ElementName))
+        //    {
+        //        Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
+        //        return null;
+        //    }
 
-            while (reader.BeginElement())
-            {
-                if (reader.Name.Equals(name.ElementName, true))
-                    return ParseElement(t, null, reader, null, ignore, previousTree, 0) as T;
-                reader.EndElement();
-            }
+        //    while (reader.BeginElement())
+        //    {
+        //        if (reader.Name.Equals(name.ElementName, true))
+        //            return ParseElement(t, null, reader, null, ignore, previousTree, 0) as T;
+        //        reader.EndElement();
+        //    }
 
-            //bool found;
-            //while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
-            //if (found)
-            //    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
+        //    //bool found;
+        //    //while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) { }
+        //    //if (found)
+        //    //    Root = ParseElement(t, null, reader, null, parseExtraElements, previousTree, 0) as T;
 
-            return null;
-        }
+        //    return null;
+        //}
 
-        public T Import(string path, IgnoreFlags ignore)
+        public async Task<T> ImportAsync(string path, IgnoreFlags ignore)
         {
             XmlReaderSettings settings = new XmlReaderSettings()
             {
@@ -340,18 +354,18 @@ namespace TheraEngine.Core.Files
                 IgnoreWhitespace = true,
                 IgnoreComments = true,
                 CloseInput = true,
-                Async = false,
+                Async = true,
             };
-            return Import(path, ignore, settings);
+            return await ImportAsync(path, ignore, settings);
         }
-        public T Import(string path, IgnoreFlags ignore, XmlReaderSettings settings)
+        public async Task<T> ImportAsync(string path, IgnoreFlags ignore, XmlReaderSettings settings)
         {
             using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
             {
-                return Import(r, ignore);
+                return await ImportAsync(r, ignore);
             }
         }
-        public T Import(XmlReader reader, IgnoreFlags ignore)
+        public async Task<T> ImportAsync(XmlReader reader, IgnoreFlags ignore)
         {
             string previousTree = "";
             Type t = typeof(T);
@@ -363,17 +377,18 @@ namespace TheraEngine.Core.Files
             }
 
             bool found;
-            while (!(found = (reader.MoveToContent() == XmlNodeType.Element && string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture)))) ;
+            while (!(found = await reader.MoveToContentAsync() == XmlNodeType.Element && 
+                string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture))) ;
+
             if (found)
             {
-                IElement e = ParseElement(t, null, reader, null, ignore, previousTree, 0);
+                IElement e = await ParseElementAsync(t, null, reader, null, ignore, previousTree, 0);
                 return e as T;
             }
 
             return null;
         }
-
-        public static IElement ParseElement(
+        public static async Task<IElement> ParseElementAsync(
             Type elementType,
             IElement parent,
             XmlReader reader,
@@ -381,8 +396,8 @@ namespace TheraEngine.Core.Files
             IgnoreFlags ignore,
             string parentTree,
             int elementIndex)
-            => ParseElement(Activator.CreateInstance(elementType) as IElement, parent, reader, version, ignore, parentTree, elementIndex);
-        public static IElement ParseElement(
+            => await ParseElementAsync(Activator.CreateInstance(elementType) as IElement, parent, reader, version, ignore, parentTree, elementIndex);
+        public static async Task<IElement> ParseElementAsync(
             IElement entry,
             IElement parent,
             XmlReader reader,
@@ -407,7 +422,7 @@ namespace TheraEngine.Core.Files
             if (reader.NodeType != XmlNodeType.Element)
             {
                 Engine.PrintLine("Encountered an unexpected node: {0} '{1}'", reader.Name, reader.NodeType.ToString());
-                reader.Skip();
+                await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
             }
@@ -415,26 +430,26 @@ namespace TheraEngine.Core.Files
             if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
             {
                 Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
-                reader.Skip();
+                await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
             }
 
             if ((ignore & IgnoreFlags.Extra) != 0 && entry is Extra)
             {
-                reader.Skip();
+                await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
             }
             if ((ignore & IgnoreFlags.Asset) != 0 && entry is Asset)
             {
-                reader.Skip();
+                await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
             }
             if ((ignore & IgnoreFlags.Animations) != 0 && entry is COLLADA.LibraryAnimations)
             {
-                reader.Skip();
+                await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
             }
@@ -442,7 +457,7 @@ namespace TheraEngine.Core.Files
             {
                 if (entry is InstanceCamera || entry is COLLADA.LibraryCameras)
                 {
-                    reader.Skip();
+                    await reader.SkipAsync();
                     entry.PostRead();
                     return entry;
                 }
@@ -451,7 +466,7 @@ namespace TheraEngine.Core.Files
             {
                 if (entry is InstanceLight || entry is COLLADA.LibraryLights)
                 {
-                    reader.Skip();
+                    await reader.SkipAsync();
                     entry.PostRead();
                     return entry;
                 }
@@ -460,7 +475,7 @@ namespace TheraEngine.Core.Files
             {
                 if (entry is InstanceController || entry is COLLADA.LibraryControllers)
                 {
-                    reader.Skip();
+                    await reader.SkipAsync();
                     entry.PostRead();
                     return entry;
                 }
@@ -469,7 +484,7 @@ namespace TheraEngine.Core.Files
             {
                 if (entry is InstanceGeometry || entry is COLLADA.LibraryGeometries)
                 {
-                    reader.Skip();
+                    await reader.SkipAsync();
                     entry.PostRead();
                     return entry;
                 }
@@ -493,7 +508,9 @@ namespace TheraEngine.Core.Files
                         });
 
                         if (info == null)
-                            Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
+                        {
+                            //Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
+                        }
                         else if (info is FieldInfo field)
                             field.SetValue(entry, value.ParseAs(field.FieldType));
                         else if (info is PropertyInfo property)
@@ -513,12 +530,12 @@ namespace TheraEngine.Core.Files
             if (entry is IStringElement StringEntry)
             {
                 StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
-                StringEntry.GenericStringContent.ReadFromString(reader.ReadElementContentAsString());
+                StringEntry.GenericStringContent.ReadFromString(await reader.ReadElementContentAsStringAsync());
             }
             else
             {
                 if (reader.IsEmptyElement)
-                    reader.Read();
+                    await reader.ReadAsync();
                 else
                 {
                     reader.ReadStartElement();
@@ -532,7 +549,7 @@ namespace TheraEngine.Core.Files
                     {
                         if (reader.NodeType != XmlNodeType.Element)
                         {
-                            reader.Skip();
+                            await reader.SkipAsync();
                             continue;
                         }
 
@@ -545,11 +562,11 @@ namespace TheraEngine.Core.Files
                             IElement e = entry.CreateChildElement(elementName, version);
                             if (e == null)
                             {
-                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                                reader.Skip();
+                                //Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+                                await reader.SkipAsync();
                             }
                             else
-                                ParseElement(e, entry, reader, version, ignore, parentTree, childIndex);
+                                await ParseElementAsync(e, entry, reader, version, ignore, parentTree, childIndex);
                         }
                         else
                         {
@@ -561,8 +578,8 @@ namespace TheraEngine.Core.Files
                             {
                                 if (string.IsNullOrEmpty(elementName))
                                     throw new Exception();
-                                Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                                reader.Skip();
+                                //Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+                                await reader.SkipAsync();
                             }
                             else
                             {
@@ -575,21 +592,21 @@ namespace TheraEngine.Core.Files
                                         if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
                                             Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
-                                        ParseElement(child.Types[typeIndex], entry, reader, version, ignore, parentTree, childIndex);
+                                        await ParseElementAsync(child.Types[typeIndex], entry, reader, version, ignore, parentTree, childIndex);
                                         break;
                                     }
                                 }
                                 if (typeIndex < 0)
                                 {
+                                    int i = 0;
                                     MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
                                     {
-                                        for (int i = 0; i < c.Data.Types.Length; ++i)
+                                        for (i = 0; i < c.Data.Types.Length; ++i)
                                         {
                                             Name name = c.ElementNames[i];
                                             if (name.Matches(elementName, version))
                                             {
                                                 ++c.Occurrences[i];
-                                                ParseElement(c.Data.Types[i], entry, reader, version, ignore, parentTree, childIndex);
                                                 return true;
                                             }
                                         }
@@ -598,8 +615,12 @@ namespace TheraEngine.Core.Files
 
                                     if (info == null)
                                     {
-                                        Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
-                                        reader.Skip();
+                                        //Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
+                                        await reader.SkipAsync();
+                                    }
+                                    else
+                                    {
+                                        await ParseElementAsync(info.Data.Types[i], entry, reader, version, ignore, parentTree, childIndex);
                                     }
                                 }
                             }
@@ -779,7 +800,7 @@ namespace TheraEngine.Core.Files
         T2[] GetChildren<T2>() where T2 : IElement;
         void PreRead();
         void PostRead();
-        void QueueChildElement(Type type, XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value);
+        //void QueueChildElement(Type type, XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value);
         void OnAttributesRead();
 
         bool WantsManualRead { get; }
@@ -807,8 +828,7 @@ namespace TheraEngine.Core.Files
         {
             get
             {
-                Name name = Attribute.GetCustomAttribute(GetType(), typeof(Name)) as Name;
-                if (name == null)
+                if (!(Attribute.GetCustomAttribute(GetType(), typeof(Name)) is Name name))
                     throw new Exception("ColladaName attribute not specified for " + GetType().ToString());
                 return name.ElementName;
             }
@@ -847,9 +867,9 @@ namespace TheraEngine.Core.Files
             var array = GetChildren<T2>();
             if (array.Length > 0)
                 return array[0];
-            return default(T2);
+            return default;
         }
-        public unsafe T2[] GetChildren<T2>() where T2 : IElement
+        public T2[] GetChildren<T2>() where T2 : IElement
         {
             List<T2> elems = new List<T2>();
             Type t = typeof(T2);
@@ -859,7 +879,7 @@ namespace TheraEngine.Core.Files
                     break;
 
                 var matchingParsed = ChildElements.Keys.Where(x => t.IsAssignableFrom(x)).ToArray();
-                var matchingUnparsed = _initData.Keys.Where(x => t.IsAssignableFrom(x)).ToArray();
+                //var matchingUnparsed = _initData.Keys.Where(x => t.IsAssignableFrom(x)).ToArray();
                 foreach (var match in matchingParsed)
                 {
                     var matchElems = ChildElements[match].Where(x => x is T2).Select(x => (T2)x);
@@ -867,24 +887,24 @@ namespace TheraEngine.Core.Files
                         if (!elems.Contains(m))
                             elems.Add(m);
                 }
-                foreach (var match in matchingUnparsed)
-                {
-                    if (!ChildElements.ContainsKey(match))
-                        ChildElements.Add(match, new List<IElement>());
-                    var matchElems = _initData[match];
-                    if (_initData.ContainsKey(match))
-                        _initData.Remove(match);
-                    foreach (InitData d in matchElems)
-                    {
-                        d.reader._ptr = d._ptr;
-                        d.reader._inTag = d._inTag;
-                        d.reader.SetStringBuffer(d._name, d._value);
-                        T2 m = (T2)BaseXMLSchemeReader.ParseElement(match, this, d.reader, d.version, d.ignore, d.parentTree, d.childIndex);
-                        ChildElements[match].Add(m);
-                        if (!elems.Contains(m))
-                            elems.Add(m);
-                    }
-                }
+                //foreach (var match in matchingUnparsed)
+                //{
+                //    if (!ChildElements.ContainsKey(match))
+                //        ChildElements.Add(match, new List<IElement>());
+                //    var matchElems = _initData[match];
+                //    if (_initData.ContainsKey(match))
+                //        _initData.Remove(match);
+                //    foreach (InitData d in matchElems)
+                //    {
+                //        d.reader._ptr = d._ptr;
+                //        d.reader._inTag = d._inTag;
+                //        d.reader.SetStringBuffer(d._name, d._value);
+                //        T2 m = (T2)BaseXMLSchemeReader.ParseElementAsync(match, this, d.reader, d.version, d.ignore, d.parentTree, d.childIndex);
+                //        ChildElements[match].Add(m);
+                //        if (!elems.Contains(m))
+                //            elems.Add(m);
+                //    }
+                //}
                 t = t.BaseType;
             }
             return elems.ToArray();
@@ -895,40 +915,40 @@ namespace TheraEngine.Core.Files
         public virtual void PreRead() { }
         public virtual void PostRead() { }
 
-        private unsafe struct InitData
-        {
-            public string _name, _value;
-            public byte* _ptr;
-            public bool _inTag;
-            public string version;
-            public IgnoreFlags ignore;
-            public string parentTree;
-            public int childIndex;
-            public XMLReader reader;
+        //private unsafe struct InitData
+        //{
+        //    public string _name, _value;
+        //    public byte* _ptr;
+        //    public bool _inTag;
+        //    public string version;
+        //    public IgnoreFlags ignore;
+        //    public string parentTree;
+        //    public int childIndex;
+        //    public XMLReader reader;
 
-            public InitData(XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value)
-            {
-                _name = name;
-                _value = value;
-                this.reader = reader;
-                _ptr = reader._ptr;
-                _inTag = reader._inTag;
-                this.version = version;
-                this.ignore = ignore;
-                this.parentTree = parentTree;
-                this.childIndex = childIndex;
-            }
-        }
+        //    public InitData(XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value)
+        //    {
+        //        _name = name;
+        //        _value = value;
+        //        this.reader = reader;
+        //        _ptr = reader._ptr;
+        //        _inTag = reader._inTag;
+        //        this.version = version;
+        //        this.ignore = ignore;
+        //        this.parentTree = parentTree;
+        //        this.childIndex = childIndex;
+        //    }
+        //}
         
-        private Dictionary<Type, List<InitData>> _initData = new Dictionary<Type, List<InitData>>();
-        public unsafe void QueueChildElement(Type type, XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value)
-        {
-            InitData d = new InitData(reader, version, ignore, parentTree, childIndex, name, value);
-            if (_initData.ContainsKey(type))
-                _initData[type].Add(d);
-            else
-                _initData.Add(type, new List<InitData>() { d });
-        }
+        //private Dictionary<Type, List<InitData>> _initData = new Dictionary<Type, List<InitData>>();
+        //public unsafe void QueueChildElement(Type type, XMLReader reader, string version, IgnoreFlags ignore, string parentTree, int childIndex, string name, string value)
+        //{
+        //    InitData d = new InitData(reader, version, ignore, parentTree, childIndex, name, value);
+        //    if (_initData.ContainsKey(type))
+        //        _initData[type].Add(d);
+        //    else
+        //        _initData.Add(type, new List<InitData>() { d });
+        //}
 
         public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
         public Type ParentType => typeof(T);
@@ -1064,8 +1084,10 @@ namespace TheraEngine.Core.Files
     }
     public class StringParsable<T> : BaseElementString where T : IParsable
     {
-        private T _value = default(T);
+        //This has to be a field so that ReadFromString works properly
+        private T _value = default;
         public T Value { get => _value; set => _value = value; }
+
         public override void ReadFromString(string str)
         {
             _value = Activator.CreateInstance<T>();

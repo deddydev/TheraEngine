@@ -1008,20 +1008,20 @@ namespace TheraEngine.Rendering
 
         private LightComponent _lightComp;
 
-        private void LightManager_SettingUniforms(int vertexBindingId, int fragGeomBindingId)
+        private void LightManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
             if (RenderingCamera == null)
                 return;
-            RenderingCamera.SetUniforms(fragGeomBindingId);
-            RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(fragGeomBindingId);
-            _lightComp.SetUniforms(fragGeomBindingId);
+            RenderingCamera.SetUniforms(materialProgram);
+            RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(materialProgram);
+            _lightComp.SetUniforms(materialProgram);
         }
-        private void LightCombineFBO_SettingUniforms(int programBindingId)
+        private void LightCombineFBO_SettingUniforms(RenderProgram program)
         {
             if (RenderingCamera == null)
                 return;
 
-            RenderingCamera.SetUniforms(programBindingId);
+            RenderingCamera.SetUniforms(program);
 
             var probeActor = RenderingCamera.OwningComponent?.OwningScene?.IBLProbeActor;
             if (probeActor == null)
@@ -1032,15 +1032,15 @@ namespace TheraEngine.Rendering
 
             if (probe.IrradianceTex != null)
                 TMaterialBase.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
-                    baseCount, "Texture" + baseCount.ToString(), programBindingId);
+                    baseCount, "Texture" + baseCount.ToString(), program);
             ++baseCount;
             if (probe.PrefilterTex != null)
                 TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
-                    baseCount, "Texture" + baseCount.ToString(), programBindingId);
+                    baseCount, "Texture" + baseCount.ToString(), program);
         }
 
-        private void BrightPassFBO_SettingUniforms(int programBindingId)
-            => RenderingCamera?.PostProcessRef.File.Bloom.SetUniforms(programBindingId);
+        private void BrightPassFBO_SettingUniforms(RenderProgram program)
+            => RenderingCamera?.PostProcessRef.File.Bloom.SetUniforms(program);
 
         //private void GBuffer_SetUniforms(int programBindingId)
         //{
@@ -1069,24 +1069,24 @@ namespace TheraEngine.Rendering
         //    //        baseCount, "Texture" + baseCount.ToString(), programBindingId);
         //}
         
-        private void SSAO_SetUniforms(int programBindingId)
+        private void SSAO_SetUniforms(RenderProgram program)
         {
             if (RenderingCamera == null)
                 return;
-            Engine.Renderer.Uniform(programBindingId, "NoiseScale", InternalResolution.Extents / 4.0f);
-            Engine.Renderer.Uniform(programBindingId, "Samples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
-            RenderingCamera.SetUniforms(programBindingId);
-            RenderingCamera.PostProcessRef.File.AmbientOcclusion.SetUniforms(programBindingId);
+            program.Uniform("NoiseScale", InternalResolution.Extents / 4.0f);
+            program.Uniform("Samples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+            RenderingCamera.SetUniforms(program);
+            RenderingCamera.PostProcessRef.File.AmbientOcclusion.SetUniforms(program);
         }
 
-        private void _postProcess_SettingUniforms(int programBindingId)
+        private void _postProcess_SettingUniforms(RenderProgram program)
         {
             if (RenderingCamera == null)
                 return;
 
-            RenderingCamera.SetUniforms(programBindingId);
+            RenderingCamera.SetUniforms(program);
             RenderingCamera.PostProcessRef.File.ColorGrading.UpdateExposure(_hdrSceneTexture);
-            RenderingCamera.PostProcessRef.File.SetUniforms(programBindingId);
+            RenderingCamera.PostProcessRef.File.SetUniforms(program);
 
             //var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
             //if (probeActor == null)

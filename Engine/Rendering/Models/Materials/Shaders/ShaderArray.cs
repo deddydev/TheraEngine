@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => TypeAssociations[typeof(T)];
         public ShaderArrayValueHandler<T> Value { get => _value; set { _value = value; OnValueChanged(); } }
         public int Length => _value.Length;
-        internal override void SetProgramUniform(int programBindingId, int location)
+        internal override void SetProgramUniform(RenderProgram program, int location)
         {
             //throw new NotImplementedException();
             //Engine.Renderer.Uniform();

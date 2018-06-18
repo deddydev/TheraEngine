@@ -57,13 +57,13 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize("Shadows")]
         public ShadowSettings Shadows { get; set; }
 
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
-            Vignette.SetUniforms(programBindingId);
-            DepthOfField.SetUniforms(programBindingId);
-            ColorGrading.SetUniforms(programBindingId);
-            Bloom.SetUniforms(programBindingId);
-            LensFlare.SetUniforms(programBindingId);
+            Vignette.SetUniforms(program);
+            DepthOfField.SetUniforms(program);
+            ColorGrading.SetUniforms(program);
+            Bloom.SetUniforms(program);
+            LensFlare.SetUniforms(program);
         }
 
         internal static string ShaderSetup()
@@ -96,12 +96,12 @@ namespace TheraEngine.Rendering.Cameras
         [Category("Shadow Map Settings")]
         public float ShadowBiasMax { get; set; } = 0.004f;
 
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
-            Engine.Renderer.Uniform(programBindingId, "ShadowBase", ShadowBase);
-            Engine.Renderer.Uniform(programBindingId, "ShadowMult", ShadowMult);
-            Engine.Renderer.Uniform(programBindingId, "ShadowBiasMin", ShadowBiasMin);
-            Engine.Renderer.Uniform(programBindingId, "ShadowBiasMax", ShadowBiasMax);
+            program.Uniform("ShadowBase", ShadowBase);
+            program.Uniform("ShadowMult", ShadowMult);
+            program.Uniform("ShadowBiasMin", ShadowBiasMin);
+            program.Uniform("ShadowBiasMax", ShadowBiasMax);
         }
     }
     public class AmbientOcclusionSettings : PostSettings
@@ -114,10 +114,10 @@ namespace TheraEngine.Rendering.Cameras
         [Category("Ambient Occlusion Settings")]
         public float Power { get; set; } = 4.0f;
         
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
-            Engine.Renderer.Uniform(programBindingId, "Radius", Radius);
-            Engine.Renderer.Uniform(programBindingId, "Power", Power);
+            program.Uniform("Radius", Radius);
+            program.Uniform("Power", Power);
         }
     }
     public class VignetteSettings : PostSettings
@@ -134,11 +134,11 @@ namespace TheraEngine.Rendering.Cameras
         [Category("Vignette Settings")]
         public float Power { get; set; } = 0.0f;
 
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
-            Engine.Renderer.Uniform(programBindingId, "Vignette.Color", Color);
-            Engine.Renderer.Uniform(programBindingId, "Vignette.Intensity", Intensity);
-            Engine.Renderer.Uniform(programBindingId, "Vignette.Power", Power);
+            program.Uniform("Vignette.Color", Color);
+            program.Uniform("Vignette.Intensity", Intensity);
+            program.Uniform("Vignette.Power", Power);
         }
 
         internal static string WriteShaderSetup()
@@ -155,7 +155,7 @@ uniform VignetteStruct Vignette;";
     }
     public class DepthOfFieldSettings : PostSettings
     {
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
 
         }
@@ -232,15 +232,15 @@ uniform VignetteStruct Vignette;";
         [Category("Color Grade Settings")]
         public float Brightness { get; set; } = 1.0f;
 
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
-            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Tint", Tint.Raw);
-            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Exposure", Exposure);
-            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Contrast", _contrastUniformValue);
-            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Gamma", Gamma);
-            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Hue", Hue);
-            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Saturation", Saturation);
-            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Brightness", Brightness);
+            program.Uniform("ColorGrade.Tint", Tint.Raw);
+            program.Uniform("ColorGrade.Exposure", Exposure);
+            program.Uniform("ColorGrade.Contrast", _contrastUniformValue);
+            program.Uniform("ColorGrade.Gamma", Gamma);
+            program.Uniform("ColorGrade.Hue", Hue);
+            program.Uniform("ColorGrade.Saturation", Saturation);
+            program.Uniform("ColorGrade.Brightness", Brightness);
         }
 
         internal static string WriteShaderSetup()
@@ -313,10 +313,10 @@ uniform ColorGradeStruct ColorGrade;";
         [Category("Bloom Settings")]
         public float Threshold { get; set; } = 1.0f;
 
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
-            Engine.Renderer.Uniform(programBindingId, "BloomIntensity", Intensity);
-            Engine.Renderer.Uniform(programBindingId, "BloomThreshold", Threshold);
+            program.Uniform("BloomIntensity", Intensity);
+            program.Uniform("BloomThreshold", Threshold);
         }
 
         internal static string WriteShaderSetup()
@@ -328,7 +328,7 @@ uniform float BloomThreshold = 1.0f;";
     }
     public class LensFlareSettings : PostSettings
     {
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
 
         }

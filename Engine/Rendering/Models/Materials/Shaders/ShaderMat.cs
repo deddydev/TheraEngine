@@ -9,7 +9,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._mat4;
         [Category(CategoryName)]
         public Matrix4 Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         internal override string GetShaderValueString() => _value.ToString();
         [Browsable(false)]
         public override object GenericValue => Value;
@@ -34,7 +35,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._mat3;
         [Category(CategoryName)]
         public Matrix3 Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location) 
+            => program.Uniform(location, _value);
         internal override string GetShaderValueString() => _value.ToString();
         [Browsable(false)]
         public override object GenericValue => Value;

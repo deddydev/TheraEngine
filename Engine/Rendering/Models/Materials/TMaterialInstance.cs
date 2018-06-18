@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         }
 
-        protected override void OnSetUniforms(int programBindingId)
+        protected override void OnSetUniforms(RenderProgram programBindingId)
         {
 
         }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using System;
 using TheraEngine.Core.Shapes;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -12,8 +13,8 @@ namespace TheraEngine.Rendering.Models
     [FileDef("Skeletal Model")]
     public class SkeletalModel : TFileObject, IModelFile
     {
-        [ThirdPartyLoader("dae")]
-        public static TFileObject LoadDAE(string path)
+        [ThirdPartyLoader("dae", true)]
+        public static async Task<TFileObject> LoadDAEAsync(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {
@@ -22,7 +23,7 @@ namespace TheraEngine.Rendering.Models
                 //Core.Files.IgnoreFlags.Cameras |
                 //Core.Files.IgnoreFlags.Lights,
             };
-            Collada.Data data = Collada.Import(path, o);
+            Collada.Data data = await Collada.ImportAsync(path, o);
             if (data != null && data.Models != null && data.Models.Count > 0)
             {
                 ModelScene scene = data.Models[0];

@@ -120,16 +120,16 @@ namespace TheraEngine.Components.Scene.Lights
                 OwningScene.Lights.Remove(this);
         }
 
-        public override void SetUniforms(int programBindingId)
+        public override void SetUniforms(RenderProgram program)
         {
             string indexer = Uniform.DirectionalLightsName + ".";
-            Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.Uniform(programBindingId, indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
+            program.Uniform(indexer + "Direction", _direction);
+            program.Uniform(indexer + "Base.Color", _color.Raw);
+            program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            program.Uniform(indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
             TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", programBindingId);
+                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", program);
         }
 
         public void SetShadowMapResolution(int width, int height)

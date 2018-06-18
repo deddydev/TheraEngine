@@ -7,7 +7,7 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public delegate void DelSettingUniforms(int programBindingId);
+    public delegate void DelSettingUniforms(RenderProgram program);
     public abstract class TMaterialBase : TFileObject
     {
         public event DelSettingUniforms SettingUniforms;
@@ -60,6 +60,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (Program.IsValid)
             {
                 List<ShaderVar> vars = new List<ShaderVar>();
+                List<BaseTexRef> tex = new List<BaseTexRef>();
                 foreach (RenderShader shader in Program)
                 {
                     string text = shader.SourceText;
@@ -87,15 +88,44 @@ namespace TheraEngine.Rendering.Models.Materials
                         string type = parts[0];
                         string name = parts[1];
 
-                        if (type.Contains("sampler"))
+                        int samplerIndex = type.IndexOf("sampler");
+                        if (samplerIndex >= 0)
                         {
-
+                            string type2 = type.Substring(samplerIndex + 7);
+                            switch (type2)
+                            {
+                                case "1D":
+                                    break;
+                                case "2D":
+                                    break;
+                                case "3D":
+                                    break;
+                                case "Cube":
+                                    break;
+                                case "2DRect":
+                                    break;
+                                case "1DArray":
+                                    break;
+                                case "2DArray":
+                                    break;
+                                case "CubeArray":
+                                    break;
+                                case "Buffer":
+                                    break;
+                                case "2DMS":
+                                    break;
+                                case "2DMSArray":
+                                    break;
+                            }
                         }
                         else
                         {
                             if (Enum.TryParse("_" + type, out EShaderVarType result))
                             {
                                 Type t = ShaderVar.ShaderTypeAssociations[result];
+                                ShaderVar match = Parameters.FirstOrDefault(x =>
+                                    String.Equals(x.Name, name, StringComparison.InvariantCulture) &&
+                                    x.TypeName == result);
 
                                 int arrayIndexStart = name.IndexOf("[");
                                 if (arrayIndexStart > 0)
@@ -111,19 +141,20 @@ namespace TheraEngine.Rendering.Models.Materials
 
                                     value = Activator.CreateInstance(valueType, arrayCount);
                                     name = name.Substring(0, arrayIndexStart);
+
+                                    if (match == null)
+                                        value = t.GetDefaultValue();
+                                    else
+                                        value = match.GenericValue;
                                 }
-                                else
+                                else if (match == null)
                                     value = t.GetDefaultValue();
+                                else
+                                    value = match.GenericValue;
 
                                 //int defaultValue, string name, IShaderVarOwner owner
-                                if (Activator.CreateInstance(t, value, name, null) is ShaderVar var)
-                                {
-                                    vars.Add(var);
-                                }
-                                else
-                                {
-                                    throw new Exception();
-                                }
+                                ShaderVar var = (ShaderVar)Activator.CreateInstance(t, value, name, null);
+                                vars.Add(var);
                             }
                         }
                     }
@@ -206,7 +237,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             SettingUniforms?.Invoke(program);
         }
-        protected virtual void OnSetUniforms(int programBindingId) { }
+        protected virtual void OnSetUniforms(RenderProgram program) { }
 
         public EDrawBuffersAttachment[] CollectFBOAttachments()
         {
@@ -269,7 +300,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 return;
 
             Engine.Renderer.SetActiveTexture(textureUnit);
-            Engine.Renderer.Uniform(program, varName, textureUnit);
+            program.Uniform(varName, textureUnit);
             tref.Bind();
         }
     }

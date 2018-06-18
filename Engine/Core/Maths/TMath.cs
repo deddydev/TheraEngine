@@ -1,6 +1,7 @@
 ﻿using static System.Math;
 using TheraEngine.Core.Maths.Transforms;
 using System.Linq;
+using TheraEngine;
 
 namespace System
 {
@@ -208,28 +209,23 @@ namespace System
             answer2 = 0.0f;
             return false;
         }
-        public static Vec3 Morph(Vec3 baseCoord, Vec3[] targets, float[] weights, bool relative = false)
+        public static Vec3 Morph(Vec3 baseCoord, (Vec3 Position, float Weight)[] targets, bool relative = false)
         {
-            if (targets.Length != weights.Length)
-                throw new InvalidOperationException("'targets' length does not match 'weights' length.");
-
             if (relative)
             {
                 Vec3 morphed = baseCoord;
-                for (int i = 0; i < targets.Length; ++i)
-                    morphed += targets[i] * weights[i];
+                foreach (var (Position, Weight) in targets)
+                    morphed += Position * Weight;
                 return morphed;
             }
             else
             {
                 Vec3 morphed = Vec3.Zero;
                 float weightSum = 0.0f;
-                float weight;
-                for (int i = 0; i < targets.Length; ++i)
+                foreach (var (Position, Weight) in targets)
                 {
-                    weight = weights[i];
-                    morphed += targets[i] * weight;
-                    weightSum += weight;
+                    morphed += Position * Weight;
+                    weightSum += Weight;
                 }
                 float invWeight = 1.0f - weightSum;
                 return morphed + baseCoord * invWeight;
@@ -240,8 +236,8 @@ namespace System
         /// </summary>
         public static float AngleBetween(Vec3 vector1, Vec3 vector2)
         {
-            vector1.NormalizeFast();
-            vector2.NormalizeFast();
+            vector1.Normalize();
+            vector2.Normalize();
 
             float dot = vector1 | vector2;
 
@@ -262,8 +258,8 @@ namespace System
         /// </summary>
         public static Vec3 AxisBetween(Vec3 initialVector, Vec3 finalVector)
         {
-            initialVector.NormalizeFast();
-            finalVector.NormalizeFast();
+            initialVector.Normalize();
+            finalVector.Normalize();
 
             float dot = initialVector | finalVector;
 
@@ -282,8 +278,8 @@ namespace System
         /// </summary>
         public static void AxisAngleBetween(Vec3 initialVector, Vec3 finalVector, out Vec3 axis, out float angle)
         {
-            initialVector.NormalizeFast();
-            finalVector.NormalizeFast();
+            initialVector.Normalize();
+            finalVector.Normalize();
 
             float dot = initialVector | finalVector;
 
@@ -328,6 +324,45 @@ namespace System
             float nonLinearDepth = (farZ + nearZ - 2.0f * nearZ * farZ / z.ClampMin(0.001f)) / (farZ - nearZ);
             nonLinearDepth = (nonLinearDepth + 1.0f) / 2.0f;
             return nonLinearDepth;
+        }
+
+        public static Vec3 JacobiMethod(Matrix3 inputMatrix, Vec3 expectedOutcome, int iterations)
+        {
+            Vec3 solvedVector = Vec3.Zero;
+            for (int step = 0; step < iterations; ++step)
+            {
+                for (int row = 0; row < 3; ++row)
+                {
+                    float sigma = 0.0f;
+                    for (int col = 0; col < 3; ++col)
+                    {
+                        if (col != row)
+                            sigma += inputMatrix[row, col] * solvedVector[col];
+                    }
+                    solvedVector[row] = (expectedOutcome[row] - sigma) / inputMatrix[row, row];
+                }
+                Engine.PrintLine("Step #" + step + ": " + solvedVector.ToString());
+            }
+            return solvedVector;
+        }
+        public static Vec4 JacobiMethod(Matrix4 inputMatrix, Vec4 expectedOutcome, int iterations)
+        {
+            Vec4 solvedVector = Vec4.Zero;
+            for (int step = 0; step < iterations; ++step)
+            {
+                for (int row = 0; row < 4; ++row)
+                {
+                    float sigma = 0.0f;
+                    for (int col = 0; col < 4; ++col)
+                    {
+                        if (col != row)
+                            sigma += inputMatrix[row, col] * solvedVector[col];
+                    }
+                    solvedVector[row] = (expectedOutcome[row] - sigma) / inputMatrix[row, row];
+                }
+                Engine.PrintLine("Step #" + step + ": " + solvedVector.ToString());
+            }
+            return solvedVector;
         }
 
         #region Transforms

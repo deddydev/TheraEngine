@@ -6,7 +6,7 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelSetUniforms(int programBindingId);
+    public delegate void DelSetUniforms(RenderProgram program);
     public interface IFrameBufferAttachement { }
     public class FrameBuffer : BaseRenderState
     {

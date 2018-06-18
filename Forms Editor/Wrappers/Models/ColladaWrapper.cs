@@ -59,9 +59,9 @@ namespace TheraEditor.Wrappers
         
         public ColladaWrapper() : base(_menu) { }
         
-        private void ImportAsActor()
+        private async void ImportAsActor()
         {
-            TFileObject actor = Actor.LoadDAE(FilePath);
+            TFileObject actor = await Actor.LoadDAEAsync(FilePath);
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
             actor.Export(dir, name, FileFormat.XML);
@@ -73,16 +73,16 @@ namespace TheraEditor.Wrappers
             //string name = Path.GetFileNameWithoutExtension(FilePath);
             //actor.Export(dir, name, FileFormat.XML);
         }
-        private void ImportAsStaticMesh()
+        private async void ImportAsStaticMesh()
         {
-            TFileObject staticModel = StaticModel.LoadDAE(FilePath);
+            TFileObject staticModel = await StaticModel.LoadDAEAsync(FilePath);
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
             staticModel.Export(dir, name, FileFormat.XML);
         }
-        private void ImportAsSkeletalMesh()
+        private async void ImportAsSkeletalMesh()
         {
-            TFileObject skeletalModel = SkeletalModel.LoadDAE(FilePath);
+            TFileObject skeletalModel = await SkeletalModel.LoadDAEAsync(FilePath);
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
             skeletalModel.Export(dir, name, FileFormat.XML);

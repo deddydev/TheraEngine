@@ -8,6 +8,7 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Components;
 using TheraEngine.Worlds;
 using TheraEngine.Components.Scene.Transforms;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Actors
 {
@@ -52,14 +53,14 @@ namespace TheraEngine.Actors
             //Register3rdPartyLoader<Actor<T>>("dae", LoadDAE);
         }
 
-        [ThirdPartyLoader("dae")]
-        public static TFileObject LoadDAE(string path)
+        [ThirdPartyLoader("dae", true)]
+        public static async Task<TFileObject> LoadDAEAsync(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {
                 IgnoreFlags = Core.Files.IgnoreFlags.Extra
             };
-            Collada.Data data = Collada.Import(path, o);
+            Collada.Data data = await Collada.ImportAsync(path, o);
             if (data != null)
             {
             }

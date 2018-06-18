@@ -10,7 +10,7 @@ namespace TheraEngine.Tests
 {
     public class TestCharacter : CharacterPawn
     {
-        private void SceneImported(Task<Collada.Data> task)
+        private async void SceneImported(Task<Collada.Data> task)
         {
             var scene = task.Result;
             if (scene != null)
@@ -51,7 +51,7 @@ namespace TheraEngine.Tests
 
                 string animPath = //TestDefaults.DesktopPath + "test_anim.dae";
                 TestDefaults.GoogleDrivePath + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
-                SkeletalAnimation m = Read3rdParty<SkeletalAnimation>(animPath);
+                SkeletalAnimation m = await Read3rdPartyAsync<SkeletalAnimation>(animPath);
                 //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
                 {
                     _animationStateMachine.Skeleton = _meshComp.Skeleton;
@@ -72,7 +72,7 @@ namespace TheraEngine.Tests
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(0.45f), TransformOrder.TRS),
             };
             
-            Task.Run(() => Collada.Import(TestDefaults.DesktopPath + "test.dae", options)).ContinueWith(task => SceneImported(task));
+            Task.Run(() => Collada.ImportAsync(TestDefaults.DesktopPath + "test.dae", options)).ContinueWith(task => SceneImported(task));
             base.PreConstruct();
         }
     }

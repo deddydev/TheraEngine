@@ -472,23 +472,32 @@ namespace TheraEngine.Rendering.Models
             
             SetSkinningUniforms(vtxProg);
             
-            Engine.Renderer.Uniform(vtxProg, Uniform.GetLocation(vtxProg, EEngineUniform.ModelMatrix), modelMatrix);
+            vtxProg.Uniform(Uniform.GetLocation(vtxProg, EEngineUniform.ModelMatrix), modelMatrix);
             //Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.PrevModelMatrix), _lastRenderedModelMatrix);
-            Engine.Renderer.Uniform(vtxProg, Uniform.GetLocation(vtxProg, EEngineUniform.NormalMatrix), normalMatrix);
+            vtxProg.Uniform(Uniform.GetLocation(vtxProg, EEngineUniform.NormalMatrix), normalMatrix);
 
             if (AbstractRenderer.CurrentCamera != null)
             {
-                Engine.Renderer.Uniform(vtxProg, Uniform.GetLocation(vtxProg, EEngineUniform.WorldToCameraSpaceMatrix),
+                vtxProg.Uniform(Uniform.GetLocation(vtxProg,
+                    EEngineUniform.WorldToCameraSpaceMatrix),
                     AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
-                Engine.Renderer.Uniform(vtxProg, Uniform.GetLocation(vtxProg, EEngineUniform.ProjMatrix),
+
+                vtxProg.Uniform(Uniform.GetLocation(vtxProg,
+                    EEngineUniform.ProjMatrix),
                     AbstractRenderer.CurrentCamera.ProjectionMatrix);
             }
             else
             {
                 //No camera? Everything will be rendered in world space instead of camera space.
                 //This is used by point lights to render depth cubemaps, for example.
-                Engine.Renderer.Uniform(vtxProg, Uniform.GetLocation(vtxProg, EEngineUniform.WorldToCameraSpaceMatrix), Matrix4.Identity);
-                Engine.Renderer.Uniform(vtxProg, Uniform.GetLocation(vtxProg, EEngineUniform.ProjMatrix),               Matrix4.Identity);
+
+                vtxProg.Uniform(Uniform.GetLocation(vtxProg, 
+                    EEngineUniform.WorldToCameraSpaceMatrix), 
+                    Matrix4.Identity);
+
+                vtxProg.Uniform(Uniform.GetLocation(vtxProg,
+                    EEngineUniform.ProjMatrix),             
+                    Matrix4.Identity);
             }
 
             mat.SetUniforms(matProg);

@@ -59,6 +59,6 @@ namespace TheraEngine.Components.Scene.Lights
         public abstract void UpdateShadowMap(BaseScene scene);
         public abstract void RenderShadowMap(BaseScene scene);
         public abstract void BakeShadowMaps();
-        public abstract void SetUniforms(int programBindingId);
+        public abstract void SetUniforms(RenderProgram program);
     }
 }

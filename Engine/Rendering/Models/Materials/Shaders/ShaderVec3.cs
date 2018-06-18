@@ -9,8 +9,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._bvec3;
         [Category(CategoryName)]
         public BoolVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         internal override string GetShaderValueString()
               => string.Format("bvec3({0}, {1}, {2})",
                   _value.X.ToString().ToLowerInvariant(),
@@ -40,8 +40,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._vec3;
         [Category(CategoryName)]
         public Vec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.Uniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         internal override string GetShaderValueString()
              => $"vec3({_value.X:0.0######}f, {_value.Y:0.0######}f, {_value.Z:0.0######}f)";
         [Browsable(false)]
@@ -68,8 +68,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._dvec3;
         [Category(CategoryName)]
         public DVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location) 
-            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         internal override string GetShaderValueString()
             => $"dvec3({_value.X:0.0######}, {_value.Y:0.0######}, {_value.Z:0.0######})";
         [Browsable(false)]
@@ -96,8 +96,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._ivec3;
         [Category(CategoryName)]
         public IVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.Uniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         internal override string GetShaderValueString()
         => string.Format("ivec3({0}, {1}, {2})",
             _value.X.ToString(),
@@ -127,8 +127,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._uvec3;
         [Category(CategoryName)]
         public UVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         internal override string GetShaderValueString()
             => string.Format("uvec3({0}, {1}, {2})",
               _value.X.ToString(),

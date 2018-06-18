@@ -11,8 +11,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._bool;
         [Category(CategoryName)]
         public bool Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         [Browsable(false)]
         public unsafe bool* Data { get { fixed (bool* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString().ToLowerInvariant();
@@ -42,8 +42,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._float;
         [Category(CategoryName)]
         public float Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.Uniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         [Browsable(false)]
         public unsafe float* Data { get { fixed (float* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString("0.0######") + "f";
@@ -71,8 +71,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._double;
         [Category(CategoryName)]
         public double Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         [Browsable(false)]
         public unsafe double* Data { get { fixed (double* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString("0.0######");
@@ -100,8 +100,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._int;
         [Category(CategoryName)]
         public int Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.Uniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         [Browsable(false)]
         public unsafe int* Data { get { fixed (int* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString();
@@ -129,8 +129,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public override EShaderVarType TypeName => EShaderVarType._uint;
         [Category(CategoryName)]
         public uint Value { get => _value; set { _value = value; OnValueChanged(); } }
-        internal override void SetProgramUniform(int programBindingId, int location)
-            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(RenderProgram program, int location)
+            => program.Uniform(location, _value);
         [Browsable(false)]
         public unsafe uint* Data { get { fixed (uint* ptr = &_value) return ptr; } }
         internal override string GetShaderValueString() => _value.ToString();

@@ -19,9 +19,9 @@ namespace TheraEditor.Windows.Forms
     public class MeshSocketNode : BoneTreeNode
     {
         public MeshSocket Socket { get; set; }
-        public MeshSocketNode(MeshSocket node) : base(node.Name)
+        public MeshSocketNode(MeshSocket socket) : base(socket.Name)
         {
-            Socket = node;
+            Socket = socket;
         }
     }
 }

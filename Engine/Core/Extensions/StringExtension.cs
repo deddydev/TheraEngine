@@ -259,16 +259,16 @@ namespace System
             return -1;
         }
         /// <summary>
-        /// Finds the first instance that is the string passed, searching backward in the string.
+        /// Finds the first instance that is the string passed, searching forward in the string.
         /// </summary>
         public static int FindOccurrence(this string str, int begin, int occurrenceIndex, string searchStr)
         {
             int occurrence = 0;
-            int firstIndex = 0;
+            int offset = 0;
             for (int i = begin; i < str.Length; ++i)
             {
                 bool found = true;
-                firstIndex = i;
+                offset = i;
                 for (int x = 0; x < searchStr.Length && i < str.Length; ++x, ++i)
                 {
                     if (str[i] != searchStr[x])
@@ -280,7 +280,7 @@ namespace System
                 if (found)
                 {
                     if (occurrenceIndex == occurrence)
-                        return firstIndex;
+                        return offset;
                     ++occurrence;
                 }
             }

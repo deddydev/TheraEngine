@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -17,6 +18,7 @@ namespace TheraEditor.Windows.Forms
         public MaterialControl()
         {
             InitializeComponent();
+            comboBox1.DataSource = Enum.GetNames(typeof(EShaderMode));
         }
 
         private TMaterial _material;
@@ -40,9 +42,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     lblMatName.Text = _material.Name;
                     
-                    theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef.File;
-                    propGridEnum1.SetPropertyByName(nameof(RenderingParameters.Requirements), _material.RenderParamsRef.File);
-
+                    theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef;
+                    
                     foreach (ShaderVar shaderVar in _material.Parameters)
                     {
                         Type valType = ShaderVar.AssemblyTypeAssociations[shaderVar.TypeName];
@@ -107,18 +108,20 @@ namespace TheraEditor.Windows.Forms
 
         private void lblMatName_Click(object sender, EventArgs e)
         {
-            //panel2.Visible = !panel2.Visible;
-            //theraPropertyGrid1.TargetFileObject = _material.RenderParams;
+            DockContent form = FindForm() as DockContent;
+            DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
+            ModelEditorForm editor = p.FindForm() as ModelEditorForm;
+            editor.MatPreviewForm.SetMaterial(_material);
         }
 
         private void lblMatName_MouseEnter(object sender, EventArgs e)
         {
-            //lblMatName.BackColor = Color.FromArgb(42, 53, 60);
+            lblMatName.BackColor = Color.FromArgb(42, 53, 60);
         }
 
         private void lblMatName_MouseLeave(object sender, EventArgs e)
         {
-            //lblMatName.BackColor = Color.FromArgb(32, 43, 50);
+            lblMatName.BackColor = Color.FromArgb(32, 43, 50);
         }
 
         private void txtMatName_TextChanged(object sender, EventArgs e)
@@ -218,6 +221,37 @@ namespace TheraEditor.Windows.Forms
             DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
             ModelEditorForm editor = p.FindForm() as ModelEditorForm;
             editor.TexRefForm.texRefControl1.SetTexRef(tref);
+        }
+
+        private void tabControl1_Selected(object sender, TabControlEventArgs e)
+        {
+            //btnAdd.Visible = btnRemove.Visible =
+            //    tabControl1.SelectedTab.Name == "tabShaders" && lstShaders.SelectedIndices.Count > 0;
+        }
+
+        private void btnRemove_Click(object sender, EventArgs e)
+        {
+            if (lstShaders.SelectedIndices.Count > 0)
+                _material.Shaders.RemoveAt(lstShaders.SelectedIndices[0]);
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            GLSLShaderFile f = new GLSLShaderFile((EShaderMode)comboBox1.SelectedIndex);
+            if (lstShaders.SelectedIndices.Count == 0)
+                _material.Shaders.Add(f);
+            else
+                _material.Shaders.Insert(lstShaders.SelectedIndices[0], f);
+        }
+
+        private void lstShaders_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnRemove.Enabled = lstShaders.SelectedIndices.Count != 0;
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

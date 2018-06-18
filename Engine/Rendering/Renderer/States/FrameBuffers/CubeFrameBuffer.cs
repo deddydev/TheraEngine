@@ -47,9 +47,9 @@ namespace TheraEngine.Rendering
             }
 
         }
-        private void SetUniforms(int vertexBindingId, int fragGeomBindingId)
+        private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
-            SettingUniforms?.Invoke(fragGeomBindingId);
+            SettingUniforms?.Invoke(materialProgram);
         }
 
         /// <summary>

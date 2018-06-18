@@ -131,27 +131,27 @@ namespace TheraEngine.Components.Scene.Lights
         /// <summary>
         /// This is to set uniforms in the GBuffer lighting shader or in a forward shader that requests lighting uniforms.
         /// </summary>
-        public override void SetUniforms(int programBindingId)
+        public override void SetUniforms(RenderProgram program)
         {
             string indexer = Uniform.PointLightsName + ".";
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Position", _cullingVolume.Center);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Radius", Radius);
-            Engine.Renderer.Uniform(programBindingId, indexer + "Brightness", _brightness);
+            program.Uniform(indexer + "Base.Color", _color.Raw);
+            program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            program.Uniform(indexer + "Position", _cullingVolume.Center);
+            program.Uniform(indexer + "Radius", Radius);
+            program.Uniform(indexer + "Brightness", _brightness);
 
             TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", programBindingId);
+                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", program);
         }
         /// <summary>
         /// This is to set special uniforms each time something is rendered with the shadow depth shader.
         /// </summary>
-        private void SetShadowDepthUniforms(int programBindingId)
+        private void SetShadowDepthUniforms(RenderProgram program)
         {
-            Engine.Renderer.Uniform(programBindingId, "FarPlaneDist", Radius);
-            Engine.Renderer.Uniform(programBindingId, "LightPos", _cullingVolume.Center);
+            program.Uniform("FarPlaneDist", Radius);
+            program.Uniform("LightPos", _cullingVolume.Center);
             for (int i = 0; i < ShadowCameras.Length; ++i)
-                Engine.Renderer.Uniform(programBindingId, string.Format("ShadowMatrices[{0}]", i), ShadowCameras[i].WorldToCameraProjSpaceMatrix);
+                program.Uniform(string.Format("ShadowMatrices[{0}]", i), ShadowCameras[i].WorldToCameraProjSpaceMatrix);
         }
         public void SetShadowMapResolution(int resolution)
         {

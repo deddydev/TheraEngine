@@ -1,20 +1,13 @@
 ﻿using System;
-using System.Collections;
-using System.Drawing;
-using System.IO;
-using System.Reflection;
 using System.Windows.Forms;
-using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {

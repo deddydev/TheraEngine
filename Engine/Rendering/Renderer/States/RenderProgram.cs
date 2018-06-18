@@ -1,19 +1,14 @@
-﻿using TheraEngine.Rendering.Models.Materials;
-using System.Linq;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System;
+using System.Collections.Generic;
+using System.Linq;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
     public class RenderProgram : BaseRenderState, IEnumerable<RenderShader>
     {
-        /// <summary>
-        /// Dictionary containing all active render programs stored using their binding ids.
-        /// </summary>
-        //internal static ConcurrentDictionary<int, RenderProgram> LivePrograms = new ConcurrentDictionary<int, RenderProgram>();
-
         public EProgramStageMask ShaderTypeMask { get; private set; } = EProgramStageMask.None;
 
         private List<RenderShader> _shaders;
@@ -45,7 +40,7 @@ namespace TheraEngine.Rendering
             _uniformCache = new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>(),
             _attribCache = new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
 
-        public int GetCachedUniformLocation(string name)
+        public int GetUniformLocation(string name)
         {
             int bindingId = BindingId;
             if (_uniformCache.TryGetValue(bindingId, out ConcurrentDictionary<string, int> progDic))
@@ -59,7 +54,7 @@ namespace TheraEngine.Rendering
                 return loc;
             }
         }
-        public int GetCachedAttributeLocation(string name)
+        public int GetAttributeLocation(string name)
         {
             int bindingId = BindingId;
             if (_attribCache.TryGetValue(bindingId, out ConcurrentDictionary<string, int> progDic))
@@ -126,9 +121,6 @@ namespace TheraEngine.Rendering
 
         public override void Destroy()
         {
-            //if (IsActive)
-            //    LivePrograms.TryRemove(BindingId, out RenderProgram prog);
-
             base.Destroy();
 
             IsValid = false;
@@ -194,9 +186,7 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.DetachShader(shader.BindingId, id);
                 shader.Destroy();
             }
-
-            //LivePrograms.AddOrUpdate(id, this, (key, oldProg) => this);
-
+            
             return id;
         }
         
@@ -204,6 +194,108 @@ namespace TheraEngine.Rendering
         {
             Engine.Renderer.UseProgram(BindingId);
         }
+
+        public void Uniform(string name, params IUniformable4Int[] p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable4Float[] p)
+            => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(string name, params IUniformable3Int[] p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable3Float[] p)
+            => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(string name, params IUniformable2Int[] p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable2Float[] p)
+            => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(string name, params IUniformable1Int[] p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable1Float[] p)
+            => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(string name, params int[] p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params float[] p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params uint[] p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params double[] p)
+            => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(string name, Matrix4 p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, Matrix4[] p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, Matrix3 p)
+            => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, Matrix3[] p)
+            => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(int location, params IUniformable4Int[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable4Float[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable4Double[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable4UInt[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable4Bool[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        
+        public void Uniform(int location, params IUniformable3Int[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable3Float[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable3Double[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable3UInt[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable3Bool[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+
+        public void Uniform(int location, params IUniformable2Int[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable2Float[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable2Double[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable2UInt[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable2Bool[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+
+        public void Uniform(int location, params IUniformable1Int[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable1Float[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable1Double[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable1UInt[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params IUniformable1Bool[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+
+        public void Uniform(int location, params int[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params float[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params double[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params uint[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params bool[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+
+        public void Uniform(int location, Matrix4 p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params Matrix4[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, Matrix3 p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
+        public void Uniform(int location, params Matrix3[] p)
+            => Engine.Renderer.Uniform(BindingId, location, p);
 
         public IEnumerator<RenderShader> GetEnumerator()
             => ((IEnumerable<RenderShader>)_shaders).GetEnumerator();

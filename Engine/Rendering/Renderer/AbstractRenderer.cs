@@ -443,7 +443,7 @@ namespace TheraEngine.Rendering
         /// <param name="name"></param>
         /// <returns></returns>
         public int GetAttribLocation(RenderProgram program, string name)
-            => program.GetCachedAttributeLocation(name);
+            => program.GetAttributeLocation(name);
         /// <summary>
         /// Retrieves the attribute location from the program.
         /// </summary>
@@ -459,8 +459,8 @@ namespace TheraEngine.Rendering
         /// <param name="program"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public int GetUniformLocation(RenderProgram program, string name)
-            => program.GetCachedUniformLocation(name);
+        //public int GetUniformLocation(RenderProgram program, string name)
+        //    => program.GetCachedUniformLocation(name);
         /// <summary>
         /// Retrieves the uniform location from the program.
         /// </summary>
@@ -527,79 +527,79 @@ namespace TheraEngine.Rendering
         //Only call GetUniformLocation after a program is compiled
         //or after a shader variable name changes 
 
-        public void Uniform(RenderProgram program, string name, params IUniformable4Int[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, params IUniformable4Float[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params IUniformable4Int[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params IUniformable4Float[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
 
-        public void Uniform(RenderProgram program, string name, params IUniformable3Int[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, params IUniformable3Float[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params IUniformable3Int[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params IUniformable3Float[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
 
-        public void Uniform(RenderProgram program, string name, params IUniformable2Int[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, params IUniformable2Float[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params IUniformable2Int[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params IUniformable2Float[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
 
-        public void Uniform(RenderProgram program, string name, params IUniformable1Int[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, params IUniformable1Float[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params IUniformable1Int[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params IUniformable1Float[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
 
-        public void Uniform(RenderProgram program, string name, params int[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, params float[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, params uint[] p)
-            => ProgramUniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, params double[] p)
-            => ProgramUniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params int[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params float[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params uint[] p)
+        //    => ProgramUniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, params double[] p)
+        //    => ProgramUniform(program, GetUniformLocation(program, name), p);
 
-        public void Uniform(RenderProgram program, string name, Matrix4 p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, Matrix4[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, Matrix3 p)
-            => Uniform(program, GetUniformLocation(program, name), p);
-        public void Uniform(RenderProgram program, string name, Matrix3[] p)
-            => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, Matrix4 p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, Matrix4[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, Matrix3 p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
+        //public void Uniform(RenderProgram program, string name, Matrix3[] p)
+        //    => Uniform(program, GetUniformLocation(program, name), p);
 
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable4Int[] p);
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable4Float[] p);
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable4Double[] p);
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable4UInt[] p);
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable4Bool[] p);
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable4Int[] p);
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable4Float[] p);
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable4Double[] p);
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable4UInt[] p);
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable4Bool[] p);
 
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable3Int[] p);
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable3Float[] p);
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable3Double[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable3UInt[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable3Bool[] p) { throw new NotImplementedException(); }
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable3Int[] p);
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable3Float[] p);
+        internal void Uniform(int programBindingId, int location, params IUniformable3Double[] p) { throw new NotImplementedException(); }
+        internal void Uniform(int programBindingId, int location, params IUniformable3UInt[] p) { throw new NotImplementedException(); }
+        internal void Uniform(int programBindingId, int location, params IUniformable3Bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable2Int[] p);
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable2Float[] p);
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable2Double[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable2UInt[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable2Bool[] p) { throw new NotImplementedException(); }
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable2Int[] p);
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable2Float[] p);
+        internal void Uniform(int programBindingId, int location, params IUniformable2Double[] p) { throw new NotImplementedException(); }
+        internal void Uniform(int programBindingId, int location, params IUniformable2UInt[] p) { throw new NotImplementedException(); }
+        internal void Uniform(int programBindingId, int location, params IUniformable2Bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable1Int[] p);
-        public abstract void Uniform(RenderProgram program, int location, params IUniformable1Float[] p);
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable1Double[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable1UInt[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(RenderProgram program, int location, params IUniformable1Bool[] p) { throw new NotImplementedException(); }
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable1Int[] p);
+        internal abstract void Uniform(int programBindingId, int location, params IUniformable1Float[] p);
+        internal void Uniform(int programBindingId, int location, params IUniformable1Double[] p) { throw new NotImplementedException(); }
+        internal void Uniform(int programBindingId, int location, params IUniformable1UInt[] p) { throw new NotImplementedException(); }
+        internal void Uniform(int programBindingId, int location, params IUniformable1Bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(RenderProgram program, int location, params int[] p);
-        public abstract void Uniform(RenderProgram program, int location, params float[] p);
-        public void ProgramUniform(RenderProgram program, int location, params double[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(RenderProgram program, int location, params uint[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(RenderProgram program, int location, params bool[] p) { throw new NotImplementedException(); }
+        internal abstract void Uniform(int programBindingId, int location, params int[] p);
+        internal abstract void Uniform(int programBindingId, int location, params float[] p);
+        internal void Uniform(int programBindingId, int location, params double[] p) { throw new NotImplementedException(); }
+        internal void Uniform(int programBindingId, int location, params uint[] p) { throw new NotImplementedException(); }
+        internal void Uniform(int programBindingId, int location, params bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(RenderProgram program, int location, Matrix4 p);
-        public abstract void Uniform(RenderProgram program, int location, params Matrix4[] p);
-        public abstract void Uniform(RenderProgram program, int location, Matrix3 p);
-        public abstract void Uniform(RenderProgram program, int location, params Matrix3[] p);
-
+        internal abstract void Uniform(int programBindingId, int location, Matrix4 p);
+        internal abstract void Uniform(int programBindingId, int location, params Matrix4[] p);
+        internal abstract void Uniform(int programBindingId, int location, Matrix3 p);
+        internal abstract void Uniform(int programBindingId, int location, params Matrix3[] p);
+        
         #endregion
 
         #region Render area

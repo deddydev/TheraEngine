@@ -60,12 +60,12 @@ namespace TheraEngine.Rendering.Models
             _childBones.PostInserted += ChildBoneInserted;
             _childBones.PostInsertedRange += ChildBonesInsertedRange;
 
-            _childComponents.PostAdded += ChildComponentsAdded;
-            _childComponents.PostAddedRange += ChildComponentsAddedRange;
-            _childComponents.PostRemoved += ChildComponentsRemoved;
-            _childComponents.PostRemovedRange += ChildComponentsRemovedRange;
-            _childComponents.PostInserted += ChildComponentsInserted;
-            _childComponents.PostInsertedRange += ChildComponentsInsertedRange;
+            ChildComponents.PostAdded += ChildComponentsAdded;
+            ChildComponents.PostAddedRange += ChildComponentsAddedRange;
+            ChildComponents.PostRemoved += ChildComponentsRemoved;
+            ChildComponents.PostRemovedRange += ChildComponentsRemovedRange;
+            ChildComponents.PostInserted += ChildComponentsInserted;
+            ChildComponents.PostInsertedRange += ChildComponentsInsertedRange;
 
             if (info != null)
             {
@@ -117,8 +117,6 @@ namespace TheraEngine.Rendering.Models
         private Transform _bindState;
         [TSerialize("ChildBones")]
         private EventList<Bone> _childBones = new EventList<Bone>();
-        //[Serialize("ChildComponents")]
-        private EventList<SceneComponent> _childComponents = new EventList<SceneComponent>();
         [TSerialize("ConstraintToParent")]
         private TConstraint _parentConstraint;
         [TSerialize("RigidBody")]
@@ -223,7 +221,8 @@ namespace TheraEngine.Rendering.Models
         //public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
 
         [Category("Bone")]
-        public EventList<SceneComponent> ChildComponents => _childComponents;
+        public EventList<SceneComponent> ChildComponents { get; } = new EventList<SceneComponent>();
+
         [Category("Bone")]
         public EventList<Bone> ChildBones => _childBones;
         [Category("Bone")]
@@ -408,7 +407,7 @@ namespace TheraEngine.Rendering.Models
                 }
 
                 //Recalculate child component transforms
-                foreach (SceneComponent comp in _childComponents)
+                foreach (SceneComponent comp in ChildComponents)
                     comp.RecalcWorldTransform();
 
                 //Inform subscribers that the bone's transform has changed

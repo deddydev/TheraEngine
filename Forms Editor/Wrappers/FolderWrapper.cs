@@ -220,10 +220,10 @@ namespace TheraEditor.Wrappers
 
         private static void LoadFileTypes()
         {
-            Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[3], OnImportClick, Is3rdPartyImportable);
+            Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[3], OnImportClickAsync, Is3rdPartyImportable);
             Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[4], OnNewClick, IsFileObject);
         }
-        private static void OnImportClick(object sender, EventArgs e)
+        private static async void OnImportClickAsync(object sender, EventArgs e)
         {
             if (sender is ToolStripDropDownButton button)
             {
@@ -247,7 +247,7 @@ namespace TheraEditor.Wrappers
                     DialogResult r = ofd.ShowDialog(Editor.Instance);
                     if (r == DialogResult.OK)
                     {
-                        TFileObject file = TFileObject.Load(fileType, ofd.FileName);
+                        TFileObject file = await TFileObject.LoadAsync(fileType, ofd.FileName);
 
                         FolderWrapper folderNode = GetInstance<FolderWrapper>();
                         string dir = folderNode.FilePath as string;

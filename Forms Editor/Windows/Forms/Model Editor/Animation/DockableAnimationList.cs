@@ -8,9 +8,9 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableAnimationEditor : DockContent
+    public partial class DockableAnimationList : DockContent
     {
-        public DockableAnimationEditor()
+        public DockableAnimationList()
         {
             InitializeComponent();
         }
@@ -33,17 +33,16 @@ namespace TheraEditor.Windows.Forms
 
         private void listBox1_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            ModelEditorForm f = DockPanel.FindForm() as ModelEditorForm;
-            if (f == null)
+            if (!(DockPanel.FindForm() is ModelEditorForm f))
                 return;
-            SkeletalAnimation anim = listBox1.SelectedItem as SkeletalAnimation;
-            if (anim == null)
+            if (!(listBox1.SelectedItem is SkeletalAnimation anim))
                 return;
             AnimStateMachineComponent machine = f.SkeletalPreviewActor.GetLogicComponent<AnimStateMachineComponent>();
             machine.InitialState = new AnimState(anim);
+            theraPropertyGrid1.TargetFileObject = anim;
         }
 
-        private void openToolStripMenuItem_Click(object sender, System.EventArgs e)
+        private async void openToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
@@ -54,9 +53,19 @@ namespace TheraEditor.Windows.Forms
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     foreach (string animPath in ofd.FileNames)
-                        LoadAnimation(TFileObject.Load<SkeletalAnimation>(animPath));
+                        LoadAnimation(await TFileObject.LoadAsync<SkeletalAnimation>(animPath));
                 }
             }
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+
+        }
+
+        private void closeAllToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+
         }
     }
 }

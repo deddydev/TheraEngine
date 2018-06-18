@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
         protected override string GetOperation() => _value.GetShaderValueString();
         public override string GetGlobalVarDec() => _value.GetUniformDeclaration();
-        public override void SetUniform(int programBindingId)
+        public override void SetUniform(RenderProgram programBindingId)
             => _value?.SetProgramUniform(programBindingId);
 
         public override ShaderVar GetVar() => Value;
@@ -61,7 +61,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
     {
         public BaseParameterFunc() : base(true) { }
         
-        public abstract void SetUniform(int programBindingId);
+        public abstract void SetUniform(RenderProgram programBindingId);
         public abstract ShaderVar GetVar();
     }
 }

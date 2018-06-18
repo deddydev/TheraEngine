@@ -7,6 +7,7 @@ using TheraEngine.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Animation
 {
@@ -15,8 +16,8 @@ namespace TheraEngine.Animation
     [FileDef("Skeletal Animation")]
     public class SkeletalAnimation : BaseAnimation
     {
-        [ThirdPartyLoader("dae")]
-        public static TFileObject LoadDAE(string path)
+        [ThirdPartyLoader("dae", true)]
+        public static async Task<TFileObject> LoadDAEAsync(string path)
         {
             ModelImportOptions o = new ModelImportOptions()
             {
@@ -27,7 +28,7 @@ namespace TheraEngine.Animation
                 Core.Files.IgnoreFlags.Cameras | 
                 Core.Files.IgnoreFlags.Lights
             };
-            return Collada.Import(path, o)?.Models[0].Animation;
+            return (await Collada.ImportAsync(path, o))?.Models[0].Animation;
         }
         
         public SkeletalAnimation() : base(0.0f, false, false) { }

@@ -47,9 +47,9 @@ namespace TheraEngine.Rendering
             _quadCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
             _quadCamera.Resize(1.0f, 1.0f);
         }
-        private void SetUniforms(int vertexBindingId, int fragGeomBindingId)
+        private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
-            SettingUniforms?.Invoke(fragGeomBindingId);
+            SettingUniforms?.Invoke(materialProgram);
         }
         /// <summary>
         /// Renders the FBO to the entire region set by Engine.Renderer.PushRenderArea().

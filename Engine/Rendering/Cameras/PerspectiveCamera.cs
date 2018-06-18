@@ -1,19 +1,15 @@
-﻿using TheraEngine.Rendering.Models.Materials;
-using System;
+﻿using System;
 using System.ComponentModel;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Files;
 using System.Drawing;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {
-        public PerspectiveCamera() 
-            : this(0.1f, 10000.0f, 78.0f, 16.0f / 9.0f)
-        {
-        }
+        public PerspectiveCamera() : this(0.1f, 10000.0f, 78.0f, 16.0f / 9.0f) { }
         public PerspectiveCamera(Vec3 point, Rotator rotation, float nearZ, float farZ, float fovY, float aspect)
             : base(aspect, 1.0f, nearZ, farZ, point, rotation)
         {
@@ -155,12 +151,12 @@ namespace TheraEngine.Rendering.Cameras
             if (ViewTarget != null)
                 Engine.Renderer.RenderLine(WorldPoint, ViewTarget.Raw, Color.DarkGray, 1.0f);
         }
-        public override void SetUniforms(int programBindingId)
+        public override void SetUniforms(RenderProgram program)
         {
-            base.SetUniforms(programBindingId);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraFovX), _fovX);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraFovY), _fovY);
-            Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, EEngineUniform.CameraAspect), _aspect);
+            base.SetUniforms(program);
+            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraFovX), _fovX);
+            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraFovY), _fovY);
+            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraAspect), _aspect);
         }
         public override void Resize(float width, float height)
         {

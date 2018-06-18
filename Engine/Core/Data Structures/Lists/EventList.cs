@@ -97,6 +97,19 @@ namespace System.Collections.Generic
         public EventList(IEnumerable<T> list, bool allowDuplicates) : this(allowDuplicates) => AddRange(list);
         public EventList(int capacity) : base(capacity) { }
         
+        /// <summary>
+        /// Completely replaces the list's items with the given items.
+        /// </summary>
+        /// <param name="items">The items to set as the collection.</param>
+        /// <param name="reportRemoved">If true, notifies subscribers that previous items were removed.</param>
+        /// <param name="reportAdded">If true, notifies subscribers that new items have been added.</param>
+        /// <param name="reportModified">If true, notifies subscribers that the list has changed.</param>
+        public void Set(IEnumerable<T> items, bool reportRemoved = true, bool reportAdded = true, bool reportModified = true)
+        {
+            Clear(reportRemoved, false);
+            AddRange(items, reportAdded, reportModified);
+        }
+
         public new void Add(T item) => Add(item, true, true);
         public void Add(T item, bool reportAdded, bool reportModified)
         {

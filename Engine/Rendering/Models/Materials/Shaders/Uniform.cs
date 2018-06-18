@@ -15,7 +15,7 @@
         //}
         public static int GetLocation(RenderProgram program, EEngineUniform u)
         {
-            return Engine.Renderer.GetUniformLocation(program, u.ToString());
+            return program.GetUniformLocation(u.ToString());
             //return VertexBuffer.MaxBufferCount + (int)u;
         }
         //public static int GetFirstOpenUniformLocation()

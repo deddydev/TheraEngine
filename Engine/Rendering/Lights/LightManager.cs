@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering
             set => _globalAmbient = value;
         }
 
-        internal void SetUniforms(int programBindingId)
+        internal void SetUniforms(RenderProgram program)
         {
             //Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", _globalAmbient);
             //Engine.Renderer.Uniform(programBindingId, "DirLightCount", _directionalLights.Count);
@@ -35,11 +35,11 @@ namespace TheraEngine.Rendering
             //Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count);
 
             foreach (DirectionalLightComponent l in _directionalLights)
-                l.SetUniforms(programBindingId);
+                l.SetUniforms(program);
             foreach (SpotLightComponent l in _spotLights)
-                l.SetUniforms(programBindingId);
+                l.SetUniforms(program);
             foreach (PointLightComponent l in _pointLights)
-                l.SetUniforms(programBindingId);
+                l.SetUniforms(program);
         }
         public void Add(DirectionalLightComponent light)
         {

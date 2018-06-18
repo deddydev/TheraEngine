@@ -383,7 +383,7 @@ namespace TheraEditor.Windows.Forms
                 return creator.ConstructedObject;
             }
         }
-        protected override void OnLoad(EventArgs e)
+        protected override async void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
@@ -395,7 +395,7 @@ namespace TheraEditor.Windows.Forms
             string lastOpened = Properties.Settings.Default.LastOpened;
             //"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
             if (!string.IsNullOrEmpty(lastOpened))
-                Project = TFileObject.Load<Project>(lastOpened);
+                Project = await TFileObject.LoadAsync<Project>(lastOpened);
             else
                 Project = null;
         }
@@ -574,7 +574,7 @@ namespace TheraEditor.Windows.Forms
                     Project = Project.Create(fbd.SelectedPath, "NewProject");
             }
         }
-        public void OpenProject()
+        public async void OpenProject()
         {
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
@@ -582,7 +582,7 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
-                    Project = TFileObject.Load<Project>(ofd.FileName);
+                    Project = await TFileObject.LoadAsync<Project>(ofd.FileName);
             }
         }
         private void CboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -873,7 +873,7 @@ namespace TheraEditor.Windows.Forms
 
             CurrentWorld = new World();
         }
-        public void OpenWorld()
+        public async void OpenWorld()
         {
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
@@ -882,7 +882,7 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (ofd.ShowDialog() == DialogResult.OK && CloseWorld())
-                    CurrentWorld = TFileObject.Load<World>(ofd.FileName);
+                    CurrentWorld = await TFileObject.LoadAsync<World>(ofd.FileName);
             }
         }
 

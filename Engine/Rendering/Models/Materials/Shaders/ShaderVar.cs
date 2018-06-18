@@ -346,7 +346,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         internal void SetProgramUniform(RenderProgram program, string name)
         {
-            int loc = Engine.Renderer.GetUniformLocation(program, name);
+            int loc = program.GetUniformLocation(name);
             if (loc >= 0)
                 SetProgramUniform(program, loc);
             //else

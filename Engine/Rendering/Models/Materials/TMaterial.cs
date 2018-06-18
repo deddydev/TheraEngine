@@ -16,10 +16,10 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public static TMaterial InvalidMaterial { get; }
             = CreateUnlitColorMaterialForward(Color.Magenta);
-
-        protected override void OnSetUniforms(int programBindingId)
+        
+        protected override void OnSetUniforms(RenderProgram program)
         {
-            RenderParams?.SetUniforms(programBindingId, ref _secondsLive);
+            RenderParams?.SetUniforms(program, ref _secondsLive);
         }
 
 #if EDITOR
@@ -28,15 +28,15 @@ namespace TheraEngine.Rendering.Models.Materials
 #endif
 
         [TSerialize(nameof(Shaders))]
-        private List<GlobalFileRef<GLSLShaderFile>> _shaders = new List<GlobalFileRef<GLSLShaderFile>>();
+        private EventList<GlobalFileRef<GLSLShaderFile>> _shaders;
 
         public List<GLSLShaderFile> FragmentShaders { get; } = new List<GLSLShaderFile>();
         public List<GLSLShaderFile> GeometryShaders { get; } = new List<GLSLShaderFile>();
         public List<GLSLShaderFile> TessEvalShaders { get; } = new List<GLSLShaderFile>();
         public List<GLSLShaderFile> TessCtrlShaders { get; } = new List<GLSLShaderFile>();
         public List<GLSLShaderFile> VertexShaders { get; } = new List<GLSLShaderFile>();
-        public List<GlobalFileRef<GLSLShaderFile>> Shaders => _shaders;
-        
+        public EventList<GlobalFileRef<GLSLShaderFile>> Shaders => _shaders;
+
         public TMaterial()
             : this("NewMaterial", new RenderingParameters()) { }
 
@@ -72,40 +72,9 @@ namespace TheraEngine.Rendering.Models.Materials
             RenderParams = renderParams ?? new RenderingParameters();
             _parameters = vars ?? new ShaderVar[0];
             Textures = textures ?? new BaseTexRef[0];
-            SetShaders(shaders);
-        }
-
-        public void SetShaders(params GLSLShaderFile[] shaders)
-        {
-            SetShaders((IEnumerable<GLSLShaderFile>)shaders);
-        }
-        public void SetShaders(IEnumerable<GLSLShaderFile> shaders)
-        {
-            _shaders.Clear();
-            foreach (GLSLShaderFile f in shaders)
-                _shaders.Add(f);
-            ShadersChanged();
-        }
-        public void AddShader(GLSLShaderFile shader)
-        {
-            _shaders.Add(shader);
-            ShadersChanged();
-        }
-        public void SetShaders(params GlobalFileRef<GLSLShaderFile>[] shaders)
-        {
-            SetShaders((IEnumerable<GlobalFileRef<GLSLShaderFile>>)shaders);
-        }
-        public void SetShaders(IEnumerable<GlobalFileRef<GLSLShaderFile>> shaders)
-        {
-            _shaders.Clear();
-            foreach (GlobalFileRef<GLSLShaderFile> f in shaders)
-                _shaders.Add(f);
-            ShadersChanged();
-        }
-        public void AddShader(GlobalFileRef<GLSLShaderFile> shader)
-        {
-            _shaders.Add(shader);
-            ShadersChanged();
+            _shaders = new EventList<GlobalFileRef<GLSLShaderFile>>();
+            _shaders.PostModified += ShadersChanged;
+            _shaders.AddRange(shaders.Select(x => new GlobalFileRef<GLSLShaderFile>(x)));
         }
 
         [PostDeserialize]

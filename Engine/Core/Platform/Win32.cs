@@ -9,14 +9,13 @@ namespace System
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public class SafeHandle : IDisposable
         {
-            private uint _handle;
-            public VoidPtr Handle { get { return _handle; } }
+            public VoidPtr Handle { get; private set; }
 
-            public SafeHandle(VoidPtr handle) { _handle = handle; }
+            public SafeHandle(VoidPtr handle) { Handle = handle; }
 
             ~SafeHandle() { Dispose(); }
-            public void Dispose() { if (_handle != 0) { CloseHandle(_handle); _handle = 0; } }
-            public void ErrorCheck() { if (_handle == 0) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error()); }
+            public void Dispose() { if (Handle != 0) { CloseHandle(Handle); Handle = 0; } }
+            public void ErrorCheck() { if (Handle == 0) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error()); }
 
             public static implicit operator SafeHandle(VoidPtr handle) { return new SafeHandle(handle); }
 

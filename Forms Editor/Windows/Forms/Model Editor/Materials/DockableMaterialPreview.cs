@@ -11,6 +11,9 @@ namespace TheraEditor.Windows.Forms
         }
         public void SetMaterial(TMaterial mat)
         {
+            if (materialControl1.Material == mat)
+                return;
+            
             materialControl1.Material = mat;
         }
     }

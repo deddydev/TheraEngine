@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
@@ -88,6 +89,11 @@ namespace TheraEditor.Windows.Forms
             return value;
         }
 
+        private DockableMaterialPreview _matPreviewForm;
+        public bool MatPreviewFormActive => _matPreviewForm != null;
+        public DockableMaterialPreview MatPreviewForm => GetForm(
+            ref _matPreviewForm, DockState.DockRight);
+        
         private DockableTexRefControl _texRefForm;
         public bool TexRefFormActive => _texRefForm != null;
         public DockableTexRefControl TexRefForm => GetForm(
@@ -108,9 +114,9 @@ namespace TheraEditor.Windows.Forms
         public DockableMeshEditor MeshEditor => GetForm(
             ref _meshEditor, DockState.DockRight);
 
-        private DockableAnimationEditor _animList;
+        private DockableAnimationList _animList;
         public bool AnimListActive => _meshEditor != null;
-        public DockableAnimationEditor AnimList => GetForm(
+        public DockableAnimationList AnimList => GetForm(
             ref _animList, DockState.DockRight);
 
         private DockableMeshList _meshList;
@@ -149,7 +155,8 @@ namespace TheraEditor.Windows.Forms
 
                     Vec3 max = 1000.0f;
                     Vec3 min = -max;
-                    TextureFile2D skyTex = Engine.LoadEngineTexture2D("skybox.png");
+                    Task<TextureFile2D> t = Engine.LoadEngineTexture2DAsync("skybox.png");
+                    TextureFile2D skyTex = t.Result;
                     StaticModel skybox = new StaticModel("Skybox");
                     TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
                     {
@@ -240,7 +247,7 @@ namespace TheraEditor.Windows.Forms
 
             MeshList.DisplayMeshes(skm);
             MaterialList.DisplayMaterials(skm);
-            BoneTreeForm.NodeTree.DisplayNodes(skel);
+            BoneTreeForm.SetSkeleton(skel);
 
             //BoundingBox aabb = skm.CalculateBindPoseCullingAABB();
             //RenderForm1.AlignView(aabb);

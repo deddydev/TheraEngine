@@ -42,9 +42,9 @@ namespace TheraEngine.Rendering.UI
                 Engine.LoadEngineShader("ViewportFBO.fs", EShaderMode.Fragment));
         }
 
-        private void SetUniforms(int vertexBindingId, int fragGeomBindingId)
+        private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
-            SettingUniforms?.Invoke(fragGeomBindingId);
+            SettingUniforms?.Invoke(materialProgram);
         }
 
         public Camera ViewportCamera

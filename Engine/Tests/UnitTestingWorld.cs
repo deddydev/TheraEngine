@@ -36,7 +36,7 @@ namespace TheraEngine.Tests
             //_collideSound.Play(_param);
         }
 
-        public unsafe override void BeginPlay()
+        public override async void BeginPlay()
         {
             bool testLandscape = true;
             bool createWalls = true;
@@ -243,15 +243,17 @@ namespace TheraEngine.Tests
                 FastNoise noise = new FastNoise();
                 //noise.SetFrequency(10.0f);
                 DataSource source = new DataSource(wh * wh * 4);
-                float* data = (float*)source.Address;
-                float temp;
-                for (int r = 0; r < wh; ++r)
-                    for (int x = 0; x < wh; ++x)
-                    {
-                        temp = noise.GetCubic(x, r) * 50.0f;
-                        *data++ = temp;
-                    }
-
+                unsafe
+                {
+                    float* data = (float*)source.Address;
+                    float temp;
+                    for (int r = 0; r < wh; ++r)
+                        for (int x = 0; x < wh; ++x)
+                        {
+                            temp = noise.GetCubic(x, r) * 50.0f;
+                            *data++ = temp;
+                        }
+                }
                 TRigidBodyConstructionInfo landscapeInfo = new TRigidBodyConstructionInfo()
                 {
                     CollidesWith = (ushort)(TCollisionGroup.All & ~TCollisionGroup.StaticWorld),
@@ -312,7 +314,7 @@ namespace TheraEngine.Tests
 
             Vec3 max = 1000.0f;
             Vec3 min = -max;
-            TextureFile2D skyTex = Engine.LoadEngineTexture2D("skybox.png");
+            TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("skybox.png");
             StaticModel skybox = new StaticModel("Skybox");
             TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
             {

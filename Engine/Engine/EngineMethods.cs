@@ -62,8 +62,8 @@ namespace TheraEngine
 
         public static string EngineWorldsPath(string fileName)
             => Path.Combine(Settings.WorldsFolder ?? string.Empty, fileName);
-        public static World LoadEngineWorld(string fileName)
-            => TFileObject.Load<World>(EngineWorldsPath(fileName));
+        public static async Task<World> LoadEngineWorldAsync(string fileName)
+            => await TFileObject.LoadAsync<World>(EngineWorldsPath(fileName));
 
         public static string EngineShadersPath(string fileName)
             => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
@@ -78,8 +78,8 @@ namespace TheraEngine
         public static TextFile LoadEngineScript(string fileName)
             => new TextFile(EngineScriptsPath(fileName));
 
-        public static TextureFile2D LoadEngineTexture2D(string fileName)
-            => TFileObject.Load<TextureFile2D>(EngineTexturesPath(fileName));
+        public static async Task<TextureFile2D> LoadEngineTexture2DAsync(string fileName)
+            => await TFileObject.LoadAsync<TextureFile2D>(EngineTexturesPath(fileName));
         public static string EngineTexturesPath(string fileName)
             => Path.Combine(Settings.TexturesFolder ?? string.Empty, fileName);
         
@@ -495,12 +495,12 @@ namespace TheraEngine
             if (args != null && args.Length > 0)
                 message = string.Format(message, args);
 
-            message += Environment.NewLine + GetStackTrace(4);
+            message += Environment.NewLine + GetStackTrace(4, 1);
             PrintLine("[{1}] {0}", message, DateTime.Now);
 #endif
         }
 
-        public static string GetStackTrace(int lineIgnoreCount = 3, bool ignoreBeforeWndProc = true)
+        public static string GetStackTrace(int lineIgnoreCount = 3, int includedLineCount = -1, bool ignoreBeforeWndProc = true)
         {
             //Format and print stack trace
             string stackTrace = Environment.StackTrace;
@@ -510,13 +510,23 @@ namespace TheraEngine
             if (at4th > 0)
                 stackTrace = stackTrace.Substring(at4th);
 
-            //Everything before wndProc is almost always irrelevant
-            int wndProc = stackTrace.IndexOf("WndProc(Message& m)");
-            if (wndProc > 0)
+            if (ignoreBeforeWndProc)
             {
-                int at = stackTrace.FindFirstReverse(wndProc, atStr);
-                if (at > 0)
-                    stackTrace = stackTrace.Substring(0, at);
+                //Everything before wndProc is almost always irrelevant
+                int wndProc = stackTrace.IndexOf("WndProc(Message& m)");
+                if (wndProc > 0)
+                {
+                    int at = stackTrace.FindFirstReverse(wndProc, atStr);
+                    if (at > 0)
+                        stackTrace = stackTrace.Substring(0, at);
+                }
+            }
+
+            if (includedLineCount >= 0)
+            {
+                int atXth = stackTrace.FindOccurrence(0, includedLineCount, atStr);
+                if (atXth > 0)
+                    stackTrace = stackTrace.Substring(0, atXth);
             }
 
             return stackTrace;

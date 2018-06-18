@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Models;
 using WeifenLuo.WinFormsUI.Docking;
@@ -13,6 +16,57 @@ namespace TheraEditor.Windows.Forms
         public DockableBoneTree()
         {
             InitializeComponent();
+            NodeTree.TreeViewNodeSorter = new BoneComparer();
+        }
+        private class BoneComparer : IComparer<TreeNode>, IComparer
+        {
+            public int Compare(TreeNode x, TreeNode y)
+            {
+                bool xNull = x is null;
+                bool yNull = y is null;
+                if (xNull)
+                {
+                    if (yNull)
+                        return 0;
+                    else
+                        return 1;
+                }
+                else if (yNull)
+                    return -1;
+
+                return x.Text.CompareTo(y.Text);
+            }
+            public int Compare(object x, object y)
+                => Compare(x as TreeNode, y as TreeNode);
+        }
+        public void DisplayNodes(Skeleton skel)
+        {
+            NodeTree.Nodes.Clear();
+            foreach (Bone b in skel.RootBones)
+                WrapBone(b, NodeTree.Nodes);
+        }
+        public void DisplayNodes(MeshSocket[] sockets)
+        {
+            //Nodes.Clear();
+            //foreach (Bone b in skel.RootBones)
+            //    WrapBone(b, Nodes);
+        }
+        public void WrapBone(Bone b, TreeNodeCollection c)
+        {
+            BoneNode node = new BoneNode(b)
+            {
+                //ForeColor = ForeColor,
+                //BackColor = Color.Transparent,
+            };
+            c.Add(node);
+            lstBonesFlat.Items.Add(b);
+            foreach (Bone b2 in b.ChildBones)
+                WrapBone(b2, node.Nodes);
+        }
+        public void WrapSocket(MeshSocket s, TreeNodeCollection c)
+        {
+            MeshSocketNode node = new MeshSocketNode(s);
+            c.Add(node);
         }
 
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
@@ -34,7 +88,8 @@ namespace TheraEditor.Windows.Forms
         public void SetSkeleton(Skeleton skel)
         {
             _skeleton = skel;
-            NodeTree.DisplayNodes(skel);
+            lstBonesFlat.Items.Clear();
+            DisplayNodes(skel);
         }
 
         private Skeleton _skeleton;
@@ -79,25 +134,25 @@ namespace TheraEditor.Windows.Forms
                 case ESearchingMethod.StartsWith:
                     var starting = keyStrs.Select(x => x.StartsWith(searchTerm));
                     i = -1;
-                    foreach (int match in starting)
+                    foreach (bool match in starting)
                     {
                         ++i;
-                        if (match < 0)
+                        if (!match)
                             continue;
                         Bone bone = _skeleton.BoneNameCache[keyStrs[i]];
-                        RenameBone(bone, match, searchTerm.Length);
+                        RenameBone(bone, 0, searchTerm.Length);
                     }
                     break;
                 case ESearchingMethod.EndsWith:
-                    var containing = keyStrs.Select(x => x.IndexOf(searchTerm));
+                    var ending = keyStrs.Select(x => x.EndsWith(searchTerm));
                     i = -1;
-                    foreach (int match in containing)
+                    foreach (bool match in ending)
                     {
                         ++i;
-                        if (match < 0)
+                        if (!match)
                             continue;
                         Bone bone = _skeleton.BoneNameCache[keyStrs[i]];
-                        RenameBone(bone, match, searchTerm.Length);
+                        RenameBone(bone, bone.Name.Length - searchTerm.Length, searchTerm.Length);
                     }
                     break;
             }
@@ -111,20 +166,26 @@ namespace TheraEditor.Windows.Forms
                     bone.Name = txtRename.Text;
                     break;
                 case ERenamingMethod.ReplaceSearchMatch:
-
+                    bone.Name = bone.Name.Replace(bone.Name.Substring(searchMatchStart, searchMatchLength), txtRename.Text);
                     break;
                 case ERenamingMethod.AppendToStart:
-
+                    bone.Name = txtRename.Text + bone.Name;
                     break;
                 case ERenamingMethod.AppendToEnd:
-
+                    bone.Name = bone.Name + txtRename.Text;
                     break;
                 case ERenamingMethod.AppendBeforeSearchMatch:
-
-                    break;
+                    {
+                        string term = bone.Name.Substring(searchMatchStart, searchMatchLength);
+                        bone.Name = bone.Name.Replace(term, txtRename.Text + term);
+                        break;
+                    }
                 case ERenamingMethod.AppendAfterSearchMatch:
-
-                    break;
+                    {
+                        string term = bone.Name.Substring(searchMatchStart, searchMatchLength);
+                        bone.Name = bone.Name.Replace(term, term + txtRename.Text);
+                        break;
+                    }
             }
         }
 
@@ -247,6 +308,16 @@ namespace TheraEditor.Windows.Forms
                         break;
                 }
             }
+        }
+
+        private void findToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void resetSearchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

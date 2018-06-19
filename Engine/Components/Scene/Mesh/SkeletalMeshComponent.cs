@@ -105,9 +105,6 @@ namespace TheraEngine.Components.Scene.Mesh
                     _modelRef.UnregisterLoadEvent(_modelRef_Loaded);
                 }
 
-                _modelRef = value ?? new GlobalFileRef<SkeletalModel>();
-                _modelRef.RegisterLoadEvent(_modelRef_Loaded);
-
                 if (_meshes != null)
                 {
                     foreach (SkeletalRenderableMesh mesh in _meshes)
@@ -115,6 +112,8 @@ namespace TheraEngine.Components.Scene.Mesh
                     _meshes = null;
                 }
 
+                _modelRef = value ?? new GlobalFileRef<SkeletalModel>();
+                _modelRef.RegisterLoadEvent(_modelRef_Loaded);
                 if (_modelRef.IsLoaded || IsSpawned)
                     _modelRef_Loaded(_modelRef.File);
             }
@@ -188,7 +187,10 @@ namespace TheraEngine.Components.Scene.Mesh
         public override void OnSpawned()
         {
             if (_meshes == null)
+            {
+                SkeletonRef.GetInstance();
                 ModelRef.GetInstance();
+            }
 
             if (_meshes != null)
                 foreach (SkeletalRenderableMesh m in _meshes)

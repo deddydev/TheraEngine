@@ -252,7 +252,8 @@ namespace TheraEngine.Rendering.Models
                 matrixWeightsBuffer.Destroy();
                 _data.Buffers.RemoveAt(_data.Buffers.Count - 1);
             }
-            
+            _boneMatrixBuffer?.Dispose();
+
             if (_utilizedBones != null)
                 foreach (Bone b in _utilizedBones)
                     b.RemovePrimitiveManager(this);
@@ -348,7 +349,6 @@ namespace TheraEngine.Rendering.Models
                     }
 
                     _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneNameCache[x]).ToArray();
-                    _boneMatrixBuffer?.Dispose();
                     _boneMatrixBuffer = new DataBuffer("BoneMatrices", EBufferTarget.UniformBuffer, false)
                     {
                         MapData = false,
@@ -388,27 +388,28 @@ namespace TheraEngine.Rendering.Models
             
             if (Engine.Settings.SkinOnGPU)
             {
-                if (_modifiedBoneIndicesRendering.Count > 0)
-                {
-                    Matrix4 vtxMtx;
-                    int boneIndex;
-                    foreach (int i in _modifiedBoneIndicesRendering)
-                    {
-                        boneIndex = _boneRemap[i];
-                        vtxMtx = _utilizedBones[boneIndex].VertexMatrix;
-
-                        //Increment the bone index for all subsequent data calculations 
-                        //to account for the identity matrix at index 0
-                        ++boneIndex;
-
-                        _boneMatrixBuffer.Set(boneIndex * Matrix4.Size, vtxMtx);
-                    }
-                    //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
-                }
                 if (_boneMatrixBuffer != null)
                 {
-                    _boneMatrixBuffer.SetBlockName(program, "Bones");
-                    _boneMatrixBuffer.PushSubData(0, _boneMatrixBuffer.DataLength);
+                    if (_modifiedBoneIndicesRendering.Count > 0)
+                    {
+                        Matrix4 vtxMtx;
+                        int boneIndex;
+                        foreach (int i in _modifiedBoneIndicesRendering)
+                        {
+                            boneIndex = _boneRemap[i];
+                            vtxMtx = _utilizedBones[boneIndex].VertexMatrix;
+
+                            //Increment the bone index for all subsequent data calculations 
+                            //to account for the identity matrix at index 0
+                            ++boneIndex;
+
+                            _boneMatrixBuffer.Set(boneIndex * Matrix4.Size, vtxMtx);
+                        }
+                        //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
+
+                        _boneMatrixBuffer.SetBlockName(program, "Bones");
+                        _boneMatrixBuffer.PushSubData(0, _boneMatrixBuffer.DataLength);
+                    }
                 }
             }
             else

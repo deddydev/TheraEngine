@@ -1,10 +1,10 @@
 ﻿using Core.Win32.Native;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -21,7 +21,7 @@ namespace TheraEditor
         static void Main()
         {
             Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(true);
+            Application.SetCompatibleTextRenderingDefault(false);
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -68,7 +68,7 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static Type[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
         {
-            Type[] fileObjectTypes = Engine.FindEngineTypes(match).ToArray();
+            Type[] fileObjectTypes = Engine.FindTypes(match, true, Assembly.GetExecutingAssembly()).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (Type t in fileObjectTypes)

@@ -24,11 +24,6 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine
 {
-    public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
-    {
-        public TickInfo(ETickGroup group, ETickOrder order, DelTick function)
-            : base(group, order, function) { }
-    }
     public delegate void DelTick(float delta);
     public enum ETickGroup
     {
@@ -56,9 +51,9 @@ namespace TheraEngine
         public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
-        public static NetworkConnection NetworkConnection { get; set; }
-        public static Server ServerConnection => NetworkConnection as Server;
-        public static Client ClientConnection => NetworkConnection as Client;
+        public static NetworkConnection Network { get; set; }
+        public static Server ServerConnection => Network as Server;
+        public static Client ClientConnection => Network as Client;
 
         /// <summary>
         /// Event for when the engine is paused or unpaused and by which player.
@@ -92,8 +87,7 @@ namespace TheraEngine
         /// </summary>
         public static List<LocalPlayerController> LocalPlayers { get; } = new List<LocalPlayerController>();
         
-        public static List<AIController> ActiveAI
-            = new List<AIController>();
+        public static List<AIController> ActiveAI = new List<AIController>();
 
         public static Lazy<EngineSettings> DefaultEngineSettings { get; set; } = new Lazy<EngineSettings>(() => new EngineSettings());
 
@@ -122,7 +116,7 @@ namespace TheraEngine
         /// Queue for adding to or removing from the currently ticking list
         /// </summary>
         private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
-        public static ThreadSafeList<DelTick>[] _tickLists;
+        public static List<DelTick>[] _tickLists;
 
         private static Game _game;
         private static World _currentWorld = null;

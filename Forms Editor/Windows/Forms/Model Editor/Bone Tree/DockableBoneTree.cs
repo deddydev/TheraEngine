@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using TheraEngine;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Models;
@@ -27,27 +26,36 @@ namespace TheraEditor.Windows.Forms
         {
             TreeView tree = (TreeView)sender;
             BoneTreeNode node = (BoneTreeNode)e.Node;
-            Font nodeFont = node.NodeFont;
-            if (nodeFont == null)
-                nodeFont = tree.Font;
+            Font nodeFont = node.NodeFont ?? tree.Font;
             int index = node.HighlightIndex;
             int length = node.HighlightLength;
+            length = Math.Min(length, node.Text.Length - index);
             if (index >= 0 && length > 0 && index < node.Text.Length)
             {
-                length = Math.Min(length, node.Text.Length - (index + length));
-                e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), node.Bounds);
-                SizeF matchSize = e.Graphics.MeasureString(node.Text.Substring(index, length), nodeFont);
-                SizeF beforeMatchSize = e.Graphics.MeasureString(node.Text.Substring(0, index), nodeFont);
-                PointF loc = node.Bounds.Location;
-                loc.X += beforeMatchSize.Width;
-                matchSize.Height = node.Bounds.Height;
-                e.Graphics.FillRectangle(new SolidBrush(node.BackColor), new RectangleF(loc, matchSize));
+                e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), e.Bounds);
+
+                CharacterRange[] characterRanges = { new CharacterRange(index, length) };
+                StringFormat stringFormat = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Near,
+                };
+                stringFormat.SetMeasurableCharacterRanges(characterRanges);
+                Rectangle r = e.Bounds;
+                r.Location = new Point();
+                Region[] regions = e.Graphics.MeasureCharacterRanges(node.Text, nodeFont, e.Bounds, stringFormat);
+
+                foreach (Region region in regions)
+                {
+                    Rectangle rect = Rectangle.Round(region.GetBounds(e.Graphics));
+                    rect.X -= 9;
+                    e.Graphics.FillRectangle(new SolidBrush(node.BackColor), rect);
+                }
             }
             else
-                e.Graphics.FillRectangle(new SolidBrush(node.BackColor), node.Bounds);
+                e.Graphics.FillRectangle(new SolidBrush(node.BackColor), e.Bounds);
 
-            e.Graphics.DrawString(node.Text, nodeFont, new SolidBrush(node.ForeColor),
-                Rectangle.Inflate(e.Bounds, 2, 0));
+            e.Graphics.DrawString(node.Text, nodeFont, new SolidBrush(node.ForeColor), Rectangle.Inflate(e.Bounds, 2, 0));
         }
         private class BoneComparer : IComparer<TreeNode>, IComparer
         {
@@ -348,6 +356,7 @@ namespace TheraEditor.Windows.Forms
                 }
             }
             FindRecursive(NodeTree.Nodes);
+            NodeTree.Refresh();
         }
 
         private void findToolStripMenuItem_Click(object sender, EventArgs e)
@@ -384,16 +393,19 @@ namespace TheraEditor.Windows.Forms
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
             FindRecursive(NodeTree.Nodes);
+            NodeTree.Refresh();
         }
 
         private void FindRecursive(TreeNodeCollection nodes, bool makeMatchesVisible = true)
         {
-            foreach (TreeNode tn in nodes)
+            foreach (BoneTreeNode tn in nodes)
             {
                 if (IsMatch(tn.Text, out int index, out int length))
                 {
                     tn.BackColor = Editor.TurquoiseColor;
                     tn.ForeColor = Color.Black;
+                    tn.HighlightIndex = index;
+                    tn.HighlightLength = length;
                     if (makeMatchesVisible)
                         tn.EnsureVisible();
                 }
@@ -401,6 +413,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     tn.BackColor = NodeTree.BackColor;
                     tn.ForeColor = NodeTree.ForeColor;
+                    tn.HighlightIndex = -1;
+                    tn.HighlightLength = -1;
                 }
 
                 FindRecursive(tn.Nodes);
@@ -458,6 +472,7 @@ namespace TheraEditor.Windows.Forms
         private void chkIgnoreCase_CheckedChanged(object sender, EventArgs e)
         {
             FindRecursive(NodeTree.Nodes);
+            NodeTree.Refresh();
         }
 
         private void chkViewMeshSockets_Click(object sender, EventArgs e)

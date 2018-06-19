@@ -789,7 +789,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (Engine.DesignMode)
                 return;
 
-            var propControls = Engine.FindAllTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)));
+            var propControls = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)), false, Assembly.GetExecutingAssembly());
             foreach (var propControlType in propControls)
             {
                 var attribs = propControlType.GetCustomAttributesExt<PropGridControlForAttribute>();
@@ -804,7 +804,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
                 }
             }
-            var fullEditors = Engine.FindAllTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null);
+            var fullEditors = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null, false, Assembly.GetExecutingAssembly());
             foreach (var editorType in fullEditors)
             {
                 var attrib = editorType.GetCustomAttribute<EditorForAttribute>();

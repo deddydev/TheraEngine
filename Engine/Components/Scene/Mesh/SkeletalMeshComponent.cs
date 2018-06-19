@@ -30,9 +30,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         public SkeletalMeshComponent()
         {
-            _skeletonRef = new LocalFileRef<Skeleton>();
-            _skeletonRef.RegisterLoadEvent(_skeletonRef_Loaded);
-
+            SkeletonRef = new LocalFileRef<Skeleton>();
             ModelRef = new GlobalFileRef<SkeletalModel>();
         }
 
@@ -101,8 +99,14 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 if (_modelRef == value)
                     return;
-                
+
+                if (_modelRef != null)
+                {
+                    _modelRef.UnregisterLoadEvent(_modelRef_Loaded);
+                }
+
                 _modelRef = value ?? new GlobalFileRef<SkeletalModel>();
+                _modelRef.RegisterLoadEvent(_modelRef_Loaded);
 
                 if (_meshes != null)
                 {
@@ -112,23 +116,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
 
                 if (_modelRef.IsLoaded || IsSpawned)
-                {
-                    _meshes = new SkeletalRenderableMesh[Model.RigidChildren.Count + Model.SoftChildren.Count];
-                    for (int i = 0; i < Model.RigidChildren.Count; ++i)
-                    {
-                        SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(Model.RigidChildren[i], Skeleton, this);
-                        if (IsSpawned)
-                            mesh.Visible = mesh.Mesh.VisibleByDefault;
-                        _meshes[i] = mesh;
-                    }
-                    for (int i = 0; i < Model.SoftChildren.Count; ++i)
-                    {
-                        SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(Model.SoftChildren[i], Skeleton, this);
-                        if (IsSpawned)
-                            mesh.Visible = mesh.Mesh.VisibleByDefault;
-                        _meshes[Model.RigidChildren.Count + i] = mesh;
-                    }
-                }
+                    _modelRef_Loaded(_modelRef.File);
             }
         }
 
@@ -149,10 +137,13 @@ namespace TheraEngine.Components.Scene.Mesh
                 if (_skeletonRef == value)
                     return;
 
-                _skeletonRef.UnregisterLoadEvent(_skeletonRef_Loaded);
+                if (_skeletonRef != null)
+                {
+                    _skeletonRef.UnregisterLoadEvent(_skeletonRef_Loaded);
 
-                if (_skeletonRef.IsLoaded)
-                    _skeletonRef.File.OwningComponent = null;                
+                    if (_skeletonRef.IsLoaded)
+                        _skeletonRef.File.OwningComponent = null;
+                }
 
                 _skeletonRef = value ?? new LocalFileRef<Skeleton>();
                 _skeletonRef.RegisterLoadEvent(_skeletonRef_Loaded);
@@ -166,7 +157,25 @@ namespace TheraEngine.Components.Scene.Mesh
                 foreach (SkeletalRenderableMesh m in _meshes)
                     m.Skeleton = skel;
         }
-        
+        private void _modelRef_Loaded(SkeletalModel model)
+        {
+            _meshes = new SkeletalRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
+            for (int i = 0; i < model.RigidChildren.Count; ++i)
+            {
+                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], Skeleton, this);
+                if (IsSpawned)
+                    mesh.Visible = mesh.Mesh.VisibleByDefault;
+                _meshes[i] = mesh;
+            }
+            for (int i = 0; i < model.SoftChildren.Count; ++i)
+            {
+                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], Skeleton, this);
+                if (IsSpawned)
+                    mesh.Visible = mesh.Mesh.VisibleByDefault;
+                _meshes[model.RigidChildren.Count + i] = mesh;
+            }
+        }
+
         [Category("Skeletal Mesh Component")]
         public SkeletalRenderableMesh[] Meshes => _meshes;
         
@@ -178,6 +187,9 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         public override void OnSpawned()
         {
+            if (_meshes == null)
+                ModelRef.GetInstance();
+
             if (_meshes != null)
                 foreach (SkeletalRenderableMesh m in _meshes)
                     m.Visible = m.Mesh.VisibleByDefault;

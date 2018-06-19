@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Steamworks;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -33,8 +35,6 @@ namespace TheraEngine
 
         static Engine()
         {
-            //Steamworks.SteamAPI.Init();
-
             _timer = new EngineTimer();
             _timer.UpdateFrame += Tick;
 
@@ -108,30 +108,27 @@ namespace TheraEngine
 
             }
         }
-
-        private static IEnumerable<Type> _typeCache = null;
-
+        
         /// <summary>
         /// Helper to collect all types from all loaded assemblies that match the given predicate.
         /// </summary>
         /// <param name="matchPredicate">What determines if the type is a match or not.</param>
         /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
         /// <returns>All types that match the predicate.</returns>
-        public static IEnumerable<Type> FindAllTypes(Predicate<Type> matchPredicate, bool resetTypeCache = false)
+        public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, bool includeEngineAssembly, params Assembly[] assemblies)
         {
-            if (_typeCache == null || resetTypeCache)
-                _typeCache = AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes());
-            return _typeCache.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
+            if ((assemblies == null || assemblies.Length == 0) && !includeEngineAssembly)
+                return Enumerable.Empty<Type>();
+
+            var search = assemblies.Where(x => !x.IsDynamic);
+
+            if (includeEngineAssembly)
+                search = search.Append(Assembly.GetExecutingAssembly());
+
+            var allTypes = search.SelectMany(x => x.GetExportedTypes());
+
+            return allTypes.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
         }
-        //TODO: include user game project dll in search here
-        public static IEnumerable<Type> FindSpecificTypes(Predicate<Type> matchPredicate, string dllName, bool resetTypeCache = false)
-        {
-            if (_typeCache == null || resetTypeCache)
-                _typeCache = AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes());
-            return _typeCache.Where(x => matchPredicate(x) && x.FullName.Contains(dllName)).OrderBy(x => x.Name);
-        }
-        public static IEnumerable<Type> FindEngineTypes(Predicate<Type> matchPredicate, bool resetTypeCache = false)
-            => FindSpecificTypes(matchPredicate, "TheraEngine", resetTypeCache);
 
         public static void SetWorldPanel(BaseRenderPanel panel, bool registerTickNow = true)
         {
@@ -162,6 +159,22 @@ namespace TheraEngine
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
+            SteamAPI.Init();
+            //AppId_t appId = new AppId_t(408u);
+            //SteamAPI.RestartAppIfNecessary(appId);
+            //bool ret = GameServer.Init(0, 8766, 27015, 27016, EServerMode.eServerModeNoAuthentication, "1.0.0.0");
+            ////SteamGameServer.ForceHeartbeat();
+            ////var steamID = SteamUser.GetSteamID();
+            //int friendCount = SteamFriends.GetFriendCount(EFriendFlags.k_EFriendFlagAll);
+            //for (int i = 0; i < friendCount; ++i)
+            //{
+            //    CSteamID friendSteamId = SteamFriends.GetFriendByIndex(i, EFriendFlags.k_EFriendFlagAll);
+            //    int r = SteamFriends.GetFriendMessage(friendSteamId, 0, out string data, 0, out EChatEntryType type);
+            //    string friendName = SteamFriends.GetFriendPersonaName(friendSteamId);
+            //    EPersonaState friendState = SteamFriends.GetFriendPersonaState(friendSteamId);
+            //    PrintLine(friendName + " is " + friendState.ToString().Substring(15));
+            //}
+            
             //InitializeVR();
         }
 
@@ -204,7 +217,7 @@ namespace TheraEngine
         {
             ShuttingDown = true;
 
-            //Steamworks.SteamAPI.Shutdown();
+            SteamAPI.Shutdown();
             Stop();
             SetCurrentWorld(null, true, true);
             IEnumerable<IFileObject> files = LocalFileInstances.SelectMany(x => x.Value);
@@ -273,6 +286,9 @@ namespace TheraEngine
             if (function != null)
             {
                 var list = GetTickList(group, order, pausedBehavior);
+                if (list.Contains(function))
+                    return;
+
                 int tickIndex = (int)group + (int)order + (int)pausedBehavior;
                 if (_currentTickList == tickIndex)
                     _tickListQueue.Enqueue(new Tuple<bool, DelTick>(true, function));
@@ -298,7 +314,7 @@ namespace TheraEngine
         /// <summary>
         /// Gets a list of items to tick (in no particular order) that were registered with the following parameters.
         /// </summary>
-        private static ThreadSafeList<DelTick> GetTickList(ETickGroup group, ETickOrder order, EInputPauseType pausedBehavior)
+        private static List<DelTick> GetTickList(ETickGroup group, ETickOrder order, EInputPauseType pausedBehavior)
             => _tickLists[(int)group + (int)order + (int)pausedBehavior];
         /// <summary>
         /// Ticks the before, during, and after physics groups. Also steps the physics simulation during the during physics tick group.
@@ -306,14 +322,15 @@ namespace TheraEngine
         /// </summary>
         private static void Tick(object sender, FrameEventArgs e)
         {
-            NetworkConnection?.RecievePackets();
+            Network?.RecievePackets();
             float delta = e.Time * TimeDilation;
             TickGroup(ETickGroup.PrePhysics, delta);
             if (!_isPaused)
                 World?.StepSimulation(delta);
             TickGroup(ETickGroup.PostPhysics, delta);
             Update?.Invoke(sender, e);
-            NetworkConnection?.UpdatePacketQueue(e.Time);
+            Network?.UpdatePacketQueue(e.Time);
+            SteamAPI.RunCallbacks();
         }
         /// <summary>
         /// Ticks all lists of methods registered to this group.
@@ -325,13 +342,13 @@ namespace TheraEngine
             int start = (int)group;
             for (int i = start; i < start + 15; i += 3)
             {
-                //for (int j = 0; j < 3; ++j)
-                Parallel.For(0, 3, (int j) => 
+                for (int j = 0; j < 3; ++j)
+                //Parallel.For(0, 3, (int j) => 
                 {
                     if (j == 0 || (j == 1 && !IsPaused) || (j == 2 && IsPaused))
                         TickList(i + j, delta);
                 }
-                );
+                //);
             }
         }
         /// <summary>
@@ -339,12 +356,10 @@ namespace TheraEngine
         /// </summary>
         private static void TickList(int index, float delta)
         {
-            ThreadSafeList<DelTick> currentList = _tickLists[_currentTickList = index];
+            List<DelTick> currentList = _tickLists[_currentTickList = index];
 
-            Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
-            //currentList.ForEach(x => x(delta));
-
-            _currentTickList = -1;
+            //Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
+            currentList.ForEach(x => x(delta));
 
             //Add or remove the list of methods that tried to register to or unregister from this group while it was ticking.
             while (!_tickListQueue.IsEmpty && _tickListQueue.TryDequeue(out Tuple<bool, DelTick> result))
@@ -354,6 +369,8 @@ namespace TheraEngine
                 else
                     currentList.Remove(result.Item2);
             }
+
+            _currentTickList = -1;
         }
         /// <summary>
         /// Starts a quick timer to track the number of sceonds elapsed.

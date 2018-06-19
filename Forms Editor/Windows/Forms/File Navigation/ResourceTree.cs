@@ -89,7 +89,7 @@ namespace TheraEditor.Windows.Forms
                     _imgList.Images.Add(nameof(Resources.LockedFolder), Resources.GenericFile);
 
                     Type fileWrapper = typeof(BaseFileWrapper);
-                    var types = Engine.FindAllTypes(t => fileWrapper.IsAssignableFrom(t));
+                    var types = Engine.FindTypes(t => fileWrapper.IsAssignableFrom(t), false, Assembly.GetExecutingAssembly());
                     foreach (Type t in types)
                     {
                         var wrapper = t.GetCustomAttribute<NodeWrapperAttribute>();

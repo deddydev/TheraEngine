@@ -240,9 +240,19 @@ namespace TheraEngine.Rendering.Models
             UpdateBoneInfo(false);
             
             _modifiedBoneIndicesUpdating.Clear();
-            _data[EBufferType.MatrixIds]?.Dispose();
-            _data[EBufferType.MatrixWeights]?.Dispose();
-
+            var matrixIdsBuffer = _data[EBufferType.MatrixIds];
+            if (matrixIdsBuffer != null)
+            {
+                matrixIdsBuffer.Destroy();
+                _data.Buffers.RemoveAt(_data.Buffers.Count - 1);
+            }
+            var matrixWeightsBuffer = _data[EBufferType.MatrixIds];
+            if (matrixWeightsBuffer != null)
+            {
+                matrixWeightsBuffer.Destroy();
+                _data.Buffers.RemoveAt(_data.Buffers.Count - 1);
+            }
+            
             if (_utilizedBones != null)
                 foreach (Bone b in _utilizedBones)
                     b.RemovePrimitiveManager(this);
@@ -395,8 +405,11 @@ namespace TheraEngine.Rendering.Models
                     }
                     //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
                 }
-                _boneMatrixBuffer.SetBlockName(program, "Bones");
-                _boneMatrixBuffer.PushSubData(0, _boneMatrixBuffer.DataLength);
+                if (_boneMatrixBuffer != null)
+                {
+                    _boneMatrixBuffer.SetBlockName(program, "Bones");
+                    _boneMatrixBuffer.PushSubData(0, _boneMatrixBuffer.DataLength);
+                }
             }
             else
             {

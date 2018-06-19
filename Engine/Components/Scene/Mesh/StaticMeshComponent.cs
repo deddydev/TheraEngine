@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Mesh
             TRigidBodyConstructionInfo info) : base(translation, rotation, scale, true)
         {
             _modelRef = model ?? new GlobalFileRef<StaticModel>();
-            _modelRef.RegisterLoadEvent(ModelLoaded);
+            _modelRef.RegisterLoadEvent(OnModelLoaded);
 
             if (info == null)
                 _rigidBodyCollision = null;
@@ -40,6 +40,8 @@ namespace TheraEngine.Components.Scene.Mesh
 
             RecalcLocalTransform();
         }
+
+        public event Action ModelLoaded;
 
         private void RigidBodyTransformUpdated(Matrix4 transform)
             => WorldMatrix = _rigidBodyCollision.WorldTransform;
@@ -127,9 +129,9 @@ namespace TheraEngine.Components.Scene.Mesh
                             mesh.Visible = false;
                     _meshes = null;
                 }
-                _modelRef.UnregisterLoadEvent(ModelLoaded);
+                _modelRef.UnregisterLoadEvent(OnModelLoaded);
                 _modelRef = value ?? new GlobalFileRef<StaticModel>();
-                _modelRef.RegisterLoadEvent(ModelLoaded);
+                _modelRef.RegisterLoadEvent(OnModelLoaded);
             }
         }
 
@@ -139,8 +141,7 @@ namespace TheraEngine.Components.Scene.Mesh
         [Category("Static Mesh Component")]
         public StaticRenderableMesh[] Meshes => _meshes;
         
-        //TODO: make lod loading async
-        private void ModelLoaded(StaticModel model)
+        private void OnModelLoaded(StaticModel model)
         {
             _meshes = new StaticRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
             for (int i = 0; i < model.RigidChildren.Count; ++i)
@@ -157,21 +158,22 @@ namespace TheraEngine.Components.Scene.Mesh
                     m.Visible = m.Mesh.VisibleByDefault;
                 _meshes[model.RigidChildren.Count + i] = m;
             }
+            ModelLoaded?.Invoke();
         }
-        public override void OnSpawned()
+        public override async void OnSpawned()
         {
             if (_meshes == null)
             {
                 if (_modelRef.IsLoaded)
                 {
-                    ModelLoaded(_modelRef.File);
+                    OnModelLoaded(_modelRef.File);
                 }
                 else
                 {
-                    //TODO: make async, try to load and display lowest lods first
-                    StaticModel m = _modelRef.GetInstance();
+                    //TODO: make lod loading async
+                    StaticModel m = await _modelRef.GetInstanceAsync();
                     if (m != null)
-                        ModelLoaded(m);
+                        OnModelLoaded(m);
                 }
             }
             

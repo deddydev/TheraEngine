@@ -68,8 +68,8 @@ namespace TheraEngine.Input.Devices
         }
 
         private bool CanSend()
-            => Engine.NetworkConnection != null &&
-            !Engine.NetworkConnection.IsServer &&
+            => Engine.Network != null &&
+            !Engine.Network.IsServer &&
             InputInterface != null &&
             Engine.LocalPlayers.IndexInRange(InputInterface.LocalPlayerIndex);
         
@@ -85,7 +85,7 @@ namespace TheraEngine.Input.Devices
             packet.InputIndex = (byte)buttonIndex;
             packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
 
-            Engine.NetworkConnection.SendPacket(packet);
+            Engine.Network.SendPacket(packet);
         }
         protected void SendButtonPressedState(int buttonIndex, int listIndex, bool pressed)
         {
@@ -100,7 +100,7 @@ namespace TheraEngine.Input.Devices
             packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
             packet.Pressed = (byte)(pressed ? 1 : 0);
 
-            Engine.NetworkConnection.SendPacket(packet);
+            Engine.Network.SendPacket(packet);
         }
         protected void SendAxisButtonAction(int axisIndex, int listIndex)
         {
@@ -114,7 +114,7 @@ namespace TheraEngine.Input.Devices
             packet.InputIndex = (byte)axisIndex;
             packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
 
-            Engine.NetworkConnection.SendPacket(packet);
+            Engine.Network.SendPacket(packet);
         }
         protected void SendAxisButtonPressedState(int axisIndex, int listIndex, bool pressed)
         {
@@ -129,7 +129,7 @@ namespace TheraEngine.Input.Devices
             packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
             packet.Pressed = (byte)(pressed ? 1 : 0);
 
-            Engine.NetworkConnection.SendPacket(packet);
+            Engine.Network.SendPacket(packet);
         }
         protected void SendAxisValue(int axisIndex, int listIndex, float value)
         {
@@ -144,7 +144,7 @@ namespace TheraEngine.Input.Devices
             packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
             packet.Value = value;
 
-            Engine.NetworkConnection.SendPacket(packet);
+            Engine.Network.SendPacket(packet);
         }
     }
 }

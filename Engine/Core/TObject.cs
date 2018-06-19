@@ -89,12 +89,16 @@ namespace TheraEngine
         #endregion
 
         #region Ticking
-        private ThreadSafeList<TickInfo> _tickFunctions = new ThreadSafeList<TickInfo>();
+        private ThreadSafeList<(ETickGroup Group, ETickOrder Order, DelTick Tick)> _tickFunctions
+            = new ThreadSafeList<(ETickGroup Group, ETickOrder Order, DelTick Tick)>();
         [Browsable(false)]
         public bool IsTicking => _tickFunctions.Count > 0;
         public void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
-            _tickFunctions.Add(new TickInfo(group, order, tickFunc));
+            if (_tickFunctions.FindIndex(t => t.Group == group && t.Order == order && t.Tick == tickFunc) >= 0)
+                return;
+
+            _tickFunctions.Add((group, order, tickFunc));
             Engine.RegisterTick(group, order, tickFunc, pausedBehavior);
         }
         public void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)

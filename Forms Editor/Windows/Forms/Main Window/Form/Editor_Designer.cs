@@ -388,9 +388,7 @@ namespace TheraEditor.Windows.Forms
             base.OnLoad(e);
 
             CheckUpdates();
-
-            //xcopy /Y "$(SolutionDir)Libraries\$(Platform)\FreeImage.dll" "$(TargetDir)"
-
+            
             //TODO: read editor state file instead
             string lastOpened = Properties.Settings.Default.LastOpened;
             //"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
@@ -897,7 +895,7 @@ namespace TheraEditor.Windows.Forms
             if (s == null)
             {
                 s = new Server();
-                Engine.NetworkConnection = s;
+                Engine.Network = s;
             }
 
             s.InitializeConnection(NetworkConnection.ServerPort, null);
@@ -911,7 +909,7 @@ namespace TheraEditor.Windows.Forms
             if (c == null)
             {
                 c = new Client();
-                Engine.NetworkConnection = c;
+                Engine.Network = c;
             }
 
             IPAddress addr = CreateAddress(txtTargetIPPort.Text);

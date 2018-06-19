@@ -9,7 +9,7 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class ObjectCreator : TheraForm
     {
-        internal Type[] _preSelectedGenericTypeArgs = null;
+        internal Type[] _genericTypeArgs = null;
         
         /// <summary>
         /// Returns true if the dialog needs to be shown.
@@ -32,13 +32,13 @@ namespace TheraEditor.Windows.Forms
 
             if (type.IsGenericType)
             {
-                _preSelectedGenericTypeArgs = type.GenericTypeArguments;
-                //type = type.GetGenericTypeDefinition();
+                _genericTypeArgs = type.GenericTypeArguments;
+                type = type.GetGenericTypeDefinition();
             }
             
             if (allowDerivedTypes)
             {
-                Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsAbstract && !x.IsInterface);
+                Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface);
                 if (types.Length == 1)
                 {
                     ConstructorInfo[] constructors = type.GetConstructors();
@@ -171,8 +171,8 @@ namespace TheraEditor.Windows.Forms
         {
             if (ClassType.ContainsGenericParameters)
             {
-                if (_preSelectedGenericTypeArgs != null)
-                    ClassType = ClassType.MakeGenericType(_preSelectedGenericTypeArgs);
+                if (_genericTypeArgs != null)
+                    ClassType = ClassType.MakeGenericType(_genericTypeArgs);
                 else
                 {
                     using (GenericsSelector selector = new GenericsSelector(ClassType))
@@ -388,8 +388,8 @@ namespace TheraEditor.Windows.Forms
             {
                 TypeInfo info = IntrospectionExtensions.GetTypeInfo(ClassType);
                 int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == type);
-                if (_preSelectedGenericTypeArgs.IndexInArrayRange(argIndex))
-                    type = _preSelectedGenericTypeArgs[argIndex];
+                if (_genericTypeArgs.IndexInArrayRange(argIndex))
+                    type = _genericTypeArgs[argIndex];
             }
             ArgumentInfo arg = new ArgumentInfo()
             {
@@ -664,8 +664,8 @@ namespace TheraEditor.Windows.Forms
                             {
                                 TypeInfo info = IntrospectionExtensions.GetTypeInfo(ClassType);
                                 int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == t);
-                                if (_preSelectedGenericTypeArgs.IndexInArrayRange(argIndex))
-                                    t = _preSelectedGenericTypeArgs[argIndex];
+                                if (_genericTypeArgs.IndexInArrayRange(argIndex))
+                                    t = _genericTypeArgs[argIndex];
                             }
                             object o = Editor.UserCreateInstanceOf(t, true);
 

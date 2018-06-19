@@ -182,7 +182,7 @@ namespace TheraEngine.Files
                 ReferencePathAbsolute = _file.FilePath;
         }
 
-        public Task<T> GetInstanceAsync() => Task.Run(() => GetInstance());
+        public Task<T> GetInstanceAsync() => Task.Run(GetInstance);
         /// <summary>
         /// Loads or retrieves the instance of this file.
         /// </summary>

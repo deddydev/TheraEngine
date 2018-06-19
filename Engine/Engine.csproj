@@ -1011,6 +1011,14 @@
       <Link>ThirdParty\NativeLibraries\x64\openvr_api.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\Libraries\x64\Steamworks\CSteamworks.dll">
+      <Link>ThirdParty\NativeLibraries\x64\CSteamworks.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Libraries\x64\Steamworks\steam_api.dll">
+      <Link>ThirdParty\NativeLibraries\x64\steam_api.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\Libraries\x86\FreeImage.dll" Condition="'$(Platform)' == 'x86'">
       <Link>ThirdParty\NativeLibraries\x86\FreeImage.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -1019,13 +1027,21 @@
       <Link>ThirdParty\NativeLibraries\x86\openvr_api.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\Libraries\x86\Steamworks\CSteamworks.dll">
+      <Link>ThirdParty\NativeLibraries\x86\CSteamworks.dll</Link>
+    </Content>
+    <Content Include="..\Libraries\x86\Steamworks\steam_api.dll">
+      <Link>ThirdParty\NativeLibraries\x86\steam_api.dll</Link>
+    </Content>
     <Content Include="MIConvexHull.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"
 copy /Y "$(SolutionDir)Libraries\$(PlatformName)\FreeImage.dll" "$(TargetDir)"
-copy /Y "$(SolutionDir)Libraries\$(PlatformName)\openvr_api.dll" "$(TargetDir)"</PostBuildEvent>
+copy /Y "$(SolutionDir)Libraries\$(PlatformName)\openvr_api.dll" "$(TargetDir)"
+copy /Y "$(SolutionDir)Libraries\$(PlatformName)\Steamworks\steam_api.dll" "$(TargetDir)"
+copy /Y "$(SolutionDir)Libraries\$(PlatformName)\Steamworks\CSteamworks.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
   </Target>

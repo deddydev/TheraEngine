@@ -109,7 +109,7 @@ namespace TheraEngine.Files
             _3rdPartyExporters = new Dictionary<string, Dictionary<Type, Delegate>>();
             try
             {
-                var types = Engine.FindEngineTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
+                var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract, true, Assembly.GetEntryAssembly()).ToArray();
                 foreach (Type t in types)
                 {
                     File3rdParty attrib = GetFile3rdPartyExtensions(t);
@@ -193,9 +193,7 @@ namespace TheraEngine.Files
 
         public static Type[] DetermineThirdPartyTypes(string ext)
         {
-            return Engine.FindEngineTypes(t => 
-            typeof(TFileObject).IsAssignableFrom(t) && 
-            (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false)).ToArray();
+            return Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false), true, Assembly.GetEntryAssembly()).ToArray();
         }
 
         public static FileFormat GetFormat(string path, out string ext)

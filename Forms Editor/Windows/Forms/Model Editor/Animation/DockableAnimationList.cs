@@ -33,11 +33,11 @@ namespace TheraEditor.Windows.Forms
 
         private void listBox1_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            if (!(DockPanel.FindForm() is ModelEditorForm f))
+            if (!(DockPanel.FindForm() is ModelEditorForm form))
                 return;
             if (!(listBox1.SelectedItem is SkeletalAnimation anim))
                 return;
-            AnimStateMachineComponent machine = f.SkeletalPreviewActor.GetLogicComponent<AnimStateMachineComponent>();
+            AnimStateMachineComponent machine = form.SkeletalPreviewActor.GetLogicComponent<AnimStateMachineComponent>();
             machine.InitialState = new AnimState(anim);
             theraPropertyGrid1.TargetFileObject = anim;
         }

@@ -8,6 +8,9 @@ namespace TheraEditor.Windows.Forms
     public abstract class BoneTreeNode : TreeNode
     {
         public BoneTreeNode(string text) : base(text) { }
+
+        public int HighlightIndex { get; set; }
+        public int HighlightLength { get; set; }
     }
     public class BoneNode : BoneTreeNode
     {

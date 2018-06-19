@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using TheraEngine;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Models;
@@ -17,6 +19,35 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
             NodeTree.TreeViewNodeSorter = new BoneComparer();
+            NodeTree.DrawMode = TreeViewDrawMode.OwnerDrawText;
+            NodeTree.DrawNode += NodeTree_DrawNode;
+        }
+        
+        private void NodeTree_DrawNode(object sender, DrawTreeNodeEventArgs e)
+        {
+            TreeView tree = (TreeView)sender;
+            BoneTreeNode node = (BoneTreeNode)e.Node;
+            Font nodeFont = node.NodeFont;
+            if (nodeFont == null)
+                nodeFont = tree.Font;
+            int index = node.HighlightIndex;
+            int length = node.HighlightLength;
+            if (index >= 0 && length > 0 && index < node.Text.Length)
+            {
+                length = Math.Min(length, node.Text.Length - (index + length));
+                e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), node.Bounds);
+                SizeF matchSize = e.Graphics.MeasureString(node.Text.Substring(index, length), nodeFont);
+                SizeF beforeMatchSize = e.Graphics.MeasureString(node.Text.Substring(0, index), nodeFont);
+                PointF loc = node.Bounds.Location;
+                loc.X += beforeMatchSize.Width;
+                matchSize.Height = node.Bounds.Height;
+                e.Graphics.FillRectangle(new SolidBrush(node.BackColor), new RectangleF(loc, matchSize));
+            }
+            else
+                e.Graphics.FillRectangle(new SolidBrush(node.BackColor), node.Bounds);
+
+            e.Graphics.DrawString(node.Text, nodeFont, new SolidBrush(node.ForeColor),
+                Rectangle.Inflate(e.Bounds, 2, 0));
         }
         private class BoneComparer : IComparer<TreeNode>, IComparer
         {
@@ -77,6 +108,7 @@ namespace TheraEditor.Windows.Forms
         private void renameAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             pnlRenameAll.Visible = !pnlRenameAll.Visible;
+            grpRenamingMethod.Visible = true;
         }
 
         private void NodeTree_AfterSelect(object sender, TreeViewEventArgs e)
@@ -96,65 +128,82 @@ namespace TheraEditor.Windows.Forms
         private void btnCancel_Click(object sender, EventArgs e)
         {
             pnlRenameAll.Visible = false;
+            txtSearch.Text = null;
         }
         
         private void btnOkay_Click(object sender, EventArgs e)
         {
-            string searchTerm = txtSearch.Text;
-            var keys = _skeleton.BoneNameCache.Keys;
-            string[] keyStrs = keys.ToArray();
-            int i;
-            switch (_searchMethod)
+            if (grpRenamingMethod.Visible)
             {
-                case ESearchingMethod.Regex:
-                    Regex regex = new Regex(searchTerm);
-                    var matches = keyStrs.Select(x => regex.Match(x));
-                    i = -1;
-                    foreach (var match in matches)
-                    {
-                        ++i;
-                        if (!match.Success)
-                            continue;
-                        Bone bone = _skeleton.BoneNameCache[keyStrs[i]];
-                        RenameBone(bone, match.Index, match.Length);
-                    }
-                    break;
-                case ESearchingMethod.Contains:
-                    var containing = keyStrs.Select(x => x.IndexOf(searchTerm));
-                    i = -1;
-                    foreach (int match in containing)
-                    {
-                        ++i;
-                        if (match < 0)
-                            continue;
-                        Bone bone = _skeleton.BoneNameCache[keyStrs[i]];
-                        RenameBone(bone, match, searchTerm.Length);
-                    }
-                    break;
-                case ESearchingMethod.StartsWith:
-                    var starting = keyStrs.Select(x => x.StartsWith(searchTerm));
-                    i = -1;
-                    foreach (bool match in starting)
-                    {
-                        ++i;
-                        if (!match)
-                            continue;
-                        Bone bone = _skeleton.BoneNameCache[keyStrs[i]];
-                        RenameBone(bone, 0, searchTerm.Length);
-                    }
-                    break;
-                case ESearchingMethod.EndsWith:
-                    var ending = keyStrs.Select(x => x.EndsWith(searchTerm));
-                    i = -1;
-                    foreach (bool match in ending)
-                    {
-                        ++i;
-                        if (!match)
-                            continue;
-                        Bone bone = _skeleton.BoneNameCache[keyStrs[i]];
-                        RenameBone(bone, bone.Name.Length - searchTerm.Length, searchTerm.Length);
-                    }
-                    break;
+                string searchTerm = txtSearch.Text;
+                string[] boneNames = _skeleton.BoneNameCache.Keys.ToArray();
+                int i;
+                switch (_searchMethod)
+                {
+                    case ESearchingMethod.Regex:
+                        RegexOptions options = RegexOptions.CultureInvariant;
+                        if (chkIgnoreCase.Checked)
+                            options |= RegexOptions.IgnoreCase;
+                        Regex regex = new Regex(searchTerm, options);
+                        var matches = boneNames.Select(x => regex.Match(x));
+                        i = -1;
+                        foreach (var match in matches)
+                        {
+                            ++i;
+                            if (!match.Success)
+                                continue;
+                            Bone bone = _skeleton.BoneNameCache[boneNames[i]];
+                            RenameBone(bone, match.Index, match.Length);
+                        }
+                        break;
+                    case ESearchingMethod.Contains:
+                        var containing = boneNames.Select(x => x.IndexOf(searchTerm,
+                            chkIgnoreCase.Checked ?
+                            StringComparison.InvariantCultureIgnoreCase :
+                            StringComparison.InvariantCulture));
+                        i = -1;
+                        foreach (int match in containing)
+                        {
+                            ++i;
+                            if (match < 0)
+                                continue;
+                            Bone bone = _skeleton.BoneNameCache[boneNames[i]];
+                            RenameBone(bone, match, searchTerm.Length);
+                        }
+                        break;
+                    case ESearchingMethod.StartsWith:
+                        var starting = boneNames.Select(x => x.StartsWith(searchTerm,
+                            chkIgnoreCase.Checked ?
+                            StringComparison.InvariantCultureIgnoreCase :
+                            StringComparison.InvariantCulture));
+                        i = -1;
+                        foreach (bool match in starting)
+                        {
+                            ++i;
+                            if (!match)
+                                continue;
+                            Bone bone = _skeleton.BoneNameCache[boneNames[i]];
+                            RenameBone(bone, 0, searchTerm.Length);
+                        }
+                        break;
+                    case ESearchingMethod.EndsWith:
+                        var ending = boneNames.Select(x => x.EndsWith(searchTerm,
+                            chkIgnoreCase.Checked ?
+                            StringComparison.InvariantCultureIgnoreCase :
+                            StringComparison.InvariantCulture));
+                        i = -1;
+                        foreach (bool match in ending)
+                        {
+                            ++i;
+                            if (!match)
+                                continue;
+                            Bone bone = _skeleton.BoneNameCache[boneNames[i]];
+                            RenameBone(bone, bone.Name.Length - searchTerm.Length, searchTerm.Length);
+                        }
+                        break;
+                }
+                txtSearch.Text = null;
+                _skeleton.RegenerateBoneCache();
             }
             pnlRenameAll.Visible = false;
         }
@@ -203,16 +252,6 @@ namespace TheraEditor.Windows.Forms
             btnViewFlat.Checked = !btnViewAsTree.Checked;
             lstBonesFlat.Visible = !btnViewAsTree.Checked;
             NodeTree.Visible = btnViewAsTree.Checked;
-        }
-
-        private void btnViewFlat_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnViewAsTree_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void btnSortByAppearance_Click(object sender, EventArgs e)
@@ -308,14 +347,120 @@ namespace TheraEditor.Windows.Forms
                         break;
                 }
             }
+            FindRecursive(NodeTree.Nodes);
         }
 
         private void findToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            pnlRenameAll.Visible = true;
+            grpRenamingMethod.Visible = false;
         }
 
         private void resetSearchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            txtSearch.Text = string.Empty;
+        }
+
+        private void btnExpandAll_Click(object sender, EventArgs e)
+        {
+            NodeTree.ExpandAll();
+        }
+
+        private void btnCloseAll_Click(object sender, EventArgs e)
+        {
+            NodeTree.CollapseAll();
+        }
+
+        private void btnExpandAllSelected_Click(object sender, EventArgs e)
+        {
+            NodeTree.SelectedNode.ExpandAll();
+        }
+
+        private void btnCloseAllSelected_Click(object sender, EventArgs e)
+        {
+            NodeTree.SelectedNode.Collapse(false);
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            FindRecursive(NodeTree.Nodes);
+        }
+
+        private void FindRecursive(TreeNodeCollection nodes, bool makeMatchesVisible = true)
+        {
+            foreach (TreeNode tn in nodes)
+            {
+                if (IsMatch(tn.Text, out int index, out int length))
+                {
+                    tn.BackColor = Editor.TurquoiseColor;
+                    tn.ForeColor = Color.Black;
+                    if (makeMatchesVisible)
+                        tn.EnsureVisible();
+                }
+                else
+                {
+                    tn.BackColor = NodeTree.BackColor;
+                    tn.ForeColor = NodeTree.ForeColor;
+                }
+
+                FindRecursive(tn.Nodes);
+            }
+        }
+
+        private bool IsMatch(string boneName, out int index, out int length)
+        {
+            if (boneName != null)
+            {
+                switch (_searchMethod)
+                {
+                    case ESearchingMethod.Regex:
+                        RegexOptions options = RegexOptions.CultureInvariant;
+                        if (chkIgnoreCase.Checked)
+                            options |= RegexOptions.IgnoreCase;
+                        Regex regex = new Regex(txtSearch.Text, options);
+                        Match match = regex.Match(boneName);
+                        index = match.Index;
+                        length = match.Length;
+                        return match.Success;
+
+                    case ESearchingMethod.Contains:
+                        index = boneName.IndexOf(txtSearch.Text,
+                            chkIgnoreCase.Checked ?
+                            StringComparison.InvariantCultureIgnoreCase :
+                            StringComparison.InvariantCulture);
+                        length = txtSearch.Text.Length;
+                        return index >= 0;
+
+                    case ESearchingMethod.StartsWith:
+                        var starting = boneName.StartsWith(txtSearch.Text,
+                            chkIgnoreCase.Checked ?
+                            StringComparison.InvariantCultureIgnoreCase :
+                            StringComparison.InvariantCulture);
+                        index = 0;
+                        length = txtSearch.Text.Length;
+                        return starting;
+
+                    case ESearchingMethod.EndsWith:
+                        var ending = boneName.EndsWith(txtSearch.Text,
+                            chkIgnoreCase.Checked ?
+                            StringComparison.InvariantCultureIgnoreCase :
+                            StringComparison.InvariantCulture);
+                        index = boneName.Length - txtSearch.Text.Length;
+                        length = txtSearch.Text.Length;
+                        return ending;
+                }
+            }
+            index = -1;
+            length = -1;
+            return false;
+        }
+
+        private void chkIgnoreCase_CheckedChanged(object sender, EventArgs e)
+        {
+            FindRecursive(NodeTree.Nodes);
+        }
+
+        private void chkViewMeshSockets_Click(object sender, EventArgs e)
         {
 
         }

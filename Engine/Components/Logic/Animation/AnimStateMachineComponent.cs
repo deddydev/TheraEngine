@@ -141,6 +141,7 @@ namespace TheraEngine.Components.Logic.Animation
             /// <summary>
             /// How long the blend lasts in seconds.
             /// </summary>
+            [TSerialize(IsXmlAttribute = true)]
             public float Duration
             {
                 get => 1.0f / _invDuration;
@@ -153,6 +154,7 @@ namespace TheraEngine.Components.Logic.Animation
             /// <summary>
             /// The blending method to use.
             /// </summary>
+            [TSerialize]
             public AnimBlendType Type
             {
                 get => _blendType;
@@ -184,6 +186,7 @@ namespace TheraEngine.Components.Logic.Animation
             private float _invDuration;
             private AnimBlendType _blendType;
             private Func<float, float> _blendFunction;
+            [TSerialize("CustomFunction", Order = 0)]
             private KeyframeTrack<FloatKeyframe> _customBlendFunction;
 
             public BlendInfo(float blendDuration, AnimBlendType blendType, KeyframeTrack<FloatKeyframe> customFunction)
@@ -291,12 +294,31 @@ namespace TheraEngine.Components.Logic.Animation
             frame.UpdateSkeleton(skeleton);
         }
     }
+    /// <summary>
+    /// Describes a condition and how to transition to a new state.
+    /// </summary>
     public class AnimStateTransition
     {
+        /// <summary>
+        /// The index of the next state to go to if this transition's condition method returns true.
+        /// </summary>
         public int DestinationStateIndex { get; set; }
+        /// <summary>
+        /// The condition to test every frame if this transition should occur.
+        /// </summary>
         public Func<bool> ConditionMethod { get; set; }
+        /// <summary>
+        /// How quickly the current state should blend into the next, in seconds.
+        /// </summary>
         public float BlendDuration { get; set; }
+        /// <summary>
+        /// The interpolation method to use to blend to the next state.
+        /// </summary>
         public AnimBlendType BlendType { get; set; }
+        /// <summary>
+        /// If <see cref="BlendType"/> == <see cref="AnimBlendType.Custom"/>, 
+        /// uses these keyframes to interpolate between 0.0f and 1.0f.
+        /// </summary>
         public KeyframeTrack<FloatKeyframe> CustomBlendFunction { get; set; }
     }
 }

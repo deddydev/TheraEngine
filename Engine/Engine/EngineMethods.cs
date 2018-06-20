@@ -159,7 +159,7 @@ namespace TheraEngine
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
-            SteamAPI.Init();
+            //SteamAPI.Init();
             //AppId_t appId = new AppId_t(408u);
             //SteamAPI.RestartAppIfNecessary(appId);
             //bool ret = GameServer.Init(0, 8766, 27015, 27016, EServerMode.eServerModeNoAuthentication, "1.0.0.0");
@@ -217,7 +217,7 @@ namespace TheraEngine
         {
             ShuttingDown = true;
 
-            SteamAPI.Shutdown();
+            //SteamAPI.Shutdown();
             Stop();
             SetCurrentWorld(null, true, true);
             IEnumerable<IFileObject> files = LocalFileInstances.SelectMany(x => x.Value);
@@ -330,7 +330,7 @@ namespace TheraEngine
             TickGroup(ETickGroup.PostPhysics, delta);
             Update?.Invoke(sender, e);
             Network?.UpdatePacketQueue(e.Time);
-            SteamAPI.RunCallbacks();
+            //SteamAPI.RunCallbacks();
         }
         /// <summary>
         /// Ticks all lists of methods registered to this group.

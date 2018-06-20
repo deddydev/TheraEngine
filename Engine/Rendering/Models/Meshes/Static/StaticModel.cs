@@ -6,6 +6,7 @@ using System.Xml;
 using TheraEngine.Physics;
 using TheraEngine.Core.Shapes;
 using System.Threading.Tasks;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -20,10 +21,10 @@ namespace TheraEngine.Rendering.Models
             ModelImportOptions o = new ModelImportOptions()
             {
                 IgnoreFlags =
-                Core.Files.IgnoreFlags.Extra |
-                Core.Files.IgnoreFlags.Controllers |
-                Core.Files.IgnoreFlags.Cameras |
-                Core.Files.IgnoreFlags.Lights
+                EIgnoreFlags.Extra |
+                EIgnoreFlags.Controllers |
+                EIgnoreFlags.Cameras |
+                EIgnoreFlags.Lights
             };
             return (await Collada.ImportAsync(path, o))?.Models[0].StaticModel;
         }

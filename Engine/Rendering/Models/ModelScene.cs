@@ -85,7 +85,7 @@ namespace TheraEngine.Rendering.Models
         [Description("Dictates what information to ignore. " +
             "Ignoring certain elements will give a decent parsing speed boost.")]
         [Category("Import")]
-        public IgnoreFlags IgnoreFlags { get; set; } = IgnoreFlags.None;
+        public EIgnoreFlags IgnoreFlags { get; set; } = EIgnoreFlags.None;
         
         private uint _minStripLen = 2;
         private float _weightPrecision = 0.0001f;

@@ -133,7 +133,7 @@ namespace TheraEngine.Rendering.Models
 
                                 data.Models.Add(modelScene);
 
-                                if (!options.IgnoreFlags.HasFlag(IgnoreFlags.Animations))
+                                if (!options.IgnoreFlags.HasFlag(EIgnoreFlags.Animations))
                                 {
                                     SkeletalAnimation anim = null;
                                     float animationLength = 0.0f;
@@ -183,7 +183,7 @@ namespace TheraEngine.Rendering.Models
             Matrix4 invParent,
             List<LightComponent> lights,
             List<Camera> cameras,
-            IgnoreFlags ignore)
+            EIgnoreFlags ignore)
         {
             Bone rootBone = null;
 
@@ -215,7 +215,7 @@ namespace TheraEngine.Rendering.Models
                 //Rigged/morphed mesh?
                 if (inst is InstanceController controllerRef)
                 {
-                    if (ignore.HasFlag(IgnoreFlags.Controllers))
+                    if (ignore.HasFlag(EIgnoreFlags.Controllers))
                         continue;
                     var controller = controllerRef.GetUrlInstance();
                     var child = controller?.SkinOrMorphElement;
@@ -250,7 +250,7 @@ namespace TheraEngine.Rendering.Models
                 //Static mesh?
                 else if (inst is InstanceGeometry geomRef)
                 {
-                    if (ignore.HasFlag(IgnoreFlags.Geometry))
+                    if (ignore.HasFlag(EIgnoreFlags.Geometry))
                         continue;
                     var geometry = geomRef.GetUrlInstance();
                     if (geometry != null)
@@ -261,7 +261,7 @@ namespace TheraEngine.Rendering.Models
                 //Camera?
                 else if (inst is InstanceCamera camRef)
                 {
-                    if (ignore.HasFlag(IgnoreFlags.Cameras))
+                    if (ignore.HasFlag(EIgnoreFlags.Cameras))
                         continue;
                     var camera = camRef.GetUrlInstance();
 
@@ -269,7 +269,7 @@ namespace TheraEngine.Rendering.Models
                 //Light?
                 else if (inst is InstanceLight lightRef)
                 {
-                    if (ignore.HasFlag(IgnoreFlags.Lights))
+                    if (ignore.HasFlag(EIgnoreFlags.Lights))
                         continue;
                     var light = lightRef.GetUrlInstance();
 

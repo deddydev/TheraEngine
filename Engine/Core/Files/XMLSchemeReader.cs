@@ -11,7 +11,7 @@ using static TheraEngine.Rendering.Models.Collada;
 namespace TheraEngine.Core.Files
 {
     [Flags]
-    public enum IgnoreFlags
+    public enum EIgnoreFlags
     {
         None        = 0b0000_0000,
         Asset       = 0b0000_0001,
@@ -27,7 +27,7 @@ namespace TheraEngine.Core.Files
         IElement parent,
         XMLReader reader,
         string version,
-        IgnoreFlags ignore,
+        EIgnoreFlags ignore,
         string parentTree,
         int elementIndex);
     public delegate IElement DelParseElementXml(
@@ -35,7 +35,7 @@ namespace TheraEngine.Core.Files
         IElement parent,
         XmlReader reader,
         string version,
-        IgnoreFlags ignore,
+        EIgnoreFlags ignore,
         string parentTree,
         int elementIndex);
     public class BaseXMLSchemeReader
@@ -344,7 +344,7 @@ namespace TheraEngine.Core.Files
         //    return null;
         //}
 
-        public async Task<T> ImportAsync(string path, IgnoreFlags ignore)
+        public async Task<T> ImportAsync(string path, EIgnoreFlags ignore)
         {
             XmlReaderSettings settings = new XmlReaderSettings()
             {
@@ -358,14 +358,14 @@ namespace TheraEngine.Core.Files
             };
             return await ImportAsync(path, ignore, settings);
         }
-        public async Task<T> ImportAsync(string path, IgnoreFlags ignore, XmlReaderSettings settings)
+        public async Task<T> ImportAsync(string path, EIgnoreFlags ignore, XmlReaderSettings settings)
         {
             using (XmlReader r = XmlReader.Create(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), settings))
             {
                 return await ImportAsync(r, ignore);
             }
         }
-        public async Task<T> ImportAsync(XmlReader reader, IgnoreFlags ignore)
+        public async Task<T> ImportAsync(XmlReader reader, EIgnoreFlags ignore)
         {
             string previousTree = "";
             Type t = typeof(T);
@@ -393,7 +393,7 @@ namespace TheraEngine.Core.Files
             IElement parent,
             XmlReader reader,
             string version,
-            IgnoreFlags ignore,
+            EIgnoreFlags ignore,
             string parentTree,
             int elementIndex)
             => await ParseElementAsync(Activator.CreateInstance(elementType) as IElement, parent, reader, version, ignore, parentTree, elementIndex);
@@ -402,7 +402,7 @@ namespace TheraEngine.Core.Files
             IElement parent,
             XmlReader reader,
             string version,
-            IgnoreFlags ignore,
+            EIgnoreFlags ignore,
             string parentTree,
             int elementIndex)
         {
@@ -435,25 +435,25 @@ namespace TheraEngine.Core.Files
                 return entry;
             }
 
-            if ((ignore & IgnoreFlags.Extra) != 0 && entry is Extra)
+            if ((ignore & EIgnoreFlags.Extra) != 0 && entry is Extra)
             {
                 await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
             }
-            if ((ignore & IgnoreFlags.Asset) != 0 && entry is Asset)
+            if ((ignore & EIgnoreFlags.Asset) != 0 && entry is Asset)
             {
                 await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
             }
-            if ((ignore & IgnoreFlags.Animations) != 0 && entry is COLLADA.LibraryAnimations)
+            if ((ignore & EIgnoreFlags.Animations) != 0 && entry is COLLADA.LibraryAnimations)
             {
                 await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
             }
-            if ((ignore & IgnoreFlags.Cameras) != 0)
+            if ((ignore & EIgnoreFlags.Cameras) != 0)
             {
                 if (entry is InstanceCamera || entry is COLLADA.LibraryCameras)
                 {
@@ -462,7 +462,7 @@ namespace TheraEngine.Core.Files
                     return entry;
                 }
             }
-            if ((ignore & IgnoreFlags.Lights) != 0)
+            if ((ignore & EIgnoreFlags.Lights) != 0)
             {
                 if (entry is InstanceLight || entry is COLLADA.LibraryLights)
                 {
@@ -471,7 +471,7 @@ namespace TheraEngine.Core.Files
                     return entry;
                 }
             }
-            if ((ignore & IgnoreFlags.Controllers) != 0)
+            if ((ignore & EIgnoreFlags.Controllers) != 0)
             {
                 if (entry is InstanceController || entry is COLLADA.LibraryControllers)
                 {
@@ -480,7 +480,7 @@ namespace TheraEngine.Core.Files
                     return entry;
                 }
             }
-            if ((ignore & IgnoreFlags.Geometry) != 0)
+            if ((ignore & EIgnoreFlags.Geometry) != 0)
             {
                 if (entry is InstanceGeometry || entry is COLLADA.LibraryGeometries)
                 {

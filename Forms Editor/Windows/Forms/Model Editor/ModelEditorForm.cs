@@ -201,23 +201,20 @@ namespace TheraEditor.Windows.Forms
                 return w;
             }
         }
-
-        public Actor<StaticMeshComponent> StaticPreviewActor;
-        public Actor<SkeletalMeshComponent> SkeletalPreviewActor;
+        
+        public IActor TargetActor;
         public IModelFile Model { get; private set; }
 
         public void SetModel(StaticModel stm)
         {
             FormTitle2.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
 
-            if (StaticPreviewActor != null && StaticPreviewActor.IsSpawned)
-                World.DespawnActor(StaticPreviewActor);
-            if (SkeletalPreviewActor != null && SkeletalPreviewActor.IsSpawned)
-                World.DespawnActor(SkeletalPreviewActor);
+            if (TargetActor != null && TargetActor.IsSpawned)
+                World.DespawnActor(TargetActor);
 
             Model = stm;
-            StaticPreviewActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(stm));
-            World.SpawnActor(StaticPreviewActor);
+            TargetActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(stm));
+            World.SpawnActor(TargetActor);
             
             MeshList.DisplayMeshes(stm);
             MaterialList.DisplayMaterials(stm);
@@ -233,16 +230,14 @@ namespace TheraEditor.Windows.Forms
                 skm?.FilePath ?? skm?.Name ?? string.Empty,
                 skel?.FilePath ?? skel?.Name ?? string.Empty);
 
-            if (StaticPreviewActor != null && StaticPreviewActor.IsSpawned)
-                World.DespawnActor(StaticPreviewActor);
-            if (SkeletalPreviewActor != null && SkeletalPreviewActor.IsSpawned)
-                World.DespawnActor(SkeletalPreviewActor);
+            if (TargetActor != null && TargetActor.IsSpawned)
+                World.DespawnActor(TargetActor);
 
             Model = skm;
-            SkeletalPreviewActor = new Actor<SkeletalMeshComponent>(new SkeletalMeshComponent(skm, skel));
+            TargetActor = new Actor<SkeletalMeshComponent>(new SkeletalMeshComponent(skm, skel));
             AnimStateMachineComponent machine = new AnimStateMachineComponent(skm.SkeletonRef.File);
-            SkeletalPreviewActor.LogicComponents.Add(machine);
-            World.SpawnActor(SkeletalPreviewActor);
+            TargetActor.LogicComponents.Add(machine);
+            World.SpawnActor(TargetActor);
             World.Scene.Add(skel);
 
             MeshList.DisplayMeshes(skm);
@@ -348,15 +343,16 @@ namespace TheraEditor.Windows.Forms
         private void chkViewBones_Click(object sender, EventArgs e)
         {
             chkViewBones.Checked = !chkViewBones.Checked;
-            if (SkeletalPreviewActor?.RootComponent?.Skeleton != null)
+            if (TargetActor is Actor<SkeletalMeshComponent> skel &&
+                skel.RootComponent?.Skeleton != null)
             {
-                bool inScene = SkeletalPreviewActor.RootComponent.Skeleton.RenderInfo.Scene != null;
+                bool inScene = skel.RootComponent.Skeleton.RenderInfo.Scene != null;
                 if (inScene == chkViewBones.Checked)
                     return;
                 if (inScene)
-                    SkeletalPreviewActor.RootComponent.OwningScene.Remove(SkeletalPreviewActor.RootComponent.Skeleton);
+                    skel.RootComponent.OwningScene.Remove(skel.RootComponent.Skeleton);
                 else
-                    SkeletalPreviewActor.RootComponent.OwningScene.Add(SkeletalPreviewActor.RootComponent.Skeleton);
+                    skel.RootComponent.OwningScene.Add(skel.RootComponent.Skeleton);
             }
         }
         private void chkViewConstraints_Click(object sender, EventArgs e)

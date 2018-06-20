@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Tests
 {
@@ -65,10 +66,10 @@ namespace TheraEngine.Tests
             ModelImportOptions options = new ModelImportOptions()
             {
                 IgnoreFlags = 
-                Core.Files.IgnoreFlags.Extra | 
-                Core.Files.IgnoreFlags.Lights | 
-                Core.Files.IgnoreFlags.Cameras | 
-                Core.Files.IgnoreFlags.Animations,
+                EIgnoreFlags.Extra | 
+                EIgnoreFlags.Lights |
+                EIgnoreFlags.Cameras |
+                EIgnoreFlags.Animations,
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(0.45f), TransformOrder.TRS),
             };
             

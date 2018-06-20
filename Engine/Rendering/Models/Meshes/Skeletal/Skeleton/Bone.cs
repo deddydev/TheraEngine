@@ -350,11 +350,11 @@ namespace TheraEngine.Rendering.Models
         [Browsable(false)]
         public bool UsesCamera => BillboardType != BillboardType.None || ScaleByDistance;
 
-        public void CalcFrameMatrix(Camera c, bool force = false)
+        public void CalcFrameMatrix(Camera camera, bool force = false)
         {
-            CalcFrameMatrix(c, _parent._frameMatrix, _parent._inverseFrameMatrix, force);
+            CalcFrameMatrix(camera, _parent._frameMatrix, _parent._inverseFrameMatrix, force);
         }
-        public void CalcFrameMatrix(Camera c, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
+        public void CalcFrameMatrix(Camera camera, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
         {
             bool usesCamera = UsesCamera;
             bool needsUpdate = _frameMatrixChanged || force || usesCamera;
@@ -365,7 +365,7 @@ namespace TheraEngine.Rendering.Models
                     if (BillboardType != BillboardType.None)
                     {
                         //Align rotation using camera
-                        HandleBillboarding(parentMatrix, inverseParentMatrix, c); 
+                        HandleBillboarding(parentMatrix, inverseParentMatrix, camera); 
                     }
                     else
                     {
@@ -374,9 +374,9 @@ namespace TheraEngine.Rendering.Models
                         _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
                     }
 
-                    if (ScaleByDistance && c != null)
+                    if (ScaleByDistance && camera != null)
                     {
-                        float scale = c.DistanceScale(WorldMatrix.Translation, _screenSize);
+                        float scale = camera.DistanceScale(WorldMatrix.Translation, _screenSize);
                         //Engine.PrintLine(scale.ToString());
                         _frameMatrix = _frameMatrix * Matrix4.CreateScale(scale);
                         _inverseFrameMatrix = Matrix4.CreateScale(1.0f / scale) * _inverseFrameMatrix;
@@ -416,7 +416,7 @@ namespace TheraEngine.Rendering.Models
 
             //Recalculate child bone transforms
             foreach (Bone b in _childBones)
-                b.CalcFrameMatrix(c, _frameMatrix, _inverseFrameMatrix, needsUpdate);
+                b.CalcFrameMatrix(camera, _frameMatrix, _inverseFrameMatrix, needsUpdate);
 
             _frameMatrixChanged = false;
         }
@@ -553,9 +553,9 @@ namespace TheraEngine.Rendering.Models
         }
         #endregion
 
-        private void HandleBillboarding(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, Camera c)
+        private void HandleBillboarding(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, Camera camera)
         {
-            if (c == null)
+            if (camera == null)
                 return;
 
             //Apply local translation component to parent matrix
@@ -572,7 +572,7 @@ namespace TheraEngine.Rendering.Models
             {
                 case BillboardType.PerspectiveXYZ:
 
-                    Vec3 componentPoint = c.WorldPoint * OwningComponent.InverseWorldMatrix;
+                    Vec3 componentPoint = camera.WorldPoint * OwningComponent.InverseWorldMatrix;
                     Vec3 diff = frameTrans.Translation - componentPoint;
                     Rotator r = diff.LookatAngles();
 
@@ -591,8 +591,8 @@ namespace TheraEngine.Rendering.Models
 
                 case BillboardType.RotationXYZ:
 
-                    Vec3 up1 = c.UpVector;
-                    Vec3 forward1 = c.ForwardVector;
+                    Vec3 up1 = camera.UpVector;
+                    Vec3 forward1 = camera.ForwardVector;
 
                     angles = new Matrix4(
                         new Vec4(forward1 ^ up1, 0.0f),
@@ -610,8 +610,8 @@ namespace TheraEngine.Rendering.Models
 
                 case BillboardType.RotationXY:
 
-                    Vec3 forward2 = c.ForwardVector;
-                    Vec3 right2 = c.RightVector;
+                    Vec3 forward2 = camera.ForwardVector;
+                    Vec3 right2 = camera.RightVector;
                     right2.Y = 0.0f;
 
                     angles = new Matrix4(
@@ -631,7 +631,7 @@ namespace TheraEngine.Rendering.Models
                 case BillboardType.RotationY:
 
                     Vec3 up3 = Vec3.TransformNormalInverse(Vec3.UnitY, inverseParentMatrix); //Up is related to parent
-                    Vec3 forward3 = c.ForwardVector;
+                    Vec3 forward3 = camera.ForwardVector;
                     forward3.Y = 0.0f;
 
                     angles = new Matrix4(

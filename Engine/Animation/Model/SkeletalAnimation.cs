@@ -8,6 +8,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using System.Threading.Tasks;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Animation
 {
@@ -22,11 +23,11 @@ namespace TheraEngine.Animation
             ModelImportOptions o = new ModelImportOptions()
             {
                 IgnoreFlags =
-                Core.Files.IgnoreFlags.Extra | 
-                Core.Files.IgnoreFlags.Geometry |
-                Core.Files.IgnoreFlags.Controllers |
-                Core.Files.IgnoreFlags.Cameras | 
-                Core.Files.IgnoreFlags.Lights
+                EIgnoreFlags.Extra | 
+                EIgnoreFlags.Geometry |
+                EIgnoreFlags.Controllers |
+                EIgnoreFlags.Cameras | 
+                EIgnoreFlags.Lights
             };
             return (await Collada.ImportAsync(path, o))?.Models[0].Animation;
         }

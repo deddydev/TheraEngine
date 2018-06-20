@@ -179,11 +179,11 @@ namespace TheraEngine.Rendering
             if (_info.HasNormals)
                 WriteOutVar(1, EShaderVarType._vec3, FragNormName);
 
-            if (_info.HasTangents)
-                WriteOutVar(2, EShaderVarType._vec3, FragTanName);
-
             if (_info.HasBinormals)
-                WriteOutVar(3, EShaderVarType._vec3, FragBinormName);
+                WriteOutVar(2, EShaderVarType._vec3, FragBinormName);
+
+            if (_info.HasTangents)
+                WriteOutVar(3, EShaderVarType._vec3, FragTanName);
 
             for (int i = 0; i < _info._colorCount; ++i)
                 WriteOutVar(4 + i, EShaderVarType._vec4, string.Format(FragColorName, i));

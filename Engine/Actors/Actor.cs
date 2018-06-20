@@ -24,6 +24,8 @@ namespace TheraEngine.Actors
         SceneComponent RootComponent { get; }
         EventList<LogicComponent> LogicComponents { get; }
         void RebaseOrigin(Vec3 newOrigin);
+        T GetLogicComponent<T>() where T : LogicComponent;
+        T[] GetLogicComponents<T>() where T : LogicComponent;
     }
 
     #region Generic Actor
@@ -58,7 +60,7 @@ namespace TheraEngine.Actors
         {
             ModelImportOptions o = new ModelImportOptions()
             {
-                IgnoreFlags = Core.Files.IgnoreFlags.Extra
+                IgnoreFlags = Core.Files.EIgnoreFlags.Extra
             };
             Collada.Data data = await Collada.ImportAsync(path, o);
             if (data != null)
@@ -187,9 +189,9 @@ For example, a logic component could give any actor health and/or allow it to ta
         public bool IsConstructing => _isConstructing;
 
         public T1 GetLogicComponent<T1>() where T1 : LogicComponent
-        {
-            return LogicComponents.FirstOrDefault(x => x is T1) as T1;
-        }
+            => LogicComponents.FirstOrDefault(x => x is T1) as T1;
+        public T1[] GetLogicComponents<T1>() where T1 : LogicComponent
+            => LogicComponents.Where(x => x is T1).Select(x => (T1)x).ToArray();
 
         //[Browsable(false)]
         //public List<I3DRenderable> RenderableComponentCache => _renderableComponentCache;

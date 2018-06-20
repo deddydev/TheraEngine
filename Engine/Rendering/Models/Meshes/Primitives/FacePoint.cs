@@ -5,25 +5,23 @@ namespace TheraEngine.Rendering.Models
 {
     public class FacePoint : TObject
     {
-        public int VertexIndex => _vertexIndex;
-        public List<int> BufferIndices => _bufferIndices;
+        public int VertexIndex { get; set; }
 
-        //[Serialize("VertexIndex")]
-        private int _vertexIndex;
-        [TSerialize("BufferIndices")]
-        private List<int> _bufferIndices = new List<int>();
-        [TSerialize("InfluenceIndex")]
-        internal int _influenceIndex;
+        [TSerialize]
+        public List<int> BufferIndices { get; } = new List<int>();
+        [TSerialize]
+        internal int InfluenceIndex { get; set; }
+
         internal PrimitiveData _data;
 
         public FacePoint(int index, PrimitiveData data)
         {
-            _vertexIndex = index;
+            VertexIndex = index;
             _data = data;
         }
 
         public InfluenceDef GetInfluence()
-            => _data._influences?[_influenceIndex];
+            => _data._influences?[InfluenceIndex];
 
         //public int this[string name]
         //{
@@ -40,11 +38,11 @@ namespace TheraEngine.Rendering.Models
         public override int GetHashCode() => ToString().GetHashCode();
         public override string ToString()
         {
-            string vtx = "VTX" + _vertexIndex;
-            if (_bufferIndices.Count > 0)
+            string vtx = "VTX" + VertexIndex;
+            if (BufferIndices.Count > 0)
                 vtx += ": ";
-            for (int i = 0; i < _bufferIndices.Count; ++i)
-                vtx += "(" + i + ": " + _bufferIndices[i] + ")";
+            for (int i = 0; i < BufferIndices.Count; ++i)
+                vtx += "(" + i + ": " + BufferIndices[i] + ")";
             return vtx;
         }
     }

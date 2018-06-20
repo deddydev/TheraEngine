@@ -66,7 +66,12 @@ namespace TheraEngine.Rendering.OpenGL
             131169,
             131216,
             131218,
+            131076,
             //1282,
+        };
+        private int[] _printMessageIds =
+        {
+            1282,
         };
         internal unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
         {
@@ -74,7 +79,7 @@ namespace TheraEngine.Rendering.OpenGL
                 return;
 
             string s = new string((sbyte*)message);
-            if (severity == DebugSeverity.DebugSeverityNotification)
+            if (severity == DebugSeverity.DebugSeverityNotification || _printMessageIds.IndexOf(id) >= 0)
                 Engine.PrintLine("OPENGL NOIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
             else
                 throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));

@@ -68,8 +68,35 @@ namespace System.Windows.Forms
         private Pen _focusedPen = new Pen(Editor.TurquoiseColor);
         private Pen _regularPen = new Pen(Color.FromArgb(30, 30, 30));
 
+
+        public override void Refresh()
+        {
+            Invalidate();
+        }
+
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Invalidate();
+        }
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Invalidate();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            if (BorderStyle == BorderStyle.None)
+                return;
+
+            e.Graphics.DrawRectangle(Focused ? _focusedPen : _regularPen, 0, 0, Width - 1, Height - 1);
+        }
+
         protected override void WndProc(ref Message m)
         {
+            base.WndProc(ref m);
             if (m.Msg == WM_NCPAINT)
             {
                 if (BorderStyle == BorderStyle.None)
@@ -82,10 +109,13 @@ namespace System.Windows.Forms
                 }
                 ReleaseDC(Handle, hdc);
             }
-            else
-                base.WndProc(ref m);
         }
 
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RedrawWindowFlags.Frame | RedrawWindowFlags.UpdateNow | RedrawWindowFlags.Invalidate);
+        }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);

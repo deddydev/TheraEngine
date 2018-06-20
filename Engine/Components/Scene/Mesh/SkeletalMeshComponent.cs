@@ -14,18 +14,7 @@ namespace TheraEngine.Components.Scene.Mesh
     {
         public SkeletalMeshComponent(GlobalFileRef<SkeletalModel> mesh, LocalFileRef<Skeleton> skeleton)
         {
-            if (skeleton != null)
-            {
-                _skeletonRef = skeleton;
-                if (skeleton.IsLoaded)
-                    _skeletonRef_Loaded(skeleton);
-            }
-            else
-            {
-                _skeletonRef = new LocalFileRef<Skeleton>();
-            }
-            _skeletonRef.RegisterLoadEvent(_skeletonRef_Loaded);
-
+            SkeletonRef = skeleton;
             ModelRef = mesh;
         }
         public SkeletalMeshComponent()
@@ -39,9 +28,6 @@ namespace TheraEngine.Components.Scene.Mesh
 
         //TODO: figure out how to serialize sockets and refer to what's attached to them in the current state
         private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
-
-        //For internal runtime use
-        private SkeletalRenderableMesh[] _meshes;
 
         #region IMeshSocketOwner interface
         public MeshSocket this[string socketName] 
@@ -105,17 +91,15 @@ namespace TheraEngine.Components.Scene.Mesh
                     _modelRef.UnregisterLoadEvent(_modelRef_Loaded);
                 }
 
-                if (_meshes != null)
+                if (Meshes != null)
                 {
-                    foreach (SkeletalRenderableMesh mesh in _meshes)
+                    foreach (SkeletalRenderableMesh mesh in Meshes)
                         mesh.Visible = false;
-                    _meshes = null;
+                    Meshes = null;
                 }
 
                 _modelRef = value ?? new GlobalFileRef<SkeletalModel>();
                 _modelRef.RegisterLoadEvent(_modelRef_Loaded);
-                if (_modelRef.IsLoaded || IsSpawned)
-                    _modelRef_Loaded(_modelRef.File);
             }
         }
 
@@ -124,7 +108,7 @@ namespace TheraEngine.Components.Scene.Mesh
         /// May load synchronously if not currently loaded.
         /// </summary>
         [Browsable(false)]
-        public Skeleton Skeleton => SkeletonRef.File;
+        public Skeleton SkeletonOverride => SkeletonRef.File;
 
         [TSerialize]
         [Category("Skeletal Mesh Component")]
@@ -151,76 +135,82 @@ namespace TheraEngine.Components.Scene.Mesh
 
         private void _skeletonRef_Loaded(Skeleton skel)
         {
-            skel.OwningComponent = this;
-            if (_meshes != null)
-                foreach (SkeletalRenderableMesh m in _meshes)
-                    m.Skeleton = skel;
+            if (ModelRef != null && !ModelRef.IsLoaded)
+                return;
+
+            _targetSkeleton = SkeletonOverride ?? ModelRef.File.SkeletonRef.File;
+            _targetSkeleton.OwningComponent = this;
+
+            if (Meshes != null)
+                foreach (SkeletalRenderableMesh m in Meshes)
+                    m.Skeleton = _targetSkeleton;
         }
         private void _modelRef_Loaded(SkeletalModel model)
         {
-            _meshes = new SkeletalRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
+            _targetSkeleton = SkeletonOverride ?? model.SkeletonRef.File;
+            _targetSkeleton.OwningComponent = this;
+
+            Meshes = new SkeletalRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {
-                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], Skeleton, this);
+                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], _targetSkeleton, this);
                 if (IsSpawned)
                     mesh.Visible = mesh.Mesh.VisibleByDefault;
-                _meshes[i] = mesh;
+                Meshes[i] = mesh;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
-                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], Skeleton, this);
+                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], _targetSkeleton, this);
                 if (IsSpawned)
                     mesh.Visible = mesh.Mesh.VisibleByDefault;
-                _meshes[model.RigidChildren.Count + i] = mesh;
+                Meshes[model.RigidChildren.Count + i] = mesh;
             }
         }
 
         [Category("Skeletal Mesh Component")]
-        public SkeletalRenderableMesh[] Meshes => _meshes;
-        
+        public SkeletalRenderableMesh[] Meshes { get; private set; }
+        private Skeleton _targetSkeleton;
+
         public void SetAllSimulatingPhysics(bool doSimulation)
         {
-            foreach (Bone b in Skeleton)
+            foreach (Bone b in _targetSkeleton)
                 if (b.RigidBodyCollision != null)
                     b.RigidBodyCollision.SimulatingPhysics = doSimulation;
         }
         public override void OnSpawned()
         {
-            if (_meshes == null)
-            {
-                SkeletonRef.GetInstance();
+            if (Meshes == null)
                 ModelRef.GetInstance();
-            }
 
-            if (_meshes != null)
-                foreach (SkeletalRenderableMesh m in _meshes)
+            if (Meshes != null)
+                foreach (SkeletalRenderableMesh m in Meshes)
                     m.Visible = m.Mesh.VisibleByDefault;
-            //OwningScene.Add(Skeleton);
+
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            if (_meshes != null)
-                foreach (SkeletalRenderableMesh m in _meshes)
+            if (Meshes != null)
+                foreach (SkeletalRenderableMesh m in Meshes)
                     m.Visible = false;
-            //OwningScene.Remove(Skeleton);
+            
             base.OnDespawned();
         }
         public override void RecalcWorldTransform()
         {
             base.RecalcWorldTransform();
-            Skeleton?.WorldMatrixChanged();
+            _targetSkeleton?.WorldMatrixChanged();
         }
 
         //private void Tick(float delta) => PreRender();
 
         public void PreRenderUpdate(Camera camera)
         {
-            Skeleton?.UpdateBones(camera, WorldMatrix, InverseWorldMatrix);
+            _targetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
         }
         public void PreRenderSwap()
         {
-            Skeleton?.SwapBuffers();
+            _targetSkeleton?.SwapBuffers();
         }
 
         protected internal override void OnHighlightChanged(bool highlighted)

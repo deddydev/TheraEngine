@@ -55,7 +55,7 @@ namespace TheraEngine.Tests
                 SkeletalAnimation m = await Read3rdPartyAsync<SkeletalAnimation>(animPath);
                 //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
                 {
-                    _animationStateMachine.Skeleton = _meshComp.Skeleton;
+                    _animationStateMachine.Skeleton = _meshComp.SkeletonOverride;
                     _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/m);
                 }
             }

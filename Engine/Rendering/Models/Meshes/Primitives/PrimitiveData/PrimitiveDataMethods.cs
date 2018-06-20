@@ -124,7 +124,7 @@ namespace TheraEngine.Rendering.Models
             Remapper remap = new Remapper();
             remap.Remap(influences);
             for (int i = 0; i < remap.RemapTable.Length; ++i)
-                _facePoints[i]._influenceIndex = remap.RemapTable[i];
+                _facePoints[i].InfluenceIndex = remap.RemapTable[i];
             _influences = new InfluenceDef[remap.ImplementationLength];
             for (int i = 0; i < remap.ImplementationLength; ++i)
                 _influences[i] = influences[remap.ImplementationTable[i]];

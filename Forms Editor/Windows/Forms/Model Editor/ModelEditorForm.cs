@@ -344,15 +344,15 @@ namespace TheraEditor.Windows.Forms
         {
             chkViewBones.Checked = !chkViewBones.Checked;
             if (TargetActor is Actor<SkeletalMeshComponent> skel &&
-                skel.RootComponent?.Skeleton != null)
+                skel.RootComponent?.SkeletonOverride != null)
             {
-                bool inScene = skel.RootComponent.Skeleton.RenderInfo.Scene != null;
+                bool inScene = skel.RootComponent.SkeletonOverride.RenderInfo.Scene != null;
                 if (inScene == chkViewBones.Checked)
                     return;
                 if (inScene)
-                    skel.RootComponent.OwningScene.Remove(skel.RootComponent.Skeleton);
+                    skel.RootComponent.OwningScene.Remove(skel.RootComponent.SkeletonOverride);
                 else
-                    skel.RootComponent.OwningScene.Add(skel.RootComponent.Skeleton);
+                    skel.RootComponent.OwningScene.Add(skel.RootComponent.SkeletonOverride);
             }
         }
         private void chkViewConstraints_Click(object sender, EventArgs e)

@@ -568,9 +568,9 @@ namespace TheraEngine.Components
             }
 
             //Try to find matching bone
-            if (mesh.Skeleton != null)
+            if (mesh.SkeletonOverride != null)
             {
-                Bone bone = mesh.Skeleton[socketName];
+                Bone bone = mesh.SkeletonOverride[socketName];
                 if (bone != null)
                 {
                     bone.ChildComponents.Add(this);

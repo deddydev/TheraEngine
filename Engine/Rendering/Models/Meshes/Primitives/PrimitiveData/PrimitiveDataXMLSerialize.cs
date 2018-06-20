@@ -58,7 +58,7 @@ namespace TheraEngine.Rendering.Models
                 foreach (FacePoint p in _facePoints)
                 {
                     if (hasInfs)
-                        writer.WriteString(p._influenceIndex.ToString() + " ");
+                        writer.WriteString(p.InfluenceIndex.ToString() + " ");
                     foreach (int i in p.BufferIndices)
                         writer.WriteString(i.ToString() + " ");
                 }
@@ -88,7 +88,7 @@ namespace TheraEngine.Rendering.Models
                 FacePoint p = new FacePoint(i, this);
                 
                 if (hasInfs)
-                    p._influenceIndex = indices[m++];
+                    p.InfluenceIndex = indices[m++];
 
                 for (int r = 0; r < bufferCount; ++r)
                     p.BufferIndices.Add(indices[m++]);

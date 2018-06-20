@@ -178,7 +178,7 @@ namespace TheraEngine.Rendering.Models
         private bool _allowRender = true;
         private void UpdateBoneInfo(bool set)
         {
-            _allowRender = !set;
+            _allowRender = set;
             if (Data._influences != null && _cpuSkinInfo != null)
             {
                 for (int i = 0; i < _cpuSkinInfo._influences.Length; ++i)
@@ -201,7 +201,7 @@ namespace TheraEngine.Rendering.Models
                 }
                 for (int i = 0; i < Data._facePoints.Count; ++i)
                 {
-                    var inf = _cpuSkinInfo._influences[Data._facePoints[i]._influenceIndex];
+                    var inf = _cpuSkinInfo._influences[Data._facePoints[i].InfluenceIndex];
                     FacePoint point = Data._facePoints[i];
                     for (int j = 0; j < inf._weightCount; ++j)
                     {
@@ -285,7 +285,7 @@ namespace TheraEngine.Rendering.Models
                             {
                                 matrixIndices[i] = new IVec4();
                                 matrixWeights[i] = new Vec4();
-                                InfluenceDef inf = _data._influences[_data._facePoints[i]._influenceIndex];
+                                InfluenceDef inf = _data._influences[_data._facePoints[i].InfluenceIndex];
                                 for (int j = 0; j < InfluenceDef.MaxWeightCount; ++j)
                                 {
                                     BoneWeight weight = inf.Weights[j];
@@ -322,12 +322,12 @@ namespace TheraEngine.Rendering.Models
                         {
                             matrixIndices[i] = new Vec4();
                             matrixWeights[i] = new Vec4();
-                            InfluenceDef inf = _data._influences[_data._facePoints[i]._influenceIndex];
+                            InfluenceDef inf = _data._influences[_data.FacePoints[i].InfluenceIndex];
                             for (int j = 0; j < InfluenceDef.MaxWeightCount; ++j)
                             {
                                 BoneWeight weight = inf.Weights[j];
                                 int index;
-                                if (weight == null || (index = _data._utilizedBones.IndexOf(weight.Bone)) < 0)
+                                if (weight == null || (index = _data.UtilizedBones.IndexOf(weight.Bone)) < 0)
                                 {
                                     matrixIndices[i][j] = 0.0f;
                                     matrixWeights[i][j] = 0.0f;

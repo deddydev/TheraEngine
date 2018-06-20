@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _object = GetValue();
 
             string typeName = (_object?.GetType() ?? DataType).GetFriendlyName();
-            //lblObjectTypeName.Text = IListOwner != null ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
+            lblObjectTypeName.Text = ParentInfo is PropGridItemParentIListInfo ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
 
             if ((checkBox1.Checked = _object == null))
             {

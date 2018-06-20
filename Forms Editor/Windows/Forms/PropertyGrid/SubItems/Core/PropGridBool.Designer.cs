@@ -33,12 +33,11 @@
             // 
             // checkBox1
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.checkBox1.Location = new System.Drawing.Point(2, 2);
+            this.checkBox1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.checkBox1.Location = new System.Drawing.Point(0, 0);
             this.checkBox1.Margin = new System.Windows.Forms.Padding(0);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(18, 17);
+            this.checkBox1.Size = new System.Drawing.Size(0, 20);
             this.checkBox1.TabIndex = 0;
             this.checkBox1.UseMnemonic = false;
             this.checkBox1.UseVisualStyleBackColor = true;
@@ -46,14 +45,12 @@
             // 
             // PropGridBool
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.checkBox1);
             this.Name = "PropGridBool";
-            this.Padding = new System.Windows.Forms.Padding(2);
-            this.Size = new System.Drawing.Size(22, 21);
+            this.Size = new System.Drawing.Size(0, 20);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

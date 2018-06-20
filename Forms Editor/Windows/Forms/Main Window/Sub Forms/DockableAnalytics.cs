@@ -7,9 +7,9 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableAnalytics : DockContent
+    public partial class DockableGPUAnalytics : DockContent
     {
-        public DockableAnalytics()
+        public DockableGPUAnalytics()
         {
             InitializeComponent();
             theraPropertyGrid1.Enabled = true;

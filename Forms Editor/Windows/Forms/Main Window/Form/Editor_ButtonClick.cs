@@ -10,7 +10,7 @@ namespace TheraEditor.Windows.Forms
     {
         private void BtnViewAnalytics_Click(object sender, EventArgs e)
         {
-            Analytics.Focus();
+            GPUAnalyticsForm.Focus();
         }
         private void BtnNewProject_Click(object sender, EventArgs e) => CreateNewProject();
         private void BtnOpenProject_Click(object sender, EventArgs e) => OpenProject();

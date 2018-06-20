@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Security.Permissions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TheraEngine.Core.Extensions
@@ -23,14 +21,14 @@ namespace TheraEngine.Core.Extensions
             if (c != null && c.InvokeRequired)
             {
                 IAsyncResult async = c.BeginInvoke(method, args);
-                if (!async.CompletedSynchronously)
-                {
-                    while (!async.IsCompleted)
-                    {
-                        Application.DoEvents();
-                        Thread.Sleep(0);
-                    }
-                }
+                //if (!async.CompletedSynchronously)
+                //{
+                //    while (!async.IsCompleted)
+                //    {
+                //        Application.DoEvents();
+                //        Thread.Sleep(0);
+                //    }
+                //}
                 result = (T)c.EndInvoke(async);
                 return true;
             }

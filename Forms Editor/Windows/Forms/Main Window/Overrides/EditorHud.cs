@@ -691,9 +691,9 @@ namespace TheraEditor.Windows.Forms
 
                 if (HighlightedComponent != null && HighlightedComponent != TransformTool3D.Instance?.RootComponent)
                 {
-                    _circleRC.WorldMatrix = Transform;//new Matrix4(Transform.Row0, Transform.Row1, Transform.Row2, Transform.Row3);
+                    _circleRC.WorldMatrix = Transform;
                     passes.Add(_circleRC, RenderInfo.RenderPass);
-                    _normalRC.WorldMatrix = Transform;//new Matrix4(Transform.Row0, Transform.Row1, Transform.Row2, Transform.Row3);
+                    _normalRC.WorldMatrix = Transform;
                     passes.Add(_normalRC, RenderInfo.RenderPass);
                 }
             }

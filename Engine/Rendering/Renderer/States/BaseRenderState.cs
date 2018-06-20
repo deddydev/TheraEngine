@@ -128,8 +128,12 @@ namespace TheraEngine.Rendering
         /// </summary>
         public int Generate()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Func<int>)Generate, BaseRenderPanel.PanelType.Rendering, out int id))
-                return id;
+            if (!Engine.IsInRenderThread())
+                throw new InvalidOperationException("Render objects must be created on the rendering thread.");
+
+            int id;
+            //if (BaseRenderPanel.ThreadSafeBlockingInvoke((Func<int>)Generate, BaseRenderPanel.PanelType.Rendering, out int id))
+            //    return id;
 
             //Make sure current bind is up to date
             bool hasBind = GetCurrentBind();

@@ -164,6 +164,10 @@ namespace TheraEditor.Windows.Forms
         public static GlobalFileRef<EditorSettings> GetSettingsRef() => Instance.Project?.EditorSettingsRef ?? DefaultSettingsRef;
         public static EditorSettings GetSettings() => Instance.Project?.EditorSettingsRef?.File ?? DefaultSettingsRef?.File;
 
+        private bool GetFormActive<T>(T value) where T : DockContent
+        {
+            return value != null && !value.IsDisposed;
+        }
         public T GetForm<T>(ref T value) where T : DockContent, new()
         {
             if (value == null || value.IsDisposed)
@@ -175,22 +179,28 @@ namespace TheraEditor.Windows.Forms
             return value;
         }
 
-        private DockableAnalytics _analyticsForm;
-        public DockableAnalytics Analytics => GetForm(ref _analyticsForm);
+        private DockableGPUAnalytics _analyticsForm;
+        public bool AnalyticsFormActive => GetFormActive(_analyticsForm);
+        public DockableGPUAnalytics GPUAnalyticsForm => GetForm(ref _analyticsForm);
 
         private DockableOutputWindow _outputForm;
+        public bool OutputFormActive => GetFormActive(_outputForm);
         public DockableOutputWindow OutputForm => GetForm(ref _outputForm);
 
         private DockableActorTree _actorTreeForm;
+        public bool ActorTreeFormActive => GetFormActive(_actorTreeForm);
         public DockableActorTree ActorTreeForm => GetForm(ref _actorTreeForm);
 
         private DockableFileTree _fileTreeForm;
+        public bool FileTreeFormActive => GetFormActive(_fileTreeForm);
         public DockableFileTree FileTreeForm => GetForm(ref _fileTreeForm);
 
         private DockablePropertyGrid _propertyGridForm;
+        public bool PropertyGridFormActive => GetFormActive(_propertyGridForm);
         public DockablePropertyGrid PropertyGridForm => GetForm(ref _propertyGridForm);
 
         private DockableWelcomeWindow _welcomeForm;
+        public bool WelcomeFormActive => GetFormActive(_welcomeForm);
         public DockableWelcomeWindow WelcomeForm => GetForm(ref _welcomeForm);
 
         #endregion

@@ -142,6 +142,16 @@ namespace TheraEngine.Actors.Types
                 s.OnSelectedChanged(selected);
             base.OnSelectedChanged(selected);
         }
+
+        public T GetLogicComponent<T>() where T : LogicComponent
+        {
+            return null;
+        }
+
+        public T[] GetLogicComponents<T>() where T : LogicComponent
+        {
+            return null;
+        }
 #endif
     }
 }

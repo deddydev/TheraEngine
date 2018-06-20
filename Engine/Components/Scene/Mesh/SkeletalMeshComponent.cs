@@ -216,7 +216,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         public void PreRenderUpdate(Camera camera)
         {
-            Skeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
+            Skeleton?.UpdateBones(camera, WorldMatrix, InverseWorldMatrix);
         }
         public void PreRenderSwap()
         {

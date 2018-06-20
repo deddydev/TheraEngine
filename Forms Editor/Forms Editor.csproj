@@ -260,6 +260,9 @@
     <Compile Include="Windows\Forms\Misc\BetterTableLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Windows\Forms\Misc\BorderColorTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Windows\Forms\Misc\IssueDialog.cs">
       <SubType>Form</SubType>
     </Compile>

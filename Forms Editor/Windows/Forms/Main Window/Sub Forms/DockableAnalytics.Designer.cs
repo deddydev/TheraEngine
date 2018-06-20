@@ -1,6 +1,6 @@
 ﻿namespace TheraEditor.Windows.Forms
 {
-    partial class DockableAnalytics
+    partial class DockableGPUAnalytics
     {
         /// <summary>
         /// Required designer variable.

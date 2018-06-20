@@ -66,6 +66,7 @@ namespace TheraEngine.Rendering.OpenGL
             131169,
             131216,
             131218,
+            //1282,
         };
         internal unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
         {
@@ -143,22 +144,22 @@ namespace TheraEngine.Rendering.OpenGL
         {
             private int _versionMin, _versionMax;
             private IGraphicsContext _context;
-            private IWindowInfo _winInfo;
             private VSyncMode _vsyncMode = VSyncMode.Adaptive;
 #if DEBUG
             private static bool _hasPrintedInfo = false;
 #endif
 
-            public IWindowInfo WindowInfo => _winInfo;
+            public IWindowInfo WindowInfo { get; private set; }
 
             public GLThreadSubContext(IntPtr controlHandle, Thread thread)
                 : base(controlHandle, thread) { }
 
             public override void Generate()
             {
-                _winInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
+                Engine.RenderThreadId = Thread.CurrentThread.ManagedThreadId;
+                WindowInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
                 GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 8, new ColorFormat(0), 2, false);
-                _context = new GraphicsContext(mode, _winInfo, 4, 6, GraphicsContextFlags.Debug)
+                _context = new GraphicsContext(mode, WindowInfo, 4, 6, GraphicsContextFlags.Debug)
                 {
                     ErrorChecking = true
                 };
@@ -214,9 +215,9 @@ namespace TheraEngine.Rendering.OpenGL
                 if (_context != null)
                     _context.Dispose();
                 _context = null;
-                if (_winInfo != null)
-                    _winInfo.Dispose();
-                _winInfo = null;
+                if (WindowInfo != null)
+                    WindowInfo.Dispose();
+                WindowInfo = null;
             }
 
             public override bool IsContextDisposed()

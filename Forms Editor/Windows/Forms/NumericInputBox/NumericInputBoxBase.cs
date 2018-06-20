@@ -1,11 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class BaseNumericInputBox : TextBox { }
+    public class BaseNumericInputBox : BorderColorTextBox { }
     public abstract class NumericInputBoxBase<T> : BaseNumericInputBox
         where T : struct, IFormattable, IComparable, IConvertible
     {

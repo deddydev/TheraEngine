@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing.Text;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Audio;
@@ -103,6 +104,10 @@ namespace TheraEngine
         /// The settings for the engine, specified by the game.
         /// </summary>
         public static EngineSettings Settings => Game?.EngineSettingsRef?.File ?? DefaultEngineSettings.Value;
+
+        internal static int RenderThreadId;
+        public static bool IsInRenderThread() => Thread.CurrentThread.ManagedThreadId == RenderThreadId;
+        
         /// <summary>
         /// The settings for the engine, specified by the user.
         /// </summary>

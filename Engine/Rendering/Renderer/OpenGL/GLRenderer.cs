@@ -916,6 +916,11 @@ namespace TheraEngine.Rendering.OpenGL
             //    BufferAccessMask.MapReadBit |
             //    BufferAccessMask.MapWriteBit), DataLength);
             
+            if (buffer.IsMapped)
+            {
+                UnmapBufferData(buffer);
+            }
+
             int length = buffer._data.Length;
             GL.NamedBufferStorage(buffer.BindingId, length, buffer._data.Address,
                 BufferStorageFlags.MapWriteBit |
@@ -923,6 +928,9 @@ namespace TheraEngine.Rendering.OpenGL
                 BufferStorageFlags.MapPersistentBit |
                 BufferStorageFlags.MapCoherentBit |
                 BufferStorageFlags.ClientStorageBit);
+
+            buffer.IsMapped = true;
+
             //buffer._data.Dispose();
             //buffer._data = new DataSource(GL.MapNamedBufferRange(buffer.BindingId, IntPtr.Zero, length,
             //    BufferAccessMask.MapPersistentBit |
@@ -936,8 +944,11 @@ namespace TheraEngine.Rendering.OpenGL
         /// </summary>
         public override void UnmapBufferData(DataBuffer buffer)
         {
-            //GL.UnmapBuffer(buffer._target);
-            GL.UnmapNamedBuffer(buffer.BindingId);
+            if (buffer.IsMapped)
+            {
+                GL.UnmapNamedBuffer(buffer.BindingId);
+                buffer.IsMapped = false;
+            }
         }
         public override void PushBufferData(DataBuffer buffer)
         {

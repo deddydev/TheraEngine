@@ -326,6 +326,8 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
+        public bool IsMapped { get; internal set; } = false;
+
         protected override void PostGenerated() => Engine.Renderer.InitializeBuffer(this);
         public void PushData() => Engine.Renderer.PushBufferData(this);
         public void PushSubData(int offset, int length) => Engine.Renderer.PushBufferSubData(this, offset, length);

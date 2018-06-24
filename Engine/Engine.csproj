@@ -496,6 +496,7 @@
     <Compile Include="ThirdParty\7zip\Compress\RangeCoder\RangeCoderBit.cs" />
     <Compile Include="ThirdParty\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
     <Compile Include="ThirdParty\7zip\ICoder.cs" />
+    <Compile Include="ThirdParty\MSBuildDefinitions.cs" />
     <Compile Include="ThirdParty\FastNoise.cs" />
     <Compile Include="ThirdParty\OBJ\Data\DataStore\DataStore.cs" />
     <Compile Include="ThirdParty\OBJ\Data\DataStore\IDataStore.cs" />
@@ -561,7 +562,7 @@
     <Compile Include="Core\Tools\DelegateBuilder.cs" />
     <Compile Include="Core\Tools\GLSLParser.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
-    <Compile Include="Core\Files\XMLSchemeReader.cs" />
+    <Compile Include="Core\Files\Serialization\XML\XMLSchemeReader.cs" />
     <Compile Include="Core\Controls\WorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -757,8 +758,8 @@
     <Compile Include="Core\Files\Serialization\XML\CustomXmlDeserializer.cs" />
     <Compile Include="Core\Files\Serialization\XML\CustomXmlSerializer.cs" />
     <Compile Include="Core\Files\References\FileRef.cs" />
-    <Compile Include="Core\Files\StringTable.cs" />
-    <Compile Include="Core\Files\XMLReader.cs" />
+    <Compile Include="Core\Files\Serialization\Binary\StringTable.cs" />
+    <Compile Include="Core\Files\Serialization\XML\XMLReader.cs" />
     <Compile Include="Core\Maths\Collision\Collision.cs" />
     <Compile Include="Core\Maths\Collision\Tracing.cs" />
     <Compile Include="Core\Maths\Enums.cs" />

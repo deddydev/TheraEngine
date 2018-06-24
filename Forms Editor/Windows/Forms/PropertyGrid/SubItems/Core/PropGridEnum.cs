@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -15,26 +16,56 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             InitializeComponent();
             comboBox1.GotFocus += comboBox1_GotFocus;
             comboBox1.LostFocus += comboBox1_LostFocus;
+            _containsBit = new Dictionary<TypeCode, DelContainsBit>()
+            {
+                { TypeCode.Byte, UInt8ContainsBit },
+                { TypeCode.SByte, Int8ContainsBit },
+                { TypeCode.Int16, Int16ContainsBit },
+                { TypeCode.UInt16, UInt16ContainsBit },
+                { TypeCode.Int32, Int32ContainsBit },
+                { TypeCode.UInt32, UInt32ContainsBit },
+                { TypeCode.Int64, Int64ContainsBit },
+                { TypeCode.UInt64, UInt64ContainsBit },
+            };
+            _convertBit = new Dictionary<TypeCode, DelConvertBit>()
+            {
+                { TypeCode.Byte, UInt8ConvertBit },
+                { TypeCode.SByte, Int8ConvertBit },
+                { TypeCode.Int16, Int16ConvertBit },
+                { TypeCode.UInt16, UInt16ConvertBit },
+                { TypeCode.Int32, Int32ConvertBit },
+                { TypeCode.UInt32, UInt32ConvertBit },
+                { TypeCode.Int64, Int64ConvertBit },
+                { TypeCode.UInt64, UInt64ConvertBit },
+            };
         }
         private void comboBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void comboBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
-        private string _prevValue = string.Empty;
+        private string _value = string.Empty;
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
             if (value is Enum e)
             {
-                if (string.Equals(_prevValue, value.ToString(), StringComparison.InvariantCulture))
+                string temp = value.ToString();
+                if (string.Equals(_value, temp, StringComparison.InvariantCulture))
                     return;
-                _prevValue = value.ToString();
-
+                _value = temp;
+                
                 string[] names = Enum.GetNames(DataType);
+                Array values = Enum.GetValues(DataType);
                 bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
                 if (flags)
                 {
-                    string[] enumStrings = _prevValue.Split(new string[] { ", " }, StringSplitOptions.None);
+                    Type valueType = Enum.GetUnderlyingType(DataType);
+                    TypeCode t = e.GetTypeCode();
+                    DelContainsBit contains = _containsBit[t];
+                    object totalValue = Convert.ChangeType(e, t);
                     for (int i = 0; i < names.Length; ++i)
-                        ((CheckBox)tableLayoutPanel1.GetControlFromPosition(0, i)).Checked = enumStrings.Contains(names[i]);
+                    {
+                        object number = Convert.ChangeType(values.GetValue(i), t);
+                        ((CheckBox)tableLayoutPanel1.GetControlFromPosition(0, i)).Checked = contains(totalValue, number);
+                    }
                 }
                 else
                 {
@@ -42,7 +73,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     for (int i = 0; i < names.Length; ++i)
                     {
                         string name = names[i];
-                        if (string.Equals(name, _prevValue, StringComparison.InvariantCulture))
+                        if (string.Equals(name, _value, StringComparison.InvariantCulture))
                             selectedIndex = i;
                     }
                     comboBox1.SelectedIndex = selectedIndex;
@@ -64,30 +95,54 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             UpdateValue(Enum.Parse(DataType, (string)comboBox1.SelectedItem), true);
         }
+        
+        private bool UInt8ContainsBit(object total, object bits) 
+            => ((byte)total & (byte)bits) == (byte)bits;
+        private bool Int8ContainsBit(object total, object bits)
+            => ((sbyte)total & (sbyte)bits) == (sbyte)bits;
+        private bool UInt16ContainsBit(object total, object bits)
+            => ((ushort)total & (ushort)bits) == (ushort)bits;
+        private bool Int16ContainsBit(object total, object bits)
+            => ((short)total & (short)bits) == (short)bits;
+        private bool UInt32ContainsBit(object total, object bits)
+            => ((uint)total & (uint)bits) == (uint)bits;
+        private bool Int32ContainsBit(object total, object bits)
+            => ((int)total & (int)bits) == (int)bits;
+        private bool UInt64ContainsBit(object total, object bits)
+            => ((ulong)total & (ulong)bits) == (ulong)bits;
+        private bool Int64ContainsBit(object total, object bits)
+            => ((long)total & (long)bits) == (long)bits;
+
+        private object UInt8ConvertBit(object total, object bits, bool add)
+            => add ? ((byte)total | (byte)bits) : ((byte)total & ~(byte)bits);
+        private object Int8ConvertBit(object total, object bits, bool add)
+            => add ? ((sbyte)total | (sbyte)bits) : ((sbyte)total & ~(sbyte)bits);
+        private object UInt16ConvertBit(object total, object bits, bool add)
+            => add ? ((ushort)total | (ushort)bits) : ((ushort)total & ~(ushort)bits);
+        private object Int16ConvertBit(object total, object bits, bool add)
+            => add ? ((short)total | (short)bits) : ((short)total & ~(short)bits);
+        private object UInt32ConvertBit(object total, object bits, bool add)
+            => add ? ((uint)total | (uint)bits) : ((uint)total & ~(uint)bits);
+        private object Int32ConvertBit(object total, object bits, bool add)
+            => add ? ((int)total | (int)bits) : ((int)total & ~(int)bits);
+        private object UInt64ConvertBit(object total, object bits, bool add)
+            => add ? ((ulong)total | (ulong)bits) : ((ulong)total & ~(ulong)bits);
+        private object Int64ConvertBit(object total, object bits, bool add)
+            => add ? ((long)total | (long)bits) : ((long)total & ~(long)bits);
+
+        private delegate bool DelContainsBit(object total, object bits);
+        private delegate object DelConvertBit(object total, object bits, bool add);
+
+        private Dictionary<TypeCode, DelContainsBit> _containsBit;
+        private Dictionary<TypeCode, DelConvertBit> _convertBit;
 
         private void BitSet_CheckedChanged(object sender, EventArgs e)
         {
-            string newValue;
-            string oldValue = GetValue().ToString();
             CheckBox box = (CheckBox)sender;
-            if (box.Checked)
-                newValue = oldValue + ", " + box.Tag.ToString();
-            else
-                newValue = string.Join(", ", oldValue.Replace(box.Tag.ToString(), string.Empty).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
-            if (string.IsNullOrWhiteSpace(newValue))
-                UpdateValue(0, true);
-            else
-            {
-                //TODO: fix parsing types that have names that are included in others
-                try
-                {
-                    UpdateValue(Enum.Parse(DataType, newValue), true);
-                }
-                catch
-                {
-                    UpdateValue(0, true);
-                }
-            }
+            TypeCode t = Type.GetTypeCode(DataType);
+            object totalValue = Convert.ChangeType(GetValue(), t);
+            object newTotal = _convertBit[t](totalValue, box.Tag, box.Checked);
+            UpdateValue(newTotal, true);
         }
 
         protected internal override void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
@@ -102,11 +157,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.SetIListOwner(list, elementType, index);
         }
 
-        private void UpdateControls(Type elementType)
+        private void UpdateControls(Type enumType)
         {
-            string[] names = Enum.GetNames(elementType);
-            Array values = Enum.GetValues(elementType);
-            bool flags = elementType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+            string[] names = Enum.GetNames(enumType);
+            Array values = Enum.GetValues(enumType);
+            bool flags = enumType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
             if (flags)
             {
                 panel1.Visible = true;
@@ -120,13 +175,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                     tableLayoutPanel1.RowCount++;
 
-                    object number = Convert.ChangeType(values.GetValue(i), Type.GetTypeCode(elementType));
+                    object number = Convert.ChangeType(values.GetValue(i), Type.GetTypeCode(enumType));
 
                     CheckBox bitSet = new CheckBox()
                     {
                         AutoSize = true,
                         Checked = false,
-                        Tag = name,
+                        Tag = number,
                         Margin = new Padding(0),
                         Padding = new Padding(0),
                         Dock = DockStyle.Left,
@@ -136,6 +191,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     {
                         AutoSize = true,
                         Text = number.ToString(),
+                        Tag = number,
                         TextAlign = ContentAlignment.MiddleLeft,
                         Margin = new Padding(0),
                         Padding = new Padding(0),
@@ -164,7 +220,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     comboBox1.Items.Add(names[i]);
                 comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
             }
-            //textBox1.Text = value?.ToString();
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Build.Evaluation;
+using Microsoft.Build.Execution;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -88,6 +90,36 @@ namespace TheraEditor.Windows.Forms
                     LocalPlayerController c = Engine.LocalPlayers[index];
                     ActiveRenderForm.RenderPanel.GetOrAddViewport(0).RegisterController(c);
                     c.ControlledPawn = ActiveRenderForm.EditorPawn;
+                }
+            }
+        }
+
+        public void Compile(string filePath)
+        {
+            ProjectCollection pc = new ProjectCollection();
+            Dictionary<string, string> globalProperties = new Dictionary<string, string>
+            {
+                { "Configuration", BuildConfiguration },
+                { "Platform", BuildPlatform },
+                //{ "OutputPath", "" },
+            };
+            BuildRequestData request = new BuildRequestData(filePath, globalProperties, null, new string[] { "Build" }, null);
+            BuildResult result = BuildManager.DefaultBuildManager.Build(new BuildParameters(pc), request);
+            if (result.OverallResult == BuildResultCode.Success)
+            {
+                Engine.PrintLine(filePath + " : Build succeeded.");
+            }
+            else
+            {
+                Engine.PrintLine(filePath + " : Build failed.");
+                foreach (var target in result.ResultsByTarget)
+                {
+                    if (target.Value.ResultCode == TargetResultCode.Failure)
+                    {
+                        Engine.PrintLine(target.Key + " : Build failed.");
+                        if (target.Value.Exception != null)
+                            Engine.PrintLine("Exception:\n" + target.Value.Exception.ToString());
+                    }
                 }
             }
         }
@@ -720,6 +752,9 @@ namespace TheraEditor.Windows.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
         public Dictionary<Keys, Func<bool>> MappableActions { get; private set; }
+        public string BuildConfiguration { get; internal set; }
+        public string BuildPlatform { get; internal set; }
+
         //internal bool DoEvents { get; set; } = true;
 
         protected override void OnKeyDown(KeyEventArgs e)

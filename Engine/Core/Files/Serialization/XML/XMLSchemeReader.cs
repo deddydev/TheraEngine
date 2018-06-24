@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Linq;
 using static TheraEngine.Rendering.Models.Collada;
 
 namespace TheraEngine.Core.Files

@@ -22,8 +22,22 @@ namespace TheraEngine.Files.Serialization
                 using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                 {
-                    if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
-                        t = Type.GetType(reader.Value, false, false);
+                    if (reader.BeginElement() &&
+                        reader.ReadAttribute() && 
+                        reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                    {
+                        string value = reader.Value.ToString();
+                        t = Type.GetType(value,
+                            (name) =>
+                            {
+                                return AppDomain.CurrentDomain.GetAssemblies().
+                                Where(z => z.FullName == name.FullName).FirstOrDefault();
+                            },
+                            null,
+                            false);
+
+                        //t = Type.GetType(reader.Value, false, false);
+                    }
                 }
             }
             catch (Exception e)
@@ -44,7 +58,16 @@ namespace TheraEngine.Files.Serialization
             {
                 if (_reader.BeginElement() && _reader.ReadAttribute() && _reader.Name.Equals(SerializationCommon.TypeIdent, true))
                 {
-                    Type t = Type.GetType(_reader.Value.ToString(), false, false);
+                    string value = _reader.Value.ToString();
+                    Type t = Type.GetType(value,
+                        (name) =>
+                        {
+                            return AppDomain.CurrentDomain.GetAssemblies().
+                            Where(z => z.FullName == name.FullName).FirstOrDefault();
+                        },
+                        null,
+                        false);
+                    //Type t = Type.GetType(_reader.Value.ToString(), false, false);
                     obj = ReadObject(t);
                     _reader.EndElement();
 
@@ -60,7 +83,16 @@ namespace TheraEngine.Files.Serialization
             {
                 if (string.Equals(_reader.Name.ToString(), SerializationCommon.TypeIdent, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Type subType = Type.GetType(_reader.Value.ToString(), false, false);
+                    string value = _reader.Value.ToString();
+                    Type subType = Type.GetType(value,
+                        (name) =>
+                        {         
+                            return AppDomain.CurrentDomain.GetAssemblies().
+                            Where(z => z.FullName == name.FullName).FirstOrDefault();
+                        }, 
+                        null, 
+                        false);
+
                     //if (subType != null)
                     //{
                     if (objType.IsAssignableFrom(subType))
@@ -360,7 +392,18 @@ namespace TheraEngine.Files.Serialization
             _reader.ReadAttribute();
             int num = int.Parse(_reader.Value.ToString());
             if (_reader.ReadAttribute())
-                arrayType = Type.GetType(_reader.Value.ToString());
+            {
+                //arrayType = Type.GetType(_reader.Value.ToString());
+                string value = _reader.Value.ToString();
+                arrayType = Type.GetType(value,
+                    (name) =>
+                    {
+                        return AppDomain.CurrentDomain.GetAssemblies().
+                        Where(z => z.FullName == name.FullName).FirstOrDefault();
+                    },
+                    null,
+                    false);
+            }
 
             IList list;
             if (string.Equals(arrayType.BaseType.Name, "Array", StringComparison.InvariantCulture))

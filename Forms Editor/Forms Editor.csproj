@@ -744,10 +744,12 @@
     <Compile Include="Windows\Forms\Misc\TransparentPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Wrappers\BaseWrappers.cs" />
-    <Compile Include="Wrappers\BaseFileWrapper.cs" />
+    <Compile Include="Wrappers\Code\CSProjWrapper.cs" />
+    <Compile Include="Wrappers\Code\SolutionWrapper.cs" />
+    <Compile Include="Wrappers\Core\BaseWrappers.cs" />
+    <Compile Include="Wrappers\Core\BaseFileWrapper.cs" />
     <Compile Include="Wrappers\ThirdPartyFileWrapper.cs" />
-    <Compile Include="Wrappers\GenericFileWrapper.cs" />
+    <Compile Include="Wrappers\Core\GenericFileWrapper.cs" />
     <Compile Include="Wrappers\Models\ColladaWrapper.cs" />
     <Compile Include="Wrappers\Scripting\CSharpWrapper.cs" />
     <Compile Include="Wrappers\Scripting\GLSLWrapper.cs" />
@@ -758,8 +760,8 @@
     <Compile Include="Wrappers\Models\MaterialWrapper.cs" />
     <Compile Include="Wrappers\ProjectWrapper.cs" />
     <Compile Include="Wrappers\WorldWrapper.cs" />
-    <Compile Include="Wrappers\FolderWrapper.cs" />
-    <Compile Include="Wrappers\FileWrapper.cs" />
+    <Compile Include="Wrappers\Core\FolderWrapper.cs" />
+    <Compile Include="Wrappers\Core\FileWrapper.cs" />
     <EmbeddedResource Include="ThirdParty\Graphing\PlotterGraphEx.resx">
       <DependentUpon>PlotterGraphEx.cs</DependentUpon>
       <SubType>Designer</SubType>

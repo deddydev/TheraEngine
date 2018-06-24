@@ -1,18 +1,11 @@
-﻿using TheraEngine;
-using TheraEngine.Files;
-using System.IO;
-using System.ComponentModel;
-using System;
-using Microsoft.CSharp;
-using System.CodeDom.Compiler;
-using Microsoft.Build.Evaluation;
-using System.Collections.Generic;
-using Microsoft.Build.Execution;
-using Microsoft.Build.Logging;
+﻿using EnvDTE100;
 using Microsoft.Build.Framework;
+using System;
+using System.ComponentModel;
+using System.IO;
 using TheraEditor.Windows.Forms;
-using System.Threading.Tasks;
-using EnvDTE100;
+using TheraEngine;
+using TheraEngine.Files;
 
 namespace TheraEditor
 {
@@ -29,35 +22,24 @@ namespace TheraEditor
         public static readonly string ContentDirName = "Content" + Path.DirectorySeparatorChar.ToString();
         public static readonly string TempDirName = "Temp" + Path.DirectorySeparatorChar.ToString();
 
-        private GlobalFileRef<ProjectState> _state;
-        private GlobalFileRef<EditorSettings> _editorSettings;
-
         [Browsable(false)]
         public ProjectState ProjectState
         {
-            get => _state.File;
-            set => _state.File = value;
+            get => ProjectStateRef.File;
+            set => ProjectStateRef.File = value;
         }
         [TSerialize]
         [Browsable(false)]
-        public GlobalFileRef<ProjectState> ProjectStateRef
-        {
-            get => _state;
-            set => _state = value;
-        }
+        public GlobalFileRef<ProjectState> ProjectStateRef { get; set; }
         [Browsable(false)]
         public EditorSettings EditorSettings
         {
-            get => _editorSettings.File;
-            set => _editorSettings.File = value;
+            get => EditorSettingsRef.File;
+            set => EditorSettingsRef.File = value;
         }
         [TSerialize]
         [Browsable(false)]
-        public GlobalFileRef<EditorSettings> EditorSettingsRef
-        {
-            get => _editorSettings;
-            set => _editorSettings = value;
-        }
+        public GlobalFileRef<EditorSettings> EditorSettingsRef { get; set; }
 
         public void SetDirectory(string directory)
         {
@@ -107,42 +89,37 @@ namespace TheraEditor
             return p;
         }
 
-        public void GenerateSolution() => GenerateSolution(Path.Combine(DirectoryPath, SourceDirName, "Solution"));
+        public void GenerateSolution() =>
+            GenerateSolution(Path.Combine(DirectoryPath, SourceDirName, "Solution"));
         public void GenerateSolution(string slnDir)
         {
-            Task.Run(() =>
-            {
-                EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
-                dte.SuppressUI = true;
-                Solution4 sln = (Solution4)dte.Solution;
-                sln.Create(slnDir, Name);
-                string projDir = Path.Combine(slnDir, Name);
-                string projPath = Path.Combine(projDir, Name + ".csproj");
-                string csTemplatePath = sln.GetProjectTemplate("ConsoleApplication.zip", "CSharp");
-                EnvDTE.Project proj = sln.AddFromTemplate(csTemplatePath, projDir, Name, false);
-                EnvDTE.Project proj2 = sln.Projects.Item(1);
-                //string projPath = GenerateGameProject(dir, dte, sln);
-                //sln.AddFromFile(projPath, false);
-                sln.SaveAs(Path.Combine(slnDir, Name + ".sln"));
-                VisualStudioManager.VSInstanceClosed();
-            });
+            EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
+            dte.SuppressUI = true;
+            Solution4 sln = (Solution4)dte.Solution;
+            sln.Create(slnDir, Name);
+            string projDir = Path.Combine(slnDir, Name);
+            string projPath = Path.Combine(projDir, Name + ".csproj");
+            string csTemplatePath = sln.GetProjectTemplate("ConsoleApplication.zip", "CSharp");
+            EnvDTE.Project proj = sln.AddFromTemplate(csTemplatePath, projDir, Name, false);
+            //string projPath = GenerateGameProject(dir, dte, sln);
+            //sln.AddFromFile(projPath, false);
+            sln.SaveAs(Path.Combine(slnDir, Name + ".sln"));
+            VisualStudioManager.VSInstanceClosed();
         }
 
         //private string GenerateGameProject(string slnDir, EnvDTE80.DTE2 dte, Solution4 sln)
         //{
-
-
-        //    //Dictionary<string, string> props = new Dictionary<string, string>
-        //    //{
-        //    //    { "Configuration", "Debug" },
-        //    //    { "Platform", "x86" }
-        //    //};
-        //    //EngineLogger logger = new EngineLogger(LoggerVerbosity.Diagnostic);
-        //    //ProjectCollection pc = new ProjectCollection(props, new ILogger[] { logger },
-        //    //    ToolsetDefinitionLocations.ConfigurationFile | ToolsetDefinitionLocations.Registry);
-        //    //BuildParameters buildParams = new BuildParameters(pc);
-        //    //BuildRequestData buildRequest = new BuildRequestData(projectFileName, props, null, new string[] { "Build" }, null);
-        //    //BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
+        //    Dictionary<string, string> props = new Dictionary<string, string>
+        //    {
+        //        { "Configuration", "Debug" },
+        //        { "Platform", "x86" }
+        //    };
+        //    EngineLogger logger = new EngineLogger(LoggerVerbosity.Diagnostic);
+        //    ProjectCollection pc = new ProjectCollection(props, new ILogger[] { logger },
+        //        ToolsetDefinitionLocations.ConfigurationFile | ToolsetDefinitionLocations.Registry);
+        //    BuildParameters buildParams = new BuildParameters(pc);
+        //    BuildRequestData buildRequest = new BuildRequestData(Name, props, null, new string[] { "Build" }, null);
+        //    BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
 
         //    //File.WriteAllText(projPath, @"");
         //    return projPath;
@@ -245,36 +222,36 @@ namespace TheraEditor
 
             }
         }
-        public void Compile()
-        {
-            string projectFileName = @"...\ConsoleApplication3\ConsoleApplication3.sln";
+        //public void Compile(string configuration, string platform)
+        //{
+        //    string projectFileName = @"...\ConsoleApplication3\ConsoleApplication3.sln";
 
-            ProjectCollection pc = new ProjectCollection();
-            Dictionary<string, string> GlobalProperty = new Dictionary<string, string>
-            {
-                { "Configuration", "Debug" },
-                { "Platform", "x86" }
-            };
+        //    ProjectCollection pc = new ProjectCollection();
+        //    Dictionary<string, string> GlobalProperty = new Dictionary<string, string>
+        //    {
+        //        { "Configuration", configuration },
+        //        { "Platform", platform }
+        //    };
 
-            BuildParameters buildParams = new BuildParameters(pc);
-            BuildRequestData buildRequest = new BuildRequestData(projectFileName, GlobalProperty, null, new string[] { "Build" }, null);
-            BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
+        //    BuildParameters buildParams = new BuildParameters(pc);
+        //    BuildRequestData buildRequest = new BuildRequestData(projectFileName, GlobalProperty, null, new string[] { "Build" }, null);
+        //    BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
 
-            //CSharpCodeProvider codeProvider = new CSharpCodeProvider();
-            //CompilerParameters parameters = new CompilerParameters
-            //{
-            //    GenerateExecutable = true,
-            //    OutputAssembly = Path.Combine(FilePath, "Intermediate", Name + ".exe"),
-            //};
-            //CompilerResults results = codeProvider.CompileAssemblyFromFile(parameters, "");
-            //if (results.Errors.Count > 0)
-            //{
-            //    foreach (CompilerError CompErr in results.Errors)
-            //    {
-            //        Engine.PrintLine("Line number {0}, Error Number: {1}, '{2};",
-            //            CompErr.Line, CompErr.ErrorNumber, CompErr.ErrorText);
-            //    }
-            //}
-        }
+        //    //CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+        //    //CompilerParameters parameters = new CompilerParameters
+        //    //{
+        //    //    GenerateExecutable = true,
+        //    //    OutputAssembly = Path.Combine(FilePath, "Intermediate", Name + ".exe"),
+        //    //};
+        //    //CompilerResults results = codeProvider.CompileAssemblyFromFile(parameters, "");
+        //    //if (results.Errors.Count > 0)
+        //    //{
+        //    //    foreach (CompilerError CompErr in results.Errors)
+        //    //    {
+        //    //        Engine.PrintLine("Line number {0}, Error Number: {1}, '{2};",
+        //    //            CompErr.Line, CompErr.ErrorNumber, CompErr.ErrorText);
+        //    //    }
+        //    //}
+        //}
     }
 }

@@ -83,6 +83,9 @@ namespace TheraEditor.Wrappers
 
         public new ResourceTree TreeView => (ResourceTree)base.TreeView;
         public new BaseWrapper Parent => base.Parent as BaseWrapper; //Parent may be null
+        /// <summary>
+        /// The path of this node.
+        /// </summary>
         public virtual string FilePath { get => Name; set => Name = value; }
         public bool IsPopulated => _isPopulated;
 

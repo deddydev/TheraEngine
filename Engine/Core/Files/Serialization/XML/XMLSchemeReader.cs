@@ -878,7 +878,6 @@ namespace TheraEngine.Core.Files
                     break;
 
                 var matchingParsed = ChildElements.Keys.Where(x => t.IsAssignableFrom(x)).ToArray();
-                //var matchingUnparsed = _initData.Keys.Where(x => t.IsAssignableFrom(x)).ToArray();
                 foreach (var match in matchingParsed)
                 {
                     var matchElems = ChildElements[match].Where(x => x is T2).Select(x => (T2)x);
@@ -886,24 +885,6 @@ namespace TheraEngine.Core.Files
                         if (!elems.Contains(m))
                             elems.Add(m);
                 }
-                //foreach (var match in matchingUnparsed)
-                //{
-                //    if (!ChildElements.ContainsKey(match))
-                //        ChildElements.Add(match, new List<IElement>());
-                //    var matchElems = _initData[match];
-                //    if (_initData.ContainsKey(match))
-                //        _initData.Remove(match);
-                //    foreach (InitData d in matchElems)
-                //    {
-                //        d.reader._ptr = d._ptr;
-                //        d.reader._inTag = d._inTag;
-                //        d.reader.SetStringBuffer(d._name, d._value);
-                //        T2 m = (T2)BaseXMLSchemeReader.ParseElementAsync(match, this, d.reader, d.version, d.ignore, d.parentTree, d.childIndex);
-                //        ChildElements[match].Add(m);
-                //        if (!elems.Contains(m))
-                //            elems.Add(m);
-                //    }
-                //}
                 t = t.BaseType;
             }
             return elems.ToArray();

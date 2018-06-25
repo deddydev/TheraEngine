@@ -5,7 +5,7 @@ namespace TheraEngine.Rendering.Models
 {
     public class MSBuild
     {
-        public interface IProject : IElement, IChooseOwner, IImportOwner, IItemGroupOwner, IProjectExtensionsOwner, IUsingTaskOwner
+        public interface IProject : IElement, IChooseOwner, IImportOwner, IItemGroupOwner, IProjectExtensionsOwner, IUsingTaskOwner, IPropertyGroupOwner
         {
 
         }
@@ -29,7 +29,13 @@ namespace TheraEngine.Rendering.Models
         {
 
         }
+        public interface IPropertyGroupOwner : IElement
+        {
 
+        }
+        /// <summary>
+        /// Required root element of an MSBuild project file.
+        /// </summary>
         [Name("Project")]
         [Child(typeof(Choose), 0, -1)]
         [Child(typeof(Import), 0, -1)]
@@ -60,6 +66,9 @@ namespace TheraEngine.Rendering.Models
             [DefaultValue("http://schemas.microsoft.com/developer/msbuild/2003")]
             public string Schema { get; set; }
 
+            /// <summary>
+            /// Contains a set of tasks for MSBuild to sequentially execute. Tasks are specified by using the Task element. There may be zero or more Target elements in a project.
+            /// </summary>
             [Child(typeof(Task), 0, -1)]
             [Child(typeof(PropertyGroup), 0, -1)]
             [Child(typeof(ItemGroup), 0, -1)]
@@ -98,13 +107,26 @@ namespace TheraEngine.Rendering.Models
                 }
 
                 [Child(typeof(Output), 0, -1)]
-                [Name("Task")]
+                [Name(null)]
                 public class Task : BaseElement<Target>
                 {
                     [Attr("Condition", false)]
                     public string Condition { get; set; }
+                    /// <summary>
+                    /// Optional attribute. Can contain one of the following values:
+                    /// <para>- WarnAndContinue or true. When a task fails, subsequent tasks in the Target element and the build continue to execute, and all errors from the task are treated as warnings.</para>
+                    /// <para>- ErrorAndContinue.When a task fails, subsequent tasks in the Target element and the build continue to execute, and all errors from the task are treated as errors.</para>
+                    /// <para>- ErrorAndStop or false (default). When a task fails, the remaining tasks in the Target element and the build aren't executed, and the entire Target element and the build is considered to have failed.</para>
+                    /// Versions of the .NET Framework before 4.5 supported only the true and false values.
+                    /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/how-to-ignore-errors-in-tasks
+                    /// </summary>
                     [Attr("ContinueOnError", false)]
                     public string ContinueOnError { get; set; }
+                    /// <summary>
+                    /// Required if the task class contains one or more properties labeled with the [Required] attribute.
+                    /// A user-defined task parameter that contains the parameter value as its value.
+                    /// There can be any number of parameters in the Task element, with each attribute mapping to a .NET property in the task class.
+                    /// </summary>
                     [Attr("Parameter", false)]
                     public string Parameter { get; set; }
                     
@@ -128,42 +150,53 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
             }
-            
-            [Child(typeof(Property), 0, -1)]
-            [Name("PropertyGroup")]
-            public class PropertyGroup : BaseElement<Project>
+        }
+        /// <summary>
+        /// A grouping element for individual properties. Properties are specified by using the Property element. There may be zero or more PropertyGroup elements in a project.
+        /// </summary>
+        [Child(typeof(Property), 0, -1)]
+        [Name("PropertyGroup")]
+        public class PropertyGroup : BaseElement<IPropertyGroupOwner>
+        {
+            [Attr("Condition", false)]
+            public string Condition { get; set; }
+
+            /// <summary>
+            /// A user defined property name, which contains the property value. There may be zero or more Property elements in a PropertyGroup element.
+            /// </summary>
+            [Name(null)]
+            public class Property : BaseStringElement<PropertyGroup, ElementString>
             {
                 [Attr("Condition", false)]
                 public string Condition { get; set; }
-                
-                [Name(null)]
-                public class Property : BaseStringElement<PropertyGroup, ElementString>
-                {
-                    [Attr("Condition", false)]
-                    public string Condition { get; set; }
-                }
             }
         }
-
+        /// <summary>
+        /// Provides a way to register tasks in MSBuild. There may be zero or more UsingTask elements in a project.
+        /// </summary>
         [Name("UsingTask")]
         public class UsingTask : BaseElement<IUsingTaskOwner>
         {
 
         }
-
+        /// <summary>
+        /// Provides a way to persist non-MSBuild information in an MSBuild project file. There may be zero or one ProjectExtensions elements in a project.
+        /// </summary>
         [Name("ProjectExtensions")]
         public class ProjectExtensions : BaseElement<IProjectExtensionsOwner>
         {
 
         }
-
+        /// <summary>
+        /// A grouping element for individual items. Items are specified by using the Item element. There may be zero or more ItemGroup elements in a project.
+        /// </summary>
         [Name("ItemGroup")]
         public class ItemGroup : BaseElement<IItemGroupOwner>
         {
             [Attr("Condition", false)]
             public string Condition { get; set; }
 
-            [Name("Item")]
+            [Name(null)]
             public class Item : BaseElement<ItemGroup>
             {
                 [Attr("Include", true)]
@@ -189,7 +222,9 @@ namespace TheraEngine.Rendering.Models
                 }
             }
         }
-
+        /// <summary>
+        /// A grouping element for individual items. Items are specified by using the Item element. There may be zero or more ItemGroup elements in a project.
+        /// </summary>
         [Name("ImportGroup")]
         [Child(typeof(Import), 0, -1)]
         public class ImportGroup : BaseElement<Project>, IImportOwner
@@ -197,7 +232,9 @@ namespace TheraEngine.Rendering.Models
             [Attr("Condition", false)]
             public string Condition { get; set; }
         }
-
+        /// <summary>
+        /// Enables a project file to import another project file. There may be zero or more Import elements in a project.
+        /// </summary>
         [Name("Import")]
         public class Import : BaseElement<IImportOwner>
         {
@@ -206,11 +243,32 @@ namespace TheraEngine.Rendering.Models
             [Attr("Condition", false)]
             public string Condition { get; set; }
         }
-
+        /// <summary>
+        /// Evaluates child elements to select one set of ItemGroup elements and/or PropertyGroup elements to evaluate.
+        /// </summary>
         [Name("Choose")]
-        public class Choose : BaseElement<IChooseOwner>
+        [Child(typeof(Otherwise), 0, -1)]
+        [Child(typeof(When), 1, -1)]
+        public class Choose : BaseElement<IChooseOwner> { }
+        /// <summary>
+        /// Specifies the block of code to execute if the conditions of all When elements evaluate to false.
+        /// </summary>
+        [Name("Otherwise")]
+        [Child(typeof(Choose), 0, -1)]
+        [Child(typeof(PropertyGroup), 0, -1)]
+        [Child(typeof(ItemGroup), 0, -1)]
+        public class Otherwise : BaseElement<Choose>, IChooseOwner, IPropertyGroupOwner, IItemGroupOwner { }
+        /// <summary>
+        /// Specifies a possible block of code for the Choose element to select.
+        /// </summary>
+        [Name("When")]
+        [Child(typeof(Choose), 0, -1)]
+        [Child(typeof(PropertyGroup), 0, -1)]
+        [Child(typeof(ItemGroup), 0, -1)]
+        public class When : BaseElement<Choose>, IChooseOwner, IPropertyGroupOwner, IItemGroupOwner
         {
-
+            [Attr("Condition", true)]
+            public string Condition { get; set; }
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace TheraEngine.Core.Files
+namespace TheraEngine.Core.Files.XML
 {
     public delegate IElement DelParseElementXML(
         IElement entry,
@@ -25,7 +25,7 @@ namespace TheraEngine.Core.Files
         string parentTree,
         int elementIndex);
     public interface IVersion { string Version { get; set; } }
-    public class BaseXMLSchemeReader
+    public class BaseXMLSchemeDefinition
     {
         //public static Type[] FindPublicTypes(Predicate<Type> match)
         //{
@@ -42,18 +42,18 @@ namespace TheraEngine.Core.Files
             static ChildInfo()
             {
                 Type elemType = typeof(IElement);
-                ElementTypes = Engine.FindTypes((Type t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<Name>() != null, true).ToArray();
+                ElementTypes = Engine.FindTypes((Type t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<ElementName>() != null, true).ToArray();
             }
-            public ChildInfo(Child data)
+            public ChildInfo(ElementChild data)
             {
                 Data = data;
                 Occurrences = 0;
                 Types = ElementTypes.Where((Type t) => Data.ChildEntryType.IsAssignableFrom(t)).ToArray();
-                ElementNames = new Name[Types.Length];
+                ElementNames = new ElementName[Types.Length];
                 for (int i = 0; i < Types.Length; ++i)
                 {
                     Type t = Types[i];
-                    Name nameAttrib = t.GetCustomAttribute<Name>();
+                    ElementName nameAttrib = t.GetCustomAttribute<ElementName>();
                     ElementNames[i] = nameAttrib;
                     if (nameAttrib == null)
                         Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no 'Name' attribute");
@@ -61,13 +61,13 @@ namespace TheraEngine.Core.Files
             }
 
             public Type[] Types { get; private set; }
-            public Name[] ElementNames { get; private set; }
-            public Child Data { get; private set; }
+            public ElementName[] ElementNames { get; private set; }
+            public ElementChild Data { get; private set; }
             public int Occurrences { get; set; }
 
             public override string ToString()
             {
-                return string.Join(" ", ElementNames.Select(x => x.ElementName)) + " " + Occurrences;
+                return string.Join(" ", ElementNames.Select(x => x.Name)) + " " + Occurrences;
             }
         }
         public class MultiChildInfo
@@ -78,21 +78,21 @@ namespace TheraEngine.Core.Files
                 Occurrences = new int[Data.Types.Length];
                 for (int i = 0; i < Occurrences.Length; ++i)
                     Occurrences[i] = 0;
-                ElementNames = Data.Types.Select(x => x.GetCustomAttribute<Name>()).ToArray();
+                ElementNames = Data.Types.Select(x => x.GetCustomAttribute<ElementName>()).ToArray();
             }
             public MultiChild Data { get; private set; }
             public int[] Occurrences { get; private set; }
-            public Name[] ElementNames { get; private set; }
+            public ElementName[] ElementNames { get; private set; }
 
             public override string ToString()
             {
-                return string.Join(" ", ElementNames.Select(x => x.ElementName)) + " " + string.Join(" ", Occurrences);
+                return string.Join(" ", ElementNames.Select(x => x.Name)) + " " + string.Join(" ", Occurrences);
             }
         }
     }
-    public class XMLSchemeReader<T> : BaseXMLSchemeReader where T : class, IElement
+    public class XMLSchemeDefinition<T> : BaseXMLSchemeDefinition where T : class, IElement
     {
-        public XMLSchemeReader() { }
+        public XMLSchemeDefinition() { }
         public async Task<T> ImportAsync(string path, ulong ignoreFlags)
         {
             XmlReaderSettings settings = new XmlReaderSettings()
@@ -118,8 +118,8 @@ namespace TheraEngine.Core.Files
         {
             string previousTree = "";
             Type t = typeof(T);
-            Name name = t.GetCustomAttribute<Name>();
-            if (name == null || string.IsNullOrEmpty(name.ElementName))
+            ElementName name = t.GetCustomAttribute<ElementName>();
+            if (name == null || string.IsNullOrEmpty(name.Name))
             {
                 Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
                 return null;
@@ -127,7 +127,7 @@ namespace TheraEngine.Core.Files
 
             bool found;
             while (!(found = await reader.MoveToContentAsync() == XmlNodeType.Element && 
-                string.Equals(name.ElementName, reader.Name, StringComparison.InvariantCulture))) ;
+                string.Equals(name.Name, reader.Name, StringComparison.InvariantCulture))) ;
 
             if (found)
             {
@@ -243,7 +243,7 @@ namespace TheraEngine.Core.Files
                     int childIndex = 0;
 
                     ChildInfo[] childElements = entry.WantsManualRead ? null :
-                        elementType.GetCustomAttributesExt<Child>().Select(x => new ChildInfo(x)).ToArray();
+                        elementType.GetCustomAttributesExt<ElementChild>().Select(x => new ChildInfo(x)).ToArray();
 
                     MultiChildInfo[] multiChildElements = entry.WantsManualRead ? null : 
                         elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
@@ -274,7 +274,7 @@ namespace TheraEngine.Core.Files
                         }
                         else
                         {
-                            bool isUnsupported = elementType.GetCustomAttributesExt<Unsupported>().
+                            bool isUnsupported = elementType.GetCustomAttributesExt<UnsupportedElementChild>().
                                 Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
 
                             if (isUnsupported)
@@ -294,7 +294,7 @@ namespace TheraEngine.Core.Files
                                     //If no exact name matches, find a null name child element.
                                     //This means the class is for an element with ANY name.
                                     if (typeIndex < 0)
-                                        typeIndex = Array.FindIndex(child.ElementNames, name => name.ElementName == null && name.VersionMatches(version));
+                                        typeIndex = Array.FindIndex(child.ElementNames, name => name.Name == null && name.VersionMatches(version));
 
                                     if (typeIndex >= 0)
                                     {
@@ -313,7 +313,7 @@ namespace TheraEngine.Core.Files
                                     {
                                         for (i = 0; i < c.Data.Types.Length; ++i)
                                         {
-                                            Name name = c.ElementNames[i];
+                                            ElementName name = c.ElementNames[i];
                                             if (name.Matches(elementName, version))
                                             {
                                                 ++c.Occurrences[i];
@@ -341,14 +341,14 @@ namespace TheraEngine.Core.Files
 
                     if (!entry.WantsManualRead)
                     {
-                        Name[] underCounted = childElements.
+                        ElementName[] underCounted = childElements.
                             Where(x => x.Occurrences < x.Data.MinCount).
                             SelectMany(x => x.ElementNames).
                             Where(x => x.VersionMatches(version)).ToArray();
 
                         if (underCounted.Length > 0)
-                            foreach (Name c in underCounted)
-                                Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.ElementName);
+                            foreach (ElementName c in underCounted)
+                                Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.Name);
                     }
 
                     if (reader.Name == parentElementName)
@@ -375,14 +375,14 @@ namespace TheraEngine.Core.Files
 
     #region Attributes
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class Name : Attribute
+    public class ElementName : Attribute
     {
-        public string ElementName { get; private set; }
+        public string Name { get; private set; }
         public string Version { get; private set; }
         public bool CaseSensitive { get; set; }
-        public Name(string elementName, string version = "1.*.*")
+        public ElementName(string elementName, string version = "1.*.*")
         {
-            ElementName = elementName;
+            Name = elementName;
             Version = version;
         }
         public bool VersionMatches(string version)
@@ -402,7 +402,7 @@ namespace TheraEngine.Core.Files
 
         public bool Matches(string elementName, string version)
         {
-            bool nameMatch = string.Equals(ElementName, elementName, 
+            bool nameMatch = string.Equals(Name, elementName, 
                 CaseSensitive ? 
                 StringComparison.InvariantCulture : 
                 StringComparison.InvariantCultureIgnoreCase);
@@ -410,6 +410,9 @@ namespace TheraEngine.Core.Files
             return nameMatch && versionMatch;
         }
     }
+    /// <summary>
+    /// Defines a property as representing an XML attribute.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public class Attr : Attribute
     {
@@ -421,29 +424,35 @@ namespace TheraEngine.Core.Files
             Required = required;
         }
     }
+    /// <summary>
+    /// Declares a child element this element class may contain.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public class Child : Attribute
+    public class ElementChild : Attribute
     {
         public Type ChildEntryType { get; private set; }
         public int MinCount { get; private set; }
         public int MaxCount { get; private set; }
-        public Child(Type childEntryType, int requiredCount)
+        public ElementChild(Type childEntryType, int requiredCount)
         {
             ChildEntryType = childEntryType;
             MaxCount = MinCount = requiredCount;
         }
-        public Child(Type childEntryType, int minCount, int maxCount)
+        public ElementChild(Type childEntryType, int minCount, int maxCount)
         {
             ChildEntryType = childEntryType;
             MinCount = minCount;
             MaxCount = maxCount;
         }
     }
+    /// <summary>
+    /// Declares a child element this element class may contain but the scheme definition does not support yet.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public class Unsupported : Attribute
+    public class UnsupportedElementChild : Attribute
     {
         public string ElementName { get; private set; }
-        public Unsupported(string elementName)
+        public UnsupportedElementChild(string elementName)
         {
             ElementName = elementName;
         }
@@ -547,7 +556,7 @@ namespace TheraEngine.Core.Files
             get => _elementName;
             set
             {
-                if (Attribute.GetCustomAttribute(GetType(), typeof(Name)) is Name name && name.ElementName == null)
+                if (Attribute.GetCustomAttribute(GetType(), typeof(ElementName)) is ElementName name && name.Name == null)
                     _elementName = value;
             }
         }

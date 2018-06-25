@@ -244,9 +244,6 @@
     <Reference Include="Microsoft.Scripting.Metadata, Version=1.2.0.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\DynamicLanguageRuntime.1.2.1\lib\net45\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualStudio.CodeCoverage.Shim, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicLanguageRuntime.1.2.1\lib\net45\Microsoft.VisualStudio.CodeCoverage.Shim.dll</HintPath>
-    </Reference>
     <Reference Include="MoonSharp.Interpreter, Version=2.0.0.0, Culture=neutral, PublicKeyToken=921e73ce94aa17f8, processorArchitecture=MSIL">
       <HintPath>..\packages\MoonSharp.2.0.0.0\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
@@ -562,7 +559,7 @@
     <Compile Include="Core\Tools\DelegateBuilder.cs" />
     <Compile Include="Core\Tools\GLSLParser.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
-    <Compile Include="Core\Files\Serialization\XML\XMLSchemeReader.cs" />
+    <Compile Include="Core\Files\Serialization\XML\XMLSchemeDefinition.cs" />
     <Compile Include="Core\Controls\WorldRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -947,6 +944,7 @@
     <Compile Include="Core\Maths\TMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThirdParty\openvr_api.cs" />
+    <Compile Include="ThirdParty\VisualStudioSolution.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapSettings.cs" />
     <Compile Include="Worlds\Maps\MapState.cs" />

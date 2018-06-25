@@ -1,49 +1,46 @@
 ﻿using System.ComponentModel;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.XML;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Execution;
+using System.Collections.Generic;
 
 namespace TheraEngine.Rendering.Models
 {
     public class MSBuild
     {
-        public interface IProject : IElement, IChooseOwner, IImportOwner, IItemGroupOwner, IProjectExtensionsOwner, IUsingTaskOwner, IPropertyGroupOwner
+        private bool Build(string solution, Dictionary<string, string> buildProperties)
         {
+            BuildParameters buildParam = new BuildParameters();
+            BuildRequestData buildRequest = new BuildRequestData(solution, buildProperties, null, new string[] { "Build" }, null);
+            BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParam, buildRequest);
+            if (buildResult.OverallResult == BuildResultCode.Success)
+                return true;
 
+            return false;
         }
-        public interface IChooseOwner : IElement
-        {
 
-        }
-        public interface IImportOwner : IElement
-        {
+        public interface IChooseOwner : IElement { }
+        public interface IImportOwner : IElement { }
+        public interface IItemGroupOwner : IElement { }
+        public interface IProjectExtensionsOwner : IElement { }
+        public interface IUsingTaskOwner : IElement { }
+        public interface IPropertyGroupOwner : IElement { }
+        public interface IProject : IElement, IChooseOwner, IImportOwner, IItemGroupOwner, IProjectExtensionsOwner, IUsingTaskOwner, IPropertyGroupOwner { }
 
-        }
-        public interface IItemGroupOwner : IElement
-        {
-
-        }
-        public interface IProjectExtensionsOwner : IElement
-        {
-
-        }
-        public interface IUsingTaskOwner : IElement
-        {
-
-        }
-        public interface IPropertyGroupOwner : IElement
-        {
-
-        }
         /// <summary>
         /// Required root element of an MSBuild project file.
         /// </summary>
-        [Name("Project")]
-        [Child(typeof(Choose), 0, -1)]
-        [Child(typeof(Import), 0, -1)]
-        [Child(typeof(ItemGroup), 0, -1)]
-        [Child(typeof(ProjectExtensions), 0, 1)]
-        [Child(typeof(PropertyGroup), 0, -1)]
-        [Child(typeof(Target), 0, -1)]
-        [Child(typeof(UsingTask), 0, -1)]
+        [ElementName("Project")]
+        [ElementChild(typeof(Choose), 0, 1)]
+        [ElementChild(typeof(Import), 0, -1)]
+        [ElementChild(typeof(ItemDefinitionGroup), 0, -1)]
+        [ElementChild(typeof(ItemGroup), 0, -1)]
+        [ElementChild(typeof(ProjectExtensions), 0, 1)]
+        [ElementChild(typeof(PropertyGroup), 0, -1)]
+        [ElementChild(typeof(Sdk), 0, 1)]
+        [ElementChild(typeof(Target), 0, -1)]
+        [ElementChild(typeof(UsingTask), 0, -1)]
         public class Project : BaseElement<IElement>, IProject
         {
             public Choose[] ChooseElements => GetChildren<Choose>();
@@ -54,26 +51,69 @@ namespace TheraEngine.Rendering.Models
             public Target[] TargetElements => GetChildren<Target>();
             public UsingTask[] UsingTaskElements => GetChildren<UsingTask>();
 
+            /// <summary>
+            /// Optional attribute.
+            /// The default target or targets to be the entry point of the build if no target has been specified. 
+            /// Multiple targets are semi-colon(;) delimited.
+            /// If no default target is specified in either the DefaultTargets attribute or the MSBuild command line, the engine executes the first target in the project file after the Import elements have been evaluated.
+            /// </summary>
             [Attr("DefaultTargets", false)]
             public string DefaultTargets { get; set; }
+            /// <summary>
+            /// Optional attribute.
+            /// The initial target or targets to be run before the targets specified in the DefaultTargets attribute or on the command line.
+            /// Multiple targets are semi-colon (;) delimited.
+            /// </summary>
             [Attr("InitialTargets", false)]
             public string InitialTargets { get; set; }
+            /// <summary>
+            /// Optional attribute. 
+            /// The SDK name and optional version to use to create implicit Import statements that are added to the .proj file.
+            /// If no version is specified, MSBuild will attempt to resolve a default version.
+            /// For example, &lt;Project Sdk = "Microsoft.NET.Sdk" /&gt; or &lt;Project Sdk= "My.Custom.Sdk/1.0.0" /&gt;.
+            /// </summary>
+            [Attr("Sdk", false)]
+            public string Sdk { get; set; }
+            /// <summary>
+            /// Optional attribute.
+            /// The version of the toolset MSBuild uses to determine the values for $(MSBuildBinPath) and $(MSBuildToolsPath).
+            /// </summary>
             [Attr("ToolsVersion", false)]
             public string ToolsVersion { get; set; }
+            /// <summary>
+            /// Optional attribute.
+            /// <para>
+            /// Property names that won't be considered to be global.
+            /// This attribute prevents specific command-line properties from overriding property values that are set in a project or targets file and all subsequent imports. 
+            /// Multiple properties are semi-colon (;) delimited.
+            /// </para><para>
+            /// Normally, global properties override property values that are set in the project or targets file.
+            /// If the property is listed in the TreatAsLocalProperty value, the global property value doesn't override property values that are set in that file and any subsequent imports. 
+            /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/how-to-build-the-same-source-files-with-different-options.
+            /// </para><para>
+            /// Note: You set global properties at a command prompt by using the /property (or /p) switch. 
+            /// You can also set or modify global properties for child projects in a multi-project build by using the Properties attribute of the MSBuild task. 
+            /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-task.
+            /// </para>
+            /// </summary>
             [Attr("TreatAsLocalProperty", false)]
             public string TreatAsLocalProperty { get; set; }
-            [Attr("xmlns", true)]
+            /// <summary>
+            /// Optional attribute.
+            /// When specified, the xmlns attribute must have the value of "http://schemas.microsoft.com/developer/msbuild/2003".
+            /// </summary>
+            [Attr("xmlns", false)]
             [DefaultValue("http://schemas.microsoft.com/developer/msbuild/2003")]
             public string Schema { get; set; }
 
             /// <summary>
             /// Contains a set of tasks for MSBuild to sequentially execute. Tasks are specified by using the Task element. There may be zero or more Target elements in a project.
             /// </summary>
-            [Child(typeof(Task), 0, -1)]
-            [Child(typeof(PropertyGroup), 0, -1)]
-            [Child(typeof(ItemGroup), 0, -1)]
-            [Child(typeof(OnError), 0, -1)] //Must be written last!
-            [Name("Target")]
+            [ElementChild(typeof(Task), 0, -1)]
+            [ElementChild(typeof(PropertyGroup), 0, -1)]
+            [ElementChild(typeof(ItemGroup), 0, -1)]
+            [ElementChild(typeof(OnError), 0, -1)] //Must be written last!
+            [ElementName("Target")]
             public class Target : BaseElement<Project>, IItemGroupOwner
             {
                 [Attr("Name", true)]
@@ -97,7 +137,7 @@ namespace TheraEngine.Rendering.Models
                 [Attr("Label", false)]
                 public string Label { get; set; }
 
-                [Name("OnError")]
+                [ElementName("OnError")]
                 public class OnError : BaseElement<Target>
                 {
                     [Attr("Condition", false)]
@@ -106,8 +146,8 @@ namespace TheraEngine.Rendering.Models
                     public string ExecuteTargets { get; set; }
                 }
 
-                [Child(typeof(Output), 0, -1)]
-                [Name(null)]
+                [ElementChild(typeof(Output), 0, -1)]
+                [ElementName(null)]
                 public class Task : BaseElement<Target>
                 {
                     [Attr("Condition", false)]
@@ -130,7 +170,7 @@ namespace TheraEngine.Rendering.Models
                     [Attr("Parameter", false)]
                     public string Parameter { get; set; }
                     
-                    [Name("Output")]
+                    [ElementName("Output")]
                     public class Output : BaseElement<Task>
                     {
                         [Attr("TaskParameter", false)]
@@ -152,10 +192,27 @@ namespace TheraEngine.Rendering.Models
             }
         }
         /// <summary>
+        /// References an MSBuild project SDK. This element can be used as an alternative to the Sdk attribute.
+        /// </summary>
+        [ElementName("Sdk")]
+        public class Sdk : BaseElement<Project>
+        {
+            /// <summary>
+            /// Required attribute. The name of the project SDK.
+            /// </summary>
+            [Attr("Name", true)]
+            public string Name { get; set; }
+            /// <summary>
+            /// Optional attribute. The version of the project SDK.
+            /// </summary>
+            [Attr("Version", false)]
+            public string Version { get; set; }
+        }
+        /// <summary>
         /// A grouping element for individual properties. Properties are specified by using the Property element. There may be zero or more PropertyGroup elements in a project.
         /// </summary>
-        [Child(typeof(Property), 0, -1)]
-        [Name("PropertyGroup")]
+        [ElementChild(typeof(Property), 0, -1)]
+        [ElementName("PropertyGroup")]
         public class PropertyGroup : BaseElement<IPropertyGroupOwner>
         {
             [Attr("Condition", false)]
@@ -164,7 +221,7 @@ namespace TheraEngine.Rendering.Models
             /// <summary>
             /// A user defined property name, which contains the property value. There may be zero or more Property elements in a PropertyGroup element.
             /// </summary>
-            [Name(null)]
+            [ElementName(null)]
             public class Property : BaseStringElement<PropertyGroup, ElementString>
             {
                 [Attr("Condition", false)]
@@ -174,7 +231,7 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Provides a way to register tasks in MSBuild. There may be zero or more UsingTask elements in a project.
         /// </summary>
-        [Name("UsingTask")]
+        [ElementName("UsingTask")]
         public class UsingTask : BaseElement<IUsingTaskOwner>
         {
 
@@ -182,7 +239,7 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Provides a way to persist non-MSBuild information in an MSBuild project file. There may be zero or one ProjectExtensions elements in a project.
         /// </summary>
-        [Name("ProjectExtensions")]
+        [ElementName("ProjectExtensions")]
         public class ProjectExtensions : BaseElement<IProjectExtensionsOwner>
         {
 
@@ -190,73 +247,84 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// A grouping element for individual items. Items are specified by using the Item element. There may be zero or more ItemGroup elements in a project.
         /// </summary>
-        [Name("ItemGroup")]
+        [ElementChild(typeof(Item), 0, -1)]
+        [ElementName("ItemGroup")]
         public class ItemGroup : BaseElement<IItemGroupOwner>
         {
             [Attr("Condition", false)]
             public string Condition { get; set; }
+        }
+        /// <summary>
+        /// A grouping element for individual items. Items are specified by using the Item element. There may be zero or more ItemDefinitionGroup elements in a project.
+        /// </summary>
+        [ElementChild(typeof(Item), 0, -1)]
+        [ElementName("ItemGroup")]
+        public class ItemDefinitionGroup : BaseElement<Project>
+        {
+            [Attr("Condition", false)]
+            public string Condition { get; set; }
+        }
+        [ElementChild(typeof(ItemMetadata), 0, -1)]
+        [ElementName(null)]
+        public class Item : BaseElement<ItemGroup>
+        {
+            /// <summary>
+            /// The file or wildcard to include in the list of items.
+            /// </summary>
+            [Attr("Include", true)]
+            public string Include { get; set; }
+            /// <summary>
+            /// The file or wildcard to exclude from the list of items.
+            /// </summary>
+            [Attr("Exclude", false)]
+            public string Exclude { get; set; }
+            /// <summary>
+            /// The condition to be evaluated.
+            /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-conditions.
+            /// </summary>
+            [Attr("Condition", false)]
+            public string Condition { get; set; }
+            /// <summary>
+            /// The file or wildcard to remove from the list of items.
+            /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
+            /// </summary>
+            [Attr("Remove", false)]
+            public string Remove { get; set; }
+            /// <summary>
+            /// The metadata for the source items to add to the target items.
+            /// Only the metadata whose names are specified in the semicolon-delimited list are transferred from a source item to a target item.
+            /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-items.
+            /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
+            /// </summary>
+            [Attr("KeepMetadata", false)]
+            public string KeepMetadata { get; set; }
+            /// <summary>
+            /// Optional attribute.
+            /// The metadata for the source items to not transfer to the target items.
+            /// All metadata is transferred from a source item to a target item except metadata whose names are contained in the semicolon-delimited list of names.
+            /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-items.
+            /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
+            /// </summary>
+            [Attr("RemoveMetadata", false)]
+            public string RemoveMetadata { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
+            [Attr("KeepDuplicates", false)]
+            public string KeepDuplicates { get; set; }
 
-            [Name(null)]
-            public class Item : BaseElement<ItemGroup>
+            [ElementName(null)]
+            public class ItemMetadata : BaseStringElement<Item, ElementString>
             {
-                /// <summary>
-                /// The file or wildcard to include in the list of items.
-                /// </summary>
-                [Attr("Include", true)]
-                public string Include { get; set; }
-                /// <summary>
-                /// The file or wildcard to exclude from the list of items.
-                /// </summary>
-                [Attr("Exclude", false)]
-                public string Exclude { get; set; }
-                /// <summary>
-                /// The condition to be evaluated.
-                /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-conditions.
-                /// </summary>
                 [Attr("Condition", false)]
                 public string Condition { get; set; }
-                /// <summary>
-                /// The file or wildcard to remove from the list of items.
-                /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
-                /// </summary>
-                [Attr("Remove", false)]
-                public string Remove { get; set; }
-                /// <summary>
-                /// The metadata for the source items to add to the target items.
-                /// Only the metadata whose names are specified in the semicolon-delimited list are transferred from a source item to a target item.
-                /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-items.
-                /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
-                /// </summary>
-                [Attr("KeepMetadata", false)]
-                public string KeepMetadata { get; set; }
-                /// <summary>
-                /// Optional attribute.
-                /// The metadata for the source items to not transfer to the target items.
-                /// All metadata is transferred from a source item to a target item except metadata whose names are contained in the semicolon-delimited list of names.
-                /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-items.
-                /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
-                /// </summary>
-                [Attr("RemoveMetadata", false)]
-                public string RemoveMetadata { get; set; }
-                /// <summary>
-                /// 
-                /// </summary>
-                [Attr("KeepDuplicates", false)]
-                public string KeepDuplicates { get; set; }
-
-                [Name(null)]
-                public class ItemMetadata : BaseStringElement<Item, ElementString>
-                {
-                    [Attr("Condition", false)]
-                    public string Condition { get; set; }
-                }
             }
         }
         /// <summary>
         /// A grouping element for individual items. Items are specified by using the Item element. There may be zero or more ItemGroup elements in a project.
         /// </summary>
-        [Name("ImportGroup")]
-        [Child(typeof(Import), 0, -1)]
+        [ElementName("ImportGroup")]
+        [ElementChild(typeof(Import), 0, -1)]
         public class ImportGroup : BaseElement<Project>, IImportOwner
         {
             [Attr("Condition", false)]
@@ -265,36 +333,48 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Enables a project file to import another project file. There may be zero or more Import elements in a project.
         /// </summary>
-        [Name("Import")]
+        [ElementName("Import")]
         public class Import : BaseElement<IImportOwner>
         {
+            /// <summary>
+            /// Required attribute.
+            /// The path of the project file to import.The path can include wildcards.
+            /// The matching files are imported in sorted order.
+            /// By using this feature, you can add code to a project just by adding the code file to a directory.
+            /// </summary>
             [Attr("Project", true)]
             public string Project { get; set; }
+            /// <summary>
+            /// Optional attribute.
+            /// A condition to be evaluated.For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-conditions.
+            /// </summary>
             [Attr("Condition", false)]
             public string Condition { get; set; }
         }
         /// <summary>
         /// Evaluates child elements to select one set of ItemGroup elements and/or PropertyGroup elements to evaluate.
         /// </summary>
-        [Name("Choose")]
-        [Child(typeof(Otherwise), 0, -1)]
-        [Child(typeof(When), 1, -1)]
+        [ElementName("Choose")]
+        [ElementChild(typeof(When), 1, -1)]
+        [ElementChild(typeof(Otherwise), 0, 1)]
         public class Choose : BaseElement<IChooseOwner> { }
         /// <summary>
-        /// Specifies the block of code to execute if the conditions of all When elements evaluate to false.
+        /// Optional element.
+        /// Specifies the block of code PropertyGroup and ItemGroup elements to evaluate if the conditions of all When elements evaluate to false.
+        /// There may be zero or one Otherwise elements in a Choose element, and it must be the last element.
         /// </summary>
-        [Name("Otherwise")]
-        [Child(typeof(Choose), 0, -1)]
-        [Child(typeof(PropertyGroup), 0, -1)]
-        [Child(typeof(ItemGroup), 0, -1)]
+        [ElementName("Otherwise")]
+        [ElementChild(typeof(Choose), 0, -1)]
+        [ElementChild(typeof(PropertyGroup), 0, -1)]
+        [ElementChild(typeof(ItemGroup), 0, -1)]
         public class Otherwise : BaseElement<Choose>, IChooseOwner, IPropertyGroupOwner, IItemGroupOwner { }
         /// <summary>
-        /// Specifies a possible block of code for the Choose element to select.
+        /// Required element. Specifies a possible block of code for the Choose element to select.There may be one or more When elements in a Choose element.
         /// </summary>
-        [Name("When")]
-        [Child(typeof(Choose), 0, -1)]
-        [Child(typeof(PropertyGroup), 0, -1)]
-        [Child(typeof(ItemGroup), 0, -1)]
+        [ElementName("When")]
+        [ElementChild(typeof(Choose), 0, -1)]
+        [ElementChild(typeof(PropertyGroup), 0, -1)]
+        [ElementChild(typeof(ItemGroup), 0, -1)]
         public class When : BaseElement<Choose>, IChooseOwner, IPropertyGroupOwner, IItemGroupOwner
         {
             [Attr("Condition", true)]

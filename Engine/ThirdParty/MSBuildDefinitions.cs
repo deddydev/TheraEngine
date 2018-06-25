@@ -199,18 +199,48 @@ namespace TheraEngine.Rendering.Models
             [Name(null)]
             public class Item : BaseElement<ItemGroup>
             {
+                /// <summary>
+                /// The file or wildcard to include in the list of items.
+                /// </summary>
                 [Attr("Include", true)]
                 public string Include { get; set; }
+                /// <summary>
+                /// The file or wildcard to exclude from the list of items.
+                /// </summary>
                 [Attr("Exclude", false)]
                 public string Exclude { get; set; }
+                /// <summary>
+                /// The condition to be evaluated.
+                /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-conditions.
+                /// </summary>
                 [Attr("Condition", false)]
                 public string Condition { get; set; }
+                /// <summary>
+                /// The file or wildcard to remove from the list of items.
+                /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
+                /// </summary>
                 [Attr("Remove", false)]
                 public string Remove { get; set; }
+                /// <summary>
+                /// The metadata for the source items to add to the target items.
+                /// Only the metadata whose names are specified in the semicolon-delimited list are transferred from a source item to a target item.
+                /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-items.
+                /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
+                /// </summary>
                 [Attr("KeepMetadata", false)]
                 public string KeepMetadata { get; set; }
+                /// <summary>
+                /// Optional attribute.
+                /// The metadata for the source items to not transfer to the target items.
+                /// All metadata is transferred from a source item to a target item except metadata whose names are contained in the semicolon-delimited list of names.
+                /// For more information, see https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-items.
+                /// This attribute is valid only if it's specified for an item in an ItemGroup that's in a Target.
+                /// </summary>
                 [Attr("RemoveMetadata", false)]
                 public string RemoveMetadata { get; set; }
+                /// <summary>
+                /// 
+                /// </summary>
                 [Attr("KeepDuplicates", false)]
                 public string KeepDuplicates { get; set; }
 

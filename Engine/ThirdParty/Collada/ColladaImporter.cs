@@ -224,7 +224,7 @@ namespace TheraEngine.Rendering.Models
                         //Rigged mesh
                         if (child is LibraryControllers.Controller.Skin skin)
                         {
-                            IID element = skin.Source.GetElement(skin.Root);
+                            IID element = skin.Source.GetElement(skin.GenericRoot);
                             if (element is LibraryGeometries.Geometry geometry)
                                 objects.Add(new ObjectInfo(geometry, skin, bindMatrix, controllerRef, parent, node));
                             else if (element is LibraryControllers.Controller.Morph morph)
@@ -368,7 +368,7 @@ namespace TheraEngine.Rendering.Models
                     BindMaterialElement?.
                     TechniqueCommonElement?.
                     InstanceMaterialElements?[0].
-                    Target.GetElement(scene.Root)
+                    Target.GetElement(scene.GenericRoot)
                     is LibraryMaterials.Material mat)
                     m = CreateMaterial(mat);
 
@@ -421,7 +421,7 @@ namespace TheraEngine.Rendering.Models
                     BindMaterialElement?.
                     TechniqueCommonElement?.
                     InstanceMaterialElements?[0].
-                    Target.GetElement(scene.Root)
+                    Target.GetElement(scene.GenericRoot)
                     is LibraryMaterials.Material mat)
                     m = CreateMaterial(mat);
 
@@ -447,7 +447,7 @@ namespace TheraEngine.Rendering.Models
             TMaterial m = null;
             if (colladaMaterial.InstanceEffectElement != null)
             {
-                var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<LibraryEffects.Effect>(colladaMaterial.Root);
+                var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<LibraryEffects.Effect>(colladaMaterial.GenericRoot);
                 //var profiles = eff.ProfileElements;
                 var profileCommon = eff.GetChild<LibraryEffects.Effect.ProfileCommon>();
                 if (profileCommon != null)
@@ -459,7 +459,7 @@ namespace TheraEngine.Rendering.Models
                         var tex = ct.TextureElement;
                         if (tex != null)
                         {
-                            var image = tex.Root.GetIDEntry(tex.TextureID);
+                            var image = tex.GenericRoot.GetIDEntry(tex.TextureID);
                             if (image == null)
                                 continue;
                             TexRef2D texRef = new TexRef2D();
@@ -536,8 +536,8 @@ namespace TheraEngine.Rendering.Models
 
             foreach (var channel in animElem.ChannelElements)
             {
-                var sampler = channel.Source.GetElement<Sampler>(animElem.Root);
-                ISID target = channel.Target.GetElement(animElem.Root, out string selector);
+                var sampler = channel.Source.GetElement<Sampler>(animElem.GenericRoot);
+                ISID target = channel.Target.GetElement(animElem.GenericRoot, out string selector);
                 if (!(target is IStringElement))
                     continue;
 
@@ -545,7 +545,7 @@ namespace TheraEngine.Rendering.Models
                 string[] interpTypeData = null;
                 foreach (var input in sampler.InputElements)
                 {
-                    Source source = input.Source.GetElement<Source>(sampler.Root);
+                    Source source = input.Source.GetElement<Source>(sampler.GenericRoot);
                     switch (input.CommonSemanticType)
                     {
                         case ESemantic.INPUT:

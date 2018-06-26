@@ -21,10 +21,10 @@ namespace TheraEngine.Rendering.Models
             ModelImportOptions o = new ModelImportOptions()
             {
                 IgnoreFlags =
-                EIgnoreFlags.Extra |
-                EIgnoreFlags.Controllers |
-                EIgnoreFlags.Cameras |
-                EIgnoreFlags.Lights
+                Collada.EIgnoreFlags.Extra |
+                Collada.EIgnoreFlags.Controllers |
+                Collada.EIgnoreFlags.Cameras |
+                Collada.EIgnoreFlags.Lights
             };
             return (await Collada.ImportAsync(path, o))?.Models[0].StaticModel;
         }

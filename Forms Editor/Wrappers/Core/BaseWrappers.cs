@@ -86,7 +86,11 @@ namespace TheraEditor.Wrappers
         /// <summary>
         /// The path of this node.
         /// </summary>
-        public virtual string FilePath { get => Name; set => Name = value; }
+        public virtual string FilePath
+        {
+            get => Name;
+            set => Name = value;
+        }
         public bool IsPopulated => _isPopulated;
 
         public BaseWrapper(ContextMenuStrip menu)

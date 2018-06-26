@@ -209,6 +209,7 @@
       <DependentUpon>SelectCurvesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ThirdParty\Graphing\Utils.cs" />
+    <Compile Include="ThirdParty\MSBuildDefinitions.cs" />
     <Compile Include="ThirdParty\Text Editor\AutoCompleteForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -219,6 +220,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Github.cs" />
+    <Compile Include="ThirdParty\VisualStudioSolution.cs" />
     <Compile Include="Windows\Forms\Borderless Form\TheraForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -233,6 +235,12 @@
     </Compile>
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableAnalytics.Designer.cs">
       <DependentUpon>DockableAnalytics.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableMSBuildTree.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableMSBuildTree.Designer.cs">
+      <DependentUpon>DockableMSBuildTree.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.cs">
       <SubType>Form</SubType>
@@ -784,6 +792,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableAnalytics.resx">
       <DependentUpon>DockableAnalytics.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableMSBuildTree.resx">
+      <DependentUpon>DockableMSBuildTree.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.resx">
       <DependentUpon>DockableMatProps.cs</DependentUpon>

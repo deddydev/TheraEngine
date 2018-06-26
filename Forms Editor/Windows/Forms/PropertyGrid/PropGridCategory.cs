@@ -8,7 +8,7 @@ using TheraEngine;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public partial class PropGridCategory : UserControl
+    public partial class PropGridCategory : UserControl, ICollapsible
     {
         public PropGridCategory()
         {
@@ -21,6 +21,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 tblProps.Visible = true;
         }
+
+        public void Expand() => tblProps.Visible = true;
+        public void Collapse() => tblProps.Visible = false;
+        public void Toggle() => tblProps.Visible = !tblProps.Visible;
+        public ControlCollection ChildControls => tblProps.Controls;
 
         public string CategoryName
         {
@@ -36,7 +41,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     tblProps.Visible = true;
             }
         }
-
+        
         public void DestroyProperties()
         {
             foreach (Control control in tblProps.Controls)

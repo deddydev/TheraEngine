@@ -59,6 +59,7 @@ namespace TheraEditor
         public class PropertyGridSettings : TSettings
         {
             private List<string> _collapsedCategories = new List<string>();
+            private List<string> _expandedCategories = new List<string>();
 
             [TSerialize]
             public bool SplitCamelCase { get; set; }
@@ -71,6 +72,12 @@ namespace TheraEditor
             {
                 get => _collapsedCategories;
                 set => _collapsedCategories = value ?? new List<string>();
+            }
+            [TSerialize]
+            public List<string> ExpandedCategories
+            {
+                get => _expandedCategories;
+                set => _expandedCategories = value ?? new List<string>();
             }
 
             public PropertyGridSettings()

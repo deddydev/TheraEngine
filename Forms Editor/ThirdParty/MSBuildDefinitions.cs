@@ -1,32 +1,18 @@
 ﻿using System.ComponentModel;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.XML;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Execution;
-using System.Collections.Generic;
 
 namespace TheraEngine.Rendering.Models
 {
     public class MSBuild
     {
-        private bool Build(string solution, Dictionary<string, string> buildProperties)
-        {
-            BuildParameters buildParam = new BuildParameters();
-            BuildRequestData buildRequest = new BuildRequestData(solution, buildProperties, null, new string[] { "Build" }, null);
-            BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParam, buildRequest);
-            if (buildResult.OverallResult == BuildResultCode.Success)
-                return true;
-
-            return false;
-        }
-
+        public interface IItemOwner : IElement { }
         public interface IChooseOwner : IElement { }
         public interface IImportOwner : IElement { }
         public interface IItemGroupOwner : IElement { }
         public interface IProjectExtensionsOwner : IElement { }
         public interface IUsingTaskOwner : IElement { }
         public interface IPropertyGroupOwner : IElement { }
-        public interface IProject : IElement, IChooseOwner, IImportOwner, IItemGroupOwner, IProjectExtensionsOwner, IUsingTaskOwner, IPropertyGroupOwner { }
+        public interface IProject : IElement, IChooseOwner, IImportOwner, IItemGroupOwner, IProjectExtensionsOwner, IUsingTaskOwner, IPropertyGroupOwner, IRoot { }
 
         /// <summary>
         /// Required root element of an MSBuild project file.
@@ -43,12 +29,23 @@ namespace TheraEngine.Rendering.Models
         [ElementChild(typeof(UsingTask), 0, -1)]
         public class Project : BaseElement<IElement>, IProject
         {
-            public Choose[] ChooseElements => GetChildren<Choose>();
+            [Browsable(false)]
+            public Choose ChooseElement => GetChild<Choose>();
+            [Browsable(false)]
             public Import[] ImportElements => GetChildren<Import>();
+            [Browsable(false)]
+            public ItemDefinitionGroup[] ItemDefinitionGroupElements => GetChildren<ItemDefinitionGroup>();
+            [Browsable(false)]
             public ItemGroup[] ItemGroupElements => GetChildren<ItemGroup>();
-            public ProjectExtensions[] ProjectExtensionsElements => GetChildren<ProjectExtensions>();
+            [Browsable(false)]
+            public ProjectExtensions ProjectExtensionsElement => GetChild<ProjectExtensions>();
+            [Browsable(false)]
             public PropertyGroup[] PropertyGroupElements => GetChildren<PropertyGroup>();
+            [Browsable(false)]
+            public Sdk SdkElement => GetChild<Sdk>();
+            [Browsable(false)]
             public Target[] TargetElements => GetChildren<Target>();
+            [Browsable(false)]
             public UsingTask[] UsingTaskElements => GetChildren<UsingTask>();
 
             /// <summary>
@@ -116,6 +113,15 @@ namespace TheraEngine.Rendering.Models
             [ElementName("Target")]
             public class Target : BaseElement<Project>, IItemGroupOwner
             {
+                [Browsable(false)]
+                public Task[] TaskElements => GetChildren<Task>();
+                [Browsable(false)]
+                public PropertyGroup[] PropertyGroupElements => GetChildren<PropertyGroup>();
+                [Browsable(false)]
+                public ItemGroup[] ItemGroupElements => GetChildren<ItemGroup>();
+                [Browsable(false)]
+                public OnError[] OnErrorElements => GetChildren<OnError>();
+
                 [Attr("Name", true)]
                 public string Name { get; set; }
                 [Attr("Condition", false)]
@@ -249,7 +255,7 @@ namespace TheraEngine.Rendering.Models
         /// </summary>
         [ElementChild(typeof(Item), 0, -1)]
         [ElementName("ItemGroup")]
-        public class ItemGroup : BaseElement<IItemGroupOwner>
+        public class ItemGroup : BaseElement<IItemGroupOwner>, IItemOwner
         {
             [Attr("Condition", false)]
             public string Condition { get; set; }
@@ -258,15 +264,15 @@ namespace TheraEngine.Rendering.Models
         /// A grouping element for individual items. Items are specified by using the Item element. There may be zero or more ItemDefinitionGroup elements in a project.
         /// </summary>
         [ElementChild(typeof(Item), 0, -1)]
-        [ElementName("ItemGroup")]
-        public class ItemDefinitionGroup : BaseElement<Project>
+        [ElementName("ItemDefinitionGroup")]
+        public class ItemDefinitionGroup : BaseElement<Project>, IItemOwner
         {
             [Attr("Condition", false)]
             public string Condition { get; set; }
         }
         [ElementChild(typeof(ItemMetadata), 0, -1)]
         [ElementName(null)]
-        public class Item : BaseElement<ItemGroup>
+        public class Item : BaseElement<IItemOwner>
         {
             /// <summary>
             /// The file or wildcard to include in the list of items.

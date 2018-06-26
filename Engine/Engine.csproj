@@ -493,7 +493,6 @@
     <Compile Include="ThirdParty\7zip\Compress\RangeCoder\RangeCoderBit.cs" />
     <Compile Include="ThirdParty\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
     <Compile Include="ThirdParty\7zip\ICoder.cs" />
-    <Compile Include="ThirdParty\MSBuildDefinitions.cs" />
     <Compile Include="ThirdParty\FastNoise.cs" />
     <Compile Include="ThirdParty\OBJ\Data\DataStore\DataStore.cs" />
     <Compile Include="ThirdParty\OBJ\Data\DataStore\IDataStore.cs" />
@@ -944,7 +943,6 @@
     <Compile Include="Core\Maths\TMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThirdParty\openvr_api.cs" />
-    <Compile Include="ThirdParty\VisualStudioSolution.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapSettings.cs" />
     <Compile Include="Worlds\Maps\MapState.cs" />

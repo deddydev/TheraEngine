@@ -60,7 +60,7 @@ namespace TheraEngine.Actors
         {
             ModelImportOptions o = new ModelImportOptions()
             {
-                IgnoreFlags = Core.Files.EIgnoreFlags.Extra
+                IgnoreFlags = Collada.EIgnoreFlags.Extra
             };
             Collada.Data data = await Collada.ImportAsync(path, o);
             if (data != null)

@@ -26,23 +26,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             ctxSceneComps.RenderMode = ToolStripRenderMode.Professional;
             ctxSceneComps.Renderer = new TheraForm.TheraToolstripRenderer();
         }
-        
-        //internal static GameTimer UpdateTimer = new GameTimer();
-        protected override void OnHandleCreated(EventArgs e)
+
+        private class PropertyData
         {
-            if (!Engine.DesignMode)
-            {
-                PropGridItem.BeginUpdatingVisibleItems(Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
-            }
-            base.OnHandleCreated(e);
+            public Deque<Type> ControlTypes { get; set; }
+            public PropertyInfo Property { get; set; }
+            public object[] Attribs { get; set; }
+            public bool ReadOnly { get; set; }
         }
-        protected override void OnHandleDestroyed(EventArgs e)
+        private class MethodData
         {
-            if (!Engine.DesignMode)
-            {
-                PropGridItem.StopUpdatingVisibleItems();
-            }
-            base.OnHandleDestroyed(e);
+            public MethodInfo Method { get; set; }
+            public object[] Attribs { get; set; }
+            public string DisplayName { get; set; }
         }
 
         private const string MiscName = "Miscellaneous";
@@ -172,21 +168,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private class PropertyData
+        //internal static GameTimer UpdateTimer = new GameTimer();
+        protected override void OnHandleCreated(EventArgs e)
         {
-            public Deque<Type> ControlTypes { get; set; }
-            public PropertyInfo Property { get; set; }
-            public object[] Attribs { get; set; }
-            public bool ReadOnly { get; set; }
-        }
-        private class MethodData
-        {
-            public MethodInfo Method { get; set; }
-            public object[] Attribs { get; set; }
-            public string DisplayName { get; set; }
+            if (!Engine.DesignMode)
+            {
+                PropGridItem.BeginUpdatingVisibleItems(Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
+            }
+            base.OnHandleCreated(e);
         }
 
-        private void LoadProperties(object obj)
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            if (!Engine.DesignMode)
+            {
+                PropGridItem.StopUpdatingVisibleItems();
+            }
+            base.OnHandleDestroyed(e);
+        }
+
+        private async void LoadProperties(object obj)
         {
             if (Disposing || IsDisposed)
                 return;
@@ -208,7 +209,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             MethodInfo[] methods = null;
             ConcurrentDictionary<int, PropertyData> propInfo = new ConcurrentDictionary<int, PropertyData>();
             ConcurrentDictionary<int, MethodData> methodInfo = new ConcurrentDictionary<int, MethodData>();
-            Task.Run(() =>
+
+            await Task.Run(() =>
             {
                 Type targetObjectType = obj.GetType();
                 props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -245,56 +247,77 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                     propInfo.TryAdd(i, p);
                 });
-                Parallel.For(0, methods.Length, i =>
-                {
-                    MethodInfo method = methods[i];
-                    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
-                    {
-                        object[] attribs = method.GetCustomAttributes(true);
-                        MethodData m = new MethodData()
-                        {
-                            Method = method,
-                            Attribs = attribs,
-                            DisplayName = (attribs.FirstOrDefault(x => x is GridCallable) as GridCallable)?.DisplayName ?? method.Name,
-                        };
+                //Parallel.For(0, methods.Length, i =>
+                //{
+                //    MethodInfo method = methods[i];
+                //    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
+                //    {
+                //        object[] attribs = method.GetCustomAttributes(true);
+                //        MethodData m = new MethodData()
+                //        {
+                //            Method = method,
+                //            Attribs = attribs,
+                //            DisplayName = (attribs.FirstOrDefault(x => x is GridCallable) as GridCallable)?.DisplayName ?? method.Name,
+                //        };
 
-                        methodInfo.TryAdd(i, m);
-                    }
-                });
-            }).ContinueWith(t =>
-            {
-                if (!Disposing && !IsDisposed && IsHandleCreated)
-                {
-                    Invoke((Action)(() =>
-                    {
-                        DateTime startTime = DateTime.Now;
-                        for (int i = 0; i < props.Length; ++i)
-                        {
-                            if (!propInfo.ContainsKey(i))
-                                continue;
-                            PropertyData p = propInfo[i];
-                            CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
-                        }
-                        TimeSpan elapsed = DateTime.Now - startTime;
-                        Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
-
-                        for (int i = 0; i < methods.Length; ++i)
-                        {
-                            if (!methodInfo.ContainsKey(i))
-                                continue;
-                            MethodData m = methodInfo[i];
-                            CreateMethodControl(m.Method, m.DisplayName, m.Attribs, pnlProps, _categories, obj);
-                        }
-
-                        bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
-                        if (ignoreLoneSubCats && _categories.Count == 1)
-                            _categories.Values.ToArray()[0].CategoryName = null;
-                        
-                        Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
-                        //pnlProps.ResumeLayout(true);
-                    }));
-                }
+                //        methodInfo.TryAdd(i, m);
+                //    }
+                //});
             });
+
+            if (!Disposing && !IsDisposed && IsHandleCreated)
+            {
+                pnlProps.SuspendLayout();
+
+                //DateTime startTime = DateTime.Now;
+                for (int i = 0; i < props.Length; ++i)
+                {
+                    if (!propInfo.ContainsKey(i))
+                        continue;
+                    PropertyData p = propInfo[i];
+                    CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
+                }
+                //TimeSpan elapsed = DateTime.Now - startTime;
+                //Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
+
+                //for (int i = 0; i < methods.Length; ++i)
+                //{
+                //    if (!methodInfo.ContainsKey(i))
+                //        continue;
+                //    MethodData m = methodInfo[i];
+                //    CreateMethodControl(m.Method, m.DisplayName, m.Attribs, pnlProps, _categories, obj);
+                //}
+
+                bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
+                if (ignoreLoneSubCats && _categories.Count == 1)
+                    _categories.Values.ToArray()[0].CategoryName = null;
+                        
+                //Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
+                pnlProps.ResumeLayout(true);
+            }
+        }
+
+        public void ExpandAll()
+        {
+            RecursiveExpand(pnlProps.Controls, false);
+        }
+        public void CollapseAll()
+        {
+            RecursiveExpand(pnlProps.Controls, true);
+        }
+        private void RecursiveExpand(ControlCollection collection, bool collapse)
+        {
+            foreach (Control c in collection)
+            {
+                if (c is ICollapsible coll)
+                {
+                    if (collapse)
+                        coll.Collapse();
+                    else
+                        coll.Expand();
+                    RecursiveExpand(coll.ChildControls, collapse);
+                }
+            }
         }
 
         #region Control Generation
@@ -492,9 +515,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             IDataChangeHandler dataChangeHandler)
         {
             var controls = InstantiatePropertyEditors(controlTypes, prop, obj, dataChangeHandler);
-            
-            var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
-            string catName = category == null ? MiscName : category.Category;
+
+            string catName = !(attribs.FirstOrDefault(x => x is CategoryAttribute) is CategoryAttribute category) ? MiscName : category.Category;
             if (categories.ContainsKey(catName))
                 categories[catName].AddProperty(controls, attribs, readOnly);
             else
@@ -515,9 +537,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             TreeNode s = new TreeNode(currentSceneComp.Name) { Tag = currentSceneComp };
             foreach (SceneComponent childSceneComp in currentSceneComp.ChildComponents)
-            {
                 PopulateSceneComponentTree(s.Nodes, childSceneComp);
-            }
             nodes.Add(s);
         }
 

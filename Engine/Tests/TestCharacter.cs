@@ -65,11 +65,11 @@ namespace TheraEngine.Tests
             //string desktop = Engine.StartupPath;
             ModelImportOptions options = new ModelImportOptions()
             {
-                IgnoreFlags = 
-                EIgnoreFlags.Extra | 
-                EIgnoreFlags.Lights |
-                EIgnoreFlags.Cameras |
-                EIgnoreFlags.Animations,
+                IgnoreFlags =
+                Collada.EIgnoreFlags.Extra |
+                Collada.EIgnoreFlags.Lights |
+                Collada.EIgnoreFlags.Cameras |
+                Collada.EIgnoreFlags.Animations,
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(0.45f), TransformOrder.TRS),
             };
             

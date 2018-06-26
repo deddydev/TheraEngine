@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,15 +28,6 @@ namespace TheraEngine.Core.Files.XML
     public interface IVersion { string Version { get; set; } }
     public class BaseXMLSchemeDefinition
     {
-        //public static Type[] FindPublicTypes(Predicate<Type> match)
-        //{
-        //    return
-        //        (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-        //         where !domainAssembly.IsDynamic
-        //         from assemblyType in domainAssembly.GetExportedTypes()
-        //         where match(assemblyType) && !assemblyType.IsAbstract
-        //         select assemblyType).ToArray();
-        //}
         public class ChildInfo
         {
             private static readonly Type[] ElementTypes;
@@ -164,7 +156,7 @@ namespace TheraEngine.Core.Files.XML
 
             string parentElementName = reader.Name;
             if (string.IsNullOrEmpty(parentElementName))
-                throw new Exception();
+                throw new Exception("Null parent element name.");
             parentTree += parentElementName + "/";
             entry.Tree = parentTree;
 
@@ -296,15 +288,17 @@ namespace TheraEngine.Core.Files.XML
                                     if (typeIndex < 0)
                                         typeIndex = Array.FindIndex(child.ElementNames, name => name.Name == null && name.VersionMatches(version));
 
+                                    //TODO: typeIndex is -1
                                     if (typeIndex >= 0)
                                     {
                                         if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
                                             Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
                                         IElement elem = await ParseElementAsync(child.Types[typeIndex], entry, reader, version, ignoreFlags, parentTree, childIndex);
-                                        elem.ElementName = elementName;
+                                        elem.ReadElementName = elementName;
                                         break;
                                     }
+                                    else throw new Exception();
                                 }
                                 if (typeIndex < 0)
                                 {
@@ -331,7 +325,7 @@ namespace TheraEngine.Core.Files.XML
                                     else
                                     {
                                         IElement elem = await ParseElementAsync(info.Data.Types[i], entry, reader, version, ignoreFlags, parentTree, childIndex);
-                                        elem.ElementName = elementName;
+                                        elem.ReadElementName = elementName;
                                     }
                                 }
                             }
@@ -508,17 +502,19 @@ namespace TheraEngine.Core.Files.XML
         where TString : BaseElementString
     {
         public TString StringContent { get; set; }
+        [Browsable(false)]
         public BaseElementString GenericStringContent
         {
             get => StringContent;
             set => StringContent = value as TString;
         }
+        [Browsable(false)]
         public Type GenericStringType => typeof(TString);
     }
     public interface IElement
     {
         ulong TypeFlag { get; }
-        string ElementName { get; set; }
+        string ReadElementName { get; set; }
         Type ParentType { get; }
         bool WantsManualRead { get; }
         object UserData { get; set; }
@@ -535,6 +531,11 @@ namespace TheraEngine.Core.Files.XML
         void OnAttributesRead();
         void SetAttribute(string name, string value);
         IElement CreateChildElement(string name, string version);
+        /// <summary>
+        /// Returns child elements in the same order they appear in the file.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<IElement> ChildElementsInOrder();
     }
     public interface IRoot : IElement
     {
@@ -546,14 +547,24 @@ namespace TheraEngine.Core.Files.XML
     /// <typeparam name="TParent">The type of the parent element.</typeparam>
     public abstract class BaseElement<TParent> : IElement where TParent : class, IElement
     {
+        [Browsable(false)]
         public virtual ulong TypeFlag => 0;
+        [Browsable(false)]
         public int ElementIndex { get; set; } = -1;
+        [Browsable(false)]
         public string Tree { get; set; }
 
         private string _elementName;
-        public string ElementName
+        [Browsable(false)]
+        public string ReadElementName
         {
-            get => _elementName;
+            get
+            {
+                if (Attribute.GetCustomAttribute(GetType(), typeof(ElementName)) is ElementName name && name.Name != null)
+                    return name.Name;
+
+                return _elementName;
+            }
             set
             {
                 if (Attribute.GetCustomAttribute(GetType(), typeof(ElementName)) is ElementName name && name.Name == null)
@@ -561,9 +572,11 @@ namespace TheraEngine.Core.Files.XML
             }
         }
 
+        [Browsable(false)]
         public object UserData { get; set; }
-
+        [Browsable(false)]
         public IRoot GenericRoot { get; private set; }
+        [Browsable(false)]
         public IElement GenericParent
         {
             get => ParentElement;
@@ -583,10 +596,11 @@ namespace TheraEngine.Core.Files.XML
                         GenericRoot = GenericParent.GenericRoot;
 
                     if (GenericRoot == null)
-                        throw new Exception();
+                        throw new Exception("Generic root is null. Make sure the root element implements the IRoot interface.");
                 }
             }
         }
+        [Browsable(false)]
         public TParent ParentElement { get; private set; }
 
         public T2 GetChild<T2>() where T2 : IElement
@@ -618,9 +632,15 @@ namespace TheraEngine.Core.Files.XML
             return elems.ToArray();
         }
 
+        [Browsable(false)]
         public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
+        [Browsable(false)]
         public Type ParentType => typeof(TParent);
+        [Browsable(false)]
         public virtual bool WantsManualRead => false;
+
+        public IEnumerable<IElement> ChildElementsInOrder() 
+            => ChildElements.Values.SelectMany(x => x).OrderBy(x => x.ElementIndex);
 
         public virtual void PreRead() { }
         public virtual void PostRead() { }

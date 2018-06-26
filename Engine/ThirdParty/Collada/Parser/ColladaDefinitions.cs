@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models
@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Models
                     {
                         if (p is ISIDAncestor ancestor)
                         {
-                            ancestor.SIDChildren.Add(SIDEntry);
+                            ancestor.SIDElementChildren.Add(SIDEntry);
                             break;
                         }
                         else if (p.GenericParent != null)
@@ -69,6 +69,8 @@ namespace TheraEngine.Rendering.Models
                 => (T)GetElement(root);
             public IID GetElement(COLLADA root)
                 => IsLocal ? root?.GetIDEntry(URI.Substring(1)) : null;
+            public IID GetElement(IRoot root)
+                => IsLocal ? (root as COLLADA)?.GetIDEntry(URI.Substring(1)) : null;
             public string TargetID => IsLocal ? URI.Substring(1) : URI;
         }
         public class SidRef : IParsable
@@ -101,14 +103,14 @@ namespace TheraEngine.Rendering.Models
                             part = part.Substring(0, dimSelector);
                         }
                     }
-                    ancestor = ancestor.SIDChildren.FirstOrDefault(x => string.Equals(x.SID, part, StringComparison.InvariantCulture));
+                    ancestor = ancestor.SIDElementChildren.FirstOrDefault(x => string.Equals(x.SID, part, StringComparison.InvariantCulture));
                 }
                 return ancestor as ISID;
             }
         }
         public interface ISIDAncestor : IElement
         {
-            List<ISID> SIDChildren { get; }
+            List<ISID> SIDElementChildren { get; }
         }
         public interface IID : ISIDAncestor
         {
@@ -118,25 +120,25 @@ namespace TheraEngine.Rendering.Models
         {
             string SID { get; set; }
         }
-        public interface IName { string Name { get; set; } }
+        public interface IElementName { string Name { get; set; } }
 
         public interface IExtra : IElement
         {
             Extra[] ExtraElements { get; }
         }
-        [Name("extra")]
-        [Child(typeof(Asset), 0, 1)]
-        [Child(typeof(Technique), 1, -1)]
-        public class Extra : BaseColladaElement<IExtra>, IID, IName, ITechnique, IAsset
+        [ElementName("extra")]
+        [ElementChild(typeof(Asset), 0, 1)]
+        [ElementChild(typeof(Technique), 1, -1)]
+        public class Extra : BaseColladaElement<IExtra>, IID, IElementName, ITechnique, IAsset
         {
             public override ulong TypeFlag => (ulong)EIgnoreFlags.Extra;
 
             [Attr("id", false)]
             public string ID { get; set; } = null;
-            [Attr("name", false)]
+            [Attr("Name", false)]
             public string Name { get; set; } = null;
 
-            public List<ISID> SIDChildren { get; } = new List<ISID>();
+            public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
             public Asset AssetElement => GetChild<Asset>();
         }
@@ -144,7 +146,7 @@ namespace TheraEngine.Rendering.Models
         /// Indicates this class is an owner of an Annotate element.
         /// </summary>
         public interface IAnnotate : IElement { }
-        [Name("annotate")]
+        [ElementName("annotate")]
         public class Annotate : BaseColladaElement<IAnnotate>
         {
 
@@ -153,19 +155,19 @@ namespace TheraEngine.Rendering.Models
         /// Indicates this class is an owner of a NewParam element.
         /// </summary>
         public interface INewParam : IElement { }
-        [Name("newparam")]
-        [Child(typeof(Annotate), 0, -1)]
-        [Child(typeof(Semantic), 0, 1)]
-        [Child(typeof(Modifier), 0, 1)]
+        [ElementName("newparam")]
+        [ElementChild(typeof(Annotate), 0, -1)]
+        [ElementChild(typeof(Semantic), 0, 1)]
+        [ElementChild(typeof(Modifier), 0, 1)]
         [MultiChild(EMultiChildType.OneOfOne, typeof(Sampler2D))]
         public class NewParam : BaseColladaElement<INewParam>, ISID, IAnnotate
         {
             [Attr("sid", true)]
             public string SID { get; set; }
 
-            public List<ISID> SIDChildren { get; } = new List<ISID>();
+            public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
-            [Name("semantic")]
+            [ElementName("semantic")]
             public class Semantic : BaseStringElement<NewParam, ElementString>
             {
                 public string Value
@@ -174,7 +176,7 @@ namespace TheraEngine.Rendering.Models
                     set => StringContent.Value = value;
                 }
             }
-            [Name("modifier")]
+            [ElementName("modifier")]
             public class Modifier : BaseStringElement<NewParam, StringNumeric<ELinkageModifier>>
             {
                 public ELinkageModifier LinkageModifier
@@ -183,7 +185,7 @@ namespace TheraEngine.Rendering.Models
                     set => StringContent.Value = value;
                 }
             }
-            [Name("sampler2D")]
+            [ElementName("sampler2D")]
             public class Sampler2D : BaseColladaElement<NewParam>
             {
                 
@@ -206,7 +208,7 @@ namespace TheraEngine.Rendering.Models
         /// Indicates this class is an owner of a SetParam element.
         /// </summary>
         public interface ISetParam : IElement { }
-        [Name("setparam")]
+        [ElementName("setparam")]
         public class SetParam : BaseColladaElement<ISetParam>
         {
             [Attr("ref", true)]
@@ -218,7 +220,7 @@ namespace TheraEngine.Rendering.Models
         /// Indicates this class is an owner of a RefParam element.
         /// </summary>
         public interface IRefParam : IElement { }
-        [Name("param")]
+        [ElementName("param")]
         public class RefParam : BaseColladaElement<IRefParam>
         {
             [Attr("ref", false)]
@@ -229,12 +231,12 @@ namespace TheraEngine.Rendering.Models
         /// Indicates this class is an owner of a DataFlowParam element.
         /// </summary>
         public interface IDataFlowParam : IElement { }
-        [Name("param")]
-        public class DataFlowParam : BaseColladaElement<IDataFlowParam>, ISID, IName
+        [ElementName("param")]
+        public class DataFlowParam : BaseColladaElement<IDataFlowParam>, ISID, IElementName
         {
             [Attr("sid", false)]
             public string SID { get; set; } = null;
-            [Attr("name", false)]
+            [Attr("Name", false)]
             public string Name { get; set; } = null;
             /// <summary>
             /// The type of the value data. This text string must be understood by the application.
@@ -247,7 +249,7 @@ namespace TheraEngine.Rendering.Models
             [Attr("semantic", false)]
             public string Semantic { get; set; } = null;
 
-            public List<ISID> SIDChildren { get; } = new List<ISID>();
+            public List<ISID> SIDElementChildren { get; } = new List<ISID>();
         }
 
         #region Asset
@@ -258,18 +260,18 @@ namespace TheraEngine.Rendering.Models
         {
             Asset AssetElement { get; }
         }
-        [Name("asset")]
-        [Child(typeof(Contributor), 0, -1)]
-        [Child(typeof(Coverage), 0, 1)]
-        [Child(typeof(Created), 1)]
-        [Child(typeof(Keywords), 0, 1)]
-        [Child(typeof(Modified), 1)]
-        [Child(typeof(Revision), 0, 1)]
-        [Child(typeof(Subject), 0, 1)]
-        [Child(typeof(Title), 0, 1)]
-        [Child(typeof(Unit), 0, 1)]
-        [Child(typeof(UpAxis), 0, 1)]
-        [Child(typeof(Extra), 0, -1)]
+        [ElementName("asset")]
+        [ElementChild(typeof(Contributor), 0, -1)]
+        [ElementChild(typeof(Coverage), 0, 1)]
+        [ElementChild(typeof(Created), 1)]
+        [ElementChild(typeof(Keywords), 0, 1)]
+        [ElementChild(typeof(Modified), 1)]
+        [ElementChild(typeof(Revision), 0, 1)]
+        [ElementChild(typeof(Subject), 0, 1)]
+        [ElementChild(typeof(Title), 0, 1)]
+        [ElementChild(typeof(Unit), 0, 1)]
+        [ElementChild(typeof(UpAxis), 0, 1)]
+        [ElementChild(typeof(Extra), 0, -1)]
         public class Asset : BaseColladaElement<IAsset>, IExtra
         {
             public override ulong TypeFlag => (ulong)EIgnoreFlags.Asset;
@@ -287,55 +289,55 @@ namespace TheraEngine.Rendering.Models
             public Extra[] ExtraElements => GetChildren<Extra>();
 
             #region Contributor
-            [Name("contributor")]
-            [Child(typeof(Author), 0, 1)]
-            [Child(typeof(AuthorEmail), 0, 1)]
-            [Child(typeof(AuthorWebsite), 0, 1)]
-            [Child(typeof(AuthoringTool), 0, 1)]
-            [Child(typeof(Comments), 0, 1)]
-            [Child(typeof(Copyright), 0, 1)]
-            [Child(typeof(SourceData), 0, 1)]
+            [ElementName("contributor")]
+            [ElementChild(typeof(Author), 0, 1)]
+            [ElementChild(typeof(AuthorEmail), 0, 1)]
+            [ElementChild(typeof(AuthorWebsite), 0, 1)]
+            [ElementChild(typeof(AuthoringTool), 0, 1)]
+            [ElementChild(typeof(Comments), 0, 1)]
+            [ElementChild(typeof(Copyright), 0, 1)]
+            [ElementChild(typeof(SourceData), 0, 1)]
             public class Contributor : BaseColladaElement<Asset>
             {
-                [Name("author")]
+                [ElementName("author")]
                 public class Author : BaseStringElement<Contributor, ElementString> { }
-                [Name("author_email")]
+                [ElementName("author_email")]
                 public class AuthorEmail : BaseStringElement<Contributor, ElementString> { }
-                [Name("author_website")]
+                [ElementName("author_website")]
                 public class AuthorWebsite : BaseStringElement<Contributor, ElementString> { }
-                [Name("authoring_tool")]
+                [ElementName("authoring_tool")]
                 public class AuthoringTool : BaseStringElement<Contributor, ElementString> { }
-                [Name("comments")]
+                [ElementName("comments")]
                 public class Comments : BaseStringElement<Contributor, ElementString> { }
-                [Name("copyright")]
+                [ElementName("copyright")]
                 public class Copyright : BaseStringElement<Contributor, ElementString> { }
-                [Name("source_data")]
+                [ElementName("source_data")]
                 public class SourceData : BaseStringElement<Contributor, ElementString> { }
             }
             #endregion
 
             #region Coverage
-            [Name("coverage")]
-            [Child(typeof(GeographicLocation), 1)]
+            [ElementName("coverage")]
+            [ElementChild(typeof(GeographicLocation), 1)]
             public class Coverage : BaseColladaElement<Asset>
             {
-                [Name("geographic_location")]
-                [Child(typeof(Longitude), 1)]
-                [Child(typeof(Latitude), 1)]
-                [Child(typeof(Altitude), 1)]
+                [ElementName("geographic_location")]
+                [ElementChild(typeof(Longitude), 1)]
+                [ElementChild(typeof(Latitude), 1)]
+                [ElementChild(typeof(Altitude), 1)]
                 public class GeographicLocation : BaseColladaElement<Coverage>
                 {
                     /// <summary>
                     /// -180.0f to 180.0f
                     /// </summary>
-                    [Name("longitude")]
+                    [ElementName("longitude")]
                     public class Longitude : BaseStringElement<GeographicLocation, StringNumeric<float>> { }
                     /// <summary>
                     /// -90.0f to 90.0f
                     /// </summary>
-                    [Name("latitude")]
+                    [ElementName("latitude")]
                     public class Latitude : BaseStringElement<GeographicLocation, StringNumeric<float>> { }
-                    [Name("altitude")]
+                    [ElementName("altitude")]
                     public class Altitude : BaseStringElement<GeographicLocation, StringNumeric<float>>
                     {
                         public enum EMode
@@ -350,40 +352,40 @@ namespace TheraEngine.Rendering.Models
             }
             #endregion
 
-            #region Child Elements
-            [Name("created")]
+            #region ElementChild Elements
+            [ElementName("created")]
             public class Created : BaseStringElement<Asset, ElementString> { }
-            [Name("keywords")]
+            [ElementName("keywords")]
             public class Keywords : BaseStringElement<Asset, ElementString> { }
-            [Name("modified")]
+            [ElementName("modified")]
             public class Modified : BaseStringElement<Asset, ElementString> { }
-            [Name("revision")]
+            [ElementName("revision")]
             public class Revision : BaseStringElement<Asset, ElementString> { }
-            [Name("subject")]
+            [ElementName("subject")]
             public class Subject : BaseStringElement<Asset, ElementString> { }
-            [Name("title")]
+            [ElementName("title")]
             public class Title : BaseStringElement<Asset, ElementString> { }
-            [Name("unit")]
+            [ElementName("unit")]
             public class Unit : BaseColladaElement<Asset>
             {
                 [Attr("meter", true)]
                 [DefaultValue("1.0")]
                 public Single Meter { get; set; }
 
-                [Attr("name", true)]
+                [Attr("Name", true)]
                 [DefaultValue("meter")]
-                public String Name { get; set; }
+                public string Name { get; set; }
 
                 public override bool WantsManualRead => true;
-                public override void SetAttribute(string name, string value)
+                public override void SetAttribute(string ElementName, string value)
                 {
-                    switch (name)
+                    switch (ElementName)
                     {
                         case "meter":
                             Meter = Single.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
                             break;
-                        case "name":
-                            Name = value;
+                        case "ElementName":
+                            ElementName = value;
                             break;
                     }
                 }
@@ -398,14 +400,14 @@ namespace TheraEngine.Rendering.Models
                         //To convert: move affected axes to proper spots.
                         //Negate the original axis value if swapping into that spot and sign is different
             }
-            [Name("up_axis")]
+            [ElementName("up_axis")]
             public class UpAxis : BaseStringElement<Asset, StringNumeric<EUpAxis>> { }
             #endregion
 
             //public override bool WantsManualRead => true;
-            //public override IElement CreateChildElement(string name, string version)
+            //public override IElement CreateElementChildElement(string ElementName, string version)
             //{
-            //    switch (name)
+            //    switch (ElementName)
             //    {
             //        case "contributor":
             //            return new Contributor();
@@ -434,7 +436,7 @@ namespace TheraEngine.Rendering.Models
         #endregion
 
         public interface IInputUnshared : IElement { }
-        [Name("input")]
+        [ElementName("input")]
         public class InputUnshared : BaseColladaElement<IInputUnshared>
         {
             [Attr("semantic", true)]
@@ -449,7 +451,7 @@ namespace TheraEngine.Rendering.Models
             }
         }
         public interface IInputShared : IElement { }
-        [Name("input")]
+        [ElementName("input")]
         public class InputShared : BaseColladaElement<IInputShared>
         {
             [Attr("offset", true)]
@@ -469,7 +471,7 @@ namespace TheraEngine.Rendering.Models
         }
         
         public interface ITechnique : IElement { }
-        [Name("technique")]
+        [ElementName("technique")]
         public class Technique : BaseColladaElement<ITechnique>
         {
             [Attr("profile", true)]
@@ -479,13 +481,13 @@ namespace TheraEngine.Rendering.Models
         }
 
         public interface ISource : IElement { }
-        [Name("source")]
-        [Child(typeof(Asset), 0, 1)]
-        [Child(typeof(IArrayElement), 0, 1)]
-        [Child(typeof(TechniqueCommon), 0, 1)]
-        [Unsupported("technique")]
-        //[Child(typeof(Technique), 0, -1)]
-        public class Source : BaseColladaElement<ISource>, IID, IName, IAsset
+        [ElementName("source")]
+        [ElementChild(typeof(Asset), 0, 1)]
+        [ElementChild(typeof(IArrayElement), 0, 1)]
+        [ElementChild(typeof(TechniqueCommon), 0, 1)]
+        [UnsupportedElementChild("technique")]
+        //[ElementChild(typeof(Technique), 0, -1)]
+        public class Source : BaseColladaElement<ISource>, IID, IElementName, IAsset
         {
             public Asset AssetElement => GetChild<Asset>();
             public TechniqueCommon TechniqueCommonElement => GetChild<TechniqueCommon>();
@@ -493,19 +495,19 @@ namespace TheraEngine.Rendering.Models
 
             [Attr("id", false)]
             public string ID { get; set; } = null;
-            [Attr("name", false)]
+            [Attr("Name", false)]
             public string Name { get; set; } = null;
 
-            public List<ISID> SIDChildren { get; } = new List<ISID>();
+            public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
-            [Name("technique_common")]
-            [Child(typeof(Accessor), 1)]
+            [ElementName("technique_common")]
+            [ElementChild(typeof(Accessor), 1)]
             public class TechniqueCommon : BaseColladaElement<Source>
             {
                 public Accessor AccessorElement => GetChild<Accessor>();
 
-                [Name("accessor")]
-                [Child(typeof(DataFlowParam), 0, -1)]
+                [ElementName("accessor")]
+                [ElementChild(typeof(DataFlowParam), 0, -1)]
                 public class Accessor : BaseColladaElement<TechniqueCommon>, IDataFlowParam
                 {
                     [Attr("count", true)]
@@ -525,39 +527,39 @@ namespace TheraEngine.Rendering.Models
             }
             public interface IArrayElement : IElement { }
             public class ArrayElement<T> :
-                BaseStringElement<Source, T>, IID, IName, IArrayElement
+                BaseStringElement<Source, T>, IID, IElementName, IArrayElement
                 where T : BaseElementString
             {
                 [Attr("id", false)]
                 public string ID { get; set; } = null;
-                [Attr("name", false)]
+                [Attr("Name", false)]
                 public string Name { get; set; } = null;
                 [Attr("count", true)]
                 public int Count { get; set; } = 0;
 
-                public List<ISID> SIDChildren { get; } = new List<ISID>();
+                public List<ISID> SIDElementChildren { get; } = new List<ISID>();
             }
-            [Name("bool_array")]
+            [ElementName("bool_array")]
             public class BoolArray : ArrayElement<ElementBoolArray> { }
-            [Name("float_array")]
+            [ElementName("float_array")]
             public class FloatArray : ArrayElement<ElementFloatArray> { }
-            [Name("int_array")]
+            [ElementName("int_array")]
             public class IntArray : ArrayElement<ElementIntArray> { }
-            [Name("Name_array")]
+            [ElementName("Name_array")]
             public class NameArray : ArrayElement<ElementStringArray> { }
-            [Name("IDREF_array")]
+            [ElementName("IDREF_array")]
             public class IDRefArray : ArrayElement<ElementStringArray> { }
-            [Name("SIDREF_array")]
+            [ElementName("SIDREF_array")]
             public class SIDRefArray : ArrayElement<ElementStringArray> { }
-            [Name("token_array")]
+            [ElementName("token_array")]
             public class TokenArray : ArrayElement<ElementStringArray> { }
         }
 
         #region Instance
         public interface IInstantiatable : IElement { }
         public interface IInstanceElement : IElement { }
-        [Child(typeof(Extra), 0, -1)]
-        public class BaseInstanceElement<T1, T2> : BaseColladaElement<T1>, ISID, IName, IExtra, IInstanceElement
+        [ElementChild(typeof(Extra), 0, -1)]
+        public class BaseInstanceElement<T1, T2> : BaseColladaElement<T1>, ISID, IElementName, IExtra, IInstanceElement
             where T1 : class, IElement
             where T2 : class, IElement, IInstantiatable, IID
         {
@@ -565,16 +567,16 @@ namespace TheraEngine.Rendering.Models
 
             [Attr("sid", false)]
             public string SID { get; set; } = null;
-            [Attr("name", false)]
+            [Attr("Name", false)]
             public string Name { get; set; } = null;
             [Attr("url", true)]
             public ColladaURI Url { get; set; } = null;
 
-            public List<ISID> SIDChildren { get; } = new List<ISID>();
+            public List<ISID> SIDElementChildren { get; } = new List<ISID>();
             
             public T2 GetUrlInstance() => Url?.GetElement(GenericRoot as COLLADA) as T2;
         }
-        [Name("instance_node")]
+        [ElementName("instance_node")]
         public class InstanceNode : BaseInstanceElement<COLLADA.Node, COLLADA.Node>
         {
             [Attr("proxy", false)]
@@ -583,28 +585,28 @@ namespace TheraEngine.Rendering.Models
             public COLLADA.Node GetProxyInstance() => Proxy?.GetElement(GenericRoot as COLLADA) as COLLADA.Node;
         }
 
-        [Name("instance_camera")]
+        [ElementName("instance_camera")]
         public class InstanceCamera : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryCameras.Camera>
         {
             public override ulong TypeFlag => (ulong)EIgnoreFlags.Cameras;
         }
-        [Name("instance_light")]
+        [ElementName("instance_light")]
         public class InstanceLight : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryLights.Light>
         {
             public override ulong TypeFlag => (ulong)EIgnoreFlags.Lights;
         }
         
-        [Name("instance_geometry")]
-        [Child(typeof(BindMaterial), 0, 1)]
+        [ElementName("instance_geometry")]
+        [ElementChild(typeof(BindMaterial), 0, 1)]
         public class InstanceGeometry : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryGeometries.Geometry>, IInstanceMesh
         {
             public override ulong TypeFlag => (ulong)EIgnoreFlags.Geometry;
 
             public BindMaterial BindMaterialElement => GetChild<BindMaterial>();
         }
-        [Name("instance_controller")]
-        [Child(typeof(BindMaterial), 0, 1)]
-        [Child(typeof(Skeleton), 0, -1)]
+        [ElementName("instance_controller")]
+        [ElementChild(typeof(BindMaterial), 0, 1)]
+        [ElementChild(typeof(Skeleton), 0, -1)]
         public class InstanceController : BaseInstanceElement<COLLADA.Node, COLLADA.LibraryControllers.Controller>, IInstanceMesh
         {
             public override ulong TypeFlag => (ulong)EIgnoreFlags.Controllers;
@@ -612,18 +614,18 @@ namespace TheraEngine.Rendering.Models
             public BindMaterial BindMaterialElement => GetChild<BindMaterial>();
             public Skeleton[] SkeletonElements => GetChildren<Skeleton>();
 
-            [Name("skeleton")]
+            [ElementName("skeleton")]
             public class Skeleton : BaseStringElement<InstanceController, ElementColladaURI> { }
         }
         public interface IInstanceMesh : IElement
         {
             BindMaterial BindMaterialElement { get; }
         }
-        [Name("bind_material")]
-        [Child(typeof(DataFlowParam), 0, -1)]
-        [Child(typeof(TechniqueCommon), 1)]
-        [Child(typeof(Technique), 0, -1)]
-        [Child(typeof(Extra), 0, -1)]
+        [ElementName("bind_material")]
+        [ElementChild(typeof(DataFlowParam), 0, -1)]
+        [ElementChild(typeof(TechniqueCommon), 1)]
+        [ElementChild(typeof(Technique), 0, -1)]
+        [ElementChild(typeof(Extra), 0, -1)]
         public class BindMaterial : BaseColladaElement<IInstanceMesh>, ITechnique, IDataFlowParam
         {
             public Extra[] ExtraElements => GetChildren<Extra>();
@@ -631,25 +633,25 @@ namespace TheraEngine.Rendering.Models
             public Technique[] TechniqueElements => GetChildren<Technique>();
             public TechniqueCommon TechniqueCommonElement => GetChild<TechniqueCommon>();
 
-            [Name("technique_common")]
-            [Child(typeof(InstanceMaterial), 1, -1)]
+            [ElementName("technique_common")]
+            [ElementChild(typeof(InstanceMaterial), 1, -1)]
             public class TechniqueCommon : BaseColladaElement<BindMaterial>
             {
                 public InstanceMaterial[] InstanceMaterialElements => GetChildren<InstanceMaterial>();
 
-                [Name("instance_material")]
+                [ElementName("instance_material")]
                 public class InstanceMaterial : BaseColladaElement<TechniqueCommon>
                 {
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
                     [Attr("target", true)]
                     public ColladaURI Target { get; set; } = null;
                     [Attr("symbol", true)]
                     public string Symbol { get; set; } = null;
                     
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                 }
             }
         }
@@ -704,11 +706,11 @@ namespace TheraEngine.Rendering.Models
         }
         #endregion
 
-        [Name("COLLADA")]
-        [Child(typeof(Asset), 1)]
-        [Child(typeof(Library), 0, -1)]
-        [Child(typeof(Scene), 0, 1)]
-        [Child(typeof(Extra), 0, -1)]
+        [ElementName("COLLADA")]
+        [ElementChild(typeof(Asset), 1)]
+        [ElementChild(typeof(Library), 0, -1)]
+        [ElementChild(typeof(Scene), 0, 1)]
+        [ElementChild(typeof(Extra), 0, -1)]
         public class COLLADA : BaseColladaElement<IElement>, IExtra, IAsset, IVersion, IRoot
         {
             public Asset AssetElement => GetChild<Asset>();
@@ -730,91 +732,91 @@ namespace TheraEngine.Rendering.Models
                 => IDEntries.ContainsKey(id) ? IDEntries[id] : null;
 
             #region Scene
-            [Name("scene")]
-            //[Child(typeof(InstancePhysicsScene), 0, -1)]
-            [Unsupported("instance_physics_scene")]
-            [Child(typeof(InstanceVisualScene), 0, 1)]
-            [Unsupported("instance_kinematics_scene")]
-            //[Child(typeof(InstanceKinematicsScene), 0, 1)]
-            [Child(typeof(Extra), 0, -1)]
+            [ElementName("scene")]
+            //[ElementChild(typeof(InstancePhysicsScene), 0, -1)]
+            [UnsupportedElementChild("instance_physics_scene")]
+            [ElementChild(typeof(InstanceVisualScene), 0, 1)]
+            [UnsupportedElementChild("instance_kinematics_scene")]
+            //[ElementChild(typeof(InstanceKinematicsScene), 0, 1)]
+            [ElementChild(typeof(Extra), 0, -1)]
             public class Scene : BaseColladaElement<COLLADA>, IExtra
             {
                 public Extra[] ExtraElements => GetChildren<Extra>();
 
-                //[Name("instance_physics_scene")]
-                //[Child(typeof(Extra), 0, -1)]
-                //public class InstancePhysicsScene : BaseColladaElement<Scene>, ISID, IName, IExtra
+                //[ElementName("instance_physics_scene")]
+                //[ElementChild(typeof(Extra), 0, -1)]
+                //public class InstancePhysicsScene : BaseColladaElement<Scene>, ISID, IElementName, IExtra
                 //{
                 //    [Attr("sid", false)]
                 //    public string SID { get; set; } = null;
-                //    [Attr("name", false)]
+                //    [Attr("Name", false)]
                 //    public string Name { get; set; } = null;
                 //    [Attr("url", true)]
                 //    public ColladaURI Url { get; set; } = null;
 
-                //    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                //    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                 //}
-                [Name("instance_visual_scene")]
-                [Child(typeof(Extra), 0, -1)]
+                [ElementName("instance_visual_scene")]
+                [ElementChild(typeof(Extra), 0, -1)]
                 public class InstanceVisualScene : BaseColladaElement<Scene>
                 {
                     public Extra[] ExtraElements => GetChildren<Extra>();
 
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
                     [Attr("url", true)]
                     public ColladaURI Url { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                     public LibraryVisualScenes.VisualScene GetUrlInstance() => Url.GetElement<LibraryVisualScenes.VisualScene>(GenericRoot);
                 }
-                //[Name("instance_kinematics_scene")]
-                //[Child(typeof(Asset), 0, 1)]
-                //[Child(typeof(NewParam), 0, -1)]
-                //[Child(typeof(SetParam), 0, -1)]
-                ////[Child(typeof(BindKinematicsModel), 0, -1)]
-                ////[Child(typeof(BindJointAxis), 0, -1)]
-                //[Child(typeof(Extra), 0, -1)]
-                //public class InstanceKinematicsScene : BaseInstanceElement<Scene, LibraryKinematicsScenes.KinematicsScene>, ISID, IName, IExtra
+                //[ElementName("instance_kinematics_scene")]
+                //[ElementChild(typeof(Asset), 0, 1)]
+                //[ElementChild(typeof(NewParam), 0, -1)]
+                //[ElementChild(typeof(SetParam), 0, -1)]
+                ////[ElementChild(typeof(BindKinematicsModel), 0, -1)]
+                ////[ElementChild(typeof(BindJointAxis), 0, -1)]
+                //[ElementChild(typeof(Extra), 0, -1)]
+                //public class InstanceKinematicsScene : BaseInstanceElement<Scene, LibraryKinematicsScenes.KinematicsScene>, ISID, IElementName, IExtra
                 //{
                 //    [Attr("sid", false)]
                 //    public string SID { get; set; } = null;
-                //    [Attr("name", false)]
+                //    [Attr("Name", false)]
                 //    public string Name { get; set; } = null;
                 //    [Attr("url", true)]
                 //    public ColladaURI Url { get; set; } = null;
 
                 //    //TODO: BindKinematicsModel, BindJointAxis
 
-                //    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                //    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                 //}
             }
 
             #endregion
 
             #region Libraries
-            [Child(typeof(Asset), 0, 1)]
-            [Child(typeof(Extra), 0, -1)]
-            public abstract class Library : BaseColladaElement<COLLADA>, IID, IName, IAsset, IExtra
+            [ElementChild(typeof(Asset), 0, 1)]
+            [ElementChild(typeof(Extra), 0, -1)]
+            public abstract class Library : BaseColladaElement<COLLADA>, IID, IElementName, IAsset, IExtra
             {
                 public Asset AssetElement => GetChild<Asset>();
                 public Extra[] ExtraElements => GetChildren<Extra>();
 
                 [Attr("id", false)]
                 public string ID { get; set; } = null;
-                [Attr("name", false)]
+                [Attr("Name", false)]
                 public string Name { get; set; } = null;
 
-                public List<ISID> SIDChildren { get; } = new List<ISID>();
+                public List<ISID> SIDElementChildren { get; } = new List<ISID>();
             }
 
             #region Images
-            [Name("library_images")]
-            [Child(typeof(Image15X), 1, -1)]
-            [Child(typeof(Image14X), 1, -1)]
+            [ElementName("library_images")]
+            [ElementChild(typeof(Image15X), 1, -1)]
+            [ElementChild(typeof(Image14X), 1, -1)]
             public class LibraryImages : Library
             {
                 #region Image 1.5.*
@@ -824,15 +826,15 @@ namespace TheraEngine.Rendering.Models
                 /// leveraged by texture look-up functions to access noncolor values such as displacement, normal, or height
                 /// field values.
                 /// </summary>
-                [Name("image", "1.5.*")]
-                [Child(typeof(Asset), 0, 1)]
-                [Child(typeof(Renderable), 0, 1)]
-                [Child(typeof(InitFrom), 0, 1)]
-                //[Child(typeof(Create2DEntry), 0, 1)]
-                //[Child(typeof(Create3DEntry), 0, 1)]
-                //[Child(typeof(CreateCubeEntry), 0, 1)]
-                [Child(typeof(Extra), 0, -1)]
-                public class Image15X : BaseColladaElement<LibraryImages>, IID, ISID, IName
+                [ElementName("image", "1.5.*")]
+                [ElementChild(typeof(Asset), 0, 1)]
+                [ElementChild(typeof(Renderable), 0, 1)]
+                [ElementChild(typeof(InitFrom), 0, 1)]
+                //[ElementChild(typeof(Create2DEntry), 0, 1)]
+                //[ElementChild(typeof(Create3DEntry), 0, 1)]
+                //[ElementChild(typeof(CreateCubeEntry), 0, 1)]
+                [ElementChild(typeof(Extra), 0, -1)]
+                public class Image15X : BaseColladaElement<LibraryImages>, IID, ISID, IElementName
                 {
                     public Asset AssetElement => GetChild<Asset>();
                     public Renderable RenderableElement => GetChild<Renderable>();
@@ -843,17 +845,17 @@ namespace TheraEngine.Rendering.Models
                     public string ID { get; set; } = null;
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                     /// <summary>
                     /// Defines the image as a render target. If this element
                     /// exists then the image can be rendered to. 
                     /// This element contains no data. 
                     /// </summary>
-                    [Name("renderable")]
+                    [ElementName("renderable")]
                     public class Renderable : BaseColladaElement<Image15X>
                     {
                         /// <summary>
@@ -872,7 +874,7 @@ namespace TheraEngine.Rendering.Models
                     /// list of hexadecimal values. Initialize the whole image
                     /// structure and data from formats such as DDS.
                     /// </summary>
-                    [Name("init_from")]
+                    [ElementName("init_from")]
                     [MultiChild(EMultiChildType.OneOfOne, typeof(Ref), typeof(Embedded))]
                     public class InitFrom : BaseColladaElement<Image15X>
                     {
@@ -892,7 +894,7 @@ namespace TheraEngine.Rendering.Models
                         /// is a complex format such as DDS, this might include cube
                         /// maps, volumes, MIPs, and so on.
                         /// </summary>
-                        [Name("ref")]
+                        [ElementName("ref")]
                         public class Ref : BaseStringElement<InitFrom, ElementString> { }
                         /// <summary>
                         /// Contains the embedded image data as a sequence of
@@ -900,7 +902,7 @@ namespace TheraEngine.Rendering.Models
                         /// contains all the necessary information including header info
                         /// such as data width and height.
                         /// </summary>
-                        [Name("hex")]
+                        [ElementName("hex")]
                         public class Embedded : BaseStringElement<InitFrom, ElementHex>
                         {
                             /// <summary>
@@ -916,15 +918,15 @@ namespace TheraEngine.Rendering.Models
 
                     //TODO: finish create entries
                     #region Create
-                    //[Name("create_2d")]
+                    //[ElementName("create_2d")]
                     //private class Create2DEntry : BaseColladaElement<ImageEntry15X>
                     //{
 
                     //}
-                    //[Name("create_3d")]
+                    //[ElementName("create_3d")]
                     //private class Create3DEntry : BaseColladaElement<ImageEntry15X>
                     //{
-                    //    [Name("init_from")]
+                    //    [ElementName("init_from")]
                     //    private class InitFromCreate3DEntry : BaseColladaElement<Create3DEntry>
                     //    {
                     //        /// <summary>
@@ -948,7 +950,7 @@ namespace TheraEngine.Rendering.Models
                     //        public uint Depth { get; set; }
                     //    }
                     //}
-                    //[Name("create_cube")]
+                    //[ElementName("create_cube")]
                     //private class CreateCubeEntry : BaseColladaElement<ImageEntry15X>
                     //{
 
@@ -964,17 +966,17 @@ namespace TheraEngine.Rendering.Models
                 /// leveraged by texture look-up functions to access noncolor values such as displacement, normal, or height
                 /// field values.
                 /// </summary>
-                [Name("image", "1.4.*")]
-                [Child(typeof(Asset), 0, 1)]
-                [Child(typeof(ISource), 1)]
-                [Child(typeof(Extra), 0, -1)]
-                public class Image14X : BaseColladaElement<LibraryImages>, IID, ISID, IName
+                [ElementName("image", "1.4.*")]
+                [ElementChild(typeof(Asset), 0, 1)]
+                [ElementChild(typeof(ISource), 1)]
+                [ElementChild(typeof(Extra), 0, -1)]
+                public class Image14X : BaseColladaElement<LibraryImages>, IID, ISID, IElementName
                 {
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
 
                     [Attr("format", false)]
@@ -986,13 +988,13 @@ namespace TheraEngine.Rendering.Models
                     [Attr("depth", false)]
                     public uint? Depth { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                     public interface ISource : IElement { }
 
-                    [Name("init_from")]
+                    [ElementName("init_from")]
                     public class InitFrom : BaseStringElement<Image14X, ElementString>, ISource { }
-                    [Name("data")]
+                    [ElementName("data")]
                     public class Data : BaseStringElement<Image14X, ElementHex>, ISource { }
                 }
                 #endregion
@@ -1000,15 +1002,15 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             #region Materials
-            [Name("library_materials")]
-            [Child(typeof(Material), 1, -1)]
+            [ElementName("library_materials")]
+            [ElementChild(typeof(Material), 1, -1)]
             public class LibraryMaterials : Library
             {
-                [Name("material")]
-                [Child(typeof(Asset), 0, 1)]
-                [Child(typeof(InstanceEffect), 1)]
-                [Child(typeof(Extra), 0, -1)]
-                public class Material : BaseColladaElement<LibraryMaterials>, IID, IName, IAsset, IExtra
+                [ElementName("material")]
+                [ElementChild(typeof(Asset), 0, 1)]
+                [ElementChild(typeof(InstanceEffect), 1)]
+                [ElementChild(typeof(Extra), 0, -1)]
+                public class Material : BaseColladaElement<LibraryMaterials>, IID, IElementName, IAsset, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
                     public InstanceEffect InstanceEffectElement => GetChild<InstanceEffect>();
@@ -1016,27 +1018,27 @@ namespace TheraEngine.Rendering.Models
 
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
-                    [Name("instance_effect")]
-                    //[Child(typeof(TechniqueHint), 0, -1)]
-                    //[Child(typeof(SetParam), 0, -1)]
-                    [Child(typeof(Extra), 0, -1)]
-                    public class InstanceEffect : BaseColladaElement<Material>, ISID, IName, IExtra
+                    [ElementName("instance_effect")]
+                    //[ElementChild(typeof(TechniqueHint), 0, -1)]
+                    //[ElementChild(typeof(SetParam), 0, -1)]
+                    [ElementChild(typeof(Extra), 0, -1)]
+                    public class InstanceEffect : BaseColladaElement<Material>, ISID, IElementName, IExtra
                     {
                         public Extra[] ExtraElements => GetChildren<Extra>();
 
                         [Attr("sid", false)]
                         public string SID { get; set; } = null;
-                        [Attr("name", false)]
+                        [Attr("Name", false)]
                         public string Name { get; set; } = null;
                         [Attr("url", true)]
                         public ColladaURI Url { get; set; } = null;
 
-                        public List<ISID> SIDChildren { get; } = new List<ISID>();
+                        public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                         //TODO: TechniqueHint
                     }
@@ -1045,17 +1047,17 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             #region Effects
-            [Name("library_effects")]
-            [Child(typeof(Effect), 1, -1)]
+            [ElementName("library_effects")]
+            [ElementChild(typeof(Effect), 1, -1)]
             public class LibraryEffects : Library
             {
-                [Name("effect")]
-                [Child(typeof(Asset), 0, 1)]
-                [Child(typeof(Annotate), 0, -1)]
-                [Child(typeof(NewParam), 0, -1)]
-                [Child(typeof(BaseProfile), 1, -1)]
-                [Child(typeof(Extra), 0, -1)]
-                public class Effect : BaseColladaElement<LibraryEffects>, IID, IName, IAsset, IExtra
+                [ElementName("effect")]
+                [ElementChild(typeof(Asset), 0, 1)]
+                [ElementChild(typeof(Annotate), 0, -1)]
+                [ElementChild(typeof(NewParam), 0, -1)]
+                [ElementChild(typeof(BaseProfile), 1, -1)]
+                [ElementChild(typeof(Extra), 0, -1)]
+                public class Effect : BaseColladaElement<LibraryEffects>, IID, IElementName, IAsset, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
                     public Annotate[] AnnotateElements => GetChildren<Annotate>();
@@ -1065,13 +1067,13 @@ namespace TheraEngine.Rendering.Models
                     
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
-                    [Child(typeof(Asset), 0, 1)]
-                    [Child(typeof(Extra), 0, -1)]
+                    [ElementChild(typeof(Asset), 0, 1)]
+                    [ElementChild(typeof(Extra), 0, -1)]
                     public class BaseProfile : BaseColladaElement<Effect>, IID, IAsset, IExtra
                     {
                         public Asset AssetElement => GetChild<Asset>();
@@ -1080,9 +1082,9 @@ namespace TheraEngine.Rendering.Models
                         [Attr("id", false)]
                         public string ID { get; set; } = null;
 
-                        public List<ISID> SIDChildren { get; } = new List<ISID>();
+                        public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                     }
-                    [Child(typeof(Technique), 1)]
+                    [ElementChild(typeof(Technique), 1)]
                     public class BaseProfileShader : BaseProfile
                     {
                         /// <summary>
@@ -1093,11 +1095,11 @@ namespace TheraEngine.Rendering.Models
                         [DefaultValue("PC")]
                         public string Platform { get; set; } = "PC";
 
-                        [Name("technique")]
-                        [Child(typeof(Asset), 0, 1)]
-                        [Child(typeof(Annotate), 0, -1)]
-                        [Child(typeof(Pass), 1, -1)]
-                        [Child(typeof(Extra), 0, -1)]
+                        [ElementName("technique")]
+                        [ElementChild(typeof(Asset), 0, 1)]
+                        [ElementChild(typeof(Annotate), 0, -1)]
+                        [ElementChild(typeof(Pass), 1, -1)]
+                        [ElementChild(typeof(Extra), 0, -1)]
                         public class Technique : BaseColladaElement<BaseProfileShader>, IID, ISID, IAsset, IExtra
                         {
                             public Asset AssetElement => GetChild<Asset>();
@@ -1110,9 +1112,9 @@ namespace TheraEngine.Rendering.Models
                             [Attr("sid", false)]
                             public string SID { get; set; } = null;
 
-                            public List<ISID> SIDChildren { get; } = new List<ISID>();
+                            public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
-                            [Name("pass")]
+                            [ElementName("pass")]
                             public class Pass : BaseColladaElement<Technique>
                             {
                                 //TODO
@@ -1121,26 +1123,26 @@ namespace TheraEngine.Rendering.Models
                     }
 
                     #region Profile Common
-                    [Name("profile_COMMON")]
-                    [Child(typeof(NewParam), 0, -1)]
-                    [Child(typeof(Technique), 1)]
+                    [ElementName("profile_COMMON")]
+                    [ElementChild(typeof(NewParam), 0, -1)]
+                    [ElementChild(typeof(Technique), 1)]
                     public class ProfileCommon : BaseProfile
                     {
                         public Technique TechniqueElement => GetChild<Technique>();
                         public NewParam NewParamElement => GetChild<NewParam>();
 
-                        [Name("technique")]
-                        [Child(typeof(BaseTechniqueChild), 1)]
+                        [ElementName("technique")]
+                        [ElementChild(typeof(BaseTechniqueElementChild), 1)]
                         public class Technique : BaseColladaElement<ProfileCommon>, IID, ISID
                         {
-                            public BaseTechniqueChild LightingTypeElement => GetChild<BaseTechniqueChild>();
+                            public BaseTechniqueElementChild LightingTypeElement => GetChild<BaseTechniqueElementChild>();
 
                             [Attr("id", false)]
                             public string ID { get; set; } = null;
                             [Attr("sid", false)]
                             public string SID { get; set; } = null;
 
-                            public List<ISID> SIDChildren { get; } = new List<ISID>();
+                            public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                             public enum EOpaque
                             {
@@ -1168,25 +1170,25 @@ namespace TheraEngine.Rendering.Models
                                 RGB_ONE,
                             }
 
-                            public class BaseTechniqueChild : BaseColladaElement<Technique> { }
+                            public class BaseTechniqueElementChild : BaseColladaElement<Technique> { }
 
                             [MultiChild(EMultiChildType.OneOfOne, typeof(Color), typeof(RefParam), typeof(Texture))]
-                            public class BaseFXColorTexture : BaseColladaElement<BaseTechniqueChild>, IRefParam
+                            public class BaseFXColorTexture : BaseColladaElement<BaseTechniqueElementChild>, IRefParam
                             {
                                 public Color ColorElement => GetChild<Color>();
                                 public RefParam ParamElement => GetChild<RefParam>();
                                 public Texture TextureElement => GetChild<Texture>();
                                 
-                                [Name("color")]
+                                [ElementName("color")]
                                 public class Color : BaseStringElement<BaseFXColorTexture, StringParsable<Vec4>>, ISID
                                 {
                                     [Attr("sid", false)]
                                     public string SID { get; set; } = null;
 
-                                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                                 }
-                                [Name("texture")]
-                                [Child(typeof(Extra), 0, -1)]
+                                [ElementName("texture")]
+                                [ElementChild(typeof(Extra), 0, -1)]
                                 public class Texture : BaseColladaElement<BaseFXColorTexture>, IExtra
                                 {
                                     public Extra[] ExtraElements => GetChildren<Extra>();
@@ -1199,58 +1201,58 @@ namespace TheraEngine.Rendering.Models
                             }
 
                             [MultiChild(EMultiChildType.OneOfOne, typeof(Float), typeof(RefParam))]
-                            public class BaseFXFloatParam : BaseColladaElement<BaseTechniqueChild>, IRefParam
+                            public class BaseFXFloatParam : BaseColladaElement<BaseTechniqueElementChild>, IRefParam
                             {
-                                [Name("float")]
+                                [ElementName("float")]
                                 public class Float : BaseStringElement<BaseFXFloatParam, StringNumeric<float>>, ISID
                                 {
                                     [Attr("sid", false)]
                                     public string SID { get; set; } = null;
 
-                                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                                 }
                             }
 
                             /// <summary>
                             /// Declares the amount of light emitted from the surface of this object. 
                             /// </summary>
-                            [Name("emission")]
+                            [ElementName("emission")]
                             public class Emission : BaseFXColorTexture { }
                             /// <summary>
                             /// Declares the amount of ambient light reflected from the surface of this object. 
                             /// </summary>
-                            [Name("ambient")]
+                            [ElementName("ambient")]
                             public class Ambient : BaseFXColorTexture { }
                             /// <summary>
                             /// Declares the amount of light diffusely reflected from the surface of this object. 
                             /// </summary>
-                            [Name("diffuse")]
+                            [ElementName("diffuse")]
                             public class Diffuse : BaseFXColorTexture { }
                             /// <summary>
                             /// Declares the color of light specularly reflected from the surface of this object. 
                             /// </summary>
-                            [Name("specular")]
+                            [ElementName("specular")]
                             public class Specular : BaseFXColorTexture { }
                             /// <summary>
                             /// Declares the specularity or roughness of the specular reflection lobe.
                             /// </summary>
-                            [Name("shininess")]
+                            [ElementName("shininess")]
                             public class Shininess : BaseFXFloatParam { }
                             /// <summary>
                             /// Declares the color of a perfect mirror reflection. 
                             /// </summary>
-                            [Name("reflective")]
+                            [ElementName("reflective")]
                             public class Reflective : BaseFXColorTexture { }
                             /// <summary>
                             /// Declares the amount of perfect mirror reflection to be
                             /// added to the reflected light as a value between 0.0 and 1.0.
                             /// </summary>
-                            [Name("reflectivity")]
+                            [ElementName("reflectivity")]
                             public class Reflectivity : BaseFXFloatParam { }
                             /// <summary>
                             /// Declares the color of perfectly refracted light. 
                             /// </summary>
-                            [Name("transparent")]
+                            [ElementName("transparent")]
                             public class Transparent : BaseFXColorTexture
                             {
                                 [Attr("opaque", false)]
@@ -1261,13 +1263,13 @@ namespace TheraEngine.Rendering.Models
                             /// Declares the amount of perfectly refracted light added
                             /// to the reflected color as a scalar value between 0.0 and 1.0. 
                             /// </summary>
-                            [Name("transparency")]
+                            [ElementName("transparency")]
                             public class Transparency : BaseFXFloatParam { }
                             /// <summary>
                             /// Declares the index of refraction for perfectly refracted
                             /// light as a single scalar index.
                             /// </summary>
-                            [Name("index_of_refraction")]
+                            [ElementName("index_of_refraction")]
                             public class IndexOfRefraction : BaseFXFloatParam { }
 
                             /// <summary>
@@ -1278,14 +1280,14 @@ namespace TheraEngine.Rendering.Models
                             /// 'al' is a constant amount of ambient light contribution coming from the scene.
                             /// In the COMMON profile, this is the sum of all the <light><technique_common><ambient><color> values in the <visual_scene>.
                             /// </summary>
-                            [Name("constant")]
-                            [Child(typeof(Emission), 0, 1)]
-                            [Child(typeof(Reflective), 0, 1)]
-                            [Child(typeof(Reflectivity), 0, 1)]
-                            [Child(typeof(Transparent), 0, 1)]
-                            [Child(typeof(Transparency), 0, 1)]
-                            [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Constant : BaseTechniqueChild
+                            [ElementName("constant")]
+                            [ElementChild(typeof(Emission), 0, 1)]
+                            [ElementChild(typeof(Reflective), 0, 1)]
+                            [ElementChild(typeof(Reflectivity), 0, 1)]
+                            [ElementChild(typeof(Transparent), 0, 1)]
+                            [ElementChild(typeof(Transparency), 0, 1)]
+                            [ElementChild(typeof(IndexOfRefraction), 0, 1)]
+                            public class Constant : BaseTechniqueElementChild
                             {
                                 public Emission EmissionElement => GetChild<Emission>();
                                 public Reflective ReflectiveElement => GetChild<Reflective>();
@@ -1306,16 +1308,16 @@ namespace TheraEngine.Rendering.Models
                             ///• N – Normal vector
                             ///• L – Light vector
                             /// </summary>
-                            [Name("lambert")]
-                            [Child(typeof(Emission), 0, 1)]
-                            [Child(typeof(Ambient), 0, 1)]
-                            [Child(typeof(Diffuse), 0, 1)]
-                            [Child(typeof(Reflective), 0, 1)]
-                            [Child(typeof(Reflectivity), 0, 1)]
-                            [Child(typeof(Transparent), 0, 1)]
-                            [Child(typeof(Transparency), 0, 1)]
-                            [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Lambert : BaseTechniqueChild
+                            [ElementName("lambert")]
+                            [ElementChild(typeof(Emission), 0, 1)]
+                            [ElementChild(typeof(Ambient), 0, 1)]
+                            [ElementChild(typeof(Diffuse), 0, 1)]
+                            [ElementChild(typeof(Reflective), 0, 1)]
+                            [ElementChild(typeof(Reflectivity), 0, 1)]
+                            [ElementChild(typeof(Transparent), 0, 1)]
+                            [ElementChild(typeof(Transparency), 0, 1)]
+                            [ElementChild(typeof(IndexOfRefraction), 0, 1)]
+                            public class Lambert : BaseTechniqueElementChild
                             {
                                 public Emission EmissionElement => GetChild<Emission>();
                                 public Ambient AmbientElement => GetChild<Ambient>();
@@ -1340,18 +1342,18 @@ namespace TheraEngine.Rendering.Models
                             /// • I – Eye vector
                             /// • R – Perfect reflection vector (reflect (L around N)) 
                             /// </summary>
-                            [Name("phong")]
-                            [Child(typeof(Emission), 0, 1)]
-                            [Child(typeof(Ambient), 0, 1)]
-                            [Child(typeof(Diffuse), 0, 1)]
-                            [Child(typeof(Specular), 0, 1)]
-                            [Child(typeof(Shininess), 0, 1)]
-                            [Child(typeof(Reflective), 0, 1)]
-                            [Child(typeof(Reflectivity), 0, 1)]
-                            [Child(typeof(Transparent), 0, 1)]
-                            [Child(typeof(Transparency), 0, 1)]
-                            [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Phong : BaseTechniqueChild
+                            [ElementName("phong")]
+                            [ElementChild(typeof(Emission), 0, 1)]
+                            [ElementChild(typeof(Ambient), 0, 1)]
+                            [ElementChild(typeof(Diffuse), 0, 1)]
+                            [ElementChild(typeof(Specular), 0, 1)]
+                            [ElementChild(typeof(Shininess), 0, 1)]
+                            [ElementChild(typeof(Reflective), 0, 1)]
+                            [ElementChild(typeof(Reflectivity), 0, 1)]
+                            [ElementChild(typeof(Transparent), 0, 1)]
+                            [ElementChild(typeof(Transparency), 0, 1)]
+                            [ElementChild(typeof(IndexOfRefraction), 0, 1)]
+                            public class Phong : BaseTechniqueElementChild
                             {
                                 public Emission EmissionElement => GetChild<Emission>();
                                 public Ambient AmbientElement => GetChild<Ambient>();
@@ -1386,18 +1388,18 @@ namespace TheraEngine.Rendering.Models
                             /// • I – Eye vector (normalized)
                             /// • H – Half-angle vector, calculated as halfway between the unit Eye and Light vectors, using the equation H = normalize(I + L)
                             /// </summary>
-                            [Name("blinn")]
-                            [Child(typeof(Emission), 0, 1)]
-                            [Child(typeof(Ambient), 0, 1)]
-                            [Child(typeof(Diffuse), 0, 1)]
-                            [Child(typeof(Specular), 0, 1)]
-                            [Child(typeof(Shininess), 0, 1)]
-                            [Child(typeof(Reflective), 0, 1)]
-                            [Child(typeof(Reflectivity), 0, 1)]
-                            [Child(typeof(Transparent), 0, 1)]
-                            [Child(typeof(Transparency), 0, 1)]
-                            [Child(typeof(IndexOfRefraction), 0, 1)]
-                            public class Blinn : BaseTechniqueChild
+                            [ElementName("blinn")]
+                            [ElementChild(typeof(Emission), 0, 1)]
+                            [ElementChild(typeof(Ambient), 0, 1)]
+                            [ElementChild(typeof(Diffuse), 0, 1)]
+                            [ElementChild(typeof(Specular), 0, 1)]
+                            [ElementChild(typeof(Shininess), 0, 1)]
+                            [ElementChild(typeof(Reflective), 0, 1)]
+                            [ElementChild(typeof(Reflectivity), 0, 1)]
+                            [ElementChild(typeof(Transparent), 0, 1)]
+                            [ElementChild(typeof(Transparency), 0, 1)]
+                            [ElementChild(typeof(IndexOfRefraction), 0, 1)]
+                            public class Blinn : BaseTechniqueElementChild
                             {
                                 public Emission EmissionElement => GetChild<Emission>();
                                 public Ambient AmbientElement => GetChild<Ambient>();
@@ -1414,7 +1416,7 @@ namespace TheraEngine.Rendering.Models
                     }
                     #endregion
 
-                    [Name("profile_GLSL")]
+                    [ElementName("profile_GLSL")]
                     public class ProfileGLSL : BaseProfileShader
                     {
 
@@ -1424,38 +1426,38 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             #region Cameras
-            [Name("library_cameras")]
-            [Child(typeof(Camera), 1, -1)]
+            [ElementName("library_cameras")]
+            [ElementChild(typeof(Camera), 1, -1)]
             public class LibraryCameras : Library
             {
                 public override ulong TypeFlag => (ulong)EIgnoreFlags.Cameras;
 
-                [Name("camera")]
+                [ElementName("camera")]
                 public class Camera : BaseColladaElement<LibraryCameras>, IInstantiatable, IID
                 {
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                 }
             }
             #endregion
 
             #region Geometry
-            [Name("library_geometries")]
-            [Child(typeof(Geometry), 1, -1)]
+            [ElementName("library_geometries")]
+            [ElementChild(typeof(Geometry), 1, -1)]
             public class LibraryGeometries : Library
             {
                 public override ulong TypeFlag => (ulong)EIgnoreFlags.Geometry;
 
-                [Name("geometry")]
-                [Child(typeof(Asset), 0, 1)]
-                [Unsupported("convex_mesh")]
-                [Unsupported("spline")]
-                [Unsupported("brep")]
-                [Child(typeof(GeometryChild), 1)]
-                [Child(typeof(Extra), 0, -1)]
-                public class Geometry : BaseColladaElement<LibraryGeometries>, IInstantiatable, IID, IName, IAsset, IExtra
+                [ElementName("geometry")]
+                [ElementChild(typeof(Asset), 0, 1)]
+                [UnsupportedElementChild("convex_mesh")]
+                [UnsupportedElementChild("spline")]
+                [UnsupportedElementChild("brep")]
+                [ElementChild(typeof(GeometryElementChild), 1)]
+                [ElementChild(typeof(Extra), 0, -1)]
+                public class Geometry : BaseColladaElement<LibraryGeometries>, IInstantiatable, IID, IElementName, IAsset, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
                     public ConvexMesh ConvexMeshElement => GetChild<ConvexMesh>();
@@ -1466,55 +1468,55 @@ namespace TheraEngine.Rendering.Models
                     
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
-                    public class GeometryChild : BaseColladaElement<Geometry> { }
+                    public class GeometryElementChild : BaseColladaElement<Geometry> { }
 
-                    [Name("convex_mesh")]
-                    public class ConvexMesh : GeometryChild
+                    [ElementName("convex_mesh")]
+                    public class ConvexMesh : GeometryElementChild
                     {
 
                     }
-                    [Name("mesh")]
-                    [Child(typeof(Source), 1, -1)]
-                    [Child(typeof(Vertices), 1)]
-                    [Child(typeof(BasePrimitive), 0, -1)]
-                    [Child(typeof(Extra), 0, -1)]
-                    public class Mesh : GeometryChild, ISource
+                    [ElementName("mesh")]
+                    [ElementChild(typeof(Source), 1, -1)]
+                    [ElementChild(typeof(Vertices), 1)]
+                    [ElementChild(typeof(BasePrimitive), 0, -1)]
+                    [ElementChild(typeof(Extra), 0, -1)]
+                    public class Mesh : GeometryElementChild, ISource
                     {
                         public Source[] SourceElements => GetChildren<Source>();
                         public Vertices VerticesElement => GetChild<Vertices>();
                         public BasePrimitive[] PrimitiveElements => GetChildren<BasePrimitive>();
                         public Extra[] ExtraElements => GetChildren<Extra>();
 
-                        [Name("vertices")]
-                        [Child(typeof(InputUnshared), 1, -1)]
-                        [Child(typeof(Extra), 0, -1)]
-                        public class Vertices : BaseColladaElement<Mesh>, IID, IName, IInputUnshared
+                        [ElementName("vertices")]
+                        [ElementChild(typeof(InputUnshared), 1, -1)]
+                        [ElementChild(typeof(Extra), 0, -1)]
+                        public class Vertices : BaseColladaElement<Mesh>, IID, IElementName, IInputUnshared
                         {
                             public InputUnshared[] InputElements => GetChildren<InputUnshared>();
                             public Extra[] ExtraElements => GetChildren<Extra>();
                             
                             [Attr("id", false)]
                             public string ID { get; set; } = null;
-                            [Attr("name", false)]
+                            [Attr("Name", false)]
                             public string Name { get; set; } = null;
 
-                            public List<ISID> SIDChildren { get; } = new List<ISID>();
+                            public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                         }
-                        [Child(typeof(InputShared), 0, -1)]
-                        [Child(typeof(Indices), 0, 1)]
-                        [Child(typeof(Extra), 0, -1)]
-                        public abstract class BasePrimitive : BaseColladaElement<Mesh>, IName, IExtra, IInputShared
+                        [ElementChild(typeof(InputShared), 0, -1)]
+                        [ElementChild(typeof(Indices), 0, 1)]
+                        [ElementChild(typeof(Extra), 0, -1)]
+                        public abstract class BasePrimitive : BaseColladaElement<Mesh>, IElementName, IExtra, IInputShared
                         {
                             public InputShared[] InputElements => GetChildren<InputShared>();
                             public Indices IndicesElement => GetChild<Indices>();
                             public Extra[] ExtraElements => GetChildren<Extra>();
 
-                            [Attr("name", false)]
+                            [Attr("Name", false)]
                             public string Name { get; set; } = null;
                             [Attr("count", true)]
                             public int Count { get; set; } = 0;
@@ -1548,7 +1550,7 @@ namespace TheraEngine.Rendering.Models
                                 }
                             }
 
-                            [Name("p")]
+                            [ElementName("p")]
                             public class Indices : BaseStringElement<BasePrimitive, ElementIntArray> { }
                         }
                         public enum EColladaPrimitiveType
@@ -1561,55 +1563,55 @@ namespace TheraEngine.Rendering.Models
                             Trifans,
                             Tristrips,
                         }
-                        [Name("lines")]
+                        [ElementName("lines")]
                         public class Lines : BasePrimitive
                         {
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Lines;
                         }
-                        [Name("linestrips")]
+                        [ElementName("linestrips")]
                         public class Linestrips : BasePrimitive
                         {
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Linestrips;
                         }
-                        [Name("polygons")]
+                        [ElementName("polygons")]
                         public class Polygons : BasePrimitive
                         {
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Polygons;
                         }
-                        [Name("polylist")]
-                        [Child(typeof(PolyCounts), 0, 1)]
+                        [ElementName("polylist")]
+                        [ElementChild(typeof(PolyCounts), 0, 1)]
                         public class Polylist : BasePrimitive
                         {
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Polylist;
                             
                             public PolyCounts PolyCountsElement => GetChild<PolyCounts>();
 
-                            [Name("vcount")]
+                            [ElementName("vcount")]
                             public class PolyCounts : BaseStringElement<BasePrimitive, ElementIntArray> { }
                         }
-                        [Name("triangles")]
+                        [ElementName("triangles")]
                         public class Triangles : BasePrimitive
                         {
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Triangles;
                         }
-                        [Name("trifans")]
+                        [ElementName("trifans")]
                         public class Trifans : BasePrimitive
                         {
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Trifans;
                         }
-                        [Name("tristrips")]
+                        [ElementName("tristrips")]
                         public class Tristrips : BasePrimitive
                         {
                             public override EColladaPrimitiveType Type => EColladaPrimitiveType.Tristrips;
                         }
                     }
-                    [Name("spline")]
-                    public class Spline : GeometryChild
+                    [ElementName("spline")]
+                    public class Spline : GeometryElementChild
                     {
 
                     }
-                    [Name("brep")]
-                    public class BRep : GeometryChild
+                    [ElementName("brep")]
+                    public class BRep : GeometryElementChild
                     {
 
                     }
@@ -1618,37 +1620,37 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             #region Controllers
-            [Name("library_controllers")]
-            [Child(typeof(Controller), 1, -1)]
+            [ElementName("library_controllers")]
+            [ElementChild(typeof(Controller), 1, -1)]
             public class LibraryControllers : Library
             {
                 public override ulong TypeFlag => (ulong)EIgnoreFlags.Controllers;
 
-                [Name("controller")]
-                [Child(typeof(Asset), 0, 1)]
-                [Child(typeof(ControllerChild), 1)]
-                [Child(typeof(Extra), 0, -1)]
-                public class Controller : BaseColladaElement<LibraryControllers>, IInstantiatable, IID, IName, IAsset, IExtra
+                [ElementName("controller")]
+                [ElementChild(typeof(Asset), 0, 1)]
+                [ElementChild(typeof(ControllerElementChild), 1)]
+                [ElementChild(typeof(Extra), 0, -1)]
+                public class Controller : BaseColladaElement<LibraryControllers>, IInstantiatable, IID, IElementName, IAsset, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
-                    public ControllerChild SkinOrMorphElement => GetChild<ControllerChild>();
+                    public ControllerElementChild SkinOrMorphElement => GetChild<ControllerElementChild>();
                     public Extra[] ExtraElements => GetChildren<Extra>();
 
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
-                    public abstract class ControllerChild : BaseColladaElement<Controller> { }
-                    [Name("skin")]
-                    [Child(typeof(BindShapeMatrix), 0, 1)]
-                    [Child(typeof(Source), 3, -1)]
-                    [Child(typeof(Joints), 1)]
-                    [Child(typeof(VertexWeights), 1)]
-                    [Child(typeof(Extra), 0, -1)]
-                    public class Skin : ControllerChild, ISource, IExtra
+                    public abstract class ControllerElementChild : BaseColladaElement<Controller> { }
+                    [ElementName("skin")]
+                    [ElementChild(typeof(BindShapeMatrix), 0, 1)]
+                    [ElementChild(typeof(Source), 3, -1)]
+                    [ElementChild(typeof(Joints), 1)]
+                    [ElementChild(typeof(VertexWeights), 1)]
+                    [ElementChild(typeof(Extra), 0, -1)]
+                    public class Skin : ControllerElementChild, ISource, IExtra
                     {
                         public BindShapeMatrix BindShapeMatrixElement => GetChild<BindShapeMatrix>();
                         public Source[] SourceElements => GetChildren<Source>();
@@ -1659,24 +1661,24 @@ namespace TheraEngine.Rendering.Models
                         [Attr("source", true)]
                         public ColladaURI Source { get; set; }
 
-                        [Name("bind_shape_matrix")]
+                        [ElementName("bind_shape_matrix")]
                         public class BindShapeMatrix : BaseStringElement<Skin, StringParsable<Matrix4>>
                         {
                             public override void PostRead() => StringContent.Value = StringContent.Value.Transposed();
                         }
-                        [Name("joints")]
-                        [Child(typeof(InputUnshared), 2, -1)]
-                        [Child(typeof(Extra), 0, -1)]
+                        [ElementName("joints")]
+                        [ElementChild(typeof(InputUnshared), 2, -1)]
+                        [ElementChild(typeof(Extra), 0, -1)]
                         public class Joints : BaseColladaElement<Skin>, IInputUnshared, IExtra
                         {
                             public InputUnshared[] InputElements => GetChildren<InputUnshared>();
                             public Extra[] ExtraElements => GetChildren<Extra>();
                         }
-                        [Name("vertex_weights")]
-                        [Child(typeof(InputShared), 2, -1)]
-                        [Child(typeof(BoneCounts), 0, 1)]
-                        [Child(typeof(PrimitiveIndices), 0, 1)]
-                        [Child(typeof(Extra), 0, -1)]
+                        [ElementName("vertex_weights")]
+                        [ElementChild(typeof(InputShared), 2, -1)]
+                        [ElementChild(typeof(BoneCounts), 0, 1)]
+                        [ElementChild(typeof(PrimitiveIndices), 0, 1)]
+                        [ElementChild(typeof(Extra), 0, -1)]
                         public class VertexWeights : BaseColladaElement<Skin>, IInputShared, IExtra
                         {
                             public InputShared[] InputElements => GetChildren<InputShared>();
@@ -1687,9 +1689,9 @@ namespace TheraEngine.Rendering.Models
                             [Attr("count", true)]
                             public uint Count { get; set; } = 0;
                             
-                            [Name("vcount")]
+                            [ElementName("vcount")]
                             public class BoneCounts : BaseStringElement<VertexWeights, ElementIntArray> { }
-                            [Name("v")]
+                            [ElementName("v")]
                             public class PrimitiveIndices : BaseStringElement<VertexWeights, ElementIntArray> { }
                         }
                     }
@@ -1698,11 +1700,11 @@ namespace TheraEngine.Rendering.Models
                         NORMALIZED,
                         RELATIVE,
                     }
-                    [Name("morph")]
-                    [Child(typeof(Source), 2, -1)]
-                    [Child(typeof(Targets), 1)]
-                    [Child(typeof(Extra), 0, -1)]
-                    public class Morph : ControllerChild, ISource, IExtra
+                    [ElementName("morph")]
+                    [ElementChild(typeof(Source), 2, -1)]
+                    [ElementChild(typeof(Targets), 1)]
+                    [ElementChild(typeof(Extra), 0, -1)]
+                    public class Morph : ControllerElementChild, ISource, IExtra
                     {
                         public Source[] SourceElements => GetChildren<Source>();
                         public Targets TargetsElement => GetChild<Targets>();
@@ -1714,9 +1716,9 @@ namespace TheraEngine.Rendering.Models
                         [DefaultValue("NORMALIZED")]
                         public EMorphMethod Method { get; set; } = EMorphMethod.NORMALIZED;
 
-                        [Name("targets")]
-                        [Child(typeof(InputUnshared), 2, -1)]
-                        [Child(typeof(Extra), 0, -1)]
+                        [ElementName("targets")]
+                        [ElementChild(typeof(InputUnshared), 2, -1)]
+                        [ElementChild(typeof(Extra), 0, -1)]
                         public class Targets : BaseColladaElement<Morph>, IInputUnshared, IExtra
                         {
                             public InputUnshared[] InputElements => GetChildren<InputUnshared>();
@@ -1728,41 +1730,41 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             #region Lights
-            [Name("library_lights")]
-            [Child(typeof(Light), 1, -1)]
+            [ElementName("library_lights")]
+            [ElementChild(typeof(Light), 1, -1)]
             public class LibraryLights : Library
             {
                 public override ulong TypeFlag => (ulong)EIgnoreFlags.Lights;
 
-                [Name("light")]
+                [ElementName("light")]
                 public class Light : BaseColladaElement<LibraryLights>, IInstantiatable, IID
                 {
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                 }
             }
             #endregion
 
             #region Animation
             public interface IAnimation : IElement { }
-            [Name("library_animations")]
-            [Child(typeof(Animation), 1, -1)]
+            [ElementName("library_animations")]
+            [ElementChild(typeof(Animation), 1, -1)]
             public class LibraryAnimations : Library, IAnimation
             {
                 public override ulong TypeFlag => (ulong)EIgnoreFlags.Animations;
 
                 public Animation[] AnimationElements => GetChildren<Animation>();
                 
-                [Name("animation")]
-                [Child(typeof(Asset), 0, 1)]
-                [Child(typeof(Animation), 0, -1)]
-                [Child(typeof(Source), 0, -1)]
-                [Child(typeof(Sampler), 0, -1)]
-                [Child(typeof(Channel), 0, -1)]
-                [Child(typeof(Extra), 0, -1)]
-                public class Animation : BaseColladaElement<IAnimation>, IID, IName, IAnimation, IAsset, ISource, IExtra
+                [ElementName("animation")]
+                [ElementChild(typeof(Asset), 0, 1)]
+                [ElementChild(typeof(Animation), 0, -1)]
+                [ElementChild(typeof(Source), 0, -1)]
+                [ElementChild(typeof(Sampler), 0, -1)]
+                [ElementChild(typeof(Channel), 0, -1)]
+                [ElementChild(typeof(Extra), 0, -1)]
+                public class Animation : BaseColladaElement<IAnimation>, IID, IElementName, IAnimation, IAsset, ISource, IExtra
                 {
                     public Asset AssetElement => GetChild<Asset>();
                     public Animation[] AnimationElements => GetChildren<Animation>();
@@ -1773,10 +1775,10 @@ namespace TheraEngine.Rendering.Models
 
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
                     
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                     public enum EInterpBehavior
                     {
@@ -1788,8 +1790,8 @@ namespace TheraEngine.Rendering.Models
                         CYCLE_RELATIVE,
                     }
 
-                    [Name("sampler")]
-                    [Child(typeof(InputUnshared), 1, -1)]
+                    [ElementName("sampler")]
+                    [ElementChild(typeof(InputUnshared), 1, -1)]
                     public class Sampler : BaseColladaElement<Animation>, IID, IInputUnshared
                     {
                         public InputUnshared[] InputElements => GetChildren<InputUnshared>();
@@ -1801,9 +1803,9 @@ namespace TheraEngine.Rendering.Models
                         [Attr("post_behavior", false)]
                         public EInterpBehavior PostBehavior { get; set; }
 
-                        public List<ISID> SIDChildren { get; } = new List<ISID>();
+                        public List<ISID> SIDElementChildren { get; } = new List<ISID>();
                     }
-                    [Name("channel")]
+                    [ElementName("channel")]
                     public class Channel : BaseColladaElement<Animation>
                     {
                         public enum ESelector
@@ -1890,16 +1892,16 @@ namespace TheraEngine.Rendering.Models
             {
                 Node[] NodeElements { get; }
             }
-            [Name("node")]
-            [Child(typeof(Asset), 0, 1)]
-            [Child(typeof(ITransformation), 0, -1)]
-            [Unsupported("lookat")]
-            [Unsupported("skew")]
-            [Child(typeof(IInstanceElement), 0, -1)]
-            [Child(typeof(Node), 0, -1)]
-            [Child(typeof(Extra), 0, -1)]
+            [ElementName("node")]
+            [ElementChild(typeof(Asset), 0, 1)]
+            [ElementChild(typeof(ITransformation), 0, -1)]
+            [UnsupportedElementChild("lookat")]
+            [UnsupportedElementChild("skew")]
+            [ElementChild(typeof(IInstanceElement), 0, -1)]
+            [ElementChild(typeof(Node), 0, -1)]
+            [ElementChild(typeof(Extra), 0, -1)]
             public class Node : BaseColladaElement<INode>,
-                INode, IID, ISID, IName, IInstantiatable, IExtra, IAsset
+                INode, IID, ISID, IElementName, IInstantiatable, IExtra, IAsset
             {
                 public Asset AssetElement => GetChild<Asset>();
                 public Extra[] ExtraElements => GetChildren<Extra>();
@@ -1917,7 +1919,7 @@ namespace TheraEngine.Rendering.Models
                 public string ID { get; set; } = null;
                 [Attr("sid", false)]
                 public string SID { get; set; } = null;
-                [Attr("name", false)]
+                [Attr("Name", false)]
                 public string Name { get; set; } = null;
                 [Attr("type", false)]
                 [DefaultValue("NODE")]
@@ -1925,7 +1927,7 @@ namespace TheraEngine.Rendering.Models
                 [Attr("layer", false)]
                 public string Layer { get; set; } = null;
                 
-                public List<ISID> SIDChildren { get; } = new List<ISID>();
+                public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                 public Node FindNode(string sid) => FindNode(NodeElements, sid);
                 private static Node FindNode(Node[] nodes, string sid)
@@ -1950,29 +1952,29 @@ namespace TheraEngine.Rendering.Models
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                     public abstract Matrix4 GetMatrix();
                 }
-                [Name("translate")]
+                [ElementName("translate")]
                 public class Translate : Transformation<Vec3>
                 {
                     public override Matrix4 GetMatrix() 
                         => Matrix4.CreateTranslation(StringContent.Value);
                 }
-                [Name("scale")]
+                [ElementName("scale")]
                 public class Scale : Transformation<Vec3>
                 {
                     public override Matrix4 GetMatrix()
                         => Matrix4.CreateScale(StringContent.Value);
                 }
-                [Name("rotate")]
+                [ElementName("rotate")]
                 public class Rotate : Transformation<Vec4>
                 {
                     public override Matrix4 GetMatrix() 
                         => Matrix4.CreateFromAxisAngle(StringContent.Value.Xyz, StringContent.Value.W);
                 }
-                [Name("matrix")]
+                [ElementName("matrix")]
                 public class Matrix : Transformation<Matrix4>
                 {
                     public override void PostRead()
@@ -1990,9 +1992,9 @@ namespace TheraEngine.Rendering.Models
                 }
 
                 //public override bool WantsManualRead => true;
-                //public override void SetAttribute(string name, string value)
+                //public override void SetAttribute(string ElementName, string value)
                 //{
-                //    switch (name)
+                //    switch (ElementName)
                 //    {
                 //        case "id":
                 //            ID = value;
@@ -2000,8 +2002,8 @@ namespace TheraEngine.Rendering.Models
                 //        case "sid":
                 //            SID = value;
                 //            break;
-                //        case "name":
-                //            Name = value;
+                //        case "ElementName":
+                //            ElementName = value;
                 //            break;
                 //        case "type":
                 //            Type = value == "JOINT" ? EType.JOINT : EType.NODE;
@@ -2011,9 +2013,9 @@ namespace TheraEngine.Rendering.Models
                 //            break;
                 //    }
                 //}
-                //public override IElement CreateChildElement(string name, string version)
+                //public override IElement CreateElementChildElement(string ElementName, string version)
                 //{
-                //    switch (name)
+                //    switch (ElementName)
                 //    {
                 //        case "asset":
                 //            return new Asset();
@@ -2046,18 +2048,18 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             #region Visual Scenes
-            [Name("library_visual_scenes")]
-            [Child(typeof(VisualScene), 1, -1)]
+            [ElementName("library_visual_scenes")]
+            [ElementChild(typeof(VisualScene), 1, -1)]
             public class LibraryVisualScenes : Library
             {
-                [Name("visual_scene")]
-                [Child(typeof(Asset), 0, 1)]
-                [Child(typeof(Node), 1, -1)]
-                //[Child(typeof(EvaluateScene), 0, -1)]
-                [Unsupported("evaluate_scene")]
-                [Child(typeof(Extra), 0, -1)]
+                [ElementName("visual_scene")]
+                [ElementChild(typeof(Asset), 0, 1)]
+                [ElementChild(typeof(Node), 1, -1)]
+                //[ElementChild(typeof(EvaluateScene), 0, -1)]
+                [UnsupportedElementChild("evaluate_scene")]
+                [ElementChild(typeof(Extra), 0, -1)]
                 public class VisualScene : BaseColladaElement<LibraryVisualScenes>,
-                    IAsset, IExtra, INode, IID, IName, IInstantiatable
+                    IAsset, IExtra, INode, IID, IElementName, IInstantiatable
                 {
                     public Asset AssetElement => GetChild<Asset>();
                     public Node[] NodeElements => GetChildren<Node>();
@@ -2065,10 +2067,10 @@ namespace TheraEngine.Rendering.Models
 
                     [Attr("id", false)]
                     public string ID { get; set; } = null;
-                    [Attr("name", false)]
+                    [Attr("Name", false)]
                     public string Name { get; set; } = null;
 
-                    public List<ISID> SIDChildren { get; } = new List<ISID>();
+                    public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
                     public Node FindNode(string sid) => FindNode(NodeElements, sid);
                     private static Node FindNode(Node[] nodes, string sid)
@@ -2084,7 +2086,7 @@ namespace TheraEngine.Rendering.Models
                         return null;
                     }
 
-                    [Name("evaluate_scene")]
+                    [ElementName("evaluate_scene")]
                     public class EvaluateScene : BaseColladaElement<VisualScene>
                     {
                         //TODO
@@ -2096,9 +2098,9 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             public override bool WantsManualRead => true;
-            public override void SetAttribute(string name, string value)
+            public override void SetAttribute(string ElementName, string value)
             {
-                switch (name)
+                switch (ElementName)
                 {
                     case "version":
                         Version = value;
@@ -2111,9 +2113,9 @@ namespace TheraEngine.Rendering.Models
                         break;
                 }
             }
-            public override IElement CreateChildElement(string name, string version)
+            public override IElement CreateChildElement(string ElementName, string version)
             {
-                switch (name)
+                switch (ElementName)
                 {
                     case "asset":
                         return new Asset();

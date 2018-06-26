@@ -226,6 +226,10 @@ namespace TheraEditor.Windows.Forms
         private DockableFileTree _fileTreeForm;
         public bool FileTreeFormActive => GetFormActive(_fileTreeForm);
         public DockableFileTree FileTreeForm => GetForm(ref _fileTreeForm);
+        
+        private DockableMSBuildTree _msBuildTreeForm;
+        public bool MSBuildTreeFormActive => GetFormActive(_msBuildTreeForm);
+        public DockableMSBuildTree MSBuildTreeForm => GetForm(ref _msBuildTreeForm);
 
         private DockablePropertyGrid _propertyGridForm;
         public bool PropertyGridFormActive => GetFormActive(_propertyGridForm);

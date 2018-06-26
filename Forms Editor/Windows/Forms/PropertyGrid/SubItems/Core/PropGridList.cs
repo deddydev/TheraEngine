@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     [PropGridControlFor(typeof(IList))]
-    public partial class PropGridList : PropGridItem
+    public partial class PropGridList : PropGridItem, ICollapsible
     {
         public PropGridList() => InitializeComponent();
         private IList _list = null;
@@ -45,7 +44,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 throw new Exception(DataType.GetFriendlyName() + " is not an IList type.");
             }
         }
-        
+
+        public void Expand() => propGridListItems.Visible = true;
+        public void Collapse() => propGridListItems.Visible = false;
+        public void Toggle() => propGridListItems.Visible = !propGridListItems.Visible;
+        public ControlCollection ChildControls => propGridListItems.ChildControls;
+
         private void pnlElements_VisibleChanged(object sender, EventArgs e)
         {
             if (propGridListItems.Visible)

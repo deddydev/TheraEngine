@@ -23,11 +23,11 @@ namespace TheraEngine.Animation
             ModelImportOptions o = new ModelImportOptions()
             {
                 IgnoreFlags =
-                EIgnoreFlags.Extra | 
-                EIgnoreFlags.Geometry |
-                EIgnoreFlags.Controllers |
-                EIgnoreFlags.Cameras | 
-                EIgnoreFlags.Lights
+                Collada.EIgnoreFlags.Extra |
+                Collada.EIgnoreFlags.Geometry |
+                Collada.EIgnoreFlags.Controllers |
+                Collada.EIgnoreFlags.Cameras |
+                Collada.EIgnoreFlags.Lights
             };
             return (await Collada.ImportAsync(path, o))?.Models[0].Animation;
         }

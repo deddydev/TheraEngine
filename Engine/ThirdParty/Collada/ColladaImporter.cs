@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
@@ -40,8 +41,8 @@ namespace TheraEngine.Rendering.Models
             //using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read))
             //using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
             {
-                var schemeReader = new XMLSchemeReader<COLLADA>();
-                var root = await schemeReader.ImportAsync(filePath, options.IgnoreFlags);
+                var schemeReader = new XMLSchemeDefinition<COLLADA>();
+                var root = await schemeReader.ImportAsync(filePath, (ulong)options.IgnoreFlags);
                 if (root != null)
                 {
                     Matrix4 baseTransform = options.InitialTransform.Matrix;
@@ -459,7 +460,7 @@ namespace TheraEngine.Rendering.Models
                         var tex = ct.TextureElement;
                         if (tex != null)
                         {
-                            var image = tex.GenericRoot.GetIDEntry(tex.TextureID);
+                            var image = tex.Root.GetIDEntry(tex.TextureID);
                             if (image == null)
                                 continue;
                             TexRef2D texRef = new TexRef2D();
@@ -537,7 +538,7 @@ namespace TheraEngine.Rendering.Models
             foreach (var channel in animElem.ChannelElements)
             {
                 var sampler = channel.Source.GetElement<Sampler>(animElem.GenericRoot);
-                ISID target = channel.Target.GetElement(animElem.GenericRoot, out string selector);
+                ISID target = channel.Target.GetElement(animElem.Root, out string selector);
                 if (!(target is IStringElement))
                     continue;
 

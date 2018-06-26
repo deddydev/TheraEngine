@@ -203,10 +203,14 @@ namespace TheraEngine.Files
                 ext = path.Substring(index).ToLowerInvariant();
             else
                 ext = path.ToLowerInvariant();
+
             if (File3rdParty.Has3rdPartyExtension(ext))
                 return FileFormat.ThirdParty;
+
+            //TODO: return raw format
             if (ext.Length == 0)
                 return FileFormat.ThirdParty;
+
             switch (ext[0])
             {
                 default: return FileFormat.ThirdParty;
@@ -357,15 +361,31 @@ namespace TheraEngine.Files
         /// <returns>A new instance of the file.</returns>
         public static async Task<T> LoadAsync<T>(string filePath) where T : TFileObject
         {
-            switch (GetFormat(filePath, out string ext))
+            Type t = typeof(T);
+            FileExt extAttrib = GetFileExtension(t);
+            File3rdParty tpAttrib = GetFile3rdPartyExtensions(t);
+            FileFormat fmt = GetFormat(filePath, out string ext);
+            if (extAttrib != null && fmt != FileFormat.ThirdParty)
             {
-                case FileFormat.ThirdParty:
-                    return await Read3rdPartyAsync<T>(filePath);
-                case FileFormat.Binary:
-                    return FromBinary<T>(filePath);
-                case FileFormat.XML:
-                    return FromXML<T>(filePath);
+                ProprietaryFileFormat pfmt = fmt == FileFormat.Binary ?
+                    ProprietaryFileFormat.Binary : 
+                    ProprietaryFileFormat.XML;
+
+                string fileExt = extAttrib.GetProperExtension(pfmt);
+                if (string.Equals(ext, fileExt))
+                    return fmt == FileFormat.XML ?
+                        FromXML<T>(filePath) :
+                        FromBinary<T>(filePath);
             }
+            else if (tpAttrib != null)
+            {
+                bool hasWildcard = tpAttrib.ImportableExtensions.Contains("*");
+                bool hasExt = tpAttrib.ImportableExtensions.Contains(ext.ToLowerInvariant());
+                if (hasWildcard || hasExt)
+                    return await Read3rdPartyAsync<T>(filePath);
+            }
+
+            Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, t.GetFriendlyName());
             return default;
         }
         /// <summary>
@@ -385,6 +405,11 @@ namespace TheraEngine.Files
             return null;
         }
         //[GridCallable("Save")]
+        /// <summary>
+        /// Writes this file at its FilePath.
+        /// Does nothing if this file has no FilePath set.
+        /// </summary>
+        /// <param name="flags"></param>
         public void Export(ESerializeFlags flags = ESerializeFlags.Default)
         {
             if (string.IsNullOrEmpty(FilePath))
@@ -471,7 +496,8 @@ namespace TheraEngine.Files
                 return null;
 
             TFileObject file;
-            if (GetFileExtension(type).ManualXmlConfigSerialize)
+            FileExt ext = GetFileExtension(type);
+            if (ext?.ManualXmlConfigSerialize ?? false)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length, true))

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     [PropGridControlFor(typeof(IDictionary))]
-    public partial class PropGridDictionary : PropGridItem
+    public partial class PropGridDictionary : PropGridItem, ICollapsible
     {
         public PropGridDictionary() => InitializeComponent();
         private IDictionary _dictionary = null;
@@ -157,7 +155,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             propGridDicItems.AddProperty(interlaced, new object[0], false);
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(interlaced[interlaced.Count - 1]);
         }
-        
+
+        public void Expand() => propGridDicItems.Visible = true;
+        public void Collapse() => propGridDicItems.Visible = false;
+        public void Toggle() => propGridDicItems.Visible = !propGridDicItems.Visible;
+        public ControlCollection ChildControls => propGridDicItems.ChildControls;
+
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {
             if (_dictionary != null)

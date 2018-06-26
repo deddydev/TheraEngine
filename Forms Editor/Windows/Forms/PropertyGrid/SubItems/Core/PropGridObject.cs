@@ -2,17 +2,24 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
 using System.Reflection;
 using System.Collections;
+using static System.Windows.Forms.Control;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
+    public interface ICollapsible
+    {
+        void Expand();
+        void Collapse();
+        void Toggle();
+        ControlCollection ChildControls { get; }
+    }
     [PropGridControlFor(typeof(object))]
-    public partial class PropGridObject : PropGridItem
+    public partial class PropGridObject : PropGridItem, ICollapsible
     {
         public PropGridObject() => InitializeComponent();
         
@@ -141,6 +148,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.SetIDictionaryOwner(dic, dataType, key, isKey);
             UpdateMouseDown();
         }
+
+        public void Expand() => pnlProps.Visible = true;
+        public void Collapse() => pnlProps.Visible = false;
+        public void Toggle() => pnlProps.Visible = !pnlProps.Visible;
+        public ControlCollection ChildControls => pnlProps.Controls;
 
         private void UpdateMouseDown()
         {

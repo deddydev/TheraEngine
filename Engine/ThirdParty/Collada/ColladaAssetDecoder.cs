@@ -166,7 +166,7 @@ namespace TheraEngine.Rendering.Models
 
             for (int i = 0; i < count; ++i)
             {
-                geom = targets.GenericRoot.GetIDEntry(geomIds[i]) as Geometry;
+                geom = targets.Root.GetIDEntry(geomIds[i]) as Geometry;
                 DecodePrimitives(geom, bindMatrix, null, 
                     out VertexShaderDesc info, out List<VertexPrimitive> lines, out List<VertexPolygon> faces);
                 morphLines[i] = lines;

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Animation;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
+using static TheraEngine.Rendering.Models.Collada;
 
 namespace TheraEngine.Rendering.Models
 {

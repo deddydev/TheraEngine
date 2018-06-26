@@ -3,9 +3,12 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
+using TheraEngine.Core.Files;
 using TheraEngine.Files;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
@@ -129,9 +132,21 @@ namespace TheraEditor.Wrappers
 
         public virtual void EditResource()
             => Editor.SetPropertyGridObject(SingleInstance);
-        public virtual void EditResourceRaw()
+        public virtual async void EditResourceRaw()
         {
+            DockableTextEditor m = new DockableTextEditor();
+            m.Show(Editor.Instance.DockPanel, DockState.Document);
+            TextFile file = await TFileObject.LoadAsync<TextFile>(FilePath);
+            m.InitText(file.Text, Path.GetFileName(FilePath), ETextEditorMode.Text);
+            m.Tag = file;
+            m.Saved += M_Saved;
+        }
 
+        private void M_Saved(DockableTextEditor obj)
+        {
+            TextFile file = obj.Tag as TextFile;
+            file.Text = obj.GetText();
+            file.Export();
         }
 
         internal protected override void OnExpand()

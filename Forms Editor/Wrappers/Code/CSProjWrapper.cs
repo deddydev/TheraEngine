@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Core.Files.XML;
-using TheraEngine.Rendering.Models;
+using TheraEngine.ThirdParty;
 
 namespace TheraEditor.Wrappers
 {

@@ -14,12 +14,12 @@ namespace TheraEngine.Components.Scene.Mesh
     {
         public SkeletalMeshComponent(GlobalFileRef<SkeletalModel> mesh, LocalFileRef<Skeleton> skeleton)
         {
-            SkeletonRef = skeleton;
+            SkeletonOverrideRef = skeleton;
             ModelRef = mesh;
         }
         public SkeletalMeshComponent()
         {
-            SkeletonRef = new LocalFileRef<Skeleton>();
+            SkeletonOverrideRef = new LocalFileRef<Skeleton>();
             ModelRef = new GlobalFileRef<SkeletalModel>();
         }
 
@@ -108,11 +108,11 @@ namespace TheraEngine.Components.Scene.Mesh
         /// May load synchronously if not currently loaded.
         /// </summary>
         [Browsable(false)]
-        public Skeleton SkeletonOverride => SkeletonRef.File;
+        public Skeleton SkeletonOverride => SkeletonOverrideRef.File;
 
         [TSerialize]
         [Category("Skeletal Mesh Component")]
-        public LocalFileRef<Skeleton> SkeletonRef
+        public LocalFileRef<Skeleton> SkeletonOverrideRef
         {
             get => _skeletonRef;
             set
@@ -138,31 +138,52 @@ namespace TheraEngine.Components.Scene.Mesh
             if (ModelRef != null && !ModelRef.IsLoaded)
                 return;
 
-            _targetSkeleton = SkeletonOverride ?? ModelRef.File.SkeletonRef.File;
-            _targetSkeleton.OwningComponent = this;
+            //_targetSkeleton = SkeletonOverride ?? ModelRef.File.SkeletonRef.File;
+            //_targetSkeleton.OwningComponent = this;
 
-            if (Meshes != null)
-                foreach (SkeletalRenderableMesh m in Meshes)
-                    m.Skeleton = _targetSkeleton;
+            //if (Meshes != null)
+            //    foreach (SkeletalRenderableMesh m in Meshes)
+            //        m.Skeleton = _targetSkeleton;
+
+            if (IsSpawned)
+                MakeMeshes();
         }
         private void _modelRef_Loaded(SkeletalModel model)
         {
-            _targetSkeleton = SkeletonOverride ?? model.SkeletonRef.File;
+            //_targetSkeleton = SkeletonOverride ?? model.SkeletonRef.File;
+            //_targetSkeleton.OwningComponent = this;
+
+            if (IsSpawned)
+                MakeMeshes();
+        }
+
+        private void MakeMeshes()
+        {
+            if (Meshes != null)
+                foreach (SkeletalRenderableMesh m in Meshes)
+                {
+                    m.Visible = false;
+                    m.Destroy();
+                }
+
+            SkeletalModel model = ModelRef?.File;
+            _targetSkeleton = SkeletonOverride ?? ModelRef?.File?.SkeletonRef?.File;
+            if (_targetSkeleton == null || model == null)
+                return;
+
             _targetSkeleton.OwningComponent = this;
 
             Meshes = new SkeletalRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {
                 SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], _targetSkeleton, this);
-                if (IsSpawned)
-                    mesh.Visible = mesh.Mesh.VisibleByDefault;
+                mesh.Visible = mesh.Mesh.VisibleByDefault;
                 Meshes[i] = mesh;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
                 SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], _targetSkeleton, this);
-                if (IsSpawned)
-                    mesh.Visible = mesh.Mesh.VisibleByDefault;
+                mesh.Visible = mesh.Mesh.VisibleByDefault;
                 Meshes[model.RigidChildren.Count + i] = mesh;
             }
         }
@@ -179,20 +200,17 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         public override void OnSpawned()
         {
-            if (Meshes == null)
-                ModelRef.GetInstance();
-
-            if (Meshes != null)
-                foreach (SkeletalRenderableMesh m in Meshes)
-                    m.Visible = m.Mesh.VisibleByDefault;
-
+            MakeMeshes();
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
+                {
                     m.Visible = false;
+                    m.Destroy();
+                }
             
             base.OnDespawned();
         }

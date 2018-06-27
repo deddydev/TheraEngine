@@ -918,7 +918,8 @@ namespace TheraEngine.Rendering.OpenGL
             
             if (buffer.IsMapped)
             {
-                UnmapBufferData(buffer);
+                //UnmapBufferData(buffer);
+                return;
             }
 
             int length = buffer._data.Length;

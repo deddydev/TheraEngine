@@ -259,6 +259,9 @@ namespace TheraEditor.Windows.Forms
         {
             SetRenderTicking(false);
             //Editor.Instance.SetRenderTicking(true);
+            World.DespawnActor(TargetActor);
+            if (Model is SkeletalModel skm && skm.SkeletonRef?.IsLoaded == true)
+                World.Scene.Remove(skm.SkeletonRef.File);
             base.OnClosed(e);
         }
 

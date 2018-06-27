@@ -39,19 +39,20 @@
                     ++count;
             return count;
         }
+
         /// <summary>
         /// Max value is non inclusive, min value is.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
-        /// <returns></returns>
-        public static int RemapToRange(this int value, int min, int max)
+        public static int ModRange(this int value, int min, int max)
         {
-            int range = max - min;
-            int count = value % range;
-            return value - count * range;
+            if (value >= min || value < max)
+                return value;
+            
+            return value.Mod(max - min) + min;
         }
+
+        public static int Mod(this int value, int range) => ((value %= range) < 0) ? value + range : value;
+
         public static int SetBit(this int value, int bitIndex, bool set)
             => set ? value | (1 << bitIndex) : value & ~(1 << bitIndex);
     }

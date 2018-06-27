@@ -498,7 +498,6 @@ namespace TheraEngine.Actors.Types
         private const float _coneDistance = _orbRadius * 1.5f;
         private const float _scaleHalf1LDist = _orbRadius * 0.8f;
         private const float _scaleHalf2LDist = _orbRadius * 1.2f;
-        private List<Vec3> _intersectionPoints = new List<Vec3>(3);
         
         Vec3 _lastPoint;
         Vec3 _dragPlaneNormal;
@@ -711,7 +710,7 @@ namespace TheraEngine.Actors.Types
             Vec3 worldPoint = _dragMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
-            _intersectionPoints.Clear();
+            List<Vec3> intersectionPoints = new List<Vec3>(3);
 
             bool snapFound = false;
             for (int normalAxis = 0; normalAxis < 3; ++normalAxis)
@@ -721,12 +720,12 @@ namespace TheraEngine.Actors.Types
 
                 //Get plane intersection point for cursor ray and each drag plane
                 if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, unit, out Vec3 point))
-                    _intersectionPoints.Add(point);
+                    intersectionPoints.Add(point);
             }
 
             //_intersectionPoints.Sort((l, r) => l.DistanceToSquared(camera.WorldPoint).CompareTo(r.DistanceToSquared(camera.WorldPoint)));
 
-            foreach (Vec3 v in _intersectionPoints)
+            foreach (Vec3 v in intersectionPoints)
             {
                 Vec3 diff = v / radius;
                 //int planeAxis1 = normalAxis + 1 - (normalAxis >> 1) * 3;    //0 = 1, 1 = 2, 2 = 0
@@ -768,7 +767,7 @@ namespace TheraEngine.Actors.Types
             Vec3 worldPoint = _dragMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
-            _intersectionPoints.Clear();
+            List<Vec3> intersectionPoints = new List<Vec3>(3);
 
             bool snapFound = false;
             for (int normalAxis = 0; normalAxis < 3; ++normalAxis)
@@ -778,12 +777,12 @@ namespace TheraEngine.Actors.Types
                 
                 //Get plane intersection point for cursor ray and each drag plane
                 if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, unit, out Vec3 point))
-                    _intersectionPoints.Add(point);
+                    intersectionPoints.Add(point);
             }
 
             //_intersectionPoints.Sort((l, r) => l.DistanceToSquared(camera.WorldPoint).CompareTo(r.DistanceToSquared(camera.WorldPoint)));
             
-            foreach (Vec3 v in _intersectionPoints)
+            foreach (Vec3 v in intersectionPoints)
             {
                 Vec3 diff = v / radius;
                 //int planeAxis1 = normalAxis + 1 - (normalAxis >> 1) * 3;    //0 = 1, 1 = 2, 2 = 0

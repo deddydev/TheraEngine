@@ -287,8 +287,7 @@ namespace TheraEngine.Core.Files.XML
                                     //This means the class is for an element with ANY name.
                                     if (typeIndex < 0)
                                         typeIndex = Array.FindIndex(child.ElementNames, name => name.Name == null && name.VersionMatches(version));
-
-                                    //TODO: typeIndex is -1
+                                    
                                     if (typeIndex >= 0)
                                     {
                                         if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
@@ -298,7 +297,6 @@ namespace TheraEngine.Core.Files.XML
                                         elem.ReadElementName = elementName;
                                         break;
                                     }
-                                    else throw new Exception();
                                 }
                                 if (typeIndex < 0)
                                 {

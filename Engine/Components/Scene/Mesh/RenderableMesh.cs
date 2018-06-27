@@ -125,6 +125,15 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
             }
         }
+
+        public void Destroy()
+        {
+            foreach (var lod in LODs)
+            {
+                lod.Manager.Destroy();
+            }
+        }
+
         //public void Render() => Render(null, true, true);
         //public void Render(bool allowPreRenderEvent = true, bool allowPostRenderEvent = true) => Render(null, allowPreRenderEvent, allowPostRenderEvent);
         //public void Render(TMaterial material = null, bool allowPreRenderEvent = true, bool allowPostRenderEvent = true)

@@ -227,15 +227,8 @@ namespace TheraEngine.Rendering.Models
             //because bone subtrees that do not need updating will be skipped entirely
             //instead of being iterated through
             if (RootBones != null)
-            {
-                foreach (IPrimitiveManager m in _managers.Values)
-                {
-                    m.ModifiedBoneIndicesUpdating.Clear();
-                    m.ModifiedVertexIndicesUpdating.Clear();
-                }
                 foreach (Bone b in RootBones)
                     b.CalcFrameMatrix(c, worldMatrix, inverseWorldMatrix);
-            }
         }
 
     }

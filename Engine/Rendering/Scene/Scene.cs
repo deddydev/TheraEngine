@@ -57,9 +57,9 @@ namespace TheraEngine.Rendering
             };
         }
 
-        public bool ShadowPass { get; set; }
-        private RenderSortNearToFar _nearToFarSorter;
-        private RenderSortFarToNear _farToNearSorter;
+        public bool ShadowPass { get; internal set; }
+        private readonly RenderSortNearToFar _nearToFarSorter;
+        private readonly RenderSortFarToNear _farToNearSorter;
         private SortedSet<RenderCommand>[] _updatingPasses;
         private SortedSet<RenderCommand>[] _renderingPasses;
 

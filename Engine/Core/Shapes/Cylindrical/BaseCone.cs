@@ -134,7 +134,7 @@ namespace TheraEngine.Core.Shapes
                     v2.Normal = -up;
                     list.Add(v2);
                 }
-                Vertex v3 = sidePoints[sidePoints.Length - 1].HardCopy();
+                Vertex v3 = sidePoints[1].HardCopy();
                 v3.Normal = -up;
                 list.Add(v3);
                 tris.AddRange(new VertexTriangleFan(list).ToTriangles());

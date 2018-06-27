@@ -189,8 +189,10 @@ namespace TheraEngine.Components.Scene.Lights
             _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowWidth, _shadowHeight, 0.0f, 0.0f));
             {
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                Engine.Renderer.ClearDepth(1.0f);
+                Engine.Renderer.EnableDepthTest(true);
                 Engine.Renderer.AllowDepthWrite(true);
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 scene.Render(_passes, _shadowCamera, null, null, null);
             }
             Engine.Renderer.PopRenderArea();

@@ -209,7 +209,6 @@
       <DependentUpon>SelectCurvesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ThirdParty\Graphing\Utils.cs" />
-    <Compile Include="ThirdParty\MSBuildDefinitions.cs" />
     <Compile Include="ThirdParty\Text Editor\AutoCompleteForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -220,7 +219,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Github.cs" />
-    <Compile Include="ThirdParty\VisualStudioSolution.cs" />
     <Compile Include="Windows\Forms\Borderless Form\TheraForm.cs">
       <SubType>Form</SubType>
     </Compile>

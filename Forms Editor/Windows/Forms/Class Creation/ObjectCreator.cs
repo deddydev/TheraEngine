@@ -137,8 +137,8 @@ namespace TheraEditor.Windows.Forms
             public int RowIndex { get; set; }
             public object Value { get; set; }
         }
-        
-        public int ConstructorIndex { get; private set; }
+
+        public int ConstructorIndex { get; private set; } = -1;
         public Type ClassType { get; private set; }
         public ConstructorInfo[] PublicInstanceConstructors { get; private set; }
         public MethodInfo[] PublicStaticConstructors { get; private set; }
@@ -195,10 +195,10 @@ namespace TheraEditor.Windows.Forms
             }
             else
             {
-                object[] paramData = FinalArguments[ConstructorIndex];
+                object[] paramData = FinalArguments.IndexInArrayRange(ConstructorIndex) ? FinalArguments[ConstructorIndex] : null;
                 if (ConstructorIndex < PublicInstanceConstructors.Length)
                 {
-                    if (paramData.Length == 0)
+                    if (paramData == null || paramData.Length == 0)
                         ConstructedObject = Activator.CreateInstance(ClassType);
                     else
                     {

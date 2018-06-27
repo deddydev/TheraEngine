@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using TheraEngine.Core.Files.XML;
 
-namespace TheraEngine.Rendering.Models
+namespace TheraEngine.ThirdParty
 {
     public class MSBuild
     {

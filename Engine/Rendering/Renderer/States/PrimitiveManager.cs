@@ -169,6 +169,8 @@ namespace TheraEngine.Rendering.Models
         {
             THelpers.Swap(ref _modifiedVertexIndicesRendering, ref _modifiedVertexIndicesUpdating);
             THelpers.Swap(ref _modifiedBoneIndicesRendering, ref _modifiedBoneIndicesUpdating);
+            _modifiedBoneIndicesUpdating.Clear();
+            _modifiedVertexIndicesUpdating.Clear();
         }
 
         public DataBuffer IndexBuffer { get; private set; }
@@ -359,8 +361,6 @@ namespace TheraEngine.Rendering.Models
                     matrices.Insert(0, Matrix4.Identity);
                     _boneMatrixBuffer.SetData(matrices, false);
                     _remake = true;
-                    //_boneMatrixBuffer.Generate();
-                    //_boneMatrixBuffer.PushData();
                     _boneRemap = new Dictionary<int, int>();
                     for (int i = 0; i < _utilizedBones.Length; ++i)
                     {
@@ -406,10 +406,10 @@ namespace TheraEngine.Rendering.Models
                             _boneMatrixBuffer.Set(boneIndex * Matrix4.Size, vtxMtx);
                         }
                         //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
-
-                        _boneMatrixBuffer.SetBlockName(program, "Bones");
-                        _boneMatrixBuffer.PushSubData(0, _boneMatrixBuffer.DataLength);
                     }
+
+                    _boneMatrixBuffer.SetBlockName(program, "Bones");
+                    _boneMatrixBuffer.PushSubData(0, _boneMatrixBuffer.DataLength);
                 }
             }
             else
@@ -566,12 +566,30 @@ namespace TheraEngine.Rendering.Models
         }
         protected override void PostDeleted()
         {
-            _data.Dispose();
-            IndexBuffer.Dispose();
+            _pipeline?.Destroy();
             _vertexProgram?.Destroy();
-            _vertexProgram = null;
             VertexFragProgram?.Destroy();
-            VertexFragProgram = null;
+        }
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    Destroy();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                _data.Dispose();
+                IndexBuffer.Dispose();
+                _vertexProgram = null;
+                VertexFragProgram = null;
+
+                _disposedValue = true;
+            }
         }
     }
 }

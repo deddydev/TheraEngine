@@ -1,7 +1,7 @@
 ﻿using System;
+using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
-using TheraEngine.Components.Scene.Shapes;
 
 namespace TheraEngine.Components.Logic.Movement
 {
@@ -25,7 +25,6 @@ namespace TheraEngine.Components.Logic.Movement
         private TCollisionObject _currentWalkingSurface;
         private Vec3 _groundNormal;
         private Quat _upToGroundNormalRotation = Quat.Identity;
-        private float _verticalStepUpHeight = 0.5f;
         private Action<float, Vec3> _subUpdateTick;
         Vec3 _position, _prevPosition, _velocity, _prevVelocity, _acceleration;
         private bool _postWalkAllowJump = false, _justJumped = false;
@@ -110,11 +109,8 @@ namespace TheraEngine.Components.Logic.Movement
             root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
         }
 
-        public float VerticalStepUpHeight
-        {
-            get => _verticalStepUpHeight;
-            set => _verticalStepUpHeight = value;
-        }
+        public float VerticalStepUpHeight { get; set; } = 1.0f;
+
         public override void OnSpawned()
         {
             if (OwningActor.RootComponent is IRigidBodyCollidable root)
@@ -142,6 +138,12 @@ namespace TheraEngine.Components.Logic.Movement
             }
             _subUpdateTick(delta, ConsumeInput());
         }
+
+        private ShapeTraceClosest _closestTrace = new ShapeTraceClosest(
+            null, Matrix4.Identity, Matrix4.Identity, 
+            (ushort)TCollisionGroup.Characters,
+            (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
+
         protected virtual void TickWalking(float delta, Vec3 movementInput)
         {
             ShapeTraceClosest result;
@@ -157,12 +159,14 @@ namespace TheraEngine.Components.Logic.Movement
 
             Vec3 down = gravity;
             down.NormalizeFast();
-            Vec3 stepUpVector = -_verticalStepUpHeight * down;
+            Vec3 stepUpVector = -VerticalStepUpHeight * down;
             Matrix4 stepUpMatrix = stepUpVector.AsTranslationMatrix();
 
             //Add input
 
             Quat groundRot = _upToGroundNormalRotation;
+
+            _closestTrace.Shape = shape;
 
             #region Movement input
             while (true)
@@ -173,16 +177,14 @@ namespace TheraEngine.Components.Logic.Movement
                     groundRot = Quat.Identity;
                     inputTransform = finalInput.AsTranslationMatrix();
 
-                    result = new ShapeTraceClosest(shape,
-                        stepUpMatrix * root.WorldMatrix, stepUpMatrix * inputTransform * root.WorldMatrix,
-                        (ushort)TCollisionGroup.Characters,
-                        (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
+                    _closestTrace.Start = stepUpMatrix * root.WorldMatrix;
+                    _closestTrace.End = stepUpMatrix * inputTransform * root.WorldMatrix;
                     
-                    if (Engine.ShapeTrace(result))
+                    if (_closestTrace.Trace())
                     {
-                        if (result.HitFraction.IsZero())
+                        if (_closestTrace.HitFraction.IsZero())
                         {
-                            Vec3 hitNormal = result.HitNormalWorld;
+                            Vec3 hitNormal = _closestTrace.HitNormalWorld;
                             finalInput.Normalize();
                             float dot = hitNormal | finalInput;
                             if (dot < 0.0f)
@@ -199,18 +201,18 @@ namespace TheraEngine.Components.Logic.Movement
                             break;
                         }
 
-                        float hitF = result.HitFraction;
+                        float hitF = _closestTrace.HitFraction;
 
                         //Something is in the way
                         root.Translation.Raw += finalInput * hitF;
                         
-                        Vec3 normal = result.HitNormalWorld;
+                        Vec3 normal = _closestTrace.HitNormalWorld;
                         if (IsSurfaceNormalWalkable(normal))
                         {
                             GroundNormal = normal;
                             groundRot = _upToGroundNormalRotation;
 
-                            TRigidBody rigidBody = result.CollisionObject as TRigidBody;
+                            TRigidBody rigidBody = _closestTrace.CollisionObject as TRigidBody;
                             //if (CurrentWalkingSurface == d)
                             //    break;
 
@@ -245,29 +247,26 @@ namespace TheraEngine.Components.Logic.Movement
             //Test for walkable ground
 
             #region Ground Test
-            float groundTestDist = CurrentWalkingSurface.CollisionShape.Margin + body.CollisionShape.Margin + 0.01f;
+
+            float groundTestDist = CurrentWalkingSurface.CollisionShape.Margin + body.CollisionShape.Margin + 0.1f;
             down *= groundTestDist;
             inputTransform = down.AsTranslationMatrix();
-            
-            result = new ShapeTraceClosest(shape,
-                stepUpMatrix * root.WorldMatrix, stepUpMatrix * inputTransform * root.WorldMatrix, 
-                (ushort)TCollisionGroup.Characters, 
-                (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
-            
-            if (!Engine.ShapeTrace(result) || !IsSurfaceNormalWalkable(result.HitNormalWorld))
+
+            _closestTrace.Start = stepUpMatrix * root.WorldMatrix;
+            _closestTrace.End = stepUpMatrix * inputTransform * root.WorldMatrix;
+
+            if (!_closestTrace.Trace() || !IsSurfaceNormalWalkable(_closestTrace.HitNormalWorld))
             {
                 CurrentMovementMode = MovementMode.Falling;
                 return;
             }
 
-            _worldGroundContactPoint = result.HitPointWorld;
-            Vec3 diff = Vec3.Lerp(stepUpVector, down, result.HitFraction);
-            //if (diff.Length > 1.232488E-06f)
-            //    return;
+            _worldGroundContactPoint = _closestTrace.HitPointWorld;
+            Vec3 diff = Vec3.Lerp(stepUpVector, down, _closestTrace.HitFraction);
             root.Translation.Raw += diff;
 
-            GroundNormal = result.HitNormalWorld;
-            CurrentWalkingSurface = result.CollisionObject as TRigidBody;
+            GroundNormal = _closestTrace.HitNormalWorld;
+            CurrentWalkingSurface = _closestTrace.CollisionObject as TRigidBody;
 
             #endregion
 
@@ -280,7 +279,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             //Engine.DebugPrint(_velocity.Xz.LengthFast);
 
-            body.LinearVelocity = _velocity;
+            //body.LinearVelocity = _velocity;
         }
         protected virtual void TickFalling(float delta, Vec3 movementInput)
         {
@@ -347,6 +346,7 @@ namespace TheraEngine.Components.Logic.Movement
             else
             {
                 //The ground isn't movable, so just apply the jump force directly.
+                //impulse = mass * velocity change
                 chara.ApplyCentralImpulse(up * (_jumpSpeed * chara.Mass));
             }
 

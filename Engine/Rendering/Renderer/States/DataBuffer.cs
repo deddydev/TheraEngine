@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering.Models
             Double  = 10,
         }
 
-        public bool MapData { get; set; } = true;
+        public bool MapData { get; set; } = false;
         public EBufferTarget Target { get; private set; } = EBufferTarget.ArrayBuffer;
         public EBufferUsage Usage { get; set; } = EBufferUsage.StaticDraw;
         internal int _vaoId = 0;

@@ -61,18 +61,23 @@ namespace TheraEngine.Input.Devices
 
         internal void Tick(float xPos, float yPos, float delta)
         {
+            if (_lastX == xPos && _lastY == yPos)
+                return;
+
             OnUnbounded(xPos, yPos);
-            Point absolute = Cursor.Position;
-            if (BaseRenderPanel.HoveredPanel != null)
-            //    absolute = (Point)BaseRenderPanel.HoveredPanel.Invoke(BaseRenderPanel.HoveredPanel.PointToClientDelegate, absolute);
-            absolute = BaseRenderPanel.HoveredPanel.PointToClient(absolute);
-            xPos = absolute.X;
-            yPos = absolute.Y;
-            OnAbsolute(xPos, yPos);
-            //TODO: make relative unbounded
-            OnRelative(xPos - _lastX, yPos - _lastY);
+            Point absPt = Cursor.Position;
+            float relX = xPos - _lastX;
+            float relY = _lastY - yPos;
             _lastX = xPos;
             _lastY = yPos;
+            
+            if (BaseRenderPanel.HoveredPanel != null)
+                absPt = BaseRenderPanel.HoveredPanel.PointToClient(absPt);
+
+            xPos = absPt.X;
+            yPos = absPt.Y;
+            OnAbsolute(xPos, yPos);
+            OnRelative(relX, relY);
         }
         public void Register(DelCursorUpdate func, EInputPauseType pauseType, MouseMoveType type, bool unregister)
         {

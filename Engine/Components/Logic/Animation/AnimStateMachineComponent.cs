@@ -97,7 +97,7 @@ namespace TheraEngine.Components.Logic.Animation
                 _currentState = _states[transition.DestinationStateIndex];
                 _blendManager.QueueState(_currentState.Animation, transition.BlendDuration, transition.BlendType, transition.CustomBlendFunction);
             }
-            _blendManager.Tick(delta, Skeleton.File);
+            _blendManager?.Tick(delta, Skeleton.File);
         }
     }
     public class AnimState
@@ -217,8 +217,11 @@ namespace TheraEngine.Components.Logic.Animation
         {
             _blendQueue = new LinkedList<BlendInfo>();
             _stateQueue = new LinkedList<SkeletalAnimation>();
-            _stateQueue.AddFirst(initialState);
-            initialState.Start();
+            if (initialState != null)
+            {
+                _stateQueue.AddFirst(initialState);
+                initialState.Start();
+            }
         }
 
         public void QueueState(
@@ -227,9 +230,12 @@ namespace TheraEngine.Components.Logic.Animation
             AnimBlendType type,
             KeyframeTrack<FloatKeyframe> customBlendMethod)
         {
+            if (destinationState == null)
+                return;
             destinationState.Start();
             _stateQueue.AddLast(destinationState);
-            _blendQueue.AddLast(new BlendInfo(blendDuration, type, customBlendMethod));
+            if (_stateQueue.Count > 1)
+                _blendQueue.AddLast(new BlendInfo(blendDuration, type, customBlendMethod));
         }
         
         internal void Tick(float delta, Skeleton skeleton)
@@ -243,7 +249,9 @@ namespace TheraEngine.Components.Logic.Animation
             //stateNode.Value.Tick(delta);
 
             //Get frame of first animation
-            SkeletalAnimationFrame frame = stateNode.Value.GetFrame();
+            SkeletalAnimationFrame frame = stateNode?.Value?.GetFrame();
+            if (frame == null)
+                return;
 
             if (_blendQueue.Count > 0)
             {

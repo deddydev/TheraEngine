@@ -165,7 +165,6 @@ namespace TheraEditor.Windows.Forms
         public UndoManager UndoManager { get; } = new UndoManager();
 
         private Project _project;
-        private Assembly _gameProgram;
         private EditorGameMode _editorGameMode;
         private DeserializeDockContent _deserializeDockContent;
 
@@ -685,11 +684,12 @@ namespace TheraEditor.Windows.Forms
                             BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
                             renderPanel.Focus();
                             renderPanel.Capture = true;
-                            //Cursor.Hide();
                             Cursor.Clip = renderPanel.RectangleToScreen(renderPanel.ClientRectangle);
+                            //Cursor.Hide();
 
                             InputInterface.GlobalRegisters.Add(RegisterInput);
-                            Engine.SetActiveGameMode(Engine.GetGameMode(), true);
+                            BaseGameMode mode = Engine.GetGameMode();
+                            Engine.SetActiveGameMode(mode, true);
 
                             Engine.SetPaused(false, LocalPlayerIndex.One, true);
                         }

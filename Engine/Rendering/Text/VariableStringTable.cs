@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.Text
         [TagName("hour_12")]
         public string GetHour12()
         {
-            return DateTime.Now.Hour.RemapToRange(0, 12).ToString();
+            return DateTime.Now.Hour.ModRange(0, 12).ToString();
         }
         [TagName("time_am_pm")]
         public string GetTimeAmOrPm()

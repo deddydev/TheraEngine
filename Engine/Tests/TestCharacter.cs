@@ -1,11 +1,10 @@
 ﻿using System;
-using TheraEngine.Animation;
-using TheraEngine.Rendering.Models;
 using System.Threading.Tasks;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Animation;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Files;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Tests
 {
@@ -47,7 +46,7 @@ namespace TheraEngine.Tests
                 //kneeAnim.Keyframes.Add(l3);
                 //skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
 
-                _meshComp.SkeletonRef = skeleton;
+                _meshComp.SkeletonOverrideRef = skeleton;
                 _meshComp.ModelRef = mesh;
 
                 string animPath = //TestDefaults.DesktopPath + "test_anim.dae";

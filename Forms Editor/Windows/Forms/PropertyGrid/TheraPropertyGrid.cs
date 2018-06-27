@@ -10,11 +10,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Files;
 using TheraEngine.Actors;
 using TheraEngine.Components;
-using TheraEngine.Timers;
+using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Files;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -187,6 +186,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.OnHandleDestroyed(e);
         }
 
+        public event Action<object> PropertiesLoaded;
         private async void LoadProperties(object obj)
         {
             if (Disposing || IsDisposed)
@@ -294,6 +294,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         
                 //Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
                 pnlProps.ResumeLayout(true);
+
+                PropertiesLoaded?.Invoke(obj);
             }
         }
 

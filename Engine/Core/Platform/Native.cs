@@ -1041,6 +1041,10 @@ namespace Core.Win32.Native
     public static class NativeMethods
     {
         [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ShowWindow(IntPtr hWnd, EShowWindowEnum flags);
+        
+        [DllImport("user32.dll")]
         public static extern short GetKeyState(int nVirtKey);
         [DllImport("user32.dll")]
         public static extern int LockWindowUpdate(IntPtr hwnd);
@@ -1160,6 +1164,16 @@ namespace Core.Win32.Native
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
     }
+
+    public enum EShowWindowEnum
+    {
+        Hide = 0,
+        ShowNormal = 1, ShowMinimized = 2, ShowMaximized = 3,
+        Maximize = 3, ShowNormalNoActivate = 4, Show = 5,
+        Minimize = 6, ShowMinNoActivate = 7, ShowNoActivate = 8,
+        Restore = 9, ShowDefault = 10, ForceMinimized = 11
+    };
+
     [Flags]
     public enum AnimateWindowFlags : uint
     {

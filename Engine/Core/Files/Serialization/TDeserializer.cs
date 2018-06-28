@@ -5,60 +5,107 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Files;
+using TheraEngine.Files.Serialization;
 
-namespace TheraEngine.Files.Serialization
+namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class CustomXmlSerializer
+    public class TDeserializer
     {
-        private XMLReader _reader;
+        private TFileReader _reader;
         private string _rootFilePath;
         private TFileObject _rootFileObject;
 
-        public unsafe static Type DetermineType(string filePath)
+        private abstract class TFileReader
         {
-            Type t = null;
-            try
-            {
-                using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
-                using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
-                {
-                    if (reader.BeginElement() &&
-                        reader.ReadAttribute() && 
-                        reader.Name.Equals(SerializationCommon.TypeIdent, true))
-                    {
-                        string value = reader.Value.ToString();
-                        t = Type.GetType(value,
-                            (name) =>
-                            {
-                                return AppDomain.CurrentDomain.GetAssemblies().
-                                Where(z => z.FullName == name.FullName).FirstOrDefault();
-                            },
-                            null,
-                            false);
+            public virtual string Name { get; }
+            public virtual string Value { get; }
 
-                        //t = Type.GetType(reader.Value, false, false);
-                    }
-                }
-            }
-            catch (Exception e)
+            public abstract bool BeginElement();
+            public abstract bool ReadAttribute();
+            public abstract void EndElement();
+            public abstract string ReadElementString();
+            public abstract void MoveBackToElementClose();
+            public abstract void ManualRead(TFileObject o);
+        }
+        private class TFileReaderXML : TFileReader
+        {
+            XMLReader Reader { get; set; } = new XMLReader();
+
+            public override string Name => Reader.Name;
+            public override string Value => Reader.Value;
+            public override bool BeginElement() => Reader.BeginElement();
+            public override bool ReadAttribute() => Reader.ReadAttribute();
+            public override void EndElement() => Reader.EndElement();
+            public override string ReadElementString() => Reader.ReadElementString();
+            public override void MoveBackToElementClose() => Reader.MoveBackToElementClose();
+            public override void ManualRead(TFileObject o) => o.Read(Reader);
+        }
+        private class TFileReaderBinary : TFileReader
+        {
+            public override string Name => null;//Reader.Name;
+            public override string Value => null;//Reader.Value;
+            public override bool BeginElement()
             {
-                Engine.PrintLine(e.ToString());
+                throw new NotImplementedException();
             }
-            return t;
+            public override bool ReadAttribute()
+            {
+                throw new NotImplementedException();
+            }
+            public override void EndElement()
+            {
+                throw new NotImplementedException();
+            }
+            public override string ReadElementString()
+            {
+                throw new NotImplementedException();
+            }
+            public override void MoveBackToElementClose()
+            {
+                throw new NotImplementedException();
+            }
+            public override void ManualRead(TFileObject o)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public TFileObject Deserialize(string filePath)
+        {
+            EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
+            switch (fmt)
+            {
+                default:
+                case EFileFormat.ThirdParty:
+                    //throw new InvalidOperationException("This type of file is not a proprietary file format.");
+                    var task = TFileObject.Read3rdPartyAsync(null, filePath);
+                    task.Wait();
+                    return task.Result;
+                case EFileFormat.XML:
+                    _reader = new TFileReaderXML();
+                    break;
+                case EFileFormat.Binary:
+                    _reader = new TFileReaderBinary();
+                    break;
+            }
+            return Deserialize2(filePath);
         }
         /// <summary>
         /// Reads a file from the stream as xml.
         /// </summary>
-        public unsafe TFileObject Deserialize(string filePath)
+        public unsafe TFileObject Deserialize2(string filePath)
         {
             _rootFileObject = null;
             _rootFilePath = filePath;
             TFileObject obj = null;
             using (FileMap map = FileMap.FromFile(filePath))
-            using (_reader = new XMLReader(map.Address, map.Length, true))
             {
-                if (_reader.BeginElement() && _reader.ReadAttribute() && _reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                if (_reader.BeginElement() &&
+                    _reader.ReadAttribute() &&
+                    _reader.Name.Equals(SerializationCommon.TypeIdent, StringComparison.InvariantCulture))
                 {
                     string value = _reader.Value.ToString();
                     Type t = Type.GetType(value,
@@ -88,11 +135,11 @@ namespace TheraEngine.Files.Serialization
                     string value = _reader.Value.ToString();
                     Type subType = Type.GetType(value,
                         (name) =>
-                        {         
+                        {
                             return AppDomain.CurrentDomain.GetAssemblies().
                             Where(z => z.FullName == name.FullName).FirstOrDefault();
-                        }, 
-                        null, 
+                        },
+                        null,
                         false);
 
                     //if (subType != null)
@@ -127,7 +174,7 @@ namespace TheraEngine.Files.Serialization
             //Get custom deserialize methods
             var customMethods = objType.GetMethods(
                 BindingFlags.NonPublic |
-                BindingFlags.Instance | 
+                BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy).
                 Where(x => x.GetCustomAttribute<CustomXMLDeserializeMethod>() != null);
@@ -135,7 +182,7 @@ namespace TheraEngine.Files.Serialization
             //Get pre and post deserialize methods
             MethodInfo[] methods = objType.GetMethods(
                 BindingFlags.NonPublic |
-                BindingFlags.Instance | 
+                BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy);
 
@@ -166,7 +213,7 @@ namespace TheraEngine.Files.Serialization
                     members.Remove(p);
 
             #endregion
-            
+
             //Run pre-deserialization methods
             foreach (MethodInfo m in preMethods.OrderBy(x => x.GetCustomAttribute<PreDeserialize>().Order))
                 m.Invoke(obj, m.GetCustomAttribute<PreDeserialize>().Arguments);
@@ -331,7 +378,7 @@ namespace TheraEngine.Files.Serialization
             {
                 case SerializationCommon.ValueType.Manual:
                     TFileObject o = (TFileObject)Activator.CreateInstance(memberType);
-                    o.Read(_reader);
+                    _reader.ManualRead(o);
                     return o;
                 case SerializationCommon.ValueType.Array:
                     return ReadArray(memberType);
@@ -492,9 +539,9 @@ namespace TheraEngine.Files.Serialization
                 else
                 {
                     FieldInfo[] structMembers = elementType.GetFields(
-                        BindingFlags.NonPublic | 
-                        BindingFlags.Instance | 
-                        BindingFlags.Public | 
+                        BindingFlags.NonPublic |
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
                         BindingFlags.FlattenHierarchy);
                     for (int i = 0; i < count; ++i)
                     {
@@ -560,6 +607,54 @@ namespace TheraEngine.Files.Serialization
 
             if (x != count)
                 throw new Exception();
+        }
+
+        public unsafe static Type DetermineType(string filePath)
+        {
+            EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
+            Type t = null;
+            try
+            {
+                switch (fmt)
+                {
+                    default:
+                    case EFileFormat.ThirdParty:
+                        throw new InvalidOperationException("This type of file is not a proprietary file format.");
+                    case EFileFormat.XML:
+                        using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
+                        using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
+                        {
+                            if (reader.BeginElement() &&
+                                reader.ReadAttribute() &&
+                                reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                            {
+                                string value = reader.Value.ToString();
+                                t = Type.GetType(value,
+                                    (name) =>
+                                    {
+                                        return AppDomain.CurrentDomain.GetAssemblies().
+                                        Where(z => z.FullName == name.FullName).FirstOrDefault();
+                                    },
+                                    null,
+                                    false);
+                            }
+                        }
+                        break;
+                    case EFileFormat.Binary:
+                        using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
+                        {
+                            FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
+                            //if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                            //    t = Type.GetType(reader.Value, false, false);
+                        }
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Engine.PrintLine(e.ToString());
+            }
+            return t;
         }
     }
 }

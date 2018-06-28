@@ -238,10 +238,25 @@ namespace TheraEditor.Windows.Forms
         private void btnAdd_Click(object sender, EventArgs e)
         {
             GLSLShaderFile f = new GLSLShaderFile((EShaderMode)comboBox1.SelectedIndex);
+            GlobalFileRef<GLSLShaderFile> shaderRef = f;
+            string text = string.Empty;
+            if (!string.IsNullOrWhiteSpace(shaderRef.ReferencePathAbsolute))
+                text = Path.GetFileNameWithoutExtension(shaderRef.ReferencePathAbsolute) + " ";
+            else if (!string.IsNullOrWhiteSpace(shaderRef.File?.Name))
+                text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
+            text += "[" + shaderRef.File.Type.ToString() + "]";
+            ListViewItem item = new ListViewItem(text) { Tag = f };
             if (lstShaders.SelectedIndices.Count == 0)
+            {
                 _material.Shaders.Add(f);
+                lstShaders.Items.Add(item);
+            }
             else
-                _material.Shaders.Insert(lstShaders.SelectedIndices[0], f);
+            {
+                int index = lstShaders.SelectedIndices[0];
+                _material.Shaders.Insert(index, f);
+                lstShaders.Items.Insert(index, item);
+            }
         }
 
         private void lstShaders_SelectedIndexChanged(object sender, EventArgs e)

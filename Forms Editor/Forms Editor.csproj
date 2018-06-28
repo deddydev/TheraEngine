@@ -434,40 +434,40 @@
     <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialGraphRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxDecimal.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxDecimal.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxDouble.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxDouble.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxByte.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxByte.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxInt64.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxInt64.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxInt32.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxInt32.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxUInt64.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxUInt64.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxUInt32.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxUInt32.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxUInt16.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxUInt16.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxInt16.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxInt16.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxSByte.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxSByte.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxSingle.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxSingle.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\NumericInputBox\NumericInputBoxBase.cs">
+    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxBase.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Misc\BufferedPanel.cs">
@@ -491,194 +491,194 @@
     <Compile Include="Windows\Forms\Misc\ColorPicker.Designer.cs">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\MinMaxControl.cs">
+    <Compile Include="Windows\Forms\Property Grid\MinMaxControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\MinMaxControl.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\MinMaxControl.Designer.cs">
       <DependentUpon>MinMaxControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\MinMaxEditor.cs" />
-    <Compile Include="Windows\Forms\PropertyGrid\PropGridCategory.cs">
+    <Compile Include="Windows\Forms\Property Grid\MinMaxEditor.cs" />
+    <Compile Include="Windows\Forms\Property Grid\PropGridCategory.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\PropGridCategory.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\PropGridCategory.Designer.cs">
       <DependentUpon>PropGridCategory.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\PropGridItem.cs">
+    <Compile Include="Windows\Forms\Property Grid\PropGridItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\PropGridItem.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\PropGridItem.Designer.cs">
       <DependentUpon>PropGridItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\PropGridItemAttribute.cs" />
-    <Compile Include="Windows\Forms\PropertyGrid\StringConverters.cs" />
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridDictionary.cs">
+    <Compile Include="Windows\Forms\Property Grid\PropGridItemAttribute.cs" />
+    <Compile Include="Windows\Forms\Property Grid\StringConverters.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDictionary.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridDictionary.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDictionary.Designer.cs">
       <DependentUpon>PropGridDictionary.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridItemParentInfo.cs" />
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridMethod.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridItemParentInfo.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridMethod.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridMethod.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridMethod.Designer.cs">
       <DependentUpon>PropGridMethod.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorFloat.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridColorFloat.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorFloat.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridColorFloat.Designer.cs">
       <DependentUpon>PropGridColorFloat.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridFileRef.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridFileRef.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridFileRef.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridFileRef.Designer.cs">
       <DependentUpon>PropGridFileRef.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridDouble.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridDouble.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridDouble.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridDouble.Designer.cs">
       <DependentUpon>PropGridDouble.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridByte.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridByte.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridByte.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridByte.Designer.cs">
       <DependentUpon>PropGridByte.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt64.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt64.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt64.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt64.Designer.cs">
       <DependentUpon>PropGridInt64.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt16.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt16.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt16.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt16.Designer.cs">
       <DependentUpon>PropGridUInt16.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt16.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt16.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt16.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt16.Designer.cs">
       <DependentUpon>PropGridInt16.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridSByte.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridSByte.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridSByte.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridSByte.Designer.cs">
       <DependentUpon>PropGridSByte.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt64.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt64.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt64.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt64.Designer.cs">
       <DependentUpon>PropGridUInt64.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt32.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt32.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt32.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt32.Designer.cs">
       <DependentUpon>PropGridUInt32.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt32.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt32.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt32.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt32.Designer.cs">
       <DependentUpon>PropGridInt32.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridBool.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridBool.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridBool.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridBool.Designer.cs">
       <DependentUpon>PropGridBool.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridList.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridList.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridList.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridList.Designer.cs">
       <DependentUpon>PropGridList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridObject.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridObject.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridObject.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridObject.Designer.cs">
       <DependentUpon>PropGridObject.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridEnum.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEnum.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridEnum.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEnum.Designer.cs">
       <DependentUpon>PropGridEnum.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridMatrix4.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\PropGridMatrix4.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridMatrix4.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\PropGridMatrix4.Designer.cs">
       <DependentUpon>PropGridMatrix4.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridRotator.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\PropGridRotator.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridRotator.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\PropGridRotator.Designer.cs">
       <DependentUpon>PropGridRotator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec4.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec4.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec4.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec4.Designer.cs">
       <DependentUpon>PropGridEventVec4.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec3.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec3.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec3.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec3.Designer.cs">
       <DependentUpon>PropGridEventVec3.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec2.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec2.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec2.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec2.Designer.cs">
       <DependentUpon>PropGridEventVec2.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec2.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec2.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec2.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec2.Designer.cs">
       <DependentUpon>PropGridVec2.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec4.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec4.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec4.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec4.Designer.cs">
       <DependentUpon>PropGridVec4.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec3.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec3.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec3.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec3.Designer.cs">
       <DependentUpon>PropGridVec3.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridText.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridText.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridText.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridText.Designer.cs">
       <DependentUpon>PropGridText.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridSingle.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridSingle.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridSingle.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridSingle.Designer.cs">
       <DependentUpon>PropGridSingle.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\TheraPropertyGrid.cs">
+    <Compile Include="Windows\Forms\Property Grid\TheraPropertyGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\PropertyGrid\TheraPropertyGrid.Designer.cs">
+    <Compile Include="Windows\Forms\Property Grid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
     <None Include="TheraDevKey.pfx" />
@@ -916,94 +916,94 @@
     <EmbeddedResource Include="Windows\Forms\Misc\ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\MinMaxControl.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\MinMaxControl.resx">
       <DependentUpon>MinMaxControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\PropGridCategory.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\PropGridCategory.resx">
       <DependentUpon>PropGridCategory.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridDictionary.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDictionary.resx">
       <DependentUpon>PropGridDictionary.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridMethod.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridMethod.resx">
       <DependentUpon>PropGridMethod.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridColorFloat.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridColorFloat.resx">
       <DependentUpon>PropGridColorFloat.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Engine\PropGridFileRef.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridFileRef.resx">
       <DependentUpon>PropGridFileRef.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridDouble.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridDouble.resx">
       <DependentUpon>PropGridDouble.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridByte.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridByte.resx">
       <DependentUpon>PropGridByte.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt64.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt64.resx">
       <DependentUpon>PropGridInt64.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt16.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt16.resx">
       <DependentUpon>PropGridUInt16.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt16.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt16.resx">
       <DependentUpon>PropGridInt16.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridSByte.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridSByte.resx">
       <DependentUpon>PropGridSByte.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt64.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt64.resx">
       <DependentUpon>PropGridUInt64.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridUInt32.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridUInt32.resx">
       <DependentUpon>PropGridUInt32.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridInt32.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridInt32.resx">
       <DependentUpon>PropGridInt32.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridBool.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridBool.resx">
       <DependentUpon>PropGridBool.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridList.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridList.resx">
       <DependentUpon>PropGridList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridObject.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridObject.resx">
       <DependentUpon>PropGridObject.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridEnum.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEnum.resx">
       <DependentUpon>PropGridEnum.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridMatrix4.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Transforms\PropGridMatrix4.resx">
       <DependentUpon>PropGridMatrix4.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\PropGridRotator.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Transforms\PropGridRotator.resx">
       <DependentUpon>PropGridRotator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec4.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec4.resx">
       <DependentUpon>PropGridEventVec4.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec3.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec3.resx">
       <DependentUpon>PropGridEventVec3.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridEventVec2.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridEventVec2.resx">
       <DependentUpon>PropGridEventVec2.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec2.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec2.resx">
       <DependentUpon>PropGridVec2.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec4.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec4.resx">
       <DependentUpon>PropGridVec4.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Transforms\Vectors\PropGridVec3.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Transforms\Vectors\PropGridVec3.resx">
       <DependentUpon>PropGridVec3.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Core\PropGridText.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridText.resx">
       <DependentUpon>PropGridText.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\SubItems\Numeric\PropGridSingle.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Numeric\PropGridSingle.resx">
       <DependentUpon>PropGridSingle.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\PropertyGrid\TheraPropertyGrid.resx">
+    <EmbeddedResource Include="Windows\Forms\Property Grid\TheraPropertyGrid.resx">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
@@ -1063,9 +1063,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\OS\Win32\" />
+    <Folder Include="Windows\Forms\Animation Timeline Editor\" />
     <Folder Include="Windows\Forms\Cutscene Editor\" />
     <Folder Include="Windows\Forms\HUD Editor\" />
-    <Folder Include="Windows\Forms\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
     <Folder Include="Windows\Forms\Particle Editor\" />
   </ItemGroup>

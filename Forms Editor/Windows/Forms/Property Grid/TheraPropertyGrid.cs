@@ -646,21 +646,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(TargetFileObject.FilePath))
+            IFileObject file = TargetFileObject.Root ?? TargetFileObject;
+
+            if (file == null)
+                return;
+
+            if (!string.IsNullOrWhiteSpace(file.FilePath))
             {
                 Editor.Instance.ContentTree.WatchProjectDirectory = false;
-                TargetFileObject.Export();
+                file.Export();
                 Editor.Instance.ContentTree.WatchProjectDirectory = true;
             }
             else
             {
                 using (SaveFileDialog sfd = new SaveFileDialog
                 {
-                    Filter = TargetFileObject.GetFilter()
+                    Filter = file.GetFilter()
                 })
                 {
                     if (sfd.ShowDialog() == DialogResult.OK)
-                        TargetFileObject.Export(sfd.FileName);
+                        file.Export(sfd.FileName);
                 }
             }
 
@@ -677,7 +682,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //}
 
             btnSave.Visible = false;
-            TargetFileObject.EditorState.IsDirty = false;
+            file.EditorState.IsDirty = false;
         }
         
         public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)

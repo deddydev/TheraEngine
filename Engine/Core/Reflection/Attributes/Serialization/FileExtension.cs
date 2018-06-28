@@ -33,7 +33,7 @@ namespace System.ComponentModel
         /// <summary>
         /// Converts the desired format into the actual extension for this file in that format.
         /// </summary>
-        public string GetProperExtension(ProprietaryFileFormat format)
+        public string GetProperExtension(EProprietaryFileFormat format)
             => format.ToString().ToLowerInvariant()[0] + Extension;
     }
 }

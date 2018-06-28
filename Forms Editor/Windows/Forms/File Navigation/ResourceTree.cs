@@ -1,22 +1,19 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using Core.Win32.Native;
+using Microsoft.VisualBasic.FileIO;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
-using TheraEngine.Files;
+using System.Windows.Forms;
+using TheraEditor.Core;
 using TheraEditor.Properties;
 using TheraEditor.Wrappers;
-using System.IO;
-using System.Collections.Generic;
 using TheraEngine;
-using Microsoft.VisualBasic.FileIO;
-using System.Collections;
-using System.Linq;
-using Core.Win32.Native;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Reflection;
-using TheraEditor.Core;
 
 namespace TheraEditor.Windows.Forms
 {

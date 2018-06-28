@@ -8,7 +8,7 @@
         //Text
     }
     [Flags]
-    public enum SerializeFormatFlag
+    public enum ESerializeFormatFlag
     {
         None = 0b0000,
         Binary = 0b0001,

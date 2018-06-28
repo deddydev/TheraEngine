@@ -253,7 +253,7 @@ namespace TheraEditor.Wrappers
                         string dir = folderNode.FilePath as string;
 
                         //folderNode.TreeView.WatchProjectDirectory = false;
-                        file.Export(dir, file.Name, FileFormat.XML);
+                        file.Export(dir, file.Name, EFileFormat.XML);
                         //folderNode.TreeView.WatchProjectDirectory = true;
 
                         //folderNode.Nodes.Add(Wrap(file));

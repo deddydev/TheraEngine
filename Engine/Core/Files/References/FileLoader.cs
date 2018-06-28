@@ -55,7 +55,7 @@ namespace TheraEngine.Files
             //    throw new InvalidOperationException("Extension does not match type");
             ReferencePathAbsolute = filePath;
         }
-        public FileLoader(string dir, string name, ProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
+        public FileLoader(string dir, string name, EProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
         protected string _localRefPath;
@@ -187,6 +187,9 @@ namespace TheraEngine.Files
                 }
             }
         }
+        /// <summary>
+        /// Returns true if a file exists at the path that this reference points to.
+        /// </summary>
         [Browsable(false)]
         public virtual bool FileExists
         {
@@ -265,10 +268,10 @@ namespace TheraEngine.Files
                     T file = null;
                     switch (GetFormat())
                     {
-                        case FileFormat.XML:
+                        case EFileFormat.XML:
                             file = FromXML(_subType, absolutePath) as T;
                             break;
-                        case FileFormat.Binary:
+                        case EFileFormat.Binary:
                             file = FromBinary(_subType, absolutePath) as T;
                             break;
                         default:
@@ -307,18 +310,18 @@ namespace TheraEngine.Files
         /// Retrieves the proprietary file format type from the extension.
         /// Does not account for extensions that are 3rd party.
         /// </summary>
-        public FileFormat GetFormat()
+        public EFileFormat GetFormat()
         {
             string ext = Extension();
             if (!string.IsNullOrEmpty(ext))
             {
                 switch (ext.ToLowerInvariant()[0])
                 {
-                    case 'x': return FileFormat.XML;
-                    case 'b': return FileFormat.Binary;
+                    case 'x': return EFileFormat.XML;
+                    case 'b': return EFileFormat.Binary;
                 }
             }
-            return FileFormat.Binary;
+            return EFileFormat.Binary;
         }
 
         public void LoadNewInstanceAsync(Action<T> onLoaded, TaskCreationOptions options = TaskCreationOptions.PreferFairness)

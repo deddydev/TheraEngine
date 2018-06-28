@@ -14,7 +14,7 @@ namespace TheraEngine.Files
         bool StoredInternally { get; }
         void UnloadReference();
         void ExportReference(ESerializeFlags flags = ESerializeFlags.Default);
-        void ExportReference(string dir, string name, FileFormat format, string thirdPartyExt = null, bool setPath = true, ESerializeFlags flags = ESerializeFlags.Default);
+        void ExportReference(string dir, string name, EFileFormat format, string thirdPartyExt = null, bool setPath = true, ESerializeFlags flags = ESerializeFlags.Default);
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
@@ -52,8 +52,8 @@ namespace TheraEngine.Files
                     ExportReference();
             }
         }
-        public FileRef(string dir, string name, ProprietaryFileFormat format) : base(dir, name, format) { }
-        public FileRef(string dir, string name, ProprietaryFileFormat format, T file, bool exportNow) : this(dir, name, format)
+        public FileRef(string dir, string name, EProprietaryFileFormat format) : base(dir, name, format) { }
+        public FileRef(string dir, string name, EProprietaryFileFormat format, T file, bool exportNow) : this(dir, name, format)
         {
             if (file != null)
                 file.FilePath = ReferencePathAbsolute;
@@ -61,7 +61,7 @@ namespace TheraEngine.Files
             if (exportNow && File != null)
                 ExportReference();
         }
-        public FileRef(string dir, string name, ProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
+        public FileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
         {
             if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute) != typeof(T))
             {
@@ -173,7 +173,7 @@ namespace TheraEngine.Files
         }
 
         public void ExportReference(ESerializeFlags flags = ESerializeFlags.Default) => _file?.Export(ReferencePathAbsolute, flags);
-        public void ExportReference(string dir, string name, FileFormat format, string thirdPartyExt = null, bool setPath = true, ESerializeFlags flags = ESerializeFlags.Default)
+        public void ExportReference(string dir, string name, EFileFormat format, string thirdPartyExt = null, bool setPath = true, ESerializeFlags flags = ESerializeFlags.Default)
         {
             if (_file == null)
                 return;

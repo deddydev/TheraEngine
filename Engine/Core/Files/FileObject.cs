@@ -35,12 +35,12 @@ namespace TheraEngine.Files
         Default = SerializeConfig | ExportGlobalRefs | ExportLocalRefs,
         All = 0xF,
     }
-    public enum ProprietaryFileFormat
+    public enum EProprietaryFileFormat
     {
         Binary = 0,
         XML = 1,
     }
-    public enum FileFormat
+    public enum EFileFormat
     {
         Binary      = 0,
         XML         = 1,
@@ -54,12 +54,13 @@ namespace TheraEngine.Files
         FileDef FileDefinition { get; }
         FileExt FileExtension { get; }
         File3rdParty File3rdPartyExtensions { get; }
+        TFileObject Root { get; }
         void Unload();
         void Export(ESerializeFlags flags = ESerializeFlags.Default);
         void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
         void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
-        void Export(string directory, string fileName, FileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.Default);
-        string GetFilePath(string dir, string name, ProprietaryFileFormat format);
+        void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.Default);
+        string GetFilePath(string dir, string name, EProprietaryFileFormat format);
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
         void Read3rdParty(string path);
     }
@@ -166,6 +167,8 @@ namespace TheraEngine.Files
         public int CalculatedSize { get; private set; }
         [Browsable(false)]
         public List<IFileRef> References { get; set; } = new List<IFileRef>();
+        [Browsable(false)]
+        public TFileObject Root { get; internal set; }
 
         public void Unload()
         {
@@ -178,12 +181,12 @@ namespace TheraEngine.Files
 
         public static Type DetermineType(string path)
         {
-            FileFormat f = GetFormat(path, out string ext);
+            EFileFormat f = GetFormat(path, out string ext);
             switch (f)
             {
-                case FileFormat.XML:
+                case EFileFormat.XML:
                     return CustomXmlSerializer.DetermineType(path);
-                case FileFormat.Binary:
+                case EFileFormat.Binary:
                     return CustomBinarySerializer.DetermineType(path);
                 default:
                     Type[] types = DetermineThirdPartyTypes(ext);
@@ -196,7 +199,7 @@ namespace TheraEngine.Files
             return Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false), true, Assembly.GetEntryAssembly()).ToArray();
         }
 
-        public static FileFormat GetFormat(string path, out string ext)
+        public static EFileFormat GetFormat(string path, out string ext)
         {
             int index = path.LastIndexOf('.') + 1;
             if (index != 0)
@@ -205,17 +208,17 @@ namespace TheraEngine.Files
                 ext = path.ToLowerInvariant();
 
             if (File3rdParty.Has3rdPartyExtension(ext))
-                return FileFormat.ThirdParty;
+                return EFileFormat.ThirdParty;
 
             //TODO: return raw format
             if (ext.Length == 0)
-                return FileFormat.ThirdParty;
+                return EFileFormat.ThirdParty;
 
             switch (ext[0])
             {
-                default: return FileFormat.ThirdParty;
-                case 'b': return FileFormat.Binary;
-                case 'x': return FileFormat.XML;
+                default: return EFileFormat.ThirdParty;
+                case 'b': return EFileFormat.Binary;
+                case 'x': return EFileFormat.XML;
             }
         }
 
@@ -227,7 +230,7 @@ namespace TheraEngine.Files
         /// <param name="name">The name of the file in the path.</param>
         /// <param name="fmt">The format the data is written in.</param>
         /// <param name="ext">The extension of the file.</param>
-        public static void GetDirNameFmt(string path, out string dir, out string name, out FileFormat fmt, out string ext)
+        public static void GetDirNameFmt(string path, out string dir, out string name, out EFileFormat fmt, out string ext)
         {
             dir = Path.GetDirectoryName(path);
             name = Path.GetFileNameWithoutExtension(path);
@@ -242,9 +245,9 @@ namespace TheraEngine.Files
         /// <param name="format">The format the data is written in.</param>
         /// <param name="fileType">The type of file object.</param>
         /// <returns>An absolute path to the file.</returns>
-        public static string GetFilePath(string dir, string name, ProprietaryFileFormat format, Type fileType)
+        public static string GetFilePath(string dir, string name, EProprietaryFileFormat format, Type fileType)
             => Path.Combine(dir, name + "." + GetFileExtension(fileType).GetProperExtension(format));
-        public static string GetFilePath<T>(string dir, string name, ProprietaryFileFormat format) where T : TFileObject
+        public static string GetFilePath<T>(string dir, string name, EProprietaryFileFormat format) where T : TFileObject
             => Path.Combine(dir, name + "." + GetFileExtension(typeof(T)).GetProperExtension(format));
         public static string GetFilePath(string dir, string name, string thirdPartyExtension)
         {
@@ -259,7 +262,7 @@ namespace TheraEngine.Files
         /// <param name="name">The name of the file.</param>
         /// <param name="format">The format the data is written in.</param>
         /// <returns>An absolute path to the file.</returns>
-        public string GetFilePath(string dir, string name, ProprietaryFileFormat format)
+        public string GetFilePath(string dir, string name, EProprietaryFileFormat format)
             => GetFilePath(dir, name, format, GetType());
         public string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false)
             => GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
@@ -282,7 +285,7 @@ namespace TheraEngine.Files
             if (proprietary)
             {
                 FileExt ext = GetFileExtension(classType);
-                foreach (string type in Enum.GetNames(typeof(ProprietaryFileFormat)))
+                foreach (string type in Enum.GetNames(typeof(EProprietaryFileFormat)))
                 {
                     if (first)
                         first = false;
@@ -364,16 +367,16 @@ namespace TheraEngine.Files
             Type t = typeof(T);
             FileExt extAttrib = GetFileExtension(t);
             File3rdParty tpAttrib = GetFile3rdPartyExtensions(t);
-            FileFormat fmt = GetFormat(filePath, out string ext);
-            if (extAttrib != null && fmt != FileFormat.ThirdParty)
+            EFileFormat fmt = GetFormat(filePath, out string ext);
+            if (extAttrib != null && fmt != EFileFormat.ThirdParty)
             {
-                ProprietaryFileFormat pfmt = fmt == FileFormat.Binary ?
-                    ProprietaryFileFormat.Binary : 
-                    ProprietaryFileFormat.XML;
+                EProprietaryFileFormat pfmt = fmt == EFileFormat.Binary ?
+                    EProprietaryFileFormat.Binary : 
+                    EProprietaryFileFormat.XML;
 
                 string fileExt = extAttrib.GetProperExtension(pfmt);
                 if (string.Equals(ext, fileExt))
-                    return fmt == FileFormat.XML ?
+                    return fmt == EFileFormat.XML ?
                         FromXML<T>(filePath) :
                         FromBinary<T>(filePath);
             }
@@ -398,9 +401,9 @@ namespace TheraEngine.Files
         {
             switch (GetFormat(filePath, out string ext))
             {
-                case FileFormat.ThirdParty: return await Read3rdPartyAsync(type, filePath);
-                case FileFormat.Binary: return FromBinary(type, filePath);
-                case FileFormat.XML: return FromXML(type, filePath);
+                case EFileFormat.ThirdParty: return await Read3rdPartyAsync(type, filePath);
+                case EFileFormat.Binary: return FromBinary(type, filePath);
+                case EFileFormat.XML: return FromXML(type, filePath);
             }
             return null;
         }
@@ -417,7 +420,7 @@ namespace TheraEngine.Files
                 Engine.LogWarning("File was not exported; no path to export to.");
                 return;
             }
-            GetDirNameFmt(FilePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
+            GetDirNameFmt(FilePath, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt, flags);
         }
         //[GridCallable("Save")]
@@ -428,7 +431,7 @@ namespace TheraEngine.Files
                 Engine.LogWarning("File was not exported; file path is not valid.");
                 return;
             }
-            GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
+            GetDirNameFmt(path, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
             Export(dir, name, fmt, thirdPartyExt, flags);
         }
         //[GridCallable("Save")]
@@ -441,7 +444,7 @@ namespace TheraEngine.Files
             FileExt fileExt = FileExtension;
             if (fileExt != null)
             {
-                ext = fileExt.GetProperExtension((ProprietaryFileFormat)fileExt.PreferredFormat);
+                ext = fileExt.GetProperExtension((EProprietaryFileFormat)fileExt.PreferredFormat);
             }
             else
             {
@@ -455,7 +458,7 @@ namespace TheraEngine.Files
             }
             if (ext != null)
             {
-                FileFormat format = GetFormat(ext, out string ext2);
+                EFileFormat format = GetFormat(ext, out string ext2);
                 Export(directory, fileName, format, ext, flags);
             }
             else
@@ -465,19 +468,19 @@ namespace TheraEngine.Files
         public void Export(
             string directory,
             string fileName,
-            FileFormat format,
+            EFileFormat format,
             string thirdPartyExt = null,
             ESerializeFlags flags = ESerializeFlags.Default)
         {
             switch (format)
             {
-                case FileFormat.ThirdParty:
+                case EFileFormat.ThirdParty:
                     To3rdParty(directory, fileName, thirdPartyExt);
                     break;
-                case FileFormat.XML:
+                case EFileFormat.XML:
                     ToXML(directory, fileName, flags);
                     break;
-                case FileFormat.Binary:
+                case EFileFormat.Binary:
                     ToBinary(directory, fileName, flags);
                     break;
                 default:
@@ -515,7 +518,7 @@ namespace TheraEngine.Files
                 }
             }
             else
-                file = new CustomXmlSerializer().Deserialize(filePath) as TFileObject;
+                file = new CustomXmlSerializer().Deserialize(filePath);
             if (file != null)
                 file.FilePath = filePath;
             return file;
@@ -551,7 +554,7 @@ namespace TheraEngine.Files
             if (ext == null)
                 throw new Exception("No FileExt attribute specified for " + GetType().GetFriendlyName());
 
-            FilePath = directory + fileName + "." + ext.GetProperExtension(ProprietaryFileFormat.XML);
+            FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.XML);
 
             if (ext.ManualXmlConfigSerialize)
             {
@@ -634,7 +637,7 @@ namespace TheraEngine.Files
 
             FileExt ext = FileExtension;
 
-            FilePath = directory + fileName + "." + ext.GetProperExtension(ProprietaryFileFormat.Binary);
+            FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.Binary);
 
             if (ext.ManualBinConfigSerialize)
             {

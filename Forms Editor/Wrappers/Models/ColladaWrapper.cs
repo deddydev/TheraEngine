@@ -64,7 +64,7 @@ namespace TheraEditor.Wrappers
             TFileObject actor = await Actor.LoadDAEAsync(FilePath);
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
-            actor.Export(dir, name, FileFormat.XML);
+            actor.Export(dir, name, EFileFormat.XML);
         }
         private void ImportAsSkeleton()
         {
@@ -78,14 +78,14 @@ namespace TheraEditor.Wrappers
             TFileObject staticModel = await StaticModel.LoadDAEAsync(FilePath);
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
-            staticModel.Export(dir, name, FileFormat.XML);
+            staticModel.Export(dir, name, EFileFormat.XML);
         }
         private async void ImportAsSkeletalMesh()
         {
             TFileObject skeletalModel = await SkeletalModel.LoadDAEAsync(FilePath);
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
-            skeletalModel.Export(dir, name, FileFormat.XML);
+            skeletalModel.Export(dir, name, EFileFormat.XML);
         }
     }
 }

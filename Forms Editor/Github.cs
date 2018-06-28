@@ -131,7 +131,7 @@ namespace TheraEditor
                 try
                 {
                     //Check to see if the user is online and that github is up and running.
-                    Engine.PrintLine("Checking connection to server...");
+                    Engine.PrintLine("Checking connection to Github...");
                     using (Ping s = new Ping())
                     {
                         PingReply reply = s.Send(GithubUrl);
@@ -148,7 +148,7 @@ namespace TheraEditor
                     IReadOnlyList<Release> releases = await github.Repository.Release.GetAll(RepoOwner, RepoName);
                     if (releases == null || releases.Count == 0)
                     {
-                        Engine.PrintLine("No releases found.");
+                        Engine.PrintLine("No updates found.");
                         return;
                     }
 

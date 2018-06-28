@@ -94,6 +94,8 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
+        public string BuildConfiguration { get; internal set; } = "Debug";
+        public string BuildPlatform { get; internal set; } = "Any CPU";
         public void Compile(string filePath)
         {
             ProjectCollection pc = new ProjectCollection();
@@ -101,7 +103,6 @@ namespace TheraEditor.Windows.Forms
             {
                 { "Configuration", BuildConfiguration },
                 { "Platform", BuildPlatform },
-                //{ "OutputPath", "" },
             };
             BuildRequestData request = new BuildRequestData(filePath, globalProperties, null, new string[] { "Build" }, null);
             BuildResult result = BuildManager.DefaultBuildManager.Build(new BuildParameters(pc), request);
@@ -756,8 +757,6 @@ namespace TheraEditor.Windows.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
         public Dictionary<Keys, Func<bool>> MappableActions { get; private set; }
-        public string BuildConfiguration { get; internal set; }
-        public string BuildPlatform { get; internal set; }
 
         //internal bool DoEvents { get; set; } = true;
 

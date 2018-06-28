@@ -16,7 +16,8 @@ namespace TheraEngine.Files.Serialization
             Indent = true,
             IndentChars = "\t",
             NewLineChars = "\r\n",
-            NewLineHandling = NewLineHandling.Replace
+            NewLineHandling = NewLineHandling.Replace,
+            Async = true,
         };
 
         private ESerializeFlags _flags;
@@ -26,7 +27,7 @@ namespace TheraEngine.Files.Serialization
         /// <summary>
         /// Writes the given object to the path as xml.
         /// </summary>
-        public void Serialize(
+        public async void Serialize(
             TFileObject obj,
             string filePath,
             ESerializeFlags flags = ESerializeFlags.Default)
@@ -38,9 +39,9 @@ namespace TheraEngine.Files.Serialization
             {
                 _writer.Flush();
                 stream.Position = 0;
-                _writer.WriteStartDocument();
+                await _writer.WriteStartDocumentAsync();
                 WriteObject(obj, null, true);
-                _writer.WriteEndDocument();
+                await _writer.WriteEndDocumentAsync();
             }
         }
         private  void WriteObject(
@@ -65,6 +66,8 @@ namespace TheraEngine.Files.Serialization
 
             if (obj is IFileRef fref && !fref.StoredInternally)
             {
+                //Make some last minute adjustments to external file refs
+                //First, update file relative paths using the new file location
                 if (fref.PathType == EPathType.FileRelative)
                 {
                     string root = Path.GetPathRoot(fref.ReferencePathAbsolute);
@@ -93,10 +96,14 @@ namespace TheraEngine.Files.Serialization
                 }
                 if (fref.IsLoaded)
                 {
+                    string path = fref.ReferencePathAbsolute;
                     bool fileExists =
-                        !string.IsNullOrWhiteSpace(fref.ReferencePathAbsolute) &&
-                        fref.ReferencePathAbsolute.IsDirectoryPath() == false &&
-                        File.Exists(fref.ReferencePathAbsolute);
+                        !string.IsNullOrWhiteSpace(path) &&
+                        path.IsDirectoryPath() == false &&
+                        File.Exists(path);
+
+                    //TODO: export even if the file exists,
+                    //however only if the file has changed
                     if (!fileExists)
                     {
                         if (fref is IGlobalFileRef && !_flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
@@ -120,8 +127,8 @@ namespace TheraEngine.Files.Serialization
                         if (file.FileExtension != null)
                         {
                             string fileName = SerializationCommon.ResolveFileName(
-                                _fileDir, file.Name, file.FileExtension.GetProperExtension(ProprietaryFileFormat.XML));
-                            file.Export(dir, fileName, FileFormat.XML, null, _flags);
+                                _fileDir, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
+                            file.Export(dir, fileName, EFileFormat.XML, null, _flags);
                         }
                         else
                         {
@@ -130,7 +137,7 @@ namespace TheraEngine.Files.Serialization
                             {
                                 string ext = f.ExportableExtensions[0];
                                 string fileName = SerializationCommon.ResolveFileName(_fileDir, file.Name, ext);
-                                file.Export(dir, fileName, FileFormat.ThirdParty, ext, _flags);
+                                file.Export(dir, fileName, EFileFormat.ThirdParty, ext, _flags);
                             }
                             else
                                 Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
@@ -208,7 +215,7 @@ namespace TheraEngine.Files.Serialization
                     WriteMember(obj, member, nonAttribCount);
             }
         }
-        private void WriteMember(
+        private async void WriteMember(
             object obj, 
             VarInfo member,
             int nonAttributeCount)
@@ -231,9 +238,9 @@ namespace TheraEngine.Files.Serialization
                     if (GetString(value, member.VariableType, out string result))
                     {
                         if (nonAttributeCount == 1)
-                            _writer.WriteString(result);
+                            await _writer.WriteStringAsync(result);
                         else
-                            _writer.WriteAttributeString(member.Name, result);
+                            await _writer.WriteAttributeStringAsync(null, member.Name, null, result);
                     }
                     else
                         WriteElement(value, member, writeTypeDef);

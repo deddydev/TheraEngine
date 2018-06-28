@@ -194,8 +194,8 @@ namespace TheraEditor.Wrappers
                 Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
                 w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
             }
-            TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt, out string thirdPartyExt);
-            w.Text = name + "." + file.FileExtension.GetProperExtension((ProprietaryFileFormat)fmt);
+            TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
+            w.Text = name + "." + file.FileExtension.GetProperExtension((EProprietaryFileFormat)fmt);
             w.SingleInstance = file;
             //w.SelectedImageIndex = w.ImageIndex = 0;
             return w;

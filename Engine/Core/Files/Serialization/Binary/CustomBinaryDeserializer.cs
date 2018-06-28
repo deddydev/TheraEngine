@@ -547,10 +547,10 @@ namespace TheraEngine.Files.Serialization
             foreach (MethodInfo m in methods)
             {
                 PreDeserialize pre = m.GetCustomAttribute<PreDeserialize>();
-                if (pre != null && pre.RunForFormats.HasFlag(SerializeFormatFlag.Binary))
+                if (pre != null && pre.RunForFormats.HasFlag(ESerializeFormatFlag.Binary))
                     preMethods.Add(m);
                 PostDeserialize post = m.GetCustomAttribute<PostDeserialize>();
-                if (post != null && post.RunForFormats.HasFlag(SerializeFormatFlag.Binary))
+                if (post != null && post.RunForFormats.HasFlag(ESerializeFormatFlag.Binary))
                     postMethods.Add(m);
             }
 

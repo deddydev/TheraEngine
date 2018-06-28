@@ -1,5 +1,7 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Textures;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -16,13 +18,20 @@ namespace TheraEditor.Windows.Forms
             {
                 if (tref2d.Mipmaps != null &&
                     tref2d.Mipmaps.Length > 0 &&
-                    tref2d.Mipmaps[0] != null &&
-                    tref2d.Mipmaps[0].File != null &&
-                    tref2d.Mipmaps[0].File.Bitmaps != null &&
-                    tref2d.Mipmaps[0].File.Bitmaps.Length > 0)
-                    texThumbnail.Image = tref2d.Mipmaps[0].File.Bitmaps[0];
+                    tref2d.Mipmaps[0] != null)
+                    tref2d.Mipmaps[0].RegisterLoadEvent(OnMipLoaded);
+                tref2d.Renamed += Tref2d_Renamed;
             }
             theraPropertyGrid1.TargetFileObject = texture;
+        }
+        private void OnMipLoaded(TextureFile2D obj)
+        {
+            if (obj?.Bitmaps != null && obj.Bitmaps.Length > 0)
+                texThumbnail.Image = obj.Bitmaps[0];
+        }
+        private void Tref2d_Renamed(TheraEngine.TObject node, string oldName)
+        {
+            lblTexName.Text = node?.Name;
         }
     }
 }

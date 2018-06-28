@@ -372,6 +372,7 @@
     <Compile Include="Core\Files\References\FileLoader.cs" />
     <Compile Include="Core\Files\References\LocalFileRef.cs" />
     <Compile Include="Core\Files\References\GlobalFileRef.cs" />
+    <Compile Include="Core\Files\Serialization\TDeserializer.cs" />
     <Compile Include="Core\Maths\Half.cs" />
     <Compile Include="Core\Platform\Native.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />

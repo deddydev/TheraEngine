@@ -12,8 +12,8 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
     {
         private int _order = -1;
         private object[] _arguments;
-        private SerializeFormatFlag _runForFormats;
-        public PostDeserialize(int order = -1, SerializeFormatFlag runForFormats = SerializeFormatFlag.All, params object[] arguments)
+        private ESerializeFormatFlag _runForFormats;
+        public PostDeserialize(int order = -1, ESerializeFormatFlag runForFormats = ESerializeFormatFlag.All, params object[] arguments)
         {
             _order = order;
             _arguments = arguments;
@@ -22,7 +22,7 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
 
         public int Order { get => _order; set => _order = value; }
         public object[] Arguments { get => _arguments; set => _arguments = value; }
-        public SerializeFormatFlag RunForFormats { get => _runForFormats; set => _runForFormats = value; }
+        public ESerializeFormatFlag RunForFormats { get => _runForFormats; set => _runForFormats = value; }
     }
     /// <summary>
     /// Called before a class is deserialized.
@@ -33,8 +33,8 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
     {
         private int _order = -1;
         private object[] _arguments;
-        private SerializeFormatFlag _runForFormats;
-        public PreDeserialize(int order = -1, SerializeFormatFlag runForFormats = SerializeFormatFlag.All, params object[] arguments)
+        private ESerializeFormatFlag _runForFormats;
+        public PreDeserialize(int order = -1, ESerializeFormatFlag runForFormats = ESerializeFormatFlag.All, params object[] arguments)
         {
             _order = order;
             _arguments = arguments;
@@ -43,7 +43,7 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
 
         public int Order { get => _order; set => _order = value; }
         public object[] Arguments { get => _arguments; set => _arguments = value; }
-        public SerializeFormatFlag RunForFormats { get => _runForFormats; set => _runForFormats = value; }
+        public ESerializeFormatFlag RunForFormats { get => _runForFormats; set => _runForFormats = value; }
     }
 
 }

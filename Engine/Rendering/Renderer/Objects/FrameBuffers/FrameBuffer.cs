@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering
 {
     public delegate void DelSetUniforms(RenderProgram program);
     public interface IFrameBufferAttachement { }
-    public class FrameBuffer : BaseRenderState
+    public class FrameBuffer : BaseRenderObject
     {
         public FrameBuffer() : base(EObjectType.Framebuffer) { }
         

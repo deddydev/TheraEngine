@@ -158,6 +158,7 @@ namespace TheraEngine.Files
         public TFileObject() { }
         //internal protected virtual void OnLoaded() { }
 
+        [Browsable(false)]
         [TString(false, true, false)]
         [Category("Object")]
         public string FilePath { get; set; }
@@ -363,34 +364,7 @@ namespace TheraEngine.Files
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
         public static async Task<T> LoadAsync<T>(string filePath) where T : TFileObject
-        {
-            Type t = typeof(T);
-            FileExt extAttrib = GetFileExtension(t);
-            File3rdParty tpAttrib = GetFile3rdPartyExtensions(t);
-            EFileFormat fmt = GetFormat(filePath, out string ext);
-            if (extAttrib != null && fmt != EFileFormat.ThirdParty)
-            {
-                EProprietaryFileFormat pfmt = fmt == EFileFormat.Binary ?
-                    EProprietaryFileFormat.Binary : 
-                    EProprietaryFileFormat.XML;
-
-                string fileExt = extAttrib.GetProperExtension(pfmt);
-                if (string.Equals(ext, fileExt))
-                    return fmt == EFileFormat.XML ?
-                        FromXML<T>(filePath) :
-                        FromBinary<T>(filePath);
-            }
-            else if (tpAttrib != null)
-            {
-                bool hasWildcard = tpAttrib.ImportableExtensions.Contains("*");
-                bool hasExt = tpAttrib.ImportableExtensions.Contains(ext.ToLowerInvariant());
-                if (hasWildcard || hasExt)
-                    return await Read3rdPartyAsync<T>(filePath);
-            }
-
-            Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, t.GetFriendlyName());
-            return default;
-        }
+            => await LoadAsync(typeof(T), filePath) as T;
         /// <summary>
         /// Opens a new instance of the file object at the given file path.
         /// </summary>
@@ -399,13 +373,31 @@ namespace TheraEngine.Files
         /// <returns>A new instance of the file.</returns>
         public static async Task<TFileObject> LoadAsync(Type type, string filePath)
         {
-            switch (GetFormat(filePath, out string ext))
+            FileExt extAttrib = GetFileExtension(type);
+            File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
+            EFileFormat fmt = GetFormat(filePath, out string ext);
+            if (extAttrib != null && fmt != EFileFormat.ThirdParty)
             {
-                case EFileFormat.ThirdParty: return await Read3rdPartyAsync(type, filePath);
-                case EFileFormat.Binary: return FromBinary(type, filePath);
-                case EFileFormat.XML: return FromXML(type, filePath);
+                EProprietaryFileFormat pfmt = fmt == EFileFormat.Binary ?
+                    EProprietaryFileFormat.Binary :
+                    EProprietaryFileFormat.XML;
+
+                string fileExt = extAttrib.GetProperExtension(pfmt);
+                if (string.Equals(ext, fileExt))
+                    return fmt == EFileFormat.XML ?
+                        FromXML(type, filePath) :
+                        FromBinary(type, filePath);
             }
-            return null;
+            else if (tpAttrib != null)
+            {
+                bool hasWildcard = tpAttrib.ImportableExtensions.Contains("*");
+                bool hasExt = tpAttrib.ImportableExtensions.Contains(ext.ToLowerInvariant());
+                if (hasWildcard || hasExt)
+                    return await Read3rdPartyAsync(type, filePath);
+            }
+
+            Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, type.GetFriendlyName());
+            return default;
         }
         //[GridCallable("Save")]
         /// <summary>
@@ -414,15 +406,7 @@ namespace TheraEngine.Files
         /// </summary>
         /// <param name="flags"></param>
         public void Export(ESerializeFlags flags = ESerializeFlags.Default)
-        {
-            if (string.IsNullOrEmpty(FilePath))
-            {
-                Engine.LogWarning("File was not exported; no path to export to.");
-                return;
-            }
-            GetDirNameFmt(FilePath, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
-            Export(dir, name, fmt, thirdPartyExt, flags);
-        }
+            => Export(FilePath, flags);
         //[GridCallable("Save")]
         public void Export(string path, ESerializeFlags flags = ESerializeFlags.Default)
         {
@@ -431,8 +415,30 @@ namespace TheraEngine.Files
                 Engine.LogWarning("File was not exported; file path is not valid.");
                 return;
             }
-            GetDirNameFmt(path, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
-            Export(dir, name, fmt, thirdPartyExt, flags);
+
+            Type type = GetType();
+            FileExt extAttrib = FileExtension;
+            File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
+            GetDirNameFmt(path, out string dir, out string name, out EFileFormat pathFormat, out string ext);
+            
+            if (extAttrib != null && pathFormat != EFileFormat.ThirdParty)
+            {
+                ext = extAttrib.GetProperExtension((EProprietaryFileFormat)(int)pathFormat);
+                Export(dir, name, pathFormat, ext, flags);
+                return;
+            }
+            else if (tpAttrib != null)
+            {
+                bool hasWildcard = tpAttrib.ExportableExtensions.Contains("*");
+                bool hasExt = tpAttrib.ExportableExtensions.Contains(ext.ToLowerInvariant());
+                if (!hasWildcard && !hasExt && tpAttrib.ExportableExtensions.Length > 0)
+                    ext = tpAttrib.ExportableExtensions[0];
+
+                Export(dir, name, pathFormat, ext, flags);
+                return;
+            }
+
+            Engine.LogWarning("{0} cannot be exported with extension '{1}'.", type.GetFriendlyName(), ext);
         }
         //[GridCallable("Save")]
         public void Export(

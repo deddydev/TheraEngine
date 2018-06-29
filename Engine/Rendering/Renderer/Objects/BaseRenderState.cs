@@ -7,16 +7,16 @@ namespace TheraEngine.Rendering
     /// <summary>
     /// Identifies a render object that is handled by the renderer and needs to be generated/destroyed during runtime.
     /// </summary>
-    public abstract class BaseRenderState : TObject, IDisposable
+    public abstract class BaseRenderObject : TObject, IDisposable
     {
         public const int NullBindingId = 0;
         public class ContextBind
         {
             //internal bool _generatedFailSafe = false;
             internal int _bindingId = NullBindingId;
-            private BaseRenderState _parentState;
+            private BaseRenderObject _parentState;
             internal RenderContext _context = null;
-            internal ContextBind(RenderContext context, BaseRenderState parentState, int contextIndex)
+            internal ContextBind(RenderContext context, BaseRenderObject parentState, int contextIndex)
             {
                 _parentState = parentState;
                 _context = context;
@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering
                 }
             }
 
-            public BaseRenderState ParentState => _parentState;
+            public BaseRenderObject ParentState => _parentState;
 
             public void Destroy() => _parentState.DestroyContextBind(ContextIndex);
             public override string ToString() => _parentState.ToString();
@@ -83,8 +83,8 @@ namespace TheraEngine.Rendering
 
         public event Action Generated;
 
-        public BaseRenderState(EObjectType type) => Type = type;
-        public BaseRenderState(EObjectType type, int bindingId)
+        public BaseRenderObject(EObjectType type) => Type = type;
+        public BaseRenderObject(EObjectType type, int bindingId)
         {
             Type = type;
             CurrentBind.BindingId = bindingId;
@@ -156,8 +156,8 @@ namespace TheraEngine.Rendering
                 PostGenerated();
                 Generated?.Invoke();
             }
-            else
-                Engine.LogWarning("Unable to create render object.");
+            //else
+            //    Engine.LogWarning("Unable to create render object.");
             return id;
         }
 

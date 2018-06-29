@@ -48,9 +48,10 @@ namespace System
             appended.CopyTo(final, data.Length);
             return final;
         }
-        public static void Resize<T>(this T[] data, int newSize)
+        public static T[] Resize<T>(this T[] data, int newSize)
         {
             Array.Resize(ref data, newSize);
+            return data;
         }
         public static T[] FillWith<T>(this T[] array, T value)
         {

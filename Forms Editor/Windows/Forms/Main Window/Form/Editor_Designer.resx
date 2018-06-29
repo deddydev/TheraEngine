@@ -117,28 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>541, 17</value>
+  </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="TitlePanel.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        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
+        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
 </value>
   </data>
   <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -2345,11 +2348,5 @@
   </data>
   <metadata name="DecorationToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>359, 17</value>
-  </metadata>
-  <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>541, 17</value>
-  </metadata>
-  <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>541, 17</value>
   </metadata>
 </root>

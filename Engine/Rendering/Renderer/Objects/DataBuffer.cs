@@ -86,7 +86,7 @@ namespace TheraEngine.Rendering.Models
         DynamicRead = 9,
         DynamicCopy = 10
     }
-    public class DataBuffer : BaseRenderState, IDisposable
+    public class DataBuffer : BaseRenderObject, IDisposable
     {
         public enum ComponentType
         {

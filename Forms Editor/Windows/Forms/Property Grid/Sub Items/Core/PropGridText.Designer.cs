@@ -60,10 +60,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.chkNull.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
             this.chkNull.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
-            this.chkNull.Location = new System.Drawing.Point(-44, 0);
-            this.chkNull.Margin = new System.Windows.Forms.Padding(2);
+            this.chkNull.Location = new System.Drawing.Point(-50, 0);
+            this.chkNull.Margin = new System.Windows.Forms.Padding(0);
             this.chkNull.Name = "chkNull";
-            this.chkNull.Size = new System.Drawing.Size(44, 20);
+            this.chkNull.Padding = new System.Windows.Forms.Padding(4, 0, 2, 0);
+            this.chkNull.Size = new System.Drawing.Size(50, 23);
             this.chkNull.TabIndex = 1;
             this.chkNull.Text = "Null";
             this.chkNull.UseVisualStyleBackColor = false;
@@ -75,11 +76,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.panel1.Controls.Add(this.btnBrowse);
             this.panel1.Controls.Add(this.btnEdit);
             this.panel1.Controls.Add(this.chkNull);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(0, 20);
+            this.panel1.Size = new System.Drawing.Size(0, 23);
             this.panel1.TabIndex = 2;
             // 
             // btnBrowse
@@ -91,10 +92,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.btnBrowse.FlatAppearance.BorderSize = 0;
             this.btnBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBrowse.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
-            this.btnBrowse.Location = new System.Drawing.Point(-140, 0);
-            this.btnBrowse.Margin = new System.Windows.Forms.Padding(2);
+            this.btnBrowse.Location = new System.Drawing.Point(-146, 0);
+            this.btnBrowse.Margin = new System.Windows.Forms.Padding(0);
             this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(61, 20);
+            this.btnBrowse.Size = new System.Drawing.Size(61, 23);
             this.btnBrowse.TabIndex = 3;
             this.btnBrowse.Text = "Browse...";
             this.btnBrowse.UseVisualStyleBackColor = false;
@@ -110,10 +111,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.btnEdit.FlatAppearance.BorderSize = 0;
             this.btnEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
-            this.btnEdit.Location = new System.Drawing.Point(-79, 0);
-            this.btnEdit.Margin = new System.Windows.Forms.Padding(2);
+            this.btnEdit.Location = new System.Drawing.Point(-85, 0);
+            this.btnEdit.Margin = new System.Windows.Forms.Padding(0);
             this.btnEdit.Name = "btnEdit";
-            this.btnEdit.Size = new System.Drawing.Size(35, 20);
+            this.btnEdit.Size = new System.Drawing.Size(35, 23);
             this.btnEdit.TabIndex = 2;
             this.btnEdit.Text = "Edit";
             this.btnEdit.UseVisualStyleBackColor = false;
@@ -121,12 +122,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // 
             // PropGridText
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.Red;
             this.Controls.Add(this.panel1);
             this.Name = "PropGridText";
-            this.Size = new System.Drawing.Size(0, 20);
+            this.Size = new System.Drawing.Size(0, 23);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);

@@ -7,7 +7,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
-    public class RenderProgram : BaseRenderState, IEnumerable<RenderShader>
+    public class RenderProgram : BaseRenderObject, IEnumerable<RenderShader>
     {
         public EProgramStageMask ShaderTypeMask { get; private set; } = EProgramStageMask.None;
 
@@ -43,6 +43,8 @@ namespace TheraEngine.Rendering
         public int GetUniformLocation(string name)
         {
             int bindingId = BindingId;
+            if (bindingId == NullBindingId)
+                return -1;
             if (_uniformCache.TryGetValue(bindingId, out ConcurrentDictionary<string, int> progDic))
                 return progDic.GetOrAdd(name, n => Engine.Renderer.OnGetUniformLocation(bindingId, n));
             else

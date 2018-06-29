@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering
 {
-    public class RenderQuery : BaseRenderState
+    public class RenderQuery : BaseRenderObject
     {
         public RenderQuery() : base(EObjectType.Query) { }
         public void BeginQuery(EQueryTarget target)

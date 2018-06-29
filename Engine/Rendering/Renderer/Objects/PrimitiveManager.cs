@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.Models
     /// <summary>
     /// Used to render raw primitive data.
     /// </summary>
-    public class PrimitiveManager : BaseRenderState, IPrimitiveManager
+    public class PrimitiveManager : BaseRenderObject, IPrimitiveManager
     {
         public event DelPrimManagerSettingUniforms SettingUniforms;
 

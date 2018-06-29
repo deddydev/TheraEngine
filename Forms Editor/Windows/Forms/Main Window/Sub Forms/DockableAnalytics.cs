@@ -30,8 +30,8 @@ namespace TheraEditor.Windows.Forms
                 var states = RenderContext.BoundContexts[r].States;
                 for (int i = 0; i < states.Count; ++i)
                 {
-                    BaseRenderState.ContextBind bind = states[i];
-                    BaseRenderState state = bind.ParentState;
+                    BaseRenderObject.ContextBind bind = states[i];
+                    BaseRenderObject state = bind.ParentState;
                     string[] cols = new string[]
                     {
                         state.Type.ToString(),
@@ -52,7 +52,7 @@ namespace TheraEditor.Windows.Forms
 
         private void lstRenderObjects_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            var bind = e.Item.Tag as BaseRenderState.ContextBind;
+            var bind = e.Item.Tag as BaseRenderObject.ContextBind;
             richTextBox1.Text = bind?.GenerationStackTrace;
             theraPropertyGrid1.TargetObject = bind?.ParentState;
         }

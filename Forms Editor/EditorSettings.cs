@@ -9,15 +9,9 @@ namespace TheraEditor
     [FileDef("Editor Settings")]
     public class EditorSettings : TSettings
     {
-        private GlobalFileRef<EngineSettings> _engineSettingsRef = new GlobalFileRef<EngineSettings>();
         private GlobalFileRef<PropertyGridSettings> _propertyGridRef = new GlobalFileRef<PropertyGridSettings>();
         private GlobalFileRef<ControlSettings> _controlSettingsRef = new GlobalFileRef<ControlSettings>();
         
-        public EngineSettings EngineSettings
-        {
-            get => _engineSettingsRef.File;
-            set => _engineSettingsRef.File = value;
-        }
         public PropertyGridSettings PropertyGrid
         {
             get => _propertyGridRef.File;
@@ -27,13 +21,6 @@ namespace TheraEditor
         {
             get => _controlSettingsRef.File;
             set => _controlSettingsRef.File = value;
-        }
-
-        [TSerialize]
-        public GlobalFileRef<EngineSettings> EngineSettingsRef
-        {
-            get => _engineSettingsRef;
-            set => _engineSettingsRef = value ?? new GlobalFileRef<EngineSettings>();
         }
         [TSerialize]
         public GlobalFileRef<PropertyGridSettings> PropertyGridRef
@@ -100,13 +87,6 @@ namespace TheraEditor
         public EditorSettings()
         {
             DockConfigPath = Path.DirectorySeparatorChar + "DockPanel.config";
-            EngineSettingsRef = new EngineSettings()
-            {
-                CapFPS = true,
-                TargetFPS = 60.0f,
-                CapUPS = false,
-                TargetUPS = 90.0f,
-            };
             PropertyGridRef = new PropertyGridSettings();
             ControlSettingsRef = new ControlSettings();
         }

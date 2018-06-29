@@ -4,7 +4,7 @@ using TheraEngine.Rendering.Models.Materials;
 namespace TheraEngine.Rendering
 {
     public delegate void DelCompile(bool compiledSuccessfully, string compileInfo);
-    public class RenderShader : BaseRenderState
+    public class RenderShader : BaseRenderObject
     {
         public event DelCompile Compiled;
         public event Action SourceChanged;

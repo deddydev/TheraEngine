@@ -19,6 +19,7 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
             comboBox1.DataSource = Enum.GetNames(typeof(EShaderMode));
+            comboBox2.DataSource = Enum.GetNames(typeof(ETextureType));
         }
 
         private TMaterial _material;
@@ -232,19 +233,26 @@ namespace TheraEditor.Windows.Forms
         private void btnRemove_Click(object sender, EventArgs e)
         {
             if (lstShaders.SelectedIndices.Count > 0)
-                _material.Shaders.RemoveAt(lstShaders.SelectedIndices[0]);
+            {
+                int index = lstShaders.SelectedIndices[0];
+                _material.Shaders.RemoveAt(index);
+                lstShaders.Items.RemoveAt(index);
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
             GLSLShaderFile f = new GLSLShaderFile((EShaderMode)comboBox1.SelectedIndex);
+
             GlobalFileRef<GLSLShaderFile> shaderRef = f;
+
             string text = string.Empty;
             if (!string.IsNullOrWhiteSpace(shaderRef.ReferencePathAbsolute))
                 text = Path.GetFileNameWithoutExtension(shaderRef.ReferencePathAbsolute) + " ";
             else if (!string.IsNullOrWhiteSpace(shaderRef.File?.Name))
                 text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
             text += "[" + shaderRef.File.Type.ToString() + "]";
+
             ListViewItem item = new ListViewItem(text) { Tag = f };
             if (lstShaders.SelectedIndices.Count == 0)
             {
@@ -267,6 +275,52 @@ namespace TheraEditor.Windows.Forms
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            BaseTexRef tref = BaseTexRef.CreateTexRef((ETextureType)comboBox2.SelectedIndex);
+
+            var item = new ListViewItem(string.Format("{0} [{1}]",
+               tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
+
+            if (lstTextures.SelectedIndices.Count == 0)
+            {
+                int index = _material.Textures.Length;
+                _material.Textures = _material.Textures.Resize(index + 1);
+                _material.Textures[index] = tref;
+                tref.Index = index;
+                lstTextures.Items.Add(item);
+            }
+            else
+            {
+                int index = lstTextures.SelectedIndices[0];
+                _material.Textures = _material.Textures.Resize(_material.Textures.Length + 1);
+                for (int i = index + 1; i < _material.Textures.Length; ++i)
+                {
+                    _material.Textures[i] = _material.Textures[i - 1];
+                    _material.Textures[i].Index = i;
+                }
+                _material.Textures[index] = tref;
+                tref.Index = index;
+                lstTextures.Items.Insert(index, item);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (lstTextures.SelectedIndices.Count > 0)
+            {
+                int index = lstTextures.SelectedIndices[0];
+                int length = _material.Textures.Length;
+                for (int i = index; i < _material.Textures.Length - 1; ++i)
+                {
+                    _material.Textures[i] = _material.Textures[i + 1];
+                    _material.Textures[i].Index = i;
+                }
+                _material.Textures = _material.Textures.Resize(length - 1);
+                lstTextures.Items.RemoveAt(index);
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering
         OutValues,
         PerVertex,
     }
-    public class TransformFeedback : BaseRenderState
+    public class TransformFeedback : BaseRenderObject
     {
         public TransformFeedback(EFeedbackType type, int bindingLocation, params string[] names) 
             : base(EObjectType.TransformFeedback)

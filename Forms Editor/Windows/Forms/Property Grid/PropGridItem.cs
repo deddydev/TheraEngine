@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Reflection;
 using TheraEngine;
-using System.Collections;
-using TheraEngine.Timers;
-using System.Threading;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -254,11 +253,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            VisibleItems.Add(this);
+            if (!Engine.DesignMode)
+                VisibleItems.Add(this);
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            VisibleItems.Remove(this);
+            if (!Engine.DesignMode)
+                VisibleItems.Remove(this);
             base.OnHandleDestroyed(e);
         }
         public override string ToString()

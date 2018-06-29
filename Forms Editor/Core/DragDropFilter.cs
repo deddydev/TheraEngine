@@ -191,12 +191,12 @@ namespace TheraEditor.Core
                 case WindowsMessage.WM_LBUTTONDOWN:
                     return true;
                 case WindowsMessage.WM_LBUTTONUP:
-                    StopFiltering();
                     if (_hoveredControl != null)
                     {
                         DragEventArgs dragArgs = new DragEventArgs(_data, 0, _mousePoint.X, _mousePoint.Y, _allowed, _current);
                         _dragDrop.Invoke(_hoveredControl, new object[] { dragArgs });
                     }
+                    StopFiltering();
                     break;
                 
                 case WindowsMessage.WM_KEYDOWN:

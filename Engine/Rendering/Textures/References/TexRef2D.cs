@@ -112,8 +112,11 @@ namespace TheraEngine.Rendering.Models.Materials
                 {
                     foreach (var fileRef in Mipmaps)
                     {
-                        fileRef.UnregisterLoadEvent(OnMipLoaded);
-                        fileRef.UnregisterUnloadEvent(OnMipUnloaded);
+                        if (fileRef != null)
+                        {
+                            fileRef.UnregisterLoadEvent(OnMipLoaded);
+                            fileRef.UnregisterUnloadEvent(OnMipUnloaded);
+                        }
                     }
                 }
                 _mipmaps = value;
@@ -121,8 +124,11 @@ namespace TheraEngine.Rendering.Models.Materials
                 {
                     foreach (var fileRef in Mipmaps)
                     {
-                        fileRef.RegisterLoadEvent(OnMipLoaded);
-                        fileRef.RegisterUnloadEvent(OnMipUnloaded);
+                        if (fileRef != null)
+                        {
+                            fileRef.RegisterLoadEvent(OnMipLoaded);
+                            fileRef.RegisterUnloadEvent(OnMipUnloaded);
+                        }
                     }
                 }
             }

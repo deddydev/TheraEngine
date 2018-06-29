@@ -44,7 +44,7 @@ namespace TheraEngine.Rendering
         }
         
         public BaseRenderPanel Control => _control;
-        public List<BaseRenderState.ContextBind> States => _states;
+        public List<BaseRenderObject.ContextBind> States => _states;
         public VSyncMode VSyncMode
         {
             get => _vsyncMode;
@@ -79,7 +79,7 @@ namespace TheraEngine.Rendering
             internal abstract void VsyncChanged(VSyncMode vsyncMode);
         }
 
-        private List<BaseRenderState.ContextBind> _states = new List<BaseRenderState.ContextBind>();
+        private List<BaseRenderObject.ContextBind> _states = new List<BaseRenderObject.ContextBind>();
         protected ConcurrentDictionary<int, ThreadSubContext> _subContexts = new ConcurrentDictionary<int, ThreadSubContext>();
         protected ThreadSubContext _currentSubContext;
 
@@ -233,7 +233,7 @@ namespace TheraEngine.Rendering
                 {
                     //Capture();
                     //Unbind();
-                    foreach (BaseRenderState.ContextBind state in States)
+                    foreach (BaseRenderObject.ContextBind state in States)
                         state.Destroy();
                     States.Clear();
                     if (BoundContexts.Contains(this))

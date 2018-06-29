@@ -1,6 +1,6 @@
 ﻿namespace TheraEngine.Rendering
 {
-    public class RenderBuffer : BaseRenderState, IFrameBufferAttachement
+    public class RenderBuffer : BaseRenderObject, IFrameBufferAttachement
     {
         public RenderBuffer() : base(EObjectType.Renderbuffer) { }
 

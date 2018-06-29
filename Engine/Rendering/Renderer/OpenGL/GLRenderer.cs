@@ -334,7 +334,7 @@ namespace TheraEngine.Rendering.OpenGL
         public override void UseProgram(int bindingId)
         {
 #if DEBUG
-            if (bindingId <= BaseRenderState.NullBindingId)
+            if (bindingId <= BaseRenderObject.NullBindingId)
                 throw new InvalidOperationException($"{bindingId} is not a valid render state id.");
 #endif
             GL.UseProgram(bindingId);
@@ -1090,16 +1090,16 @@ namespace TheraEngine.Rendering.OpenGL
         /// </summary>
         public override void RenderCurrentPrimitiveManager(int instances)
         {
-            if (_currentPrimitiveManager != null)
-            {
-                PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data._type;
-                int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
-                DrawElementsType elemType = DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType;
-                //Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());
-                //GL.DrawElements(type, count, elemType, 0);
-                GL.DrawElementsInstancedBaseInstance(type, count, elemType, IntPtr.Zero, instances, 0);
-                //GL.DrawElementsIndirect(ArbDrawIndirect.DrawIndirectBuffer, ArbDrawIndirect.DrawIndirectBuffer, IntPtr.Zero);
-            }
+            if (_currentPrimitiveManager == null)
+                return;
+            
+            PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data._type;
+            int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
+            DrawElementsType elemType = DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType;
+            //Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());
+            //GL.DrawElements(type, count, elemType, 0);
+            GL.DrawElementsInstancedBaseInstance(type, count, elemType, IntPtr.Zero, instances, 0);
+            //GL.DrawElementsIndirect(ArbDrawIndirect.DrawIndirectBuffer, ArbDrawIndirect.DrawIndirectBuffer, IntPtr.Zero);
         }
         #endregion
 

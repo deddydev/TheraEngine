@@ -170,6 +170,7 @@ namespace TheraEditor.Windows.Forms
             Color prevColor = TextBox.ForeColor;
             using (FontDialog fd = new FontDialog()
             {
+                FixedPitchOnly = true,
                 Font = TextBox.Font,
                 ShowHelp = false,
                 ShowApply = true,
@@ -356,47 +357,47 @@ namespace TheraEditor.Windows.Forms
         private Range _autoCompleteStrRange = null;
         private void FindAutocompleteString(Place p)
         {
-            int pos = TextBox.PlaceToPosition(p), start = pos, end = pos;
-            bool onBadChar = true;
-            char c;
-            if (pos < TextBox.Text.Length && pos >= 0)
-            {
-                c = TextBox.Text[pos];
-                onBadChar = char.IsWhiteSpace(c) || GLSLSyntax.Contains(c);
-            }
-            for (; start > 0;)
-            {
-                c = TextBox.Text[start - 1];
-                if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
-                    break;
-                --start;
-            }
-            if (!onBadChar)
-            {
-                for (; end < TextBox.Text.Length - 1;)
-                {
-                    c = TextBox.Text[end + 1];
-                    if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
-                        break;
-                    ++end;
-                }
-            }
-            else
-            {
-                if (start == pos)
-                {
-                    _autoCompleteStr = null;
-                    return;
-                }
-                else
-                {
-                    --end;
-                }
-            }
-            _autoCompleteStr = "";
-            for (int i = start; i <= end; ++i)
-                _autoCompleteStr += TextBox.Text[i].ToString();
-            _autoCompleteStrRange = new Range(TextBox, TextBox.PositionToPlace(start), TextBox.PositionToPlace(end + 1));
+            //int pos = TextBox.PlaceToPosition(p), start = pos, end = pos;
+            //bool onBadChar = true;
+            //char c;
+            //if (pos < TextBox.Text.Length && pos >= 0)
+            //{
+            //    c = TextBox.Text[pos];
+            //    onBadChar = char.IsWhiteSpace(c) || GLSLSyntax.Contains(c);
+            //}
+            //for (; start > 0;)
+            //{
+            //    c = TextBox.Text[start - 1];
+            //    if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
+            //        break;
+            //    --start;
+            //}
+            //if (!onBadChar)
+            //{
+            //    for (; end < TextBox.Text.Length - 1;)
+            //    {
+            //        c = TextBox.Text[end + 1];
+            //        if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
+            //            break;
+            //        ++end;
+            //    }
+            //}
+            //else
+            //{
+            //    if (start == pos)
+            //    {
+            //        _autoCompleteStr = null;
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        --end;
+            //    }
+            //}
+            //_autoCompleteStr = "";
+            //for (int i = start; i <= end; ++i)
+            //    _autoCompleteStr += TextBox.Text[i].ToString();
+            //_autoCompleteStrRange = new Range(TextBox, TextBox.PositionToPlace(start), TextBox.PositionToPlace(end + 1));
         }
 
         private void lstAutocomplete_MouseDoubleClick(object sender, MouseEventArgs e)

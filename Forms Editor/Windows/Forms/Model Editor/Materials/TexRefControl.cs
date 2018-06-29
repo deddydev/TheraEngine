@@ -13,6 +13,9 @@ namespace TheraEditor.Windows.Forms
         }
         public void SetTexRef(BaseTexRef texture)
         {
+            if (theraPropertyGrid1.TargetFileObject == texture)
+                return;
+
             lblTexName.Text = texture?.Name;
             if (texture is TexRef2D tref2d)
             {
@@ -20,14 +23,21 @@ namespace TheraEditor.Windows.Forms
                     tref2d.Mipmaps.Length > 0 &&
                     tref2d.Mipmaps[0] != null)
                     tref2d.Mipmaps[0].RegisterLoadEvent(OnMipLoaded);
+                else
+                    texThumbnail.Image = null;
+
                 tref2d.Renamed += Tref2d_Renamed;
             }
+            else
+                texThumbnail.Image = null;
             theraPropertyGrid1.TargetFileObject = texture;
         }
         private void OnMipLoaded(TextureFile2D obj)
         {
             if (obj?.Bitmaps != null && obj.Bitmaps.Length > 0)
                 texThumbnail.Image = obj.Bitmaps[0];
+            else
+                texThumbnail.Image = null;
         }
         private void Tref2d_Renamed(TheraEngine.TObject node, string oldName)
         {

@@ -110,7 +110,7 @@
             }
             else if (vuType == typeof(Int32))
             {
-                Int32 vValue = Convert.ToByte(value);
+                Int32 vValue = Convert.ToInt32(value);
                 Int32 flagValue = 0;
 
                 if (fuType == typeof(Byte))
@@ -134,7 +134,7 @@
             }
             else if (vuType == typeof(UInt32))
             {
-                UInt32 vValue = Convert.ToByte(value);
+                UInt32 vValue = Convert.ToUInt32(value);
                 UInt32 flagValue = 0;
 
                 if (fuType == typeof(Byte))
@@ -158,7 +158,7 @@
             }
             else if (vuType == typeof(Int64))
             {
-                Int64 vValue = Convert.ToByte(value);
+                Int64 vValue = Convert.ToInt64(value);
                 Int64 flagValue = 0;
 
                 if (fuType == typeof(Byte))
@@ -182,7 +182,7 @@
             }
             else if (vuType == typeof(UInt64))
             {
-                UInt64 vValue = Convert.ToByte(value);
+                UInt64 vValue = Convert.ToUInt64(value);
                 UInt64 flagValue = 0;
 
                 if (fuType == typeof(Byte))

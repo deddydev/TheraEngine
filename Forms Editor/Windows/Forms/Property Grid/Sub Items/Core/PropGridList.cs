@@ -69,23 +69,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.DestroyHandle();
         }
 
-        private async void LoadList(IList list)
+        private void LoadList(IList list)
         {
             if (list == null)
                 propGridListItems.DestroyProperties();
             else
             {
-                ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
-                await Task.Run(() => Parallel.For(0, list.Count, i =>
-                {
-                    Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(list[i]?.GetType());
-                    List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, list, i, DataChangeHandler);
-                    controls.TryAdd(i, items);
-                }));
                 propGridListItems.tblProps.SuspendLayout();
                 for (int i = 0; i < list.Count; ++i)
                 {
-                    Label label = propGridListItems.AddProperty(controls[i], new object[0], false);
+                    Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(list[i]?.GetType());
+                    List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, list, i, DataChangeHandler);
+                    Label label = propGridListItems.AddProperty(items, new object[0], false);
                     label.MouseEnter += Label_MouseEnter;
                     label.MouseLeave += Label_MouseLeave;
                     label.MouseDown += Label_MouseDown;

@@ -71,6 +71,7 @@ namespace TheraEngine
         public object UserObject { get; set; } = null;
 
         #region Name
+        [Browsable(false)]
         [TString(false, false, false)]
         [Category("Object")]
         public virtual string Name
@@ -103,7 +104,7 @@ namespace TheraEngine
         }
         public void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
-            int index = _tickFunctions.FindIndex(x => x.Item1 == group && x.Item2 == order && x.Item3 == tickFunc);
+            int index = _tickFunctions.FindIndex(x => x.Group == group && x.Order == order && x.Tick == tickFunc);
             if (index >= 0)
                 _tickFunctions.RemoveAt(index);
             Engine.UnregisterTick(group, order, tickFunc, pausedBehavior);

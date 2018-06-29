@@ -1066,6 +1066,7 @@
     <Folder Include="Windows\Forms\Animation Timeline Editor\" />
     <Folder Include="Windows\Forms\Cutscene Editor\" />
     <Folder Include="Windows\Forms\HUD Editor\" />
+    <Folder Include="Windows\Forms\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
     <Folder Include="Windows\Forms\Particle Editor\" />
   </ItemGroup>

@@ -59,8 +59,14 @@ namespace TheraEngine.Rendering.Models.Materials
             _secondsLive = 0.0f;
             if (Program.IsValid)
             {
+                const string uniform = "uniform";
+                const string sampler = "sampler";
+                const string layout = "layout";
+                const string binding = "binding";
+
                 List<ShaderVar> vars = new List<ShaderVar>();
                 List<BaseTexRef> tex = new List<BaseTexRef>();
+
                 foreach (RenderShader shader in Program)
                 {
                     string text = shader.SourceText;
@@ -68,98 +74,143 @@ namespace TheraEngine.Rendering.Models.Materials
                     if (mainIndex > 0)
                         text = text.Substring(0, mainIndex);
 
-                    const string uniform = "uniform";
+                    int prevSemicolonIndex = -1;
                     int[] uniformIndices = text.FindAllOccurrences(0, uniform);
-                    foreach (int index in uniformIndices)
+                    foreach (int unifIndex in uniformIndices)
                     {
-                        int startIndex = index + uniform.Length;
+                        int startIndex = unifIndex + uniform.Length;
                         int semicolonIndex = text.FindFirst(startIndex, ';');
-                        string utext = text.Substring(startIndex, semicolonIndex - startIndex).Trim();
-                        utext = utext.ReplaceWhitespace(" ");
-                        object value = null;
 
-                        int equalIndex = utext.FindFirst(0, '=');
-                        if (equalIndex >= 0)
-                        {
+                        prevSemicolonIndex = semicolonIndex;
 
-                        }
+                        string uniformLineText = text.Substring(startIndex, semicolonIndex - startIndex).Trim().ReplaceWhitespace(" ");
 
-                        string[] parts = utext.Split(' ');
+                        string[] parts = uniformLineText.Split(' ');
                         string type = parts[0];
                         string name = parts[1];
 
-                        int samplerIndex = type.IndexOf("sampler");
+                        int samplerIndex = type.IndexOf(sampler);
                         if (samplerIndex >= 0)
                         {
+                            //This is a texture uniform
+
+                            //int layoutIndex = prevSemicolonIndex < 0 ?
+                            //    text.FindFirstReverse(layout) :
+                            //    text.Substring(prevSemicolonIndex + 1, unifIndex).FindFirstReverse(layout);
+
+                            //int bindingIndex = -1;
+                            //if (layoutIndex >= 0)
+                            //{
+                            //    int open = text.FindFirst(layoutIndex + layout.Length, '(') + 1;
+                            //    int close = text.FindFirst(open, ')');
+                            //    string layoutSection = text.Substring(open, close - open);
+                            //    int bindingStrIndex = layoutSection.IndexOf(binding);
+                            //    int start = layoutSection.FindFirst(bindingStrIndex + binding.Length, '=') + 1;
+                            //    int commaIndex = layoutSection.FindFirst(start, ',');
+                            //    int end = commaIndex < 0 ? close : commaIndex;
+                            //    string bindingValue = layoutSection.Substring(start, end - start);
+                            //    bindingIndex = int.Parse(bindingValue.Trim());
+                            //}
+                            //else
+                            //{
+                            //    bindingIndex = 
+                            //}
+                            
                             string type2 = type.Substring(samplerIndex + 7);
                             switch (type2)
                             {
                                 case "1D":
+
                                     break;
                                 case "2D":
+
                                     break;
                                 case "3D":
+
                                     break;
                                 case "Cube":
+
                                     break;
                                 case "2DRect":
+
                                     break;
                                 case "1DArray":
+
                                     break;
                                 case "2DArray":
+
                                     break;
                                 case "CubeArray":
+
                                     break;
                                 case "Buffer":
+
                                     break;
                                 case "2DMS":
+
                                     break;
                                 case "2DMSArray":
+
                                     break;
                             }
                         }
                         else
                         {
+                            int equalIndex = uniformLineText.FindFirst(0, '=');
+                            if (equalIndex >= 0)
+                            {
+
+                            }
+
                             if (Enum.TryParse("_" + type, out EShaderVarType result))
                             {
-                                Type t = ShaderVar.ShaderTypeAssociations[result];
+                                Type shaderType = ShaderVar.ShaderTypeAssociations[result];
                                 ShaderVar match = Parameters.FirstOrDefault(x =>
                                     String.Equals(x.Name, name, StringComparison.InvariantCulture) &&
                                     x.TypeName == result);
 
-                                int arrayIndexStart = name.IndexOf("[");
-                                if (arrayIndexStart > 0)
+                                if (match != null && match.GetType() == shaderType)
                                 {
-                                    int arrayIndexEnd = name.IndexOf("]");
-                                    int arrayCount = int.Parse(name.Substring(arrayIndexStart + 1, arrayIndexEnd - arrayIndexStart - 1));
+                                    vars.Add(match);
+                                }
+                                else
+                                {
+                                    object value;
+                                    int arrayIndexStart = name.IndexOf("[");
+                                    if (arrayIndexStart > 0)
+                                    {
+                                        int arrayIndexEnd = name.IndexOf("]");
+                                        int arrayCount = int.Parse(name.Substring(arrayIndexStart + 1, arrayIndexEnd - arrayIndexStart - 1));
 
-                                    Type genericVarType = typeof(ShaderArray<>);
-                                    Type genericValType = typeof(ShaderArrayValueHandler<>);
+                                        Type genericVarType = typeof(ShaderArray<>);
+                                        Type genericValType = typeof(ShaderArrayValueHandler<>);
 
-                                    Type valueType = genericValType.MakeGenericType(t);
-                                    t = genericVarType.MakeGenericType(t);
+                                        Type valueType = genericValType.MakeGenericType(shaderType);
+                                        shaderType = genericVarType.MakeGenericType(shaderType);
 
-                                    value = Activator.CreateInstance(valueType, arrayCount);
-                                    name = name.Substring(0, arrayIndexStart);
+                                        value = Activator.CreateInstance(valueType, arrayCount);
+                                        name = name.Substring(0, arrayIndexStart);
 
-                                    if (match == null)
-                                        value = t.GetDefaultValue();
+                                        if (match == null)
+                                            value = shaderType.GetDefaultValue();
+                                        else
+                                            value = match.GenericValue;
+                                    }
+                                    else if (match == null)
+                                        value = shaderType.GetDefaultValue();
                                     else
                                         value = match.GenericValue;
-                                }
-                                else if (match == null)
-                                    value = t.GetDefaultValue();
-                                else
-                                    value = match.GenericValue;
 
-                                //int defaultValue, string name, IShaderVarOwner owner
-                                ShaderVar var = (ShaderVar)Activator.CreateInstance(t, value, name, null);
-                                vars.Add(var);
+                                    //int defaultValue, string name, IShaderVarOwner owner
+                                    ShaderVar var = (ShaderVar)Activator.CreateInstance(shaderType, value, name, null);
+                                    vars.Add(var);
+                                }
                             }
                         }
                     }
                 }
-                Parameters = vars.ToArray();
+                //Textures = tex.ToArray();
+                //Parameters = vars.ToArray();
             }
         }
 
@@ -181,6 +232,10 @@ namespace TheraEngine.Rendering.Models.Materials
             set
             {
                 _textures = value;
+                if (_textures != null)
+                    for (int i = 0; i < _textures.Length; ++i)
+                        if (_textures[i] != null)
+                            _textures[i].Index = i;
                 TexturesChanged?.Invoke();
             }
         }
@@ -292,7 +347,10 @@ namespace TheraEngine.Rendering.Models.Materials
         private void SetTextureUniforms(RenderProgram program)
         {
             for (int i = 0; i < Textures.Length; ++i)
-                SetTextureUniform(Textures[i].GetRenderTextureGeneric(true), i, "Texture" + i, program);
+            {
+                BaseTexRef tref = Textures[i];
+                SetTextureUniform(tref.GetRenderTextureGeneric(true), i, tref.SamplerName, program);
+            }
         }
         public static void SetTextureUniform(BaseRenderTexture tref, int textureUnit, string varName, RenderProgram program)
         {

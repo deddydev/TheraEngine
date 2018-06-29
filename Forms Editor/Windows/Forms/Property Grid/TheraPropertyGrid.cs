@@ -171,9 +171,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnHandleCreated(EventArgs e)
         {
             if (!Engine.DesignMode)
-            {
                 PropGridItem.BeginUpdatingVisibleItems(Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
-            }
             base.OnHandleCreated(e);
         }
 

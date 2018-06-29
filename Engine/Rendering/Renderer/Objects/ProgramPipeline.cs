@@ -1,6 +1,6 @@
 ﻿namespace TheraEngine.Rendering
 {
-    public class ProgramPipeline : BaseRenderState
+    public class ProgramPipeline : BaseRenderObject
     {
         public ProgramPipeline() 
             : base(EObjectType.ProgramPipeline) { }

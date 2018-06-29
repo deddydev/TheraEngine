@@ -367,7 +367,7 @@ namespace TheraEngine.Rendering
         public abstract int[] CreateQueries(EQueryTarget type, int count);
         public int CreateQuery(EQueryTarget type) => CreateQueries(type, 1)[0];
 
-        public T[] CreateObjects<T>(EObjectType type, int count) where T : BaseRenderState
+        public T[] CreateObjects<T>(EObjectType type, int count) where T : BaseRenderObject
             => CreateObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
 
         public abstract void DeleteObject(EObjectType type, int bindingId);

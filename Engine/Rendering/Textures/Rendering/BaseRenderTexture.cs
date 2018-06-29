@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
     }
     public delegate void DelPrePushData(PrePushDataCallback callback);
     public delegate void DelPreBind(PreBindCallback callback);
-    public abstract class BaseRenderTexture : BaseRenderState, IDisposable
+    public abstract class BaseRenderTexture : BaseRenderObject, IDisposable
     {
         public event DelPreBind PreBind;
         public event DelPrePushData PrePushData;

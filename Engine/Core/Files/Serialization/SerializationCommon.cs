@@ -65,17 +65,13 @@ namespace TheraEngine.Files.Serialization
     /// </summary>
     public class VarInfo
     {
-        private string _name;
-        private string _category = null;
         private MemberInfo _info;
-        private TSerialize _attrib;
-        private Type _variableType, _owningType;
 
-        public Type OwningType => _owningType;
-        public Type VariableType => _variableType;
-        public string Name => _name;
-        public string Category => _category;
-        public TSerialize Attrib => _attrib;
+        public Type OwningType { get; }
+        public Type VariableType { get; }
+        public string Name { get; }
+        public string Category { get; } = null;
+        public TSerialize Attrib { get; }
 
         public void SetValue(object obj, object value)
         {
@@ -92,7 +88,7 @@ namespace TheraEngine.Files.Serialization
         }
         public object GetValue(object obj)
         {
-            if (ReferenceEquals(obj, null))
+            if (obj is null)
                 return null;
             if (_info.MemberType.HasFlag(MemberTypes.Field))
                 return ((FieldInfo)_info).GetValue(obj);
@@ -108,45 +104,45 @@ namespace TheraEngine.Files.Serialization
         }
         public VarInfo(Type type, Type owningType, string name) : this(type, owningType)
         {
-            _name = name;
+            Name = name;
         }
         public VarInfo(Type type, Type owningType)
         {
             _info = null;
-            _attrib = null;
-            _variableType = type;
-            _owningType = owningType;
-            _name = null;
-            _category = null;
+            Attrib = null;
+            VariableType = type;
+            OwningType = owningType;
+            Name = null;
+            Category = null;
         }
         public VarInfo(MemberInfo info)
         {
             _info = info;
-            _attrib = _info.GetCustomAttribute<TSerialize>();
+            Attrib = _info.GetCustomAttribute<TSerialize>();
             if (_info.MemberType.HasFlag(MemberTypes.Field))
-                _variableType = ((FieldInfo)_info).FieldType;
+                VariableType = ((FieldInfo)_info).FieldType;
             else if (_info.MemberType.HasFlag(MemberTypes.Property))
-                _variableType = ((PropertyInfo)_info).PropertyType;
-            _owningType = _info.DeclaringType;
-            if (_attrib.NameOverride != null)
-                _name = _attrib.NameOverride;
+                VariableType = ((PropertyInfo)_info).PropertyType;
+            OwningType = _info.DeclaringType;
+            if (Attrib.NameOverride != null)
+                Name = Attrib.NameOverride;
             else
             {
                 DisplayNameAttribute nameAttrib = _info.GetCustomAttribute<DisplayNameAttribute>();
                 if (nameAttrib != null)
-                    _name = nameAttrib.DisplayName;
+                    Name = nameAttrib.DisplayName;
                 else
-                    _name = _info.Name;
+                    Name = _info.Name;
             }
-            if (_attrib.UseCategory)
+            if (Attrib.UseCategory)
             {
-                if (_attrib.OverrideXmlCategory != null)
-                    _category = _attrib.OverrideXmlCategory;
+                if (Attrib.OverrideXmlCategory != null)
+                    Category = Attrib.OverrideXmlCategory;
                 else
                 {
                     CategoryAttribute categoryAttrib = _info.GetCustomAttribute<CategoryAttribute>();
                     if (categoryAttrib != null)
-                        _category = categoryAttrib.Category;
+                        Category = categoryAttrib.Category;
                 }
             }
         }

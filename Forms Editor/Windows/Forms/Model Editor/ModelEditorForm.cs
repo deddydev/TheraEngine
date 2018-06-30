@@ -7,7 +7,6 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Lights;
-using TheraEngine.Animation;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
@@ -141,6 +140,7 @@ namespace TheraEditor.Windows.Forms
                 bool loaded = ModelEditorWorld.IsLoaded;
                 bool fileDoesNotExist = !ModelEditorWorld.FileExists;
 
+                IBLProbeGridActor iblProbes = null;
                 if (fileDoesNotExist)
                 {
                     List<IActor> actors = new List<IActor>();
@@ -183,7 +183,11 @@ namespace TheraEditor.Windows.Forms
                     Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
                     skyboxActor.RootComponent.ModelRef = skybox;
                     actors.Add(skyboxActor);
-                    
+
+                    iblProbes = new IBLProbeGridActor();
+                    iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
+                    actors.Add(iblProbes);
+
                     ModelEditorWorld.File = new World()
                     {
                         Settings = new WorldSettings("ModelEditorWorld", new Map(new MapSettings(actors))),
@@ -197,6 +201,8 @@ namespace TheraEditor.Windows.Forms
                     //if (fileDoesNotExist)
                     //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
                 }
+
+                iblProbes?.InitAndCaptureAll(512);
 
                 return w;
             }

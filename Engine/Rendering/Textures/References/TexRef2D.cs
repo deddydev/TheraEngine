@@ -102,6 +102,7 @@ namespace TheraEngine.Rendering.Models.Materials
         //Note: one TextureData object may contain all the mips
         public GlobalFileRef<TextureFile2D>[] _mipmaps;
 
+        [Category(CategoryName)]
         [TSerialize]
         public GlobalFileRef<TextureFile2D>[] Mipmaps
         {
@@ -110,9 +111,11 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 if (_mipmaps != null)
                 {
-                    foreach (var fileRef in Mipmaps)
+                    for (int i = 0; i < Mipmaps.Length; ++i)
                     {
-                        if (fileRef != null)
+                        var fileRef = Mipmaps[i];
+                        if (fileRef == null)
+                            Mipmaps[i] = new GlobalFileRef<TextureFile2D>();
                         {
                             fileRef.UnregisterLoadEvent(OnMipLoaded);
                             fileRef.UnregisterUnloadEvent(OnMipUnloaded);
@@ -204,6 +207,14 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
+        /// <summary>
+        /// If false, calling resize will do nothing.
+        /// Useful for repeating textures that must always be a certain size or textures that never need to be dynamically resized during the game.
+        /// False by default.
+        /// </summary>
+        [Category(CategoryName)]
+        public bool Resizeable { get; set; } = true;
+
         [Category(CategoryName)]
         [TSerialize]
         public EDepthStencilFmt DepthStencilFormat { get; set; } = EDepthStencilFmt.None;
@@ -281,13 +292,6 @@ namespace TheraEngine.Rendering.Models.Materials
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
         /// <summary>
-        /// If false, calling resize will do nothing.
-        /// Useful for repeating textures that must always be a certain size or textures that never need to be dynamically resized during the game.
-        /// False by default.
-        /// </summary>
-        public bool Resizeable { get; set; } = true;
-
-        /// <summary>
         /// Resizes the textures stored in memory.
         /// Does nothing if Resizeable is false.
         /// </summary>
@@ -328,6 +332,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 _texture?.Resize(width, height);
         }
 
+        [Browsable(false)]
         public bool IsLoaded => _texture != null;
 
         /// <summary>

@@ -434,7 +434,7 @@ namespace TheraEngine.Files
                 if (!hasWildcard && !hasExt && tpAttrib.ExportableExtensions.Length > 0)
                     ext = tpAttrib.ExportableExtensions[0];
 
-                Export(dir, name, pathFormat, ext, flags);
+                Export(dir, name, EFileFormat.ThirdParty, ext, flags);
                 return;
             }
 

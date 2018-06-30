@@ -21,9 +21,15 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public abstract class BaseTexRef : TFileObject, IFrameBufferAttachement
     {
+        [DisplayName("Texture Name")]
+        [Category("Texture Reference")]
+        public override string Name { get => base.Name; set => base.Name = value; }
+
+        [Category("Texture Reference")]
         [TSerialize]
         public EFramebufferAttachment? FrameBufferAttachment { get; set; }
 
+        [Category("Texture Reference")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public int Index { get; set; }
 
@@ -38,6 +44,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         [TSerialize(nameof(SamplerName), IsXmlAttribute = true)]
         private string _samplerName = null;
+
+        [Category("Texture Reference")]
         public string SamplerName
         {
             get => _samplerName ?? "Texture" + Index;

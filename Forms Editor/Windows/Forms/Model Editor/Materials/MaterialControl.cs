@@ -74,6 +74,7 @@ namespace TheraEditor.Windows.Forms
                         var item = new ListViewItem(string.Format("{0} [{1}]",
                             tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
                         lstTextures.Items.Add(item);
+                        tref.Renamed += Tref_Renamed;
                     }
                     
                     foreach (var shaderRef in _material.Shaders)
@@ -98,6 +99,16 @@ namespace TheraEditor.Windows.Forms
 
                 RedrawPreview();
             }
+        }
+
+        private void Tref_Renamed(TObject node, string oldName)
+        {
+            if (!(node is BaseTexRef tref))
+                return;
+            int index = tref.Index;
+            if (index < 0 || index >= lstTextures.Items.Count || lstTextures.Items[index].Tag != tref)
+                return;
+            lstTextures.Items[index].Text = string.Format("{0} [{1}]", tref.Name, tref.GetType().GetFriendlyName());
         }
 
         private void RedrawPreview()

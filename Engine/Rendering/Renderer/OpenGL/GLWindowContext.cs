@@ -68,6 +68,8 @@ namespace TheraEngine.Rendering.OpenGL
             //131218,
             //131076,
             //1282,
+            //0,
+            //9,
         };
         private int[] _printMessageIds =
         {

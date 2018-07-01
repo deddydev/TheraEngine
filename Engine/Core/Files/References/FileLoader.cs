@@ -272,7 +272,7 @@ namespace TheraEngine.Files
                             file = FromXML(_subType, absolutePath) as T;
                             break;
                         case EFileFormat.Binary:
-                            file = FromBinary(_subType, absolutePath) as T;
+                            file = FromBinaryAsync(_subType, absolutePath) as T;
                             break;
                         default:
                             Engine.LogWarning(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));

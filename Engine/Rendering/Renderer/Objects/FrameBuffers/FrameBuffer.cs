@@ -91,6 +91,27 @@ namespace TheraEngine.Rendering
             if (IsActive)
                 AttachAll();
         }
+        public void AttachAll()
+        {
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)AttachAll, BaseRenderPanel.PanelType.Rendering))
+                return;
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+            for (int i = 0; i < Targets.Length; ++i)
+                Attach(i);
+            Engine.Renderer.SetDrawBuffers(DrawBuffers);
+            Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
+            CheckErrors();
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+        }
+        public void DetachAll()
+        {
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)DetachAll, BaseRenderPanel.PanelType.Rendering))
+                return;
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+            for (int i = 0; i < Targets.Length; ++i)
+                Detach(i);
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, NullBindingId);
+        }
         public void Attach(int i)
         {
             var (Target, Attachment, MipLevel, LayerIndex) = Targets[i];
@@ -116,18 +137,6 @@ namespace TheraEngine.Rendering
             else
                 throw new Exception();
         }
-        public void AttachAll()
-        {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)AttachAll, BaseRenderPanel.PanelType.Rendering))
-                return;
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            for (int i = 0; i < Targets.Length; ++i)
-                Attach(i);
-            Engine.Renderer.SetDrawBuffers(DrawBuffers);
-            Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
-            CheckErrors();
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-        }
         public void Detach(int i)
         {
             var (Target, Attachment, MipLevel, LayerIndex) = Targets[i];
@@ -145,17 +154,9 @@ namespace TheraEngine.Rendering
             }
             else if (Target is RenderBuffer buf)
             {
+                buf.Bind();
                 buf.DetachFromFBO(EFramebufferTarget.Framebuffer, Attachment);
             }
-        }
-        public void DetachAll()
-        {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)DetachAll, BaseRenderPanel.PanelType.Rendering))
-                return;
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            for (int i = 0; i < Targets.Length; ++i)
-                Detach(i);
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, NullBindingId);
         }
 
         public virtual void Bind(EFramebufferTarget type)

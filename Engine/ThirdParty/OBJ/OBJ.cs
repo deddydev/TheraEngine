@@ -169,6 +169,7 @@ void main()
 
 layout (location = 0) out vec4 AlbedoSpec;
 layout (location = 1) out vec3 Normal;
+layout (location = 2) out vec3 RMS;
 
 in vec3 FragPos;
 in vec3 FragNorm;
@@ -184,8 +185,9 @@ uniform sampler2D Texture0;
 
 void main()
 {
-    AlbedoSpec = vec4(texture(Texture0, FragUV0).rgb * Diffuse, 0.0);
+    AlbedoSpec = vec4(texture(Texture0, FragUV0).rgb * Diffuse, 0.0f);
     Normal = normalize(FragNorm);
+    RMS = vec3(1.0f, 0.0f, 1.0f);
 }");
         }
     }

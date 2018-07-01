@@ -26,13 +26,17 @@ namespace ObjLoader.Loader.Loaders
             var currentLine = _lineStreamReader.ReadLine();
 
             if (string.IsNullOrWhiteSpace(currentLine) || currentLine[0] == '#')
-            {
                 return;
-            }
 
             var fields = currentLine.Trim().Split(null, 2);
+            if (fields.Length == 0)
+                return;
+
             var keyword = fields[0].Trim();
-            var data = fields[1].Trim();
+            string data = null;
+
+            if (fields.Length != 1)
+                data = fields[1].Trim();
 
             if (keyword.Equals("mtllib"))
             {

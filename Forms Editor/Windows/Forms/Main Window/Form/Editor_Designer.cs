@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
@@ -123,6 +124,103 @@ namespace TheraEditor.Windows.Forms
                     }
                 }
             }
+        }
+
+        private class OperationInfo
+        {
+            private Action _updated;
+            private CancellationTokenSource _token;
+
+            public DateTime StartTime { get; }
+            public TimeSpan OperationDuration { get; private set; }
+            public Progress<float> Progress { get; }
+            public float ProgressValue { get; private set; } = 0.0f;
+            public bool IsComplete => ProgressValue >= 0.99f;
+            public bool CanCancel => _token != null && _token.Token.CanBeCanceled;
+
+            public OperationInfo(Progress<float> progress, CancellationTokenSource cancel, Action updated)
+            {
+                _updated = updated;
+                Progress = progress;
+                if (Progress != null)
+                    Progress.ProgressChanged += Progress_ProgressChanged;
+                _token = cancel;
+                StartTime = DateTime.Now;
+            }
+            
+            private void Progress_ProgressChanged(object sender, float progressValue)
+            {
+                ProgressValue = progressValue;
+                OperationDuration = DateTime.Now - StartTime;
+                _updated();
+            }
+
+            public void Cancel()
+            {
+                _token?.Cancel();
+                if (Progress != null)
+                    Progress.ProgressChanged -= Progress_ProgressChanged;
+            }
+        }
+        private List<OperationInfo> _operations = new List<OperationInfo>();
+
+        public void ReportOperation(string statusBarMessage, Progress<float> progress, CancellationTokenSource token)
+        {
+            if (_operations.Count == 0)
+            {
+                toolStripProgressBar1.Value = 0;
+            }
+            
+            _operations.Add(new OperationInfo(progress, token, Info_Updated));
+            
+            btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
+            toolStripProgressBar1.Visible = true;
+            toolStripStatusLabel1.Text = statusBarMessage;
+        }
+        
+        private void Info_Updated()
+        {
+            int resolution = toolStripProgressBar1.Maximum;
+
+            float avgProgress = 0.0f;
+            int opCount = _operations.Count;
+            for (int i = 0; i < _operations.Count; ++i)
+            {
+                OperationInfo info = _operations[i];
+                avgProgress += info.ProgressValue;
+                if (info.IsComplete)
+                {
+                    toolStripStatusLabel1.Text = $"Operation completed successfully in {Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero)} seconds.";
+                    _operations.RemoveAt(i--);
+                }
+            }
+
+            if (opCount == 0)
+                return;
+
+            avgProgress /= opCount;
+
+            int value = (int)(avgProgress * (resolution + 0.5f));
+            toolStripProgressBar1.ProgressBar.Value = value;
+            if (value >= resolution)
+                EndOperation();
+        }
+        private void EndOperation()
+        {
+            _operations.Clear();
+            btnCancelOp.Visible = false;
+            toolStripProgressBar1.Visible = false;
+        }
+        private void btnCancelOp_ButtonClick(object sender, EventArgs e)
+        {
+            foreach (OperationInfo info in _operations)
+            {
+                info.Cancel();
+            }
+            EndOperation();
+            toolStripStatusLabel1.Text = _operations.Count == 1 ?
+                "Operation was canceled." :
+                "Operations were canceled.";
         }
 
         public static Color BackgroundColor => Color.FromArgb(92, 93, 100);

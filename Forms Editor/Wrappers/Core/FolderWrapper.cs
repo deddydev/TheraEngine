@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.VisualBasic.FileIO;
 using TheraEditor.Windows.Forms;
 using System.Drawing;
+using System.Threading;
 
 namespace TheraEditor.Wrappers
 {
@@ -247,7 +248,11 @@ namespace TheraEditor.Wrappers
                     DialogResult r = ofd.ShowDialog(Editor.Instance);
                     if (r == DialogResult.OK)
                     {
-                        TFileObject file = await TFileObject.LoadAsync(fileType, ofd.FileName);
+                        CancellationTokenSource token = new CancellationTokenSource();
+                        Progress<float> progress = new Progress<float>();
+                        string msg = $"Importing '{ofd.FileName}'...";
+                        Editor.Instance.ReportOperation(msg, progress, token);
+                        TFileObject file = await TFileObject.LoadAsync(fileType, ofd.FileName, progress, token.Token);
 
                         FolderWrapper folderNode = GetInstance<FolderWrapper>();
                         string dir = folderNode.FilePath as string;

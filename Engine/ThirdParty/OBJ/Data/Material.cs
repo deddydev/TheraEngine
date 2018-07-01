@@ -11,9 +11,9 @@ namespace ObjLoader.Loader.Data
 
         public string Name { get; set; }
 
-        public Vec3 AmbientColor { get; set; }
-        public Vec3 DiffuseColor { get; set; }
-        public Vec3 SpecularColor { get; set; }
+        public Vec3 AmbientColor { get; set; } = Vec3.Zero;
+        public Vec3 DiffuseColor { get; set; } = Vec3.One;
+        public Vec3 SpecularColor { get; set; } = Vec3.One;
         public float SpecularCoefficient { get; set; }
 
         public float Transparency { get; set; }

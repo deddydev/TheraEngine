@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Lights;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -30,7 +29,17 @@ namespace TheraEngine.Rendering.Models
             public List<ModelScene> Models { get; set; }
             public List<BasePropAnim> PropertyAnimations { get; set; }
         }
-        public static async Task<Data> ImportAsync(string filePath, ModelImportOptions options)
+
+        public static Task<Data> ImportAsync(
+            string filePath,
+            ModelImportOptions options)
+            => ImportAsync(filePath, options, null, CancellationToken.None);
+
+        public static async Task<Data> ImportAsync(
+            string filePath,
+            ModelImportOptions options,
+            Progress<float> progress,
+            CancellationToken cancel)
         {
             if (!File.Exists(filePath))
                 return null;
@@ -42,7 +51,7 @@ namespace TheraEngine.Rendering.Models
             //using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
             {
                 var schemeReader = new XMLSchemeDefinition<COLLADA>();
-                var root = await schemeReader.ImportAsync(filePath, (ulong)options.IgnoreFlags);
+                var root = await schemeReader.ImportAsync(filePath, (ulong)options.IgnoreFlags, progress, cancel);
                 if (root != null)
                 {
                     Matrix4 baseTransform = options.InitialTransform.Matrix;

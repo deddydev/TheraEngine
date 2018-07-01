@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
+using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Models;
@@ -19,10 +21,10 @@ namespace TheraEditor.Wrappers
             _menu.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
             _menu.Items.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.O));   //1
             ToolStripMenuItem importItem = new ToolStripMenuItem("Import As...", null);
-            ToolStripMenuItem skeletalMeshImportItem    = new ToolStripMenuItem("Skeletal Model",   null, ImportAsSkeletalMeshAction);
-            ToolStripMenuItem staticMeshImportItem      = new ToolStripMenuItem("Static Model",     null, ImportAsStaticMeshAction);
-            ToolStripMenuItem skeletonImportItem        = new ToolStripMenuItem("Skeleton",         null, ImportAsSkeletonAction);
-            ToolStripMenuItem actorImportItem           = new ToolStripMenuItem("Actor",            null, ImportAsActorAction);
+            ToolStripMenuItem skeletalMeshImportItem = new ToolStripMenuItem("Skeletal Model", null, ImportAsSkeletalMeshAction);
+            ToolStripMenuItem staticMeshImportItem = new ToolStripMenuItem("Static Model", null, ImportAsStaticMeshAction);
+            ToolStripMenuItem skeletonImportItem = new ToolStripMenuItem("Skeleton", null, ImportAsSkeletonAction);
+            ToolStripMenuItem actorImportItem = new ToolStripMenuItem("Actor", null, ImportAsActorAction);
             importItem.DropDownItems.Add(skeletalMeshImportItem);
             importItem.DropDownItems.Add(staticMeshImportItem);
             importItem.DropDownItems.Add(skeletonImportItem);
@@ -46,19 +48,19 @@ namespace TheraEditor.Wrappers
             => GetInstance<ColladaWrapper>().ImportAsStaticMesh();
         private static void ImportAsSkeletalMeshAction(object sender, EventArgs e)
             => GetInstance<ColladaWrapper>().ImportAsSkeletalMesh();
-        
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            
+
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             ColladaWrapper w = GetInstance<ColladaWrapper>();
         }
         #endregion
-        
+
         public ColladaWrapper() : base(_menu) { }
-        
+
         private async void ImportAsActor()
         {
             TFileObject actor = await Actor.LoadDAEAsync(FilePath);
@@ -73,12 +75,35 @@ namespace TheraEditor.Wrappers
             //string name = Path.GetFileNameWithoutExtension(FilePath);
             //actor.Export(dir, name, FileFormat.XML);
         }
-        private async void ImportAsStaticMesh()
+        private void ImportAsStaticMesh()
         {
-            TFileObject staticModel = await StaticModel.LoadDAEAsync(FilePath);
-            string dir = Path.GetDirectoryName(FilePath);
-            string name = Path.GetFileNameWithoutExtension(FilePath);
-            staticModel.Export(dir, name, EFileFormat.XML);
+            Progress<float> p = new Progress<float>();
+            CancellationTokenSource token = new CancellationTokenSource();
+            Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as static model...", p, token);
+            ModelImportOptions o = new ModelImportOptions()
+            {
+                IgnoreFlags =
+                   Collada.EIgnoreFlags.Extra |
+                   Collada.EIgnoreFlags.Controllers |
+                   Collada.EIgnoreFlags.Cameras |
+                   Collada.EIgnoreFlags.Lights
+            };
+
+            Collada.ImportAsync(FilePath, o, p, token.Token).ContinueWith(t =>
+            {
+                var data = t.Result;
+                if (data == null || data.Models.Count == 0)
+                    return;
+
+                TFileObject staticModel = data.Models[0].StaticModel;
+                if (staticModel == null)
+                    return;
+
+                //TFileObject staticModel = await StaticModel.LoadDAEAsync(FilePath);
+                string dir = Path.GetDirectoryName(FilePath);
+                string name = Path.GetFileNameWithoutExtension(FilePath);
+                staticModel.Export(dir, name, EFileFormat.XML);
+            });
         }
         private async void ImportAsSkeletalMesh()
         {

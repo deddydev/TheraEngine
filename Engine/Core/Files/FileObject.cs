@@ -9,6 +9,7 @@ using System.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Memory;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace TheraEngine.Files
 {
@@ -363,15 +364,17 @@ namespace TheraEngine.Files
         /// <typeparam name="T">The type of the file object to load.</typeparam>
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
-        public static async Task<T> LoadAsync<T>(string filePath) where T : TFileObject
-            => await LoadAsync(typeof(T), filePath) as T;
+        public static async Task<T> LoadAsync<T>(
+            string filePath, IProgress<float> progress, CancellationToken cancel) where T : TFileObject
+            => await LoadAsync(typeof(T), filePath, progress, cancel) as T;
         /// <summary>
         /// Opens a new instance of the file object at the given file path.
         /// </summary>
         /// <param name="type">The type of the file object to load.</param>
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
-        public static async Task<TFileObject> LoadAsync(Type type, string filePath)
+        public static async Task<TFileObject> LoadAsync(
+            Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             FileExt extAttrib = GetFileExtension(type);
             File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
@@ -385,15 +388,15 @@ namespace TheraEngine.Files
                 string fileExt = extAttrib.GetProperExtension(pfmt);
                 if (string.Equals(ext, fileExt))
                     return fmt == EFileFormat.XML ?
-                        FromXML(type, filePath) :
-                        FromBinary(type, filePath);
+                        await FromXMLAsync(type, filePath, progress, cancel) :
+                        await FromBinaryAsync(type, filePath, progress, cancel);
             }
             else if (tpAttrib != null)
             {
                 bool hasWildcard = tpAttrib.ImportableExtensions.Contains("*");
                 bool hasExt = tpAttrib.ImportableExtensions.Contains(ext.ToLowerInvariant());
                 if (hasWildcard || hasExt)
-                    return await Read3rdPartyAsync(type, filePath);
+                    return await Read3rdPartyAsync(type, filePath, progress, cancel);
             }
 
             Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, type.GetFriendlyName());
@@ -497,37 +500,46 @@ namespace TheraEngine.Files
         #endregion
 
         #region XML
-        internal static T FromXML<T>(string filePath) where T : TFileObject
-            => FromXML(typeof(T), filePath) as T;
-        internal static unsafe TFileObject FromXML(Type type, string filePath)
+        internal static async Task<T> FromXMLAsync<T>(
+            string filePath, IProgress<float> progress, CancellationToken cancel)
+            where T : TFileObject
+            => await FromXMLAsync(typeof(T), filePath, progress, cancel) as T;
+        internal static async Task<TFileObject> FromXMLAsync(
+            Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            if (!File.Exists(filePath))
-                return null;
-
-            TFileObject file;
-            FileExt ext = GetFileExtension(type);
-            if (ext?.ManualXmlConfigSerialize ?? false)
+            return await Task.Run(() =>
             {
-                using (FileMap map = FileMap.FromFile(filePath))
-                using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
+                if (!File.Exists(filePath))
+                    return null;
+
+                TFileObject file;
+                FileExt ext = GetFileExtension(type);
+                if (ext?.ManualXmlConfigSerialize ?? false)
                 {
-                    file = SerializationCommon.CreateObject(type) as TFileObject;
-                    if (file != null && reader.BeginElement())
+                    unsafe
                     {
-                        file.FilePath = filePath;
-                        //if (reader.Name.Equals(t.ToString(), true))
-                        file.Read(reader);
-                        //else
-                        //    throw new Exception("File was not of expected type.");
-                        reader.EndElement();
+                        using (FileMap map = FileMap.FromFile(filePath))
+                        using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
+                        {
+                            file = SerializationCommon.CreateObject(type) as TFileObject;
+                            if (file != null && reader.BeginElement())
+                            {
+                                file.FilePath = filePath;
+                                //if (reader.Name.Equals(t.ToString(), true))
+                                file.Read(reader);
+                                //else
+                                //    throw new Exception("File was not of expected type.");
+                                reader.EndElement();
+                            }
+                        }
                     }
                 }
-            }
-            else
-                file = new CustomXmlSerializer().Deserialize(filePath);
-            if (file != null)
-                file.FilePath = filePath;
-            return file;
+                else
+                    file = new CustomXmlSerializer().Deserialize(filePath);
+                if (file != null)
+                    file.FilePath = filePath;
+                return file;
+            });
         }
         private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
         {
@@ -599,32 +611,39 @@ namespace TheraEngine.Files
 
         #region Binary
 
-        internal unsafe static T FromBinary<T>(string filePath) where T : TFileObject
-            => FromBinary(typeof(T), filePath) as T;
-        internal unsafe static TFileObject FromBinary(Type type, string filePath)
+        internal static async Task<T> FromBinaryAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel) where T : TFileObject
+            => await FromBinaryAsync(typeof(T), filePath, progress, cancel) as T;
+        internal static async Task<TFileObject> FromBinaryAsync(
+            Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            if (!File.Exists(filePath))
-                return null;
-
-            TFileObject file;
-            if (GetFileExtension(type).ManualBinConfigSerialize)
+            return await Task.Run(() =>
             {
-                file = SerializationCommon.CreateObject(type) as TFileObject;
-                if (file != null)
-                {
-                    file.FilePath = filePath;
-                    FileMap map = FileMap.FromFile(filePath);
-                    FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
-                    file.Read(hdr->Data, hdr->Strings);
-                }
-            }
-            else
-                file = CustomBinarySerializer.Deserialize(filePath, type) as TFileObject;
+                if (!File.Exists(filePath))
+                    return null;
 
-            if (file != null)
-                file.FilePath = filePath;
-            
-            return file;
+                TFileObject file;
+                if (GetFileExtension(type).ManualBinConfigSerialize)
+                {
+                    file = SerializationCommon.CreateObject(type) as TFileObject;
+                    if (file != null)
+                    {
+                        unsafe
+                        {
+                            file.FilePath = filePath;
+                            FileMap map = FileMap.FromFile(filePath);
+                            FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
+                            file.Read(hdr->Data, hdr->Strings);
+                        }
+                    }
+                }
+                else
+                    file = CustomBinarySerializer.Deserialize(filePath, type) as TFileObject;
+
+                if (file != null)
+                    file.FilePath = filePath;
+
+                return file;
+            });
         }
         internal unsafe void ToBinary(
             string directory,
@@ -734,9 +753,11 @@ namespace TheraEngine.Files
             Write3rdParty(FilePath);
             Engine.PrintLine("Saved third party file to {0}", FilePath);
         }
-        public static async Task<T> Read3rdPartyAsync<T>(string filePath) where T : TFileObject
-            => (await Read3rdPartyAsync(typeof(T), filePath)) as T;
-        public static async Task<TFileObject> Read3rdPartyAsync(Type classType, string filePath)
+        public static async Task<T> Read3rdPartyAsync<T>(
+            string filePath, IProgress<float> progress, CancellationToken cancel)
+            where T : TFileObject
+            => await Read3rdPartyAsync(typeof(T), filePath, progress, cancel) as T;
+        public static async Task<TFileObject> Read3rdPartyAsync(Type classType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             string ext = Path.GetExtension(filePath).Substring(1);
             Delegate loader = Get3rdPartyLoader(classType, ext);

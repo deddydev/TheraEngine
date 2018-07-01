@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Files
 {
@@ -40,12 +42,12 @@ namespace TheraEngine.Files
         protected override bool RegisterFile(string path, T file)
             => Engine.AddLocalFileInstance(path, file);
 
-        public override T GetInstance()
+        public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
             if (_file != null)
                 return _file;
             
-            return File = LoadNewInstance(false, null, null);
+            return File = await LoadNewInstanceAsync(false, null, progress, cancel);
         }
         
         public static implicit operator LocalFileRef<T>(T file) => file == null ? null : new LocalFileRef<T>(file);

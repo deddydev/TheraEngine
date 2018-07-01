@@ -358,6 +358,8 @@ namespace TheraEngine.Files
         }
 
         #region Import/Export
+        public static async Task<T> LoadAsync<T>(string filePath) where T : TFileObject
+            => await LoadAsync(typeof(T), filePath, null, CancellationToken.None) as T;
         /// <summary>
         /// Opens a new instance of the given file at the given file path.
         /// </summary>
@@ -753,10 +755,13 @@ namespace TheraEngine.Files
             Write3rdParty(FilePath);
             Engine.PrintLine("Saved third party file to {0}", FilePath);
         }
-        public static async Task<T> Read3rdPartyAsync<T>(
-            string filePath, IProgress<float> progress, CancellationToken cancel)
-            where T : TFileObject
+
+        public static async Task<T> Read3rdPartyAsync<T>(string filePath) where T : TFileObject
+            => await Read3rdPartyAsync(typeof(T), filePath, null, CancellationToken.None) as T;
+
+        public static async Task<T> Read3rdPartyAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel) where T : TFileObject
             => await Read3rdPartyAsync(typeof(T), filePath, progress, cancel) as T;
+
         public static async Task<TFileObject> Read3rdPartyAsync(Type classType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             string ext = Path.GetExtension(filePath).Substring(1);

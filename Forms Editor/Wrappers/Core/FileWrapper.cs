@@ -37,8 +37,7 @@ namespace TheraEditor.Wrappers
                 Name = value;
             }
         }
-        public override TFileObject GetNewInstance()
-            => _fileRef.LoadNewInstance(true, null, null);
+        public override TFileObject GetNewInstance() => _fileRef.LoadNewInstance();
         public override TFileObject SingleInstance
         {
             get => ResourceRef.File;

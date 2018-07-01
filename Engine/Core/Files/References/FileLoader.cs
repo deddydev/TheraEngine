@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -226,7 +227,65 @@ namespace TheraEngine.Files
                 return;
             Loaded -= onLoaded;
         }
-        public virtual T LoadNewInstance(bool allowConstruct, Type[] constructorTypes, object[] constructionArgs)
+
+        /// <summary>
+        /// Loads a new instance synchronously and allows dynamic construction when the ReferencePathAbsolute is invalid, assuming there is a constructor with no arguments.
+        /// </summary>
+        public T LoadNewInstance()
+            => LoadNewInstance(true, null);
+
+        /// <summary>
+        /// Loads a new instance synchronously.
+        /// </summary>
+        /// <param name="allowConstruct"></param>
+        /// <param name="constructionArgs"></param>
+        public T LoadNewInstance(bool allowConstruct, (Type Type, object Value)[] constructionArgs)
+            => LoadNewInstanceAsync(allowConstruct, constructionArgs).GetResultSynchronously();
+
+        public void LoadNewInstanceAsync(Action<T> onLoaded)
+            => LoadNewInstanceAsync(true, null).ContinueWith(t => onLoaded?.Invoke(t.Result));
+
+        public void LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel, Action<T> onLoaded)
+            => LoadNewInstanceAsync(true, null, progress, cancel).ContinueWith(t => onLoaded?.Invoke(t.Result));
+
+        public void LoadNewInstanceAsync(bool allowConstruct, (Type Type, object Value)[] constructionArgs, IProgress<float> progress, CancellationToken cancel, Action<T> onLoaded)
+            => LoadNewInstanceAsync(allowConstruct, constructionArgs, progress, cancel).ContinueWith(t => onLoaded?.Invoke(t.Result));
+
+        /// <summary>
+        /// Loads a new instance asynchronously.
+        /// </summary>
+        /// <param name="allowConstruct"></param>
+        /// <param name="constructionArgs"></param>
+        /// <param name="onLoaded"></param>
+        public void LoadNewInstanceAsync(bool allowConstruct, (Type Type, object Value)[] constructionArgs, Action<T> onLoaded)
+            => LoadNewInstanceAsync(allowConstruct, constructionArgs).ContinueWith(t => onLoaded?.Invoke(t.Result));
+
+        public async Task<T> LoadNewInstanceAsync()
+            => await LoadNewInstanceAsync(true, null, null, CancellationToken.None);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="allowConstruct"></param>
+        /// <param name="constructionArgs"></param>
+        /// <returns></returns>
+        public async Task<T> LoadNewInstanceAsync(bool allowConstruct, (Type Type, object Value)[] constructionArgs)
+            => await LoadNewInstanceAsync(allowConstruct, constructionArgs, null, CancellationToken.None);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="progress"></param>
+        /// <param name="cancel"></param>
+        /// <returns></returns>
+        public async Task<T> LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel)
+            => await LoadNewInstanceAsync(true, null, progress, cancel);
+
+        public virtual async Task<T> LoadNewInstanceAsync(
+            bool allowConstruct,
+            (Type Type, object Value)[] constructionArgs,
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
             string absolutePath = ReferencePathAbsolute;
 
@@ -234,7 +293,7 @@ namespace TheraEngine.Files
             {
                 if (allowConstruct)
                 {
-                    T file = DynamicConstructNewInstance_Internal(false, constructorTypes, constructionArgs);
+                    T file = DynamicConstructNewInstance_Internal(false, constructionArgs);
                     if (file != null)
                     {
                         file.FilePath = absolutePath;
@@ -269,10 +328,10 @@ namespace TheraEngine.Files
                     switch (GetFormat())
                     {
                         case EFileFormat.XML:
-                            file = FromXML(_subType, absolutePath) as T;
+                            file = await FromXMLAsync(_subType, absolutePath, progress, cancel) as T;
                             break;
                         case EFileFormat.Binary:
-                            file = FromBinaryAsync(_subType, absolutePath) as T;
+                            file = await FromBinaryAsync(_subType, absolutePath, progress, cancel) as T;
                             break;
                         default:
                             Engine.LogWarning(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
@@ -324,21 +383,13 @@ namespace TheraEngine.Files
             return EFileFormat.Binary;
         }
 
-        public void LoadNewInstanceAsync(Action<T> onLoaded, TaskCreationOptions options = TaskCreationOptions.PreferFairness)
-            => LoadNewInstanceAsync(options).ContinueWith(task => onLoaded(task.Result));
-        public void LoadNewInstanceAsync(Action<T> onLoaded)
-            => LoadNewInstanceAsync().ContinueWith(task => onLoaded(task.Result));
-        public async Task<T> LoadNewInstanceAsync() => await Task.Run(() => LoadNewInstance(true, null, null));
-        public async Task<T> LoadNewInstanceAsync(TaskCreationOptions options) => await Task.Factory.StartNew(() => LoadNewInstance(true, null, null), options);
-
         /// <summary>
         /// Constructs a new instance of the referenced type using the constructor with the given parameters, if it exists.
         /// If it does not exist, or the type is abstract or an interface, returns null.
         /// Does NOT load from the reference path.
         /// </summary>
-        public T DynamicConstructNewInstance(Type[] types, object[] args) => DynamicConstructNewInstance_Internal(true, types, args);
-        public T DynamicConstructNewInstance(params object[] args) => DynamicConstructNewInstance_Internal(true, args?.Select(x => x.GetType())?.ToArray(), args);
-        protected T DynamicConstructNewInstance_Internal(bool callLoadedEvent, Type[] types, object[] args)
+        public T DynamicConstructNewInstance(params (Type Type, object Value)[] args) => DynamicConstructNewInstance_Internal(true, args);
+        protected T DynamicConstructNewInstance_Internal(bool callLoadedEvent, (Type Type, object Value)[] args)
         {
             if (_subType.IsAbstract)
             {
@@ -353,17 +404,15 @@ namespace TheraEngine.Files
             else
             {
                 if (args == null)
-                    args = new object[0];
-                if (types == null)
-                    types = args?.Select(x => x.GetType())?.ToArray();
-                if (_subType.GetConstructor(types) == null)
+                    args = new (Type, object)[0];
+                if (_subType.GetConstructor(args.Select(x => x.Type).ToArray()) == null)
                 {
-                    Engine.LogWarning("Can't automatically instantiate '" + _subType.GetFriendlyName() + "' with " + (types.Length == 0 ?
-                        "no parameters." : "these parameters: " + string.Join(", ", types.Select(x => x.GetFriendlyName()))));
+                    Engine.LogWarning("Can't automatically instantiate '" + _subType.GetFriendlyName() + "' with " + (args.Length == 0 ?
+                        "no parameters." : "these parameters: " + string.Join(", ", args.Select(x => x.Type.GetFriendlyName()))));
                     return null;
                 }
             }
-            T file =  Activator.CreateInstance(_subType, args) as T;
+            T file = Activator.CreateInstance(_subType, args.Select(x => x.Value)) as T;
             if (callLoadedEvent)
                 Loaded?.Invoke(file);
             return file;
@@ -385,7 +434,7 @@ namespace TheraEngine.Files
         }
         public override string ToString() => ReferencePathAbsolute;
         
-        public static implicit operator T(FileLoader<T> fileRef) => fileRef?.LoadNewInstance(true, null, null);
+        public static implicit operator T(FileLoader<T> fileRef) => fileRef?.LoadNewInstance();
         public static implicit operator FileLoader<T>(string filePath) => new FileLoader<T>(filePath);
     }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Files;
@@ -81,7 +82,7 @@ namespace TheraEngine.Core.Files.Serialization
                 default:
                 case EFileFormat.ThirdParty:
                     //throw new InvalidOperationException("This type of file is not a proprietary file format.");
-                    var task = TFileObject.Read3rdPartyAsync(null, filePath);
+                    var task = TFileObject.Read3rdPartyAsync(null, filePath, null, CancellationToken.None);
                     task.Wait();
                     return task.Result;
                 case EFileFormat.XML:

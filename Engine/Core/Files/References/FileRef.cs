@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using TheraEngine.Core.Reflection.Attributes;
@@ -182,11 +183,9 @@ namespace TheraEngine.Files
                 ReferencePathAbsolute = _file.FilePath;
         }
 
-        public Task<T> GetInstanceAsync() => Task.Run(GetInstance);
-        /// <summary>
-        /// Loads or retrieves the instance of this file.
-        /// </summary>
-        public abstract T GetInstance();
+        public T GetInstance() => GetInstanceAsync().GetResultSynchronously();
+        public async Task<T> GetInstanceAsync() => await GetInstanceAsync(null, CancellationToken.None);
+        public abstract Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
 
         /// <summary>
         /// Unloads this reference to the file. 
@@ -209,6 +208,7 @@ namespace TheraEngine.Files
             file.References.Add(this);
         }
 
-        public static implicit operator T(FileRef<T> fileRef) => fileRef?.GetInstance();
+        public static implicit operator T(FileRef<T> fileRef)
+            => fileRef?.GetInstanceAsync()?.GetResultSynchronously();
     }
 }

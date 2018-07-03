@@ -29,5 +29,15 @@ namespace TheraEngine.Rendering
             else
                 Task.Run(() => AwaitResult()).ContinueWith(t => onReady(this));
         }
+        public async Task<int> AwaitIntResult()
+        {
+            await Task.Run(() => AwaitResult());
+            return GetQueryObjectInt(EGetQueryObject.QueryResult);
+        }
+        public async Task<long> AwaitLongResult()
+        {
+            await Task.Run(() => AwaitResult());
+            return GetQueryObjectLong(EGetQueryObject.QueryResult);
+        }
     }
 }

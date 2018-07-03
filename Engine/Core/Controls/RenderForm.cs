@@ -12,7 +12,7 @@ namespace TheraEngine
             Engine.SetGame(game);
             InitializeComponent();
             Engine.SetWorldPanel(renderPanel1);
-            Engine.Initialize();
+            Engine.Initialize().Wait();
 
             Text = game.Name;
             if (!string.IsNullOrEmpty(game.IconPath) && File.Exists(game.IconPath))

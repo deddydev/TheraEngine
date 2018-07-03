@@ -398,7 +398,7 @@ namespace TheraEditor.Windows.Forms
 
                     Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
                     Engine.SetActiveGameMode(_editorGameMode);
-                    Engine.Initialize(false);
+                    Engine.Initialize(false).Wait();
                     SetRenderTicking(true);
                     Engine.SetPaused(true, LocalPlayerIndex.One, true);
                     Engine.Run();
@@ -445,7 +445,7 @@ namespace TheraEditor.Windows.Forms
         public World CurrentWorld
         {
             get => Engine.World;
-            set => this.ThreadSafeBlockingInvoke((Action)(() => SetWorld(value)));
+            set => SetWorld(value);
         }
         private void SetWorld(World world)
         {

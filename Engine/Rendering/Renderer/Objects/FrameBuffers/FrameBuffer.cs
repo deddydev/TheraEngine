@@ -134,8 +134,6 @@ namespace TheraEngine.Rendering
                 buf.Bind();
                 buf.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment);
             }
-            else
-                throw new Exception();
         }
         public void Detach(int i)
         {

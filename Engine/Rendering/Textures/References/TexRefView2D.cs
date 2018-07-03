@@ -14,8 +14,20 @@ namespace TheraEngine.Rendering.Models.Materials
         private int _minLayer;
         private int _numLayers;
 
-        public TexRefView2D(TexRef2D viewedTexture, int minLevel, int numLevels, int minLayer, int numLayers, EPixelType type, EPixelFormat format, EPixelInternalFormat internalFormat)
+        public TexRefView2D(
+            TexRef2D viewedTexture,
+            int minLevel, 
+            int numLevels,
+            int minLayer, 
+            int numLayers, 
+            EPixelType type,
+            EPixelFormat format,
+            EPixelInternalFormat internalFormat)
         {
+            if (viewedTexture == null)
+                throw new InvalidOperationException("Viewed texture cannot be null.");
+
+            _name = viewedTexture.Name + "_View";
             _viewedTexture = viewedTexture;
             _minLevel = minLevel;
             _numLevels = numLevels;
@@ -28,6 +40,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _height = viewedTexture.Height;
             MinFilter = viewedTexture.MinFilter;
             MagFilter = viewedTexture.MagFilter;
+            _mipmaps = null;
         }
         
         protected override void CreateRenderTexture()

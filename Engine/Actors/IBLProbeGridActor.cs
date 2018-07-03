@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TheraEngine.Actors.Types;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
@@ -139,6 +140,7 @@ namespace TheraEngine.Actors
         }
         public void InitAndCaptureAll(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
+            
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
                 comp.SetCaptureResolution(colorResolution, captureDepth, depthResolution);

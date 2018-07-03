@@ -731,8 +731,8 @@ namespace TheraEngine.Rendering.OpenGL
         {
             FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (c != FramebufferErrorCode.FramebufferComplete)
-                //throw new Exception("Problem compiling framebuffer: " + c.ToString());
-                Engine.LogWarning("Problem compiling framebuffer: " + c.ToString());
+                throw new Exception("Problem compiling framebuffer: " + c.ToString());
+                //Engine.LogWarning("Problem compiling framebuffer: " + c.ToString());
         }
 
         public override void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)

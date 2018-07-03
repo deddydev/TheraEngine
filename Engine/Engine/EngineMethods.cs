@@ -140,8 +140,11 @@ namespace TheraEngine
         /// Initializes the engine to its beginning state.
         /// Call AFTER SetGame is called and all initial render panels are created and ready.
         /// </summary>
-        public static async void Initialize(bool loadOpeningWorldGameMode = true)
+        public static async Task Initialize(bool loadOpeningWorldGameMode = true)
         {
+            TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
+            TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
+
             if (_game != null)
             {
                 RenderLibrary = _game.UserSettingsRef.File?.RenderLibrary ?? RenderLibrary.OpenGL;
@@ -155,9 +158,6 @@ namespace TheraEngine
                 //Preload transition world now
                 await Game.TransitionWorldRef.LoadNewInstanceAsync();
             }
-
-            TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
-            TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
             //SteamAPI.Init();
             //AppId_t appId = new AppId_t(408u);
@@ -174,7 +174,7 @@ namespace TheraEngine
             //    EPersonaState friendState = SteamFriends.GetFriendPersonaState(friendSteamId);
             //    PrintLine(friendName + " is " + friendState.ToString().Substring(15));
             //}
-            
+
             //InitializeVR();
         }
 

@@ -412,9 +412,16 @@ namespace TheraEngine.Files
                     return null;
                 }
             }
-            T file = Activator.CreateInstance(_subType, args.Select(x => x.Value)) as T;
+
+            T file;
+            if (args.Length == 0)
+                file = Activator.CreateInstance(_subType) as T;
+            else
+                file = Activator.CreateInstance(_subType, args.Select(x => x.Value)) as T;
+
             if (callLoadedEvent)
                 Loaded?.Invoke(file);
+
             return file;
         }
 

@@ -51,8 +51,6 @@ namespace TheraEngine.Rendering
         internal Camera RenderingCamera => RenderingCameras.Peek();
         internal Stack<Camera> RenderingCameras { get; } = new Stack<Camera>();
         internal TexRef2D BrdfTex = null;
-
-        internal bool _updatingFBOs;
         private BoundingRectangle _internalResolution = new BoundingRectangle();
 
         private float _leftPercentage = 0.0f;
@@ -127,7 +125,9 @@ namespace TheraEngine.Rendering
         }
 
         public BaseRenderPanel OwningPanel => _owningPanel;
-
+        
+        public bool RegenerateFBOs { get; set; }
+        
         public Viewport(BaseRenderPanel panel, int index)
         {
             if (index == 0)
@@ -194,6 +194,29 @@ namespace TheraEngine.Rendering
             SSAOFBO?.Destroy();
             SSAOFBO = null;
         }
+        internal void GenerateFBOs()
+        {
+            DateTime start = DateTime.Now;
+            //RenderQuery query = new RenderQuery();
+            //query.BeginQuery(EQueryTarget.TimeElapsed);
+            BloomBlurFBO1?.Generate();
+            BloomBlurFBO2?.Generate();
+            BloomBlurFBO4?.Generate();
+            BloomBlurFBO8?.Generate();
+            BloomBlurFBO16?.Generate();
+            BrightPassFBO?.Generate();
+            DirLightFBO?.Generate();
+            GBufferFBO?.Generate();
+            HudFBO?.Generate();
+            LightCombineFBO?.Generate();
+            PostProcessFBO?.Generate();
+            SSAOBlurFBO?.Generate();
+            SSAOFBO?.Generate();
+            //query.EndQuery(EQueryTarget.TimeElapsed);
+            //int time = query.GetQueryObjectInt(EGetQueryObject.QueryResult);
+            TimeSpan span = DateTime.Now - start;
+            Engine.PrintLine($"FBO regeneration took {span.Seconds} seconds.");
+        }
 
         public void Resize(
             float parentWidth,
@@ -228,6 +251,7 @@ namespace TheraEngine.Rendering
                 Owners.Add(controller);
             controller.Viewport = this;
         }
+
         /// <summary>
         /// Disassociates the given local player controller with this viewport.
         /// </summary>
@@ -709,7 +733,7 @@ namespace TheraEngine.Rendering
             //SSAOBlurFBO?.Destroy();
             //SSAOFBO?.Destroy();
 
-            _updatingFBOs = true;
+            RegenerateFBOs = true;
             int width = InternalResolution.IntWidth;
             int height = InternalResolution.IntHeight;
             const string SceneShaderPath = "Scene3D";
@@ -931,10 +955,10 @@ namespace TheraEngine.Rendering
                 EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
                 EFramebufferAttachment.ColorAttachment0);
             //_hdrSceneTexture.Resizeable = false;
-            _hdrSceneTexture.UWrap = ETexWrapMode.ClampToEdge;
-            _hdrSceneTexture.VWrap = ETexWrapMode.ClampToEdge;
             _hdrSceneTexture.MinFilter = ETexMinFilter.Nearest;
             _hdrSceneTexture.MagFilter = ETexMagFilter.Nearest;
+            _hdrSceneTexture.UWrap = ETexWrapMode.ClampToEdge;
+            _hdrSceneTexture.VWrap = ETexWrapMode.ClampToEdge;
 
             GLSLShaderFile brightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BrightPass.fs"), EShaderMode.Fragment);
             GLSLShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
@@ -942,7 +966,8 @@ namespace TheraEngine.Rendering
             GLSLShaderFile hudShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "HudFBO.fs"), EShaderMode.Fragment);
 
             TexRef2D hudTexture = TexRef2D.CreateFrameBufferTexture("Hud", width, height,
-                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat, EFramebufferAttachment.ColorAttachment0);
+                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat, 
+                EFramebufferAttachment.ColorAttachment0);
             hudTexture.MinFilter = ETexMinFilter.Nearest;
             hudTexture.MagFilter = ETexMagFilter.Nearest;
             hudTexture.UWrap = ETexWrapMode.ClampToEdge;
@@ -983,7 +1008,6 @@ namespace TheraEngine.Rendering
             BrightPassFBO.SetRenderTargets(
                 (_hdrSceneTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
                 (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
-            BrightPassFBO.Generate();
 
             BloomBlurFBO1 = new QuadFrameBuffer(bloomBlurMat);
             BloomBlurFBO1.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
@@ -1001,9 +1025,9 @@ namespace TheraEngine.Rendering
 
             HudFBO = new QuadFrameBuffer(hudMat);
 
-            #endregion
+            //GenerateFBOs();
 
-            _updatingFBOs = false;
+            #endregion
         }
 
         private LightComponent _lightComp;

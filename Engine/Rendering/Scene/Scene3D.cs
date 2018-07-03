@@ -181,72 +181,68 @@ namespace TheraEngine.Rendering
             {
                 if (viewport != null)
                 {
-                    if (!viewport._updatingFBOs)
+                    viewport.RenderingCameras.Push(camera);
+
+                    //Enable internal resolution
+                    Engine.Renderer.PushRenderArea(viewport.InternalResolution);
                     {
-                        viewport.RenderingCameras.Push(camera);
-
-                        //Enable internal resolution
-                        Engine.Renderer.PushRenderArea(viewport.InternalResolution);
+                        //Render to deferred framebuffer.
+                        viewport.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
-                            //Render to deferred framebuffer.
-                            viewport.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                Engine.Renderer.StencilMask(~0);
-                                Engine.Renderer.ClearStencil(0);
-                                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
-                                Engine.Renderer.EnableDepthTest(true);
-                                Engine.Renderer.ClearDepth(1.0f);
-                                renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
-                                Engine.Renderer.EnableDepthTest(false);
-                            }
-                            viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                            viewport.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                            viewport.SSAOFBO.RenderFullscreen();
-                            viewport.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                            viewport.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                            viewport.SSAOBlurFBO.RenderFullscreen();
-                            viewport.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                            RenderLights(viewport);
-                            RenderForwardPass(viewport, renderingPasses);
-                            RenderBloom(viewport);
-
-                            //TODO: Apply camera post process material pass here
-                            TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
-                            if (post != null)
-                            {
-
-                            }
+                            Engine.Renderer.StencilMask(~0);
+                            Engine.Renderer.ClearStencil(0);
+                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
+                            Engine.Renderer.EnableDepthTest(true);
+                            Engine.Renderer.ClearDepth(1.0f);
+                            renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
+                            Engine.Renderer.EnableDepthTest(false);
                         }
-                        Engine.Renderer.PopRenderArea();
+                        viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                        //Full viewport resolution now
-                        Engine.Renderer.PushRenderArea(viewport.Region);
+                        viewport.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.SSAOFBO.RenderFullscreen();
+                        viewport.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                        viewport.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.SSAOBlurFBO.RenderFullscreen();
+                        viewport.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+
+                        RenderLights(viewport);
+                        RenderForwardPass(viewport, renderingPasses);
+                        RenderBloom(viewport);
+
+                        //TODO: Apply camera post process material pass here
+                        TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
+                        if (post != null)
                         {
-                            Scene2D hudScene = hud?.UIScene;
-                            if (hudScene != null)
-                            {
-                                viewport.HudFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                                {
-                                    hudScene.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
-                                }
-                                viewport.HudFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-                            }
 
-                            //Render the last pass to the actual screen resolution, 
-                            //or the provided target FBO
-                            target?.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                viewport.PostProcessFBO.RenderFullscreen();
-                            }
-                            target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                         }
-                        Engine.Renderer.PopRenderArea();
-
-                        viewport.RenderingCameras.Pop();
                     }
+                    Engine.Renderer.PopRenderArea();
+
+                    //Full viewport resolution now
+                    Engine.Renderer.PushRenderArea(viewport.Region);
+                    {
+                        Scene2D hudScene = hud?.UIScene;
+                        if (hudScene != null)
+                        {
+                            viewport.HudFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                            {
+                                hudScene.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
+                            }
+                            viewport.HudFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        }
+
+                        //Render the last pass to the actual screen resolution, 
+                        //or the provided target FBO
+                        target?.Bind(EFramebufferTarget.DrawFramebuffer);
+                        {
+                            viewport.PostProcessFBO.RenderFullscreen();
+                        }
+                        target?.Unbind(EFramebufferTarget.DrawFramebuffer);
+                    }
+                    Engine.Renderer.PopRenderArea();
+                    viewport.RenderingCameras.Pop();
                 }
                 else
                 {

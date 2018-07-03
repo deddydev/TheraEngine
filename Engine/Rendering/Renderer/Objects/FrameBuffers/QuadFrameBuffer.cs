@@ -21,12 +21,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         private OrthographicCamera _quadCamera;
 
-        //One giant triangle is better than a quad with two triangles. 
-        //Using two triangles may introduce tearing on the line through the screen,
-        //because the two triangles may not be rasterized at the exact same time.
-        private PrimitiveManager _fullScreenTriangle;
-
-        public PrimitiveManager FullScreenTriangle => _fullScreenTriangle;
+        public PrimitiveManager FullScreenTriangle { get; }
 
         public static PrimitiveData Mesh()
         {
@@ -37,12 +32,16 @@ namespace TheraEngine.Rendering
             return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), triangle);
         }
 
+        /// <summary>
+        /// Renders a material to the screen using a fullscreen orthographic quad. Useful for FBOs.
+        /// </summary>
+        /// <param name="mat">The material containing textures to render to this fullscreen quad.</param>
         public QuadFrameBuffer(TMaterial mat)
         {
             Material = mat;
 
-            _fullScreenTriangle = new PrimitiveManager(Mesh(), Material);
-            _fullScreenTriangle.SettingUniforms += SetUniforms;
+            FullScreenTriangle = new PrimitiveManager(Mesh(), Material);
+            FullScreenTriangle.SettingUniforms += SetUniforms;
 
             _quadCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
             _quadCamera.Resize(1.0f, 1.0f);
@@ -57,7 +56,7 @@ namespace TheraEngine.Rendering
         public void RenderFullscreen()
         {
             AbstractRenderer.PushCamera(_quadCamera);
-            _fullScreenTriangle.Render();
+            FullScreenTriangle.Render();
             AbstractRenderer.PopCamera();
         }
     }

@@ -291,6 +291,7 @@ namespace TheraEditor.Windows.Forms
         private void button2_Click(object sender, EventArgs e)
         {
             BaseTexRef tref = BaseTexRef.CreateTexRef((ETextureType)comboBox2.SelectedIndex);
+            tref.Renamed += Tref_Renamed;
 
             var item = new ListViewItem(string.Format("{0} [{1}]",
                tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };

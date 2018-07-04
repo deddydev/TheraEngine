@@ -60,11 +60,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.chkNull.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
             this.chkNull.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
-            this.chkNull.Location = new System.Drawing.Point(-50, 0);
+            this.chkNull.Location = new System.Drawing.Point(-48, 0);
             this.chkNull.Margin = new System.Windows.Forms.Padding(0);
             this.chkNull.Name = "chkNull";
-            this.chkNull.Padding = new System.Windows.Forms.Padding(4, 0, 2, 0);
-            this.chkNull.Size = new System.Drawing.Size(50, 23);
+            this.chkNull.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.chkNull.Size = new System.Drawing.Size(48, 23);
             this.chkNull.TabIndex = 1;
             this.chkNull.Text = "Null";
             this.chkNull.UseVisualStyleBackColor = false;
@@ -92,7 +92,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.btnBrowse.FlatAppearance.BorderSize = 0;
             this.btnBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBrowse.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
-            this.btnBrowse.Location = new System.Drawing.Point(-146, 0);
+            this.btnBrowse.Location = new System.Drawing.Point(-144, 0);
             this.btnBrowse.Margin = new System.Windows.Forms.Padding(0);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(61, 23);
@@ -111,7 +111,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.btnEdit.FlatAppearance.BorderSize = 0;
             this.btnEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
-            this.btnEdit.Location = new System.Drawing.Point(-85, 0);
+            this.btnEdit.Location = new System.Drawing.Point(-83, 0);
             this.btnEdit.Margin = new System.Windows.Forms.Padding(0);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(35, 23);

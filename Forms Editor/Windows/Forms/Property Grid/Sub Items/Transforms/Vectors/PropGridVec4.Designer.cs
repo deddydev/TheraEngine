@@ -39,20 +39,26 @@
             // numericInputBoxX
             // 
             this.numericInputBoxX.AllowedDecimalPlaces = -1;
-            this.numericInputBoxX.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
+            this.numericInputBoxX.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBoxX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxX.DefaultValue = 0F;
             this.numericInputBoxX.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numericInputBoxX.FocusedColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.numericInputBoxX.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.numericInputBoxX.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxX.LargeIncrement = 15F;
             this.numericInputBoxX.LargerIncrement = 90F;
             this.numericInputBoxX.Location = new System.Drawing.Point(0, 0);
-            this.numericInputBoxX.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            this.numericInputBoxX.Margin = new System.Windows.Forms.Padding(0);
+            this.numericInputBoxX.MaximumValue = 3.402823E+38F;
             this.numericInputBoxX.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxX.MinimumValue = -3.402823E+38F;
             this.numericInputBoxX.Name = "numericInputBoxX";
             this.numericInputBoxX.Nullable = false;
-            this.numericInputBoxX.Size = new System.Drawing.Size(1, 27);
+            this.numericInputBoxX.NumberPrefix = "";
+            this.numericInputBoxX.NumberSuffix = "";
+            this.numericInputBoxX.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.numericInputBoxX.Size = new System.Drawing.Size(1, 23);
             this.numericInputBoxX.SmallerIncrement = 0.1F;
             this.numericInputBoxX.SmallIncrement = 1F;
             this.numericInputBoxX.TabIndex = 0;
@@ -62,20 +68,26 @@
             // numericInputBoxY
             // 
             this.numericInputBoxY.AllowedDecimalPlaces = -1;
-            this.numericInputBoxY.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
+            this.numericInputBoxY.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBoxY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxY.DefaultValue = 0F;
             this.numericInputBoxY.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numericInputBoxY.FocusedColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.numericInputBoxY.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.numericInputBoxY.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxY.LargeIncrement = 15F;
             this.numericInputBoxY.LargerIncrement = 90F;
-            this.numericInputBoxY.Location = new System.Drawing.Point(2, 0);
-            this.numericInputBoxY.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.numericInputBoxY.Location = new System.Drawing.Point(0, 0);
+            this.numericInputBoxY.Margin = new System.Windows.Forms.Padding(0);
+            this.numericInputBoxY.MaximumValue = 3.402823E+38F;
             this.numericInputBoxY.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxY.MinimumValue = -3.402823E+38F;
             this.numericInputBoxY.Name = "numericInputBoxY";
             this.numericInputBoxY.Nullable = false;
-            this.numericInputBoxY.Size = new System.Drawing.Size(1, 27);
+            this.numericInputBoxY.NumberPrefix = "";
+            this.numericInputBoxY.NumberSuffix = "";
+            this.numericInputBoxY.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.numericInputBoxY.Size = new System.Drawing.Size(1, 23);
             this.numericInputBoxY.SmallerIncrement = 0.1F;
             this.numericInputBoxY.SmallIncrement = 1F;
             this.numericInputBoxY.TabIndex = 1;
@@ -85,20 +97,26 @@
             // numericInputBoxZ
             // 
             this.numericInputBoxZ.AllowedDecimalPlaces = -1;
-            this.numericInputBoxZ.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
+            this.numericInputBoxZ.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBoxZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxZ.DefaultValue = 0F;
             this.numericInputBoxZ.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numericInputBoxZ.FocusedColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.numericInputBoxZ.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.numericInputBoxZ.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxZ.LargeIncrement = 15F;
             this.numericInputBoxZ.LargerIncrement = 90F;
-            this.numericInputBoxZ.Location = new System.Drawing.Point(2, 0);
-            this.numericInputBoxZ.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.numericInputBoxZ.Location = new System.Drawing.Point(0, 0);
+            this.numericInputBoxZ.Margin = new System.Windows.Forms.Padding(0);
+            this.numericInputBoxZ.MaximumValue = 3.402823E+38F;
             this.numericInputBoxZ.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxZ.MinimumValue = -3.402823E+38F;
             this.numericInputBoxZ.Name = "numericInputBoxZ";
             this.numericInputBoxZ.Nullable = false;
-            this.numericInputBoxZ.Size = new System.Drawing.Size(1, 27);
+            this.numericInputBoxZ.NumberPrefix = "";
+            this.numericInputBoxZ.NumberSuffix = "";
+            this.numericInputBoxZ.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.numericInputBoxZ.Size = new System.Drawing.Size(1, 23);
             this.numericInputBoxZ.SmallerIncrement = 0.1F;
             this.numericInputBoxZ.SmallIncrement = 1F;
             this.numericInputBoxZ.TabIndex = 2;
@@ -125,26 +143,32 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 27);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 23);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // numericInputBoxW
             // 
             this.numericInputBoxW.AllowedDecimalPlaces = -1;
-            this.numericInputBoxW.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
+            this.numericInputBoxW.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBoxW.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBoxW.DefaultValue = 0F;
             this.numericInputBoxW.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numericInputBoxW.FocusedColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.numericInputBoxW.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.numericInputBoxW.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBoxW.LargeIncrement = 15F;
             this.numericInputBoxW.LargerIncrement = 90F;
-            this.numericInputBoxW.Location = new System.Drawing.Point(2, 0);
-            this.numericInputBoxW.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
+            this.numericInputBoxW.Location = new System.Drawing.Point(0, 0);
+            this.numericInputBoxW.Margin = new System.Windows.Forms.Padding(0);
+            this.numericInputBoxW.MaximumValue = 3.402823E+38F;
             this.numericInputBoxW.MidpointRoundingMethod = System.MidpointRounding.AwayFromZero;
+            this.numericInputBoxW.MinimumValue = -3.402823E+38F;
             this.numericInputBoxW.Name = "numericInputBoxW";
             this.numericInputBoxW.Nullable = false;
-            this.numericInputBoxW.Size = new System.Drawing.Size(1, 27);
+            this.numericInputBoxW.NumberPrefix = "";
+            this.numericInputBoxW.NumberSuffix = "";
+            this.numericInputBoxW.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.numericInputBoxW.Size = new System.Drawing.Size(1, 23);
             this.numericInputBoxW.SmallerIncrement = 0.1F;
             this.numericInputBoxW.SmallIncrement = 1F;
             this.numericInputBoxW.TabIndex = 3;
@@ -153,12 +177,11 @@
             // 
             // PropGridVec4
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            //this.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "PropGridVec4";
-            this.Size = new System.Drawing.Size(0, 27);
+            this.Size = new System.Drawing.Size(0, 23);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

@@ -140,7 +140,9 @@ namespace TheraEngine.Actors
         }
         public void InitAndCaptureAll(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
-            
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, bool, int>)InitAndCaptureAll, BaseRenderPanel.PanelType.Rendering, colorResolution, captureDepth, depthResolution))
+                return;
+
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
                 comp.SetCaptureResolution(colorResolution, captureDepth, depthResolution);

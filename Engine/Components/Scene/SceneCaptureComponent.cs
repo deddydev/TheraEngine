@@ -138,9 +138,7 @@ namespace TheraEngine.Actors.Types
             scene.UpdateShadowMaps();
             scene.Lights.SwapBuffers();
             scene.RenderShadowMaps();
-            _renderFBO.SetRenderTargets(
-                (null, EFramebufferAttachment.ColorAttachment0, 0, 0),
-                (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
+         
             for (int i = 0; i < 6; ++i)
             {
                 Camera camera = _cameras[i];
@@ -154,7 +152,9 @@ namespace TheraEngine.Actors.Types
                 }
                 else
                 {
-                    _renderFBO.UpdateRenderTarget(0, (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i));
+                    _renderFBO.SetRenderTargets(
+                        (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+                        (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
 
                 }
                 _viewport.Render(scene, camera, _renderFBO);

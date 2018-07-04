@@ -222,7 +222,7 @@ namespace TheraEditor.Wrappers
                 }
                 else
                 {
-                    newPath += Path.GetFileName(path);
+                    newPath += Path.DirectorySeparatorChar + Path.GetFileName(path);
                     if (copy)
                         FileSystem.CopyFile(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
                     else

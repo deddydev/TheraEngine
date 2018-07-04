@@ -215,7 +215,8 @@ namespace TheraEngine.Files.Serialization
         /// </summary>
         public static List<VarInfo> CollectSerializedMembers(Type t)
         {
-            List<VarInfo> fields = t.GetMembers(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).
+            var members = t.GetMembers(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+            List<VarInfo> fields = members.
                 Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).
                 Select(x => new VarInfo(x)).
                 //False comes first, so negate the bool so attributes are first

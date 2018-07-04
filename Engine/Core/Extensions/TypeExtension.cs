@@ -146,5 +146,17 @@ namespace System
             }
             return list.ToArray();
         }
+        public static MemberInfo[] GetMembersExt(this Type type, BindingFlags bindingAttr)
+        {
+            bindingAttr &= ~BindingFlags.FlattenHierarchy;
+            bindingAttr |= BindingFlags.DeclaredOnly;
+            List<MemberInfo> members = new List<MemberInfo>();
+            while (type != null)
+            {
+                members.AddRange(type.GetMembers(bindingAttr));
+                type = type.BaseType;
+            }
+            return members.ToArray();
+        }
     }
 }

@@ -183,7 +183,7 @@ namespace TheraEngine.Files
                 ReferencePathAbsolute = _file.FilePath;
         }
 
-        public T GetInstance() => GetInstanceAsync().GetResultSynchronously();
+        public T GetInstance() => ((Func<Task<T>>)GetInstanceAsync).GetResultSynchronously();
         public async Task<T> GetInstanceAsync() => await GetInstanceAsync(null, CancellationToken.None);
         public abstract Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
 
@@ -208,7 +208,6 @@ namespace TheraEngine.Files
             file.References.Add(this);
         }
 
-        public static implicit operator T(FileRef<T> fileRef)
-            => fileRef?.GetInstanceAsync()?.GetResultSynchronously();
+        public static implicit operator T(FileRef<T> fileRef) => fileRef?.GetInstance();
     }
 }

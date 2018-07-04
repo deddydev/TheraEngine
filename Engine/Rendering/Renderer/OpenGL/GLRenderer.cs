@@ -434,10 +434,14 @@ namespace TheraEngine.Rendering.OpenGL
 
         internal override int OnGetAttribLocation(int programBindingId, string name)
         {
+            if (string.IsNullOrWhiteSpace(name) || programBindingId == BaseRenderObject.NullBindingId)
+                return -1;
             return GL.GetAttribLocation(programBindingId, name);
         }
         internal override int OnGetUniformLocation(int programBindingId, string name)
         {
+            if (string.IsNullOrWhiteSpace(name) || programBindingId == BaseRenderObject.NullBindingId)
+                return -1;
             return GL.GetUniformLocation(programBindingId, name);
         }
 

@@ -5,10 +5,9 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine
 {
-    public class BasicRenderPanel : BaseRenderPanel
+    public class BasicRenderPanel : RenderPanel<Scene3D>
     {
         public override int MaxViewports => 1;
-        public event Action PreRendered, PostRendered;
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -21,6 +20,7 @@ namespace TheraEngine
             set
             {
                 GetOrAddViewport(Actors.LocalPlayerIndex.One).Camera = value;
+                value.Resize(Width, Height);
             }
         }
 
@@ -48,34 +48,7 @@ namespace TheraEngine
         //    if (!Engine.DesignMode && Visible && _viewports.Count == 0)
         //        AddViewport();
         //}
-
-        protected virtual void PreRender() => PreRendered?.Invoke();
-        protected virtual void PostRender() => PostRendered?.Invoke();
-        protected override void OnUpdate()
-        {
-            if (_viewports.Count == 0)
-                return;
-
-            Viewport v = _viewports[0];
-            v.Update(Scene, v.Camera, v.Camera.Frustum);
-        }
-        public override void SwapBuffers()
-        {
-            if (_viewports.Count > 0)
-                _viewports[0].SwapBuffers(Scene);
-        }
-        protected override void OnRender()
-        {
-            if (_viewports.Count == 0)
-                return;
-
-            Viewport v = _viewports[0];
-
-            //PreRender();
-            //_context.BeginDraw();
-            v.Render(Scene, v.Camera, null);
-            //_context.EndDraw();
-            //PostRender();
-        }
+        
+        protected override Scene3D GetScene(Viewport v) => Scene;
     }
 }

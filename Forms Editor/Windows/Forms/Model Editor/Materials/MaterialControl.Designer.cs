@@ -33,26 +33,26 @@
             this.lstShaders = new System.Windows.Forms.ListView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabRendering = new System.Windows.Forms.TabPage();
+            this.theraPropertyGrid1 = new TheraEditor.Windows.Forms.PropertyGrid.TheraPropertyGrid();
             this.tabUniforms = new System.Windows.Forms.TabPage();
+            this.tblUniforms = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.tabTextures = new System.Windows.Forms.TabPage();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.tabShaders = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnRemove = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.theraPropertyGrid1 = new TheraEditor.Windows.Forms.PropertyGrid.TheraPropertyGrid();
-            this.tblUniforms = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.tabControl1.SuspendLayout();
             this.tabRendering.SuspendLayout();
             this.tabUniforms.SuspendLayout();
             this.tabTextures.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.tabShaders.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblMatName
@@ -77,7 +77,7 @@
             this.lstTextures.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstTextures.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lstTextures.Location = new System.Drawing.Point(3, 26);
-            this.lstTextures.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.lstTextures.Margin = new System.Windows.Forms.Padding(2);
             this.lstTextures.MultiSelect = false;
             this.lstTextures.Name = "lstTextures";
             this.lstTextures.Size = new System.Drawing.Size(352, 339);
@@ -93,7 +93,7 @@
             this.lstShaders.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstShaders.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lstShaders.Location = new System.Drawing.Point(3, 26);
-            this.lstShaders.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.lstShaders.Margin = new System.Windows.Forms.Padding(2);
             this.lstShaders.MultiSelect = false;
             this.lstShaders.Name = "lstShaders";
             this.lstShaders.Size = new System.Drawing.Size(352, 339);
@@ -128,6 +128,18 @@
             this.tabRendering.Text = "Rendering";
             this.tabRendering.UseVisualStyleBackColor = true;
             // 
+            // theraPropertyGrid1
+            // 
+            this.theraPropertyGrid1.AutoScroll = true;
+            this.theraPropertyGrid1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.theraPropertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.theraPropertyGrid1.Enabled = false;
+            this.theraPropertyGrid1.Location = new System.Drawing.Point(0, 0);
+            this.theraPropertyGrid1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.theraPropertyGrid1.Name = "theraPropertyGrid1";
+            this.theraPropertyGrid1.Size = new System.Drawing.Size(358, 368);
+            this.theraPropertyGrid1.TabIndex = 7;
+            // 
             // tabUniforms
             // 
             this.tabUniforms.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
@@ -138,6 +150,22 @@
             this.tabUniforms.TabIndex = 2;
             this.tabUniforms.Text = "Uniforms";
             // 
+            // tblUniforms
+            // 
+            this.tblUniforms.AutoScroll = true;
+            this.tblUniforms.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tblUniforms.ColumnCount = 2;
+            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tblUniforms.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblUniforms.Location = new System.Drawing.Point(0, 0);
+            this.tblUniforms.Margin = new System.Windows.Forms.Padding(0);
+            this.tblUniforms.Name = "tblUniforms";
+            this.tblUniforms.RowCount = 1;
+            this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblUniforms.Size = new System.Drawing.Size(358, 368);
+            this.tblUniforms.TabIndex = 0;
+            // 
             // tabTextures
             // 
             this.tabTextures.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
@@ -145,79 +173,10 @@
             this.tabTextures.Controls.Add(this.panel2);
             this.tabTextures.Location = new System.Drawing.Point(4, 22);
             this.tabTextures.Name = "tabTextures";
-            this.tabTextures.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabTextures.Padding = new System.Windows.Forms.Padding(3);
             this.tabTextures.Size = new System.Drawing.Size(358, 368);
             this.tabTextures.TabIndex = 0;
             this.tabTextures.Text = "Textures";
-            // 
-            // tabShaders
-            // 
-            this.tabShaders.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.tabShaders.Controls.Add(this.lstShaders);
-            this.tabShaders.Controls.Add(this.panel1);
-            this.tabShaders.Location = new System.Drawing.Point(4, 22);
-            this.tabShaders.Name = "tabShaders";
-            this.tabShaders.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabShaders.Size = new System.Drawing.Size(358, 368);
-            this.tabShaders.TabIndex = 1;
-            this.tabShaders.Text = "Shaders";
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.btnRemove);
-            this.panel1.Controls.Add(this.btnAdd);
-            this.panel1.Controls.Add(this.comboBox1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 3);
-            this.panel1.Size = new System.Drawing.Size(352, 23);
-            this.panel1.TabIndex = 7;
-            // 
-            // btnRemove
-            // 
-            this.btnRemove.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(43)))), ((int)(((byte)(50)))));
-            this.btnRemove.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRemove.Location = new System.Drawing.Point(173, 0);
-            this.btnRemove.Margin = new System.Windows.Forms.Padding(0);
-            this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(26, 20);
-            this.btnRemove.TabIndex = 6;
-            this.btnRemove.Text = "-";
-            this.btnRemove.UseVisualStyleBackColor = false;
-            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
-            // 
-            // btnAdd
-            // 
-            this.btnAdd.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(63)))), ((int)(((byte)(50)))));
-            this.btnAdd.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAdd.Location = new System.Drawing.Point(147, 0);
-            this.btnAdd.Margin = new System.Windows.Forms.Padding(0);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(26, 20);
-            this.btnAdd.TabIndex = 0;
-            this.btnAdd.Text = "+";
-            this.btnAdd.UseVisualStyleBackColor = false;
-            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.BackColor = System.Drawing.Color.DimGray;
-            this.comboBox1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.IntegralHeight = false;
-            this.comboBox1.Location = new System.Drawing.Point(0, 0);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(147, 21);
-            this.comboBox1.Sorted = false;
-            this.comboBox1.TabIndex = 7;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // panel2
             // 
@@ -272,37 +231,75 @@
             this.comboBox2.Margin = new System.Windows.Forms.Padding(2);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(147, 21);
-            this.comboBox2.Sorted = true;
             this.comboBox2.TabIndex = 7;
-            this.comboBox2.Sorted = false;
             // 
-            // theraPropertyGrid1
+            // tabShaders
             // 
-            this.theraPropertyGrid1.AutoScroll = true;
-            this.theraPropertyGrid1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.theraPropertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.theraPropertyGrid1.Enabled = false;
-            this.theraPropertyGrid1.Location = new System.Drawing.Point(0, 0);
-            this.theraPropertyGrid1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.theraPropertyGrid1.Name = "theraPropertyGrid1";
-            this.theraPropertyGrid1.Size = new System.Drawing.Size(358, 368);
-            this.theraPropertyGrid1.TabIndex = 7;
+            this.tabShaders.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.tabShaders.Controls.Add(this.lstShaders);
+            this.tabShaders.Controls.Add(this.panel1);
+            this.tabShaders.Location = new System.Drawing.Point(4, 22);
+            this.tabShaders.Name = "tabShaders";
+            this.tabShaders.Padding = new System.Windows.Forms.Padding(3);
+            this.tabShaders.Size = new System.Drawing.Size(358, 368);
+            this.tabShaders.TabIndex = 1;
+            this.tabShaders.Text = "Shaders";
             // 
-            // tblUniforms
+            // panel1
             // 
-            this.tblUniforms.AutoScroll = true;
-            this.tblUniforms.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tblUniforms.ColumnCount = 2;
-            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblUniforms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblUniforms.Location = new System.Drawing.Point(0, 0);
-            this.tblUniforms.Margin = new System.Windows.Forms.Padding(0);
-            this.tblUniforms.Name = "tblUniforms";
-            this.tblUniforms.RowCount = 1;
-            this.tblUniforms.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblUniforms.Size = new System.Drawing.Size(358, 368);
-            this.tblUniforms.TabIndex = 0;
+            this.panel1.Controls.Add(this.btnRemove);
+            this.panel1.Controls.Add(this.btnAdd);
+            this.panel1.Controls.Add(this.comboBox1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(3, 3);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
+            this.panel1.Name = "panel1";
+            this.panel1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 3);
+            this.panel1.Size = new System.Drawing.Size(352, 23);
+            this.panel1.TabIndex = 7;
+            // 
+            // btnRemove
+            // 
+            this.btnRemove.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(43)))), ((int)(((byte)(50)))));
+            this.btnRemove.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemove.Location = new System.Drawing.Point(173, 0);
+            this.btnRemove.Margin = new System.Windows.Forms.Padding(0);
+            this.btnRemove.Name = "btnRemove";
+            this.btnRemove.Size = new System.Drawing.Size(26, 20);
+            this.btnRemove.TabIndex = 6;
+            this.btnRemove.Text = "-";
+            this.btnRemove.UseVisualStyleBackColor = false;
+            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
+            // 
+            // btnAdd
+            // 
+            this.btnAdd.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(63)))), ((int)(((byte)(50)))));
+            this.btnAdd.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAdd.Location = new System.Drawing.Point(147, 0);
+            this.btnAdd.Margin = new System.Windows.Forms.Padding(0);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(26, 20);
+            this.btnAdd.TabIndex = 0;
+            this.btnAdd.Text = "+";
+            this.btnAdd.UseVisualStyleBackColor = false;
+            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.BackColor = System.Drawing.Color.DimGray;
+            this.comboBox1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.IntegralHeight = false;
+            this.comboBox1.Location = new System.Drawing.Point(0, 0);
+            this.comboBox1.Margin = new System.Windows.Forms.Padding(2);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(147, 21);
+            this.comboBox1.TabIndex = 7;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // MaterialControl
             // 
@@ -320,9 +317,9 @@
             this.tabRendering.ResumeLayout(false);
             this.tabUniforms.ResumeLayout(false);
             this.tabTextures.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
             this.tabShaders.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

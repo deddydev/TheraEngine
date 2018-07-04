@@ -61,9 +61,9 @@ namespace TheraEngine.Rendering.OpenGL
 
         private int[] _ignoredMessageIds =
         {
-            //131185,
-            //131204,
-            //131169,
+            131185,
+            131204,
+            131169,
             //131216,
             //131218,
             //131076,

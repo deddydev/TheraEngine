@@ -19,8 +19,7 @@ namespace TheraEditor.Windows.Forms
         public T? _previousValue = null;
         public T? _currentValue = null;
         private bool _nullable = false;
-        private T _defaultValue;
-        
+
         public T LargeIncrement { get; set; }
         public T LargerIncrement { get; set; }
         public T SmallIncrement { get; set; }
@@ -101,11 +100,7 @@ namespace TheraEditor.Windows.Forms
                     SetValue(DefaultValue, false);
             }
         }
-        public T DefaultValue
-        {
-            get => _defaultValue;
-            set => _defaultValue = value;
-        }
+        public T DefaultValue { get; set; }
 
         protected override void OnGotFocus(EventArgs e)
         {

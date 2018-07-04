@@ -814,7 +814,7 @@ namespace TheraEditor.Windows.Forms
             TreeNode tmpNode = _dropNode;
             while (tmpNode != null)
             {
-                if (DraggedNodes.Any(x => x == tmpNode))
+                if (DraggedNodes != null && DraggedNodes.Any(x => x == tmpNode))
                 {
                     _dropNode = null;
                     SelectedNode = null;

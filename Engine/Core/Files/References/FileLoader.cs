@@ -240,7 +240,12 @@ namespace TheraEngine.Files
         /// <param name="allowConstruct"></param>
         /// <param name="constructionArgs"></param>
         public T LoadNewInstance(bool allowConstruct, (Type Type, object Value)[] constructionArgs)
-            => LoadNewInstanceAsync(allowConstruct, constructionArgs).GetResultSynchronously();
+        {
+            T value = default;
+            Task r = LoadNewInstanceAsync(allowConstruct, constructionArgs).ContinueWith(t => { value = t.Result; });
+            r.Wait();
+            return value;
+        }
 
         public void LoadNewInstanceAsync(Action<T> onLoaded)
             => LoadNewInstanceAsync(true, null).ContinueWith(t => onLoaded?.Invoke(t.Result));

@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -11,6 +12,7 @@ namespace TheraEngine
     /// </summary>
     public abstract class RenderPanel<T> : BaseRenderPanel where T : BaseScene
     {
+        public event Action PreRendered, PostRendered;
         /// <summary>
         /// Returns the scene to render. A scene contains renderable objects and a management tree.
         /// </summary>
@@ -31,8 +33,8 @@ namespace TheraEngine
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The frustum to cull the scene with.</returns>
         protected virtual Frustum GetFrustum(Viewport v) => GetCamera(v)?.Frustum;
-        protected virtual void PreRender() { }
-        protected virtual void PostRender() { }
+        protected virtual void PreRender() => PreRendered?.Invoke();
+        protected virtual void PostRender() => PostRendered?.Invoke();
         protected override void OnUpdate()
         {
             foreach (Viewport v in _viewports)
@@ -45,12 +47,10 @@ namespace TheraEngine
         }
         protected override void OnRender()
         {
-            //PreRender();
-            //_context.BeginDraw();
+            PreRender();
             foreach (Viewport v in _viewports)
                 v.Render(GetScene(v), GetCamera(v), null);
-            //_context.EndDraw();
-            //PostRender();
+            PostRender();
         }
     }
 }

@@ -46,7 +46,7 @@ namespace TheraEditor.Windows.Forms
             float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
             PerspectiveCamera c = new PerspectiveCamera(
                 new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
-            c.PostProcessRef.File.ColorGrading.AutoExposure = false;
+            c.PostProcessRef.File.ColorGrading.AutoExposure = true;
             c.PostProcessRef.File.ColorGrading.Exposure = 10.0f;
             basicRenderPanel1.Camera = c;
             if (_light == null)
@@ -54,8 +54,8 @@ namespace TheraEditor.Windows.Forms
                 _light = new DirectionalLightComponent();
                 _light.SetShadowMapResolution(128, 128);
                 _light.WorldRadius = 100.0f;
-                _light.Rotation.Yaw = 45.0f;
-                _light.Rotation.Pitch = -45.0f;
+                _light.Rotation.Yaw = 0.0f;
+                _light.Rotation.Pitch = 0.0f;
                 basicRenderPanel1.Scene.Lights.Add(_light);
                 basicRenderPanel1.PreRendered += BasicRenderPanel1_PreRendered;
                 basicRenderPanel1.RegisterTick();
@@ -147,7 +147,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (_spherePrim == null)
                     {
-                        basicRenderPanel1.Scene.Clear(BoundingBox.FromHalfExtentsTranslation(2.0f, 0.0f));
+                        basicRenderPanel1.Scene.Clear(BoundingBox.FromHalfExtentsTranslation(5.0f, 0.0f));
                         basicRenderPanel1.Scene.Lights.Add(_light);
                         _spherePrim = new PrimitiveRenderWrapper( //0.8f instead of 1.0f for border padding
                             new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));

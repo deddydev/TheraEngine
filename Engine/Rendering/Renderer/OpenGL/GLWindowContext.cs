@@ -50,13 +50,15 @@ namespace TheraEngine.Rendering.OpenGL
 
         public override void ErrorCheck()
         {
-            GetCurrentSubContext();
-            ErrorCode code = GL.GetError();
-            if (code != ErrorCode.NoError)
-            {
-                Engine.LogWarning(code.ToString());
-                _control?.Reset();
-            }
+//#if DEBUG
+//            GetCurrentSubContext();
+//            ErrorCode code = GL.GetError();
+//            if (code != ErrorCode.NoError)
+//            {
+//                Engine.LogWarning(code.ToString());
+//                _control?.Reset();
+//            }
+//#endif
         }
 
         private int[] _ignoredMessageIds =
@@ -85,8 +87,9 @@ namespace TheraEngine.Rendering.OpenGL
             string s = new string((sbyte*)message);
             if (severity == DebugSeverity.DebugSeverityNotification || type == DebugType.DebugTypeOther || _printMessageIds.IndexOf(id) >= 0)
                 Engine.PrintLine("OPENGL NOIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
-            else
-                throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
+            //else
+            //    //throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
+            //    Engine.PrintLine("OPENGL NOIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
         }
 
         private DebugProc _error;

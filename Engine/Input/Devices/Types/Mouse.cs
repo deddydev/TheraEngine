@@ -56,29 +56,84 @@ namespace TheraEngine.Input.Devices
     public delegate void DelCursorUpdate(float x, float y);
     public class CursorManager
     {
+        public static bool WrapCursorWithinClip { get; set; } = true;
+
         private float _lastX, _lastY;
         readonly List<DelCursorUpdate>[] _onCursorUpdate = new List<DelCursorUpdate>[9];
 
         internal void Tick(float xPos, float yPos, float delta)
         {
-            if (_lastX == xPos && _lastY == yPos)
-                return;
-
             OnUnbounded(xPos, yPos);
+
             Point absPt = Cursor.Position;
-            float relX = xPos - _lastX;
-            float relY = _lastY - yPos;
-            _lastX = xPos;
-            _lastY = yPos;
-            
-            if (BaseRenderPanel.HoveredPanel != null)
-                absPt = BaseRenderPanel.HoveredPanel.PointToClient(absPt);
+            Rectangle bounds = Cursor.Clip;
+            float relX = 0.0f, relY = 0.0f;
+
+            if (WrapCursorWithinClip)
+            {
+                //Wrap the X-coord of the cursor
+                if (absPt.X >= bounds.Right - 1)
+                {
+                    while (absPt.X >= bounds.Right - 1)
+                        absPt.X -= bounds.Width;
+                    absPt.X += 1;
+                    relX = (absPt.X - bounds.Left) + (bounds.Right - 1 - _lastX);
+                    Cursor.Position = absPt;
+                }
+                else if (absPt.X <= bounds.Left)
+                {
+                    while (absPt.X <= bounds.Left)
+                        absPt.X += bounds.Width;
+                    absPt.X -= 1;
+                    relX = (absPt.X - (bounds.Right - 1)) + (bounds.Left - _lastX);
+                    Cursor.Position = absPt;
+                }
+                else
+                {
+                    relX = absPt.X - _lastX;
+                }
+
+                //Wrap the Y-coord of the cursor
+                if (absPt.Y >= bounds.Bottom - 1)
+                {
+                    while (absPt.Y >= bounds.Bottom - 1)
+                        absPt.Y -= bounds.Height;
+                    absPt.Y += 1;
+                    relY = (absPt.Y - bounds.Top) + (bounds.Bottom - 1 - _lastY);
+                    Cursor.Position = absPt;
+                }
+                else if (absPt.Y <= bounds.Top)
+                {
+                    while (absPt.Y <= bounds.Top)
+                        absPt.Y += bounds.Height;
+                    absPt.Y -= 1;
+                    relY = (absPt.Y - (bounds.Bottom - 1)) + (bounds.Top - _lastY);
+                    Cursor.Position = absPt;
+                }
+                else
+                {
+                    relY = _lastY - absPt.Y;
+                }
+            }
+            else
+            {
+                relX = absPt.X - _lastX;
+                relY = _lastY - absPt.Y;
+            }
+
+            _lastX = absPt.X;
+            _lastY = absPt.Y;
+            OnRelative(relX, relY);
+
+            BaseRenderPanel pnl = BaseRenderPanel.HoveredPanel;
+            if (pnl != null)
+                absPt = pnl.PointToClient(absPt);
 
             xPos = absPt.X;
             yPos = absPt.Y;
             OnAbsolute(xPos, yPos);
-            OnRelative(relX, relY);
         }
+        
         public void Register(DelCursorUpdate func, EInputPauseType pauseType, MouseMoveType type, bool unregister)
         {
             int index = ((int)type * 3) + (int)pauseType;

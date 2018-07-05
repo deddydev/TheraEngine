@@ -262,10 +262,9 @@ uniform ColorGradeStruct ColorGrade;";
         }
         
         private Vec3 _luminance = new Vec3(0.299f, 0.587f, 0.114f);
-        private Half[] _rgb = new Half[3];
-        public void UpdateExposure(TexRef2D hdrSceneTexture)
+        public unsafe void UpdateExposure(TexRef2D hdrSceneTexture)
         {
-            if (!AutoExposure)
+            if (!AutoExposure && Exposure >= MinExposure && Exposure <= MaxExposure)
                 return;
 
             //Calculate average color value using 1x1 mipmap of scene
@@ -273,14 +272,10 @@ uniform ColorGradeStruct ColorGrade;";
             tex.Bind();
             tex.GenerateMipmaps();
 
-            //Get that average color from the scene texture
-            Engine.Renderer.GetTexImage(ETexTarget.Texture2D, tex.SmallestMipmapLevel, tex.PixelFormat, tex.PixelType, _rgb);
-            Vec3 rgb = new Vec3(_rgb[0], _rgb[1], _rgb[2]);
-
-            //Occasionally returns NaN colors, not sure why. Do nothing if so
-            if (float.IsNaN(rgb.X)) return;
-            if (float.IsNaN(rgb.Y)) return;
-            if (float.IsNaN(rgb.Z)) return;
+            //Get the average color from the scene texture
+            Vec3 rgb = new Vec3();
+            IntPtr addr = (IntPtr)rgb.Data;
+            Engine.Renderer.GetTexImage(tex.BindingId, tex.SmallestMipmapLevel, EPixelFormat.Rgb, EPixelType.Float, sizeof(Vec3), addr);
 
             //Calculate luminance factor off of the average color
             float lumDot = rgb.Dot(_luminance);
@@ -290,8 +285,10 @@ uniform ColorGradeStruct ColorGrade;";
             //If we were to update the exposure now, the scene would look very bright once it finally starts rendering.
             if (lumDot == 0.0f)
             {
-                if (Exposure < MinExposure)
-                    Exposure = MinExposure;
+                //if (Exposure < MinExposure)
+                //    Exposure = MinExposure;
+                //if (Exposure > MaxExposure)
+                //    Exposure = MaxExposure;
                 return;
             }
 

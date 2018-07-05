@@ -54,25 +54,20 @@ namespace TheraEditor.Windows.Forms
         [Browsable(false)]
         public float DraggingTestDistance { get; set; } = 20.0f;
 
-        private Vec3 _lastHitPoint;
+        //private Vec3 _lastHitPoint;
         private HighlightPoint _highlightPoint;
         TRigidBody _pickedBody;
         TPointPointConstraint _currentConstraint;
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
-        private SceneComponent _selectedComponent, _dragComponent;
         private static Dictionary<int, StencilTest>
             _highlightedMaterials = new Dictionary<int, StencilTest>(),
             _selectedMaterials = new Dictionary<int, StencilTest>();
         internal bool MouseDown { get; set; }//=> OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
 
         public bool UseTransformTool => _transformType != TransformType.DragDrop;
-        public SceneComponent DragComponent
-        {
-            get => _dragComponent;
-            set => _dragComponent = value;
-        }
-        
+        public SceneComponent DragComponent { get; set; }
+
         public SceneComponent HighlightedComponent
         {
             get => _highlightPoint.HighlightedComponent;
@@ -310,7 +305,7 @@ namespace TheraEditor.Windows.Forms
         private float _spawnRotation = 0.0f;
         private void OnMouseScroll(bool up)
         {
-            if (_dragComponent != null)
+            if (DragComponent != null)
             {
                 if (Control.ModifierKeys == (Keys.Shift | Keys.Alt))
                     _spawnRotation += up ? 5.0f : -5.0f;
@@ -429,9 +424,9 @@ namespace TheraEditor.Windows.Forms
                 Ray cursor = v.GetWorldRay(viewportPoint);
                 _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * DraggingTestDistance;
             }
-            else if (_dragComponent != null)
+            else if (DragComponent != null)
             {
-                IRigidBodyCollidable p = _dragComponent as IRigidBodyCollidable;
+                IRigidBodyCollidable p = DragComponent as IRigidBodyCollidable;
                 SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out float dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 if (dist > DraggingTestDistance)
@@ -460,7 +455,7 @@ namespace TheraEditor.Windows.Forms
 
                 translation += up * upDist;
 
-                _dragComponent.WorldMatrix = Matrix4.CreateSpacialTransform(
+                DragComponent.WorldMatrix = Matrix4.CreateSpacialTransform(
                     translation,
                     right * _draggingUniformScale,
                     up * _draggingUniformScale,
@@ -491,18 +486,18 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            Vec3 lerpHitPoint = Vec3.Lerp(_lastHitPoint, _hitPoint, 0.2f);
+            //Vec3 lerpHitPoint = Vec3.Lerp(_lastHitPoint, _hitPoint, 0.2f);
             _highlightPoint.Transform =
-                Matrix4.CreateTranslation(lerpHitPoint) *
+                Matrix4.CreateTranslation(_hitPoint) *
                 hitNormal.LookatAngles().GetMatrix() *
-                Matrix4.CreateScale(c.DistanceScale(lerpHitPoint, _toolSize));
-            _lastHitPoint = lerpHitPoint;
+                Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
+            //_lastHitPoint = lerpHitPoint;
 
             HighlightedComponent = comp;
         }
         private bool IsSimulatedBody(out IRigidBodyCollidable body)
         {
-            if (_selectedComponent is IRigidBodyCollidable d &&
+            if (SelectedComponent is IRigidBodyCollidable d &&
                 d.RigidBodyCollision != null &&
                 d.RigidBodyCollision.SimulatingPhysics &&
                 !d.RigidBodyCollision.IsKinematic &&
@@ -534,23 +529,24 @@ namespace TheraEditor.Windows.Forms
                 _pickedBody = null;
             }
 
-            if (_dragComponent != null)
+            if (DragComponent != null)
             {
-                Editor.Instance.UndoManager.AddChange(_dragComponent.EditorState, _prevDragMatrix, _dragComponent.WorldMatrix, _dragComponent, _dragComponent.GetType().GetProperty(nameof(_dragComponent.WorldMatrix)));
+                Editor.Instance.UndoManager.AddChange(DragComponent.EditorState, _prevDragMatrix, DragComponent.WorldMatrix, DragComponent, DragComponent.GetType().GetProperty(nameof(DragComponent.WorldMatrix)));
                 //_selectedComponent = null;
-                _dragComponent = null;
+                DragComponent = null;
             }
 
             _highlightPoint.Visible = HighlightedComponent != null;
         }
-        public SceneComponent SelectedComponent => _selectedComponent;
+        public SceneComponent SelectedComponent { get; private set; }
+
         public void SetSelectedComponent(bool selectedByViewport, SceneComponent comp)
         {
-            if (_selectedComponent == comp)
+            if (SelectedComponent == comp)
                 return;
 
             PreSelectedComponentChanged(selectedByViewport);
-            _selectedComponent = comp;
+            SelectedComponent = comp;
             PostSelectedComponentChanged(selectedByViewport);
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
@@ -559,9 +555,9 @@ namespace TheraEditor.Windows.Forms
         }
         private void PostSelectedComponentChanged(bool selectedByViewport)
         {
-            _dragComponent = null;
+            DragComponent = null;
 
-            if (_selectedComponent is CameraComponent cam)
+            if (SelectedComponent is CameraComponent cam)
             {
                 SubViewport.ViewportCamera = cam.Camera;
                 SubViewport.IsVisible = true;
@@ -572,29 +568,29 @@ namespace TheraEditor.Windows.Forms
                 SubViewport.IsVisible = false;
             }
 
-            if (_selectedComponent != null)
+            if (SelectedComponent != null)
             {
                 if (OwningWorld == null)
                     return;
 
                 _highlightPoint.Visible = false;
-                if (_selectedComponent.OwningActor is TransformTool3D tool)
+                if (SelectedComponent.OwningActor is TransformTool3D tool)
                 {
 
                 }
-                else if (_selectedComponent is UIComponent hudComp)
+                else if (SelectedComponent is UIComponent hudComp)
                 {
 
                 }
                 else// if (comp != null)
                 {
-                    if (_selectedComponent is IRigidBodyCollidable d &&
+                    if (SelectedComponent is IRigidBodyCollidable d &&
                         d.RigidBodyCollision != null &&
                         d.RigidBodyCollision.SimulatingPhysics &&
                         !d.RigidBodyCollision.IsKinematic &&
                         !Engine.IsPaused)
                     {
-                        _dragComponent = null;
+                        DragComponent = null;
                         TransformTool3D.DestroyInstance();
 
                         _pickedBody = d.RigidBodyCollision;
@@ -612,22 +608,22 @@ namespace TheraEditor.Windows.Forms
                     {
                         if (UseTransformTool)
                         {
-                            TransformTool3D.GetInstance(_selectedComponent, _transformType);
+                            TransformTool3D.GetInstance(SelectedComponent, _transformType);
                         }
                         else
                         {
                             TransformTool3D.DestroyInstance();
 
-                            _dragComponent = _selectedComponent;
-                            if (_dragComponent != null)
+                            DragComponent = SelectedComponent;
+                            if (DragComponent != null)
                             {
-                                _prevDragMatrix = _dragComponent.WorldMatrix;
+                                _prevDragMatrix = DragComponent.WorldMatrix;
                                 Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
-                                DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(_dragComponent.WorldPoint) : DraggingTestDistance;
+                                DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(DragComponent.WorldPoint) : DraggingTestDistance;
                             }
                         }
                     }
-                    TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
+                    TreeNode t = SelectedComponent.OwningActor.EditorState.TreeNode;
                     if (t != null)
                     {
                         if (t.TreeView.InvokeRequired)
@@ -683,7 +679,9 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            private RenderCommandMesh3D _circleRC = new RenderCommandMesh3D(), _normalRC = new RenderCommandMesh3D();
+            private RenderCommandMesh3D 
+                _circleRC = new RenderCommandMesh3D(), 
+                _normalRC = new RenderCommandMesh3D();
             public void AddRenderables(RenderPasses passes, Camera camera)
             {
                 if (!Visible)

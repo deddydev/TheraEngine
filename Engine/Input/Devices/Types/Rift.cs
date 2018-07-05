@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
+using TheraEngine.Networking;
+
+namespace TheraEngine.Input.Devices
+{
+    public abstract class BaseRift : InputDevice
+    {
+        public BaseRift() : base(0) { }
+        
+        protected override int GetAxisCount() => 0; 
+        protected override int GetButtonCount() => 3;
+        public override EDeviceType DeviceType => EDeviceType.Mouse;
+    }
+    public enum ERiftButton
+    {
+        LeftClick   = 0,
+        RightClick  = 1,
+        MiddleClick = 2,
+    }
+}

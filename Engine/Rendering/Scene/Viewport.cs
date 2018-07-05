@@ -35,14 +35,14 @@ namespace TheraEngine.Rendering
 
         internal QuadFrameBuffer SSAOFBO;
         internal QuadFrameBuffer SSAOBlurFBO;
-        internal QuadFrameBuffer GBufferFBO;
+        internal FrameBuffer GBufferFBO;
         internal QuadFrameBuffer BloomBlurFBO1;
         internal QuadFrameBuffer BloomBlurFBO2;
         internal QuadFrameBuffer BloomBlurFBO4;
         internal QuadFrameBuffer BloomBlurFBO8;
         internal QuadFrameBuffer BloomBlurFBO16;
         internal QuadFrameBuffer LightCombineFBO;
-        internal QuadFrameBuffer BrightPassFBO;
+        internal QuadFrameBuffer ForwardPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
         internal QuadFrameBuffer HudFBO;
         internal PrimitiveManager PointLightManager;
@@ -126,8 +126,6 @@ namespace TheraEngine.Rendering
 
         public BaseRenderPanel OwningPanel => _owningPanel;
         
-        public bool RegenerateFBOs { get; set; }
-        
         public Viewport(BaseRenderPanel panel, int index)
         {
             if (index == 0)
@@ -141,6 +139,7 @@ namespace TheraEngine.Rendering
             _owningPanel = panel;
             _index = index;
             _ssaoInfo.Generate();
+            PrecomputeBRDF();
             Resize(panel.Width, panel.Height);
         }
         public Viewport(float width, float height)
@@ -148,6 +147,7 @@ namespace TheraEngine.Rendering
             _index = 0;
             SetFullScreen();
             _ssaoInfo.Generate();
+            PrecomputeBRDF();
             Resize(width, height);
         }
         public void SetInternalResolution(float width, float height)
@@ -160,7 +160,7 @@ namespace TheraEngine.Rendering
 
             //Engine.PrintLine("Internal resolution changed: {0}x{1}", w, h);
 
-            ClearFBOs();
+            InitFBOs();
 
             _worldCamera?.Resize(w, h);
         }
@@ -177,8 +177,8 @@ namespace TheraEngine.Rendering
             BloomBlurFBO8 = null;
             BloomBlurFBO16?.Destroy();
             BloomBlurFBO16 = null;
-            BrightPassFBO?.Destroy();
-            BrightPassFBO = null;
+            ForwardPassFBO?.Destroy();
+            ForwardPassFBO = null;
             DirLightFBO?.Destroy();
             DirLightFBO = null;
             GBufferFBO?.Destroy();
@@ -204,7 +204,7 @@ namespace TheraEngine.Rendering
             BloomBlurFBO4?.Generate();
             BloomBlurFBO8?.Generate();
             BloomBlurFBO16?.Generate();
-            BrightPassFBO?.Generate();
+            ForwardPassFBO?.Generate();
             DirLightFBO?.Generate();
             GBufferFBO?.Generate();
             HudFBO?.Generate();
@@ -275,12 +275,6 @@ namespace TheraEngine.Rendering
         {
             if (scene == null || scene.Count == 0)
                 return;
-
-            if (BrdfTex == null)
-                PrecomputeBRDF();
-
-            if (PostProcessFBO == null)
-                InitFBOs();
 
             CurrentlyRenderingViewports.Push(this);
             OnRender(scene, camera, target);
@@ -683,8 +677,8 @@ namespace TheraEngine.Rendering
 
         private void PrecomputeBRDF()
         {
-            //if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PrecomputeBRDF, BaseRenderPanel.PanelType.Rendering))
-            //    return;
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PrecomputeBRDF, BaseRenderPanel.PanelType.Rendering))
+                return;
 
             RenderingParameters renderParams = new RenderingParameters();
             renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
@@ -722,18 +716,17 @@ namespace TheraEngine.Rendering
             Engine.Renderer.PopRenderArea();
             fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
-
-        //private TexRef2D[] _fboTextures;
+        
         internal unsafe void InitFBOs()
         {
-            //ForwardPassFBO?.Destroy();
-            //GBufferFBO?.Destroy();
-            //PingPongBloomBlurFBO?.Destroy();
-            //PostProcessFBO?.Destroy();
-            //SSAOBlurFBO?.Destroy();
-            //SSAOFBO?.Destroy();
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)InitFBOs, BaseRenderPanel.PanelType.Rendering))
+                return;
 
-            RegenerateFBOs = true;
+            ClearFBOs();
+
+            if (BrdfTex == null)
+                PrecomputeBRDF();
+            
             int width = InternalResolution.IntWidth;
             int height = InternalResolution.IntHeight;
             const string SceneShaderPath = "Scene3D";
@@ -813,7 +806,6 @@ namespace TheraEngine.Rendering
                 
                 GLSLShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EShaderMode.Fragment);
                 GLSLShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EShaderMode.Fragment);
-                GLSLShaderFile deferredShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLighting.fs"), EShaderMode.Fragment);
                 
                 TexRef2D[] ssaoRefs = new TexRef2D[]
                 {
@@ -825,14 +817,14 @@ namespace TheraEngine.Rendering
                 {
                     ssaoTexture
                 };
-                TexRef2D[] deferredLightingRefs = new TexRef2D[]
-                {
-                    albedoOpacityTexture,
-                    normalTexture,
-                    rmsiTexture,
-                    ssaoTexture,
-                    depthViewTexture,
-                };
+                //TexRef2D[] deferredLightingRefs = new TexRef2D[]
+                //{
+                //    albedoOpacityTexture,
+                //    normalTexture,
+                //    rmsiTexture,
+                //    ssaoTexture,
+                //    depthViewTexture,
+                //};
 
                 TMaterial ssaoMat = new TMaterial("SSAOMat", renderParams, ssaoRefs, ssaoShader);
                 TMaterial ssaoBlurMat = new TMaterial("SSAOBlurMat", renderParams, ssaoBlurRefs, ssaoBlurShader);
@@ -843,7 +835,9 @@ namespace TheraEngine.Rendering
                 renderParamsDeferred.DepthTest.Function = EComparison.Always;
                 renderParamsDeferred.Requirements = EUniformRequirements.Lights;
 
-                TMaterial deferredMat = new TMaterial("DeferredLightingMaterial", renderParamsDeferred, deferredLightingRefs, deferredShader);
+                //GLSLShaderFile deferredShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLighting.fs"), EShaderMode.Fragment);
+                //TMaterial deferredMat = new TMaterial("DeferredLightingMaterial",
+                //    renderParamsDeferred, deferredLightingRefs, deferredShader);
 
                 SSAOFBO = new QuadFrameBuffer(ssaoMat);
                 SSAOFBO.SettingUniforms += SSAO_SetUniforms;
@@ -854,8 +848,7 @@ namespace TheraEngine.Rendering
                     (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
 
                 SSAOBlurFBO = new QuadFrameBuffer(ssaoBlurMat);
-                GBufferFBO = new QuadFrameBuffer(deferredMat);
-                //GBufferFBO.SettingUniforms += GBuffer_SetUniforms;
+                GBufferFBO = new FrameBuffer();
                 GBufferFBO.SetRenderTargets((ssaoTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
                 #region Light Meshes
@@ -1003,9 +996,9 @@ namespace TheraEngine.Rendering
             TMaterial postProcessMat = new TMaterial("PostProcessMat", renderParams, postProcessRefs, postProcessShader);
             TMaterial hudMat = new TMaterial("HudMat", renderParams, hudRefs, hudShader);
 
-            BrightPassFBO = new QuadFrameBuffer(brightMat);
-            BrightPassFBO.SettingUniforms += BrightPassFBO_SettingUniforms;
-            BrightPassFBO.SetRenderTargets(
+            ForwardPassFBO = new QuadFrameBuffer(brightMat);
+            ForwardPassFBO.SettingUniforms += BrightPassFBO_SettingUniforms;
+            ForwardPassFBO.SetRenderTargets(
                 (_hdrSceneTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
                 (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
 

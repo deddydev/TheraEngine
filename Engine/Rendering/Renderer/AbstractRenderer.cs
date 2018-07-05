@@ -57,8 +57,11 @@ namespace TheraEngine.Rendering
         public abstract void GenerateMipmap(int bindingId);
         public abstract void GenerateMipmap(ETexTarget target);
 
-        public abstract void GetTexImage<T>(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels) where T : struct;
-
+        public abstract void GetTexImage<T>(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels) where T : unmanaged;
+        public abstract void GetTexImage(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, IntPtr pixels);
+        public abstract void GetTexImage<T>(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels) where T : unmanaged;
+        public abstract void GetTexImage(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, int bufSize, IntPtr pixels);
+        
         #region Debug Primitives
 
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
@@ -623,6 +626,9 @@ namespace TheraEngine.Rendering
 
         public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData);
         public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData);
+        public abstract void TexParameter(int texBindingId, ETexParamName texParam, float paramData);
+        public abstract void TexParameter(int texBindingId, ETexParamName texParam, int paramData);
+        
         public abstract void PushTextureData(
             ETexTarget texTarget, 
             int mipLevel, 

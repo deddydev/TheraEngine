@@ -1128,6 +1128,20 @@ namespace TheraEngine.Rendering.OpenGL
                 (TextureParameterName)texParam.ConvertByName(typeof(TextureParameterName)),
                 paramData);
         }
+        public override void TexParameter(int texBindingId, ETexParamName texParam, float paramData)
+        {
+            GL.TextureParameter(
+                texBindingId,
+                (TextureParameterName)texParam.ConvertByName(typeof(TextureParameterName)),
+                paramData);
+        }
+        public override void TexParameter(int texBindingId, ETexParamName texParam, int paramData)
+        {
+            GL.TextureParameter(
+                texBindingId,
+                (TextureParameterName)texParam.ConvertByName(typeof(TextureParameterName)),
+                paramData);
+        }
 
         public override void PushTextureData(
             ETexTarget texTarget,
@@ -1247,6 +1261,25 @@ namespace TheraEngine.Rendering.OpenGL
             PixelType pt = (PixelType)(int)pixelType;
             TextureTarget tt = (TextureTarget)(int)target;
             GL.GetTexImage(tt, level, pf, pt, pixels);
+        }
+        public override void GetTexImage(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, IntPtr pixels)
+        {
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)(int)pixelFormat;
+            PixelType pt = (PixelType)(int)pixelType;
+            TextureTarget tt = (TextureTarget)(int)target;
+            GL.GetTexImage(tt, level, pf, pt, pixels);
+        }
+        public override void GetTexImage<T>(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels)
+        {
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)(int)pixelFormat;
+            PixelType pt = (PixelType)(int)pixelType;
+            GL.GetTextureImage(textureBindingId, level, pf, pt, pixels.Length * sizeof(T), pixels);
+        }
+        public override void GetTexImage(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, int bufSize, IntPtr pixels)
+        {
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)(int)pixelFormat;
+            PixelType pt = (PixelType)(int)pixelType;
+            GL.GetTextureImage(textureBindingId, level, pf, pt, bufSize, pixels);
         }
         #endregion
 

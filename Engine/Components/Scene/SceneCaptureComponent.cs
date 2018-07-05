@@ -87,7 +87,7 @@ namespace TheraEngine.Actors.Types
                 c = new PerspectiveCamera(Vec3.Zero, rotations[i], 1.0f, 10000.0f, 90.0f, 1.0f);
                 c.LocalPoint.Raw = WorldPoint;
                 //c.Resize(_viewport.InternalResolution.Width, _viewport.InternalResolution.Height);
-                c.PostProcessRef.File.ColorGrading.AutoExposure = false;
+                c.PostProcessRef.File.ColorGrading.AutoExposure = true;
                 c.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
                 _cameras[i] = c;
             }
@@ -138,7 +138,7 @@ namespace TheraEngine.Actors.Types
             scene.UpdateShadowMaps();
             scene.Lights.SwapBuffers();
             scene.RenderShadowMaps();
-         
+
             for (int i = 0; i < 6; ++i)
             {
                 Camera camera = _cameras[i];

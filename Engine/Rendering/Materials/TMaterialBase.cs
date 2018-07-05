@@ -57,6 +57,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private void _program_Generated()
         {
             _secondsLive = 0.0f;
+            return;
             if (Program.IsValid)
             {
                 const string uniform = "uniform";

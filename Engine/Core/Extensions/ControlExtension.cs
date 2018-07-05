@@ -12,7 +12,7 @@ namespace TheraEngine.Core.Extensions
         {
             typeof(Control).InvokeMember(
                 "SetState",
-                BindingFlags.NonPublic |BindingFlags.InvokeMethod | BindingFlags.Instance,
+                BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance,
                 null, c,
                 new object[] { 0x400000, false });
         }

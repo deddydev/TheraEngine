@@ -30,7 +30,7 @@ namespace TheraEngine
         {
             World,
             Hovered,
-            Captured,
+            Focused,
             Rendering,
         }
 
@@ -40,7 +40,7 @@ namespace TheraEngine
             {
                 case PanelType.World: return WorldPanel;
                 case PanelType.Hovered: return HoveredPanel;
-                case PanelType.Captured: return FocusedPanel;
+                case PanelType.Focused: return FocusedPanel;
                 case PanelType.Rendering: return RenderingPanel;
             }
             return null;

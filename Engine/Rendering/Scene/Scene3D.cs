@@ -98,7 +98,7 @@ namespace TheraEngine.Rendering
                     //Enable internal resolution
                     Engine.Renderer.PushRenderArea(viewport.InternalResolution);
                     {
-                        viewport.BrightPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         {
                             Engine.Renderer.Clear(EBufferClear.All);
 
@@ -114,7 +114,7 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.AllowDepthWrite(false);
                             renderingPasses.Render(ERenderPass.OnTopForward);
                         }
-                        viewport.BrightPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
                         //viewport.PingPongBloomBlurFBO.Reset();
                         //viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
@@ -312,7 +312,7 @@ namespace TheraEngine.Rendering
 
         private void RenderForwardPass(Viewport viewport, RenderPasses renderingPasses)
         {
-            viewport.BrightPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+            viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
             {
                 Engine.Renderer.EnableDepthTest(false);
                 //Render the deferred pass result
@@ -336,7 +336,7 @@ namespace TheraEngine.Rendering
                 renderingPasses.Render(ERenderPass.OnTopForward);
                 Engine.Renderer.EnableDepthTest(false);
             }
-            viewport.BrightPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+            viewport.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         private void RenderLights(Viewport viewport)
         {
@@ -363,7 +363,7 @@ namespace TheraEngine.Rendering
         private void RenderBloom(Viewport viewport)
         {
             viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
-            viewport.BrightPassFBO.RenderFullscreen();
+            viewport.ForwardPassFBO.RenderFullscreen();
             viewport.BloomBlurFBO1.Unbind(EFramebufferTarget.DrawFramebuffer);
 
             var tex = viewport._bloomBlurTexture.GetTexture(true);

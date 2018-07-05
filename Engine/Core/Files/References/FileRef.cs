@@ -183,7 +183,12 @@ namespace TheraEngine.Files
                 ReferencePathAbsolute = _file.FilePath;
         }
 
-        public T GetInstance() => ((Func<Task<T>>)GetInstanceAsync).GetResultSynchronously();
+        public T GetInstance()
+        {
+            Task<T> value = GetInstanceAsync();
+            while (!value.IsCompleted) ;
+            return value.Result;
+        }
         public async Task<T> GetInstanceAsync() => await GetInstanceAsync(null, CancellationToken.None);
         public abstract Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
 

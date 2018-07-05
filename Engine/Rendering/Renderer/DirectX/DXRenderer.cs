@@ -725,5 +725,30 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void GetTexImage(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, IntPtr pixels)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GetTexImage<T>(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GetTexImage(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, int bufSize, IntPtr pixels)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TexParameter(int texBindingId, ETexParamName texParam, float paramData)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TexParameter(int texBindingId, ETexParamName texParam, int paramData)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -66,11 +66,6 @@ namespace TheraEditor.Actors.Types.Pawns
 
         protected override void MouseMove(float x, float y)
         {
-            //This fixes stationary jitter caused by float imprecision
-            //when recalculating the same hit point every update
-            if (x == 0.0f && y == 0.0f)
-                return;
-
             if (Rotating)
             {
                 float pitch = y * MouseRotateSpeed;
@@ -87,6 +82,11 @@ namespace TheraEditor.Actors.Types.Pawns
             {
                 if (HasHit)
                 {
+                    //This fixes stationary jitter caused by float imprecision
+                    //when recalculating the same hit point every update
+                    if (x == 0.0f && y == 0.0f)
+                        return;
+
                     Vec3 oldPoint = HitPoint;
                     Vec3 screenPoint = Camera.WorldToScreen(HitPoint);
                     screenPoint.X += -x;

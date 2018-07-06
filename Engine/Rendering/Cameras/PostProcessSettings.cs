@@ -277,6 +277,10 @@ uniform ColorGradeStruct ColorGrade;";
             IntPtr addr = (IntPtr)rgb.Data;
             Engine.Renderer.GetTexImage(tex.BindingId, tex.SmallestMipmapLevel, EPixelFormat.Rgb, EPixelType.Float, sizeof(Vec3), addr);
 
+            if (float.IsNaN(rgb.X)) return;
+            if (float.IsNaN(rgb.Y)) return;
+            if (float.IsNaN(rgb.Z)) return;
+
             //Calculate luminance factor off of the average color
             float lumDot = rgb.Dot(_luminance);
 

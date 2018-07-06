@@ -121,7 +121,7 @@ namespace TheraEditor.Windows.Forms
         TFileObject _dragInstance = null;
         //private float _preRenderFreq, _preUpdateFreq;
         private TransformType _prevTransformType;
-        private void RenderPanel_DragEnter(object sender, DragEventArgs e)
+        private async void RenderPanel_DragEnter(object sender, DragEventArgs e)
         {
             BaseWrapper[] dragNodes = Editor.Instance.ContentTree?.DraggedNodes;
             if (dragNodes == null || dragNodes.Length != 1)
@@ -134,7 +134,7 @@ namespace TheraEditor.Windows.Forms
                 _lastDraggedNode = wrapper;
                 _dragInstance = null;
             }
-            TFileObject instance = _dragInstance ?? (_dragInstance = wrapper.GetNewInstance());
+            TFileObject instance = _dragInstance ?? (_dragInstance = await wrapper.GetNewInstanceAsync());
             if (instance is IActor actor)
             {
                 //Editor.Instance.DoEvents = false;

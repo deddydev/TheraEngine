@@ -7,9 +7,8 @@ namespace TheraEngine.Audio
     {
         int _channels, _bps, _sampleRate;
 
-        byte[] sound_data;
+        public byte[] SoundData { get; private set; }
 
-        public byte[] SoundData => sound_data;
         public int Channels => _channels;
         public int BitsPerSample => _bps;
         public int SampleRate => _sampleRate;
@@ -18,7 +17,7 @@ namespace TheraEngine.Audio
         {
             if (!File.Exists(filename))
                 return;
-            sound_data = LoadWave(File.Open(filename, FileMode.Open), 
+            SoundData = LoadWave(File.Open(filename, FileMode.Open), 
                 out _channels, out _bps, out _sampleRate);
         }
 
@@ -69,7 +68,7 @@ namespace TheraEngine.Audio
 
         public void Dispose()
         {
-            sound_data = null;
+            SoundData = null;
         }
     }
 }

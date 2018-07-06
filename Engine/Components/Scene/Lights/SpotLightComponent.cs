@@ -143,14 +143,14 @@ namespace TheraEngine.Components.Scene.Lights
         [Browsable(false)]
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
         [Browsable(false)]
-        public Shape CullingVolume => null; //TODO: use outer cone as culling volume
+        public Shape CullingVolume => OuterCone;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        public void Render()
-        {
-            Engine.Renderer.RenderPoint(Position, Color.Orange, 10.0f);
-        }
+        //public void Render()
+        //{
+        //    Engine.Renderer.RenderPoint(WorldMatrix.Translation, Color.Orange, 10.0f);
+        //}
 
         public SpotLightComponent()
             : this(100.0f, new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, Vec3.Down, 60.0f, 30.0f, 1.0f, 1.0f) { }
@@ -196,22 +196,6 @@ namespace TheraEngine.Components.Scene.Lights
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            _direction = _rotation.GetDirection();
-
-            Vec3 translation = _translation + _direction * (_distance / 2.0f);
-
-            _outerCone.State.Rotation.SetDirection(_direction);
-            _outerCone.State.Translation.Raw = translation;
-
-            _innerCone.State.Rotation.SetDirection(_direction);
-            _innerCone.State.Translation.Raw = translation;
-
-            if (_shadowCamera != null)
-            {
-                _shadowCamera.LocalRotation.SetRotations(_rotation);
-                _shadowCamera.LocalPoint.Raw = _translation;
-            }
-
             Matrix4
                 r = _rotation.GetMatrix(),
                 ir = _rotation.Inverted().GetMatrix();
@@ -219,23 +203,37 @@ namespace TheraEngine.Components.Scene.Lights
             Matrix4
                 t = _translation.AsTranslationMatrix(),
                 it = (-_translation).AsTranslationMatrix();
-
-            Matrix4
-                s = Matrix4.CreateScale(_outerCone.Radius, _outerCone.Radius, _outerCone.Height),
-                iS = Matrix4.CreateScale(1.0f / _outerCone.Radius, 1.0f / _outerCone.Radius, 1.0f / _outerCone.Height);
-
-            localTransform = t * r * s;
-            inverseLocalTransform = iS * ir * it;
+            
+            localTransform = t * r;
+            inverseLocalTransform = ir * it;
         }
         internal Matrix4 LightMatrix { get; private set; }
         protected override void OnWorldTransformChanged()
         {
-            Vec3 translation = _direction * (_distance / 2.0f);
+            _direction = _rotation.GetDirection();
 
-            Matrix4 t = translation.AsTranslationMatrix();
+            Vec3 translation = _translation + _direction * (_distance / 2.0f);
+
+            if (_outerCone != null)
+            {
+                _outerCone.State.Rotation.SetDirection(_direction);
+                _outerCone.State.Translation.Raw = translation;
+            }
+            if (_innerCone != null)
+            {
+                _innerCone.State.Rotation.SetDirection(_direction);
+                _innerCone.State.Translation.Raw = translation;
+            }
+            if (_shadowCamera != null)
+            {
+                _shadowCamera.LocalRotation.SetRotations(_rotation);
+                _shadowCamera.LocalPoint.Raw = _translation;
+            }
+
+            Vec3 translation2 = _direction * (_distance / 2.0f);
+            Matrix4 t = translation2.AsTranslationMatrix();
             Matrix4 s = Matrix4.CreateScale(_outerCone.Radius, _outerCone.Radius, _outerCone.Height);
-
-            LightMatrix = WorldMatrix * t * s;
+            LightMatrix = t * WorldMatrix * s;
 
             base.OnWorldTransformChanged();
         }
@@ -249,7 +247,7 @@ namespace TheraEngine.Components.Scene.Lights
             }
 
 #if EDITOR
-            if (!Engine.EditorState.InGameMode)
+            if (Engine.EditorState.InEditMode)
                 OwningScene.Add(this);
 #endif
         }
@@ -259,7 +257,7 @@ namespace TheraEngine.Components.Scene.Lights
                 OwningScene.Lights.Remove(this);
 
 #if EDITOR
-            if (!Engine.EditorState.InGameMode)
+            if (Engine.EditorState.InEditMode)
                 OwningScene.Remove(this);
 #endif
         }
@@ -269,7 +267,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "Direction", _direction);
             program.Uniform(indexer + "OuterCutoff", _outerCutoff);
             program.Uniform(indexer + "InnerCutoff", _innerCutoff);
-            program.Uniform(indexer + "Position", Position);
+            program.Uniform(indexer + "Position", WorldMatrix.Translation);
             program.Uniform(indexer + "Radius", _distance);
             program.Uniform(indexer + "Brightness", _brightness);
             program.Uniform(indexer + "Exponent", _exponent);
@@ -277,8 +275,8 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             program.Uniform(indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
 
-            TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", program);
+            var tex = _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
+            TMaterialBase.SetTextureUniform(tex, 4, "Texture4", program);
         }
 
         public void SetShadowMapResolution(int width, int height)

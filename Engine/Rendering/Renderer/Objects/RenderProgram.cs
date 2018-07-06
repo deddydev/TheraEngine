@@ -36,39 +36,23 @@ namespace TheraEngine.Rendering
             }
         }
         
-        private readonly ConcurrentDictionary<int, ConcurrentDictionary<string, int>> 
-            _uniformCache = new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>(),
-            _attribCache = new ConcurrentDictionary<int, ConcurrentDictionary<string, int>>();
+        private readonly ConcurrentDictionary<string, int> 
+            _uniformCache = new ConcurrentDictionary<string, int>(),
+            _attribCache = new ConcurrentDictionary<string, int>();
 
         public int GetUniformLocation(string name)
         {
             int bindingId = BindingId;
             if (bindingId == NullBindingId)
                 return -1;
-            if (_uniformCache.TryGetValue(bindingId, out ConcurrentDictionary<string, int> progDic))
-                return progDic.GetOrAdd(name, n => Engine.Renderer.OnGetUniformLocation(bindingId, n));
-            else
-            {
-                progDic = new ConcurrentDictionary<string, int>();
-                int loc = Engine.Renderer.OnGetUniformLocation(bindingId, name);
-                if (!progDic.TryAdd(name, loc) || !_uniformCache.TryAdd(bindingId, progDic))
-                    throw new Exception();
-                return loc;
-            }
+            return _uniformCache.GetOrAdd(name, n => Engine.Renderer.OnGetUniformLocation(bindingId, n));
         }
         public int GetAttributeLocation(string name)
         {
             int bindingId = BindingId;
-            if (_attribCache.TryGetValue(bindingId, out ConcurrentDictionary<string, int> progDic))
-                return progDic.GetOrAdd(name, n => Engine.Renderer.OnGetAttribLocation(bindingId, n));
-            else
-            {
-                progDic = new ConcurrentDictionary<string, int>();
-                int loc = Engine.Renderer.OnGetAttribLocation(bindingId, name);
-                if (!progDic.TryAdd(name, loc) || !_attribCache.TryAdd(bindingId, progDic))
-                    throw new Exception();
-                return loc;
-            }
+            if (bindingId == NullBindingId)
+                return -1;
+            return _attribCache.GetOrAdd(name, n => Engine.Renderer.OnGetAttribLocation(bindingId, n));
         }
 
         public bool IsValid { get; private set; } = false;

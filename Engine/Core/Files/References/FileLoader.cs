@@ -30,6 +30,8 @@ namespace TheraEngine.Files
     [FileDef("File Loader")]
     public class FileLoader<T> : TFileObject, IFileLoader where T : class, IFileObject
     {
+        public event Action RefPathChanged;
+
         #region Constructors
         public FileLoader() : this(typeof(T)) { }
         public FileLoader(Type type)
@@ -63,6 +65,7 @@ namespace TheraEngine.Files
         protected string _absoluteRefPath;
         protected Type _subType = null;
         protected EPathType _pathType = EPathType.FileRelative;
+        protected bool _updating;
 
         [Category("File Reference")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
@@ -72,7 +75,6 @@ namespace TheraEngine.Files
             set
             {
                 _pathType = value;
-
                 if (_pathType == EPathType.Absolute)
                     _localRefPath = _absoluteRefPath;
                 else if (!string.IsNullOrWhiteSpace(_absoluteRefPath) && _absoluteRefPath.IsValidPath())
@@ -89,6 +91,7 @@ namespace TheraEngine.Files
                 }
                 else
                     _localRefPath = null;
+                OnPathChanged();
             }
         }
 
@@ -99,6 +102,7 @@ namespace TheraEngine.Files
             get => _absoluteRefPath;
             set
             {
+                _updating = true;
                 if (!string.IsNullOrEmpty(value))
                 {
                     _absoluteRefPath = Path.GetFullPath(value);
@@ -157,6 +161,8 @@ namespace TheraEngine.Files
                     _localRefPath = null;
                     _absoluteRefPath = null;
                 }
+                _updating = false;
+                OnPathChanged();
             }
         }
         [TString(false, true, false)]
@@ -167,6 +173,7 @@ namespace TheraEngine.Files
             get => _localRefPath;
             set
             {
+                _updating = true;
                 if (!string.IsNullOrEmpty(value))
                 {
                     _localRefPath = value;
@@ -186,6 +193,8 @@ namespace TheraEngine.Files
                     _localRefPath = null;
                     _absoluteRefPath = null;
                 }
+                _updating = false;
+                OnPathChanged();
             }
         }
         /// <summary>
@@ -228,6 +237,12 @@ namespace TheraEngine.Files
             Loaded -= onLoaded;
         }
 
+        protected virtual void OnPathChanged()
+        {
+            if (!_updating)
+                RefPathChanged?.Invoke();
+        }
+
         /// <summary>
         /// Loads a new instance synchronously and allows dynamic construction when the ReferencePathAbsolute is invalid, assuming there is a constructor with no arguments.
         /// </summary>
@@ -241,10 +256,8 @@ namespace TheraEngine.Files
         /// <param name="constructionArgs"></param>
         public T LoadNewInstance(bool allowConstruct, (Type Type, object Value)[] constructionArgs)
         {
-            T value = default;
-            Task r = LoadNewInstanceAsync(allowConstruct, constructionArgs).ContinueWith(t => { value = t.Result; });
-            r.Wait();
-            return value;
+            Func<Task<T>> func = async () => { return await LoadNewInstanceAsync(allowConstruct, constructionArgs); };
+            return func.RunSync();
         }
 
         public void LoadNewInstanceAsync(Action<T> onLoaded)
@@ -445,8 +458,8 @@ namespace TheraEngine.Files
             return header?.ExportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
         public override string ToString() => ReferencePathAbsolute;
-        
-        public static implicit operator T(FileLoader<T> fileRef) => fileRef?.LoadNewInstance();
+
+        public static implicit operator Task<T>(FileLoader<T> fileRef) => fileRef?.LoadNewInstanceAsync();
         public static implicit operator FileLoader<T>(string filePath) => new FileLoader<T>(filePath);
     }
 }

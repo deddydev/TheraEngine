@@ -204,17 +204,23 @@ namespace TheraEditor.Wrappers
                 ImageIndex = SelectedImageIndex = 1; //Closed folder
             }
         }
+
         #region File Type Loading
 
         private static bool IsFileObject(Type t)
         {
-            return !t.IsAbstract && t.IsSubclassOf(typeof(TFileObject));
+            return 
+                !t.IsAbstract && 
+                !t.IsInterface &&
+                t.IsSubclassOf(typeof(TFileObject)) &&
+                t.GetCustomAttributeExt<FileExt>() != null;
         }
 
         private static bool Is3rdPartyImportable(Type t)
         {
-            if (t.IsAbstract || !t.IsSubclassOf(typeof(TFileObject)))
+            if (!IsFileObject(t))
                 return false;
+
             string[] ext = TFileObject.GetFile3rdPartyExtensions(t)?.ImportableExtensions;
             return ext != null && ext.Length > 0;
         }
@@ -252,16 +258,14 @@ namespace TheraEditor.Wrappers
                         Progress<float> progress = new Progress<float>();
                         string msg = $"Importing '{ofd.FileName}'...";
                         Editor.Instance.ReportOperation(msg, progress, token);
+
                         TFileObject file = await TFileObject.LoadAsync(fileType, ofd.FileName, progress, token.Token);
 
                         FolderWrapper folderNode = GetInstance<FolderWrapper>();
                         string dir = folderNode.FilePath as string;
 
-                        //folderNode.TreeView.WatchProjectDirectory = false;
+                        //Node will automatically be added to the file tree
                         file.Export(dir, file.Name, EFileFormat.XML);
-                        //folderNode.TreeView.WatchProjectDirectory = true;
-
-                        //folderNode.Nodes.Add(Wrap(file));
                     }
                 }
             }
@@ -271,19 +275,15 @@ namespace TheraEditor.Wrappers
             if (sender is ToolStripDropDownButton button)
             {
                 Type fileType = button.Tag as Type;
-                TFileObject file = Editor.UserCreateInstanceOf(fileType, true) as TFileObject;
 
-                if (file == null)
+                if (!(Editor.UserCreateInstanceOf(fileType, true) is TFileObject file))
                     return;
 
                 FolderWrapper folderNode = GetInstance<FolderWrapper>();
                 string dir = folderNode.FilePath as string;
-
-                //folderNode.TreeView.WatchProjectDirectory = false;
+                
+                //Node will automatically be added to the file tree
                 file.Export(dir, file.Name);
-                //folderNode.TreeView.WatchProjectDirectory = true;
-
-                //folderNode.Nodes.Add(Wrap(file) as BaseWrapper);
             }
         }
         #endregion

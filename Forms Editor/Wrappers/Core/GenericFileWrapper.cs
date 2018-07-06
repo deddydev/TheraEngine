@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Files;
@@ -21,7 +22,8 @@ namespace TheraEditor.Wrappers
         public override bool IsLoaded => false;
         public override Type FileType => null;
         public override IGlobalFileRef SingleInstanceRef => throw new NotImplementedException();
-        public override TFileObject GetNewInstance() { return null; }
+        public override TFileObject GetNewInstance() => null;
+        public override Task<TFileObject> GetNewInstanceAsync() => null;
         protected internal override void FixPath(string parentFolderPath) { }
 
         //private Process _runningProcess;

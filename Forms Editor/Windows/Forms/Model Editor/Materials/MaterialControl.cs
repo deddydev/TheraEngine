@@ -105,7 +105,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (!(node is BaseTexRef tref))
                 return;
-            int index = tref.Index;
+            int index = Material.Textures.IndexOf(tref);
             if (index < 0 || index >= lstTextures.Items.Count || lstTextures.Items[index].Tag != tref)
                 return;
             lstTextures.Items[index].Text = string.Format("{0} [{1}]", tref.Name, tref.GetType().GetFriendlyName());
@@ -301,7 +301,6 @@ namespace TheraEditor.Windows.Forms
                 int index = _material.Textures.Length;
                 _material.Textures = _material.Textures.Resize(index + 1);
                 _material.Textures[index] = tref;
-                tref.Index = index;
                 lstTextures.Items.Add(item);
             }
             else
@@ -309,12 +308,8 @@ namespace TheraEditor.Windows.Forms
                 int index = lstTextures.SelectedIndices[0];
                 _material.Textures = _material.Textures.Resize(_material.Textures.Length + 1);
                 for (int i = index + 1; i < _material.Textures.Length; ++i)
-                {
                     _material.Textures[i] = _material.Textures[i - 1];
-                    _material.Textures[i].Index = i;
-                }
                 _material.Textures[index] = tref;
-                tref.Index = index;
                 lstTextures.Items.Insert(index, item);
             }
         }
@@ -326,10 +321,7 @@ namespace TheraEditor.Windows.Forms
                 int index = lstTextures.SelectedIndices[0];
                 int length = _material.Textures.Length;
                 for (int i = index; i < _material.Textures.Length - 1; ++i)
-                {
                     _material.Textures[i] = _material.Textures[i + 1];
-                    _material.Textures[i].Index = i;
-                }
                 _material.Textures = _material.Textures.Resize(length - 1);
                 lstTextures.Items.RemoveAt(index);
             }

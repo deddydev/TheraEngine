@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml;
 using TheraEngine.Core.Reflection.Attributes;
 
@@ -142,6 +143,7 @@ namespace TheraEngine.Files
                     }
                     if (!_file.References.Contains(this))
                         _file.References.Add(this);
+                    LoadAttempted = true;
                 }
                 else
                 {
@@ -183,12 +185,21 @@ namespace TheraEngine.Files
                 ReferencePathAbsolute = _file.FilePath;
         }
 
+        public bool LoadAttempted { get; protected set; } = false;
+        protected override void OnPathChanged()
+        {
+            LoadAttempted = false;
+            base.OnPathChanged();
+        }
         public T GetInstance()
         {
-            Task<T> value = GetInstanceAsync();
-            while (!value.IsCompleted) ;
-            return value.Result;
+            if (_file != null || LoadAttempted)
+                return _file;
+
+            Func<Task<T>> func = GetInstanceAsync;
+            return func.RunSync();
         }
+        
         public async Task<T> GetInstanceAsync() => await GetInstanceAsync(null, CancellationToken.None);
         public abstract Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
 

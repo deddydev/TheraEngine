@@ -5,7 +5,7 @@ namespace System.Collections.Generic
 {
     public class ThreadSafeList<T> : List<T>
     {
-        protected ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        protected ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         //protected List<T> base;
 
         //public int Count => ((IList<T>)base).Count;

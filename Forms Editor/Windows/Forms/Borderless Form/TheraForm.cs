@@ -110,7 +110,7 @@ namespace TheraEditor.Windows.Forms
             RightBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTRIGHT);
             BottomBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTBOTTOM);
             
-            FormTitle.MouseDown += TitleLabel_MouseDown;
+            FormTitle.MouseDown += TitleBar_MouseDown;
             FormTitle.MouseUp += (s, e) => { if (e.Button == MouseButtons.Right && FormTitle.ClientRectangle.Contains(e.Location)) ShowSystemMenu(MouseButtons); };
             FormTitle.Text = Text;
             TextChanged += (s, e) => FormTitle.Text = Text;
@@ -216,7 +216,7 @@ namespace TheraEditor.Windows.Forms
         private DateTime _titleClickTime = DateTime.MinValue;
         private Point _titleClickPosition = Point.Empty;
 
-        protected virtual void TitleLabel_MouseDown(object sender, MouseEventArgs e)
+        protected virtual void TitleBar_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {

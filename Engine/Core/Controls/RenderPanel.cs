@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using TheraEngine.Core.Extensions;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -47,6 +48,8 @@ namespace TheraEngine
         }
         protected override void OnRender()
         {
+            if (!this.IsOnScreen())
+                return;
             PreRender();
             foreach (Viewport v in _viewports)
                 v.Render(GetScene(v), GetCamera(v), null);

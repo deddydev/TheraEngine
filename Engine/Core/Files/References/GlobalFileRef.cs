@@ -43,9 +43,10 @@ namespace TheraEngine.Files
 
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
-            if (_file != null)
+            if (_file != null || LoadAttempted)
                 return _file;
 
+            LoadAttempted = false;
             string absolutePath = ReferencePathAbsolute;
             if (absolutePath != null && Engine.GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
             {
@@ -61,7 +62,10 @@ namespace TheraEngine.Files
                 //}
             }
 
-            return File = await LoadNewInstanceAsync(false, null, progress, cancel);
+            T value = await LoadNewInstanceAsync(false, null, progress, cancel);
+            File = value;
+            LoadAttempted = true;
+            return value;
         }
         
         public static implicit operator GlobalFileRef<T>(T file) => file == null ? null : new GlobalFileRef<T>(file);

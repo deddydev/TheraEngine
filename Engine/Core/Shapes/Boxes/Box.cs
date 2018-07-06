@@ -143,33 +143,33 @@ namespace TheraEngine.Core.Shapes
         {
             return BoundingBox.FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
         }
-        public static bool operator ==(Box left, Box right) { return left.Equals(ref right); }
-        public static bool operator !=(Box left, Box right) { return !left.Equals(ref right); }
+        //public static bool operator ==(Box left, Box right) { return left.Equals(ref right); }
+        //public static bool operator !=(Box left, Box right) { return !left.Equals(ref right); }
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentCulture, "HalfExtents:{0} Matrix:{1}", HalfExtents.ToString(), WorldMatrix.ToString());
         }
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (HalfExtents.GetHashCode() * 397) ^ WorldMatrix.GetHashCode();
-            }
-        }
-        public bool Equals(ref Box value)
-        {
-            return 
-                HalfExtents == value.HalfExtents &&
-                WorldMatrix == value.WorldMatrix;
-        }
-        public override bool Equals(object value)
-        {
-            if (!(value is Box))
-                return false;
+        //public override int GetHashCode()
+        //{
+        //    unchecked
+        //    {
+        //        return (HalfExtents.GetHashCode() * 397) ^ WorldMatrix.GetHashCode();
+        //    }
+        //}
+        //public bool Equals(ref Box value)
+        //{
+        //    return 
+        //        HalfExtents == value.HalfExtents &&
+        //        WorldMatrix == value.WorldMatrix;
+        //}
+        //public override bool Equals(object value)
+        //{
+        //    if (!(value is Box))
+        //        return false;
 
-            var strongValue = (Box)value;
-            return Equals(ref strongValue);
-        }
+        //    var strongValue = (Box)value;
+        //    return Equals(ref strongValue);
+        //}
         public override bool Contains(Vec3 point)
         {
             return Collision.BoxContainsPoint(HalfExtents, WorldMatrix, point);

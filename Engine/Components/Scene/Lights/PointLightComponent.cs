@@ -113,7 +113,7 @@ namespace TheraEngine.Components.Scene.Lights
             }
 
 #if EDITOR
-            if (!Engine.EditorState.InGameMode)
+            if (Engine.EditorState.InEditMode)
                 OwningScene.Add(this);
 #endif
         }
@@ -123,7 +123,7 @@ namespace TheraEngine.Components.Scene.Lights
                 OwningScene.Lights.Remove(this);
 
 #if EDITOR
-            if (!Engine.EditorState.InGameMode)
+            if (Engine.EditorState.InEditMode)
                 OwningScene.Remove(this);
 #endif
         }

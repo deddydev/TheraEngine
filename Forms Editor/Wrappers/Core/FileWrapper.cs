@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -38,6 +39,7 @@ namespace TheraEditor.Wrappers
             }
         }
         public override TFileObject GetNewInstance() => _fileRef.LoadNewInstance();
+        public override async Task<TFileObject> GetNewInstanceAsync() => await _fileRef.LoadNewInstanceAsync();
         public override TFileObject SingleInstance
         {
             get => ResourceRef.File;

@@ -28,11 +28,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Category("Texture Reference")]
         [TSerialize]
         public EFramebufferAttachment? FrameBufferAttachment { get; set; }
-
-        [Category("Texture Reference")]
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public int Index { get; set; }
-
+        
         public T GetRenderTextureGeneric<T>(bool loadSynchronously) where T : BaseRenderTexture
             => GetRenderTextureGeneric(loadSynchronously) as T;
         /// <summary>
@@ -42,13 +38,13 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public BaseRenderTexture RenderTextureGeneric => GetRenderTextureGeneric(true);
 
-        [TSerialize(nameof(SamplerName), IsXmlAttribute = true)]
-        protected string _samplerName = null;
+        private string _samplerName = null;
 
+        [TSerialize(IsXmlAttribute = true)]
         [Category("Texture Reference")]
         public string SamplerName
         {
-            get => _samplerName ?? "Texture" + Index;
+            get => _samplerName;
             set => _samplerName = value;
         }
 

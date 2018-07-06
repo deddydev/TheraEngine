@@ -24,11 +24,15 @@ namespace TheraEditor.Windows.Forms
 
         public void BeginUpdate()
         {
+            if (Disposing || IsDisposed)
+                return;
             NativeMethods.SendMessage(Handle, NativeConstants.WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
         }
 
         public void EndUpdate()
         {
+            if (Disposing || IsDisposed)
+                return;
             NativeMethods.SendMessage(Handle, NativeConstants.WM_SETREDRAW, new IntPtr(1), IntPtr.Zero);
             Parent.Invalidate(true);
         }

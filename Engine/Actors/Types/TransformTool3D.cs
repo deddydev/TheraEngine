@@ -397,15 +397,23 @@ namespace TheraEngine.Actors.Types
                 case ESpace.Screen:
 
                     Vec3 point = _targetSocket.WorldMatrix.Translation;
-                    Camera c = Engine.LocalPlayers[0].ViewportCamera;
-                    //Rotator angles = (c.WorldPoint - point).LookatAngles();
-                    //Matrix4 angleMatrix = angles.GetMatrix();
-                    //return point.AsTranslationMatrix() * angleMatrix;
-                    Vec3 fwd = (c.WorldPoint - point).NormalizedFast();
-                    Vec3 up = c.UpVector;
-                    Vec3 right = up ^ fwd;
-                    return Matrix4.CreateSpacialTransform(point, right, up, fwd);
-                    //return Matrix4.CreateSpacialTransform(point, -c.RightVector, c.UpVector, -c.ForwardVector);
+                    var localPlayers = Engine.LocalPlayers;
+                    if (localPlayers.Count > 0)
+                    {
+                        Camera c = localPlayers[0].ViewportCamera;
+                        if (c != null)
+                        {
+                            //Rotator angles = (c.WorldPoint - point).LookatAngles();
+                            //Matrix4 angleMatrix = angles.GetMatrix();
+                            //return point.AsTranslationMatrix() * angleMatrix;
+                            Vec3 fwd = (c.WorldPoint - point).NormalizedFast();
+                            Vec3 up = c.UpVector;
+                            Vec3 right = up ^ fwd;
+                            return Matrix4.CreateSpacialTransform(point, right, up, fwd);
+                        }
+                    }
+
+                    return Matrix4.Identity;
 
                 case ESpace.World:
                 default:

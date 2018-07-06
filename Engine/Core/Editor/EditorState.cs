@@ -425,9 +425,10 @@ namespace TheraEngine.Editor
     }
     public class EngineEditorState
     {
-        private bool _inGameMode = true;
-
-        public bool InGameMode { get => _inGameMode; set => _inGameMode = value; }
+        /// <summary>
+        /// Used to determine if the editor is editing the game currently instead of simulating gameplay.
+        /// </summary>
+        public bool InEditMode { get; set; } = true;
     }
 #endif
 }

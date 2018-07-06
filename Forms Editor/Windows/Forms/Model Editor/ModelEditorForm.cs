@@ -34,8 +34,8 @@ namespace TheraEditor.Windows.Forms
             AutoScaleMode = AutoScaleMode.Dpi;
             DoubleBuffered = false;
             formMenu.Renderer = new TheraToolstripRenderer();
-            FormTitle2.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
-            ModelEditorText.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
+            FormTitle2.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
+            ModelEditorText.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
         }
         public ModelEditorForm(SkeletalModel m) : this() => SetModel(m);
         public ModelEditorForm(StaticModel m) : this() => SetModel(m);

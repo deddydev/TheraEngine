@@ -44,10 +44,13 @@ namespace TheraEngine.Files
 
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
-            if (_file != null)
+            if (_file != null || LoadAttempted)
                 return _file;
             
-            return File = await LoadNewInstanceAsync(false, null, progress, cancel);
+            T value = await LoadNewInstanceAsync(false, null, progress, cancel);
+            File = value;
+            LoadAttempted = true;
+            return value;
         }
         
         public static implicit operator LocalFileRef<T>(T file) => file == null ? null : new LocalFileRef<T>(file);

@@ -43,11 +43,11 @@ namespace TheraEngine.Timers
         /// </summary>
         public void Run(bool singleThreaded = false)
         {
-            if (_running)
+            if (IsRunning)
                 return;
 
             Engine.PrintLine("Started game loop.");
-            _running = true;
+            IsRunning = true;
             _watch.Start();
             if (singleThreaded)
                 Application.Idle += Application_Idle_SingleThread;
@@ -81,19 +81,19 @@ namespace TheraEngine.Timers
         }
         private void Application_Idle_MultiThread(object sender, EventArgs e)
         {
-            while (_running && IsApplicationIdle())
+            while (IsRunning && IsApplicationIdle())
             {
                 //_renderTimeQuery.BeginQuery(EQueryTarget.TimeElapsed);
                 {
                     _commandsReady.WaitOne(); //Wait for the update thread to finish
                     _commandsReady.Reset();
-
+                    
                     //Swap command buffers
                     //Update commands will be consumed by the render pass
                     //And new update commands will be issued for the next render
                     SwapBuffers?.Invoke();
                     _commandsSwappedForRender.Set();
-
+                    
                     DispatchRender();
                     _renderDone.Set(); //Signal the update thread that rendering is done
                 }
@@ -104,7 +104,7 @@ namespace TheraEngine.Timers
         }
         private void RunUpdateMultiThreadInternal()
         {
-            while (_running)
+            while (IsRunning)
             {
                 //Updating populates the command buffer while render consumes the previous buffer
                 DispatchUpdate();
@@ -123,7 +123,7 @@ namespace TheraEngine.Timers
         }
         public void Stop()
         {
-            _running = false;
+            IsRunning = false;
             if (_commandsReady != null)
             {
                 Application.Idle -= Application_Idle_MultiThread;
@@ -209,14 +209,12 @@ namespace TheraEngine.Timers
             _renderTime = timestamp - _renderTimestamp;
         }
 
-        private void OnRenderFrameInternal(FrameEventArgs e) { /*if (_running)*/ OnRenderFrame(e); }
-        private void OnUpdateFrameInternal(FrameEventArgs e) { /*if (_running)*/ OnUpdateFrame(e); }
+        private void OnRenderFrameInternal(FrameEventArgs e) { OnRenderFrame(e); }
+        private void OnUpdateFrameInternal(FrameEventArgs e) { OnUpdateFrame(e); }
         private void OnRenderFrame(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
         private void OnUpdateFrame(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
+        public bool IsRunning { get; private set; } = false;
 
-        private bool _running = false;
-        public bool IsRunning => _running;
-        
         /// <summary>
         /// Gets a float representing the actual frequency of RenderFrame events, in hertz (i.e. fps or frames per second).
         /// </summary>

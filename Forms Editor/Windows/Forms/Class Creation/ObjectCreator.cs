@@ -25,17 +25,30 @@ namespace TheraEditor.Windows.Forms
             if (type.IsGenericParameter)
                 throw new InvalidOperationException("Cannot create an instance of a generic parameter. Pass in the type created from the parameter constraints.");
 
-            ArrayMode = type.IsArray;
-
-            if (ArrayMode)
-                type = type.GetElementType();
-
             if (type.IsGenericType)
             {
                 _genericTypeArgs = type.GenericTypeArguments;
                 type = type.GetGenericTypeDefinition();
             }
-            
+
+            IsNullable = type == typeof(Nullable<>);
+            if (IsNullable)
+            {
+                type = _genericTypeArgs[0];
+                if (type.IsGenericType)
+                {
+                    _genericTypeArgs = type.GenericTypeArguments;
+                    type = type.GetGenericTypeDefinition();
+                }
+                else
+                    _genericTypeArgs = null;
+            }
+
+            ArrayMode = type.IsArray;
+
+            if (ArrayMode)
+                type = type.GetElementType();
+
             if (allowDerivedTypes)
             {
                 Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface);
@@ -54,8 +67,16 @@ namespace TheraEditor.Windows.Forms
                         }
                         else
                         {
-                            Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
-                            return false;
+                            if (type.IsEnum || type.IsPrimitive)
+                            {
+                                ConstructedObject = type.GetDefaultValue();
+                                return false;
+                            }
+                            else
+                            {
+                                Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
+                                return false;
+                            }
                         }
                     }
 
@@ -138,6 +159,7 @@ namespace TheraEditor.Windows.Forms
             public object Value { get; set; }
         }
 
+        public bool IsNullable { get; private set; }
         public int ConstructorIndex { get; private set; } = -1;
         public Type ClassType { get; private set; }
         public ConstructorInfo[] PublicInstanceConstructors { get; private set; }
@@ -186,8 +208,6 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            DialogResult = DialogResult.OK;
-
             if (ArrayMode)
             {
                 ConstructedObject = Array.CreateInstance(ClassType, FinalArguments.GetLength(0));
@@ -212,6 +232,14 @@ namespace TheraEditor.Windows.Forms
                     ConstructedObject = PublicStaticConstructors[index].Invoke(null, paramData);
                 }
             }
+
+            if (IsNullable)
+            {
+                ClassType = typeof(Nullable<>).MakeGenericType(ClassType);
+                ConstructedObject = Activator.CreateInstance(ClassType, ConstructedObject);
+            }
+
+            DialogResult = DialogResult.OK;
             Close();
         }
 

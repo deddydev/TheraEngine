@@ -74,5 +74,5 @@ void main()
   vec3 prefilteredColor = textureLod(Texture8, R, roughness * MAX_REFLECTION_LOD).rgb;
   vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
-  OutColor = (kD * diffuse + specular) * ao + Lo;
+  OutColor = (kD * diffuse + specular) * ao * Lo;
 }

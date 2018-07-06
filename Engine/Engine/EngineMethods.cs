@@ -1,5 +1,4 @@
-﻿using Steamworks;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -15,7 +14,6 @@ using TheraEngine.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
-using TheraEngine.Networking;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
@@ -43,9 +41,9 @@ namespace TheraEngine
 
             LoadCustomFonts();
 
-            _tickLists = new ThreadSafeList<DelTick>[45];
+            _tickLists = new List<DelTick>[45];
             for (int i = 0; i < _tickLists.Length; ++i)
-                _tickLists[i] = new ThreadSafeList<DelTick>();
+                _tickLists[i] = new List<DelTick>();
         }
 
         /// <summary>
@@ -98,12 +96,12 @@ namespace TheraEngine
         public static void SetGame(Game game)
         {
             MainThreadID = Thread.CurrentThread.ManagedThreadId;
-            if (_game != null)
+            if (Game != null)
             {
 
             }
-            _game = game;
-            if (_game != null)
+            Game = game;
+            if (Game != null)
             {
 
             }
@@ -145,12 +143,12 @@ namespace TheraEngine
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
-            if (_game != null)
+            if (Game != null)
             {
-                RenderLibrary = _game.UserSettingsRef.File?.RenderLibrary ?? RenderLibrary.OpenGL;
-                AudioLibrary = _game.UserSettingsRef.File?.AudioLibrary ?? AudioLibrary.OpenAL;
-                InputLibrary = _game.UserSettingsRef.File?.InputLibrary ?? InputLibrary.OpenTK;
-                PhysicsLibrary = _game.UserSettingsRef.File?.PhysicsLibrary ?? PhysicsLibrary.Bullet;
+                RenderLibrary = Game.UserSettingsRef.File?.RenderLibrary ?? RenderLibrary.OpenGL;
+                AudioLibrary = Game.UserSettingsRef.File?.AudioLibrary ?? AudioLibrary.OpenAL;
+                InputLibrary = Game.UserSettingsRef.File?.InputLibrary ?? InputLibrary.OpenTK;
+                PhysicsLibrary = Game.UserSettingsRef.File?.PhysicsLibrary ?? PhysicsLibrary.Bullet;
 
                 //Set initial world (this would generally be a world for opening videos or the main menu)
                 SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
@@ -407,12 +405,16 @@ namespace TheraEngine
         /// <param name="toggler">The player that's pausing the game.</param>
         public static void SetPaused(bool wantsPause, LocalPlayerIndex toggler, bool force = false)
         {
-            if (!force && wantsPause && ActiveGameMode.DisallowPausing)
+            if ((!force && wantsPause && ActiveGameMode.DisallowPausing) || _isPaused == wantsPause)
                 return;
             _isPaused = wantsPause;
             PauseChanged?.Invoke(_isPaused, toggler);
             PrintLine("Engine{0}paused.", _isPaused ? " " : " un");
         }
+        public static void Pause(LocalPlayerIndex toggler, bool force = false)
+            => SetPaused(true, toggler, force);
+        public static void Unpause(LocalPlayerIndex toggler, bool force = false)
+            => SetPaused(false, toggler, force);
         #endregion
 
         #region Fonts

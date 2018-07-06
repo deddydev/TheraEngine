@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
@@ -237,8 +238,9 @@ namespace TheraEditor.Windows.Forms
             _editorGameMode = new EditorGameMode();
             InitializeComponent();
 
-            FormTitle2.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
-            TheraEngineText.MouseDown += new MouseEventHandler(TitleLabel_MouseDown);
+            FormTitle2.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
+            TheraEngineText.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
+            PaddingPanel.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
             FormTitle2.Text = Text;
 
             menuStrip1.Renderer = new TheraToolstripRenderer();
@@ -259,6 +261,7 @@ namespace TheraEditor.Windows.Forms
             TheraEngineText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
 
             lblYourIpPort.Text = "Your IP: " + NetworkConnection.GetLocalIPAddressV4();
+            CursorManager.WrapCursorWithinClip = false;
         }
 
         public UndoManager UndoManager { get; } = new UndoManager();
@@ -764,6 +767,40 @@ namespace TheraEditor.Windows.Forms
             Attached,
         }
 
+        [DllImport("user32.dll")]
+        private static extern int ShowCursor(bool bShow);
+        internal static void ShowCursor()
+        {
+            while (ShowCursor(true) < 0)
+            {
+                ShowCursor(true);
+            }
+        }
+        internal static void HideCursor()
+        {
+            while (ShowCursor(false) >= 0)
+            {
+                ShowCursor(false);
+            }
+        }
+
+        private void CaptureMouse(BaseRenderPanel panel)
+        {
+            CursorManager.WrapCursorWithinClip = true;
+            Engine.EditorState.InEditMode = false;
+            panel.Focus();
+            panel.Capture = true;
+            Cursor.Clip = panel.RectangleToScreen(panel.ClientRectangle);
+            HideCursor();
+        }
+        private void ReleaseMouse()
+        {
+            CursorManager.WrapCursorWithinClip = false;
+            Engine.EditorState.InEditMode = true;
+            Cursor.Clip = new Rectangle();
+            ShowCursor();
+        }
+
         private EEditorGameplayState _gameState = EEditorGameplayState.Editing;
         public EEditorGameplayState GameState
         {
@@ -775,81 +812,83 @@ namespace TheraEditor.Windows.Forms
 
                 switch (value)
                 {
-                    case EEditorGameplayState.Attached:
-                        if (_gameState == EEditorGameplayState.Editing)
-                        {
-                            //Transition from editor mode to attached gameplay mode
-                            Engine.EditorState.InGameMode = true;
-                            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
-                            renderPanel.Focus();
-                            renderPanel.Capture = true;
-                            Cursor.Clip = renderPanel.RectangleToScreen(renderPanel.ClientRectangle);
-                            //Cursor.Hide();
-
-                            InputInterface.GlobalRegisters.Add(RegisterInput);
-                            BaseGameMode mode = Engine.GetGameMode();
-                            Engine.SetActiveGameMode(mode, true);
-
-                            Engine.SetPaused(false, LocalPlayerIndex.One, true);
-                        }
-                        else //Detached
-                        {
-                            //Transition from detached to attached gameplay mode
-                        }
-                        break;
-                    case EEditorGameplayState.Detached:
-                        if (_gameState == EEditorGameplayState.Attached)
-                        {
-                            //Transition from attached to detached gameplay mode
-                        }
-                        else //Editing
-                        {
-                            //Transition from editor mode to detached gameplay mode
-                            Engine.EditorState.InGameMode = true;
-                            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
-                            renderPanel.Focus();
-                            renderPanel.Capture = true;
-                            //Cursor.Hide();
-                            Cursor.Clip = renderPanel.RectangleToScreen(renderPanel.ClientRectangle);
-
-                            InputInterface.GlobalRegisters.Add(RegisterInput);
-                            Engine.SetActiveGameMode(_editorGameMode, true);
-
-                            Engine.SetPaused(false, LocalPlayerIndex.One, true);
-                        }
-                        break;
-                    case EEditorGameplayState.Editing:
-                        if (_gameState == EEditorGameplayState.Attached)
-                        {
-                            //Transition from attached gameplay mode to editor mode
-                            Engine.EditorState.InGameMode = false;
-                            Cursor.Clip = new Rectangle();
-                            //Cursor.Show();
-
-                            Engine.SetActiveGameMode(_editorGameMode, false);
-                            InputInterface.GlobalRegisters.Remove(RegisterInput);
-                            _editorGameMode.BeginGameplay();
-
-                            Engine.SetPaused(true, LocalPlayerIndex.One, true);
-                        }
-                        else //Detached
-                        {
-                            //Transition from detached gameplay mode to editor mode
-                            Engine.EditorState.InGameMode = false;
-                            Cursor.Clip = new Rectangle();
-                            //Cursor.Show();
-
-                            _editorGameMode.EndGameplay();
-                            InputInterface.GlobalRegisters.Remove(RegisterInput);
-                            _editorGameMode.BeginGameplay();
-
-                            Engine.SetPaused(true, LocalPlayerIndex.One, true);
-                        }
-                        break;
+                    case EEditorGameplayState.Attached: SetAttachedGameState(); break;
+                    case EEditorGameplayState.Detached: SetDetachedGameState(); break;
+                    case EEditorGameplayState.Editing: SetEditingGameState(); break;
                 }
 
                 _gameState = value;
             }
+        }
+
+        private void SetEditingGameState()
+        {
+            btnPlay.Text = "Play";
+            btnPlayDetached.Text = "Play Detached";
+
+            if (_gameState == EEditorGameplayState.Attached)
+            {
+                ReleaseMouse();
+            }
+            else //Detached
+            {
+                //Mouse is already released
+            }
+
+            SetEditorGameMode();
+            
+            Engine.Pause(LocalPlayerIndex.One, true);
+        }
+
+        private void SetDetachedGameState()
+        {
+            btnPlay.Text = "Stop";
+            btnPlayDetached.Text = "Play Attached";
+
+            if (_gameState == EEditorGameplayState.Attached)
+            {
+                ReleaseMouse();
+            }
+            else //Editing
+            {
+                SetProjectGameMode();
+            }
+
+            Engine.Unpause(LocalPlayerIndex.One, true);
+        }
+
+        private void SetAttachedGameState()
+        {
+            btnPlay.Text = "Stop";
+            btnPlayDetached.Text = "Play Detached";
+
+            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
+
+            CaptureMouse(renderPanel);
+
+            if (_gameState == EEditorGameplayState.Editing)
+            {
+                SetProjectGameMode();
+            }
+            else //Detached
+            {
+                //TODO: reattach the user to the pawn it is supposed to be controlling
+            }
+
+            Engine.Unpause(LocalPlayerIndex.One, true);
+        }
+        private void SetProjectGameMode()
+        {
+            BaseGameMode gameMode = Engine.GetGameMode();
+            Engine.SetActiveGameMode(gameMode, false);
+            InputInterface.GlobalRegisters.Add(RegisterInput);
+            gameMode.BeginGameplay();
+        }
+        private void SetEditorGameMode()
+        {
+            Engine.SetActiveGameMode(_editorGameMode, false);
+            InputInterface.GlobalRegisters.Remove(RegisterInput);
+            _editorGameMode.BeginGameplay();
         }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1119,6 +1158,21 @@ namespace TheraEditor.Windows.Forms
             }
 
             return new IPAddress(ip);
+        }
+
+        private void extensionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cubeMapEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textureGeneratorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

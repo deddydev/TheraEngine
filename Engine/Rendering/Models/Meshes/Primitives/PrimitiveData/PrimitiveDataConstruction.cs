@@ -120,9 +120,21 @@ namespace TheraEngine.Rendering.Models
     }
     public enum ECulling
     {
+        /// <summary>
+        /// No faces will be invisible.
+        /// </summary>
         None,
+        /// <summary>
+        /// Back faces will be invisible.
+        /// </summary>
         Back,
+        /// <summary>
+        /// Front faces will be invisible.
+        /// </summary>
         Front,
+        /// <summary>
+        /// All faces will be invisible.
+        /// </summary>
         Both
     }
     public enum EPrimitiveType

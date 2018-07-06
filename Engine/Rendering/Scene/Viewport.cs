@@ -90,6 +90,7 @@ namespace TheraEngine.Rendering
         public float Y { get => _region.Y; set => _region.Y = value; }
         public Vec2 Position { get => _region.OriginTranslation; set => _region.OriginTranslation = value; }
         public int Index => _index;
+        internal bool RegeneratingFBOs = false;
         
         public List<LocalPlayerController> Owners => _owners;
         //{
@@ -273,7 +274,7 @@ namespace TheraEngine.Rendering
         /// <param name="target"></param>
         public void Render(BaseScene scene, Camera camera, FrameBuffer target)
         {
-            if (scene == null || scene.Count == 0)
+            if (scene == null || scene.Count == 0 || RegeneratingFBOs)
                 return;
 
             CurrentlyRenderingViewports.Push(this);
@@ -719,6 +720,7 @@ namespace TheraEngine.Rendering
         
         internal unsafe void InitFBOs()
         {
+            RegeneratingFBOs = true;
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)InitFBOs, BaseRenderPanel.PanelType.Rendering))
                 return;
 
@@ -1017,10 +1019,10 @@ namespace TheraEngine.Rendering
             PostProcessFBO.SettingUniforms += _postProcess_SettingUniforms;
 
             HudFBO = new QuadFrameBuffer(hudMat);
-
-            //GenerateFBOs();
-
+            
             #endregion
+
+            RegeneratingFBOs = false;
         }
 
         private LightComponent _lightComp;

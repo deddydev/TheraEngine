@@ -123,6 +123,7 @@ namespace TheraEditor.Wrappers
         public bool ExternallyModified { get; set; } = false;
         public abstract TFileObject SingleInstance { get; set; }
         public abstract TFileObject GetNewInstance();
+        public abstract Task<TFileObject> GetNewInstanceAsync();
         public abstract IGlobalFileRef SingleInstanceRef { get; }
         
         public void Reload()

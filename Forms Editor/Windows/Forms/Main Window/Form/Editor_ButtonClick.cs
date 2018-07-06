@@ -159,11 +159,17 @@ namespace TheraEditor.Windows.Forms
 
         private void BtPlay_Click(object sender, EventArgs e)
         {
-            GameState = EEditorGameplayState.Attached;
+            if (GameState != EEditorGameplayState.Editing)
+                GameState = EEditorGameplayState.Editing;
+            else
+                GameState = EEditorGameplayState.Attached;
         }
         private void btnPlayDetached_Click(object sender, EventArgs e)
         {
-            GameState = EEditorGameplayState.Detached;
+            if (GameState != EEditorGameplayState.Attached)
+                GameState = EEditorGameplayState.Attached;
+            else
+                GameState = EEditorGameplayState.Detached;
         }
         private void EndGameplay()
         {

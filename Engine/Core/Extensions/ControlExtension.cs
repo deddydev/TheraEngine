@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Windows.Forms;
@@ -7,6 +8,9 @@ namespace TheraEngine.Core.Extensions
 {
     public static class ControlExtension
     {
+        public static bool IsOnScreen(this Control control)
+            => Screen.AllScreens.Any(x => x.WorkingArea.Contains(control.Bounds));
+
         [ReflectionPermission(SecurityAction.Demand, MemberAccess = true)]
         public static void Reset(this Control c)
         {

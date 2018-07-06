@@ -99,7 +99,7 @@ namespace TheraEngine
         /// <summary>
         /// Information necessary to run a game.
         /// </summary>
-        public static Game Game => _game;
+        public static Game Game { get; private set; }
         /// <summary>
         /// The settings for the engine, specified by the game.
         /// </summary>
@@ -122,8 +122,6 @@ namespace TheraEngine
         /// </summary>
         private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
         public static List<DelTick>[] _tickLists;
-
-        private static Game _game;
         private static World _currentWorld = null;
         private static RenderLibrary _renderLibrary;
         private static AudioLibrary _audioLibrary;

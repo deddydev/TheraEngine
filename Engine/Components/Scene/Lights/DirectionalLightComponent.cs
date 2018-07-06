@@ -181,10 +181,14 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void UpdateShadowMap(BaseScene scene)
         {
+            if (_shadowCamera == null)
+                return;
             scene.Update(_passes, _shadowCamera.Frustum, _shadowCamera, null, true);
         }
         public override void RenderShadowMap(BaseScene scene)
         {
+            if (_shadowCamera == null || _shadowMap == null)
+                return;
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
             _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowWidth, _shadowHeight, 0.0f, 0.0f));

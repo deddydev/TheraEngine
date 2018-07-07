@@ -62,6 +62,9 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct IVec2 : IUniformable2Int, IBufferable
     {
+        public static IVec2 Zero = new IVec2(0, 0);
+        public static IVec2 One = new IVec2(1, 1);
+
         public int X { get => _x; set => _x = value; }
         public int Y { get => _y; set => _y = value; }
 
@@ -75,7 +78,7 @@ namespace System
         public int ComponentCount => 2;
         [Browsable(false)]
         public bool Normalize => false;
-
+        
         public void Write(VoidPtr address)
         {
             int* dPtr = (int*)address;
@@ -150,8 +153,59 @@ namespace System
                 X == other.X &&
                 Y == other.Y;
         }
+
+        public static IVec2 operator +(IVec2 left, IVec2 right) 
+            => new IVec2(left.X + right.X, left.Y + right.Y);
+        public static IVec2 operator -(IVec2 left, IVec2 right)
+            => new IVec2(left.X - right.X, left.Y - right.Y);
+        public static IVec2 operator *(IVec2 left, IVec2 right)
+            => new IVec2(left.X * right.X, left.Y * right.Y);
+        public static IVec2 operator /(IVec2 left, IVec2 right)
+            => new IVec2(left.X / right.X, left.Y / right.Y);
+
+        public static IVec2 operator /(IVec2 left, int right)
+            => new IVec2(left.X / right, left.Y / right);
+        public static IVec2 operator *(IVec2 left, int right)
+            => new IVec2(left.X * right, left.Y * right);
+        public static IVec2 operator +(IVec2 left, int right)
+            => new IVec2(left.X + right, left.Y + right);
+        public static IVec2 operator -(IVec2 left, int right)
+            => new IVec2(left.X - right, left.Y - right);
+
+        public static Vec2 operator /(IVec2 left, float right)
+            => new Vec2(left.X / right, left.Y / right);
+        public static Vec2 operator *(IVec2 left, float right)
+            => new Vec2(left.X * right, left.Y * right);
+        public static Vec2 operator +(IVec2 left, float right)
+            => new Vec2(left.X + right, left.Y + right);
+        public static Vec2 operator -(IVec2 left, float right)
+            => new Vec2(left.X - right, left.Y - right);
+
+        public static Vec2 operator *(Vec2 left, IVec2 right)
+            => new Vec2(left.X * right.X, left.Y * right.Y);
+        public static Vec2 operator *(IVec2 left, Vec2 right)
+            => new Vec2(left.X * right.X, left.Y * right.Y);
+        
+        public static explicit operator IVec2(Vec2 v) => new IVec2((int)v.X, (int)v.Y);
+
         public static implicit operator Size(IVec2 v) => new Size(v.X, v.Y);
         public static implicit operator IVec2(Size v) => new IVec2(v.Width, v.Height);
+
+        public bool Contains(IVec2 point) =>
+            point.X <= X &&
+            point.Y <= Y &&
+            point.X >= 0 &&
+            point.Y >= 0;
+
+        public IVec2 Clamped(IVec2 min, IVec2 max)
+        {
+            IVec2 v = new IVec2
+            {
+                X = X < min.X ? min.X : X > max.X ? max.X : X,
+                Y = Y < min.Y ? min.Y : Y > max.Y ? max.Y : Y
+            };
+            return v;
+        }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec2 : IUniformable2UInt, IBufferable

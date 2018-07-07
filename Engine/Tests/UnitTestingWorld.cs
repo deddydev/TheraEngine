@@ -40,8 +40,8 @@ namespace TheraEngine.Tests
         {
             bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 0;
-            int dirLights = 0;
+            int pointLights = 1;
+            int dirLights = 1;
             int spotLights = 1;
 
             float margin = 2.0f;
@@ -181,7 +181,7 @@ namespace TheraEngine.Tests
                     DirectionalLightComponent dir = dirlight.RootComponent;
                     dir.LightColor = (ColorF3)Color.White;
                     dir.DiffuseIntensity = 1.0f;
-                    dir.WorldRadius = 500.0f;
+                    dir.Extents = 500.0f;
                     dir.Rotation.Pitch = -20.0f;
                     dir.Rotation.Yaw = lightAngle * i;
                     actors.Add(dirlight);

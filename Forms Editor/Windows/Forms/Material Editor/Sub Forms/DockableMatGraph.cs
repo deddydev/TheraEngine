@@ -64,7 +64,7 @@ namespace TheraEditor.Windows.Forms
             base.OnClosed(e);
         }
 
-        public void AlignView(BoundingRectangle bounds)
+        public void AlignView(BoundingRectangleF bounds)
         {
             ////Get aspect of the front plane of the aabb
             //aabb.GetCorners(out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);

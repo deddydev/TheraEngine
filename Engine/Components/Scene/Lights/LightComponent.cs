@@ -1,7 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene.Lights
@@ -20,8 +23,32 @@ namespace TheraEngine.Components.Scene.Lights
         protected EventColorF3 _color = (ColorF3)Color.White;
         protected float _diffuseIntensity = 1.0f;
         protected int _lightIndex = -1;
-        private LightType _type;
+        protected RenderPasses _passes = new RenderPasses();
 
+        protected internal Matrix4 LightMatrix { get; protected set; }
+        protected internal MaterialFrameBuffer ShadowMap { get; protected set; }
+        protected internal Camera ShadowCamera { get; protected set; }
+
+        protected BoundingRectangle _region = new BoundingRectangle();
+
+        [Category("Light Component")]
+        public int Width
+        {
+            get => _region.Width;
+            set
+            {
+                _region.Width = value;
+            }
+        }
+        [Category("Light Component")]
+        public int Height
+        {
+            get => _region.Height;
+            set
+            {
+                _region.Height = value;
+            }
+        }
         [Category("Light Component")]
         public EventColorF3 LightColor
         {
@@ -34,31 +61,52 @@ namespace TheraEngine.Components.Scene.Lights
             get => _diffuseIntensity;
             set => _diffuseIntensity = value;
         }
-        [Browsable(false)]
-        public int LightIndex
-        {
-            get => _lightIndex;
-            internal set => _lightIndex = value;
-        }
-        protected LightType Type
-        {
-            get => _type;
-            set => _type = value;
-        }
+        protected LightType Type { get; set; } = LightType.Dynamic;
 
         public LightComponent(ColorF3 color, float diffuseIntensity) : base()
         {
             _color = color;
             _diffuseIntensity = diffuseIntensity;
         }
-
-        public override int GetHashCode() => LightIndex;
-
-        protected RenderPasses _passes = new RenderPasses();
+        
         internal void SwapBuffers() => _passes.SwapBuffers();
-        public abstract void UpdateShadowMap(BaseScene scene);
-        public abstract void RenderShadowMap(BaseScene scene);
-        public abstract void BakeShadowMaps();
+
         public abstract void SetUniforms(RenderProgram program);
+        protected virtual IVolume GetShadowVolume() => ShadowCamera.Frustum;
+
+        public void UpdateShadowMap(BaseScene scene)
+        {
+            scene.Update(_passes, GetShadowVolume(), ShadowCamera, null, true);
+        }
+
+        public void RenderShadowMap(BaseScene scene)
+        {
+            if (ShadowMap == null)
+                return;
+
+            Engine.Renderer.MaterialOverride = ShadowMap.Material;
+            ShadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
+            Engine.Renderer.PushRenderArea(_region);
+            {
+                Engine.Renderer.ClearDepth(1.0f);
+                Engine.Renderer.EnableDepthTest(true);
+                Engine.Renderer.AllowDepthWrite(true);
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                scene.Render(_passes, ShadowCamera, null, null, null);
+            }
+            Engine.Renderer.PopRenderArea();
+            ShadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
+            Engine.Renderer.MaterialOverride = null;
+        }
+        public static EPixelInternalFormat GetShadowMapFormat(EDepthPrecision precision)
+        {
+            switch (precision)
+            {
+                case EDepthPrecision.Int16: return EPixelInternalFormat.DepthComponent16;
+                case EDepthPrecision.Int24: return EPixelInternalFormat.DepthComponent24;
+                case EDepthPrecision.Int32: return EPixelInternalFormat.DepthComponent32;
+            }
+            return EPixelInternalFormat.DepthComponent32f;
+        }
     }
 }

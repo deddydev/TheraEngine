@@ -259,7 +259,7 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Positive Y is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosYQuad(BoundingRectangle region, bool flipVerticalUVCoord = false)
+        public static VertexQuad PosYQuad(BoundingRectangleF region, bool flipVerticalUVCoord = false)
         {
             return MakeQuad(
                 ((Vec3)region.BottomLeft).Xzy,
@@ -301,7 +301,7 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosZQuad(BoundingRectangle region, bool flipVerticalUVCoord = false)
+        public static VertexQuad PosZQuad(BoundingRectangleF region, bool flipVerticalUVCoord = false)
         {
             return MakeQuad(
                 region.BottomLeft,

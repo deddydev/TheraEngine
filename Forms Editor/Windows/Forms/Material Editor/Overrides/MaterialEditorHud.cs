@@ -59,7 +59,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OnTopForward, 0, 0);
-        public BoundingRectangle AxisAlignedRegion { get; } = new BoundingRectangle();
+        public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
 
         private TMaterial _targetMaterial;

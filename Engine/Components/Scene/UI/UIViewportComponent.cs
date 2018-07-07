@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.UI
     {
         public event DelSetUniforms SettingUniforms;
 
-        private Viewport _viewport = new Viewport(1.0f, 1.0f);
+        private Viewport _viewport = new Viewport(1, 1);
         private MaterialFrameBuffer _fbo;
 
         public UIViewportComponent() : base(GetViewportMaterial())
@@ -57,12 +57,12 @@ namespace TheraEngine.Rendering.UI
         {
             Vec2 r = base.Resize(parentBounds);
 
-            float 
-                w = Width.ClampMin(1.0f), 
-                h = Height.ClampMin(1.0f);
+            int 
+                w = (int)Width.ClampMin(1.0f), 
+                h = (int)Height.ClampMin(1.0f);
 
             _viewport.Resize(w, h, true, 1.0f, 1.0f);
-            _fbo.ResizeTextures((int)w, (int)h);
+            _fbo.ResizeTextures(w, h);
 
             return r;
         }

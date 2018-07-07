@@ -330,15 +330,18 @@ namespace System
         public static bool operator ==(Vec2 left, Vec2 right) => left.Equals(right);
         public static bool operator !=(Vec2 left, Vec2 right) => !left.Equals(right);
 
-        public static explicit operator IVec2(Vec2 v)   => new IVec2((int)Round(v.X), (int)Round(v.Y));
+        public static implicit operator Vec2(IVec2 v)   => new Vec2(v.X, v.Y);
         public static explicit operator Vec2(Vec3 v)    => new Vec2(v.X, v.Y);
         public static explicit operator Vec2(Vec4 v)    => new Vec2(v.X, v.Y);
+
         public static implicit operator Vec2(PointF v)  => new Vec2(v.X, v.Y);
         public static implicit operator PointF(Vec2 v)  => new PointF(v.X, v.Y);
+
         public static implicit operator Vec2(SizeF v)   => new Vec2(v.Width, v.Height);
         public static implicit operator SizeF(Vec2 v)   => new SizeF(v.X, v.Y);
+
         public static implicit operator Vec2(Size v)    => new Vec2(v.Width, v.Height);
-        public static explicit operator Size(Vec2 v)    => new Size((int)Round(v.X), (int)Round(v.Y));
+        public static explicit operator Size(Vec2 v)    => new Size((int)v.X, (int)v.Y);
 
         private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()

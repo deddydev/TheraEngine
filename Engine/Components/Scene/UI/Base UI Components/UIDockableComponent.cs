@@ -353,29 +353,29 @@ namespace TheraEngine.Rendering.UI
         {
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
-        private BoundingRectangle RegionDockComplement(BoundingRectangle parentRegion, BoundingRectangle region)
+        private BoundingRectangleF RegionDockComplement(BoundingRectangleF parentRegion, BoundingRectangleF region)
         {
             if (parentRegion.MaxX != region.MaxX)
-                return BoundingRectangle.FromMinMaxSides(
+                return BoundingRectangleF.FromMinMaxSides(
                     region.MaxX, parentRegion.MaxX,
                     parentRegion.MinY, parentRegion.MaxY,
                     0.0f, 0.0f);
             if (parentRegion.MinX != region.MinX)
-                return BoundingRectangle.FromMinMaxSides(
+                return BoundingRectangleF.FromMinMaxSides(
                     parentRegion.MinX, region.MinX,
                     parentRegion.MinY, parentRegion.MaxY,
                     0.0f, 0.0f);
             if (parentRegion.MaxY != region.MaxY)
-                return BoundingRectangle.FromMinMaxSides(
+                return BoundingRectangleF.FromMinMaxSides(
                     parentRegion.MinX, parentRegion.MaxX,
                     region.MaxY, parentRegion.MaxY,
                     0.0f, 0.0f);
             if (parentRegion.MinY != region.MinY)
-                return BoundingRectangle.FromMinMaxSides(
+                return BoundingRectangleF.FromMinMaxSides(
                     parentRegion.MinX, parentRegion.MaxX,
                     parentRegion.MinY, region.MinY,
                     0.0f, 0.0f);
-            return BoundingRectangle.Empty;
+            return BoundingRectangleF.Empty;
         }
     }
 }

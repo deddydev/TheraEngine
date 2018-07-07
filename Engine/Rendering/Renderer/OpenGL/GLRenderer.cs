@@ -860,9 +860,9 @@ namespace TheraEngine.Rendering.OpenGL
         }
 
         protected override void SetRenderArea(BoundingRectangle region)
-            => GL.Viewport(region.IntX, region.IntY, region.IntWidth, region.IntHeight);
+            => GL.Viewport(region.X, region.Y, region.Width, region.Height);
         public override void CropRenderArea(BoundingRectangle region)
-            => GL.Scissor(region.IntX, region.IntY, region.IntWidth, region.IntHeight);
+            => GL.Scissor(region.X, region.Y, region.Width, region.Height);
         
         #region Transform Feedback
         public override void BindTransformFeedback(int bindingId)

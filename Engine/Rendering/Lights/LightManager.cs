@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Components.Scene.Lights;
-using TheraEngine.Rendering.Models;
-using System;
 
 namespace TheraEngine.Rendering
 {
@@ -12,20 +10,11 @@ namespace TheraEngine.Rendering
         public const int MaxSpotLights = 3;
         public const int MaxDirectionalLights = 1;
 
-        private ColorF3 _globalAmbient;
-        private HashSet<DirectionalLightComponent> _directionalLights = new HashSet<DirectionalLightComponent>();
-        private HashSet<SpotLightComponent> _spotLights = new HashSet<SpotLightComponent>();
-        private HashSet<PointLightComponent> _pointLights = new HashSet<PointLightComponent>();
-        
-        public HashSet<SpotLightComponent> SpotLights => _spotLights;
-        public HashSet<PointLightComponent> PointLights => _pointLights;
-        public HashSet<DirectionalLightComponent> DirectionalLights => _directionalLights;
+        public HashSet<SpotLightComponent> SpotLights { get; } = new HashSet<SpotLightComponent>();
+        public HashSet<PointLightComponent> PointLights { get; } = new HashSet<PointLightComponent>();
+        public HashSet<DirectionalLightComponent> DirectionalLights { get; } = new HashSet<DirectionalLightComponent>();
 
-        public ColorF3 GlobalAmbient
-        {
-            get => _globalAmbient;
-            set => _globalAmbient = value;
-        }
+        public ColorF3 GlobalAmbient { get; set; }
 
         internal void SetUniforms(RenderProgram program)
         {
@@ -34,113 +23,54 @@ namespace TheraEngine.Rendering
             //Engine.Renderer.Uniform(programBindingId, "PointLightCount", _pointLights.Count);
             //Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count);
 
-            foreach (DirectionalLightComponent l in _directionalLights)
+            foreach (DirectionalLightComponent l in DirectionalLights)
                 l.SetUniforms(program);
-            foreach (SpotLightComponent l in _spotLights)
+            foreach (SpotLightComponent l in SpotLights)
                 l.SetUniforms(program);
-            foreach (PointLightComponent l in _pointLights)
+            foreach (PointLightComponent l in PointLights)
                 l.SetUniforms(program);
         }
-        public void Add(DirectionalLightComponent light)
-        {
-            //if (_directionalLights.Count >= MaxDirectionalLights)
-            //{
-            //    Engine.LogWarning("Exceeded maximum directional lights.");
-            //    return;
-            //}
-            light.LightIndex = _directionalLights.Count;
-            _directionalLights.Add(light);
 
-            //if (Engine.Settings.RenderLights)
-            //    Engine.Scene.Add(light.ShadowCamera);
-        }
-        public void Remove(DirectionalLightComponent light)
-        {
-            _directionalLights.Remove(light);
-            light.LightIndex = -1;
+        public void Add(DirectionalLightComponent light)    => DirectionalLights.Add(light);
+        public void Remove(DirectionalLightComponent light) => DirectionalLights.Remove(light);
 
-            //if (Engine.Settings.RenderLights)
-            //    Engine.Scene.Remove(light.ShadowCamera);
-        }
-        public void Add(SpotLightComponent light)
-        {
-            //if (_spotLights.Count >= MaxSpotLights)
-            //{
-            //    Engine.LogWarning("Exceeded maximum spotlights.");
-            //    return;
-            //}
-            light.LightIndex = _spotLights.Count;
-            _spotLights.Add(light);
+        public void Add(SpotLightComponent light)           => SpotLights.Add(light);
+        public void Remove(SpotLightComponent light)        => SpotLights.Remove(light);
 
-            //if (Engine.Settings.RenderLights)
-            //{
-            //    Engine.Scene.Add(light.OuterCone);
-            //    Engine.Scene.Add(light.InnerCone);
-            //}
-        }
-        public void Remove(SpotLightComponent light)
-        {
-            _spotLights.Remove(light);
-            light.LightIndex = -1;
-
-            //if (Engine.Settings.RenderLights)
-            //{
-            //    Engine.Scene.Remove(light.OuterCone);
-            //    Engine.Scene.Remove(light.InnerCone);
-            //}
-        }
-        public void Add(PointLightComponent light)
-        {
-            //if (_pointLights.Count >= MaxPointLights)
-            //{
-            //    Engine.LogWarning("Exceeded maximum point lights.");
-            //    return;
-            //}
-            light.LightIndex = _pointLights.Count;
-            _pointLights.Add(light);
-
-            //if (Engine.Settings.RenderLights)
-            //    Engine.Scene.Add(light._cullingVolume);
-        }
-        public void Remove(PointLightComponent light)
-        {
-            _pointLights.Remove(light);
-            light.LightIndex = -1;
-
-            //if (Engine.Settings.RenderLights)
-            //    Engine.Scene.Remove(light._cullingVolume);
-        }
+        public void Add(PointLightComponent light)          => PointLights.Add(light);
+        public void Remove(PointLightComponent light)       => PointLights.Remove(light);
+        
         public void SwapBuffers()
         {
-            foreach (DirectionalLightComponent l in _directionalLights)
+            foreach (DirectionalLightComponent l in DirectionalLights)
                 l.SwapBuffers();
 
-            foreach (SpotLightComponent l in _spotLights)
+            foreach (SpotLightComponent l in SpotLights)
                 l.SwapBuffers();
 
-            foreach (PointLightComponent l in _pointLights)
+            foreach (PointLightComponent l in PointLights)
                 l.SwapBuffers();
         }
         public void UpdateShadowMaps(Scene3D scene)
         {
-            foreach (DirectionalLightComponent l in _directionalLights)
+            foreach (DirectionalLightComponent l in DirectionalLights)
                 l.UpdateShadowMap(scene);
 
-            foreach (SpotLightComponent l in _spotLights)
+            foreach (SpotLightComponent l in SpotLights)
                 l.UpdateShadowMap(scene);
 
-            foreach (PointLightComponent l in _pointLights)
+            foreach (PointLightComponent l in PointLights)
                 l.UpdateShadowMap(scene);
         }
         public void RenderShadowMaps(Scene3D scene)
         {
-            foreach (DirectionalLightComponent l in _directionalLights)
+            foreach (DirectionalLightComponent l in DirectionalLights)
                 l.RenderShadowMap(scene);
             
-            foreach (SpotLightComponent l in _spotLights)
+            foreach (SpotLightComponent l in SpotLights)
                 l.RenderShadowMap(scene);
             
-            foreach (PointLightComponent l in _pointLights)
+            foreach (PointLightComponent l in PointLights)
                 l.RenderShadowMap(scene);
         }
     }

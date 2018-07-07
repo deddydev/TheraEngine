@@ -25,12 +25,8 @@ namespace TheraEngine.Rendering
         private static Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
         public static Viewport CurrentlyRendering => CurrentlyRenderingViewports.Peek();
 
-        private List<LocalPlayerController> _owners = new List<LocalPlayerController>();
-        private int _index;
         private BoundingRectangle _region;
         private Camera _worldCamera;
-        private BaseRenderPanel _owningPanel;
-        
         private SSAOInfo _ssaoInfo = new SSAOInfo();
 
         internal QuadFrameBuffer SSAOFBO;
@@ -47,7 +43,8 @@ namespace TheraEngine.Rendering
         internal QuadFrameBuffer HudFBO;
         internal PrimitiveManager PointLightManager;
         internal PrimitiveManager SpotLightManager;
-        internal QuadFrameBuffer DirLightFBO;
+        internal PrimitiveManager DirLightManager;
+        //internal QuadFrameBuffer DirLightFBO;
         internal Camera RenderingCamera => RenderingCameras.Peek();
         internal Stack<Camera> RenderingCameras { get; } = new Stack<Camera>();
         internal TexRef2D BrdfTex = null;
@@ -84,22 +81,24 @@ namespace TheraEngine.Rendering
 
         //public BaseRenderPanel OwningPanel => _owningPanel;
         public BoundingRectangle Region => _region;
-        public float Height { get => _region.Height; set => _region.Height = value; }
-        public float Width { get => _region.Width; set => _region.Width = value; }
-        public float X { get => _region.X; set => _region.X = value; }
-        public float Y { get => _region.Y; set => _region.Y = value; }
-        public Vec2 Position { get => _region.OriginTranslation; set => _region.OriginTranslation = value; }
-        public int Index => _index;
+        public int Height { get => _region.Height; set => _region.Height = value; }
+        public int Width { get => _region.Width; set => _region.Width = value; }
+        public int X { get => _region.X; set => _region.X = value; }
+        public int Y { get => _region.Y; set => _region.Y = value; }
+        public IVec2 Position { get => _region.OriginTranslation; set => _region.OriginTranslation = value; }
+        public int Index { get; private set; }
+
         internal bool RegeneratingFBOs = false;
-        
-        public List<LocalPlayerController> Owners => _owners;
+
+        public List<LocalPlayerController> Owners { get; } = new List<LocalPlayerController>();
+
         //{
         //    get => _owner;
         //    set
         //    {
         //        if (_owner != null)
         //            _owner.Viewport = null;
-                
+
         //        _owner = value;
 
         //        if (_owner != null)
@@ -125,45 +124,40 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public BaseRenderPanel OwningPanel => _owningPanel;
-        
+        public BaseRenderPanel OwningPanel { get; }
+
         public Viewport(BaseRenderPanel panel, int index)
         {
             if (index == 0)
             {
-                _index = index;
+                Index = index;
                 SetFullScreen();
             }
             else
                 ViewportCountChanged(index, panel.Viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
 
-            _owningPanel = panel;
-            _index = index;
+            OwningPanel = panel;
+            Index = index;
             _ssaoInfo.Generate();
             PrecomputeBRDF();
             Resize(panel.Width, panel.Height);
         }
-        public Viewport(float width, float height)
+        public Viewport(int width, int height)
         {
-            _index = 0;
+            Index = 0;
             SetFullScreen();
             _ssaoInfo.Generate();
             PrecomputeBRDF();
             Resize(width, height);
         }
-        public void SetInternalResolution(float width, float height)
+        public void SetInternalResolution(int width, int height)
         {
             _internalResolution.Width = width;
             _internalResolution.Height = height;
-
-            int w = _internalResolution.IntWidth;
-            int h = _internalResolution.IntHeight;
-
-            //Engine.PrintLine("Internal resolution changed: {0}x{1}", w, h);
-
+            
             InitFBOs();
 
-            _worldCamera?.Resize(w, h);
+            _worldCamera?.Resize(width, height);
         }
 
         private void ClearFBOs()
@@ -180,8 +174,8 @@ namespace TheraEngine.Rendering
             BloomBlurFBO16 = null;
             ForwardPassFBO?.Destroy();
             ForwardPassFBO = null;
-            DirLightFBO?.Destroy();
-            DirLightFBO = null;
+            //DirLightFBO?.Destroy();
+            //DirLightFBO = null;
             GBufferFBO?.Destroy();
             GBufferFBO = null;
             HudFBO?.Destroy();
@@ -206,7 +200,7 @@ namespace TheraEngine.Rendering
             BloomBlurFBO8?.Generate();
             BloomBlurFBO16?.Generate();
             ForwardPassFBO?.Generate();
-            DirLightFBO?.Generate();
+            //DirLightFBO?.Generate();
             GBufferFBO?.Generate();
             HudFBO?.Generate();
             LightCombineFBO?.Generate();
@@ -220,27 +214,27 @@ namespace TheraEngine.Rendering
         }
 
         public void Resize(
-            float parentWidth,
-            float parentHeight,
+            int parentWidth,
+            int parentHeight,
             bool setInternalResolution = true,
             float internalResolutionWidthScale = 1.0f,
             float internalResolutionHeightScale = 1.0f)
         {
-            float w = parentWidth.ClampMin(1.0f);
-            float h = parentHeight.ClampMin(1.0f);
+            float w = parentWidth.ClampMin(1);
+            float h = parentHeight.ClampMin(1);
 
-            _region.X = _leftPercentage * w;
-            _region.Y = _bottomPercentage * h;
-            _region.Width = _rightPercentage * w - _region.X;
-            _region.Height =  _topPercentage * h - _region.Y;
+            _region.X = (int)(_leftPercentage * w);
+            _region.Y = (int)(_bottomPercentage * h);
+            _region.Width = (int)(_rightPercentage * w - _region.X);
+            _region.Height = (int)(_topPercentage * h - _region.Y);
             
             if (setInternalResolution) SetInternalResolution(
-                _region.Width * internalResolutionWidthScale, 
-                _region.Height * internalResolutionHeightScale);
+                (int)(_region.Width * internalResolutionWidthScale),
+                (int)(_region.Height * internalResolutionHeightScale));
 
             HUD?.Resize(_region.Extents);
             if (Camera is PerspectiveCamera p)
-                p.Aspect = _region.Width / _region.Height;
+                p.Aspect = (float)_region.Width / _region.Height;
         }
 
         /// <summary>
@@ -319,7 +313,7 @@ namespace TheraEngine.Rendering
         internal void RenderDirLight(DirectionalLightComponent c)
         {
             _lightComp = c;
-            DirLightFBO.RenderFullscreen();
+            DirLightManager.Render(c.LightMatrix);
         }
         internal void RenderPointLight(PointLightComponent c)
         {
@@ -446,7 +440,7 @@ namespace TheraEngine.Rendering
         }
         public void ViewportCountChanged(int newIndex, int total, TwoPlayerPreference twoPlayerPref, ThreePlayerPreference threePlayerPref)
         {
-            _index = newIndex;
+            Index = newIndex;
             switch (total)
             {
                 case 1:
@@ -676,26 +670,27 @@ namespace TheraEngine.Rendering
             Depth32Stencil8,
         }
 
-        private void PrecomputeBRDF()
+        private void PrecomputeBRDF(int width = 512, int height = 512)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PrecomputeBRDF, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PrecomputeBRDF, BaseRenderPanel.PanelType.Rendering, width, height))
                 return;
 
             RenderingParameters renderParams = new RenderingParameters();
             renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
             renderParams.DepthTest.Function = EComparison.Always;
             renderParams.DepthTest.UpdateDepth = false;
-            GLSLShaderFile shader = Engine.LoadEngineShader(Path.Combine("Scene3D", "BRDF.fs"), EShaderMode.Fragment);
-            BrdfTex = TexRef2D.CreateFrameBufferTexture("BRDF_LUT", 512, 512, EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat);
+
+            BrdfTex = TexRef2D.CreateFrameBufferTexture("BRDF_LUT", width, height, EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat);
             BrdfTex.Resizeable = true;
             BrdfTex.UWrap = ETexWrapMode.ClampToEdge;
             BrdfTex.VWrap = ETexWrapMode.ClampToEdge;
             BrdfTex.MinFilter = ETexMinFilter.Linear;
             BrdfTex.MagFilter = ETexMagFilter.Linear;
+            TexRef2D[] texRefs = new TexRef2D[] { BrdfTex };
 
-            TexRef2D[] brdfRefs = new TexRef2D[] { BrdfTex };
-            TMaterial brdfMat = new TMaterial("BRDFMat", renderParams, brdfRefs, shader);
-            MaterialFrameBuffer fbo = new MaterialFrameBuffer(brdfMat);
+            GLSLShaderFile shader = Engine.LoadEngineShader(Path.Combine("Scene3D", "BRDF.fs"), EShaderMode.Fragment);
+            TMaterial mat = new TMaterial("BRDFMat", renderParams, texRefs, shader);
+            MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
             fbo.SetRenderTargets((BrdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), 
@@ -705,9 +700,11 @@ namespace TheraEngine.Rendering
                     new Vec3(1.0f, 1.0f, -0.5f),
                     new Vec3(-1.0f, 1.0f, -0.5f),
                     false, false).ToTriangles());
-            PrimitiveManager quad = new PrimitiveManager(data, brdfMat);
-            BoundingRectangle region = new BoundingRectangle(Vec2.Zero, new Vec2(512.0f, 512.0f));
+            PrimitiveManager quad = new PrimitiveManager(data, mat);
+
+            BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
             
+            //Now render the texture to the FBO using the quad
             fbo.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(region);
             {
@@ -729,8 +726,8 @@ namespace TheraEngine.Rendering
             if (BrdfTex == null)
                 PrecomputeBRDF();
             
-            int width = InternalResolution.IntWidth;
-            int height = InternalResolution.IntHeight;
+            int width = InternalResolution.Width;
+            int height = InternalResolution.Height;
             const string SceneShaderPath = "Scene3D";
 
             RenderingParameters renderParams = new RenderingParameters();
@@ -875,14 +872,14 @@ namespace TheraEngine.Rendering
                     BlendMode = additiveBlend,
                 };
                 lightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-                RenderingParameters dirLightRenderParams = new RenderingParameters
-                {
-                    //Render only the front of the quad that shows over the whole screen
-                    CullMode = ECulling.Back,
-                    Requirements = EUniformRequirements.Camera,
-                    BlendMode = additiveBlend,
-                };
-                dirLightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
+                //RenderingParameters dirLightRenderParams = new RenderingParameters
+                //{
+                //    //Render only the front of the quad that shows over the whole screen
+                //    CullMode = ECulling.Back,
+                //    Requirements = EUniformRequirements.Camera,
+                //    BlendMode = additiveBlend,
+                //};
+                //dirLightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
 
                 TexRef2D diffuseTex = TexRef2D.CreateFrameBufferTexture("Diffuse", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat);
@@ -914,23 +911,26 @@ namespace TheraEngine.Rendering
                     //shadow map texture
                 };
 
-                GLSLShaderFile dirLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingDir.fs"), EShaderMode.Fragment);
                 GLSLShaderFile pointLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingPoint.fs"), EShaderMode.Fragment);
                 GLSLShaderFile spotLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingSpot.fs"), EShaderMode.Fragment);
+                GLSLShaderFile dirLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingDir.fs"), EShaderMode.Fragment);
 
                 TMaterial pointLightMat = new TMaterial("PointLightMat", lightRenderParams, lightRefs, pointLightShader);
+                TMaterial spotLightMat = new TMaterial("SpotLightMat", lightRenderParams, lightRefs, spotLightShader);
+                TMaterial dirLightMat = new TMaterial("DirLightMat", lightRenderParams, lightRefs, dirLightShader);
+
                 PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
+                PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
+                PrimitiveData dirLightMesh = BoundingBox.SolidMesh(Vec3.Half, Vec3.Half);
+
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;
 
-                TMaterial spotLightMat = new TMaterial("SpotLightMat", lightRenderParams, lightRefs, spotLightShader);
-                PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
                 SpotLightManager = new PrimitiveManager(spotLightMesh, spotLightMat);
                 SpotLightManager.SettingUniforms += LightManager_SettingUniforms;
                 
-                TMaterial dirLightMat = new TMaterial("DirLightMat", dirLightRenderParams, lightRefs, dirLightShader);
-                DirLightFBO = new QuadFrameBuffer(dirLightMat);
-                DirLightFBO.FullScreenTriangle.SettingUniforms += LightManager_SettingUniforms;
+                DirLightManager = new PrimitiveManager(dirLightMesh, dirLightMat);
+                DirLightManager.SettingUniforms += LightManager_SettingUniforms;
 
                 #endregion
             }
@@ -938,7 +938,7 @@ namespace TheraEngine.Rendering
             #endregion
 
             #region Forward
-            
+
             _bloomBlurTexture = TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
                 EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte);
             _bloomBlurTexture.MagFilter = ETexMagFilter.Linear;
@@ -1031,7 +1031,6 @@ namespace TheraEngine.Rendering
         {
             if (RenderingCamera == null)
                 return;
-            RenderingCamera.SetUniforms(materialProgram);
             RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(materialProgram);
             _lightComp.SetUniforms(materialProgram);
         }
@@ -1060,33 +1059,6 @@ namespace TheraEngine.Rendering
 
         private void BrightPassFBO_SettingUniforms(RenderProgram program)
             => RenderingCamera?.PostProcessRef.File.Bloom.SetUniforms(program);
-
-        //private void GBuffer_SetUniforms(int programBindingId)
-        //{
-        //    if (RenderingCamera == null)
-        //        return;
-
-        //    RenderingCamera.SetUniforms(programBindingId);
-        //    //RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(programBindingId);
-
-        //    //var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
-        //    //if (probeActor == null)
-        //    //    return;
-
-        //    //IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
-        //    //int baseCount = GBufferFBO.Material.Textures.Length;
-
-        //    //TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
-        //    //    baseCount, "Texture" + baseCount.ToString(), programBindingId);
-        //    //++baseCount;
-        //    //if (probe.IrradianceTex != null)
-        //    //    TMaterialBase.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
-        //    //        baseCount, "Texture" + baseCount.ToString(), programBindingId);
-        //    //++baseCount;
-        //    //if (probe.PrefilterTex != null)
-        //    //    TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
-        //    //        baseCount, "Texture" + baseCount.ToString(), programBindingId);
-        //}
         
         private void SSAO_SetUniforms(RenderProgram program)
         {
@@ -1106,23 +1078,6 @@ namespace TheraEngine.Rendering
             RenderingCamera.SetUniforms(program);
             RenderingCamera.PostProcessRef.File.ColorGrading.UpdateExposure(_hdrSceneTexture);
             RenderingCamera.PostProcessRef.File.SetUniforms(program);
-
-            //var probeActor = _worldCamera.OwningComponent?.OwningScene?.IBLProbeActor;
-            //if (probeActor == null)
-            //    return;
-
-            //IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
-
-            //TMaterialBase.SetTextureUniform(_brdfTex.GetTexture(true),
-            //    4, "Texture4", programBindingId);
-
-            //if (probe.ResultTexture != null)
-            //    TMaterialBase.SetTextureUniform(probe.ResultTexture.GetTexture(true),
-            //        5, "Texture5", programBindingId);
-
-            //if (probe.PrefilterTex != null)
-            //    TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
-            //        6, "Texture6", programBindingId);
         }
 
         #endregion

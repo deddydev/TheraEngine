@@ -316,12 +316,11 @@ namespace TheraEngine.Rendering
             {
                 Engine.Renderer.EnableDepthTest(false);
                 //Render the deferred pass result
-                //viewport.GBufferFBO.RenderFullscreen();
                 viewport.LightCombineFBO.RenderFullscreen();
 
                 Engine.Renderer.EnableDepthTest(true);
-                viewport.RenderingCamera.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
-                RenderTree.DebugRender(viewport.RenderingCamera.Frustum, true);
+                //viewport.RenderingCamera.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
+                //RenderTree.DebugRender(viewport.RenderingCamera.Frustum, true);
 
                 renderingPasses.Render(ERenderPass.OpaqueForward);
 
@@ -345,10 +344,6 @@ namespace TheraEngine.Rendering
                 //Start with blank slate so additive blending doesn't ghost old frames
                 Engine.Renderer.Clear(EBufferClear.Color);
 
-                foreach (DirectionalLightComponent c in _lightManager.DirectionalLights)
-                {
-                    viewport.RenderDirLight(c);
-                }
                 foreach (PointLightComponent c in _lightManager.PointLights)
                 {
                     viewport.RenderPointLight(c);
@@ -356,6 +351,10 @@ namespace TheraEngine.Rendering
                 foreach (SpotLightComponent c in _lightManager.SpotLights)
                 {
                     viewport.RenderSpotLight(c);
+                }
+                foreach (DirectionalLightComponent c in _lightManager.DirectionalLights)
+                {
+                    viewport.RenderDirLight(c);
                 }
             }
             viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -370,8 +369,9 @@ namespace TheraEngine.Rendering
             tex.Bind();
             tex.GenerateMipmaps();
 
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                viewport.InternalResolution.Width * 0.0625f, viewport.InternalResolution.Height * 0.0625f));
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0, 0,
+                (int)(viewport.InternalResolution.Width * 0.0625f),
+                (int)(viewport.InternalResolution.Height * 0.0625f)));
             {
                 viewport.BloomBlurFBO16.Bind(EFramebufferTarget.DrawFramebuffer);
                 {
@@ -391,8 +391,9 @@ namespace TheraEngine.Rendering
             }
             Engine.Renderer.PopRenderArea();
 
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                viewport.InternalResolution.Width * 0.125f, viewport.InternalResolution.Height * 0.125f));
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0, 0,
+                (int)(viewport.InternalResolution.Width * 0.125f),
+                (int)(viewport.InternalResolution.Height * 0.125f)));
             {
                 viewport.BloomBlurFBO8.Bind(EFramebufferTarget.DrawFramebuffer);
                 {
@@ -412,8 +413,9 @@ namespace TheraEngine.Rendering
             }
             Engine.Renderer.PopRenderArea();
 
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                viewport.InternalResolution.Width * 0.25f, viewport.InternalResolution.Height * 0.25f));
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0, 0,
+                (int)(viewport.InternalResolution.Width * 0.25f),
+                (int)(viewport.InternalResolution.Height * 0.25f)));
             {
                 viewport.BloomBlurFBO4.Bind(EFramebufferTarget.DrawFramebuffer);
                 {
@@ -433,8 +435,9 @@ namespace TheraEngine.Rendering
             }
             Engine.Renderer.PopRenderArea();
 
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f,
-                viewport.InternalResolution.Width * 0.5f, viewport.InternalResolution.Height * 0.5f));
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0, 0,
+                (int)(viewport.InternalResolution.Width * 0.5f),
+                (int)(viewport.InternalResolution.Height * 0.5f)));
             {
                 viewport.BloomBlurFBO2.Bind(EFramebufferTarget.DrawFramebuffer);
                 {

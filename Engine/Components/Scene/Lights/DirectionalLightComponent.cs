@@ -16,26 +16,24 @@ namespace TheraEngine.Components.Scene.Lights
         private int _shadowWidth = 4096;
         [TSerialize(nameof(ShadowMapResolutionHeight))]
         private int _shadowHeight = 4096;
-        [TSerialize(nameof(WorldRadius))]
-        private float _worldRadius;
 
-        private MaterialFrameBuffer _shadowMap = null;
-        private OrthographicCamera _shadowCamera = null;
+        private Vec3 _extents;
         private Vec3 _direction;
 
+        [TSerialize]
         [Category("Directional Light Component")]
-        public float WorldRadius
+        public Vec3 Extents
         {
-            get => _worldRadius;
+            get => _extents;
             set
             {
-                _worldRadius = value;
-                if (_shadowCamera != null)
+                _extents = value;
+                if (ShadowCamera != null)
                 {
-                    _shadowCamera.Resize(WorldRadius, WorldRadius);
-                    _shadowCamera.FarZ = WorldRadius * 2.0f + 1.0f;
-                    _shadowCamera.LocalPoint.Raw = WorldPoint;
-                    _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
+                    ShadowCamera.Resize(Extents.X, Extents.Y);
+                    ShadowCamera.FarZ = Extents.Z - 0.1f;
+                    ShadowCamera.LocalPoint.Raw = WorldPoint;
+                    ShadowCamera.TranslateRelative(0.0f, 0.0f, Extents.Z * 0.5f);
                 }
             }
         }
@@ -62,10 +60,6 @@ namespace TheraEngine.Components.Scene.Lights
                 _rotation.SetDirection(_direction);
             }
         }
-        [Browsable(false)]
-        public OrthographicCamera ShadowCamera => _shadowCamera;
-
-        public MaterialFrameBuffer ShadowMap => _shadowMap;
 
         public DirectionalLightComponent() 
             : this(new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
@@ -90,15 +84,18 @@ namespace TheraEngine.Components.Scene.Lights
             _direction = _rotation.GetDirection();
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
-
-        public override void RecalcWorldTransform()
+        
+        protected override void OnWorldTransformChanged()
         {
-            base.RecalcWorldTransform();
-            if (_shadowCamera != null)
+            if (ShadowCamera != null)
             {
-                _shadowCamera.LocalPoint.Raw = WorldPoint;
-                _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
+                ShadowCamera.LocalPoint.Raw = WorldPoint;
+                ShadowCamera.TranslateRelative(0.0f, 0.0f, Extents.Z * 0.5f);
             }
+            
+            LightMatrix = WorldMatrix * Extents.AsScaleMatrix();
+
+            base.OnWorldTransformChanged();
         }
 
         public override void OnSpawned()
@@ -107,11 +104,11 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 OwningScene.Lights.Add(this);
 
-                if (_shadowMap == null)
+                if (ShadowMap == null)
                     SetShadowMapResolution(_shadowWidth, _shadowHeight);
 
-                _shadowCamera.LocalPoint.Raw = WorldPoint;
-                _shadowCamera.TranslateRelative(0.0f, 0.0f, WorldRadius + 1.0f);
+                ShadowCamera.LocalPoint.Raw = WorldPoint;
+                ShadowCamera.TranslateRelative(0.0f, 0.0f, Extents.Z * 0.5f);
             }
         }
         public override void OnDespawned()
@@ -126,45 +123,35 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "Direction", _direction);
             program.Uniform(indexer + "Base.Color", _color.Raw);
             program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            program.Uniform(indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
+            program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
-            TMaterialBase.SetTextureUniform(
-                _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", program);
+            var tex = ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
+            TMaterialBase.SetTextureUniform(tex, 4, "Texture4", program);
         }
 
         public void SetShadowMapResolution(int width, int height)
         {
             _shadowWidth = width;
             _shadowHeight = height;
-            if (_shadowMap == null)
-                _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
+            if (ShadowMap == null)
+                ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
             else
-                _shadowMap.ResizeTextures(width, height);
+                ShadowMap.ResizeTextures(width, height);
 
-            if (_shadowCamera == null)
+            if (ShadowCamera == null)
             {
-                _shadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 1.0f, WorldRadius * 2.0f + 1.0f);
-                _shadowCamera.Resize(WorldRadius, WorldRadius);
-                _shadowCamera.LocalRotation.SyncFrom(_rotation);
+                ShadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 0.1f, Extents.Z - 0.1f);
+                ShadowCamera.Resize(Extents.X, Extents.Y);
+                ShadowCamera.LocalRotation.SyncFrom(_rotation);
             }
             //else
             //    _shadowCamera.Resize(_worldRadius, _worldRadius);
         }
         
-        private static EPixelInternalFormat GetFormat(EDepthPrecision precision)
-        {
-            switch (precision)
-            {
-                case EDepthPrecision.Int16: return EPixelInternalFormat.DepthComponent16;
-                case EDepthPrecision.Int24: return EPixelInternalFormat.DepthComponent24;
-                case EDepthPrecision.Int32: return EPixelInternalFormat.DepthComponent32;
-            }
-            return EPixelInternalFormat.DepthComponent32f;
-        }
         private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
             TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
-                GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
+                GetShadowMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
                 EFramebufferAttachment.DepthAttachment);
             depthTex.MinFilter = ETexMinFilter.Nearest;
             depthTex.MagFilter = ETexMagFilter.Nearest;
@@ -179,35 +166,6 @@ namespace TheraEngine.Components.Scene.Lights
 
             return mat;
         }
-        public override void UpdateShadowMap(BaseScene scene)
-        {
-            if (_shadowCamera == null)
-                return;
-            scene.Update(_passes, _shadowCamera.Frustum, _shadowCamera, null, true);
-        }
-        public override void RenderShadowMap(BaseScene scene)
-        {
-            if (_shadowCamera == null || _shadowMap == null)
-                return;
-            Engine.Renderer.MaterialOverride = _shadowMap.Material;
-            _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowWidth, _shadowHeight, 0.0f, 0.0f));
-            {
-                Engine.Renderer.ClearDepth(1.0f);
-                Engine.Renderer.EnableDepthTest(true);
-                Engine.Renderer.AllowDepthWrite(true);
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                scene.Render(_passes, _shadowCamera, null, null, null);
-            }
-            Engine.Renderer.PopRenderArea();
-            _shadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
-            Engine.Renderer.MaterialOverride = null;
-        }
-
-        public override void BakeShadowMaps()
-        {
-
-        }
 
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
@@ -215,9 +173,9 @@ namespace TheraEngine.Components.Scene.Lights
             if (IsSpawned)
             {
                 if (selected)
-                    OwningScene.Add(_shadowCamera);
+                    OwningScene.Add(ShadowCamera);
                 else
-                    OwningScene.Remove(_shadowCamera);
+                    OwningScene.Remove(ShadowCamera);
             }
             base.OnSelectedChanged(selected);
         }

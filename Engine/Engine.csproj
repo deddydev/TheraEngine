@@ -388,6 +388,7 @@
     </Compile>
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
     <Compile Include="Core\ResourcePool.cs" />
+    <Compile Include="Core\Shapes\BoundingRectangle.cs" />
     <Compile Include="Core\Shapes\Cylindrical\XAligned\ConeX.cs" />
     <Compile Include="Input\Devices\OpenTK\TKRift.cs" />
     <Compile Include="Input\Devices\Types\Rift.cs" />
@@ -770,7 +771,7 @@
     <Compile Include="Core\Maths\Collision\Tracing.cs" />
     <Compile Include="Core\Maths\Enums.cs" />
     <Compile Include="Core\Maths\Miniball.cs" />
-    <Compile Include="Core\Shapes\BoundingRectangle.cs" />
+    <Compile Include="Core\Shapes\BoundingRectangleF.cs" />
     <Compile Include="Core\Shapes\Cylindrical\BaseCone.cs" />
     <Compile Include="Core\Maths\Transforms\Struct\Vectors\Vectors.cs" />
     <Compile Include="Core\Shapes\Cylindrical\BaseCapsule.cs" />

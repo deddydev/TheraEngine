@@ -56,9 +56,9 @@ namespace TheraEngine.Rendering.Text
         private float _rotation = 0.0f;
         private ColorF4 _color = new ColorF4(1.0f);
         private StringFormat _format = new StringFormat();
-        private BoundingRectangle _bounds = new BoundingRectangle();
+        private BoundingRectangleF _bounds = new BoundingRectangleF();
 
-        public BoundingRectangle Bounds => _bounds;
+        public BoundingRectangleF Bounds => _bounds;
         internal SolidBrush Brush { get; private set; } = new SolidBrush(Color.White);
         internal TextDrawer Parent { get; set; }
         internal List<UIString2D> Overlapping { get; set; } //Set after being drawn

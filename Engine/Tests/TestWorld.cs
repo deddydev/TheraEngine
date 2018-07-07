@@ -143,7 +143,7 @@ namespace TheraEngine.Tests
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
                 (ColorF3)Color.Beige, 1.0f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR))
             {
-                WorldRadius = Settings.Bounds.HalfExtents.LengthFast
+                Extents = Settings.Bounds.HalfExtents.LengthFast
             };
             actor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
             actors.Add(actor);

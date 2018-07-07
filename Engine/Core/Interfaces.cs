@@ -96,7 +96,7 @@ namespace TheraEngine
         /// <summary>
         /// The axis-aligned bounding box for this UI component.
         /// </summary>
-        BoundingRectangle AxisAlignedRegion { get; }
+        BoundingRectangleF AxisAlignedRegion { get; }
         IQuadtreeNode QuadtreeNode { get; set; }
         //bool Contains(Vec2 point);
     }

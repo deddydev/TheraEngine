@@ -13,12 +13,10 @@ namespace TheraEngine.Components.Scene.Lights
     [FileDef("Spot Light Component")]
     public class SpotLightComponent : LightComponent, I3DRenderable
     {
-        private float _outerCutoff, _innerCutoff, _exponent, _brightness, _distance;
+        private float _outerCutoff, _innerCutoff, _distance;
         private Vec3 _direction;
-        private MaterialFrameBuffer _shadowMap;
-        private PerspectiveCamera _shadowCamera;
+        [TSerialize]
         private IVec2 _shadowDims;
-        private ConeZ _innerCone, _outerCone;
 
         [Category("Spotlight Component")]
         public Vec3 Position
@@ -51,15 +49,15 @@ namespace TheraEngine.Components.Scene.Lights
 
                 Vec3 translation = _translation + _direction * (_distance / 2.0f);
 
-                _outerCone.State.Translation.Raw = translation;
-                _outerCone.Height = _distance;
-                _outerCone.Radius = (float)Math.Tan(TMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
+                OuterCone.State.Translation.Raw = translation;
+                OuterCone.Height = _distance;
+                OuterCone.Radius = (float)Math.Tan(TMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
 
-                _innerCone.State.Translation.Raw = translation;
-                _innerCone.Height = _distance;
-                _innerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
+                InnerCone.State.Translation.Raw = translation;
+                InnerCone.Height = _distance;
+                InnerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
 
-                _shadowCamera.FarZ = _distance;
+                ShadowCamera.FarZ = _distance;
 
                 RecalcLocalTransform();
             }
@@ -75,18 +73,12 @@ namespace TheraEngine.Components.Scene.Lights
                 _rotation.SetDirection(_direction);
             }
         }
+        [TSerialize]
         [Category("Spotlight Component")]
-        public float Exponent
-        {
-            get => _exponent;
-            set => _exponent = value;
-        }
+        public float Exponent { get; set; }
+        [TSerialize]
         [Category("Spotlight Component")]
-        public float Brightness
-        {
-            get => _brightness;
-            set => _brightness = value;
-        }
+        public float Brightness { get; set; }
         [Category("Spotlight Component")]
         public float OuterCutoffAngleDegrees
         {
@@ -116,13 +108,13 @@ namespace TheraEngine.Components.Scene.Lights
             
             float radOuter = TMath.DegToRad(outerDegrees);
             _outerCutoff = TMath.Cosf(radOuter);
-            _outerCone.Radius = TMath.Tanf(radOuter) * _distance;
+            OuterCone.Radius = TMath.Tanf(radOuter) * _distance;
 
             float radInner = TMath.DegToRad(innerDegrees);
             _innerCutoff = TMath.Cosf(radInner);
-            _innerCone.Radius = TMath.Tanf(radInner) * _distance;
+            InnerCone.Radius = TMath.Tanf(radInner) * _distance;
             
-            _shadowCamera.VerticalFieldOfView = Math.Max(outerDegrees, innerDegrees) * 2.0f;
+            ((PerspectiveCamera)ShadowCamera).VerticalFieldOfView = Math.Max(outerDegrees, innerDegrees) * 2.0f;
 
             RecalcLocalTransform();
         }
@@ -130,15 +122,11 @@ namespace TheraEngine.Components.Scene.Lights
         [Browsable(false)]
         [ReadOnly(true)]
         [Category("Spotlight Component")]
-        public ConeZ OuterCone => _outerCone;
+        public ConeZ OuterCone { get; }
         [Browsable(false)]
         [ReadOnly(true)]
         [Category("Spotlight Component")]
-        public ConeZ InnerCone => _innerCone;
-        [Browsable(true)]
-        [ReadOnly(true)]
-        [Category("Spotlight Component")]
-        public PerspectiveCamera ShadowCamera  => _shadowCamera;
+        public ConeZ InnerCone { get; }
 
         [Browsable(false)]
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
@@ -160,14 +148,14 @@ namespace TheraEngine.Components.Scene.Lights
             Vec3 direction, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent) 
             : base(color, diffuseIntensity)
         {
-            _outerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
-            _innerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
+            OuterCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            InnerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
 
             _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
             _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
             _distance = distance;
-            _brightness = brightness;
-            _exponent = exponent;
+            Brightness = brightness;
+            Exponent = exponent;
             Direction = direction;
 
             SetShadowMapResolution(1024, 1024);
@@ -180,14 +168,14 @@ namespace TheraEngine.Components.Scene.Lights
             Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
             : base(color, diffuseIntensity)
         {
-            _outerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
-            _innerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
+            OuterCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            InnerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
 
             _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
             _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
             _distance = distance;
-            _brightness = brightness;
-            _exponent = exponent;
+            Brightness = brightness;
+            Exponent = exponent;
             _rotation.SetRotations(rotation);
 
             //_cullingVolume.State.Rotation.SyncFrom(_rotation);
@@ -207,32 +195,31 @@ namespace TheraEngine.Components.Scene.Lights
             localTransform = t * r;
             inverseLocalTransform = ir * it;
         }
-        internal Matrix4 LightMatrix { get; private set; }
         protected override void OnWorldTransformChanged()
         {
             _direction = _rotation.GetDirection();
 
-            Vec3 translation = _translation + _direction * (_distance / 2.0f);
+            Vec3 coneOrigin = _translation + _direction * (_distance / 2.0f);
 
-            if (_outerCone != null)
+            if (OuterCone != null)
             {
-                _outerCone.State.Rotation.SetDirection(_direction);
-                _outerCone.State.Translation.Raw = translation;
+                OuterCone.State.Rotation.SetDirection(_direction);
+                OuterCone.State.Translation.Raw = coneOrigin;
             }
-            if (_innerCone != null)
+            if (InnerCone != null)
             {
-                _innerCone.State.Rotation.SetDirection(_direction);
-                _innerCone.State.Translation.Raw = translation;
+                InnerCone.State.Rotation.SetDirection(_direction);
+                InnerCone.State.Translation.Raw = coneOrigin;
             }
-            if (_shadowCamera != null)
+            if (ShadowCamera != null)
             {
-                _shadowCamera.LocalRotation.SetRotations(_rotation);
-                _shadowCamera.LocalPoint.Raw = _translation;
+                ShadowCamera.LocalRotation.SetRotations(_rotation);
+                ShadowCamera.LocalPoint.Raw = _translation;
             }
 
-            Vec3 translation2 = _direction * (_distance / 2.0f);
-            Matrix4 t = translation2.AsTranslationMatrix();
-            Matrix4 s = Matrix4.CreateScale(_outerCone.Radius, _outerCone.Radius, _outerCone.Height);
+            Vec3 lightMeshOrigin = _direction * (_distance / 2.0f);
+            Matrix4 t = lightMeshOrigin.AsTranslationMatrix();
+            Matrix4 s = Matrix4.CreateScale(OuterCone.Radius, OuterCone.Radius, OuterCone.Height);
             LightMatrix = t * WorldMatrix * s;
 
             base.OnWorldTransformChanged();
@@ -269,13 +256,13 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "InnerCutoff", _innerCutoff);
             program.Uniform(indexer + "Position", WorldMatrix.Translation);
             program.Uniform(indexer + "Radius", _distance);
-            program.Uniform(indexer + "Brightness", _brightness);
-            program.Uniform(indexer + "Exponent", _exponent);
+            program.Uniform(indexer + "Brightness", Brightness);
+            program.Uniform(indexer + "Exponent", Exponent);
             program.Uniform(indexer + "Base.Color", _color.Raw);
             program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            program.Uniform(indexer + "WorldToLightSpaceProjMatrix", _shadowCamera.WorldToCameraProjSpaceMatrix);
+            program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
-            var tex = _shadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
+            var tex = ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
             TMaterialBase.SetTextureUniform(tex, 4, "Texture4", program);
         }
 
@@ -284,13 +271,13 @@ namespace TheraEngine.Components.Scene.Lights
         public void SetShadowMapResolution(IVec2 dims)
         {
             _shadowDims = dims;
-            if (_shadowMap == null)
-                _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(dims.X, dims.Y));
+            if (ShadowMap == null)
+                ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(dims.X, dims.Y));
             else
-                _shadowMap.ResizeTextures(dims.X, dims.Y);
+                ShadowMap.ResizeTextures(dims.X, dims.Y);
 
-            if (_shadowCamera == null)
-                _shadowCamera = new PerspectiveCamera(
+            if (ShadowCamera == null)
+                ShadowCamera = new PerspectiveCamera(
                     1.0f, _distance, Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f, 1.0f);
         }
         
@@ -321,31 +308,6 @@ namespace TheraEngine.Components.Scene.Lights
             mat.RenderParams.CullMode = ECulling.None;
 
             return mat;
-        }
-        public override void UpdateShadowMap(BaseScene scene)
-        {
-            scene.Update(_passes, _shadowCamera.Frustum, _shadowCamera, null, true);
-        }
-        public override void RenderShadowMap(BaseScene scene)
-        {
-            Engine.Renderer.MaterialOverride = _shadowMap.Material;
-
-            _shadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowDims.X, _shadowDims.Y, 0.0f, 0.0f));
-            {
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                Engine.Renderer.AllowDepthWrite(true);
-                scene.Render(_passes, _shadowCamera, null, null, null);
-            }
-            Engine.Renderer.PopRenderArea();
-            _shadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-            Engine.Renderer.MaterialOverride = null;
-        }
-
-        public override void BakeShadowMaps()
-        {
-
         }
 
 #if EDITOR

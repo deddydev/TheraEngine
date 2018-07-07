@@ -199,9 +199,7 @@ vec3 WorldPosFromDepth(in float depth, in vec2 uv)
 }
 void main()
 {
-	vec2 uv = FragPos.xy;
-	if (uv.x > 1.0f || uv.y > 1.0f)
-		discard;
+  vec2 uv = gl_FragCoord.xy / vec2(ScreenWidth, ScreenHeight);
 
 	//Retrieve shading information from GBuffer textures
 	vec3 albedo = texture(Texture0, uv).rgb;

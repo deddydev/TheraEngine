@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering.UI
         protected IQuadtreeNode _renderNode;
         
         protected Vec2 _size = Vec2.Zero;
-        protected BoundingRectangle _axisAlignedRegion = new BoundingRectangle();
+        protected BoundingRectangleF _axisAlignedRegion = new BoundingRectangleF();
         
         #region Bounds
         [Category("Transform")]
@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering.UI
         }
         
         [Browsable(false)]
-        public BoundingRectangle AxisAlignedRegion => _axisAlignedRegion;
+        public BoundingRectangleF AxisAlignedRegion => _axisAlignedRegion;
         
         public bool Contains(Vec2 cursorPointWorld)
         {

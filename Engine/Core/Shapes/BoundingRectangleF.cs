@@ -7,17 +7,17 @@ namespace TheraEngine.Core.Shapes
     /// <summary>
     /// Axis-aligned rectangle struct. Supports position, size, and a local origin. All translations are relative to the bottom left (0, 0), like a graph.
     /// </summary>
-    public struct BoundingRectangle
+    public struct BoundingRectangleF
     {
         /// <summary>
         /// A rectangle with a location at 0,0 (bottom left), a size of 0, and a local origin at the bottom left.
         /// </summary>
-        public static readonly BoundingRectangle Empty = new BoundingRectangle();
-        
+        public static readonly BoundingRectangleF Empty = new BoundingRectangleF();
+
         [TSerialize("Translation")]
-        private IVec2 _translation;
+        private Vec2 _translation;
         [TSerialize("Bounds")]
-        private IVec2 _bounds;
+        private Vec2 _bounds;
         [TSerialize("LocalOriginPercentage")]
         private Vec2 _localOriginPercentage;
 
@@ -25,20 +25,16 @@ namespace TheraEngine.Core.Shapes
         /// The relative translation of the origin from the bottom left, as a percentage.
         /// 0,0 is bottom left, 0.5,0.5 is center, 1,1 is top right.
         /// </summary>
-        [Description(
-            "The relative translation of the origin from the bottom left, as a percentage." +
-            "0,0 is bottom left, 0.5,0.5 is center, 1,1 is top right.")]
+        [Description(@"The relative translation of the origin from the bottom left, as a percentage.
+0,0 is bottom left, 0.5,0.5 is center, 1,1 is top right.")]
         public Vec2 LocalOriginPercentage
         {
             get => _localOriginPercentage;
             set
             {
                 Vec2 diff = value - _localOriginPercentage;
-
-                Vec2 trans = _translation;
-                trans += diff * _bounds;
-                _translation = (IVec2)trans;
-
+                _translation.X += diff.X * Width;
+                _translation.Y += diff.Y * Height;
                 _localOriginPercentage = value;
             }
         }
@@ -46,9 +42,9 @@ namespace TheraEngine.Core.Shapes
         /// The actual translation of the origin of this rectangle, relative to the bottom left.
         /// </summary>
         [Description(@"The actual translation of the origin of this rectangle, relative to the bottom left.")]
-        public IVec2 LocalOrigin
+        public Vec2 LocalOrigin
         {
-            get => (IVec2)(_localOriginPercentage * _bounds);
+            get => _localOriginPercentage * _bounds;
             set => _localOriginPercentage = value / _bounds;
         }
         /// <summary>
@@ -57,35 +53,35 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         [Description(@"The location of the origin of this rectangle as a world point relative to the bottom left (0, 0).
 Bottom left point of this rectangle is Position - LocalOrigin.")]
-        public IVec2 OriginTranslation
+        public Vec2 OriginTranslation
         {
             get => _translation + LocalOrigin;
             set => _translation = value - LocalOrigin;
         }
 
-        public BoundingRectangle(int x, int y, int width, int height, float localOriginPercentageX, float localOriginPercentageY)
-            : this(new IVec2(x, y), new IVec2(width, height), new Vec2(localOriginPercentageX, localOriginPercentageY)) { }
-        public BoundingRectangle(int x, int y, int width, int height)
-            : this(new IVec2(x, y), new IVec2(width, height)) { }
-        public BoundingRectangle(IVec2 translation, IVec2 bounds)
+        public BoundingRectangleF(float x, float y, float width, float height, float localOriginPercentageX, float localOriginPercentageY)
+            : this(new Vec2(x, y), new Vec2(width, height), new Vec2(localOriginPercentageX, localOriginPercentageY)) { }
+        public BoundingRectangleF(float x, float y, float width, float height)
+            : this(new Vec2(x, y), new Vec2(width, height)) { }
+        public BoundingRectangleF(Vec2 translation, Vec2 bounds)
             : this(translation, bounds, Vec2.Zero) { }
-        public BoundingRectangle(IVec2 translation, IVec2 bounds, Vec2 localOriginPercentage)
+        public BoundingRectangleF(Vec2 translation, Vec2 bounds, Vec2 localOriginPercentage)
         {
             _localOriginPercentage = localOriginPercentage;
             _bounds = bounds;
-            _translation = (IVec2)(translation - (localOriginPercentage * bounds));
+            _translation = translation - localOriginPercentage * bounds;
         }
 
-        public static BoundingRectangle FromMinMaxSides(
-            int minX, int maxX,
-            int minY, int maxY,
+        public static BoundingRectangleF FromMinMaxSides(
+            float minX, float maxX,
+            float minY, float maxY,
             float localOriginPercentageX, float localOriginPercentageY)
-            => new BoundingRectangle(minX, minY, maxX - minX, maxY - minY, localOriginPercentageX, localOriginPercentageY);
+            => new BoundingRectangleF(minX, minY, maxX - minX, maxY - minY, localOriginPercentageX, localOriginPercentageY);
 
         /// <summary>
         /// The horizontal translation of this rectangle's position. 0 is fully left, positive values are right.
         /// </summary>
-        public int X
+        public float X
         {
             get => OriginTranslation.X;
             set => _translation.X = value - LocalOrigin.X;
@@ -93,7 +89,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// The vertical translation of this rectangle's position. 0 is fully down, positive values are up.
         /// </summary>
-        public int Y
+        public float Y
         {
             get => OriginTranslation.Y;
             set => _translation.Y = value - LocalOrigin.Y;
@@ -101,7 +97,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// The width of this rectangle.
         /// </summary>
-        public int Width
+        public float Width
         {
             get => _bounds.X;
             set
@@ -113,7 +109,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// The height of this rectangle.
         /// </summary>
-        public int Height
+        public float Height
         {
             get => _bounds.Y;
             set
@@ -126,7 +122,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// The X value of the right boundary line.
         /// Only moves the right edge by resizing width.
         /// </summary>
-        public int MaxX
+        public float MaxX
         {
             get => _translation.X + (Width < 0 ? 0 : Width);
             set
@@ -139,7 +135,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// The Y value of the top boundary line.
         /// Only moves the top edge by resizing height.
         /// </summary>
-        public int MaxY
+        public float MaxY
         {
             get => _translation.Y + (Height < 0 ? 0 : Height);
             set
@@ -153,13 +149,13 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// The X value of the left boundary line.
         /// Only moves the left edge by resizing width.
         /// </summary>
-        public int MinX
+        public float MinX
         {
             get => _translation.X + (Width < 0 ? Width : 0);
             set
             {
                 CheckProperDimensions();
-                int origX = _bounds.X;
+                float origX = _bounds.X;
                 _translation.X = value;
                 _bounds.X = origX - _translation.X;
             }
@@ -168,13 +164,13 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// The Y value of the bottom boundary line.
         /// Only moves the bottom edge by resizing height.
         /// </summary>
-        public int MinY
+        public float MinY
         {
             get => _translation.Y + (Height < 0 ? Height : 0);
             set
             {
                 CheckProperDimensions();
-                int origY = Height;
+                float origY = Height;
                 _translation.Y = value;
                 Height = origY - _translation.Y;
             }
@@ -182,15 +178,15 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// The world position of the center point of the rectangle (regardless of the local origin).
         /// </summary>
-        public IVec2 Center
+        public Vec2 Center
         {
-            get => _translation + (_bounds / 2);
-            set => _translation = value - (_bounds / 2);
+            get => _translation + (_bounds / 2.0f);
+            set => _translation = value - (_bounds / 2.0f);
         }
         /// <summary>
         /// The width and height of this rectangle.
         /// </summary>
-        public IVec2 Extents
+        public Vec2 Extents
         {
             get => _bounds;
             set => _bounds = value;
@@ -198,7 +194,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// The location of this rectangle's bottom left point (top right if both width and height are negative). 0 is fully left/down, positive values are right/up.
         /// </summary>
-        public IVec2 Translation
+        public Vec2 Translation
         {
             get => _translation;
             set => _translation = value;
@@ -206,13 +202,13 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// Bottom left point in world space regardless of width or height being negative.
         /// </summary>
-        public IVec2 BottomLeft
+        public Vec2 BottomLeft
         {
-            get => new IVec2(MinX, MinY);
+            get => new Vec2(MinX, MinY);
             set
             {
                 CheckProperDimensions();
-                IVec2 upper = TopRight;
+                Vec2 upper = TopRight;
                 _translation = value;
                 _bounds = TopRight - _translation;
             }
@@ -220,9 +216,9 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// Top right point in world space regardless of width or height being negative.
         /// </summary>
-        public IVec2 TopRight
+        public Vec2 TopRight
         {
-            get => new IVec2(MaxX, MaxY);
+            get => new Vec2(MaxX, MaxY);
             set
             {
                 CheckProperDimensions();
@@ -232,45 +228,77 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// Bottom right point in world space regardless of width or height being negative.
         /// </summary>
-        public IVec2 BottomRight
+        public Vec2 BottomRight
         {
-            get => new IVec2(MaxX, MinY);
+            get => new Vec2(MaxX, MinY);
             set
             {
                 CheckProperDimensions();
-                int upperY = _translation.Y + _bounds.Y;
+                float upperY = _translation.Y + _bounds.Y;
                 _translation.Y = value.Y;
                 _bounds.X = value.X - _translation.X;
                 _bounds.Y = upperY - value.Y;
             }
         }
 
-        public Rectangle AsRectangle(int containerHeight)
+        public RectangleF AsRectangleF(float containerHeight)
         {
-            IVec2 pos = TopLeft;
-            return new Rectangle(pos.X, containerHeight - pos.Y, Width, Height);
+            Vec2 pos = TopLeft;
+            return new RectangleF(pos.X, containerHeight - pos.Y, Width, Height);
         }
 
         /// <summary>
         /// Top left point in world space regardless of width or height being negative.
         /// </summary>
-        public IVec2 TopLeft
+        public Vec2 TopLeft
         {
-            get => new IVec2(MinX, MaxY);
+            get => new Vec2(MinX, MaxY);
             set
             {
                 CheckProperDimensions();
-                int upperX = _translation.X + _bounds.X;
+                float upperX = _translation.X + _bounds.X;
                 _translation.X = value.X;
                 _bounds.X = upperX - value.X;
                 _bounds.Y = value.Y - _translation.Y;
             }
         }
         /// <summary>
+        /// The horizontal location of this rectangle's origin, as an integer value floored from float value. 0 is fully left, positive values are right.
+        /// </summary>
+        public int IntX
+        {
+            get => (int)X;
+            set => X = value;
+        }
+        /// <summary>
+        /// The vertical location of this rectangle's origin, as an integer value floored from float value. 0 is fully down, positive values are up.
+        /// </summary>
+        public int IntY
+        {
+            get => (int)Y;
+            set => Y = value;
+        }
+        /// <summary>
+        /// The width of this rectangle, as an integer value floored from float value.
+        /// </summary>
+        public int IntWidth
+        {
+            get => (int)Width;
+            set => Width = value;
+        }
+        /// <summary>
+        /// The height of this rectangle, as an integer value floored from float value.
+        /// </summary>
+        public int IntHeight
+        {
+            get => (int)Height;
+            set => Height = value;
+        }
+        /// <summary>
         /// Translates this rectangle relative to the current translation using an offset.
         /// </summary>
         /// <param name="offset">The translation delta to add to the current translation.</param>
-        public void Translate(IVec2 offset)
+        public void Translate(Vec2 offset)
             => _translation += offset;
         /// <summary>
         /// Checks that the width and height are positive values. Will move the location of the rectangle to fix this.
@@ -293,21 +321,21 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// </summary>
         /// <param name="point">The point to check.</param>
         /// <returns>True if the point is contained within this rectangle.</returns>
-        public bool Contains(IVec2 point)
+        public bool Contains(Vec2 point)
             => _bounds.Contains(point - BottomLeft);
         /// <summary>
         /// Determines if this rectangle is contained within another.
         /// </summary>
         /// <param name="other">The other rectangle.</param>
         /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
-        public EContainment ContainmentWithin(BoundingRectangle other)
+        public EContainment ContainmentWithin(BoundingRectangleF other)
             => other.ContainmentOf(this);
         /// <summary>
         /// Determines if this rectangle contains another.
         /// </summary>
         /// <param name="other">The other rectangle.</param>
         /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
-        public EContainment ContainmentOf(BoundingRectangle other)
+        public EContainment ContainmentOf(BoundingRectangleF other)
         {
             if (Intersects(other))
                 return EContainment.Intersects;
@@ -317,15 +345,17 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         {
             //Can't just negate contains operation, because that would also include intersection.
             return
-                0 > MaxX || width < MinX ||
-                0 > MaxY || height < MinY;
+                0.0f > MaxX ||
+                width < MinX ||
+                0.0f > MaxY ||
+                height < MinY;
         }
         /// <summary>
         /// Returns true if this rectangle and the given rectangle are not touching or contained within another.
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool DisjointWith(BoundingRectangle other)
+        public bool DisjointWith(BoundingRectangleF other)
         {
             //Can't just negate contains operation, because that would also include intersection.
             return
@@ -337,7 +367,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// Returns true if full contains the given rectangle. If intersecting at all (including a same edge) or disjoint, returns false.
         /// </summary>
-        public bool Contains(BoundingRectangle other)
+        public bool Contains(BoundingRectangleF other)
         {
             return
                 other.MaxX <= MaxX &&
@@ -348,7 +378,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// Returns true if intersecting at all (including a same edge). If no edges are touching, returns false.
         /// </summary>
-        public bool Intersects(BoundingRectangle other)
+        public bool Intersects(BoundingRectangleF other)
         {
             return !Contains(other) && !DisjointWith(other);
             //MinX <= other.MaxX &&
@@ -361,8 +391,11 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
             return string.Format("[X:{0} Y:{1} W:{2} H:{3}]", OriginTranslation.X, OriginTranslation.Y, Width, Height);
         }
 
-        public IVec2 ClosestPoint(IVec2 point) => point.Clamped(BottomLeft, TopRight);
+        public Vec2 ClosestPoint(Vec2 point) => point.Clamped(BottomLeft, TopRight);
 
-        public bool IsEmpty() => Height == 0 || Width == 0;
+        public bool IsEmpty()
+        {
+            return IntHeight == 0 || IntWidth == 0;
+        }
     }
 }

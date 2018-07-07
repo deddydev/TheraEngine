@@ -93,7 +93,7 @@ namespace TheraEngine.Actors.Types
             ShaderVar[] prefilterVars = new ShaderVar[]
             {
                 new ShaderFloat(0.0f, "Roughness"),
-                new ShaderFloat(_colorRes, "CubemapDim"),
+                new ShaderInt(_colorRes, "CubemapDim"),
             };
             GLSLShaderFile irrShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "IrradianceConvolution.fs"), EShaderMode.Fragment);
             GLSLShaderFile prefShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "Prefilter.fs"), EShaderMode.Fragment);
@@ -106,7 +106,7 @@ namespace TheraEngine.Actors.Types
         }
         public void GenerateIrradianceMap()
         {
-            float res = _prefilterFBO.Material.Parameter<ShaderFloat>(1).Value;
+            int res = _prefilterFBO.Material.Parameter<ShaderInt>(1).Value;
             for (int i = 0; i < 6; ++i)
             {
                 _irradianceFBO.SetRenderTargets((_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i));
@@ -120,7 +120,7 @@ namespace TheraEngine.Actors.Types
                     _irradianceFBO.RenderFullscreen(face);
                 }
                 _irradianceFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-                Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(res)));
+                Engine.Renderer.PushRenderArea(new BoundingRectangle(IVec2.Zero, new IVec2(res, res)));
             }
         }
         public void GeneratePrefilterMap()
@@ -131,7 +131,7 @@ namespace TheraEngine.Actors.Types
             cube.GenerateMipmaps();
 
             int maxMipLevels = 5;
-            float res = _prefilterFBO.Material.Parameter<ShaderFloat>(1).Value;
+            int res = _prefilterFBO.Material.Parameter<ShaderInt>(1).Value;
             for (int mip = 0; mip < maxMipLevels; ++mip)
             {
                 int mipWidth = (int)(res * Math.Pow(0.5, mip));
@@ -147,7 +147,7 @@ namespace TheraEngine.Actors.Types
 
                     ECubemapFace face = ECubemapFace.PosX + i;
 
-                    Engine.Renderer.PushRenderArea(new BoundingRectangle(Vec2.Zero, new Vec2(mipWidth, mipHeight)));
+                    Engine.Renderer.PushRenderArea(new BoundingRectangle(IVec2.Zero, new IVec2(mipWidth, mipHeight)));
                     _prefilterFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
                         Engine.Renderer.Clear(EBufferClear.Color);

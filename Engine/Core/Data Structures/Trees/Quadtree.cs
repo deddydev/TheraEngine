@@ -20,7 +20,7 @@ namespace System
         /// otherwise the Quadtree will not be updated.
         /// </summary>
         void ItemMoved(I2DRenderable item);
-        void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangle? f, float lineWidth);
+        void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangleF? f, float lineWidth);
         void DebugRender(Color color, float lineWidth);
     }
     /// <summary>
@@ -28,8 +28,8 @@ namespace System
     /// </summary>
     public class Quadtree : Quadtree<I2DRenderable>
     {
-        public Quadtree(BoundingRectangle bounds) : base(bounds) { }
-        public Quadtree(BoundingRectangle bounds, List<I2DRenderable> items) : base(bounds, items) { }
+        public Quadtree(BoundingRectangleF bounds) : base(bounds) { }
+        public Quadtree(BoundingRectangleF bounds, List<I2DRenderable> items) : base(bounds, items) { }
     }
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 4 smaller axis-aligned rectangles depending on the items they contain.
@@ -43,12 +43,12 @@ namespace System
         internal HashSet<T> AllItems { get; } = new HashSet<T>();
         public int Count => AllItems.Count;
 
-        public BoundingRectangle Bounds => _head.Bounds;
+        public BoundingRectangleF Bounds => _head.Bounds;
 
-        public Quadtree(BoundingRectangle bounds) => _head = new Node(bounds, 0, 0, null, this);
-        public Quadtree(BoundingRectangle bounds, List<T> items) : this(bounds) => _head.Add(items);
+        public Quadtree(BoundingRectangleF bounds) => _head = new Node(bounds, 0, 0, null, this);
+        public Quadtree(BoundingRectangleF bounds, List<T> items) : this(bounds) => _head.Add(items);
 
-        public void Remake(BoundingRectangle? newBounds)
+        public void Remake(BoundingRectangleF? newBounds)
         {
             _head = new Node(newBounds ?? _head.Bounds, 0, 0, null, this);
             var array = AllItems.ToArray();
@@ -98,7 +98,7 @@ namespace System
         //    _head.FindAll(shape, list, containment);
         //    return list;
         //}
-        public void CollectVisible(BoundingRectangle? r, RenderPasses passes)
+        public void CollectVisible(BoundingRectangleF? r, RenderPasses passes)
         {
             if (r != null)
                 _head.CollectVisible(r.Value, passes);
@@ -141,12 +141,12 @@ namespace System
         /// <param name="f">The frustum to display intersections with. If null, does not show frustum intersections.</param>
         /// <param name="onlyContainingItems">Only renders subdivisions that contain one or more items.</param>
         /// <param name="lineWidth">The width of the bounding box lines.</param>
-        public void DebugRender(BoundingRectangle? f, bool onlyContainingItems, float lineWidth = 0.1f)
+        public void DebugRender(BoundingRectangleF? f, bool onlyContainingItems, float lineWidth = 0.1f)
             => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
 
         private class Node : IQuadtreeNode
         {
-            public Node(BoundingRectangle bounds, int subDivIndex, int subDivLevel, Node parent, Quadtree<T> owner)
+            public Node(BoundingRectangleF bounds, int subDivIndex, int subDivLevel, Node parent, Quadtree<T> owner)
             {
                 _bounds = bounds;
                 _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
@@ -159,7 +159,7 @@ namespace System
             }
 
             protected int _subDivIndex, _subDivLevel;
-            protected BoundingRectangle _bounds;
+            protected BoundingRectangleF _bounds;
             protected ThreadSafeList<T> _items;
             protected Node[] _subNodes;
             protected Node _parentNode;
@@ -171,13 +171,13 @@ namespace System
             public int SubDivIndex { get => _subDivIndex; set => _subDivIndex = value; }
             public int SubDivLevel { get => _subDivLevel; set => _subDivLevel = value; }
             public ThreadSafeList<T> Items => _items;
-            public BoundingRectangle Bounds => _bounds;
+            public BoundingRectangleF Bounds => _bounds;
             public Vec2 Center => _bounds.Translation;
             public Vec2 Min => _bounds.BottomLeft;
             public Vec2 Max => _bounds.TopRight;
             public Vec2 Extents => _bounds.Extents;
             
-            public BoundingRectangle GetSubdivision(int index)
+            public BoundingRectangleF GetSubdivision(int index)
             {
                 Node node = _subNodes[index];
                 if (node != null)
@@ -188,12 +188,12 @@ namespace System
                 Vec2 min = Min;
                 switch (index)
                 {
-                    case 0: return new BoundingRectangle(min.X, min.Y, halfExtents.X, halfExtents.Y);
-                    case 1: return new BoundingRectangle(min.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
-                    case 2: return new BoundingRectangle(min.X + halfExtents.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
-                    case 3: return new BoundingRectangle(min.X + halfExtents.X, min.Y, halfExtents.X, halfExtents.Y);
+                    case 0: return new BoundingRectangleF(min.X, min.Y, halfExtents.X, halfExtents.Y);
+                    case 1: return new BoundingRectangleF(min.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
+                    case 2: return new BoundingRectangleF(min.X + halfExtents.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
+                    case 3: return new BoundingRectangleF(min.X + halfExtents.X, min.Y, halfExtents.X, halfExtents.Y);
                 }
-                return BoundingRectangle.Empty;
+                return BoundingRectangleF.Empty;
             }
 
             #region Child movement
@@ -213,7 +213,7 @@ namespace System
                     //Try subdividing
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
-                        BoundingRectangle bounds = GetSubdivision(i);
+                        BoundingRectangleF bounds = GetSubdivision(i);
                         if (item.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                         {
                             QueueRemove(item);
@@ -257,7 +257,7 @@ namespace System
             #region Debug
             static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, RotationOrder.YPR);
             static readonly Vec3 Bias = new Vec3(0.0f, 0.0f, 0.1f);
-            public void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangle? f, float lineWidth)
+            public void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangleF? f, float lineWidth)
             {
                 Color color = Color.Red;
                 if (recurse)
@@ -270,7 +270,7 @@ namespace System
                 }
                 if (!onlyContainingItems || _items.Count != 0)
                 {
-                    BoundingRectangle region;
+                    BoundingRectangleF region;
                     //bool anyVisible = false;
                     for (int i = 0; i < _items.Count; ++i)
                     {
@@ -286,7 +286,7 @@ namespace System
             #endregion
 
             #region Visible collection
-            public void CollectVisible(BoundingRectangle bounds, RenderPasses passes)
+            public void CollectVisible(BoundingRectangleF bounds, RenderPasses passes)
             {
                 EContainment c = bounds.ContainmentOf(_bounds);
                 if (c != EContainment.Disjoint)
@@ -383,7 +383,7 @@ namespace System
                     if (i == ignoreSubNode)
                         continue;
 
-                    BoundingRectangle bounds = GetSubdivision(i);
+                    BoundingRectangleF bounds = GetSubdivision(i);
                     if (item.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                     {
                         CreateSubNode(bounds, i)?.Add(item);
@@ -623,7 +623,7 @@ namespace System
                         return false;
                 return true;
             }
-            private Node CreateSubNode(BoundingRectangle bounds, int index)
+            private Node CreateSubNode(BoundingRectangleF bounds, int index)
             {
                 try
                 {

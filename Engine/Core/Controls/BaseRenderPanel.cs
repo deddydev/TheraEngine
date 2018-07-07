@@ -109,7 +109,8 @@ namespace TheraEngine
         //}
         /// <summary>
         /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method.
+        /// If it does, then it calls the method. You should return from the original method if calling this method on itself.
+        /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
         /// </summary>
         public static bool ThreadSafeBlockingInvoke<T>(Delegate method, PanelType type, out T result, params object[] args)
         {
@@ -123,7 +124,8 @@ namespace TheraEngine
         }
         /// <summary>
         /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method.
+        /// If it does, then it calls the method. You should return from the original method if calling this method on itself.
+        /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
         /// </summary>
         public static bool ThreadSafeBlockingInvoke(Delegate method, PanelType type, params object[] args)
         {

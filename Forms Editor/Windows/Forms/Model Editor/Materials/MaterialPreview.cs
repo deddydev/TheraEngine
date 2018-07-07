@@ -53,7 +53,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _light = new DirectionalLightComponent();
                 _light.SetShadowMapResolution(128, 128);
-                _light.WorldRadius = 100.0f;
+                _light.Extents = 100.0f;
                 _light.Rotation.Yaw = 0.0f;
                 _light.Rotation.Pitch = 0.0f;
                 basicRenderPanel1.Scene.Lights.Add(_light);

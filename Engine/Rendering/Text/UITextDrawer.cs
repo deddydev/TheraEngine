@@ -116,7 +116,7 @@ namespace TheraEngine.Rendering.Text
 
                     foreach (UIString2D text in _text.OrderBy(x => x.Order))
                     {
-                        BoundingRectangle bounds = text.Bounds;
+                        BoundingRectangleF bounds = text.Bounds;
                         if (!bounds.DisjointWith(b.Width, b.Height))
                         {
                             PointF pos = bounds.OriginTranslation;
@@ -133,7 +133,7 @@ namespace TheraEngine.Rendering.Text
                 {
                     foreach (UIString2D text in _modified)
                     {
-                        BoundingRectangle bounds = text.Bounds;
+                        BoundingRectangleF bounds = text.Bounds;
                         if (!bounds.DisjointWith(b.Width, b.Height))
                         {
                             PointF pos = bounds.OriginTranslation;

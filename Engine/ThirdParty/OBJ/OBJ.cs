@@ -95,7 +95,7 @@ namespace TheraEngine.Rendering.Models
                 };
                 RenderingParameters param = new RenderingParameters()
                 {
-                    Requirements = forward ? EUniformRequirements.LightsAndCamera : EUniformRequirements.None
+                    Requirements = EUniformRequirements.None
                 };
                 return new TMaterial("UnnamedMaterial", param, parameters, new TexRef2D[0], shader);
             }
@@ -125,7 +125,7 @@ namespace TheraEngine.Rendering.Models
 
                 RenderingParameters param = new RenderingParameters()
                 {
-                    Requirements = forward ? EUniformRequirements.LightsAndCamera : EUniformRequirements.None
+                    Requirements = EUniformRequirements.None
                 };
                 return new TMaterial(objMat.Name, parameters, textures, shader);
             }

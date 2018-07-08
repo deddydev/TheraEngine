@@ -44,11 +44,10 @@ namespace TheraEngine.Rendering
         //    foreach (I2DRenderable r in _renderables)
         //        r.AddRenderables(_passes);
         //}
-        public override void Update(RenderPasses populatingPasses, IVolume cullingVolume, Camera camera, IUIManager hud, bool shadowPass)
+        public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, Camera camera, bool shadowPass)
         {
             foreach (I2DRenderable r in _renderables)
                 r.AddRenderables(populatingPasses);
-            base.Update(populatingPasses, cullingVolume, camera, hud, shadowPass);
         }
         public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target)
         {

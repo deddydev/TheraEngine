@@ -15,31 +15,22 @@ namespace TheraEngine.Components.Scene.Lights
     {
         private float _outerCutoff, _innerCutoff, _distance;
         private Vec3 _direction;
-        [TSerialize]
-        private IVec2 _shadowDims;
 
-        [Category("Spotlight Component")]
-        public Vec3 Position
-        {
-            get => WorldMatrix.Translation;
-            set => WorldMatrix = value.AsTranslationMatrix();
-        }
-
-        [Category("Spotlight Component")]
+        [Category("Spot Light Component")]
         public int ShadowMapResolutionWidth
         {
-            get => _shadowDims.X;
-            set => SetShadowMapResolution(value, _shadowDims.Y);
+            get => _region.Width;
+            set => SetShadowMapResolution(value, _region.Height);
         }
-        [Category("Spotlight Component")]
+        [Category("Spot Light Component")]
         public int ShadowMapResolutionHeight
         {
-            get => _shadowDims.Y;
-            set => SetShadowMapResolution(_shadowDims.X, value);
+            get => _region.Height;
+            set => SetShadowMapResolution(_region.Width, value);
         }
 
         [TSerialize]
-        [Category("Spotlight Component")]
+        [Category("Spot Light Component")]
         public float Distance
         {
             get => _distance;
@@ -63,7 +54,7 @@ namespace TheraEngine.Components.Scene.Lights
             }
         }
         [TSerialize]
-        [Category("Spotlight Component")]
+        [Category("Spot Light Component")]
         public Vec3 Direction
         {
             get => _direction;
@@ -74,18 +65,18 @@ namespace TheraEngine.Components.Scene.Lights
             }
         }
         [TSerialize]
-        [Category("Spotlight Component")]
+        [Category("Spot Light Component")]
         public float Exponent { get; set; }
         [TSerialize]
-        [Category("Spotlight Component")]
+        [Category("Spot Light Component")]
         public float Brightness { get; set; }
-        [Category("Spotlight Component")]
+        [Category("Spot Light Component")]
         public float OuterCutoffAngleDegrees
         {
             get => TMath.RadToDeg((float)Math.Acos(_outerCutoff));
             set => SetCutoffs(InnerCutoffAngleDegrees, value, true);
         }
-        [Category("Spotlight Component")]
+        [Category("Spot Light Component")]
         public float InnerCutoffAngleDegrees
         {
             get => TMath.RadToDeg((float)Math.Acos(_innerCutoff));
@@ -127,13 +118,9 @@ namespace TheraEngine.Components.Scene.Lights
         [ReadOnly(true)]
         [Category("Spotlight Component")]
         public ConeZ InnerCone { get; }
-
+        
         [Browsable(false)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
-        [Browsable(false)]
-        public Shape CullingVolume => OuterCone;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
+        public override Shape CullingVolume => OuterCone;
 
         //public void Render()
         //{
@@ -227,7 +214,7 @@ namespace TheraEngine.Components.Scene.Lights
 
         public override void OnSpawned()
         {
-            if (Type == LightType.Dynamic)
+            if (Type == ELightType.Dynamic)
             {
                 OwningScene.Lights.Add(this);
                 SetShadowMapResolution(1024, 1024);
@@ -240,7 +227,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnDespawned()
         {
-            if (Type == LightType.Dynamic)
+            if (Type == ELightType.Dynamic)
                 OwningScene.Lights.Remove(this);
 
 #if EDITOR
@@ -270,7 +257,8 @@ namespace TheraEngine.Components.Scene.Lights
             => SetShadowMapResolution(new IVec2(width, height));
         public void SetShadowMapResolution(IVec2 dims)
         {
-            _shadowDims = dims;
+            _region.Width = dims.X;
+            _region.Height = dims.Y;
             if (ShadowMap == null)
                 ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(dims.X, dims.Y));
             else
@@ -333,11 +321,6 @@ namespace TheraEngine.Components.Scene.Lights
                 }
             }
             base.OnSelectedChanged(selected);
-        }
-
-        public void AddRenderables(RenderPasses passes, Camera camera)
-        {
-
         }
 #endif
     }

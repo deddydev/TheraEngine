@@ -115,16 +115,16 @@ namespace TheraEngine.Rendering.Cameras
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
             _projectionInverse = Matrix4.CreateInversePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
 
-            int slices = _transformedFrustumCascade.Length;
-            float zRange = _farZ - _nearZ;
-            float zSliceRange = zRange / slices;
-            float nearZ = _nearZ;
-            for (int i = 0; i < slices; ++i, nearZ += zSliceRange)
-            {
-                Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, nearZ, nearZ + zSliceRange);
-                _transformedFrustumProjMatrices[i] = proj;
-                _transformedFrustumShadowMatrices[i] = proj * WorldToCameraSpaceMatrix;
-            }
+            //int slices = _transformedFrustumCascade.Length;
+            //float zRange = _farZ - _nearZ;
+            //float zSliceRange = zRange / slices;
+            //float nearZ = _nearZ;
+            //for (int i = 0; i < slices; ++i, nearZ += zSliceRange)
+            //{
+            //    Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, nearZ, nearZ + zSliceRange);
+            //    _transformedFrustumProjMatrices[i] = proj;
+            //    _transformedFrustumShadowMatrices[i] = proj * WorldToCameraSpaceMatrix;
+            //}
             base.CalculateProjection();
         }
         public void SetProjectionParams(float aspect, float fovy, float farz, float nearz)
@@ -133,20 +133,19 @@ namespace TheraEngine.Rendering.Cameras
             _farZ = farz;
             _nearZ = nearz;
 
-            //This will set _fovX too
+            //This will set _fovX and calc projection too
             VerticalFieldOfView = fovy;
-
-            CalculateProjection();
         }
         protected override void UpdateTransformedFrustum()
         {
             base.UpdateTransformedFrustum();
-            _transformedFrustum.SetSubFrustums(_transformedFrustumCascade);
+            //_transformedFrustum.SetSubFrustums(_transformedFrustumCascade);
         }
         public override void Render()
         {
-            foreach (Frustum f in _transformedFrustumCascade)
-                f.Render();
+            _transformedFrustum.Render();
+            //foreach (Frustum f in _transformedFrustumCascade)
+            //    f.Render();
 
             if (ViewTarget != null)
                 Engine.Renderer.RenderLine(WorldPoint, ViewTarget.Raw, Color.DarkGray, 1.0f);

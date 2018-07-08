@@ -6,11 +6,11 @@ const float InvPI = 0.31831f;
 layout(location = 0) out vec3 OutColor; //Diffuse lighting output
 layout(location = 0) in vec3 FragPos;
 
-layout(binding = 0) uniform sampler2D Texture0; //AlbedoOpacity
-layout(binding = 1) uniform sampler2D Texture1; //Normal
-layout(binding = 2) uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
-layout(binding = 3) uniform sampler2D Texture3; //Depth
-layout(binding = 4) uniform samplerCube Texture4; //Point Shadow Map
+uniform sampler2D Texture0; //AlbedoOpacity
+uniform sampler2D Texture1; //Normal
+uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
+uniform sampler2D Texture3; //Depth
+uniform samplerCube Texture4; //Point Shadow Map
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
@@ -229,5 +229,5 @@ void main()
   float fadeRange = MaxFade - MinFade;
   float dist = length(CameraPosition - fragPosWS);
   float strength = smoothstep(1.0f, 0.0f, clamp((dist - MinFade) / fadeRange, 0.0f, 1.0f));
-  OutColor = strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
+  OutColor = vec3(1.0f, 0.0f, 0.0f);//strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
 }

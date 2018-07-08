@@ -1,22 +1,16 @@
 ﻿using System;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering;
 using System.ComponentModel;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene.Lights
 {
     [FileDef("Directional Light Component")]
     public class DirectionalLightComponent : LightComponent
     {
-        [TSerialize(nameof(ShadowMapResolutionWidth))]
-        private int _shadowWidth = 4096;
-        [TSerialize(nameof(ShadowMapResolutionHeight))]
-        private int _shadowHeight = 4096;
-
         private Vec3 _extents;
         private Vec3 _direction;
 
@@ -41,14 +35,14 @@ namespace TheraEngine.Components.Scene.Lights
         [Category("Directional Light Component")]
         public int ShadowMapResolutionWidth
         {
-            get => _shadowWidth;
-            set => SetShadowMapResolution(value, _shadowHeight);
+            get => _region.Width;
+            set => SetShadowMapResolution(value, _region.Height);
         }
         [Category("Directional Light Component")]
         public int ShadowMapResolutionHeight
         {
-            get => _shadowHeight;
-            set => SetShadowMapResolution(_shadowWidth, value);
+            get => _region.Height;
+            set => SetShadowMapResolution(_region.Width, value);
         }
         [Category("Directional Light Component")]
         public Vec3 Direction
@@ -64,27 +58,17 @@ namespace TheraEngine.Components.Scene.Lights
         public DirectionalLightComponent() 
             : this(new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity)
-            : base(color, diffuseIntensity)
-        {
-            _rotation.Pitch = -90.0f;
-        }
+            : base(color, diffuseIntensity) => _rotation.Pitch = -90.0f;
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Rotator rotation)
-            : base(color, diffuseIntensity)
-        {
-            _rotation.SetRotations(rotation);
-        }
+            : base(color, diffuseIntensity) => _rotation.SetRotations(rotation);
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Vec3 direction) 
-            : base(color, diffuseIntensity)
-        {
-            Direction = direction;
-        }
-
+            : base(color, diffuseIntensity) => Direction = direction;
+        
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             _direction = _rotation.GetDirection();
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
-        
         protected override void OnWorldTransformChanged()
         {
             if (ShadowCamera != null)
@@ -97,15 +81,14 @@ namespace TheraEngine.Components.Scene.Lights
 
             base.OnWorldTransformChanged();
         }
-
         public override void OnSpawned()
         {
-            if (Type == LightType.Dynamic)
+            if (Type == ELightType.Dynamic)
             {
                 OwningScene.Lights.Add(this);
 
                 if (ShadowMap == null)
-                    SetShadowMapResolution(_shadowWidth, _shadowHeight);
+                    SetShadowMapResolution(1024, 1024);
 
                 ShadowCamera.LocalPoint.Raw = WorldPoint;
                 ShadowCamera.TranslateRelative(0.0f, 0.0f, Extents.Z * 0.5f);
@@ -113,10 +96,9 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnDespawned()
         {
-            if (Type == LightType.Dynamic)
+            if (Type == ELightType.Dynamic)
                 OwningScene.Lights.Remove(this);
         }
-
         public override void SetUniforms(RenderProgram program)
         {
             string indexer = Uniform.DirectionalLightsName + ".";
@@ -128,11 +110,11 @@ namespace TheraEngine.Components.Scene.Lights
             var tex = ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
             TMaterialBase.SetTextureUniform(tex, 4, "Texture4", program);
         }
-
         public void SetShadowMapResolution(int width, int height)
         {
-            _shadowWidth = width;
-            _shadowHeight = height;
+            _region.Width = width;
+            _region.Height = height;
+
             if (ShadowMap == null)
                 ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
             else
@@ -147,7 +129,6 @@ namespace TheraEngine.Components.Scene.Lights
             //else
             //    _shadowCamera.Resize(_worldRadius, _worldRadius);
         }
-        
         private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
             TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
@@ -166,7 +147,6 @@ namespace TheraEngine.Components.Scene.Lights
 
             return mat;
         }
-
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {

@@ -139,7 +139,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             RenderingParameters param = new RenderingParameters()
             {
-                Requirements = deferred ? EUniformRequirements.None : EUniformRequirements.LightsAndCamera
+                Requirements = EUniformRequirements.None
             };
             GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", param, frag);
@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             RenderingParameters param = new RenderingParameters()
             {
-                Requirements = deferred ? EUniformRequirements.None : EUniformRequirements.LightsAndCamera
+                Requirements = EUniformRequirements.None
             };
             GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", param, new TexRef2D[] { texture }, frag);
@@ -201,7 +201,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             RenderingParameters param = new RenderingParameters()
             {
-                Requirements = deferred ? EUniformRequirements.None : EUniformRequirements.LightsAndCamera
+                Requirements = EUniformRequirements.None
             };
             return new TMaterial("LitColorMaterial", param, parameters, frag);
         }
@@ -331,7 +331,7 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
             GLSLShaderFile s = new GLSLShaderFile(EShaderMode.Fragment, source);
             RenderingParameters param = new RenderingParameters()
             {
-                Requirements = EUniformRequirements.LightsAndCamera
+                Requirements = EUniformRequirements.None
             };
             return new TMaterial("BlinnMaterial", param, parameters, s);
         }

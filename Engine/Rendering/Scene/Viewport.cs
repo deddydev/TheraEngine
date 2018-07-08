@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering
                     //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
                     _worldCamera.Resize(_internalResolution.Width, _internalResolution.Height);
                     if (_worldCamera is PerspectiveCamera p)
-                        p.Aspect = Width / Height;
+                        p.Aspect = (float)Width / Height;
                 }
             }
         }
@@ -288,7 +288,8 @@ namespace TheraEngine.Rendering
         }
         public void Update(BaseScene scene, Camera camera, Frustum frustum)
         {
-            scene?.Update(_renderPasses, frustum, camera, HUD, false);
+            scene?.Update(_renderPasses, frustum, camera, false);
+            HUD?.UIScene?.Update(HUD.RenderPasses, null, HUD.Camera, false);
         }
 
         #region Coordinate conversion
@@ -827,17 +828,7 @@ namespace TheraEngine.Rendering
 
                 TMaterial ssaoMat = new TMaterial("SSAOMat", renderParams, ssaoRefs, ssaoShader);
                 TMaterial ssaoBlurMat = new TMaterial("SSAOBlurMat", renderParams, ssaoBlurRefs, ssaoBlurShader);
-
-                RenderingParameters renderParamsDeferred = new RenderingParameters();
-                renderParamsDeferred.DepthTest.Enabled = ERenderParamUsage.Unchanged;
-                renderParamsDeferred.DepthTest.UpdateDepth = false;
-                renderParamsDeferred.DepthTest.Function = EComparison.Always;
-                renderParamsDeferred.Requirements = EUniformRequirements.Lights;
-
-                //GLSLShaderFile deferredShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLighting.fs"), EShaderMode.Fragment);
-                //TMaterial deferredMat = new TMaterial("DeferredLightingMaterial",
-                //    renderParamsDeferred, deferredLightingRefs, deferredShader);
-
+                
                 SSAOFBO = new QuadFrameBuffer(ssaoMat);
                 SSAOFBO.SettingUniforms += SSAO_SetUniforms;
                 SSAOFBO.SetRenderTargets(
@@ -921,7 +912,7 @@ namespace TheraEngine.Rendering
 
                 PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
                 PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
-                PrimitiveData dirLightMesh = BoundingBox.SolidMesh(Vec3.Half, Vec3.Half);
+                PrimitiveData dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
 
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;

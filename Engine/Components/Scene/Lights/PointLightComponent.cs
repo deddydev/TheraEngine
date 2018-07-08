@@ -5,21 +5,20 @@ using TheraEngine.Rendering;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Maths.Transforms;
-using System.Drawing;
 using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Scene.Lights
 {
     [FileDef("Point Light Component")]
-    public class PointLightComponent : LightComponent, I3DRenderable
+    public class PointLightComponent : LightComponent
     {
         [Category("Point Light Component")]
         public float Radius
         {
-            get => _cullingVolume.Radius;
+            get => _influenceVolume.Radius;
             set
             {
-                _cullingVolume.Radius = value;
+                _influenceVolume.Radius = value;
                 foreach (PerspectiveCamera cam in ShadowCameras)
                     cam.FarZ = value;
             }
@@ -33,24 +32,16 @@ namespace TheraEngine.Components.Scene.Lights
         [Category("Point Light Component")]
         public float Brightness { get; set; } = 1.0f;
         [Browsable(false)]
-        [ReadOnly(true)]
         [Category("Point Light Component")]
         public PerspectiveCamera[] ShadowCameras { get; }
 
-        [Browsable(false)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
-        [Browsable(false)]
-        public Shape CullingVolume => _cullingVolume;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-        
-        private Sphere _cullingVolume;
+        private Sphere _influenceVolume;
 
         public PointLightComponent() : this(100.0f, 1.0f, new ColorF3(1.0f, 1.0f, 1.0f), 1.0f) { }
         public PointLightComponent(float radius, float brightness, ColorF3 color, float diffuseIntensity) 
             : base(color, diffuseIntensity)
         {
-            _cullingVolume = new Sphere(radius);
+            _influenceVolume = new Sphere(radius);
             Brightness = brightness;
 
             ShadowCameras = new PerspectiveCamera[6];
@@ -81,7 +72,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         protected override void OnWorldTransformChanged()
         {
-            _cullingVolume.SetRenderTransform(WorldMatrix);
+            _influenceVolume.SetRenderTransform(WorldMatrix);
             foreach (PerspectiveCamera cam in ShadowCameras)
                 cam.LocalPoint.Raw = WorldMatrix.Translation;
             LightMatrix = WorldMatrix * Matrix4.CreateScale(Radius);
@@ -90,10 +81,12 @@ namespace TheraEngine.Components.Scene.Lights
 
         public override void OnSpawned()
         {
-            if (Type == LightType.Dynamic)
+            if (Type == ELightType.Dynamic)
             {
                 OwningScene.Lights.Add(this);
-                SetShadowMapResolution(512);
+
+                if (ShadowMap == null)
+                    SetShadowMapResolution(512);
             }
 #if EDITOR
             if (Engine.EditorState.InEditMode)
@@ -102,7 +95,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnDespawned()
         {
-            if (Type == LightType.Dynamic)
+            if (Type == ELightType.Dynamic)
                 OwningScene.Lights.Remove(this);
 #if EDITOR
             if (Engine.EditorState.InEditMode)
@@ -110,7 +103,7 @@ namespace TheraEngine.Components.Scene.Lights
 #endif
         }
 
-        protected override IVolume GetShadowVolume() => _cullingVolume;
+        protected override IVolume GetShadowVolume() => _influenceVolume;
         /// <summary>
         /// This is to set uniforms in the GBuffer lighting shader or in a forward shader that requests lighting uniforms.
         /// </summary>
@@ -119,12 +112,12 @@ namespace TheraEngine.Components.Scene.Lights
             string indexer = Uniform.PointLightsName + ".";
             program.Uniform(indexer + "Base.Color", _color.Raw);
             program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            program.Uniform(indexer + "Position", _cullingVolume.Center);
+            program.Uniform(indexer + "Position", _influenceVolume.Center);
             program.Uniform(indexer + "Radius", Radius);
             program.Uniform(indexer + "Brightness", Brightness);
 
-            TMaterialBase.SetTextureUniform(
-                ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true), 4, "Texture4", program);
+            var tex = ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
+            TMaterialBase.SetTextureUniform(tex, 4, "Texture4", program);
         }
         /// <summary>
         /// This is to set special uniforms each time something is rendered with the shadow depth shader.
@@ -132,7 +125,7 @@ namespace TheraEngine.Components.Scene.Lights
         private void SetShadowDepthUniforms(RenderProgram program)
         {
             program.Uniform("FarPlaneDist", Radius);
-            program.Uniform("LightPos", _cullingVolume.Center);
+            program.Uniform("LightPos", _influenceVolume.Center);
             for (int i = 0; i < ShadowCameras.Length; ++i)
                 program.Uniform(string.Format("ShadowMatrices[{0}]", i), ShadowCameras[i].WorldToCameraProjSpaceMatrix);
         }
@@ -178,27 +171,17 @@ namespace TheraEngine.Components.Scene.Lights
         {
             if (selected)
             {
-                OwningScene.Add(_cullingVolume);
+                OwningScene.Add(_influenceVolume);
                 //foreach (PerspectiveCamera c in ShadowCameras)
                 //    Engine.Scene.Add(c);
             }
             else
             {
-                OwningScene.Remove(_cullingVolume);
+                OwningScene.Remove(_influenceVolume);
                 //foreach (PerspectiveCamera c in ShadowCameras)
                 //    Engine.Scene.Remove(c);
             }
             base.OnSelectedChanged(selected);
-        }
-
-        public void AddRenderables(RenderPasses passes)
-        {
-            //passes.Add(Position, Color.LimeGreen, 20.0f);
-        }
-
-        public void AddRenderables(RenderPasses passes, Camera camera)
-        {
-
         }
 #endif
     }

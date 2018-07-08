@@ -6,11 +6,11 @@ const float InvPI = 0.31831f;
 layout(location = 0) out vec3 OutColor; //Diffuse lighting output
 layout(location = 0) in vec3 FragPos;
 
-layout(binding = 0) uniform sampler2D Texture0; //AlbedoOpacity
-layout(binding = 1) uniform sampler2D Texture1; //Normal
-layout(binding = 2) uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
-layout(binding = 3) uniform sampler2D Texture3; //Depth
-layout(binding = 4) uniform sampler2D Texture4; //Directional Shadow Map
+uniform sampler2D Texture0; //AlbedoOpacity
+uniform sampler2D Texture1; //Normal
+uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
+uniform sampler2D Texture3; //Depth
+uniform sampler2D Texture4; //Directional Shadow Map
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
@@ -25,6 +25,9 @@ uniform mat4 WorldToCameraSpaceMatrix;
 uniform mat4 CameraToWorldSpaceMatrix;
 uniform mat4 ProjMatrix;
 uniform mat4 InvProjMatrix;
+
+uniform float MinFade = 500.0f;
+uniform float MaxFade = 1000.0f;
 
 struct BaseLight
 {
@@ -186,7 +189,6 @@ in vec3 rms)
 {
 	float metallic = rms.y;
 	vec3 V = normalize(CameraPosition - fragPosWS);
-	float NoV = max(dot(normal, V), 0.0f);
 	vec3 F0 = mix(vec3(0.04f), albedo, metallic);
 	return CalcDirLight(normal, V, fragPosWS, albedo, rms, F0);
 }
@@ -210,5 +212,8 @@ void main()
 	//Resolve world fragment position using depth and screen UV
 	vec3 fragPosWS = WorldPosFromDepth(depth, uv);
 
-	OutColor = CalcTotalLight(fragPosWS, normal, albedo, rms);
+  float fadeRange = MaxFade - MinFade;
+  float dist = length(CameraPosition - fragPosWS);
+  float strength = smoothstep(1.0f, 0.0f, clamp((dist - MinFade) / fadeRange, 0.0f, 1.0f));
+	OutColor = strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
 }

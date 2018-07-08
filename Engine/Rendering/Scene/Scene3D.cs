@@ -83,10 +83,9 @@ namespace TheraEngine.Rendering
             //Engine.Renderer.PopRenderArea();
             //Engine.Renderer.ColorMask(true, true, true, true);
         }
-        public override void Update(RenderPasses populatingPasses, IVolume cullingVolume, Camera camera, IUIManager hud, bool shadowPass)
+        public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, Camera camera, bool shadowPass)
         {
-            RenderTree.CollectVisible(cullingVolume, populatingPasses, camera, shadowPass);
-            base.Update(populatingPasses, cullingVolume, camera, hud, shadowPass);
+            RenderTree.CollectVisible(collectionVolume, populatingPasses, camera, shadowPass);
         }
         public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target)
         {

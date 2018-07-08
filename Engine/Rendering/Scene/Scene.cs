@@ -114,15 +114,15 @@ namespace TheraEngine.Rendering
         //    _removedIds.Enqueue(material.UniqueID);
         //    _activeMaterials.RemoveAt(material.UniqueID);
         //}
-
-        public virtual void Update(RenderPasses populatingPasses, IVolume cullingVolume, Camera camera, IUIManager hud, bool shadowPass)
+        public abstract void CollectVisible(RenderPasses passes, IVolume collectionVolume, Camera camera, bool shadowPass);
+        public void Update(RenderPasses passes, IVolume collectionVolume, Camera camera, bool shadowPass)
         {
-            hud?.UIScene?.Update(hud.RenderPasses, cullingVolume, hud.Camera, null, shadowPass);
+            CollectVisible(passes, collectionVolume, camera, shadowPass);
             PreRenderUpdate(camera);
         }
         public void PreRenderUpdate(Camera camera)
         {
-            //TODO: prerender on own consistent thread
+            //TODO: prerender on own consistent animation thread
             //ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRender(camera); }));
             foreach (IPreRendered p in _preRenderList)
                 p.PreRenderUpdate(camera);

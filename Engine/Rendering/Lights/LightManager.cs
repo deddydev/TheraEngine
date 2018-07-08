@@ -16,20 +16,20 @@ namespace TheraEngine.Rendering
 
         public ColorF3 GlobalAmbient { get; set; }
 
-        internal void SetUniforms(RenderProgram program)
-        {
-            //Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", _globalAmbient);
-            //Engine.Renderer.Uniform(programBindingId, "DirLightCount", _directionalLights.Count);
-            //Engine.Renderer.Uniform(programBindingId, "PointLightCount", _pointLights.Count);
-            //Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count);
+        //internal void SetUniforms(RenderProgram program)
+        //{
+        //    //Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", _globalAmbient);
+        //    //Engine.Renderer.Uniform(programBindingId, "DirLightCount", _directionalLights.Count);
+        //    //Engine.Renderer.Uniform(programBindingId, "PointLightCount", _pointLights.Count);
+        //    //Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count);
 
-            foreach (DirectionalLightComponent l in DirectionalLights)
-                l.SetUniforms(program);
-            foreach (SpotLightComponent l in SpotLights)
-                l.SetUniforms(program);
-            foreach (PointLightComponent l in PointLights)
-                l.SetUniforms(program);
-        }
+        //    foreach (DirectionalLightComponent l in DirectionalLights)
+        //        l.SetUniforms(program);
+        //    foreach (SpotLightComponent l in SpotLights)
+        //        l.SetUniforms(program);
+        //    foreach (PointLightComponent l in PointLights)
+        //        l.SetUniforms(program);
+        //}
 
         public void Add(DirectionalLightComponent light)    => DirectionalLights.Add(light);
         public void Remove(DirectionalLightComponent light) => DirectionalLights.Remove(light);

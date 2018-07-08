@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -46,13 +48,15 @@ namespace TheraEditor.Windows.Forms
             float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
             PerspectiveCamera c = new PerspectiveCamera(
                 new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
-            c.PostProcessRef.File.ColorGrading.AutoExposure = false;
-            c.PostProcessRef.File.ColorGrading.Exposure = 10.0f;
+            c.PostProcessRef.File.ColorGrading.AutoExposure = true;
+            c.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
             basicRenderPanel1.Camera = c;
             if (_light == null)
             {
                 _light = new DirectionalLightComponent();
                 _light.SetShadowMapResolution(128, 128);
+                _light.DiffuseIntensity = 2000.0f;
+                _light.LightColor = (ColorF3)Color.White;
                 _light.Extents = 100.0f;
                 _light.Rotation.Yaw = 0.0f;
                 _light.Rotation.Pitch = 0.0f;
@@ -152,6 +156,11 @@ namespace TheraEditor.Windows.Forms
                         _spherePrim = new PrimitiveRenderWrapper( //0.8f instead of 1.0f for border padding
                             new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
                         basicRenderPanel1.Scene.Add(_spherePrim);
+                        IBLProbeGridActor probes = new IBLProbeGridActor();
+                        probes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
+                        probes.SceneComponentCache.ForEach(x => x.OwningScene = basicRenderPanel1.Scene);
+                        probes.InitAndCaptureAll(64);
+                        basicRenderPanel1.Scene.IBLProbeActor = probes;
                     }
                     else
                         _spherePrim.Material = _material;

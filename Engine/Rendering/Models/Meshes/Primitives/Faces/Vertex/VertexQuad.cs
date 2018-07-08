@@ -64,15 +64,14 @@ namespace TheraEngine.Rendering.Models
         }
 
         public static VertexQuad MakeQuad(
-            Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, ECubemapFace cubeMapFace, bool widthLarger, bool flipVerticalUVCoord = true)
+            Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, ECubemapFace cubeMapFace, bool widthLarger, float bias = 0.002f, bool flipVerticalUVCoord = true)
         {
             Vec2 
                 bottomLeftUV = Vec2.Zero, 
                 bottomRightUV = Vec2.Zero, 
                 topRightUV = Vec2.Zero, 
                 topLeftUV = Vec2.Zero;
-
-            float bias = 0.002f;
+            
             float zero = 0.0f;
             float fourth = 0.25f;
             float half = 0.5f;

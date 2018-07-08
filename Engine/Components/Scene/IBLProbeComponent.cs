@@ -13,15 +13,13 @@ namespace TheraEngine.Actors.Types
     {
         private CubeFrameBuffer _irradianceFBO;
         private CubeFrameBuffer _prefilterFBO;
-        private TexRefCube _irradianceTex;
-        private TexRefCube _prefilterTex;
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
         public Shape CullingVolume => null;
         public IOctreeNode OctreeNode { get; set; }
 
-        public TexRefCube IrradianceTex => _irradianceTex;
-        public TexRefCube PrefilterTex => _prefilterTex;
+        public TexRefCube IrradianceTex { get; private set; }
+        public TexRefCube PrefilterTex { get; private set; }
 
         public IBLProbeComponent() : base()
         {
@@ -48,30 +46,11 @@ namespace TheraEngine.Actors.Types
                 GeneratePrefilterMap();
             }
         }
-        //protected override FrameBuffer GetFBO(int cubeExtent)
-        //{
-        //    _cubeTex = new TexRefCube("SceneCaptureCubeMap", cubeExtent,
-        //        EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
-        //    {
-        //        MinFilter = ETexMinFilter.LinearMipmapLinear,
-        //        MagFilter = ETexMagFilter.Linear,
-        //        UWrap = ETexWrapMode.ClampToEdge,
-        //        VWrap = ETexWrapMode.ClampToEdge,
-        //        WWrap = ETexWrapMode.ClampToEdge,
-        //    };
-
-        //    TMaterial mat = new TMaterial("PassThruEnvMat", new BaseTexRef[] { _cubeTex }, 
-        //        Engine.LoadEngineShader(Path.Combine("Common", "UnlitTexturedForward.fs"), EShaderMode.Fragment));
-
-        //    CubeFrameBuffer f = new CubeFrameBuffer(mat, true);
-        //    f.SetRenderTargets((_cubeTex, EFramebufferAttachment.ColorAttachment0, 0));
-        //    return f;
-        //}
         protected override void InitializeForCapture()
         {
             base.InitializeForCapture();
 
-            _irradianceTex = new TexRefCube("IrradianceTex", _colorRes,
+            IrradianceTex = new TexRefCube("IrradianceTex", _colorRes,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
             {
                 MinFilter = ETexMinFilter.Linear,
@@ -80,7 +59,7 @@ namespace TheraEngine.Actors.Types
                 VWrap = ETexWrapMode.ClampToEdge,
                 WWrap = ETexWrapMode.ClampToEdge,
             };
-            _prefilterTex = new TexRefCube("PrefilterTex", _colorRes,
+            PrefilterTex = new TexRefCube("PrefilterTex", _colorRes,
                 EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
             {
                 MinFilter = ETexMinFilter.LinearMipmapLinear,
@@ -97,10 +76,12 @@ namespace TheraEngine.Actors.Types
             };
             GLSLShaderFile irrShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "IrradianceConvolution.fs"), EShaderMode.Fragment);
             GLSLShaderFile prefShader = Engine.LoadEngineShader(Path.Combine("Scene3D", "Prefilter.fs"), EShaderMode.Fragment);
+
             RenderingParameters r = new RenderingParameters();
             r.DepthTest.Enabled = ERenderParamUsage.Unchanged;
             TMaterial irrMat = new TMaterial("IrradianceMat", r, new ShaderVar[0], new TexRefCube[] { _envTex }, irrShader);
             TMaterial prefMat = new TMaterial("PrefilterMat", r, prefilterVars, new TexRefCube[] { _envTex }, prefShader);
+
             _irradianceFBO = new CubeFrameBuffer(irrMat, 0.1f, 3.0f, false);
             _prefilterFBO = new CubeFrameBuffer(prefMat, 0.1f, 3.0f, false);
         }
@@ -109,7 +90,7 @@ namespace TheraEngine.Actors.Types
             int res = _prefilterFBO.Material.Parameter<ShaderInt>(1).Value;
             for (int i = 0; i < 6; ++i)
             {
-                _irradianceFBO.SetRenderTargets((_irradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i));
+                _irradianceFBO.SetRenderTargets((IrradianceTex, EFramebufferAttachment.ColorAttachment0, 0, i));
 
                 ECubemapFace face = ECubemapFace.PosX + i;
 
@@ -125,7 +106,7 @@ namespace TheraEngine.Actors.Types
         }
         public void GeneratePrefilterMap()
         {
-            RenderTexCube cube = _prefilterTex.GetTexture(true);
+            RenderTexCube cube = PrefilterTex.GetTexture(true);
             cube.Bind();
             cube.SetMipmapGenParams();
             cube.GenerateMipmaps();
@@ -137,13 +118,12 @@ namespace TheraEngine.Actors.Types
                 int mipWidth = (int)(res * Math.Pow(0.5, mip));
                 int mipHeight = (int)(res * Math.Pow(0.5, mip));
                 float roughness = (float)mip / (maxMipLevels - 1);
-
-                //_prefilterDepth.SetStorage(ERenderBufferStorage.DepthComponent16, mipWidth, mipHeight);
+                
                 _prefilterFBO.Material.Parameter<ShaderFloat>(0).Value = roughness;
 
                 for (int i = 0; i < 6; ++i)
                 {
-                    _prefilterFBO.SetRenderTargets((_prefilterTex, EFramebufferAttachment.ColorAttachment0, mip, i));
+                    _prefilterFBO.SetRenderTargets((PrefilterTex, EFramebufferAttachment.ColorAttachment0, mip, i));
 
                     ECubemapFace face = ECubemapFace.PosX + i;
 

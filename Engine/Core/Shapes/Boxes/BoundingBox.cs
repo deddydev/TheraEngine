@@ -291,7 +291,7 @@ namespace TheraEngine.Core.Shapes
         /// <param name="inwardFacing">If the faces' fronts should face inward instead of outward.</param>
         /// <param name="cubemapUVs">If each quad should use UVs for </param>
         /// <returns></returns>
-        public static PrimitiveData SolidMesh(Vec3 min, Vec3 max, bool inwardFacing = false, ECubemapTextureUVs cubemapUVs = ECubemapTextureUVs.None)
+        public static PrimitiveData SolidMesh(Vec3 min, Vec3 max, bool inwardFacing = false, ECubemapTextureUVs cubemapUVs = ECubemapTextureUVs.None, float bias = 0.002f)
         {
             VertexQuad left, right, top, bottom, front, back;
 
@@ -325,23 +325,23 @@ namespace TheraEngine.Core.Shapes
             {
                 bool widthLarger = cubemapUVs == ECubemapTextureUVs.WidthLarger;
                 left = inwardFacing ?
-                    VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal,     ECubemapFace.NegX, widthLarger) :
-                    VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal,     ECubemapFace.NegX, widthLarger);
+                    VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal,     ECubemapFace.NegX, widthLarger, bias) :
+                    VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal,     ECubemapFace.NegX, widthLarger, bias);
                 right = inwardFacing ?
-                    VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal,    ECubemapFace.PosX, widthLarger) : 
-                    VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal,    ECubemapFace.PosX, widthLarger);
+                    VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal,    ECubemapFace.PosX, widthLarger, bias) : 
+                    VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal,    ECubemapFace.PosX, widthLarger, bias);
                 top = inwardFacing ?
-                    VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal,      ECubemapFace.PosY, widthLarger) : 
-                    VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal,      ECubemapFace.PosY, widthLarger);
+                    VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal,      ECubemapFace.PosY, widthLarger, bias) : 
+                    VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal,      ECubemapFace.PosY, widthLarger, bias);
                 bottom = inwardFacing ? 
-                    VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal,   ECubemapFace.NegY, widthLarger) : 
-                    VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal,   ECubemapFace.NegY, widthLarger);
+                    VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal,   ECubemapFace.NegY, widthLarger, bias) : 
+                    VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal,   ECubemapFace.NegY, widthLarger, bias);
                 front = inwardFacing ? 
-                    VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal,    ECubemapFace.PosZ, widthLarger) :
-                    VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal,    ECubemapFace.PosZ, widthLarger);
+                    VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal,    ECubemapFace.PosZ, widthLarger, bias) :
+                    VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal,    ECubemapFace.PosZ, widthLarger, bias);
                 back = inwardFacing ? 
-                    VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal,     ECubemapFace.NegZ, widthLarger) :
-                    VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal,     ECubemapFace.NegZ, widthLarger);
+                    VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal,     ECubemapFace.NegZ, widthLarger, bias) :
+                    VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal,     ECubemapFace.NegZ, widthLarger, bias);
             }
             
             return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);

@@ -229,5 +229,5 @@ void main()
   float fadeRange = MaxFade - MinFade;
   float dist = length(CameraPosition - fragPosWS);
   float strength = smoothstep(1.0f, 0.0f, clamp((dist - MinFade) / fadeRange, 0.0f, 1.0f));
-  OutColor = vec3(1.0f, 0.0f, 0.0f);//strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
+  OutColor = strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
 }

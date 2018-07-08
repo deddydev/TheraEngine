@@ -25,9 +25,9 @@ namespace TheraEngine.Components.Scene.Lights
         protected int _lightIndex = -1;
         protected RenderPasses _passes = new RenderPasses();
 
-        protected internal Matrix4 LightMatrix { get; protected set; }
-        protected internal MaterialFrameBuffer ShadowMap { get; protected set; }
-        protected internal Camera ShadowCamera { get; protected set; }
+        public Matrix4 LightMatrix { get; protected set; }
+        public MaterialFrameBuffer ShadowMap { get; protected set; }
+        public Camera ShadowCamera { get; protected set; }
 
         protected BoundingRectangle _region = new BoundingRectangle();
         

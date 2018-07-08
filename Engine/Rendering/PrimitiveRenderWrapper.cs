@@ -9,7 +9,11 @@ namespace TheraEngine.Rendering
     public class PrimitiveRenderWrapper : I3DRenderable
     {
         public PrimitiveRenderWrapper() { }
-        public PrimitiveRenderWrapper(PrimitiveManager m) => Primitives = m;
+        public PrimitiveRenderWrapper(PrimitiveManager m)
+        {
+            Primitives = m;
+            Transform = Matrix4.Identity;
+        }
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit);
         public Matrix4 Transform

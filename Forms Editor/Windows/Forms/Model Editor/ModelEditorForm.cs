@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
@@ -131,7 +132,7 @@ namespace TheraEditor.Windows.Forms
         #endregion
         
         private LocalFileRef<World> ModelEditorWorld
-            = new LocalFileRef<World>(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
+            = new LocalFileRef<World>(/*Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
         
         public World World
         {
@@ -151,11 +152,12 @@ namespace TheraEditor.Windows.Forms
                     comp.LightColor = new EventColorF3(1.0f);
                     comp.Rotation.Yaw = 45.0f;
                     comp.Rotation.Pitch = -45.0f;
+                    comp.Extents = new Vec3(500.0f);
                     actors.Add(light);
 
                     Vec3 max = 1000.0f;
                     Vec3 min = -max;
-                    Task<TextureFile2D> t = Engine.LoadEngineTexture2DAsync("skybox.png");
+                    Task<TextureFile2D> t = Engine.LoadEngineTexture2DAsync("modelviewerbg2.png");
                     TextureFile2D skyTex = t.Result;
                     StaticModel skybox = new StaticModel("Skybox");
                     TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
@@ -168,7 +170,7 @@ namespace TheraEditor.Windows.Forms
                         BoundingBox.SolidMesh(min, max, true,
                         skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?
                             BoundingBox.ECubemapTextureUVs.WidthLarger :
-                            BoundingBox.ECubemapTextureUVs.HeightLarger),
+                            BoundingBox.ECubemapTextureUVs.HeightLarger, 0.0f),
                         TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
                         {
                             DepthTest = new DepthTest()
@@ -198,6 +200,8 @@ namespace TheraEditor.Windows.Forms
                 if (!loaded)
                 {
                     w.BeginPlay();
+                    DirectionalLightActor light = w.State.GetSpawnedActorsOfType<DirectionalLightActor>().ToArray()[0];
+                    w.Scene.Add(light.RootComponent.ShadowCamera);
                     //if (fileDoesNotExist)
                     //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
                 }

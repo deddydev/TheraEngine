@@ -268,7 +268,7 @@ namespace TheraEngine.Rendering
         /// <param name="target"></param>
         public void Render(BaseScene scene, Camera camera, FrameBuffer target)
         {
-            if (scene == null || scene.Count == 0 || RegeneratingFBOs)
+            if (scene == null || scene.Count == 0 || camera == null || RegeneratingFBOs)
                 return;
 
             CurrentlyRenderingViewports.Push(this);

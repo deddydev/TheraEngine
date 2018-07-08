@@ -120,21 +120,20 @@ namespace TheraEngine.Timers
                 _commandsSwappedForRender.WaitOne();
                 _commandsSwappedForRender.Reset();
             }
+
+            _commandsSwappedForRender = null;
+            _commandsReady = null;
+            _renderDone = null;
         }
         public void Stop()
         {
             IsRunning = false;
+
             if (_commandsReady != null)
-            {
                 Application.Idle -= Application_Idle_MultiThread;
-                _commandsSwappedForRender = null;
-                _commandsReady = null;
-                _renderDone = null;
-            }
             else
-            {
                 Application.Idle -= Application_Idle_SingleThread;
-            }
+            
             _watch.Stop();
             Engine.PrintLine("Game loop ended.");
         }

@@ -27,12 +27,12 @@ namespace TheraEngine.Rendering
             Cameras = new Camera[6];
             Rotator[] rotations = new Rotator[]
             {
-                new Rotator(0.0f,  90.0f, 0.0f), //+X
-                new Rotator(0.0f, -90.0f, 0.0f), //-X
-                new Rotator(90.0f,  0.0f, 0.0f), //+Y
-                new Rotator(-90.0f, 0.0f, 0.0f), //-Y
-                new Rotator(0.0f, 180.0f, 0.0f), //+Z
-                new Rotator(0.0f,   0.0f, 0.0f), //-Z
+                new Rotator(  0.0f,  90.0f,   0.0f), //+X
+                new Rotator(  0.0f, -90.0f,   0.0f), //-X
+                new Rotator(-90.0f,   0.0f, 180.0f), //+Y
+                new Rotator( 90.0f,   0.0f, 180.0f), //-Y
+                new Rotator(  0.0f, 180.0f,   0.0f), //+Z
+                new Rotator(  0.0f,   0.0f,   0.0f), //-Z
             };
 
             Camera c;

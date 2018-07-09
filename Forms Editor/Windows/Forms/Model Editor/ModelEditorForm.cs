@@ -157,7 +157,7 @@ namespace TheraEditor.Windows.Forms
 
                     Vec3 max = 1000.0f;
                     Vec3 min = -max;
-                    Task<TextureFile2D> t = Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
+                    Task<TextureFile2D> t = Engine.LoadEngineTexture2DAsync("cubemap guide.png");
                     TextureFile2D skyTex = t.Result;
                     StaticModel skybox = new StaticModel("Skybox");
                     TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)

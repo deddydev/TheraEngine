@@ -73,12 +73,12 @@ namespace TheraEngine.Actors.Types
             _cameras = new PerspectiveCamera[6];
             Rotator[] rotations = new Rotator[]
             {
-                new Rotator(0.0f,  90.0f, 0.0f, RotationOrder.YPR), //+X right
-                new Rotator(0.0f, -90.0f, 0.0f, RotationOrder.YPR), //-X left
-                new Rotator(90.0f,  0.0f, 0.0f, RotationOrder.YPR), //+Y up
-                new Rotator(-90.0f, 0.0f, 0.0f, RotationOrder.YPR), //-Y down
-                new Rotator(0.0f, 180.0f, 0.0f, RotationOrder.YPR), //+Z backward
-                new Rotator(0.0f,   0.0f, 0.0f, RotationOrder.YPR), //-Z forward
+                new Rotator(  0.0f,  90.0f,   0.0f), //+X
+                new Rotator(  0.0f, -90.0f,   0.0f), //-X
+                new Rotator(-90.0f,   0.0f, 180.0f), //+Y
+                new Rotator( 90.0f,   0.0f, 180.0f), //-Y
+                new Rotator(  0.0f, 180.0f,   0.0f), //+Z
+                new Rotator(  0.0f,   0.0f,   0.0f), //-Z
             };
 
             PerspectiveCamera c;

@@ -40,8 +40,8 @@ namespace TheraEngine.Tests
         {
             bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 1;
-            int dirLights = 0;
+            int pointLights = 0;
+            int dirLights = 1;
             int spotLights = 0;
 
             float margin = 2.0f;
@@ -314,7 +314,7 @@ namespace TheraEngine.Tests
 
             Vec3 max = 1000.0f;
             Vec3 min = -max;
-            TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("skybox.png");
+            TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
             StaticModel skybox = new StaticModel("Skybox");
             TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
             {

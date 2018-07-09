@@ -60,36 +60,40 @@ namespace TheraEngine.Rendering
         }
         public void SetRenderTargets(TMaterial material)
         {
-            if (IsActive)
-                DetachAll();
+            SetRenderTargets(material.Textures.
+                Where(x => x.FrameBufferAttachment.HasValue).
+                Select(x => ((IFrameBufferAttachement)x, x.FrameBufferAttachment.Value, 0, -1)).ToArray());
+
+            //if (IsActive)
+            //    DetachAll();
             
-            List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)> targets
-                = new List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)>();
+            //List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)> targets
+            //    = new List<(IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)>();
 
-            foreach (BaseTexRef t in material.Textures.Where(x => x.FrameBufferAttachment.HasValue))
-                targets.Add((t, t.FrameBufferAttachment.Value, 0, -1));
+            //foreach (BaseTexRef t in material.Textures.Where(x => x.FrameBufferAttachment.HasValue))
+            //    targets.Add((t, t.FrameBufferAttachment.Value, 0, -1));
             
-            Targets = targets.ToArray();
+            //Targets = targets.ToArray();
 
-            List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-            foreach (var (Texture, Attachment, MipLevel, LayerIndex) in Targets)
-            {
-                switch (Attachment)
-                {
-                    case EFramebufferAttachment.Color:
-                    case EFramebufferAttachment.Depth:
-                    case EFramebufferAttachment.DepthAttachment:
-                    case EFramebufferAttachment.DepthStencilAttachment:
-                    case EFramebufferAttachment.Stencil:
-                    case EFramebufferAttachment.StencilAttachment:
-                        continue;
-                }
-                fboAttachments.Add((EDrawBuffersAttachment)(int)Attachment);
-            }
-            DrawBuffers = fboAttachments.ToArray();
+            //List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
+            //foreach (var (Texture, Attachment, MipLevel, LayerIndex) in Targets)
+            //{
+            //    switch (Attachment)
+            //    {
+            //        case EFramebufferAttachment.Color:
+            //        case EFramebufferAttachment.Depth:
+            //        case EFramebufferAttachment.DepthAttachment:
+            //        case EFramebufferAttachment.DepthStencilAttachment:
+            //        case EFramebufferAttachment.Stencil:
+            //        case EFramebufferAttachment.StencilAttachment:
+            //            continue;
+            //    }
+            //    fboAttachments.Add((EDrawBuffersAttachment)(int)Attachment);
+            //}
+            //DrawBuffers = fboAttachments.ToArray();
 
-            if (IsActive)
-                AttachAll();
+            //if (IsActive)
+            //    AttachAll();
         }
         public void AttachAll()
         {

@@ -152,12 +152,12 @@ namespace TheraEditor.Windows.Forms
                     comp.LightColor = new EventColorF3(1.0f);
                     comp.Rotation.Yaw = 45.0f;
                     comp.Rotation.Pitch = -45.0f;
-                    comp.Extents = new Vec3(500.0f);
+                    comp.Extents = new Vec3(5.0f);
                     actors.Add(light);
 
                     Vec3 max = 1000.0f;
                     Vec3 min = -max;
-                    Task<TextureFile2D> t = Engine.LoadEngineTexture2DAsync("modelviewerbg2.png");
+                    Task<TextureFile2D> t = Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
                     TextureFile2D skyTex = t.Result;
                     StaticModel skybox = new StaticModel("Skybox");
                     TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)

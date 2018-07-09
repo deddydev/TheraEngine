@@ -1041,6 +1041,18 @@ namespace Core.Win32.Native
     public static class NativeMethods
     {
         [DllImport("user32.dll")]
+        public static extern IntPtr GetWindow(IntPtr hWnd, int uCmd);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetWindowRect(IntPtr hWnd, [Out] out RECT lpRect);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IntersectRect([Out] out RECT lprcDst, [In] ref RECT lprcSrc1, [In] ref RECT lprcSrc2);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ShowWindow(IntPtr hWnd, EShowWindowEnum flags);
         
@@ -1113,9 +1125,9 @@ namespace Core.Win32.Native
         [DllImport("user32.dll")]
         public static extern int SetWindowRgn(IntPtr hWnd, IntPtr hRgn, bool bRedraw);
 
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool IsWindowVisible(IntPtr hWnd);
+        //[DllImport("user32.dll")]
+        //[return: MarshalAs(UnmanagedType.Bool)]
+        //public static extern bool IsWindowVisible(IntPtr hWnd);
 
         [DllImport("gdi32.dll")]
         public static extern IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
@@ -1133,9 +1145,9 @@ namespace Core.Win32.Native
         [DllImport("user32.dll")]
         public static extern int GetWindowRgn(IntPtr hWnd, IntPtr hRgn);
 
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        //[DllImport("user32.dll", SetLastError = true)]
+        //[return: MarshalAs(UnmanagedType.Bool)]
+        //public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
         [DllImport("gdi32.dll")]
         public static extern int GetRgnBox(IntPtr hrgn, out RECT lprc);
@@ -1189,6 +1201,8 @@ namespace Core.Win32.Native
     }
     public static class NativeConstants
     {
+        public const int GW_HWNDPREV = 3;
+
         public const int EM_GETSCROLLPOS = (WM_USER + 221);
         public const int EM_SETSCROLLPOS = (WM_USER + 222);
 

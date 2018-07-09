@@ -38,15 +38,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public BaseRenderTexture RenderTextureGeneric => GetRenderTextureGeneric(true);
 
-        private string _samplerName = null;
-
         [TSerialize(IsXmlAttribute = true)]
         [Category("Texture Reference")]
-        public string SamplerName
-        {
-            get => _samplerName;
-            set => _samplerName = value;
-        }
+        public string SamplerName { get; set; } = null;
 
         /// <summary>
         /// Converts this texture reference into a texture made for rendering.

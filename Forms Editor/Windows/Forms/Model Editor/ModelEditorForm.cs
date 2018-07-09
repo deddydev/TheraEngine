@@ -200,8 +200,8 @@ namespace TheraEditor.Windows.Forms
                 if (!loaded)
                 {
                     w.BeginPlay();
-                    DirectionalLightActor light = w.State.GetSpawnedActorsOfType<DirectionalLightActor>().ToArray()[0];
-                    w.Scene.Add(light.RootComponent.ShadowCamera);
+                    //DirectionalLightActor light = w.State.GetSpawnedActorsOfType<DirectionalLightActor>().ToArray()[0];
+                    //w.Scene.Add(light.RootComponent.ShadowCamera);
                     //if (fileDoesNotExist)
                     //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
                 }

@@ -50,12 +50,9 @@ namespace TheraEditor.Windows.Forms
         }
         private void Engine_WorldPostChanged()
         {
-            if (InvokeRequired)
-            {
-                Invoke((Action)Engine_WorldPostChanged);
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Engine_WorldPostChanged, BaseRenderPanel.PanelType.Rendering))
                 return;
-            }
-
+            
             if (Engine.World == null || EditorPawn == null)
             {
                 Text = string.Format("Viewport {0}", (FormIndex + 1).ToString());

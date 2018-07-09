@@ -78,8 +78,6 @@ namespace TheraEngine.Rendering.Models
             float threeFourths = 0.75f;
             float third = (float)(1.0 / 3.0);
             float twoThirds = (float)(2.0 / 3.0);
-            float bottomThird = third + bias;
-            float topThird = twoThirds - bias;
             float one = 1.0f;
 
             switch (cubeMapFace)
@@ -87,27 +85,33 @@ namespace TheraEngine.Rendering.Models
                 case ECubemapFace.NegX:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(zero, bottomThird);
-                        bottomRightUV = new Vec2(fourth, bottomThird);
-                        topRightUV = new Vec2(fourth, topThird);
-                        topLeftUV = new Vec2(zero, topThird);
+                        bottomLeftUV = new Vec2(zero, third);
+                        bottomRightUV = new Vec2(fourth, third);
+                        topRightUV = new Vec2(fourth, twoThirds);
+                        topLeftUV = new Vec2(zero, twoThirds);
                     }
                     else
                     {
-
+                        bottomLeftUV = new Vec2(zero, half);
+                        bottomRightUV = new Vec2(third, half);
+                        topRightUV = new Vec2(third, threeFourths);
+                        topLeftUV = new Vec2(zero, threeFourths);
                     }
                     break;
                 case ECubemapFace.PosX:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(half, bottomThird);
-                        bottomRightUV = new Vec2(threeFourths, bottomThird);
-                        topRightUV = new Vec2(threeFourths, topThird);
-                        topLeftUV = new Vec2(half, topThird);
+                        bottomLeftUV = new Vec2(half, third);
+                        bottomRightUV = new Vec2(threeFourths, third);
+                        topRightUV = new Vec2(threeFourths, twoThirds);
+                        topLeftUV = new Vec2(half, twoThirds);
                     }
                     else
                     {
-
+                        bottomLeftUV = new Vec2(twoThirds, half);
+                        bottomRightUV = new Vec2(one, half);
+                        topRightUV = new Vec2(one, threeFourths);
+                        topLeftUV = new Vec2(twoThirds, threeFourths);
                     }
                     break;
                 case ECubemapFace.NegY:
@@ -120,7 +124,10 @@ namespace TheraEngine.Rendering.Models
                     }
                     else
                     {
-
+                        bottomLeftUV = new Vec2(third, fourth);
+                        bottomRightUV = new Vec2(twoThirds, fourth);
+                        topRightUV = new Vec2(twoThirds, half);
+                        topLeftUV = new Vec2(third, half);
                     }
                     break;
                 case ECubemapFace.PosY:
@@ -133,33 +140,42 @@ namespace TheraEngine.Rendering.Models
                     }
                     else
                     {
-
+                        bottomLeftUV = new Vec2(third, threeFourths);
+                        bottomRightUV = new Vec2(twoThirds, threeFourths);
+                        topRightUV = new Vec2(twoThirds, one);
+                        topLeftUV = new Vec2(third, one);
                     }
                     break;
                 case ECubemapFace.NegZ:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(fourth, bottomThird);
-                        bottomRightUV = new Vec2(half, bottomThird);
-                        topRightUV = new Vec2(half, topThird);
-                        topLeftUV = new Vec2(fourth, topThird);
+                        bottomLeftUV = new Vec2(fourth, third);
+                        bottomRightUV = new Vec2(half, third);
+                        topRightUV = new Vec2(half, twoThirds);
+                        topLeftUV = new Vec2(fourth, twoThirds);
                     }
                     else
                     {
-
+                        bottomLeftUV = new Vec2(third, zero);
+                        bottomRightUV = new Vec2(twoThirds, zero);
+                        topRightUV = new Vec2(twoThirds, fourth);
+                        topLeftUV = new Vec2(third, fourth);
                     }
                     break;
                 case ECubemapFace.PosZ:
                     if (widthLarger)
                     {
-                        bottomLeftUV = new Vec2(threeFourths, bottomThird);
-                        bottomRightUV = new Vec2(one, bottomThird);
-                        topRightUV = new Vec2(one, topThird);
-                        topLeftUV = new Vec2(threeFourths, topThird);
+                        bottomLeftUV = new Vec2(threeFourths, third);
+                        bottomRightUV = new Vec2(one, third);
+                        topRightUV = new Vec2(one, twoThirds);
+                        topLeftUV = new Vec2(threeFourths, twoThirds);
                     }
                     else
                     {
-
+                        bottomLeftUV = new Vec2(third, half);
+                        bottomRightUV = new Vec2(twoThirds, half);
+                        topRightUV = new Vec2(twoThirds, threeFourths);
+                        topLeftUV = new Vec2(third, threeFourths);
                     }
                     break;
             }

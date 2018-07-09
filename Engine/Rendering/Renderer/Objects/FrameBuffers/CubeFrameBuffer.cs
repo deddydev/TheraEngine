@@ -11,11 +11,10 @@ namespace TheraEngine.Rendering
     public class CubeFrameBuffer : MaterialFrameBuffer
     {
         public event DelSetUniforms SettingUniforms;
-        
-        private Camera[] _cameras;
+
         private PrimitiveManager _cube;
 
-        public Camera[] Cameras => _cameras;
+        public Camera[] Cameras { get; }
 
         public CubeFrameBuffer(TMaterial mat, float nearZ = 1.0f, float farZ = 1000.0f, bool perspectiveCameras = true)
         {
@@ -25,15 +24,15 @@ namespace TheraEngine.Rendering
             _cube = new PrimitiveManager(cubeData, Material);
             _cube.SettingUniforms += SetUniforms;
 
-            _cameras = new Camera[6];
+            Cameras = new Camera[6];
             Rotator[] rotations = new Rotator[]
             {
-                new Rotator(0.0f, -90.0f, 180.0f), //+X
-                new Rotator(0.0f,  90.0f, 180.0f), //-X
+                new Rotator(0.0f,  90.0f, 0.0f), //+X
+                new Rotator(0.0f, -90.0f, 0.0f), //-X
                 new Rotator(90.0f,  0.0f, 0.0f), //+Y
                 new Rotator(-90.0f, 0.0f, 0.0f), //-Y
-                new Rotator(0.0f, 180.0f, 180.0f), //+Z
-                new Rotator(0.0f,   0.0f, 180.0f), //-Z
+                new Rotator(0.0f, 180.0f, 0.0f), //+Z
+                new Rotator(0.0f,   0.0f, 0.0f), //-Z
             };
 
             Camera c;
@@ -43,7 +42,7 @@ namespace TheraEngine.Rendering
                     new PerspectiveCamera(Vec3.Zero, rotations[i], nearZ, farZ, 90.0f, 1.0f) :
                     (Camera)new OrthographicCamera(2.0f, 2.0f, Vec3.One, Vec3.Zero, rotations[i], Vec2.Half, nearZ, farZ);
                 c.Resize(2.0f, 2.0f);
-                _cameras[i] = c;
+                Cameras[i] = c;
             }
 
         }
@@ -57,7 +56,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public void RenderFullscreen(ECubemapFace face)
         {
-            AbstractRenderer.PushCamera(_cameras[(int)face]);
+            AbstractRenderer.PushCamera(Cameras[(int)face]);
             _cube.Render();
             AbstractRenderer.PopCamera();
         }

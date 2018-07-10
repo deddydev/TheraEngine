@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using TheraEngine.Actors.Types;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;

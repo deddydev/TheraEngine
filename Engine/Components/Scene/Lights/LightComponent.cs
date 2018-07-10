@@ -80,10 +80,11 @@ namespace TheraEngine.Components.Scene.Lights
             ShadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(_region);
             {
-                Engine.Renderer.ClearDepth(1.0f);
-                Engine.Renderer.EnableDepthTest(true);
-                Engine.Renderer.AllowDepthWrite(true);
+                //Engine.Renderer.ClearDepth(1.0f);
+                //Engine.Renderer.EnableDepthTest(true);
+                //Engine.Renderer.AllowDepthWrite(true);
                 Engine.Renderer.Clear(EBufferClear.Depth);
+                Engine.Renderer.AllowDepthWrite(true);
                 scene.Render(_passes, ShadowCamera, null, null, null);
             }
             Engine.Renderer.PopRenderArea();

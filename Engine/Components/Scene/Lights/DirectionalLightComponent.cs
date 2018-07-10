@@ -50,7 +50,7 @@ namespace TheraEngine.Components.Scene.Lights
             get => _direction;
             set
             {
-                _direction = value.NormalizedFast();
+                _direction = value.Normalized();
                 _rotation.SetDirection(_direction);
             }
         }
@@ -103,11 +103,11 @@ namespace TheraEngine.Components.Scene.Lights
         {
             string indexer = Uniform.DirectionalLightsName + ".";
             program.Uniform(indexer + "Direction", _direction);
-            program.Uniform(indexer + "Base.Color", _color.Raw);
-            program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            program.Uniform(indexer + "Color", _color.Raw);
+            program.Uniform(indexer + "DiffuseIntensity", _diffuseIntensity);
             program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
-            var tex = ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
+            var tex = ShadowMap.Material.Textures[0].RenderTextureGeneric;
             program.SetTextureUniform(tex, 4, "Texture4");
         }
         public void SetShadowMapResolution(int width, int height)
@@ -123,11 +123,10 @@ namespace TheraEngine.Components.Scene.Lights
             if (ShadowCamera == null)
             {
                 ShadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 0.1f, Extents.Z - 0.1f);
-                ShadowCamera.Resize(Extents.X, Extents.Y);
                 ShadowCamera.LocalRotation.SyncFrom(_rotation);
             }
-            //else
-            //    _shadowCamera.Resize(_worldRadius, _worldRadius);
+
+            ShadowCamera.Resize(Extents.X, Extents.Y);
         }
         private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
@@ -139,7 +138,7 @@ namespace TheraEngine.Components.Scene.Lights
             TexRef2D[] refs = new TexRef2D[] { depthTex };
 
             //This material is used for rendering to the framebuffer.
-            GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
+            GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput);
             TMaterial mat = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, shader);
 
             //No culling so if a light exists inside of a mesh it will shadow everything.

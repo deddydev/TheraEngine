@@ -29,24 +29,20 @@ uniform mat4 InvProjMatrix;
 uniform float MinFade = 500.0f;
 uniform float MaxFade = 1000.0f;
 
-struct BaseLight
+struct DirLight
 {
     vec3 Color;
     float DiffuseIntensity;
-};
-struct DirLight
-{
-    BaseLight Base;
     mat4 WorldToLightSpaceProjMatrix;
 
     vec3 Direction;
 };
+uniform DirLight DirLightData;
+
 uniform float ShadowBase = 2.0f;
 uniform float ShadowMult = 6.0f;
 uniform float ShadowBiasMin = 0.00001f;
 uniform float ShadowBiasMax = 0.004f;
-
-uniform DirLight DirLightData;
 
 float GetShadowBias(in float NoL, in float base, in float power, in float minBias, in float maxBias)
 {
@@ -150,8 +146,7 @@ in vec3 F0)
 	vec3 kD = 1.0f - kS;
 	kD *= 1.0f - metallic;
 
-  BaseLight light = DirLightData.Base;
-	vec3 radiance = lightAttenuation * light.Color * light.DiffuseIntensity;
+	vec3 radiance = lightAttenuation * DirLightData.Color * DirLightData.DiffuseIntensity;
 	return (kD * albedo / PI + spec) * radiance * NoL;
 }
 vec3 CalcDirLight(
@@ -162,9 +157,7 @@ in vec3 albedo,
 in vec3 rms,
 in vec3 F0)
 {
-	DirLight light = DirLightData;
-
-	vec3 L = -light.Direction;
+	vec3 L = -DirLightData.Direction;
 	vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
 	float NoH = max(dot(N, H), 0.0f);
@@ -177,9 +170,9 @@ in vec3 F0)
 
 	float shadow = ReadShadowMap2D(
 		fragPosWS, N, NoL,
-		light.WorldToLightSpaceProjMatrix);
+		DirLightData.WorldToLightSpaceProjMatrix);
 
-	return color * shadow;
+	return vec3(shadow);
 }
 vec3 CalcTotalLight(
 in vec3 fragPosWS,
@@ -215,5 +208,5 @@ void main()
   float fadeRange = MaxFade - MinFade;
   float dist = length(CameraPosition - fragPosWS);
   float strength = smoothstep(1.0f, 0.0f, clamp((dist - MinFade) / fadeRange, 0.0f, 1.0f));
-	OutColor = strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
+	OutColor = CalcTotalLight(fragPosWS, normal, albedo, rms);
 }

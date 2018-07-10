@@ -108,7 +108,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
             var tex = ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
-            TMaterialBase.SetTextureUniform(tex, 4, "Texture4", program);
+            program.SetTextureUniform(tex, 4, "Texture4");
         }
         public void SetShadowMapResolution(int width, int height)
         {

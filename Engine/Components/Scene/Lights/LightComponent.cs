@@ -5,6 +5,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene.Lights
@@ -25,8 +26,11 @@ namespace TheraEngine.Components.Scene.Lights
         protected int _lightIndex = -1;
         protected RenderPasses _passes = new RenderPasses();
 
+        [Browsable(false)]
         public Matrix4 LightMatrix { get; protected set; }
+        [Browsable(false)]
         public MaterialFrameBuffer ShadowMap { get; protected set; }
+        [Browsable(false)]
         public Camera ShadowCamera { get; protected set; }
 
         protected BoundingRectangle _region = new BoundingRectangle();
@@ -79,7 +83,7 @@ namespace TheraEngine.Components.Scene.Lights
                 Engine.Renderer.ClearDepth(1.0f);
                 Engine.Renderer.EnableDepthTest(true);
                 Engine.Renderer.AllowDepthWrite(true);
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                Engine.Renderer.Clear(EBufferClear.Depth);
                 scene.Render(_passes, ShadowCamera, null, null, null);
             }
             Engine.Renderer.PopRenderArea();
@@ -97,10 +101,15 @@ namespace TheraEngine.Components.Scene.Lights
             return EPixelInternalFormat.DepthComponent32f;
         }
 
+        protected PrimitiveManager _previewMesh;
         RenderCommandMesh3D _rc = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-
+            float distance = camera?.DistanceFromScreenPlane(WorldPoint) ?? 0.0f;
+            _rc.Primitives = _previewMesh;
+            _rc.WorldMatrix = WorldMatrix;
+            _rc.NormalMatrix = Matrix3.Identity;
+            _rc.RenderDistance = distance;
         }
     }
 }

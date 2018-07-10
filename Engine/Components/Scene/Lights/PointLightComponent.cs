@@ -117,8 +117,8 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "Radius", Radius);
             program.Uniform(indexer + "Brightness", Brightness);
 
-            var tex = ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
-            TMaterialBase.SetTextureUniform(tex, 4, "Texture4", program);
+            var tex = ShadowMap.Material.Textures[0].RenderTextureGeneric;
+            program.SetTextureUniform(tex, 4, "Texture4");
         }
         /// <summary>
         /// This is to set special uniforms each time something is rendered with the shadow depth shader.

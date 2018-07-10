@@ -1040,12 +1040,12 @@ namespace TheraEngine.Rendering
             int baseCount = LightCombineFBO.Material.Textures.Length;
 
             if (probe.IrradianceTex != null)
-                TMaterialBase.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
-                    baseCount, "Texture" + baseCount.ToString(), program);
+                program.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
+                    baseCount, "Texture" + baseCount.ToString());
             ++baseCount;
             if (probe.PrefilterTex != null)
-                TMaterialBase.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
-                    baseCount, "Texture" + baseCount.ToString(), program);
+                program.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
+                    baseCount, "Texture" + baseCount.ToString());
         }
 
         private void BrightPassFBO_SettingUniforms(RenderProgram program)

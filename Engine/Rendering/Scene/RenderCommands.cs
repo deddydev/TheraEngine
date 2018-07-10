@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -21,6 +22,15 @@ namespace TheraEngine.Rendering
         public RenderCommand3D(float renderDistance)
         {
             RenderDistance = renderDistance;
+        }
+
+        public void SetDistance(Camera camera, Vec3 point, bool planar)
+        {
+            if (camera == null)
+                return;
+            RenderDistance = planar ?
+                camera.DistanceFromScreenPlane(point) :
+                camera.DistanceFromWorldPointFast(point);
         }
     }
     public abstract class RenderCommand2D : RenderCommand

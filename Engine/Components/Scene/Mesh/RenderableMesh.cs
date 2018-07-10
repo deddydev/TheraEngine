@@ -97,14 +97,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         //    return dist;
         //}
-
-        public float GetDistance(Camera camera)
-        {
-            Vec3 camPoint = camera == null ? Vec3.Zero : camera.WorldPoint;
-            Vec3 meshPoint = (_component != null ? _component.WorldMatrix.Translation : Vec3.Zero);
-            return meshPoint.DistanceToFast(camPoint);
-        }
-
+        
         private void UpdateLOD(float viewDist)
         {
             while (true)
@@ -156,7 +149,7 @@ namespace TheraEngine.Components.Scene.Mesh
         private RenderCommandMesh3D _renderCommand = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            float distance = GetDistance(camera);
+            float distance = camera?.DistanceFromWorldPointFast(_component?.WorldPoint ?? Vec3.Zero) ?? 0.0f;
             if (!passes.ShadowPass)
                 UpdateLOD(distance);
             _renderCommand.Primitives = _currentLOD.Value.Manager;

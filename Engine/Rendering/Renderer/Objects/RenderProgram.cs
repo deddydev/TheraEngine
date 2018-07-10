@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering
 {
@@ -287,5 +288,15 @@ namespace TheraEngine.Rendering
             => ((IEnumerable<RenderShader>)_shaders).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator()
             => ((IEnumerable<RenderShader>)_shaders).GetEnumerator();
+
+        public void SetTextureUniform(BaseRenderTexture tref, int textureUnit, string varName)
+        {
+            if (tref == null)
+                return;
+
+            Engine.Renderer.SetActiveTexture(textureUnit);
+            Uniform(varName, textureUnit);
+            tref.Bind();
+        }
     }
 }

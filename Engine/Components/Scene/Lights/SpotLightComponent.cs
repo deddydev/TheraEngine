@@ -249,8 +249,8 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
-            var tex = ShadowMap.Material.Textures[0].GetRenderTextureGeneric(true);
-            TMaterialBase.SetTextureUniform(tex, 4, "Texture4", program);
+            var tex = ShadowMap.Material.Textures[0].RenderTextureGeneric;
+            program.SetTextureUniform(tex, 4, "Texture4");
         }
 
         public void SetShadowMapResolution(int width, int height)
@@ -269,20 +269,10 @@ namespace TheraEngine.Components.Scene.Lights
                     1.0f, _distance, Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f, 1.0f);
         }
         
-        private static EPixelInternalFormat GetFormat(EDepthPrecision precision)
-        {
-            switch (precision)
-            {
-                case EDepthPrecision.Int16: return EPixelInternalFormat.DepthComponent16;
-                case EDepthPrecision.Int24: return EPixelInternalFormat.DepthComponent24;
-                case EDepthPrecision.Int32: return EPixelInternalFormat.DepthComponent32;
-            }
-            return EPixelInternalFormat.DepthComponent32f;
-        }
         private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
         {
             TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("SpotDepth", width, height,
-                GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
+                GetShadowMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
                 EFramebufferAttachment.DepthAttachment);
             depthTex.MinFilter = ETexMinFilter.Nearest;
             depthTex.MagFilter = ETexMagFilter.Nearest;

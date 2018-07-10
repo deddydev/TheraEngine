@@ -346,17 +346,8 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0; i < Textures.Length; ++i)
             {
                 BaseTexRef tref = Textures[i];
-                SetTextureUniform(tref.GetRenderTextureGeneric(true), i, tref.SamplerName ?? ("Texture" + i), program);
+                program.SetTextureUniform(tref.GetRenderTextureGeneric(true), i, tref.SamplerName ?? ("Texture" + i));
             }
-        }
-        public static void SetTextureUniform(BaseRenderTexture tref, int textureUnit, string varName, RenderProgram program)
-        {
-            if (tref == null)
-                return;
-
-            Engine.Renderer.SetActiveTexture(textureUnit);
-            program.Uniform(varName, textureUnit);
-            tref.Bind();
         }
     }
 }

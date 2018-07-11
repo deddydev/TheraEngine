@@ -272,7 +272,7 @@ namespace TheraEngine.Components.Scene.Lights
         private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
         {
             TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("SpotDepth", width, height,
-                GetShadowMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
+                GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
                 EFramebufferAttachment.DepthAttachment);
             depthTex.MinFilter = ETexMinFilter.Nearest;
             depthTex.MagFilter = ETexMagFilter.Nearest;

@@ -145,7 +145,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             TexRefCube[] refs = new TexRefCube[]
             {
-                new TexRefCube("PointDepth", cubeExtent, GetShadowMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                new TexRefCube("PointDepth", cubeExtent, GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,

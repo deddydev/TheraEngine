@@ -287,7 +287,7 @@ uniform ColorGradeStruct ColorGrade;";
             //If the dot factor is zero, this means the screen is perfectly black.
             //Usually that means nothing is being rendered, so don't update the exposure now.
             //If we were to update the exposure now, the scene would look very bright once it finally starts rendering.
-            if (lumDot == 0.0f)
+            if (lumDot <= 0.0f)
             {
                 //if (Exposure < MinExposure)
                 //    Exposure = MinExposure;

@@ -172,7 +172,7 @@ in vec3 F0)
 		fragPosWS, N, NoL,
 		DirLightData.WorldToLightSpaceProjMatrix);
 
-	return vec3(shadow);
+	return color * shadow;
 }
 vec3 CalcTotalLight(
 in vec3 fragPosWS,
@@ -208,5 +208,5 @@ void main()
   float fadeRange = MaxFade - MinFade;
   float dist = length(CameraPosition - fragPosWS);
   float strength = smoothstep(1.0f, 0.0f, clamp((dist - MinFade) / fadeRange, 0.0f, 1.0f));
-	OutColor = CalcTotalLight(fragPosWS, normal, albedo, rms);
+	OutColor = strength * CalcTotalLight(fragPosWS, normal, albedo, rms);
 }

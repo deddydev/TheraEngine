@@ -107,7 +107,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "DiffuseIntensity", _diffuseIntensity);
             program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
-            var tex = ShadowMap.Material.Textures[0].RenderTextureGeneric;
+            var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
             program.SetTextureUniform(tex, 4, "Texture4");
         }
         public void SetShadowMapResolution(int width, int height)
@@ -116,7 +116,10 @@ namespace TheraEngine.Components.Scene.Lights
             _region.Height = height;
 
             if (ShadowMap == null)
-                ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
+            {
+                TMaterial mat = GetShadowMapMaterial(width, height);
+                ShadowMap = new MaterialFrameBuffer(mat);
+            }
             else
                 ShadowMap.ResizeTextures(width, height);
 
@@ -130,12 +133,19 @@ namespace TheraEngine.Components.Scene.Lights
         }
         private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
-            TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("Depth", width, height,
-                GetShadowMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
+            TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("DirShadowDepth", width, height,
+                GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
                 EFramebufferAttachment.DepthAttachment);
             depthTex.MinFilter = ETexMinFilter.Nearest;
             depthTex.MagFilter = ETexMagFilter.Nearest;
-            TexRef2D[] refs = new TexRef2D[] { depthTex };
+            
+            TexRef2D colorTex = TexRef2D.CreateFrameBufferTexture("DirShadowColor", width, height,
+                EPixelInternalFormat.R8, EPixelFormat.Red, EPixelType.UnsignedByte,
+                EFramebufferAttachment.ColorAttachment0);
+            colorTex.MinFilter = ETexMinFilter.Nearest;
+            colorTex.MagFilter = ETexMagFilter.Nearest;
+
+            TexRef2D[] refs = new TexRef2D[] { depthTex, colorTex };
 
             //This material is used for rendering to the framebuffer.
             GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput);

@@ -65,7 +65,7 @@ namespace TheraEngine.Components.Scene.Lights
         internal void SwapBuffers() => _passes.SwapBuffers();
 
         public abstract void SetUniforms(RenderProgram program);
-        protected virtual IVolume GetShadowVolume() => ShadowCamera.Frustum;
+        protected virtual IVolume GetShadowVolume() => ShadowCamera?.Frustum;
 
         public void UpdateShadowMap(BaseScene scene)
         {
@@ -80,18 +80,17 @@ namespace TheraEngine.Components.Scene.Lights
             ShadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(_region);
             {
-                //Engine.Renderer.ClearDepth(1.0f);
-                //Engine.Renderer.EnableDepthTest(true);
-                //Engine.Renderer.AllowDepthWrite(true);
-                Engine.Renderer.Clear(EBufferClear.Depth);
+                Engine.Renderer.ClearDepth(1.0f);
+                Engine.Renderer.EnableDepthTest(true);
                 Engine.Renderer.AllowDepthWrite(true);
+                Engine.Renderer.Clear(EBufferClear.Depth);
                 scene.Render(_passes, ShadowCamera, null, null, null);
             }
             Engine.Renderer.PopRenderArea();
             ShadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.MaterialOverride = null;
         }
-        public static EPixelInternalFormat GetShadowMapFormat(EDepthPrecision precision)
+        public static EPixelInternalFormat GetShadowDepthMapFormat(EDepthPrecision precision)
         {
             switch (precision)
             {
